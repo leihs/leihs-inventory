@@ -1,0 +1,9 @@
+{:deps {:aliases [:frontend]}
+
+ :dev-http {8080 ["resources/public"]}
+
+ :builds
+ {:frontend
+  {:output-dir "resources/public/inventory/js"
+   :target :browser
+   :modules {:main {:init-fn leihs.inventory.frontend.main/init}}}}}

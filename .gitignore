@@ -1,0 +1,16 @@
+.cider-ci_private/
+.clj-kondo/*
+!.clj-kondo/config.edn
+.cpcache/
+.lsp/
+.nrepl-port
+.shadow-cljs/
+log/
+logs/
+leihs-inventory.jar
+node_modules/
+node_modules/.package-lock.json
+resources/public/inventory/css/
+resources/public/inventory/js/
+target/
+tmp/
