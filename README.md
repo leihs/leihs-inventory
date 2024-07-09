@@ -1,21 +1,25 @@
 # Leihs Inventory
 
-## Backend
+## Server
 
-### Start backend server
-
-`bin/dev-run-backend`
-
-## Frontend
-
-### Start the App
+### Start server
 
 ```sh
-npm run shadow-dev
+bin/dev-run-backend
 ```
 
-### Start the Mock API
+## Client
+
+### Start the client
+
+Install and start:
 
 ```sh
-npm run mock-api
+bin/dev-run-frontend
+```
+
+Plain start, assuming it was installed before:
+
+```sh
+npm run dev
 ```

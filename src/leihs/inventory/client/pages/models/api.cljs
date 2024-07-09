@@ -1,4 +1,4 @@
-(ns leihs.inventory.frontend.pages.models.api
+(ns leihs.inventory.client.pages.models.api
   (:require [cljs-http.client :as http]))
 
 (def base-url

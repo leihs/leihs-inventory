@@ -1,6 +1,6 @@
-(ns leihs.inventory.frontend.layout
+(ns leihs.inventory.client.layout
   (:require
-   [leihs.inventory.frontend.state :as state]
+   [leihs.inventory.client.state :as state]
    [reitit.frontend.easy :as rfe]))
 
 (defn nav []

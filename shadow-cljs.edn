@@ -6,4 +6,4 @@
  {:frontend
   {:output-dir "resources/public/inventory/js"
    :target :browser
-   :modules {:main {:init-fn leihs.inventory.frontend.main/init}}}}}
+   :modules {:main {:init-fn leihs.inventory.client.main/init}}}}}

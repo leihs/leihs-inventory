@@ -1,4 +1,4 @@
-(ns leihs.inventory.backend.routes
+(ns leihs.inventory.server.routes
   (:refer-clojure :exclude [keyword replace])
   (:require
    [leihs.core.anti-csrf.back :as anti-csrf]
@@ -12,9 +12,9 @@
    [leihs.core.routing.back :as core-routing]
    [leihs.core.settings :as settings]
    [leihs.core.status :as status]
-   [leihs.inventory.backend.html :as html]
-   [leihs.inventory.backend.paths :refer [paths path]]
-   [leihs.inventory.backend.resources.models.main]
+   [leihs.inventory.server.html :as html]
+   [leihs.inventory.server.paths :refer [paths path]]
+   [leihs.inventory.server.resources.models.main]
    [logbug.debug :as debug :refer [I>]]
    [logbug.ring :refer [wrap-handler-with-logging]]
    ring.middleware.accept
@@ -28,7 +28,7 @@
 (def resolve-table
   (merge core-routes/resolve-table
          {:home html/html-handler,
-          :api-models-index leihs.inventory.backend.resources.models.main/routes
+          :api-models-index leihs.inventory.server.resources.models.main/routes
           :not-found html/not-found-handler}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

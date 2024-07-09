@@ -1,4 +1,4 @@
-(ns leihs.inventory.backend.html
+(ns leihs.inventory.server.html
   (:require
    [ring.util.response :refer [content-type resource-response status]]))
 

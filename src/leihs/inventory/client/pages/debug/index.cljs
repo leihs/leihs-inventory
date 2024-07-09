@@ -1,8 +1,8 @@
-(ns leihs.inventory.frontend.pages.debug.index
+(ns leihs.inventory.client.pages.debug.index
   (:require
-   ["/leihs/inventory/frontend/js/elefant.js" :as elefant :refer [elefant1
-                                                                  elefant2
-                                                                  getAll]]
+   ["/leihs/inventory/client/js/elefant.js" :as elefant :refer [elefant1
+                                                                elefant2
+                                                                getAll]]
    [reitit.frontend.easy :as rfe]))
 
 (defn page []

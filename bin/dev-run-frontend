@@ -7,6 +7,6 @@ cd $PROJECT_DIR
 $PROJECT_DIR/bin/env/nodejs-setup
 
 npm ci
-npm run shadow-dev
+npm run dev
 
 # vi: ft=sh

@@ -1,7 +1,7 @@
-(ns leihs.inventory.frontend.main
+(ns leihs.inventory.client.main
   (:require ["react-dom/client" :refer [createRoot]]
-            [leihs.inventory.frontend.layout :as layout]
-            [leihs.inventory.frontend.routing :as routing]
+            [leihs.inventory.client.layout :as layout]
+            [leihs.inventory.client.routing :as routing]
             [reagent.core :as r]
             [reagent.dom :as rdom]))
 

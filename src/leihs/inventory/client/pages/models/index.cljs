@@ -1,6 +1,6 @@
-(ns leihs.inventory.frontend.pages.models.index
+(ns leihs.inventory.client.pages.models.index
   (:require [cljs.core.async :refer [<! go]]
-            [leihs.inventory.frontend.pages.models.api :as model-api]
+            [leihs.inventory.client.pages.models.api :as model-api]
             [reagent.core :as r]))
 
 (def models (r/atom []))

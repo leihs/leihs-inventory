@@ -9,8 +9,8 @@
     ["/debug" {:name :debug-index}]
 
     ;; API
-    ;; TODO: Decide whether to ditch "/api" and have same routes as frontend, in a RESTy way. 
-    ;;       However currently the 'accept' dispatcher does not work properly so this is not possible.
+    ;; TODO: Decide whether to ditch "/api" and have same routes as frontend. 
+    ;;       However currently the 'accept' dispatcher does not work properly, this has to be fixed first.
     ["/api"
      ["/models"
       ["" {:name :api-models-index}]]]]])

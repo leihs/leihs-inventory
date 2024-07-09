@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "shadow-dev": "shadow-cljs watch frontend",
+    "dev": "shadow-cljs watch frontend",
     "mock-api": "json-server --watch mock-server/db.json --port 3360 --delay 400",
     "build": "shadow-cljs compile frontend"
   },

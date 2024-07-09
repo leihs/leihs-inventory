@@ -1,4 +1,4 @@
-(ns leihs.inventory.backend.main
+(ns leihs.inventory.server.main
   (:require
    [clj-yaml.core :as yaml]
    [clojure.pprint :refer [pprint]]
@@ -7,7 +7,7 @@
    [environ.core :refer [env]]
    [leihs.core.logging]
    [leihs.core.repl :as repl]
-   [leihs.inventory.backend.run :as run]
+   [leihs.inventory.server.run :as run]
    [logbug.catcher :as catcher]
    [logbug.debug :as debug]
    [logbug.thrown :as thrown]

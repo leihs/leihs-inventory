@@ -1,4 +1,4 @@
-(ns leihs.inventory.backend.paths
+(ns leihs.inventory.server.paths
   (:require [bidi.verbose :refer [branch leaf]]
             [leihs.core.paths]
             [leihs.inventory.common.routes :as common.routes]))

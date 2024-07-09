@@ -7,6 +7,6 @@ $PROJECT_DIR/bin/env/java-setup
 $PROJECT_DIR/bin/env/clojure-setup
 
 cd $PROJECT_DIR
-clj -M -m leihs.inventory.backend.main --dev-mode true --repl true run "$@"
+clj -M -m leihs.inventory.server.main --dev-mode true --repl true run "$@"
 
 # vi: ft=sh

@@ -1,7 +1,7 @@
-(ns leihs.inventory.frontend.routing
-  (:require [leihs.inventory.common.routes :as common-routes]
-            [leihs.inventory.frontend.routes :as routes]
-            [leihs.inventory.frontend.state :as state]
+(ns leihs.inventory.client.routing
+  (:require [leihs.inventory.client.routes :as routes]
+            [leihs.inventory.client.state :as state]
+            [leihs.inventory.common.routes :as common-routes]
             [reitit.coercion.spec :as rcs]
             [reitit.frontend :as rf]
             [reitit.frontend.controllers :as rc]

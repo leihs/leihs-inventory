@@ -1,4 +1,4 @@
-(ns leihs.inventory.backend.run
+(ns leihs.inventory.server.run
   (:require
    [clojure.pprint :refer [pprint]]
    [clojure.string]
@@ -8,7 +8,7 @@
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
-   [leihs.inventory.backend.routes :as routes]
+   [leihs.inventory.server.routes :as routes]
    [logbug.catcher :as catcher]
    [taoensso.timbre :refer [info]]))
 
