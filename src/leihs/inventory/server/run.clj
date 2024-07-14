@@ -2,14 +2,15 @@
   (:require
    [clojure.pprint :refer [pprint]]
    [clojure.string]
-   [clojure.tools.cli :as cli :refer [parse-opts]]
+   [clojure.tools.cli :as cli]
    [leihs.core.db :as db]
    [leihs.core.http-server :as http-server]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
-   [leihs.inventory.server.routes :as routes]
+   [leihs.inventory.server.swagger-api :as sui]
    [logbug.catcher :as catcher]
+   [reitit.coercion.schema]
    [taoensso.timbre :refer [info]]))
 
 (defn run [options]
@@ -19,8 +20,7 @@
    (shutdown/init options)
    (let [status (status/init)]
      (db/init options (:health-check-registry status)))
-   (let [http-handler (routes/init options)]
-     (http-server/start options http-handler))))
+   (http-server/start options (sui/create-app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

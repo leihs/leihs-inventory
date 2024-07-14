@@ -10,7 +10,6 @@ logs/
 leihs-inventory.jar
 node_modules/
 node_modules/.package-lock.json
-resources/public/inventory/css/
 resources/public/inventory/js/
 target/
 tmp/

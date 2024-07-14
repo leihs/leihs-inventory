@@ -1,95 +1,89 @@
 (ns leihs.inventory.server.routes
   (:refer-clojure :exclude [keyword replace])
   (:require
-   [leihs.core.anti-csrf.back :as anti-csrf]
-   [leihs.core.auth.session :as session]
-   [leihs.core.db :as datasource]
-   [leihs.core.http-cache-buster2 :as cache-buster :refer [wrap-resource]]
-   [leihs.core.locale :as locale]
-   [leihs.core.ring-audits :as ring-audits]
-   [leihs.core.ring-exception :as ring-exception]
-   [leihs.core.routes :as core-routes]
-   [leihs.core.routing.back :as core-routing]
-   [leihs.core.settings :as settings]
-   [leihs.core.status :as status]
-   [leihs.inventory.server.html :as html]
-   [leihs.inventory.server.paths :refer [paths path]]
+   [clojure.java.io :as io]
    [leihs.inventory.server.resources.models.main]
-   [logbug.debug :as debug :refer [I>]]
-   [logbug.ring :refer [wrap-handler-with-logging]]
-   ring.middleware.accept
-   [ring.middleware.content-type :refer [wrap-content-type]]
-   [ring.middleware.cookies :refer [wrap-cookies]]
-   [ring.middleware.json :refer [wrap-json-body wrap-json-response]]
-   [ring.middleware.multipart-params :refer [wrap-multipart-params]]
-   [ring.middleware.params :refer [wrap-params]]
-   [taoensso.timbre :as log]))
+   [leihs.inventory.server.resources.models.routes :refer [get-model-route]]
+   [leihs.inventory.server.utils.response_helper :as rh]
+   [reitit.openapi :as openapi]
+   [reitit.swagger :as swagger]
+   [ring.middleware.accept]
+   [schema.core :as s]))
 
-(def resolve-table
-  (merge core-routes/resolve-table
-         {:home html/html-handler,
-          :api-models-index leihs.inventory.server.resources.models.main/routes
-          :not-found html/not-found-handler}))
+(defn root-handler [request]
+  (let [accept-header (get-in request [:headers "accept"])]
+    (cond
+      (clojure.string/includes? accept-header "text/html")
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+       </head><div class='max-width'>
+       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+      (clojure.string/includes? accept-header "application/json")
+      {:status 200
+       :headers {"Content-Type" "application/json"}
+       :body {:message "Welcome to my API"}}
 
-(defn dispatch-to-handler
-  [request]
-  (if-let [handler (:handler request)]
-    (handler request)
-    (throw
-     (ex-info
-      "There is no handler for this resource and the accepted content type."
-      {:status 404, :uri (get request :uri)}))))
+      :else
+      {:status 406
+       :headers {"Content-Type" "text/plain"}
+       :body "Not Acceptable"})))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn inventory-handler [request]
+  (let [path (:uri request)
+        path (if (= "/inventory" path) "index.html" path)]
+    (if-let [resource (or (io/resource (str "public/" path))
+                          (io/resource (str "public/inventory/" path)))]
+      {:status 200
+       :body (slurp resource)}
+      {:status 404
+       :body "File not found"})))
 
-(defn wrap-accept
-  [handler]
-  (ring.middleware.accept/wrap-accept
-   handler
-   {:mime ["application/json" :qs 1 :as :json
-           "application/javascript" :qs 1 :as :javascript
-           "image/apng" :qs 1 :as :apng
-           "image/*" :qs 1 :as :image
-           "text/css" :qs 1 :as :css
-           "text/html" :qs 1 :as :html]}))
+(defn- incl-other-routes []
+  ;; TODO: add other routes here
+  ;(concat get-model-route basic-routes)
+  (get-model-route))
 
-(defn wrap-empty [handler]
-  (fn [request]
-    (or (handler request)
-        {:status 404})))
+(defn basic-routes []
+  [["/" {:no-doc true :get {:handler root-handler}}]
 
-(defn init [options]
-  (core-routing/init paths resolve-table)
-  (->
-  ; (I> wrap-handler-with-logging
-   dispatch-to-handler
-   ring-audits/wrap
-   anti-csrf/wrap
-   locale/wrap
-   session/wrap-authenticate
-   wrap-cookies
-   settings/wrap
-   datasource/wrap-tx
-   wrap-json-response
-   (wrap-json-body {:keywords? true})
-   wrap-empty
-   core-routing/wrap-canonicalize-params-maps
-   wrap-params
-   wrap-multipart-params
-   (status/wrap (path :status))
-   wrap-content-type
-   (wrap-resource "public"
-                  {:allow-symlinks? true
-                   :cache-bust-paths ["/inventory/ui/styles.css"
-                                      "/inventory/js/main.js"]
-                   :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-                                        #".+_[0-9a-f]{40}\..+"]
-                   :enabled? true})
-   (core-routing/wrap-resolve-handler html/html-handler)
-   wrap-accept
-   ring-exception/wrap))
+   ["/inventory"
+
+    [#"/(?!api-docs).*"
+     {:get {:handler inventory-handler}}]
+
+    ["/api-docs/swagger.json"
+     {:get {:no-doc true
+            :swagger {:info {:title "inventory-api"
+                             :version "2.0.0"
+                             :description (str (slurp (io/resource "md/info.html")))}}
+            :handler (swagger/create-swagger-handler)}}]
+
+    ["/api-docs/openapi.json"
+     {:get {:no-doc true
+            :openapi {:openapi "3.0.0"
+                      :info {:title "inventory-api"
+                             :description (str (slurp (io/resource "md/info.html")))
+                             :version "3.0.0"}}
+            :handler (openapi/create-openapi-handler)}}]
+
+    [""
+     {:get {:handler inventory-handler :no-doc true}}]
+
+    ["/debug"
+     {:tags ["Debug"]}
+
+     ["" {:get {:accept "text/html"
+                :coercion reitit.coercion.schema/coercion
+                :swagger {:produces ["text/html"]}
+                :handler (fn [request] rh/INDEX-HTML-RESPONSE-OK)
+                :responses {200 {:description "OK"
+                                 :body s/Any}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]
+    (incl-other-routes)]])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
