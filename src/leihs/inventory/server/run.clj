@@ -5,7 +5,10 @@
    [clojure.tools.cli :as cli :refer [parse-opts]]
    [leihs.core.db :as db]
    [leihs.core.http-server :as http-server]
+
    [leihs.core.shutdown :as shutdown]
+   [leihs.inventory.server.swagger-api :as api]
+
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
    [leihs.inventory.server.routes :as routes]
@@ -20,7 +23,14 @@
    (let [status (status/init)]
      (db/init options (:health-check-registry status)))
    (let [http-handler (routes/init options)]
-     (http-server/start options http-handler))))
+
+     ;(http-server/start options http-handler)
+     ;(jetty/run-jetty #'app {:port 4000, :join? false})
+
+     (api/main)
+
+
+     )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

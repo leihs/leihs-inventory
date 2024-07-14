@@ -8,7 +8,18 @@
         leihs-core/leihs-core {:local/root "./shared-clj"}
         org.clojure/data.generators {:mvn/version "1.0.0"}
         org.clojure/spec.alpha {:mvn/version "0.3.218"}
-        org.threeten/threeten-extra {:mvn/version "1.7.2"}}
+        org.threeten/threeten-extra {:mvn/version "1.7.2"}
+
+        metosin/reitit {:mvn/version "0.7.1"}
+
+        metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
+        fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
+        ring/ring-jetty-adapter {:mvn/version "1.12.1"}
+        cheshire {:mvn/version "5.13.0"}
+
+
+
+        }
 
  :aliases {:build {:deps
                    {io.github.leihs/tools.build
