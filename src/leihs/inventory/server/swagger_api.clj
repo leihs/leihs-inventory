@@ -68,10 +68,29 @@
 
 
 (defn inventory-handler [request]
-  (let [path (get-in request [:path-params :path])]
-    (if-let [resource (or (io/resource (str "public/inventory/" path))
-                        (io/resource (str "assets/" path))
-                        (io/resource (str "js/" path)))]
+  (let [path (get-in request [:path-params :path])
+        path-params (get-in request [:path-params])
+
+        p (println ">o> path-params=" path-params)
+        p (println ">o> path=" path)
+        p (println ">o> path.type=" (type path))
+
+        path (if (nil? path) "index.html" path)
+
+        p (println ">o> path.new=" path)
+        ]
+    (if-let [resource (or (io/resource (str "public/" path))
+                        (io/resource (str "public/inventory/" path))
+                        ;(io/resource (str "public/inventory/assets/" path))
+                        ;(io/resource (str "public/inventory/js/" path))
+                        ;(io/resource (str "public/" path))
+                        ;;(io/resource (str "public/inventory/index.html" ))
+                        ;)]
+
+      ;(io/resource (str "assets/" path))
+      ;(io/resource (str "js/" path))
+                        )]
+
       {:status 200
        :body (slurp resource)}
       {:status 404
@@ -84,8 +103,8 @@
       (clojure.string/includes? accept-header "text/html")
       {:status 200
        :headers {"Content-Type" "text/html"}
-       ;:body "<html><body><h1>Welcome to my API</h1></body></html>"
-       :body (slurp (io/resource "public/index.html"))
+       :body "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">forward<a/></h1></body></html>"
+       ;:body (slurp (io/resource "public/index.html"))
        }
 
       (clojure.string/includes? accept-header "application/json")
@@ -167,6 +186,12 @@
 
 
        ["/inventory/*path"
+       ;["/*path"
+        {:get {:handler inventory-handler}}]
+
+
+      ["/inventory"
+       ;["/*path"
         {:get {:handler inventory-handler}}]
        ]
 
@@ -198,7 +223,7 @@
     (ring/routes
 
       (swagger-ui/create-swagger-ui-handler
-        {:path "/api-docs/"
+        {:path "/inventory/api-docs/"
          :config {:validatorUrl nil
                   :urls [{:name "swagger" :url "swagger.json"}
                          {:name "openapi" :url "openapi.json"}]
