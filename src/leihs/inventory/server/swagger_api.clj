@@ -1,70 +1,69 @@
 (ns leihs.inventory.server.swagger-api
-  (:require [reitit.ring :as ring]
-     [reitit.coercion.spec]
-     [reitit.openapi :as openapi]
-     [reitit.swagger :as swagger]
-     [reitit.swagger-ui :as swagger-ui]
-     [reitit.ring.coercion :as coercion]
-     [reitit.dev.pretty :as pretty]
-     [reitit.ring.middleware.muuntaja :as muuntaja]
-     [reitit.ring.middleware.exception :as exception]
-     [reitit.ring.middleware.multipart :as multipart]
-     [reitit.ring.middleware.parameters :as parameters]
-     [spec-tools.core :as st]
-     [ring.adapter.jetty :as jetty]
-     [muuntaja.core :as m]
-     [clojure.spec.alpha :as s]
-     [clojure.java.io :as io]
-     [cheshire.core :as json])
-    (:import (java.util UUID)))
+  (:require [clojure.java.io :as io]
+            [clojure.spec.alpha :as s]
+            [muuntaja.core :as m]
+            [reitit.coercion.spec]
+            [reitit.dev.pretty :as pretty]
+            [reitit.openapi :as openapi]
+            [reitit.ring :as ring]
+            [reitit.ring.coercion :as coercion]
+            [reitit.ring.middleware.exception :as exception]
+            [reitit.ring.middleware.multipart :as multipart]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [reitit.ring.middleware.parameters :as parameters]
+            [reitit.swagger :as swagger]
+            [reitit.swagger-ui :as swagger-ui]
+            [ring.adapter.jetty :as jetty]
+            [spec-tools.core :as st])
+  (:import (java.util UUID)))
 
-  ;; Define specs for person data with descriptions and default values
-  (s/def ::uuid (st/spec {:spec uuid?
-                          :description "A unique identifier for the person"
-                          :json-schema/default (str (UUID/randomUUID))}))
+;; Define specs for person data with descriptions and default values
+(s/def ::uuid (st/spec {:spec uuid?
+                        :description "A unique identifier for the person"
+                        :json-schema/default (str (UUID/randomUUID))}))
 
-  (s/def ::firstname (st/spec {:spec string?
-                               :description "The first name of the person"}))
+(s/def ::firstname (st/spec {:spec string?
+                             :description "The first name of the person"}))
 
-  (s/def ::lastname (st/spec {:spec string?
-                              :description "The last name of the person"}))
+(s/def ::lastname (st/spec {:spec string?
+                            :description "The last name of the person"}))
 
-  (s/def ::age (st/spec {:spec pos-int?
-                         :description "The age of the person"
-                         :json-schema/default 0}))
+(s/def ::age (st/spec {:spec pos-int?
+                       :description "The age of the person"
+                       :json-schema/default 0}))
 
-  (s/def ::person (s/keys :req-un [::uuid ::firstname ::lastname ::age]))
-  (s/def ::person-list (s/coll-of ::person))
+(s/def ::person (s/keys :req-un [::uuid ::firstname ::lastname ::age]))
+(s/def ::person-list (s/coll-of ::person))
 
-  ;; Define specs for pagination
-  (s/def ::page (st/spec {:spec pos-int?
-                          :description "Page number"
-                          :json-schema/default 1}))
+;; Define specs for pagination
+(s/def ::page (st/spec {:spec pos-int?
+                        :description "Page number"
+                        :json-schema/default 1}))
 
-  (s/def ::size (st/spec {:spec pos-int?
-                          :description "Number of items per page"
-                          :json-schema/default 10}))
+(s/def ::size (st/spec {:spec pos-int?
+                        :description "Number of items per page"
+                        :json-schema/default 10}))
 
-  ;; In-memory database for person data
-  (def person-db (atom []))
+;; In-memory database for person data
+(def person-db (atom []))
 
-  ;; Helper functions
-  (defn add-person [person]
-    (swap! person-db conj person))
+;; Helper functions
+(defn add-person [person]
+  (swap! person-db conj person))
 
-  (defn get-person [id]
-    (some #(when (= (:uuid %) id) %) @person-db))
+(defn get-person [id]
+  (some #(when (= (:uuid %) id) %) @person-db))
 
-  (defn update-person [id person]
-    (swap! person-db #(mapv (fn [p] (if (= (:uuid p) id) person p)) %)))
+(defn update-person [id person]
+  (swap! person-db #(mapv (fn [p] (if (= (:uuid p) id) person p)) %)))
 
-  (defn delete-person [id]
-    (swap! person-db (fn [persons] (remove #(= (:uuid %) id) persons))))
+(defn delete-person [id]
+  (swap! person-db (fn [persons] (remove #(= (:uuid %) id) persons))))
 
-  (defn paginate [data page size]
-    (let [start (* (dec page) size)
-          end (min (+ start size) (count data))]
-      (subvec data start end)))
+(defn paginate [data page size]
+  (let [start (* (dec page) size)
+        end (min (+ start size) (count data))]
+    (subvec data start end)))
 
 
 (defn inventory-handler [request]
@@ -87,8 +86,8 @@
                         ;;(io/resource (str "public/inventory/index.html" ))
                         ;)]
 
-      ;(io/resource (str "assets/" path))
-      ;(io/resource (str "js/" path))
+                        ;(io/resource (str "assets/" path))
+                        ;(io/resource (str "js/" path))
                         )]
 
       {:status 200
@@ -103,7 +102,28 @@
       (clojure.string/includes? accept-header "text/html")
       {:status 200
        :headers {"Content-Type" "text/html"}
-       :body "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">forward<a/></h1></body></html>"
+       :body "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">go to /inventory<a/></h1></body></html>"
+       ;:body (slurp (io/resource "public/index.html"))
+       }
+
+      (clojure.string/includes? accept-header "application/json")
+      {:status 200
+       :headers {"Content-Type" "application/json"}
+       :body {:message "Welcome to my API"}}
+
+      :else
+      {:status 406
+       :headers {"Content-Type" "text/plain"}
+       :body "Not Acceptable"})))
+
+
+(defn models-handler [request]
+  (let [accept-header (get-in request [:headers "accept"])]
+    (cond
+      (clojure.string/includes? accept-header "text/html")
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">go to /inventory<a/></h1></body></html>"
        ;:body (slurp (io/resource "public/index.html"))
        }
 
@@ -182,44 +202,83 @@
                               {:status 204})}}]]
 
        ["/"
-        {:get {:handler root-handler}}]
+        {:get {:handler root-handler}}
+        ]
 
 
-       ["/inventory/*path"
-       ;["/*path"
-        {:get {:handler inventory-handler}}]
+       ;["/inventory/*path"
+       ; ;["/*path"
+       ; {:get {:handler inventory-handler}}]
 
 
-      ["/inventory"
-       ;["/*path"
-        {:get {:handler inventory-handler}}]
-       ]
+       ["/inventory"
 
-      {;;:reitit.middleware/transform dev/print-request-diffs ;; pretty diffs
-       ;;:validate spec/validate ;; enable spec validation for route data
-       ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
-       :exception pretty/exception
-       :data {:coercion reitit.coercion.spec/coercion
-              :muuntaja m/instance
-              :middleware [;; swagger feature
-                           swagger/swagger-feature
-                           ;; query-params & form-params
-                           parameters/parameters-middleware
-                           ;; content-negotiation
-                           muuntaja/format-negotiate-middleware
-                           ;; encoding response body
-                           muuntaja/format-response-middleware
-                           ;; exception handling
-                           exception/exception-middleware
-                           ;; decoding request body
-                           muuntaja/format-request-middleware
-                           ;; coercing response bodys
-                           coercion/coerce-response-middleware
-                           ;; coercing request parameters
-                           coercion/coerce-request-middleware
-                           ;; multipart
-                           multipart/multipart-middleware]}
-       :conflicts nil}) ;; Ignore route conflicts
+        {:tags ["person"]}
+        ;["/*path"
+        ;{:get {:handler inventory-handler}}
+
+
+        [""
+         ;["/*path"
+         {:get {:handler inventory-handler}}]
+
+
+        ["/hello"
+         ;["/*path"
+         {:get {:handler (fn [_] {:status 200 :body {:foo "bar"}})}}]
+
+        ["/models"
+         ;["/*path"
+         {:get {:handler (fn [_] {:status 200 :body [
+                                                     {:id 1 :product "foo" :manufacturer "bar"}
+                                                     {:id 2 :product "baz" :manufacturer "qux"}]})}}]
+         ;{:get {:handler models-handler}}]
+
+         ["/*path"
+          ;["/*path"
+          {:get {:handler inventory-handler}}]
+
+         ]
+
+        ]
+
+
+       ;["/inventory"
+       ; ;["/*path"
+       ; {:get {:handler inventory-handler}}
+       ;
+       ;
+       ; ["/models"
+       ;  {:get {:handler models-handler}}]
+       ;
+       ; ]
+
+
+       {;;:reitit.middleware/transform dev/print-request-diffs ;; pretty diffs
+        ;;:validate spec/validate ;; enable spec validation for route data
+        ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
+        :exception pretty/exception
+        :data {:coercion reitit.coercion.spec/coercion
+               :muuntaja m/instance
+               :middleware [;; swagger feature
+                            swagger/swagger-feature
+                            ;; query-params & form-params
+                            parameters/parameters-middleware
+                            ;; content-negotiation
+                            muuntaja/format-negotiate-middleware
+                            ;; encoding response body
+                            muuntaja/format-response-middleware
+                            ;; exception handling
+                            exception/exception-middleware
+                            ;; decoding request body
+                            muuntaja/format-request-middleware
+                            ;; coercing response bodys
+                            coercion/coerce-response-middleware
+                            ;; coercing request parameters
+                            coercion/coerce-request-middleware
+                            ;; multipart
+                            multipart/multipart-middleware]}
+        :conflicts nil})                                    ;; Ignore route conflicts
     (ring/routes
 
       (swagger-ui/create-swagger-ui-handler
@@ -229,13 +288,14 @@
                          {:name "openapi" :url "openapi.json"}]
                   :urls.primaryName "openapi"
                   :operationsSorter "alpha"}})
-      (ring/create-default-handler))))
+      (ring/create-default-handler)
+      )))
 
-  (defn main [& args]
-    (jetty/run-jetty #'app {:port 4000, :join? false})
-    ;
+(defn main [& args]
+  (jetty/run-jetty #'app {:port 8080, :join? false})
+  ;
 
-    (println "server running in port 4000"))
+  (println "server running in port 8080"))
 
-  (comment
-    (start))
+(comment
+  (start))
