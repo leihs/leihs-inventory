@@ -2,8 +2,8 @@
   (:require [cljs-http.client :as http]))
 
 (def base-url
-  "http://localhost:8080/inventory/models"
-  ;"http://localhost:3260/inventory/models"
+  ;"http://localhost:8080/inventory/models"
+  "http://localhost:3260/inventory/models"
   #_"http://localhost:3360/models" ; mock api
   )
 

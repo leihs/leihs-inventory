@@ -3,19 +3,19 @@
    [clojure.java.io :as io]
    [clojure.pprint :refer [pprint]]
    [clojure.string]
-   [clojure.tools.cli :as cli :refer [parse-opts]]
+   [clojure.tools.cli :as cli]
    [leihs.core.db :as datasource]
    [leihs.core.db :as db]
-   [muuntaja.core :as m]
    [leihs.core.http-server :as http-server]
-
    [leihs.core.shutdown :as shutdown]
-   [leihs.inventory.server.swagger-api :as api]
-[leihs.inventory.server.resources.models.main :as mn]
+
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
+   [leihs.inventory.server.resources.models.main :as mn]
    [leihs.inventory.server.routes :as routes]
+   [leihs.inventory.server.swagger-api :as api]
    [logbug.catcher :as catcher]
+   [muuntaja.core :as m]
    [reitit.dev.pretty :as pretty]
    [reitit.openapi :as openapi]
    [reitit.ring :as ring]
@@ -70,21 +70,31 @@
                    ["/models"
                     {:tags ["Models"]}
 
-                    [""
-                     {:get {:middleware [api/accept-json-middleware]
+                    ;[""
+                    ; {:get {:middleware [api/accept-json-middleware]
+                    ;        :handler mn/routes
+                    ;        }}]
+                   ["" {:get {:middleware [api/accept-json-middleware]
+                              :handler mn/get-models-handler}
+                        :post {:middleware [api/accept-json-middleware]
+                               :handler mn/create-model-handler}
+                        :put {:middleware [api/accept-json-middleware]
+                              :handler mn/update-model-handler}
+                        :delete {:middleware [api/accept-json-middleware]
+                                 :handler mn/delete-model-handler}}]
+                    ]
 
-                            :handler mn/routes
-
-                            ;:handler (fn [_] {:status 200 :body [
-                            ;                                     {:id 1 :product "foo" :manufacturer "bar"}
-                            ;                                     {:id 2 :product "baz" :manufacturer "qux"}]})
-
-                            }}]
-                    ]]]
 
 
 
-                 {       :exception pretty/exception
+
+
+
+                   ]]
+
+
+
+                 {:exception pretty/exception
 
                   :data {
                          :coercion reitit.coercion.spec/coercion
@@ -144,10 +154,10 @@
 
 (def cli-options
   (concat
-   [["-h" "--help"]
-    shutdown/pid-file-option]
-   (http-server/cli-options :default-http-port 3260)
-   db/cli-options))
+    [["-h" "--help"]
+     shutdown/pid-file-option]
+    (http-server/cli-options :default-http-port 3260)
+    db/cli-options))
 
 (defn main-usage [options-summary & more]
   (->> ["leihs-inventory"
@@ -162,13 +172,13 @@
           ["-------------------------------------------------------------------"
            (with-out-str (pprint more))
            "-------------------------------------------------------------------"])]
-       flatten (clojure.string/join \newline)))
+    flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
   (let [{:keys [options arguments errors summary]}
         (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
-                          flatten (into []))
+                       flatten (into []))
         options (merge gopts options)]
     (cond
       (:help options) (println (main-usage summary {:args args :options options}))

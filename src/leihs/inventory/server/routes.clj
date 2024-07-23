@@ -26,11 +26,11 @@
    [ring.middleware.params :refer [wrap-params]]
    [taoensso.timbre :as log]))
 
-(def resolve-table
-  (merge core-routes/resolve-table
-         {:home html/html-handler,
-          :api-models-index leihs.inventory.server.resources.models.main/routes
-          :not-found html/not-found-handler}))
+;(def resolve-table
+;  (merge core-routes/resolve-table
+;         {:home html/html-handler,
+;          :api-models-index leihs.inventory.server.resources.models.main/routes
+;          :not-found html/not-found-handler}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
