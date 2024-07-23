@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.swagger-api
   (:require [clojure.java.io :as io]
             [clojure.spec.alpha :as s]
+            [leihs.inventory.server.routes :as routes]
             [muuntaja.core :as m]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
@@ -125,7 +126,7 @@
        :headers {"Content-Type" "text/plain"}
        :body "Not Acceptable1"})))
 
-(def app
+(defn app [handler]
   (ring/ring-handler
     (ring/router
       [["/" {:no-doc true :get {:handler root-handler}}]
@@ -179,7 +180,10 @@
        :exception pretty/exception
        :data {:coercion reitit.coercion.spec/coercion
               :muuntaja m/instance
-              :middleware [;; swagger feature
+              :middleware [
+                           ;(routes/init options)
+handler
+                           ;; swagger feature
                            swagger/swagger-feature
                            ;; query-params & form-params
                            parameters/parameters-middleware
@@ -196,7 +200,9 @@
                            ;; coercing request parameters
                            coercion/coerce-request-middleware
                            ;; multipart
-                           multipart/multipart-middleware]}
+                           multipart/multipart-middleware]
+
+              }
        :conflicts nil})                                     ;; Ignore route conflicts
     (ring/routes
 
@@ -209,7 +215,9 @@
                   :urls.primaryName "openapi"
                   :operationsSorter "alpha"}})
       (ring/create-default-handler)
-      )))
+      )
+
+    ))
 
 (defn main [& args]
   (jetty/run-jetty #'app {:port 8080, :join? false})

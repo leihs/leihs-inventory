@@ -64,37 +64,38 @@
 (defn init [options]
 
   ;(println ">o> paths=" paths)
-  (println ">o> resolve-table=" resolve-table)
+  ;(println ">o> resolve-table=" resolve-table)
 
   ;(core-routing/init paths resolve-table)
   (->
   ; (I> wrap-handler-with-logging
    dispatch-to-handler
-   ring-audits/wrap
-   anti-csrf/wrap
-   locale/wrap
-   session/wrap-authenticate
-   wrap-cookies
-   settings/wrap
-   datasource/wrap-tx
-   wrap-json-response
-   (wrap-json-body {:keywords? true})
-   wrap-empty
-   core-routing/wrap-canonicalize-params-maps
-   wrap-params
-   wrap-multipart-params
+   ;ring-audits/wrap
+   ;anti-csrf/wrap
+   ;locale/wrap
+   ;session/wrap-authenticate
+   ;wrap-cookies
+   ;settings/wrap
+   ;datasource/wrap-tx
+   ;wrap-json-response
+   ;(wrap-json-body {:keywords? true})
+   ;wrap-empty
+   ;core-routing/wrap-canonicalize-params-maps
+   ;wrap-params
+   ;wrap-multipart-params
    ;(status/wrap (path :status))
-   wrap-content-type
-   (wrap-resource "public"
-                  {:allow-symlinks? true
-                   :cache-bust-paths ["/inventory/ui/styles.css"
-                                      "/inventory/js/main.js"]
-                   :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-                                        #".+_[0-9a-f]{40}\..+"]
-                   :enabled? true})
-   (core-routing/wrap-resolve-handler html/html-handler)
-   wrap-accept
-   ring-exception/wrap))
+   ;wrap-content-type
+   ;(wrap-resource "public"
+   ;               {:allow-symlinks? true
+   ;                :cache-bust-paths ["/inventory/ui/styles.css"
+   ;                                   "/inventory/js/main.js"]
+   ;                :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
+   ;                                     #".+_[0-9a-f]{40}\..+"]
+   ;                :enabled? true})
+   ;(core-routing/wrap-resolve-handler html/html-handler)
+   ;wrap-accept
+   ;ring-exception/wrap
+  ))
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
