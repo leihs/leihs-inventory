@@ -152,6 +152,9 @@
         ["/assets/*"
          {:get {:handler inventory-handler :no-doc true}}]
 
+        ["/css/*"
+         {:get {:handler inventory-handler :no-doc true}}]
+
         ["/models"
          {:tags ["Models"]}
 
