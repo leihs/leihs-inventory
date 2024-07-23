@@ -4,13 +4,14 @@
    [clojure.pprint :refer [pprint]]
    [clojure.string]
    [clojure.tools.cli :as cli :refer [parse-opts]]
+   [leihs.core.db :as datasource]
    [leihs.core.db :as db]
    [muuntaja.core :as m]
    [leihs.core.http-server :as http-server]
 
    [leihs.core.shutdown :as shutdown]
    [leihs.inventory.server.swagger-api :as api]
-
+[leihs.inventory.server.resources.models.main :as mn]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
    [leihs.inventory.server.routes :as routes]
@@ -71,9 +72,14 @@
 
                     [""
                      {:get {:middleware [api/accept-json-middleware]
-                            :handler (fn [_] {:status 200 :body [
-                                                                 {:id 1 :product "foo" :manufacturer "bar"}
-                                                                 {:id 2 :product "baz" :manufacturer "qux"}]})}}]
+
+                            :handler mn/routes
+
+                            ;:handler (fn [_] {:status 200 :body [
+                            ;                                     {:id 1 :product "foo" :manufacturer "bar"}
+                            ;                                     {:id 2 :product "baz" :manufacturer "qux"}]})
+
+                            }}]
                     ]]]
 
 
@@ -84,6 +90,9 @@
                          :coercion reitit.coercion.spec/coercion
                          :muuntaja m/instance
                          :middleware [
+                                      datasource/wrap-tx
+
+
                                       ;http-handler
                                       swagger/swagger-feature
                                       parameters/parameters-middleware

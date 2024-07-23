@@ -70,13 +70,13 @@
   (->
   ; (I> wrap-handler-with-logging
    dispatch-to-handler
-   ;ring-audits/wrap
+   ring-audits/wrap
    ;anti-csrf/wrap
    ;locale/wrap
    ;session/wrap-authenticate
    ;wrap-cookies
    ;settings/wrap
-   ;datasource/wrap-tx
+   datasource/wrap-tx
    ;wrap-json-response
    ;(wrap-json-body {:keywords? true})
    ;wrap-empty
