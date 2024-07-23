@@ -12,10 +12,39 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
+
             [reitit.swagger-ui :as swagger-ui]
+
             [ring.adapter.jetty :as jetty]
             [spec-tools.core :as st])
   (:import (java.util UUID)))
+
+
+
+(defn accept-json-middleware [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])]
+      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
+        (handler request)
+        {:status 406
+         ;:headers {"Content-Type" "text/plain"}
+         :body {:message "Not Acceptable: application/json required2"}
+         }))))
+
+(defn models-handler [request]
+  (let [
+        ;models (fetch-models-from-db)
+
+        models {:status 200 :body [
+                                   {:id 1 :product "foo" :manufacturer "bar"}
+                                   {:id 2 :product "baz" :manufacturer "qux"}]}
+        ]
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body models}))
+
+
+
 
 ;; Define specs for person data with descriptions and default values
 (s/def ::uuid (st/spec {:spec uuid?
@@ -94,28 +123,7 @@
       :else
       {:status 406
        :headers {"Content-Type" "text/plain"}
-       :body "Not Acceptable"})))
-
-
-(defn models-handler [request]
-  (let [accept-header (get-in request [:headers "accept"])]
-    (cond
-      (clojure.string/includes? accept-header "text/html")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">go to /inventory<a/></h1></body></html>"
-       ;:body (slurp (io/resource "public/index.html"))
-       }
-
-      (clojure.string/includes? accept-header "application/json")
-      {:status 200
-       :headers {"Content-Type" "application/json"}
-       :body {:message "Welcome to my API"}}
-
-      :else
-      {:status 406
-       :headers {"Content-Type" "text/plain"}
-       :body "Not Acceptable"})))
+       :body "Not Acceptable1"})))
 
 (def app
   (ring/ring-handler
@@ -159,7 +167,8 @@
          {:tags ["Models"]}
 
          [""
-          {:get {:handler (fn [_] {:status 200 :body [
+          {:get {:middleware [accept-json-middleware]
+                 :handler (fn [_] {:status 200 :body [
                                                       {:id 1 :product "foo" :manufacturer "bar"}
                                                       {:id 2 :product "baz" :manufacturer "qux"}]})}}]
          ]]]

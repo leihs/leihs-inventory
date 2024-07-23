@@ -10,6 +10,8 @@
         org.clojure/spec.alpha {:mvn/version "0.3.218"}
         org.threeten/threeten-extra {:mvn/version "1.7.2"}
 
+        ring/ring-core {:mvn/version "1.12.2"}
+        cljsjs/react-dom {:mvn/version "18.2.0-1"}
         metosin/reitit {:mvn/version "0.7.1"}
 
         metosin/reitit-swagger-ui {:mvn/version "0.7.1"}

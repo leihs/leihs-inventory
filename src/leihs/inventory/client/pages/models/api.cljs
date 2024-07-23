@@ -9,3 +9,7 @@
 
 (defn get-many []
   (http/get base-url {:headers {"Accept" "application/json"}}))
+
+
+(defn delete-model [id]
+  (http/delete base-url {:headers {"Accept" "application/json"} :body id}))

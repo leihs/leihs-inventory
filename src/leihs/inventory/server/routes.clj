@@ -13,7 +13,8 @@
    [leihs.core.settings :as settings]
    [leihs.core.status :as status]
    [leihs.inventory.server.html :as html]
-   [leihs.inventory.server.paths :refer [paths path]]
+   ;[leihs.inventory.server.paths :refer [paths path]]
+   ;[leihs.inventory.server.paths :refer [paths path]]
    [leihs.inventory.server.resources.models.main]
    [logbug.debug :as debug :refer [I>]]
    [logbug.ring :refer [wrap-handler-with-logging]]
@@ -61,7 +62,11 @@
         {:status 404})))
 
 (defn init [options]
-  (core-routing/init paths resolve-table)
+
+  ;(println ">o> paths=" paths)
+  (println ">o> resolve-table=" resolve-table)
+
+  ;(core-routing/init paths resolve-table)
   (->
   ; (I> wrap-handler-with-logging
    dispatch-to-handler
@@ -78,7 +83,7 @@
    core-routing/wrap-canonicalize-params-maps
    wrap-params
    wrap-multipart-params
-   (status/wrap (path :status))
+   ;(status/wrap (path :status))
    wrap-content-type
    (wrap-resource "public"
                   {:allow-symlinks? true

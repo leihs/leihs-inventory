@@ -19,23 +19,24 @@
   (edit-model id new-model)
   (stop-editing))
 
-;(defn edit-model [id new-model]
-;  ;; Logic for editing a model goes here
-;  (go (let [response (<! (model-api/edit id new-model))]
-;        (if (:success response)
-;          (do
-;            (println "Edit model" id)
-;            (fetch-models))
-;          (reset! error (str "Error " (:status response))))))
 
 (defn delete-model [id]
   ;; Logic for deleting a model goes here
-  (go (let [response (<! (model-api/delete id))]
+  (go (let [response (<! (model-api/delete-model id))]
         (if (:success response)
           (do
             (println "Delete model" id)
-            (fetch-models))
+            (list-view))
           (reset! error (str "Error " (:status response)))))))
+
+
+(defn delete-model [id]
+  (go (let [response (<! (model-api/delete-model id))]
+        (if (:success response)
+          (do
+            (println "Delete model" id)
+            (reset! models (remove #(= (:id %) id) @models))
+            (reset! error (str "Error " (:status response))))))))
 
   (defn add-model [model]
     ;; Logic for adding a model goes here
@@ -46,89 +47,60 @@
               (fetch-models))
             (reset! error (str "Error " (:status response)))))))
 
-;  (defn list-view []
-;    (fn []
-;      [:div
-;       (when @error [:div [:b {:style {:color "red"}} @error]])
-;       ;(for [{:keys [id product manufacturer]} @models]
-;       (for [{:keys [product manufacturer]} @models]
-;         (do
-;           ;(println ">o> row => " id product manufacturer)
-;           (if (and @editing (= id (:id @current-model)))
-;             [:div
-;              [:input {:type "text" :value id :on-change #(swap! current-model assoc :id (-> % .-target .-value))}]
-;              [:input {:type "text" :value product :on-change #(swap! current-model assoc :product (-> % .-target .-value))}]
-;              [:input {:type "text" :value manufacturer :on-change #(swap! current-model assoc :manufacturer (-> % .-target .-value))}]
-;              ;[:button {:on-click #(save-changes id @current-model)} "Save"]
-;              ;[:button {:on-click stop-editing} "Cancel"]
-;               ]
-;             [:div
-;              {:key id :style {:margin-bottom "10px"}}
-;              [:div {:style {:font-size "smaller"}} manufacturer]
-;              [:div product]
-;              ;[:button {:on-click #(start-editing {:id id :product product :manufacturer manufacturer})} "Edit"]
-;              ;[:button {:on-click #(delete-model id)} "Delete"]
-;              ])))])))
-;
-;(defn list-view []
-;  (go (let [response (<! (model-api/get-many))]
-;        (if (response :success)
-;          (do
-;            (reset! error nil)
-;            (reset! models (:body response)))
-;          (reset! error (str "Error " (:status response))))))
-;  (fn []
-;    [:div
-;     (when @error [:div [:b {:style {:color "red"}} @error]])
-;     (for [{:keys [id product manufacturer]} @models]
-;       [:div {:key id :style {:margin-bottom "10px"}}
-;        [:div id]
-;        [:div {:style {:font-size "smaller"}} manufacturer]
-;        [:div product]
-;        ])]))
-;
-;
-;(defn list-view []
-;  (go (let [response (<! (model-api/get-many))]
-;        (if (response :success)
-;          (do
-;            (reset! error nil)
-;            (reset! models (:body response)))
-;          (reset! error (str "Error " (:status response))))))
-;  (fn []
-;    [:div
-;     (when @error [:div [:b {:style {:color "red"}} @error]])
-;     [:table
-;      [:tr [:th "ID"] [:th "Product"] [:th "Manufacturer"]]
-;      (for [{:keys [id product manufacturer]} @models]
-;        [:tr {:key id}
-;         [:td id]
-;         [:td product]
-;         [:td manufacturer]])]]))
+
+  (defn list-view []
+    (go (let [response (<! (model-api/get-many))]
+          (if (response :success)
+            (do
+              (reset! error nil)
+              (reset! models (:body response)))
+            (reset! error (str "Error " (:status response))))))
+    (fn []
+      [:div
+       (when @error [:div [:b {:style {:color "red"}} @error]])
+
+       [:div
+        [:button {:on-click #(start-editing {:id "" :product "" :manufacturer ""})} "Add Model"]
+        [:button {:on-click #(list-view)} "Refresh"]
+        ]
 
 
-(defn list-view []
-  (go (let [response (<! (model-api/get-many))]
-        (if (response :success)
-          (do
-            (reset! error nil)
-            (reset! models (:body response)))
-          (reset! error (str "Error " (:status response))))))
-  (fn []
-    [:div
-     (when @error [:div [:b {:style {:color "red"}} @error]])
-     [:table
-      [:tr [:th "ID"] [:th "Product"] [:th "Manufacturer"] [:th "Edit"] [:th "Delete"]]
-      (for [{:keys [id product manufacturer]} @models]
-        [:tr {:key id}
-         [:td id]
-         [:td product]
-         [:td manufacturer]
-         [:td [:button {:on-click #(start-editing {:id id :product product :manufacturer manufacturer})} "Edit"]]
-         [:td [:button {:on-click #(delete-model id)} "Delete"]]
-         ])]]))
+       [:table
+        [:tr [:th "ID"] [:th "Product"] [:th "Manufacturer"] [:th "Edit"] [:th "Delete"]]
+        (for [{:keys [id product manufacturer]} @models]
+          [:tr {:key id}
+           [:td id]
+           [:td product]
+           [:td manufacturer]
+           [:td [:button {:on-click #(start-editing {:id id :product product :manufacturer manufacturer})} "Edit"]]
+           [:td [:button {:on-click #(delete-model id)} "Delete"]]
+           ])]]))
 
-(defn page []
-  [:<>
-   [:h3 "Models"]
-   [list-view]])
+
+(defn model-form []
+  (let [new-model (r/atom {:id "" :product "" :manufacturer ""})]
+    (fn []
+      [:form {:on-submit (fn [e]
+                           (.preventDefault e)
+                           (add-model @new-model)
+                           (reset! new-model {:id "" :product "" :manufacturer ""}))}
+       [:label "ID"
+        [:input {:type "text"
+                 :value (:id @new-model)
+                 :on-change #(swap! new-model assoc :id (-> % .-target .-value))}]]
+       [:label "Product"
+        [:input {:type "text"
+                 :value (:product @new-model)
+                 :on-change #(swap! new-model assoc :product (-> % .-target .-value))}]]
+       [:label "Manufacturer"
+        [:input {:type "text"
+                 :value (:manufacturer @new-model)
+                 :on-change #(swap! new-model assoc :manufacturer (-> % .-target .-value))}]]
+       [:button "Save"]])))
+
+  (defn page []
+    [:<>
+     [:h3 "Models"]
+     [model-form]
+     [:br]
+     [list-view]])
