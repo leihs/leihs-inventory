@@ -143,10 +143,6 @@
                    ["/models"
                     {:tags ["Models"]}
 
-                    ;[""
-                    ; {:get {:middleware [api/accept-json-middleware]
-                    ;        :handler mn/routes
-                    ;        }}]
                     ["" {:get {:accept "application/json"
                                :coercion reitit.coercion.schema/coercion
                                :middleware [api/accept-json-middleware]
@@ -168,9 +164,6 @@
                                 :accept "application/json"
                                 :coercion reitit.coercion.schema/coercion
 
-                                ;:parameters {:body s/Any}
-                                ;:parameters {:body schema-post}
-                                ;:parameters {:body schema}
                                 :parameters {:body schema-min}
                                 :middleware [api/accept-json-middleware]
                                 :handler mn/create-model-handler
@@ -191,65 +184,49 @@
                          ;         :middleware [api/accept-json-middleware]
                          ;         :handler mn/delete-model-handler}
 
-
-
-
-
                          }]
 
 
-                         ["/:id" {:get {:accept "application/json"
-                                    :coercion reitit.coercion.schema/coercion
-                                    :middleware [api/accept-json-middleware]
-                                    :handler mn/get-models-handler
-                                        :parameters {:path {:id s/Uuid}}
+                    ["/:id" {:get {:accept "application/json"
+                                   :coercion reitit.coercion.schema/coercion
+                                   :middleware [api/accept-json-middleware]
+                                   :handler mn/get-models-handler
+                                   :parameters {:path {:id s/Uuid}}
 
-                                        ;:parameters {
-                                        ;
-                                        ;             ;:parameters {
-                                        ;                          :query :id
-                                        ;                          ;}
-                                        ;
-                                        ;             ;:body schema-min
-                                        ;             }
+                                   :responses {200 {:description "OK"
+                                                    ;:body [schema]
+                                                    :body schema
+                                                    }
+                                               404 {:description "Not Found"
+                                                    ;:content {:application/json {:schema {:type "string"}}}
+                                                    }
+                                               500 {:description "Internal Server Error"
+                                                    ;:content {:application/json {:schema {:type "string"}}}
+                                                    }
+                                               }
+                                   }
 
-                                    :responses {200 {:description "OK"
-                                                     :body [schema]
-                                                     }
-                                                404 {:description "Not Found"
-                                                     ;:content {:application/json {:schema {:type "string"}}}
-                                                     }
-                                                500 {:description "Internal Server Error"
-                                                     ;:content {:application/json {:schema {:type "string"}}}
-                                                     }
-                                                }
-                                    }
+                             :put {
+                                   :accept "application/json"
+                                   :coercion reitit.coercion.schema/coercion
+                                   :parameters {:path {:id s/Uuid}
+                                                :body schema-min}
+                                   ;:parameters {:body schema-min}
+                                   :middleware [api/accept-json-middleware]
+                                   :handler mn/update-model-handler
+                                   }
 
-                              :post {
-                                     :accept "application/json"
-                                     :coercion reitit.coercion.schema/coercion
+                             :delete {
+                                   :accept "application/json"
+                                   :coercion reitit.coercion.schema/coercion
+                                   :parameters {:path {:id s/Uuid}}
+                                   ;:parameters {:body schema-min}
+                                   :middleware [api/accept-json-middleware]
+                                   :handler mn/delete-model-handler
+                                   }
 
-                                     ;:parameters {:body s/Any}
-                                     ;:parameters {:body schema-post}
-                                     ;:parameters {:body schema}
-                                     :parameters {:body schema-min}
-                                     :middleware [api/accept-json-middleware]
-                                     :handler mn/create-model-handler
-                                     }}
-                          ]
-
-
-
-
-
-
-
-
-
-
-
-
-
+                             }
+                     ]
 
                     ]
 
