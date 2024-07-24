@@ -16,6 +16,7 @@
    [leihs.inventory.server.swagger-api :as api]
    [logbug.catcher :as catcher]
    [muuntaja.core :as m]
+   [reitit.coercion.schema]
    [reitit.dev.pretty :as pretty]
    [reitit.openapi :as openapi]
    [reitit.ring :as ring]
@@ -24,9 +25,81 @@
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]
+
    [reitit.swagger :as swagger]
    [reitit.swagger-ui :as swagger-ui]
+
+   [schema.core :as s]
    [taoensso.timbre :refer [info]]))
+
+
+
+(def schema
+  {
+   :id s/Uuid
+   :type s/Str
+   (s/optional-key :manufacturer) (s/maybe s/Str)
+   :product s/Str
+   (s/optional-key :version) (s/maybe s/Str)
+   (s/optional-key :info_url) (s/maybe s/Str)
+   (s/optional-key :rental_price) (s/maybe s/Num)
+   (s/optional-key :maintenance_period) (s/maybe s/Int)
+   (s/optional-key :is_package) (s/maybe s/Bool)
+   (s/optional-key :hand_over_note) (s/maybe s/Str)
+   (s/optional-key :description) (s/maybe s/Str)
+   (s/optional-key :internal_description) (s/maybe s/Str)
+   (s/optional-key :technical_detail) (s/maybe s/Str)
+   :created_at s/Inst
+   :updated_at s/Inst
+   (s/optional-key :cover_image_id) (s/maybe s/Uuid)
+   })
+
+(def schema-min
+  {
+   ;:id s/Uuid
+   :type s/Str
+   (s/optional-key :manufacturer) (s/maybe s/Str)
+   :product s/Str
+   ;(s/optional-key :version) (s/maybe s/Str)
+   ;(s/optional-key :info_url) (s/maybe s/Str)
+   ;(s/optional-key :rental_price) (s/maybe s/Num)
+   ;(s/optional-key :maintenance_period) (s/maybe s/Int)
+   ;(s/optional-key :is_package) (s/maybe s/Bool)
+   ;(s/optional-key :hand_over_note) (s/maybe s/Str)
+   ;(s/optional-key :description) (s/maybe s/Str)
+   ;(s/optional-key :internal_description) (s/maybe s/Str)
+   ;(s/optional-key :technical_detail) (s/maybe s/Str)
+   ;:created_at s/Inst
+   ;:updated_at s/Inst
+   ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
+   })
+
+(def schema-post
+  {
+   :id s/Uuid
+   :type s/Str
+   ;(s/optional-key :manufacturer)  s/Str
+   ;:product s/Str
+   ;(s/optional-key :version)  s/Str
+   ;(s/optional-key :info_url)  s/Str
+   ;(s/optional-key :rental_price)  s/Num
+   ;(s/optional-key :maintenance_period)  s/Int
+   ;(s/optional-key :is_package)  s/Bool
+   ;(s/optional-key :hand_over_note)  s/Str
+   ;(s/optional-key :description)  s/Str
+   ;(s/optional-key :internal_description)  s/Str
+   ;(s/optional-key :technical_detail)  s/Str
+   ;:created_at s/Inst
+   ;:updated_at s/Inst
+   ;(s/optional-key :cover_image_id)  s/Uuid
+   })
+
+
+
+
+
+
+
 
 (defn create-app [options]
   (let [http-handler (routes/init options)
@@ -74,21 +147,111 @@
                     ; {:get {:middleware [api/accept-json-middleware]
                     ;        :handler mn/routes
                     ;        }}]
-                   ["" {:get {:middleware [api/accept-json-middleware]
-                              :handler mn/get-models-handler}
-                        :post {:middleware [api/accept-json-middleware]
-                               :handler mn/create-model-handler}
-                        :put {:middleware [api/accept-json-middleware]
-                              :handler mn/update-model-handler}
-                        :delete {:middleware [api/accept-json-middleware]
-                                 :handler mn/delete-model-handler}}]
+                    ["" {:get {:accept "application/json"
+                               :coercion reitit.coercion.schema/coercion
+                               :middleware [api/accept-json-middleware]
+                               :handler mn/get-models-handler
+
+                               :responses {200 {:description "OK"
+                                                :body [schema]
+                                                }
+                                           404 {:description "Not Found"
+                                                ;:content {:application/json {:schema {:type "string"}}}
+                                                }
+                                           500 {:description "Internal Server Error"
+                                                ;:content {:application/json {:schema {:type "string"}}}
+                                                }
+                                           }
+                               }
+
+                         :post {
+                                :accept "application/json"
+                                :coercion reitit.coercion.schema/coercion
+
+                                ;:parameters {:body s/Any}
+                                ;:parameters {:body schema-post}
+                                ;:parameters {:body schema}
+                                :parameters {:body schema-min}
+                                :middleware [api/accept-json-middleware]
+                                :handler mn/create-model-handler
+                                }
+
+                         ;:put {
+                         ;      :accept "application/json"
+                         ;      :coercion reitit.coercion.schema/coercion
+                         ;
+                         ;      :parameters {:body schema-min}
+                         ;
+                         ;      :middleware [api/accept-json-middleware]
+                         ;      :handler mn/update-model-handler}
+
+                         ;:delete {:accept "application/json"
+                         ;         :coercion reitit.coercion.schema/coercion
+                         ;
+                         ;         :middleware [api/accept-json-middleware]
+                         ;         :handler mn/delete-model-handler}
+
+
+
+
+
+                         }]
+
+
+                         ["/:id" {:get {:accept "application/json"
+                                    :coercion reitit.coercion.schema/coercion
+                                    :middleware [api/accept-json-middleware]
+                                    :handler mn/get-models-handler
+                                        :parameters {:path {:id s/Uuid}}
+
+                                        ;:parameters {
+                                        ;
+                                        ;             ;:parameters {
+                                        ;                          :query :id
+                                        ;                          ;}
+                                        ;
+                                        ;             ;:body schema-min
+                                        ;             }
+
+                                    :responses {200 {:description "OK"
+                                                     :body [schema]
+                                                     }
+                                                404 {:description "Not Found"
+                                                     ;:content {:application/json {:schema {:type "string"}}}
+                                                     }
+                                                500 {:description "Internal Server Error"
+                                                     ;:content {:application/json {:schema {:type "string"}}}
+                                                     }
+                                                }
+                                    }
+
+                              :post {
+                                     :accept "application/json"
+                                     :coercion reitit.coercion.schema/coercion
+
+                                     ;:parameters {:body s/Any}
+                                     ;:parameters {:body schema-post}
+                                     ;:parameters {:body schema}
+                                     :parameters {:body schema-min}
+                                     :middleware [api/accept-json-middleware]
+                                     :handler mn/create-model-handler
+                                     }}
+                          ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     ]
-
-
-
-
-
-
 
                    ]]
 
