@@ -168,22 +168,6 @@
                                 :middleware [api/accept-json-middleware]
                                 :handler mn/create-model-handler
                                 }
-
-                         ;:put {
-                         ;      :accept "application/json"
-                         ;      :coercion reitit.coercion.schema/coercion
-                         ;
-                         ;      :parameters {:body schema-min}
-                         ;
-                         ;      :middleware [api/accept-json-middleware]
-                         ;      :handler mn/update-model-handler}
-
-                         ;:delete {:accept "application/json"
-                         ;         :coercion reitit.coercion.schema/coercion
-                         ;
-                         ;         :middleware [api/accept-json-middleware]
-                         ;         :handler mn/delete-model-handler}
-
                          }]
 
 
@@ -194,9 +178,7 @@
                                    :parameters {:path {:id s/Uuid}}
 
                                    :responses {200 {:description "OK"
-                                                    ;:body [schema]
-                                                    :body schema
-                                                    }
+                                                    :body schema}
                                                404 {:description "Not Found"
                                                     ;:content {:application/json {:schema {:type "string"}}}
                                                     }
@@ -211,20 +193,17 @@
                                    :coercion reitit.coercion.schema/coercion
                                    :parameters {:path {:id s/Uuid}
                                                 :body schema-min}
-                                   ;:parameters {:body schema-min}
                                    :middleware [api/accept-json-middleware]
                                    :handler mn/update-model-handler
                                    }
 
                              :delete {
-                                   :accept "application/json"
-                                   :coercion reitit.coercion.schema/coercion
-                                   :parameters {:path {:id s/Uuid}}
-                                   ;:parameters {:body schema-min}
-                                   :middleware [api/accept-json-middleware]
-                                   :handler mn/delete-model-handler
-                                   }
-
+                                      :accept "application/json"
+                                      :coercion reitit.coercion.schema/coercion
+                                      :parameters {:path {:id s/Uuid}}
+                                      :middleware [api/accept-json-middleware]
+                                      :handler mn/delete-model-handler
+                                      }
                              }
                      ]
 
@@ -242,8 +221,6 @@
                          :middleware [
                                       datasource/wrap-tx
 
-
-                                      ;http-handler
                                       swagger/swagger-feature
                                       parameters/parameters-middleware
                                       muuntaja/format-negotiate-middleware
@@ -254,7 +231,6 @@
                                       coercion/coerce-request-middleware
                                       multipart/multipart-middleware]}})]
     (ring/ring-handler router
-
       (ring/routes
 
         (swagger-ui/create-swagger-ui-handler
