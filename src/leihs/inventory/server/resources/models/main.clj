@@ -43,6 +43,7 @@
       (jdbc/insert! tx :models model)
       (response model)
       (catch Exception e
+        (error "Failed to create model" e )
         (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
 (defn update-model-handler [request]
@@ -55,6 +56,7 @@
       (jdbc/update! tx :models model ["id = ?::uuid" model-id])
       (response {:message "Model updated" :id model-id})
       (catch Exception e
+        (error "Failed to update model" e)
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 (defn delete-model-handler [request]

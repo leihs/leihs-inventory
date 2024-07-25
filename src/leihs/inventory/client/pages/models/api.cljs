@@ -12,4 +12,5 @@
 
 
 (defn delete-model [id]
-  (http/delete base-url {:headers {"Accept" "application/json"} :body id}))
+  (http/delete (str base-url "/" id) {:headers {"Accept" "application/json"}}))
+  ;(http/delete (str base-url "/" id) {:headers {"Accept" "application/json"} :body id}))
