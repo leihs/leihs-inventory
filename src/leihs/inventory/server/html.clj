@@ -10,6 +10,5 @@
 
 (defn not-found-handler
   [request]
-  (println ">o> not-found-handler1" )
   (-> (html-handler request)
       (status 404)))

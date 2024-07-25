@@ -1,7 +1,9 @@
 (ns leihs.inventory.server.swagger-api
   (:require [clojure.java.io :as io]
             [clojure.string]
+            [leihs.core.db :as db]
             [leihs.core.db :as datasource]
+            [leihs.core.ring-audits :as ring-audits]
             [leihs.inventory.server.resources.models.main :as mn]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
@@ -97,6 +99,26 @@
    ;:updated_at s/Inst
    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
+
+;(def ^:dynamic middlewares
+;  [
+;   ;swagger/swagger-feature
+;   ;muuntaja/format-negotiate-middleware
+;   ;muuntaja/format-response-middleware
+;   ;ring-audits/wrap
+;   ;muuntaja/format-request-middleware
+;   ;multipart/multipart-middleware
+;
+;   ;ring-wrap-cors
+;   db/wrap-tx
+;   ;rmp/parameters-middleware
+;   ;wrap-catch-exception
+;   ;authentication/wrap
+;   ;authentication/wrap-log
+;   ;rrc/coerce-exceptions-middleware
+;   ;rrc/coerce-request-middleware
+;   ;rrc/coerce-response-middleware
+;   ])
 
 (defn create-app [options]
   (let [router (ring/router
@@ -201,11 +223,7 @@
                                       :handler mn/delete-model-handler
                                       }
                              }
-                     ]
-
-                    ]
-
-                   ]]
+                     ]]]]
 
 
 
@@ -215,7 +233,17 @@
                          :coercion reitit.coercion.spec/coercion
                          :muuntaja m/instance
                          :middleware [
-                                      datasource/wrap-tx
+                                      dispatch-to-handler
+
+                                      ;datasource/wrap-tx
+                                      ;swagger/swagger-feature
+                                      ;muuntaja/format-negotiate-middleware
+                                      ;muuntaja/format-response-middleware
+                                      ;ring-audits/wrap
+                                      ;muuntaja/format-request-middleware
+                                      ;multipart/multipart-middleware
+
+                                      db/wrap-tx
 
                                       swagger/swagger-feature
                                       parameters/parameters-middleware
@@ -238,6 +266,4 @@
                     :urls.primaryName "openapi"
                     :operationsSorter "alpha"}})
         (ring/create-default-handler)
-        )
-
-      )))
+        ))))
