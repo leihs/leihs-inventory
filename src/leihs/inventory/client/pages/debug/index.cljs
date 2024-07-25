@@ -9,7 +9,7 @@
   [:<>
    [:h2 "Some routing tests"]
    [:div "on-click mit `navigate` " [:button {:type :button :on-click #(rfe/navigate :models-index)} "Go to models"]]
-   [:div "Link mit Pfad als href " [:a {:href "/models"} "Go to models"]]
+   [:div "Link mit Pfad als href " [:a {:href "/inventory/models"} "Go to models"]]
    [:div "Link mit Route als href " [:a {:href (rfe/href :models-index)} "Go to models"]]
    [:div "on-click mit `set-query` "
     [:button {:type :button :on-click #(rfe/set-query (fn [q] {:x (rand)}))} "pushState"]
