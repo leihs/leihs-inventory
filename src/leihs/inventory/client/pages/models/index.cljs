@@ -13,12 +13,9 @@
   (reset! editing true)
   (reset! current-model model))
 
-(defn stop-editing []
-  (reset! editing false))
-
-(defn save-changes [id new-model]
-  (edit-model id new-model)
-  (stop-editing))
+(defn start-adding [model]
+  (reset! editing false)
+  (reset! current-model nil))
 
 (defn delete-model [id]
   (go (let [response (<! (model-api/delete-model id))]
