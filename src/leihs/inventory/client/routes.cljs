@@ -7,4 +7,5 @@
 (def handler-map
   {:home #'home/page
    :models-index #'models-index/page
-   :debug-index #'debug-index/page})
+   :debug-index #'debug-index/page
+   :inventory-models #'models-index/page})  ;; Add this line

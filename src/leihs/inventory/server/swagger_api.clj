@@ -55,9 +55,9 @@
     (let [accept-header (get-in request [:headers "accept"])]
       (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
         (handler request)
-        {:status 406
+        {:status 404
          ;:headers {"Content-Type" "text/plain"}
-         :body {:message "Not Acceptable: application/json required2"}
+         ;:body {:message "Not Acceptable: application/json required2"}
          }))))
 
 (def schema
@@ -233,7 +233,7 @@
                          :coercion reitit.coercion.spec/coercion
                          :muuntaja m/instance
                          :middleware [
-                                      dispatch-to-handler
+                                      ;dispatch-to-handler
 
                                       ;datasource/wrap-tx
                                       ;swagger/swagger-feature
