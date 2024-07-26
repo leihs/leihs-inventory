@@ -2,8 +2,6 @@
   (:require [clojure.java.io :as io]
             [clojure.string]
             [leihs.core.db :as db]
-            [leihs.core.db :as datasource]
-            [leihs.core.ring-audits :as ring-audits]
             [leihs.inventory.server.resources.models.main :as mn]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
@@ -18,6 +16,8 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.resource :refer [wrap-resource]]
             [schema.core :as s]))
 
 (defn root-handler [request]
@@ -149,15 +149,6 @@
                    [""
                     {:get {:handler inventory-handler :no-doc true}}]
 
-                   ["/js/*"
-                    {:get {:handler inventory-handler :no-doc true}}]
-
-                   ["/assets/*"
-                    {:get {:handler inventory-handler :no-doc true}}]
-
-                   ["/css/*"
-                    {:get {:handler inventory-handler :no-doc true}}]
-
                    ["/models"
                     {:tags ["Models"]}
 
@@ -225,23 +216,11 @@
                              }
                      ]]]]
 
-
-
                  {:exception pretty/exception
-
                   :data {
                          :coercion reitit.coercion.spec/coercion
                          :muuntaja m/instance
                          :middleware [
-                                      ;dispatch-to-handler
-
-                                      ;datasource/wrap-tx
-                                      ;swagger/swagger-feature
-                                      ;muuntaja/format-negotiate-middleware
-                                      ;muuntaja/format-response-middleware
-                                      ;ring-audits/wrap
-                                      ;muuntaja/format-request-middleware
-                                      ;multipart/multipart-middleware
 
                                       db/wrap-tx
 
@@ -254,16 +233,22 @@
                                       coercion/coerce-response-middleware
                                       coercion/coerce-request-middleware
                                       multipart/multipart-middleware]}})]
-    (ring/ring-handler router
-      (ring/routes
 
-        (swagger-ui/create-swagger-ui-handler
-          {:path "/inventory/api-docs/"
-           :config {:validatorUrl nil
-                    :urls [
-                           {:name "swagger" :url "swagger.json"}
-                           {:name "openapi" :url "openapi.json"}]
-                    :urls.primaryName "openapi"
-                    :operationsSorter "alpha"}})
-        (ring/create-default-handler)
-        ))))
+    (-> (ring/ring-handler
+          router
+          (ring/routes
+            (ring/redirect-trailing-slash-handler {:method :strip})
+
+            ;; TODO: breaks swagger-ui
+            ;(ring/create-default-handler {:not-found (constantly {:status 404 :body "LEIHS-DEV: Not Found"})})
+
+            (swagger-ui/create-swagger-ui-handler
+              {:path "/inventory/api-docs/"
+               :config {:validatorUrl nil
+                        :urls [{:name "swagger" :url "swagger.json"}
+                               {:name "openapi" :url "openapi.json"}]
+                        :urls.primaryName "openapi"
+                        :operationsSorter "alpha"}})))
+        ;(wrap-defaults site-defaults)
+        (wrap-resource "public")
+        )))

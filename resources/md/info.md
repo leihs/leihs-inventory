@@ -19,7 +19,7 @@
         </tr>
         <tr>
             <td><a href="/inventory">/inventory</a></td>
-            <td>JS-UI</td>
+            <td>JS-UI / HANDLER loads resources/public/index.html</td>
             <td>Inventory-Module</td>
         </tr>
         <tr>
