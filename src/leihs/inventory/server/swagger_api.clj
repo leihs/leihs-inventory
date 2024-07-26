@@ -170,12 +170,20 @@
                                }
 
                          :post {
+                                :summary "Create model."
                                 :accept "application/json"
                                 :coercion reitit.coercion.schema/coercion
 
                                 :parameters {:body schema-min}
                                 :middleware [accept-json-middleware]
                                 :handler mn/create-model-handler
+
+
+                                :responses {200 {:description "Returns the workflows."
+                                                 :body s/Any}
+                                            400 {:description "Bad Reqeust / Duplicate key value of ?product?"
+                                                 :body s/Any}}
+
                                 }
                          }]
 
@@ -188,6 +196,7 @@
 
                                    :responses {200 {:description "OK"
                                                     :body schema}
+                                               204 {:description "No Content"}
                                                404 {:description "Not Found"
                                                     ;:content {:application/json {:schema {:type "string"}}}
                                                     }
@@ -204,6 +213,10 @@
                                                 :body schema-min}
                                    :middleware [accept-json-middleware]
                                    :handler mn/update-model-handler
+
+                                   :responses {200 {:description "Returns the updated model."
+                                                    :body s/Any}
+                                               }
                                    }
 
                              :delete {
@@ -212,6 +225,11 @@
                                       :parameters {:path {:id s/Uuid}}
                                       :middleware [accept-json-middleware]
                                       :handler mn/delete-model-handler
+
+                                      :responses {200 {:description "Returns the workflows."
+                                                       :body s/Any}
+                                                  400 {:description "Bad Reqeust / Duplicate key value of ?product?"
+                                                       :body s/Any}}
                                       }
                              }
                      ]]]]
