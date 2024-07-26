@@ -20,8 +20,7 @@
     (shutdown/init options)
     (let [status (status/init)]
       (db/init options (:health-check-registry status)))
-    (http-server/start options (sui/create-app options)
-      )))
+    (http-server/start options (sui/create-app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -61,10 +61,8 @@
     (or (handler request)
         {:status 404})))
 
+;; TODO: required?
 (defn init [options]
-
-  ;(println ">o> paths=" paths)
-  ;(println ">o> resolve-table=" resolve-table)
 
   ;(core-routing/init paths resolve-table)
   (->

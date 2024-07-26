@@ -15,14 +15,6 @@
   [:div
    [nav]
    [:hr]
-
-      (let [
-            current-view (-> @state/route-match :data :view)
-
-            p (println ">o> current-view=" current-view)
-               ])
-
    (if-let [current-view (-> @state/route-match :data :view)]
      [current-view]
-     [:div "unknown route"]
-     )])
+     [:div "unknown route"])])

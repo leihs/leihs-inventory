@@ -16,7 +16,6 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
-            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.resource :refer [wrap-resource]]
             [schema.core :as s]))
 
@@ -41,8 +40,7 @@
 
 (defn inventory-handler [request]
   (let [path (:uri request)
-        path (if (= "/inventory" path) "index.html" path)
-        _ (println ">o> path.new=" path)]
+        path (if (= "/inventory" path) "index.html" path)]
     (if-let [resource (or (io/resource (str "public/" path))
                         (io/resource (str "public/inventory/" path)))]
       {:status 200
@@ -100,26 +98,6 @@
    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
 
-;(def ^:dynamic middlewares
-;  [
-;   ;swagger/swagger-feature
-;   ;muuntaja/format-negotiate-middleware
-;   ;muuntaja/format-response-middleware
-;   ;ring-audits/wrap
-;   ;muuntaja/format-request-middleware
-;   ;multipart/multipart-middleware
-;
-;   ;ring-wrap-cors
-;   db/wrap-tx
-;   ;rmp/parameters-middleware
-;   ;wrap-catch-exception
-;   ;authentication/wrap
-;   ;authentication/wrap-log
-;   ;rrc/coerce-exceptions-middleware
-;   ;rrc/coerce-request-middleware
-;   ;rrc/coerce-response-middleware
-;   ])
-
 (defn create-app [options]
   (let [router (ring/router
 
@@ -160,12 +138,8 @@
                                :responses {200 {:description "OK"
                                                 :body [schema]
                                                 }
-                                           404 {:description "Not Found"
-                                                ;:content {:application/json {:schema {:type "string"}}}
-                                                }
-                                           500 {:description "Internal Server Error"
-                                                ;:content {:application/json {:schema {:type "string"}}}
-                                                }
+                                           404 {:description "Not Found"}
+                                           500 {:description "Internal Server Error"}
                                            }
                                }
 
@@ -197,12 +171,8 @@
                                    :responses {200 {:description "OK"
                                                     :body schema}
                                                204 {:description "No Content"}
-                                               404 {:description "Not Found"
-                                                    ;:content {:application/json {:schema {:type "string"}}}
-                                                    }
-                                               500 {:description "Internal Server Error"
-                                                    ;:content {:application/json {:schema {:type "string"}}}
-                                                    }
+                                               404 {:description "Not Found"}
+                                               500 {:description "Internal Server Error"}
                                                }
                                    }
 
@@ -238,9 +208,7 @@
                   :data {
                          :coercion reitit.coercion.spec/coercion
                          :muuntaja m/instance
-                         :middleware [
-
-                                      db/wrap-tx
+                         :middleware [db/wrap-tx
 
                                       swagger/swagger-feature
                                       parameters/parameters-middleware

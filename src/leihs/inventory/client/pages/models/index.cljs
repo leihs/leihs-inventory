@@ -62,7 +62,7 @@
                  (.json response)
                  (throw (js/Error. "Failed to save model")))))
       (.then (fn [data]
-               (fetch-models))) ; Refresh the models list
+               (fetch-models)))
       (.catch (fn [err]
                 (reset! error (.message err)))))))
 

@@ -12,7 +12,6 @@
 (defn get-models-handler [request]
   (let [tx (:tx request)
         id (get-in request [:path-params :id])
-        p (println ">o> id2" id)
         models-query (-> (sql/select :*)
                          (sql/from :models)
                          (sql/order-by :models.product)
@@ -37,8 +36,7 @@
         model body-params
         model (assoc body-params
                      :created_at created_ts
-                     :updated_at created_ts)
-        p (println ">o> body-params=" model)]
+                     :updated_at created_ts)]
 
     (try
       (let [res (jdbc/insert! tx :models model)]

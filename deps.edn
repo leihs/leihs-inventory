@@ -13,17 +13,11 @@
         ring/ring-core {:mvn/version "1.12.2"}
         cljsjs/react-dom {:mvn/version "18.2.0-1"}
         metosin/reitit {:mvn/version "0.7.1"}
-
-       ring/ring-defaults {:mvn/version "0.3.2"}
-
-
+        ring/ring-defaults {:mvn/version "0.3.2"}
         metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
         fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
         ring/ring-jetty-adapter {:mvn/version "1.12.1"}
         cheshire {:mvn/version "5.13.0"}
-
-
-
         }
 
  :aliases {:build {:deps

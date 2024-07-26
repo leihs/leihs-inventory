@@ -2,7 +2,6 @@
   (:require [cljs-http.client :as http]))
 
 (def base-url
-  ;"http://localhost:8080/inventory/models"
   "http://localhost:3260/inventory/models"
   #_"http://localhost:3360/models" ; mock api
   )
@@ -13,4 +12,3 @@
 
 (defn delete-model [id]
   (http/delete (str base-url "/" id) {:headers {"Accept" "application/json"}}))
-  ;(http/delete (str base-url "/" id) {:headers {"Accept" "application/json"} :body id}))
