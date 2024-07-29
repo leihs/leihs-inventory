@@ -34,7 +34,7 @@
 (defn main-usage [options-summary & more]
   (->> ["leihs-inventory"
         ""
-        "usage: leihs-perm [<gopts>] run [<opts>] [<args>]"
+        "usage: leihs-inventory [<gopts>] run [<opts>] [<args>]"
         ""
         "Options:"
         options-summary
