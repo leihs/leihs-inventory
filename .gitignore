@@ -10,7 +10,10 @@ logs/
 leihs-inventory.jar
 node_modules/
 node_modules/.package-lock.json
-resources/public/inventory/css/
-resources/public/inventory/js/
+resources/public/inventory/js/*
+resources/public/inventory/css/*
+!resources/public/inventory/css/additional.css
+resources/public/inventory/assets/*
+!resources/public/inventory/assets/zhdk-logo.svg
 target/
 tmp/
