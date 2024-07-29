@@ -1,13 +1,19 @@
 (ns leihs.inventory.server.swagger-api
   (:require [clojure.java.io :as io]
             [clojure.string]
+            [leihs.core.anti-csrf.back :as anti-csrf]
+            [leihs.core.auth.session :as session]
+            [leihs.core.db :as datasource]
             [leihs.core.db :as db]
+            [leihs.core.ring-audits :as ring-audits]
             [leihs.inventory.server.resources.models.main :as mn]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.openapi :as openapi]
+            [ring.middleware.cookies :refer [wrap-cookies]]
+
             [reitit.ring :as ring]
             [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]
@@ -205,6 +211,26 @@
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
 
+                                     ring-audits/wrap
+                                     anti-csrf/wrap
+                                     session/wrap-authenticate
+                                     wrap-cookies
+
+                                     ;locale/wrap
+                                     ;settings/wrap
+                                     ;datasource/wrap-tx
+                                     ;wrap-json-response
+                                     ;(wrap-json-body {:keywords? true})
+                                     ;wrap-empty
+                                     ;core-routing/wrap-canonicalize-params-maps
+                                     ;wrap-params
+                                     ;wrap-multipart-params
+                                     ;(status/wrap (path :status))
+                                     ;wrap-content-type
+                                     ;(core-routing/wrap-resolve-handler html/html-handler)
+                                     ;wrap-accept
+                                     ;ring-exception/wrap
+
                                      swagger/swagger-feature
                                      parameters/parameters-middleware
                                      muuntaja/format-negotiate-middleware
@@ -216,20 +242,29 @@
                                      multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
-         router
-         (ring/routes
-          (ring/redirect-trailing-slash-handler {:method :strip})
+          router
+          (ring/routes
+            (ring/redirect-trailing-slash-handler {:method :strip})
 
             ;; TODO: breaks swagger-ui, not accessible, whitelisting needed
             ;(ring/create-default-handler {:not-found (constantly {:status 404 :body "LEIHS-DEV: Not Found"})})
 
-          (swagger-ui/create-swagger-ui-handler
-           {:path "/inventory/api-docs/"
-            :config {:validatorUrl nil
-                     :urls [;; TODO: revise config to support multiple specs/accept-types
+            (swagger-ui/create-swagger-ui-handler
+              {:path "/inventory/api-docs/"
+               :config {:validatorUrl nil
+                        :urls [;; TODO: revise config to support multiple specs/accept-types
                                ;{:name "openapi" :url "openapi.json"}
                             {:name "swagger" :url "swagger.json"}]
                      :urls.primaryName "openapi"
                      :operationsSorter "alpha"}})))
         ;(wrap-defaults site-defaults)
-        (wrap-resource "public"))))
+
+        (wrap-resource "public"
+          {:allow-symlinks? true
+           :cache-bust-paths ["/inventory/css/additional.css"
+                              "/inventory/js/main.js"]
+           :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
+                                #".+_[0-9a-f]{40}\..+"]
+           :enabled? true})
+
+        )))
