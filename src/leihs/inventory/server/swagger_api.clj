@@ -19,6 +19,11 @@
             [ring.middleware.resource :refer [wrap-resource]]
             [schema.core :as s]))
 
+
+(def INDEX-HTML-RESPONSE {:status 200
+                          :headers {"Content-Type" "text/html"}
+                          :body (slurp (io/resource "public/index.html"))})
+
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])]
     (cond
@@ -26,7 +31,7 @@
       {:status 200
        :headers {"Content-Type" "text/html"}
        :body (str "<html><body><h1>Welcome to my API _> go to <a href=\"/inventory\">go to /inventory<a/></h1></body></html>"
-                  (slurp (io/resource "md/info.md")))}
+                  (slurp (io/resource "md/info.html")) (slurp (io/resource "md/dev-info.html")))}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -53,10 +58,8 @@
     (let [accept-header (get-in request [:headers "accept"])]
       (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
         (handler request)
-        {:status 404
-         ;:headers {"Content-Type" "text/plain"}
-         ;:body {:message "Not Acceptable: application/json required2"}
-         }))))
+        INDEX-HTML-RESPONSE
+        ))))
 
 (def schema
   {
@@ -112,7 +115,7 @@
                     {:get {:no-doc true
                            :swagger {:info {:title "inventory-api"
                                             :version "2.0.0"
-                                            :description (slurp (io/resource "md/info.md"))
+                                            :description (str (slurp (io/resource "md/info.html"))(slurp (io/resource "md/dev-info.html")))
                                             }}
                            :handler (swagger/create-swagger-handler)}}]
 
@@ -120,12 +123,30 @@
                     {:get {:no-doc true
                            :openapi {:openapi "3.0.0"
                                      :info {:title "inventory-api"
-                                            :description (slurp (io/resource "md/info.md"))
+                                            :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/dev-info.html")))
                                             :version "3.0.0"}}
                            :handler (openapi/create-openapi-handler)}}]
 
                    [""
                     {:get {:handler inventory-handler :no-doc true}}]
+
+
+                   ["/debug"
+                    {:tags ["Debug"]}
+
+                    ["" {:get {:accept "text/html"
+                               :coercion reitit.coercion.schema/coercion
+                               :swagger {:produces ["text/html"]}
+                               :handler (fn [request] INDEX-HTML-RESPONSE)
+                               :responses {200 {:description "OK"
+                                                ;:body [schema]
+                                                :body s/Any
+                                                }
+                                           404 {:description "Not Found"}
+                                           500 {:description "Internal Server Error"}
+                                           }
+                               }}]]
+
 
                    ["/models"
                     {:tags ["Models"]}
@@ -133,10 +154,14 @@
                     ["" {:get {:accept "application/json"
                                :coercion reitit.coercion.schema/coercion
                                :middleware [accept-json-middleware]
+
+                               :swagger {:produces ["application/json" "text/html"]}
+
                                :handler mn/get-models-handler
 
                                :responses {200 {:description "OK"
-                                                :body [schema]
+                                                ;:body [schema]
+                                                :body s/Any
                                                 }
                                            404 {:description "Not Found"}
                                            500 {:description "Internal Server Error"}
@@ -172,9 +197,7 @@
                                                     :body schema}
                                                204 {:description "No Content"}
                                                404 {:description "Not Found"}
-                                               500 {:description "Internal Server Error"}
-                                               }
-                                   }
+                                               500 {:description "Internal Server Error"}}}
 
                              :put {
                                    :accept "application/json"
@@ -225,14 +248,17 @@
           (ring/routes
             (ring/redirect-trailing-slash-handler {:method :strip})
 
-            ;; TODO: breaks swagger-ui
+            ;; TODO: breaks swagger-ui, not accessible, whitelisting needed
             ;(ring/create-default-handler {:not-found (constantly {:status 404 :body "LEIHS-DEV: Not Found"})})
 
             (swagger-ui/create-swagger-ui-handler
               {:path "/inventory/api-docs/"
                :config {:validatorUrl nil
-                        :urls [{:name "swagger" :url "swagger.json"}
-                               {:name "openapi" :url "openapi.json"}]
+                        :urls [
+                               ;; TODO: revise config to support multiple specs/accept-types
+                               ;{:name "openapi" :url "openapi.json"}
+                               {:name "swagger" :url "swagger.json"}
+                               ]
                         :urls.primaryName "openapi"
                         :operationsSorter "alpha"}})))
         ;(wrap-defaults site-defaults)
