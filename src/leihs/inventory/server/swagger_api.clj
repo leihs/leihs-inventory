@@ -3,7 +3,7 @@
             [clojure.string]
             [leihs.core.anti-csrf.back :as anti-csrf]
             [leihs.core.auth.session :as session]
-            [leihs.core.db :as datasource]
+            [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.inventory.server.resources.models.main :as mn]
@@ -12,9 +12,8 @@
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.openapi :as openapi]
-            [ring.middleware.cookies :refer [wrap-cookies]]
-
             [reitit.ring :as ring]
+
             [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]
             [reitit.ring.middleware.multipart :as multipart]
@@ -22,12 +21,18 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
+            [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.resource :refer [wrap-resource]]
             [schema.core :as s]))
 
-(def INDEX-HTML-RESPONSE {:status 200
-                          :headers {"Content-Type" "text/html"}
-                          :body (slurp (io/resource "public/index.html"))})
+(def INDEX-HTML-CONTENT (slurp (io/resource "public/index.html")))
+(def INDEX-HTML-RESPONSE-OK {:status 200
+                             :headers {"Content-Type" "text/html"}
+                             :body INDEX-HTML-CONTENT})
+
+(def INDEX-HTML-RESPONSE-NOT-FOUND {:status 404
+                                    :headers {"Content-Type" "text/html"}
+                                    :body INDEX-HTML-CONTENT})
 
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])]
@@ -63,7 +68,7 @@
     (let [accept-header (get-in request [:headers "accept"])]
       (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
         (handler request)
-        INDEX-HTML-RESPONSE))))
+        INDEX-HTML-RESPONSE-OK))))
 
 (def schema
   {:id s/Uuid
@@ -101,7 +106,6 @@
    ;:updated_at s/Inst
    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
-
 (defn create-app [options]
   (let [router (ring/router
 
@@ -136,7 +140,7 @@
                    ["" {:get {:accept "text/html"
                               :coercion reitit.coercion.schema/coercion
                               :swagger {:produces ["text/html"]}
-                              :handler (fn [request] INDEX-HTML-RESPONSE)
+                              :handler (fn [request] INDEX-HTML-RESPONSE-OK)
                               :responses {200 {:description "OK"
                                                 ;:body [schema]
                                                :body s/Any}
@@ -216,20 +220,20 @@
                                      session/wrap-authenticate
                                      wrap-cookies
 
-                                     ;locale/wrap
-                                     ;settings/wrap
-                                     ;datasource/wrap-tx
-                                     ;wrap-json-response
-                                     ;(wrap-json-body {:keywords? true})
-                                     ;wrap-empty
-                                     ;core-routing/wrap-canonicalize-params-maps
-                                     ;wrap-params
-                                     ;wrap-multipart-params
-                                     ;(status/wrap (path :status))
-                                     ;wrap-content-type
-                                     ;(core-routing/wrap-resolve-handler html/html-handler)
-                                     ;wrap-accept
-                                     ;ring-exception/wrap
+                                      ;locale/wrap
+                                      ;settings/wrap
+                                      ;datasource/wrap-tx
+                                      ;wrap-json-response
+                                      ;(wrap-json-body {:keywords? true})
+                                      ;wrap-empty
+                                      ;core-routing/wrap-canonicalize-params-maps
+                                      ;wrap-params
+                                      ;wrap-multipart-params
+                                      ;(status/wrap (path :status))
+                                      ;wrap-content-type
+                                      ;(core-routing/wrap-resolve-handler html/html-handler)
+                                      ;wrap-accept
+                                      ;ring-exception/wrap
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware
@@ -242,29 +246,26 @@
                                      multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
-          router
-          (ring/routes
-            (ring/redirect-trailing-slash-handler {:method :strip})
+         router
+         (ring/routes
+          (ring/redirect-trailing-slash-handler {:method :strip})
 
-            ;; TODO: breaks swagger-ui, not accessible, whitelisting needed
-            ;(ring/create-default-handler {:not-found (constantly {:status 404 :body "LEIHS-DEV: Not Found"})})
-
-            (swagger-ui/create-swagger-ui-handler
-              {:path "/inventory/api-docs/"
-               :config {:validatorUrl nil
-                        :urls [;; TODO: revise config to support multiple specs/accept-types
+          (swagger-ui/create-swagger-ui-handler
+           {:path "/inventory/api-docs/"
+            :config {:validatorUrl nil
+                     :urls [;; TODO: revise config to support multiple specs/accept-types
                                ;{:name "openapi" :url "openapi.json"}
                             {:name "swagger" :url "swagger.json"}]
                      :urls.primaryName "openapi"
-                     :operationsSorter "alpha"}})))
-        ;(wrap-defaults site-defaults)
+                     :operationsSorter "alpha"}})
+
+          (ring/create-default-handler
+           {:not-found (fn [request] INDEX-HTML-RESPONSE-NOT-FOUND)})))
 
         (wrap-resource "public"
-          {:allow-symlinks? true
-           :cache-bust-paths ["/inventory/css/additional.css"
-                              "/inventory/js/main.js"]
-           :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-                                #".+_[0-9a-f]{40}\..+"]
-           :enabled? true})
-
-        )))
+                       {:allow-symlinks? true
+                        :cache-bust-paths ["/inventory/css/additional.css"
+                                           "/inventory/js/main.js"]
+                        :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
+                                             #".+_[0-9a-f]{40}\..+"]
+                        :enabled? true}))))

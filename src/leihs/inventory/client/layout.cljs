@@ -17,4 +17,4 @@
    [:hr]
    (if-let [current-view (-> @state/route-match :data :view)]
      [current-view]
-     [:div "unknown route"])])
+     [:div.error "ERROR: unknown route"])])
