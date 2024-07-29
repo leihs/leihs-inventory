@@ -142,7 +142,6 @@
                               :swagger {:produces ["text/html"]}
                               :handler (fn [request] INDEX-HTML-RESPONSE-OK)
                               :responses {200 {:description "OK"
-                                                ;:body [schema]
                                                :body s/Any}
                                           404 {:description "Not Found"}
                                           500 {:description "Internal Server Error"}}}}]]
@@ -155,12 +154,11 @@
                               :middleware [accept-json-middleware]
 
                               :swagger {:produces ["application/json" "text/html"]}
-
                               :handler mn/get-models-handler
 
                               :responses {200 {:description "OK"
-                                                ;:body [schema]
-                                               :body s/Any}
+                                               :body (s/->Either [s/Any schema])}
+
                                           404 {:description "Not Found"}
                                           500 {:description "Internal Server Error"}}}
 
@@ -174,7 +172,7 @@
 
                                :responses {200 {:description "Returns the workflows."
                                                 :body s/Any}
-                                           400 {:description "Bad Reqeust / Duplicate key value of ?product?"
+                                           400 {:description "Bad Request / Duplicate key value of ?product?"
                                                 :body s/Any}}}}]
 
                    ["/:id" {:get {:accept "application/json"
@@ -184,7 +182,7 @@
                                   :parameters {:path {:id s/Uuid}}
 
                                   :responses {200 {:description "OK"
-                                                   :body schema}
+                                                   :body (s/->Either [s/Any schema])}
                                               204 {:description "No Content"}
                                               404 {:description "Not Found"}
                                               500 {:description "Internal Server Error"}}}
