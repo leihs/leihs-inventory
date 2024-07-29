@@ -26,8 +26,7 @@
     (cond
       (nil? id) {:body result}
       (nil? (first result)) {:status 204}
-      :else {:body (first result)})
-    ))
+      :else {:body (first result)})))
 
 (defn create-model-handler [request]
   (let [created_ts (LocalDateTime/now)
@@ -74,8 +73,7 @@
 
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model deleted" :id model-id})
-          (bad-request {:error "Failed to delete model" :details "Model not found"})
-          ))
+          (bad-request {:error "Failed to delete model" :details "Model not found"})))
 
       (catch Exception e
         (error "Failed to delete model" e)

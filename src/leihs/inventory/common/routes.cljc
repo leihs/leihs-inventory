@@ -5,6 +5,4 @@
     ["" {:name :home}]
 
     ["/models" {:name :models-index}]
-    ["/debug" {:name :debug-index}]
-
-    ]])
+    ["/debug" {:name :debug-index}]]])

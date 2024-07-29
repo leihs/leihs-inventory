@@ -93,7 +93,7 @@
    ;(core-routing/wrap-resolve-handler html/html-handler)
    ;wrap-accept
    ;ring-exception/wrap
-  ))
+   ))
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)

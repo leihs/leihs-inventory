@@ -24,6 +24,11 @@ Plain start, assuming it was installed before:
 npm run dev
 ```
 
+### Formatting Code
+
+Use `./bin/cljfmt check` and  `./bin/cljfmt fix`.
+
+From vim you can use `:! ./bin/cljfmt fix %` to format the current file.
 
 
 Development setup

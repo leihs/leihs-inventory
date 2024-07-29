@@ -21,24 +21,24 @@
    Applies f to each settings-map."
   [v f]
   (vec
-    (map-indexed (fn [idx item]
-                   (cond
-                     (and (map? item) (= idx 1)) (f item)
-                     (vector? item) (vec (recursive-routes-update item f))
-                     :else item))
-      v)))
+   (map-indexed (fn [idx item]
+                  (cond
+                    (and (map? item) (= idx 1)) (f item)
+                    (vector? item) (vec (recursive-routes-update item f))
+                    :else item))
+                v)))
 
 (defn- resolve-routes [raw-routes handler-map]
   (recursive-routes-update
-    raw-routes
-    #(assoc % :view (-> % :name handler-map))))
+   raw-routes
+   #(assoc % :view (-> % :name handler-map))))
 
 (defn start! []
   (re/start!
     ; router
-    (let [routes (resolve-routes common-routes/routes routes/handler-map) ]
-      (rf/router routes {:data {:coercion rcs/coercion}}))
+   (let [routes (resolve-routes common-routes/routes routes/handler-map)]
+     (rf/router routes {:data {:coercion rcs/coercion}}))
     ; on-navigate
-    on-navigate
+   on-navigate
     ; opts
-    {:use-fragment false}))
+   {:use-fragment false}))

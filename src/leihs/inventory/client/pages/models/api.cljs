@@ -9,6 +9,5 @@
 (defn get-many []
   (http/get base-url {:headers {"Accept" "application/json"}}))
 
-
 (defn delete-model [id]
   (http/delete (str base-url "/" id) {:headers {"Accept" "application/json"}}))

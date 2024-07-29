@@ -19,7 +19,6 @@
             [ring.middleware.resource :refer [wrap-resource]]
             [schema.core :as s]))
 
-
 (def INDEX-HTML-RESPONSE {:status 200
                           :headers {"Content-Type" "text/html"}
                           :body (slurp (io/resource "public/index.html"))})
@@ -47,7 +46,7 @@
   (let [path (:uri request)
         path (if (= "/inventory" path) "index.html" path)]
     (if-let [resource (or (io/resource (str "public/" path))
-                        (io/resource (str "public/inventory/" path)))]
+                          (io/resource (str "public/inventory/" path)))]
       {:status 200
        :body (slurp resource)}
       {:status 404
@@ -58,12 +57,10 @@
     (let [accept-header (get-in request [:headers "accept"])]
       (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
         (handler request)
-        INDEX-HTML-RESPONSE
-        ))))
+        INDEX-HTML-RESPONSE))))
 
 (def schema
-  {
-   :id s/Uuid
+  {:id s/Uuid
    :type s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
    :product s/Str
@@ -78,12 +75,10 @@
    (s/optional-key :technical_detail) (s/maybe s/Str)
    :created_at s/Inst
    :updated_at s/Inst
-   (s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   })
+   (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
 
 (def schema-min
-  {
-   ;:id s/Uuid
+  {;:id s/Uuid
    :type s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
    :product s/Str
@@ -104,163 +99,137 @@
 (defn create-app [options]
   (let [router (ring/router
 
-                 [["/" {:no-doc true :get {:handler root-handler}}]
+                [["/" {:no-doc true :get {:handler root-handler}}]
 
-                  ["/inventory"
+                 ["/inventory"
 
-                   [#"/(?!api-docs).*"
-                    {:get {:handler inventory-handler}}]
+                  [#"/(?!api-docs).*"
+                   {:get {:handler inventory-handler}}]
 
-                   ["/api-docs/swagger.json"
-                    {:get {:no-doc true
-                           :swagger {:info {:title "inventory-api"
-                                            :version "2.0.0"
-                                            :description (str (slurp (io/resource "md/info.html"))(slurp (io/resource "md/dev-info.html")))
-                                            }}
-                           :handler (swagger/create-swagger-handler)}}]
+                  ["/api-docs/swagger.json"
+                   {:get {:no-doc true
+                          :swagger {:info {:title "inventory-api"
+                                           :version "2.0.0"
+                                           :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/dev-info.html")))}}
+                          :handler (swagger/create-swagger-handler)}}]
 
-                   ["/api-docs/openapi.json"
-                    {:get {:no-doc true
-                           :openapi {:openapi "3.0.0"
-                                     :info {:title "inventory-api"
-                                            :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/dev-info.html")))
-                                            :version "3.0.0"}}
-                           :handler (openapi/create-openapi-handler)}}]
+                  ["/api-docs/openapi.json"
+                   {:get {:no-doc true
+                          :openapi {:openapi "3.0.0"
+                                    :info {:title "inventory-api"
+                                           :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/dev-info.html")))
+                                           :version "3.0.0"}}
+                          :handler (openapi/create-openapi-handler)}}]
 
-                   [""
-                    {:get {:handler inventory-handler :no-doc true}}]
+                  [""
+                   {:get {:handler inventory-handler :no-doc true}}]
 
+                  ["/debug"
+                   {:tags ["Debug"]}
 
-                   ["/debug"
-                    {:tags ["Debug"]}
-
-                    ["" {:get {:accept "text/html"
-                               :coercion reitit.coercion.schema/coercion
-                               :swagger {:produces ["text/html"]}
-                               :handler (fn [request] INDEX-HTML-RESPONSE)
-                               :responses {200 {:description "OK"
+                   ["" {:get {:accept "text/html"
+                              :coercion reitit.coercion.schema/coercion
+                              :swagger {:produces ["text/html"]}
+                              :handler (fn [request] INDEX-HTML-RESPONSE)
+                              :responses {200 {:description "OK"
                                                 ;:body [schema]
-                                                :body s/Any
-                                                }
-                                           404 {:description "Not Found"}
-                                           500 {:description "Internal Server Error"}
-                                           }
-                               }}]]
+                                               :body s/Any}
+                                          404 {:description "Not Found"}
+                                          500 {:description "Internal Server Error"}}}}]]
 
+                  ["/models"
+                   {:tags ["Models"]}
 
-                   ["/models"
-                    {:tags ["Models"]}
+                   ["" {:get {:accept "application/json"
+                              :coercion reitit.coercion.schema/coercion
+                              :middleware [accept-json-middleware]
 
-                    ["" {:get {:accept "application/json"
+                              :swagger {:produces ["application/json" "text/html"]}
+
+                              :handler mn/get-models-handler
+
+                              :responses {200 {:description "OK"
+                                                ;:body [schema]
+                                               :body s/Any}
+                                          404 {:description "Not Found"}
+                                          500 {:description "Internal Server Error"}}}
+
+                        :post {:summary "Create model."
+                               :accept "application/json"
                                :coercion reitit.coercion.schema/coercion
+
+                               :parameters {:body schema-min}
                                :middleware [accept-json-middleware]
+                               :handler mn/create-model-handler
 
-                               :swagger {:produces ["application/json" "text/html"]}
+                               :responses {200 {:description "Returns the workflows."
+                                                :body s/Any}
+                                           400 {:description "Bad Reqeust / Duplicate key value of ?product?"
+                                                :body s/Any}}}}]
 
-                               :handler mn/get-models-handler
+                   ["/:id" {:get {:accept "application/json"
+                                  :coercion reitit.coercion.schema/coercion
+                                  :middleware [accept-json-middleware]
+                                  :handler mn/get-models-handler
+                                  :parameters {:path {:id s/Uuid}}
 
-                               :responses {200 {:description "OK"
-                                                ;:body [schema]
-                                                :body s/Any
-                                                }
-                                           404 {:description "Not Found"}
-                                           500 {:description "Internal Server Error"}
-                                           }
-                               }
+                                  :responses {200 {:description "OK"
+                                                   :body schema}
+                                              204 {:description "No Content"}
+                                              404 {:description "Not Found"}
+                                              500 {:description "Internal Server Error"}}}
 
-                         :post {
-                                :summary "Create model."
-                                :accept "application/json"
-                                :coercion reitit.coercion.schema/coercion
+                            :put {:accept "application/json"
+                                  :coercion reitit.coercion.schema/coercion
+                                  :parameters {:path {:id s/Uuid}
+                                               :body schema-min}
+                                  :middleware [accept-json-middleware]
+                                  :handler mn/update-model-handler
 
-                                :parameters {:body schema-min}
-                                :middleware [accept-json-middleware]
-                                :handler mn/create-model-handler
+                                  :responses {200 {:description "Returns the updated model."
+                                                   :body s/Any}}}
 
+                            :delete {:accept "application/json"
+                                     :coercion reitit.coercion.schema/coercion
+                                     :parameters {:path {:id s/Uuid}}
+                                     :middleware [accept-json-middleware]
+                                     :handler mn/delete-model-handler
 
-                                :responses {200 {:description "Returns the workflows."
-                                                 :body s/Any}
-                                            400 {:description "Bad Reqeust / Duplicate key value of ?product?"
-                                                 :body s/Any}}
+                                     :responses {200 {:description "Returns the workflows."
+                                                      :body s/Any}
+                                                 400 {:description "Bad Reqeust / Duplicate key value of ?product?"
+                                                      :body s/Any}}}}]]]]
 
-                                }
-                         }]
+                {:exception pretty/exception
+                 :data {:coercion reitit.coercion.spec/coercion
+                        :muuntaja m/instance
+                        :middleware [db/wrap-tx
 
-
-                    ["/:id" {:get {:accept "application/json"
-                                   :coercion reitit.coercion.schema/coercion
-                                   :middleware [accept-json-middleware]
-                                   :handler mn/get-models-handler
-                                   :parameters {:path {:id s/Uuid}}
-
-                                   :responses {200 {:description "OK"
-                                                    :body schema}
-                                               204 {:description "No Content"}
-                                               404 {:description "Not Found"}
-                                               500 {:description "Internal Server Error"}}}
-
-                             :put {
-                                   :accept "application/json"
-                                   :coercion reitit.coercion.schema/coercion
-                                   :parameters {:path {:id s/Uuid}
-                                                :body schema-min}
-                                   :middleware [accept-json-middleware]
-                                   :handler mn/update-model-handler
-
-                                   :responses {200 {:description "Returns the updated model."
-                                                    :body s/Any}
-                                               }
-                                   }
-
-                             :delete {
-                                      :accept "application/json"
-                                      :coercion reitit.coercion.schema/coercion
-                                      :parameters {:path {:id s/Uuid}}
-                                      :middleware [accept-json-middleware]
-                                      :handler mn/delete-model-handler
-
-                                      :responses {200 {:description "Returns the workflows."
-                                                       :body s/Any}
-                                                  400 {:description "Bad Reqeust / Duplicate key value of ?product?"
-                                                       :body s/Any}}
-                                      }
-                             }
-                     ]]]]
-
-                 {:exception pretty/exception
-                  :data {
-                         :coercion reitit.coercion.spec/coercion
-                         :muuntaja m/instance
-                         :middleware [db/wrap-tx
-
-                                      swagger/swagger-feature
-                                      parameters/parameters-middleware
-                                      muuntaja/format-negotiate-middleware
-                                      muuntaja/format-response-middleware
-                                      exception/exception-middleware
-                                      muuntaja/format-request-middleware
-                                      coercion/coerce-response-middleware
-                                      coercion/coerce-request-middleware
-                                      multipart/multipart-middleware]}})]
+                                     swagger/swagger-feature
+                                     parameters/parameters-middleware
+                                     muuntaja/format-negotiate-middleware
+                                     muuntaja/format-response-middleware
+                                     exception/exception-middleware
+                                     muuntaja/format-request-middleware
+                                     coercion/coerce-response-middleware
+                                     coercion/coerce-request-middleware
+                                     multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
-          router
-          (ring/routes
-            (ring/redirect-trailing-slash-handler {:method :strip})
+         router
+         (ring/routes
+          (ring/redirect-trailing-slash-handler {:method :strip})
 
             ;; TODO: breaks swagger-ui, not accessible, whitelisting needed
             ;(ring/create-default-handler {:not-found (constantly {:status 404 :body "LEIHS-DEV: Not Found"})})
 
-            (swagger-ui/create-swagger-ui-handler
-              {:path "/inventory/api-docs/"
-               :config {:validatorUrl nil
-                        :urls [
-                               ;; TODO: revise config to support multiple specs/accept-types
+          (swagger-ui/create-swagger-ui-handler
+           {:path "/inventory/api-docs/"
+            :config {:validatorUrl nil
+                     :urls [;; TODO: revise config to support multiple specs/accept-types
                                ;{:name "openapi" :url "openapi.json"}
-                               {:name "swagger" :url "swagger.json"}
-                               ]
-                        :urls.primaryName "openapi"
-                        :operationsSorter "alpha"}})))
+                            {:name "swagger" :url "swagger.json"}]
+                     :urls.primaryName "openapi"
+                     :operationsSorter "alpha"}})))
         ;(wrap-defaults site-defaults)
-        (wrap-resource "public")
-        )))
+        (wrap-resource "public"))))

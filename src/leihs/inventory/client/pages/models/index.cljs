@@ -54,32 +54,32 @@
 (defn add-model [model]
   (let [model-without-id (dissoc model :id :updated_at :created_at)]
     (-> (js/fetch "/inventory/models"
-          (clj->js {:method "POST"
-                    :headers {"Accept" "application/json" "Content-Type" "application/json"}
-                    :body (js/JSON.stringify (clj->js model-without-id))}))
-      (.then (fn [response]
-               (if (.-ok response)
-                 (.json response)
-                 (throw (js/Error. "Failed to save model")))))
-      (.then (fn [data]
-               (fetch-models)))
-      (.catch (fn [err]
-                (reset! error (.message err)))))))
+                  (clj->js {:method "POST"
+                            :headers {"Accept" "application/json" "Content-Type" "application/json"}
+                            :body (js/JSON.stringify (clj->js model-without-id))}))
+        (.then (fn [response]
+                 (if (.-ok response)
+                   (.json response)
+                   (throw (js/Error. "Failed to save model")))))
+        (.then (fn [data]
+                 (fetch-models)))
+        (.catch (fn [err]
+                  (reset! error (.message err)))))))
 
 (defn update-model [model]
   (let [model-without-id (dissoc model :id :process_update)]
     (-> (js/fetch (str "/inventory/models/" (:id model))
-          (clj->js {:method "PUT"
-                    :headers {"Accept" "application/json" "Content-Type" "application/json"}
-                    :body (js/JSON.stringify (clj->js model-without-id))}))
-      (.then (fn [response]
-               (if (.-ok response)
-                 (.json response)
-                 (throw (js/Error. "Failed to save model")))))
-      (.then (fn [data]
-               (fetch-models)))
-      (.catch (fn [err]
-                (reset! error (.message err)))))))
+                  (clj->js {:method "PUT"
+                            :headers {"Accept" "application/json" "Content-Type" "application/json"}
+                            :body (js/JSON.stringify (clj->js model-without-id))}))
+        (.then (fn [response]
+                 (if (.-ok response)
+                   (.json response)
+                   (throw (js/Error. "Failed to save model")))))
+        (.then (fn [data]
+                 (fetch-models)))
+        (.catch (fn [err]
+                  (reset! error (.message err)))))))
 
 (defn nil-or-empty? [s]
   (str/blank? s))
@@ -92,11 +92,11 @@
        [:form {:on-submit (fn [e]
                             (.preventDefault e)
                             (let [new-check (or (nil-or-empty? (:product @new-model))
-                                              (nil-or-empty? (:type @new-model))
-                                              (nil-or-empty? (:manufacturer @new-model)))
+                                                (nil-or-empty? (:type @new-model))
+                                                (nil-or-empty? (:manufacturer @new-model)))
                                   current-check (or (nil-or-empty? (:product @current-model))
-                                                  (nil-or-empty? (:type @current-model))
-                                                  (nil-or-empty? (:manufacturer @current-model)))
+                                                    (nil-or-empty? (:type @current-model))
+                                                    (nil-or-empty? (:manufacturer @current-model)))
                                   error-title (if @editing "Update-Check" "Add-Check")]
                               (reset! error-msg nil)
                               (cond
@@ -134,11 +134,11 @@
 
 (defn page []
   (r/create-class
-    {:component-did-mount #(fetch-models)
-     :reagent-render
-     (fn []
-       [:<>
-        [:h3 "Models"]
-        [model-form]
-        [:br]
-        [list-view]])}))
+   {:component-did-mount #(fetch-models)
+    :reagent-render
+    (fn []
+      [:<>
+       [:h3 "Models"]
+       [model-form]
+       [:br]
+       [list-view]])}))
