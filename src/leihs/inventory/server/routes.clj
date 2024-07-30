@@ -28,7 +28,7 @@
       :else
       {:status 406
        :headers {"Content-Type" "text/plain"}
-       :body "Not Acceptable1"})))
+       :body "Not Acceptable"})))
 
 (defn inventory-handler [request]
   (let [path (:uri request)

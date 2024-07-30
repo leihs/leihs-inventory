@@ -35,10 +35,10 @@
 
 (defn start! []
   (re/start!
-    ; router
+   ; router
    (let [routes (resolve-routes common-routes/routes routes/handler-map)]
      (rf/router routes {:data {:coercion rcs/coercion}}))
-    ; on-navigate
+   ; on-navigate
    on-navigate
-    ; opts
+   ; opts
    {:use-fragment false}))
