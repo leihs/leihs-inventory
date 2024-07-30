@@ -1,0 +1,1470 @@
+'./spec/features/audits/core_spec.rb[1:1:1:1]':
+  name: "Audits as an system admin after I edited a user 01"
+  environment_variables:
+    FEATURE_NAME: "Audits as an system admin after I edited a user 01"
+    FEATURE: './spec/features/audits/core_spec.rb[1:1:1:1]'
+'./spec/features/audits/core_spec.rb[1:1:1:2]':
+  name: "Audits as an system admin after I edited a user 02"
+  environment_variables:
+    FEATURE_NAME: "Audits as an system admin after I edited a user 02"
+    FEATURE: './spec/features/audits/core_spec.rb[1:1:1:2]'
+'./spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:1]':
+  name: "Breadcrumbs  an admin and a pool an system admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Breadcrumbs  an admin and a pool an system admin via the UI 01"
+    FEATURE: './spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:1]'
+'./spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:2]':
+  name: "Breadcrumbs  an admin and a pool an system admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Breadcrumbs  an admin and a pool an system admin via the UI 02"
+    FEATURE: './spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:2]'
+'./spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:3]':
+  name: "Breadcrumbs  an admin and a pool an system admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Breadcrumbs  an admin and a pool an system admin via the UI 03"
+    FEATURE: './spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:3]'
+'./spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:4]':
+  name: "Breadcrumbs  an admin and a pool an system admin via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Breadcrumbs  an admin and a pool an system admin via the UI 04"
+    FEATURE: './spec/features/breadcrumbs/inventory_pools_spec.rb[1:1:1:4]'
+'./spec/features/breadcrumbs/smoke_spec.rb[1:1:1:1]':
+  name: "Breadcrumps are visible  an system admin and some pools  an system admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Breadcrumps are visible  an system admin and some pools  an system admin via the UI 01"
+    FEATURE: './spec/features/breadcrumbs/smoke_spec.rb[1:1:1:1]'
+'./spec/features/buildings/create_spec.rb[1:1:1]':
+  name: "Manage Buildings an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage Buildings an admin via the UI 01"
+    FEATURE: './spec/features/buildings/create_spec.rb[1:1:1]'
+'./spec/features/buildings/delete_spec.rb[1:1:1]':
+  name: "Manage Buildings  an admin 01"
+  environment_variables:
+    FEATURE_NAME: "Manage Buildings  an admin 01"
+    FEATURE: './spec/features/buildings/delete_spec.rb[1:1:1]'
+'./spec/features/buildings/edit_spec.rb[1:1:1]':
+  name: "Manage buildings an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage buildings an admin via the UI 01"
+    FEATURE: './spec/features/buildings/edit_spec.rb[1:1:1]'
+'./spec/features/buildings/listing_spec.rb[1:1:1]':
+  name: "Managing Buildings: an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing Buildings: an admin via the UI 01"
+    FEATURE: './spec/features/buildings/listing_spec.rb[1:1:1]'
+'./spec/features/buildings/listing_spec.rb[1:1:2:1]':
+  name: "Managing Buildings: an admin via the UI searching for a building 01"
+  environment_variables:
+    FEATURE_NAME: "Managing Buildings: an admin via the UI searching for a building 01"
+    FEATURE: './spec/features/buildings/listing_spec.rb[1:1:2:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:1:1:1]':
+  name: "Creating groups a bunch of groups, users and some admins exist; an system admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; an system admin via the UI 01"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:1:1:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:2:1:1]':
+  name: "Creating groups a bunch of groups, users and some admins exist; an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; an admin via the UI 01"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:2:1:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:2:2:1]':
+  name: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 01"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:2:2:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:2:2:2]':
+  name: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 02"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:2:2:2]'
+'./spec/features/groups/create-group_spec.rb[1:1:2:2:3]':
+  name: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; an admin via the API 03"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:2:2:3]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:1:1]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the UI 01"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:1:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:2:1]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 01"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:2:1]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:2:2]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 02"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:2:2]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:2:3]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 03"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:2:3]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:2:4]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 04"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:2:4]'
+'./spec/features/groups/create-group_spec.rb[1:1:3:2:5]':
+  name: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 05"
+  environment_variables:
+    FEATURE_NAME: "Creating groups a bunch of groups, users and some admins exist; some inventory-pool's lending-manager  via the API 05"
+    FEATURE: './spec/features/groups/create-group_spec.rb[1:1:3:2:5]'
+'./spec/features/groups/delete-group_spec.rb[1:1:1:1]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:1:1]'
+'./spec/features/groups/delete-group_spec.rb[1:1:2:1]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 01"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:2:1]'
+'./spec/features/groups/delete-group_spec.rb[1:1:2:2]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 02"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:2:2]'
+'./spec/features/groups/delete-group_spec.rb[1:1:2:3:1]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist an admin via the UI via the API 01"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:2:3:1]'
+'./spec/features/groups/delete-group_spec.rb[1:1:3:1:1]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and 01"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:3:1:1]'
+'./spec/features/groups/delete-group_spec.rb[1:1:3:1:2]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and 02"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:3:1:2]'
+'./spec/features/groups/delete-group_spec.rb[1:1:3:1:3:1]':
+  name: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and  via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  signs in, and  via the API 01"
+    FEATURE: './spec/features/groups/delete-group_spec.rb[1:1:3:1:3:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:1:1]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:1:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:2:1]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist an admin via the UI 01"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:2:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:2:2:1]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist an admin via the UI via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist an admin via the UI via the API 01"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:2:2:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:3:1:1]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the UI 01"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:3:1:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:3:1:2]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the UI 02"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:3:1:2]'
+'./spec/features/groups/edit-group_spec.rb[1:1:3:2:1]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the API 01"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:3:2:1]'
+'./spec/features/groups/edit-group_spec.rb[1:1:3:2:2]':
+  name: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Editing groups some admins, a bunch of users and a bunch of groups exist some inventory-pool's lending-manager  via the API 02"
+    FEATURE: './spec/features/groups/edit-group_spec.rb[1:1:3:2:2]'
+'./spec/features/groups/edit-roles_spec.rb[1:1:1:1]':
+  name: "Editing roles  some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing roles  some admins, a bunch of users and a bunch of groups exist an system-admin via the UI 01"
+    FEATURE: './spec/features/groups/edit-roles_spec.rb[1:1:1:1]'
+'./spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:1]':
+  name: "Managing group users via API batch put an system admin, one group and some prepared users exist 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users via API batch put an system admin, one group and some prepared users exist 01"
+    FEATURE: './spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:1]'
+'./spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:2]':
+  name: "Managing group users via API batch put an system admin, one group and some prepared users exist 02"
+  environment_variables:
+    FEATURE_NAME: "Managing group users via API batch put an system admin, one group and some prepared users exist 02"
+    FEATURE: './spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:2]'
+'./spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:3]':
+  name: "Managing group users via API batch put an system admin, one group and some prepared users exist 03"
+  environment_variables:
+    FEATURE_NAME: "Managing group users via API batch put an system admin, one group and some prepared users exist 03"
+    FEATURE: './spec/features/groups/manage-group-users_batch-api_spec.rb[1:1:3]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:1:1]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an sytem_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an sytem_admin via the UI 01"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:1:1]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:2:1]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI 01"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:2:1]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:2:2]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI 02"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:2:2]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:2:3:1]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI via the API 01"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:2:3:1]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:2:3:2]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist an admin via the UI via the API 02"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:2:3:2]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:3:1:1]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the UI 01"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:3:1:1]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:3:1:2]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the UI 02"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:3:1:2]'
+'./spec/features/groups/manage-group-users_spec.rb[1:1:3:2:1]':
+  name: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Managing group users  an admin user, bunch of other users and groups with users in groups exist some inventory-pool's lending-manager  via the API 01"
+    FEATURE: './spec/features/groups/manage-group-users_spec.rb[1:1:3:2:1]'
+'./spec/features/initial-admin_and_password-sign-in_spec.rb[1:1]':
+  name: "Initial admin and password sign-in 01"
+  environment_variables:
+    FEATURE_NAME: "Initial admin and password sign-in 01"
+    FEATURE: './spec/features/initial-admin_and_password-sign-in_spec.rb[1:1]'
+'./spec/features/initial-admin_and_password-sign-in_spec.rb[1:2]':
+  name: "Initial admin and password sign-in 02"
+  environment_variables:
+    FEATURE_NAME: "Initial admin and password sign-in 02"
+    FEATURE: './spec/features/initial-admin_and_password-sign-in_spec.rb[1:2]'
+'./spec/features/inventory-fields/create_spec.rb[1:1:1]':
+  name: "Create inventory-fields an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Create inventory-fields an admin via the UI 01"
+    FEATURE: './spec/features/inventory-fields/create_spec.rb[1:1:1]'
+'./spec/features/inventory-fields/delete_spec.rb[1:1:1]':
+  name: "Manage inventory-fields  an admin 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields  an admin 01"
+    FEATURE: './spec/features/inventory-fields/delete_spec.rb[1:1:1]'
+'./spec/features/inventory-fields/delete_spec.rb[1:1:2:1]':
+  name: "Manage inventory-fields  an admin cannot delete 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields  an admin cannot delete 01"
+    FEATURE: './spec/features/inventory-fields/delete_spec.rb[1:1:2:1]'
+'./spec/features/inventory-fields/delete_spec.rb[1:1:2:2]':
+  name: "Manage inventory-fields  an admin cannot delete 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields  an admin cannot delete 02"
+    FEATURE: './spec/features/inventory-fields/delete_spec.rb[1:1:2:2]'
+'./spec/features/inventory-fields/disable_spec.rb[1:1:1]':
+  name: "Field status by pool an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Field status by pool an admin via the UI 01"
+    FEATURE: './spec/features/inventory-fields/disable_spec.rb[1:1:1]'
+'./spec/features/inventory-fields/disable_spec.rb[1:1:2]':
+  name: "Field status by pool an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Field status by pool an admin via the UI 02"
+    FEATURE: './spec/features/inventory-fields/disable_spec.rb[1:1:2]'
+'./spec/features/inventory-fields/disable_spec.rb[1:2:1]':
+  name: "Field status by pool a inventory manager via the ui 01"
+  environment_variables:
+    FEATURE_NAME: "Field status by pool a inventory manager via the ui 01"
+    FEATURE: './spec/features/inventory-fields/disable_spec.rb[1:2:1]'
+'./spec/features/inventory-fields/disable_spec.rb[1:3:1]':
+  name: "Field status by pool a lending manager via the ui 01"
+  environment_variables:
+    FEATURE_NAME: "Field status by pool a lending manager via the ui 01"
+    FEATURE: './spec/features/inventory-fields/disable_spec.rb[1:3:1]'
+'./spec/features/inventory-fields/edit_spec.rb[1:1:1]':
+  name: "Manage inventory-fields an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields an admin via the UI 01"
+    FEATURE: './spec/features/inventory-fields/edit_spec.rb[1:1:1]'
+'./spec/features/inventory-fields/edit_spec.rb[1:1:2]':
+  name: "Manage inventory-fields an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields an admin via the UI 02"
+    FEATURE: './spec/features/inventory-fields/edit_spec.rb[1:1:2]'
+'./spec/features/inventory-fields/edit_spec.rb[1:1:3]':
+  name: "Manage inventory-fields an admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-fields an admin via the UI 03"
+    FEATURE: './spec/features/inventory-fields/edit_spec.rb[1:1:3]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:1]':
+  name: "Managing inventory-fields: an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI 01"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:1]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:2:1]':
+  name: "Managing inventory-fields: an admin via the UI searching for a room 01"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI searching for a room 01"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:2:1]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:2:2]':
+  name: "Managing inventory-fields: an admin via the UI searching for a room 02"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI searching for a room 02"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:2:2]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:2:3]':
+  name: "Managing inventory-fields: an admin via the UI searching for a room 03"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI searching for a room 03"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:2:3]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:2:4]':
+  name: "Managing inventory-fields: an admin via the UI searching for a room 04"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI searching for a room 04"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:2:4]'
+'./spec/features/inventory-fields/listing_spec.rb[1:1:2:5]':
+  name: "Managing inventory-fields: an admin via the UI searching for a room 05"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-fields: an admin via the UI searching for a room 05"
+    FEATURE: './spec/features/inventory-fields/listing_spec.rb[1:1:2:5]'
+'./spec/features/inventory-pools/create_spec.rb[1:1:1]':
+  name: "Manage inventory-pools an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/create_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/create_spec.rb[1:2:1:1]':
+  name: "Manage inventory-pools a inventory-pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools a inventory-pool manager via the UI 01"
+    FEATURE: './spec/features/inventory-pools/create_spec.rb[1:2:1:1]'
+'./spec/features/inventory-pools/create_spec.rb[1:2:2:1]':
+  name: "Manage inventory-pools a inventory-pool manager via API 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools a inventory-pool manager via API 01"
+    FEATURE: './spec/features/inventory-pools/create_spec.rb[1:2:2:1]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:1]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:2]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 02"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:3]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 03"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:3]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:4]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 04"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:4]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:5]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 05"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 05"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:5]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:6]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 06"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 06"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:6]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:7]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 07"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist an admin via the UI 07"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:1:7]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:1]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:1]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:2]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 02"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:2]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:3]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 03"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:3]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:4]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 04"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:4]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:5]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 05"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 05"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:5]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:6]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 06"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 06"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:6]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:7]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 07"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the UI 07"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:1:7]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:2:1]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the API 01"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:2:1]'
+'./spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:2:2]':
+  name: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Add, remove, delete delegations within a pool  two pools, and some delegations in various states exist as a lending_manager of pool 1 via the API 02"
+    FEATURE: './spec/features/inventory-pools/delegations/add_remove_delete_spec.rb[1:1:2:2:2]'
+'./spec/features/inventory-pools/delegations/admin_manages_suspension_spec.rb[1:1:1]':
+  name: "Manage inventory-pool delegations   an admin, a pool, and several delegations 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool delegations   an admin, a pool, and several delegations 01"
+    FEATURE: './spec/features/inventory-pools/delegations/admin_manages_suspension_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/delegations/create_spec.rb[1:1:1:1:1]':
+  name: "Creating a delegation a inventory pool as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a delegation a inventory pool as an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/create_spec.rb[1:1:1:1:1]'
+'./spec/features/inventory-pools/delegations/create_spec.rb[1:1:2:1:1]':
+  name: "Creating a delegation a inventory pool as a lending_manager of the pool  via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a delegation a inventory pool as a lending_manager of the pool  via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/create_spec.rb[1:1:2:1:1]'
+'./spec/features/inventory-pools/delegations/edit_spec.rb[1:1:1:1:1]':
+  name: "Editing a delegation a inventory pool, and some delegations exist as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing a delegation a inventory pool, and some delegations exist as an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/edit_spec.rb[1:1:1:1:1]'
+'./spec/features/inventory-pools/delegations/edit_spec.rb[1:1:2:1:1]':
+  name: "Editing a delegation a inventory pool, and some delegations exist as a lending_manager of the pool  via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing a delegation a inventory pool, and some delegations exist as a lending_manager of the pool  via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/edit_spec.rb[1:1:2:1:1]'
+'./spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:1:1]':
+  name: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:1:2]':
+  name: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as an admin via the UI 02"
+    FEATURE: './spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:2:1]':
+  name: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as a lending_manager of the pool via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as a lending_manager of the pool via the UI 01"
+    FEATURE: './spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:2:1]'
+'./spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:2:2]':
+  name: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as a lending_manager of the pool via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage delegation users  an admin, 3 groups, 100 users each in 2 groups, and a delegation in a pool exist as a lending_manager of the pool via the UI 02"
+    FEATURE: './spec/features/inventory-pools/delegations/manage_users_spec.rb[1:1:2:2]'
+'./spec/features/inventory-pools/delete_spec.rb[1:1:1]':
+  name: "Manage inventory-pools  an admin and several pools 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools  an admin and several pools 01"
+    FEATURE: './spec/features/inventory-pools/delete_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pools an admin and several pools  an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:2:1:1]':
+  name: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI 01"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:2:1:1]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:2:1:2:1]':
+  name: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI edits the opening times 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI edits the opening times 01"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:2:1:2:1]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:2:1:2:2]':
+  name: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI edits the opening times 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  a inventory-pool manager via the UI edits the opening times 02"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:2:1:2:2]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:2:2:1:1]':
+  name: "Manage inventory-pools an admin and several pools  a inventory-pool manager a lending manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  a inventory-pool manager a lending manager via the UI 01"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:2:2:1:1]'
+'./spec/features/inventory-pools/edit_spec.rb[1:1:2:2:2:1]':
+  name: "Manage inventory-pools an admin and several pools  a inventory-pool manager a lending manager via API 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pools an admin and several pools  a inventory-pool manager a lending manager via API 01"
+    FEATURE: './spec/features/inventory-pools/edit_spec.rb[1:1:2:2:2:1]'
+'./spec/features/inventory-pools/entitlement_groups/membership_filters_spec.rb[1:1:1:1]':
+  name: "Entitlement-group Membership filtering   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Entitlement-group Membership filtering   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_filters_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/entitlement_groups/membership_filters_spec.rb[1:1:2:1]':
+  name: "Entitlement-group Membership filtering   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Entitlement-group Membership filtering   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 01"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_filters_spec.rb[1:1:2:1]'
+'./spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:1:2]':
+  name: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as an admin via the UI 02"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:2:1]':
+  name: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 01"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:2:1]'
+'./spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:2:2]':
+  name: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an entitlement-group, several users, each within at least one group as lending_manager via the UI 02"
+    FEATURE: './spec/features/inventory-pools/entitlement_groups/membership_management_spec.rb[1:1:2:2]'
+'./spec/features/inventory-pools/fields_spec.rb[1:1:1]':
+  name: "Fields status in pool an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Fields status in pool an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/fields_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/fields_spec.rb[1:2:1]':
+  name: "Fields status in pool a inventory manager via the ui 01"
+  environment_variables:
+    FEATURE_NAME: "Fields status in pool a inventory manager via the ui 01"
+    FEATURE: './spec/features/inventory-pools/fields_spec.rb[1:2:1]'
+'./spec/features/inventory-pools/fields_spec.rb[1:2:2]':
+  name: "Fields status in pool a inventory manager via the ui 02"
+  environment_variables:
+    FEATURE_NAME: "Fields status in pool a inventory manager via the ui 02"
+    FEATURE: './spec/features/inventory-pools/fields_spec.rb[1:2:2]'
+'./spec/features/inventory-pools/fields_spec.rb[1:3:1]':
+  name: "Fields status in pool a lending manager via the ui 01"
+  environment_variables:
+    FEATURE_NAME: "Fields status in pool a lending manager via the ui 01"
+    FEATURE: './spec/features/inventory-pools/fields_spec.rb[1:3:1]'
+'./spec/features/inventory-pools/fields_spec.rb[1:3:2]':
+  name: "Fields status in pool a lending manager via the ui 02"
+  environment_variables:
+    FEATURE_NAME: "Fields status in pool a lending manager via the ui 02"
+    FEATURE: './spec/features/inventory-pools/fields_spec.rb[1:3:2]'
+'./spec/features/inventory-pools/groups/admin_manages_group-roles_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pool groups   an admin, a pool, and groups exist an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool groups   an admin, a pool, and groups exist an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/groups/admin_manages_group-roles_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/groups/inventory-manager_manages-group-roles_spec.rb[1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, and groups 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, and groups 01"
+    FEATURE: './spec/features/inventory-pools/groups/inventory-manager_manages-group-roles_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/groups/lending-manager_manages-group-roles_spec.rb[1:1:1:1:1]':
+  name: "Manage inventory-pool roles of groups an admin, a pool, groups and a lending_manager exist the lending_manager via the UI visits the roles page of a group 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool roles of groups an admin, a pool, groups and a lending_manager exist the lending_manager via the UI visits the roles page of a group 01"
+    FEATURE: './spec/features/inventory-pools/groups/lending-manager_manages-group-roles_spec.rb[1:1:1:1:1]'
+'./spec/features/inventory-pools/groups/lending-manager_manages-group-roles_spec.rb[1:1:1:1:2]':
+  name: "Manage inventory-pool roles of groups an admin, a pool, groups and a lending_manager exist the lending_manager via the UI visits the roles page of a group 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool roles of groups an admin, a pool, groups and a lending_manager exist the lending_manager via the UI visits the roles page of a group 02"
+    FEATURE: './spec/features/inventory-pools/groups/lending-manager_manages-group-roles_spec.rb[1:1:1:1:2]'
+'./spec/features/inventory-pools/listing_spec.rb[1:1:1:1:1]':
+  name: "Managing inventory-pools: some users and at least one admin as two users with exclusive lending_manager roles in two pools an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-pools: some users and at least one admin as two users with exclusive lending_manager roles in two pools an admin via the UI 01"
+    FEATURE: './spec/features/inventory-pools/listing_spec.rb[1:1:1:1:1]'
+'./spec/features/inventory-pools/listing_spec.rb[1:1:1:2:1]':
+  name: "Managing inventory-pools: some users and at least one admin as two users with exclusive lending_manager roles in two pools the manager1 of pool1 via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing inventory-pools: some users and at least one admin as two users with exclusive lending_manager roles in two pools the manager1 of pool1 via the UI 01"
+    FEATURE: './spec/features/inventory-pools/listing_spec.rb[1:1:1:2:1]'
+'./spec/features/inventory-pools/users/admin_manages_roles_spec.rb[1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, and  several users 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, and  several users 01"
+    FEATURE: './spec/features/inventory-pools/users/admin_manages_roles_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 01"
+    FEATURE: './spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:2]':
+  name: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 02"
+    FEATURE: './spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:3]':
+  name: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 03"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, and  several users   managing the suspension of a user 03"
+    FEATURE: './spec/features/inventory-pools/users/admin_manages_suspension_spec.rb[1:1:1:3]'
+'./spec/features/inventory-pools/users/inventory-manager_manages_roles_spec.rb[1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, an inventory_manager, and  several users 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an inventory_manager, and  several users 01"
+    FEATURE: './spec/features/inventory-pools/users/inventory-manager_manages_roles_spec.rb[1:1:1]'
+'./spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 01"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:2]':
+  name: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 02"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:3]':
+  name: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 03"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool users   an admin, a pool, an lending_manager, and  several users  as a lending_manager 03"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_direct-roles_spec.rb[1:1:1:3]'
+'./spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:1]':
+  name: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 01"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 01"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:1]'
+'./spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:2]':
+  name: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 02"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 02"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:2]'
+'./spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:3]':
+  name: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 03"
+  environment_variables:
+    FEATURE_NAME: "Manage inventory-pool groups  an admin, a pool, an lending_manager, and a group as a lending_manager 03"
+    FEATURE: './spec/features/inventory-pools/users/lending-manager_manages_group-roles_spec.rb[1:1:1:3]'
+'./spec/features/inventory_spec.rb[1:1:1]':
+  name: "Inventory an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory an admin via the UI 01"
+    FEATURE: './spec/features/inventory_spec.rb[1:1:1]'
+'./spec/features/mail-templates/edit_spec.rb[1:1:1]':
+  name: "Manage Mail Templates an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage Mail Templates an admin via the UI 01"
+    FEATURE: './spec/features/mail-templates/edit_spec.rb[1:1:1]'
+'./spec/features/mail-templates/listing_spec.rb[1:1:1]':
+  name: "Managing Mail Templates: an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing Mail Templates: an admin via the UI 01"
+    FEATURE: './spec/features/mail-templates/listing_spec.rb[1:1:1]'
+'./spec/features/mail-templates/listing_spec.rb[1:1:2:1]':
+  name: "Managing Mail Templates: an admin via the UI searching for a mail_template 01"
+  environment_variables:
+    FEATURE_NAME: "Managing Mail Templates: an admin via the UI searching for a mail_template 01"
+    FEATURE: './spec/features/mail-templates/listing_spec.rb[1:1:2:1]'
+'./spec/features/mail-templates/listing_spec.rb[1:1:2:2]':
+  name: "Managing Mail Templates: an admin via the UI searching for a mail_template 02"
+  environment_variables:
+    FEATURE_NAME: "Managing Mail Templates: an admin via the UI searching for a mail_template 02"
+    FEATURE: './spec/features/mail-templates/listing_spec.rb[1:1:2:2]'
+'./spec/features/mail-templates/listing_spec.rb[1:1:2:3]':
+  name: "Managing Mail Templates: an admin via the UI searching for a mail_template 03"
+  environment_variables:
+    FEATURE_NAME: "Managing Mail Templates: an admin via the UI searching for a mail_template 03"
+    FEATURE: './spec/features/mail-templates/listing_spec.rb[1:1:2:3]'
+'./spec/features/mail-templates/listing_spec.rb[1:1:2:4]':
+  name: "Managing Mail Templates: an admin via the UI searching for a mail_template 04"
+  environment_variables:
+    FEATURE_NAME: "Managing Mail Templates: an admin via the UI searching for a mail_template 04"
+    FEATURE: './spec/features/mail-templates/listing_spec.rb[1:1:2:4]'
+'./spec/features/rooms/create_spec.rb[1:1:1]':
+  name: "Manage rooms an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage rooms an admin via the UI 01"
+    FEATURE: './spec/features/rooms/create_spec.rb[1:1:1]'
+'./spec/features/rooms/delete_spec.rb[1:1:1]':
+  name: "Manage rooms  an admin 01"
+  environment_variables:
+    FEATURE_NAME: "Manage rooms  an admin 01"
+    FEATURE: './spec/features/rooms/delete_spec.rb[1:1:1]'
+'./spec/features/rooms/delete_spec.rb[1:1:2]':
+  name: "Manage rooms  an admin 02"
+  environment_variables:
+    FEATURE_NAME: "Manage rooms  an admin 02"
+    FEATURE: './spec/features/rooms/delete_spec.rb[1:1:2]'
+'./spec/features/rooms/edit_spec.rb[1:1:1]':
+  name: "Manage rooms an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage rooms an admin via the UI 02"
+    FEATURE: './spec/features/rooms/edit_spec.rb[1:1:1]'
+'./spec/features/rooms/listing_spec.rb[1:1:1]':
+  name: "Managing rooms: an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing rooms: an admin via the UI 01"
+    FEATURE: './spec/features/rooms/listing_spec.rb[1:1:1]'
+'./spec/features/rooms/listing_spec.rb[1:1:2:1]':
+  name: "Managing rooms: an admin via the UI searching for a room 01"
+  environment_variables:
+    FEATURE_NAME: "Managing rooms: an admin via the UI searching for a room 01"
+    FEATURE: './spec/features/rooms/listing_spec.rb[1:1:2:1]'
+'./spec/features/rooms/listing_spec.rb[1:1:2:2]':
+  name: "Managing rooms: an admin via the UI searching for a room 02"
+  environment_variables:
+    FEATURE_NAME: "Managing rooms: an admin via the UI searching for a room 02"
+    FEATURE: './spec/features/rooms/listing_spec.rb[1:1:2:2]'
+'./spec/features/rooms/listing_spec.rb[1:1:2:3]':
+  name: "Managing rooms: an admin via the UI searching for a room 03"
+  environment_variables:
+    FEATURE_NAME: "Managing rooms: an admin via the UI searching for a room 03"
+    FEATURE: './spec/features/rooms/listing_spec.rb[1:1:2:3]'
+'./spec/features/settings/languages_settings_spec.rb[1:1:1:1:1]':
+  name: "SMTP-Settings a plain admin exist a plain_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a plain admin exist a plain_admin via the UI 01"
+    FEATURE: './spec/features/settings/languages_settings_spec.rb[1:1:1:1:1]'
+'./spec/features/settings/misc_settings_spec.rb[1:1:1:1:1]':
+  name: "SMTP-Settings a plain admin exist a plain_admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a plain admin exist a plain_admin via the UI 02"
+    FEATURE: './spec/features/settings/misc_settings_spec.rb[1:1:1:1:1]'
+'./spec/features/settings/misc_settings_spec.rb[1:1:1:2:1]':
+  name: "SMTP-Settings a plain admin exist a plain_admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a plain admin exist a plain_admin via the API 01"
+    FEATURE: './spec/features/settings/misc_settings_spec.rb[1:1:1:2:1]'
+'./spec/features/settings/smtp_settings_spec.rb[1:1:1:1:1]':
+  name: "SMTP-Settings a system_admin and a plain admin exist a system_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a system_admin and a plain admin exist a system_admin via the UI 01"
+    FEATURE: './spec/features/settings/smtp_settings_spec.rb[1:1:1:1:1]'
+'./spec/features/settings/smtp_settings_spec.rb[1:1:1:2:1]':
+  name: "SMTP-Settings a system_admin and a plain admin exist a system_admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a system_admin and a plain admin exist a system_admin via the API 01"
+    FEATURE: './spec/features/settings/smtp_settings_spec.rb[1:1:1:2:1]'
+'./spec/features/settings/smtp_settings_spec.rb[1:1:2:1:1]':
+  name: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the UI 01"
+    FEATURE: './spec/features/settings/smtp_settings_spec.rb[1:1:2:1:1]'
+'./spec/features/settings/smtp_settings_spec.rb[1:1:2:2:1]':
+  name: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 01"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 01"
+    FEATURE: './spec/features/settings/smtp_settings_spec.rb[1:1:2:2:1]'
+'./spec/features/settings/smtp_settings_spec.rb[1:1:2:2:2]':
+  name: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 02"
+  environment_variables:
+    FEATURE_NAME: "SMTP-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 02"
+    FEATURE: './spec/features/settings/smtp_settings_spec.rb[1:1:2:2:2]'
+'./spec/features/settings/syssec_settings_spec.rb[1:1:1:1:1]':
+  name: "System and Security-Settings a system_admin and a plain admin exist a system_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "System and Security-Settings a system_admin and a plain admin exist a system_admin via the UI 01"
+    FEATURE: './spec/features/settings/syssec_settings_spec.rb[1:1:1:1:1]'
+'./spec/features/settings/syssec_settings_spec.rb[1:1:1:2:1]':
+  name: "System and Security-Settings a system_admin and a plain admin exist a system_admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "System and Security-Settings a system_admin and a plain admin exist a system_admin via the API 01"
+    FEATURE: './spec/features/settings/syssec_settings_spec.rb[1:1:1:2:1]'
+'./spec/features/settings/syssec_settings_spec.rb[1:1:2:1:1]':
+  name: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the UI 01"
+    FEATURE: './spec/features/settings/syssec_settings_spec.rb[1:1:2:1:1]'
+'./spec/features/settings/syssec_settings_spec.rb[1:1:2:2:1]':
+  name: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 01"
+  environment_variables:
+    FEATURE_NAME: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 01"
+    FEATURE: './spec/features/settings/syssec_settings_spec.rb[1:1:2:2:1]'
+'./spec/features/settings/syssec_settings_spec.rb[1:1:2:2:2]':
+  name: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 02"
+  environment_variables:
+    FEATURE_NAME: "System and Security-Settings a system_admin and a plain admin exist a plain leihs_admin (not system_admin) via the API 02"
+    FEATURE: './spec/features/settings/syssec_settings_spec.rb[1:1:2:2:2]'
+'./spec/features/status_info_spec.rb[1:1:1:1]':
+  name: "Status-info a system-admin exists system_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Status-info a system-admin exists system_admin via the UI 01"
+    FEATURE: './spec/features/status_info_spec.rb[1:1:1:1]'
+'./spec/features/suppliers/create_spec.rb[1:1:1]':
+  name: "Manage suppliers an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Manage suppliers an admin via the UI 01"
+    FEATURE: './spec/features/suppliers/create_spec.rb[1:1:1]'
+'./spec/features/suppliers/delete_spec.rb[1:1:1]':
+  name: "Manage suppliers  an admin 01"
+  environment_variables:
+    FEATURE_NAME: "Manage suppliers  an admin 01"
+    FEATURE: './spec/features/suppliers/delete_spec.rb[1:1:1]'
+'./spec/features/suppliers/edit_spec.rb[1:1:1]':
+  name: "Manage suppliers an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Manage suppliers an admin via the UI 02"
+    FEATURE: './spec/features/suppliers/edit_spec.rb[1:1:1]'
+'./spec/features/suppliers/listing_spec.rb[1:1:1]':
+  name: "Managing suppliers: an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing suppliers: an admin via the UI 01"
+    FEATURE: './spec/features/suppliers/listing_spec.rb[1:1:1]'
+'./spec/features/suppliers/listing_spec.rb[1:1:2:1]':
+  name: "Managing suppliers: an admin via the UI searching for a supplier 01"
+  environment_variables:
+    FEATURE_NAME: "Managing suppliers: an admin via the UI searching for a supplier 01"
+    FEATURE: './spec/features/suppliers/listing_spec.rb[1:1:2:1]'
+'./spec/features/suppliers/listing_spec.rb[1:1:2:2]':
+  name: "Managing suppliers: an admin via the UI searching for a supplier 02"
+  environment_variables:
+    FEATURE_NAME: "Managing suppliers: an admin via the UI searching for a supplier 02"
+    FEATURE: './spec/features/suppliers/listing_spec.rb[1:1:2:2]'
+'./spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:1]':
+  name: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 01"
+    FEATURE: './spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:1]'
+'./spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:2]':
+  name: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 02"
+    FEATURE: './spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:2]'
+'./spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:3]':
+  name: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Authentication-Systems an admin, a system_admin, some groups, a bunch of users (each at least in one group), and one authentication-system exist as a system_admin via the UI 03"
+    FEATURE: './spec/features/system/authentication_systems/crud_and_auth_spec.rb[1:1:1:1:3]'
+'./spec/features/users/admin_spec.rb[1:1:1:1:1]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the UI 01"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:1:1]'
+'./spec/features/users/admin_spec.rb[1:1:1:1:2]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the UI 02"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:1:2]'
+'./spec/features/users/admin_spec.rb[1:1:1:1:3]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the UI 03"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:1:3]'
+'./spec/features/users/admin_spec.rb[1:1:1:1:4]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the UI 04"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:1:4]'
+'./spec/features/users/admin_spec.rb[1:1:1:2:1]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the API 01"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:2:1]'
+'./spec/features/users/admin_spec.rb[1:1:1:2:2]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the API 02"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:2:2]'
+'./spec/features/users/admin_spec.rb[1:1:1:2:3]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the API 03"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:2:3]'
+'./spec/features/users/admin_spec.rb[1:1:1:2:4]':
+  name: "Managing admin users: all types of useres exist, as an pool manager via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an pool manager via the API 04"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:1:2:4]'
+'./spec/features/users/admin_spec.rb[1:1:2:1:1]':
+  name: "Managing admin users: all types of useres exist, as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the UI 01"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:1:1]'
+'./spec/features/users/admin_spec.rb[1:1:2:1:2]':
+  name: "Managing admin users: all types of useres exist, as an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the UI 02"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:1:2]'
+'./spec/features/users/admin_spec.rb[1:1:2:1:3]':
+  name: "Managing admin users: all types of useres exist, as an admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the UI 03"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:1:3]'
+'./spec/features/users/admin_spec.rb[1:1:2:1:4]':
+  name: "Managing admin users: all types of useres exist, as an admin via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the UI 04"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:1:4]'
+'./spec/features/users/admin_spec.rb[1:1:2:2:1]':
+  name: "Managing admin users: all types of useres exist, as an admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the API 01"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:2:1]'
+'./spec/features/users/admin_spec.rb[1:1:2:2:2]':
+  name: "Managing admin users: all types of useres exist, as an admin via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the API 02"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:2:2]'
+'./spec/features/users/admin_spec.rb[1:1:2:2:3]':
+  name: "Managing admin users: all types of useres exist, as an admin via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin via the API 03"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:2:3]'
+'./spec/features/users/admin_spec.rb[1:1:2:3:1:1]':
+  name: "Managing admin users: all types of useres exist, as an admin as an system-admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Managing admin users: all types of useres exist, as an admin as an system-admin via the UI 01"
+    FEATURE: './spec/features/users/admin_spec.rb[1:1:2:3:1:1]'
+'./spec/features/users/api-tokens_spec.rb[1:1:1]':
+  name: "API Tokens signed in as an admin 01"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin 01"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:1]'
+'./spec/features/users/api-tokens_spec.rb[1:1:2:1]':
+  name: "API Tokens signed in as an admin an API-Token for the current user has been added 01"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin an API-Token for the current user has been added 01"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:2:1]'
+'./spec/features/users/api-tokens_spec.rb[1:1:2:2]':
+  name: "API Tokens signed in as an admin an API-Token for the current user has been added 02"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin an API-Token for the current user has been added 02"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:2:2]'
+'./spec/features/users/api-tokens_spec.rb[1:1:2:3]':
+  name: "API Tokens signed in as an admin an API-Token for the current user has been added 03"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin an API-Token for the current user has been added 03"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:2:3]'
+'./spec/features/users/api-tokens_spec.rb[1:1:2:4]':
+  name: "API Tokens signed in as an admin an API-Token for the current user has been added 04"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin an API-Token for the current user has been added 04"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:2:4]'
+'./spec/features/users/api-tokens_spec.rb[1:1:2:5]':
+  name: "API Tokens signed in as an admin an API-Token for the current user has been added 05"
+  environment_variables:
+    FEATURE_NAME: "API Tokens signed in as an admin an API-Token for the current user has been added 05"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:1:2:5]'
+'./spec/features/users/api-tokens_spec.rb[1:2:1]':
+  name: "API Tokens check different access rights 01"
+  environment_variables:
+    FEATURE_NAME: "API Tokens check different access rights 01"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:2:1]'
+'./spec/features/users/api-tokens_spec.rb[1:2:2]':
+  name: "API Tokens check different access rights 02"
+  environment_variables:
+    FEATURE_NAME: "API Tokens check different access rights 02"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:2:2]'
+'./spec/features/users/api-tokens_spec.rb[1:2:3]':
+  name: "API Tokens check different access rights 03"
+  environment_variables:
+    FEATURE_NAME: "API Tokens check different access rights 03"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:2:3]'
+'./spec/features/users/api-tokens_spec.rb[1:2:4]':
+  name: "API Tokens check different access rights 04"
+  environment_variables:
+    FEATURE_NAME: "API Tokens check different access rights 04"
+    FEATURE: './spec/features/users/api-tokens_spec.rb[1:2:4]'
+'./spec/features/users/create-user_spec.rb[1:1:1:1:1]':
+  name: "Creating a user all types of useres exist, as a pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the UI 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:1:1]'
+'./spec/features/users/create-user_spec.rb[1:1:1:1:2]':
+  name: "Creating a user all types of useres exist, as a pool manager via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the UI 02"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:1:2]'
+'./spec/features/users/create-user_spec.rb[1:1:1:1:3]':
+  name: "Creating a user all types of useres exist, as a pool manager via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the UI 03"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:1:3]'
+'./spec/features/users/create-user_spec.rb[1:1:1:1:4]':
+  name: "Creating a user all types of useres exist, as a pool manager via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the UI 04"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:1:4]'
+'./spec/features/users/create-user_spec.rb[1:1:1:1:5]':
+  name: "Creating a user all types of useres exist, as a pool manager via the UI 05"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the UI 05"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:1:5]'
+'./spec/features/users/create-user_spec.rb[1:1:1:2:1]':
+  name: "Creating a user all types of useres exist, as a pool manager via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the API 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:2:1]'
+'./spec/features/users/create-user_spec.rb[1:1:1:2:2]':
+  name: "Creating a user all types of useres exist, as a pool manager via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the API 02"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:2:2]'
+'./spec/features/users/create-user_spec.rb[1:1:1:2:3]':
+  name: "Creating a user all types of useres exist, as a pool manager via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the API 03"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:2:3]'
+'./spec/features/users/create-user_spec.rb[1:1:1:2:4]':
+  name: "Creating a user all types of useres exist, as a pool manager via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the API 04"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:2:4]'
+'./spec/features/users/create-user_spec.rb[1:1:1:2:5]':
+  name: "Creating a user all types of useres exist, as a pool manager via the API 05"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a pool manager via the API 05"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:1:2:5]'
+'./spec/features/users/create-user_spec.rb[1:1:2:1:1]':
+  name: "Creating a user all types of useres exist, as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as an admin via the UI 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:2:1:1]'
+'./spec/features/users/create-user_spec.rb[1:1:2:2:1]':
+  name: "Creating a user all types of useres exist, as an admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as an admin via the API 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:2:2:1]'
+'./spec/features/users/create-user_spec.rb[1:1:2:2:2]':
+  name: "Creating a user all types of useres exist, as an admin via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as an admin via the API 02"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:2:2:2]'
+'./spec/features/users/create-user_spec.rb[1:1:2:2:3]':
+  name: "Creating a user all types of useres exist, as an admin via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as an admin via the API 03"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:2:2:3]'
+'./spec/features/users/create-user_spec.rb[1:1:3:1:1]':
+  name: "Creating a user all types of useres exist, as a system-admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a system-admin via the UI 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:3:1:1]'
+'./spec/features/users/create-user_spec.rb[1:1:3:2:1:1]':
+  name: "Creating a user all types of useres exist, as a system-admin via the UI disabling default true values in table definition 01"
+  environment_variables:
+    FEATURE_NAME: "Creating a user all types of useres exist, as a system-admin via the UI disabling default true values in table definition 01"
+    FEATURE: './spec/features/users/create-user_spec.rb[1:1:3:2:1:1]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:1:1]':
+  name: "Deleting users all types of useres exist, as a pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the UI 01"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:1:1]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:1:2]':
+  name: "Deleting users all types of useres exist, as a pool manager via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the UI 02"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:1:2]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:1:3]':
+  name: "Deleting users all types of useres exist, as a pool manager via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the UI 03"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:1:3]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:1:4]':
+  name: "Deleting users all types of useres exist, as a pool manager via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the UI 04"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:1:4]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:2:1]':
+  name: "Deleting users all types of useres exist, as a pool manager via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the API 01"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:2:1]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:2:2]':
+  name: "Deleting users all types of useres exist, as a pool manager via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the API 02"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:2:2]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:2:3]':
+  name: "Deleting users all types of useres exist, as a pool manager via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the API 03"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:2:3]'
+'./spec/features/users/delete-user_spec.rb[1:1:1:2:4]':
+  name: "Deleting users all types of useres exist, as a pool manager via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as a pool manager via the API 04"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:1:2:4]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:1:1]':
+  name: "Deleting users all types of useres exist, as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the UI 01"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:1:1]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:1:2]':
+  name: "Deleting users all types of useres exist, as an admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the UI 02"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:1:2]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:1:3]':
+  name: "Deleting users all types of useres exist, as an admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the UI 03"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:1:3]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:2:1]':
+  name: "Deleting users all types of useres exist, as an admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the API 01"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:2:1]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:2:2]':
+  name: "Deleting users all types of useres exist, as an admin via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the API 02"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:2:2]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:2:3]':
+  name: "Deleting users all types of useres exist, as an admin via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the API 03"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:2:3]'
+'./spec/features/users/delete-user_spec.rb[1:1:2:2:4]':
+  name: "Deleting users all types of useres exist, as an admin via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an admin via the API 04"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:2:2:4]'
+'./spec/features/users/delete-user_spec.rb[1:1:3:1:1]':
+  name: "Deleting users all types of useres exist, as an system_admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Deleting users all types of useres exist, as an system_admin via the UI 01"
+    FEATURE: './spec/features/users/delete-user_spec.rb[1:1:3:1:1]'
+'./spec/features/users/edit-image_spec.rb[1:1:1]':
+  name: "Editing users images an admin user via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing users images an admin user via the UI 01"
+    FEATURE: './spec/features/users/edit-image_spec.rb[1:1:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:1]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 01"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:2]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 02"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:2]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:3]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 03"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:3]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:4]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 04"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:4]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:5]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 05"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 05"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:5]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:6]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 06"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 06"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:6]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:7]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 07"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 07"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:7]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:8]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 08"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 08"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:8]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:9]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 09"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 09"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:9]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:10]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 10"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 10"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:10]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:1:11]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the UI 11"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the UI 11"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:1:11]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:1]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 01"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:2]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 02"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:2]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:3]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 03"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:3]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:4]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 04"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:4]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:5]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 05"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 05"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:5]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:6]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 06"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 06"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:6]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:7]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 07"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 07"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:7]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:8]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 08"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 08"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:8]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:9]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 09"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 09"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:9]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:10]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 10"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 10"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:10]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:11]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 11"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 11"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:11]'
+'./spec/features/users/edit-user_spec.rb[1:1:1:2:12]':
+  name: "Editing and updating a user all types of useres exist, as a pool manager via the API 12"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a pool manager via the API 12"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:1:2:12]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:1]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 01"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:2]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 02"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:2]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:3]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 03"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:3]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:4]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 04"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:4]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:5]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 05"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 05"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:5]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:6]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 06"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 06"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:6]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:7]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 07"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 07"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:7]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:8]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 08"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 08"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:8]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:9]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 09"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 09"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:9]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:1:10]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 10"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the UI 10"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:1:10]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:2:1]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 01"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 01"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:2:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:2:2]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 02"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 02"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:2:2]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:2:3]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 03"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 03"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:2:3]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:2:4]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 04"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 04"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:2:4]'
+'./spec/features/users/edit-user_spec.rb[1:1:2:2:5]':
+  name: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 05"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as an (leihs) admin via the API 05"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:2:2:5]'
+'./spec/features/users/edit-user_spec.rb[1:1:3:1:1]':
+  name: "Editing and updating a user all types of useres exist, as a system admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a system admin via the UI 01"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:3:1:1]'
+'./spec/features/users/edit-user_spec.rb[1:1:3:1:2]':
+  name: "Editing and updating a user all types of useres exist, as a system admin via the UI 02"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a system admin via the UI 02"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:3:1:2]'
+'./spec/features/users/edit-user_spec.rb[1:1:3:1:3]':
+  name: "Editing and updating a user all types of useres exist, as a system admin via the UI 03"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a system admin via the UI 03"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:3:1:3]'
+'./spec/features/users/edit-user_spec.rb[1:1:3:1:4]':
+  name: "Editing and updating a user all types of useres exist, as a system admin via the UI 04"
+  environment_variables:
+    FEATURE_NAME: "Editing and updating a user all types of useres exist, as a system admin via the UI 04"
+    FEATURE: './spec/features/users/edit-user_spec.rb[1:1:3:1:4]'
+'./spec/features/users/filter-by-account-enabled_spec.rb[1:1:1:1]':
+  name: "Filter users by account status a bunch of users exist, as an Admin via the UI account enabled filters 01"
+  environment_variables:
+    FEATURE_NAME: "Filter users by account status a bunch of users exist, as an Admin via the UI account enabled filters 01"
+    FEATURE: './spec/features/users/filter-by-account-enabled_spec.rb[1:1:1:1]'
+'./spec/features/users/filter_and_search_spec.rb[1:1:1:1]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 01"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 01"
+    FEATURE: './spec/features/users/filter_and_search_spec.rb[1:1:1:1]'
+'./spec/features/users/filter_and_search_spec.rb[1:1:1:2]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 02"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 02"
+    FEATURE: './spec/features/users/filter_and_search_spec.rb[1:1:1:2]'
+'./spec/features/users/filter_and_search_spec.rb[1:1:1:3]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 03"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 03"
+    FEATURE: './spec/features/users/filter_and_search_spec.rb[1:1:1:3]'
+'./spec/features/users/filter_and_search_spec.rb[1:1:1:4:1]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 01"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 01"
+    FEATURE: './spec/features/users/filter_and_search_spec.rb[1:1:1:4:1]'
+'./spec/features/users/filter_and_search_spec.rb[1:1:1:4:2]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 02"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 02"
+    FEATURE: './spec/features/users/filter_and_search_spec.rb[1:1:1:4:2]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:1:1:1:1]':
+  name: "Password Reset Link all types of useres exist, as an admin set target user as regular user the target users password sign in is disabled 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an admin set target user as regular user the target users password sign in is disabled 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:1:1:1:1]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:1:1:2:1]':
+  name: "Password Reset Link all types of useres exist, as an admin set target user as regular user the targer user has no email-address 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an admin set target user as regular user the targer user has no email-address 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:1:1:2:1]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:1:1:3:1]':
+  name: "Password Reset Link all types of useres exist, as an admin set target user as regular user 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an admin set target user as regular user 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:1:1:3:1]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:1:1:3:2]':
+  name: "Password Reset Link all types of useres exist, as an admin set target user as regular user 02"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an admin set target user as regular user 02"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:1:1:3:2]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:1:2:1]':
+  name: "Password Reset Link all types of useres exist, as an admin set target_user as system_admin 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an admin set target_user as system_admin 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:1:2:1]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:2:1:1]':
+  name: "Password Reset Link all types of useres exist, as an system admin set target user as admin 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an system admin set target user as admin 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:2:1:1]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:2:1:2]':
+  name: "Password Reset Link all types of useres exist, as an system admin set target user as admin 02"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as an system admin set target user as admin 02"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:2:1:2]'
+'./spec/features/users/password-reset-link_spec.rb[1:1:3:1:1]':
+  name: "Password Reset Link all types of useres exist, as and pool manager set target user as regular user 01"
+  environment_variables:
+    FEATURE_NAME: "Password Reset Link all types of useres exist, as and pool manager set target user as regular user 01"
+    FEATURE: './spec/features/users/password-reset-link_spec.rb[1:1:3:1:1]'
+'./spec/features/users/patch_spec.rb[1:1:1]':
+  name: "Patch a user via the API an admin user with api token and a regular user exist 01"
+  environment_variables:
+    FEATURE_NAME: "Patch a user via the API an admin user with api token and a regular user exist 01"
+    FEATURE: './spec/features/users/patch_spec.rb[1:1:1]'
+'./spec/features/users/search_spec.rb[1:1:1:1]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 04"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 04"
+    FEATURE: './spec/features/users/search_spec.rb[1:1:1:1]'
+'./spec/features/users/search_spec.rb[1:1:1:2]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 05"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 05"
+    FEATURE: './spec/features/users/search_spec.rb[1:1:1:2]'
+'./spec/features/users/search_spec.rb[1:1:1:3]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users 06"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users 06"
+    FEATURE: './spec/features/users/search_spec.rb[1:1:1:3]'
+'./spec/features/users/search_spec.rb[1:1:1:4:1]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 03"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 03"
+    FEATURE: './spec/features/users/search_spec.rb[1:1:1:4:1]'
+'./spec/features/users/search_spec.rb[1:1:1:4:2]':
+  name: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 04"
+  environment_variables:
+    FEATURE_NAME: "Searching users a bunch of users, as an admin via the UI searching and filtering users searching for a user 04"
+    FEATURE: './spec/features/users/search_spec.rb[1:1:1:4:2]'
+'./spec/features/users/show-user-groups_spec.rb[1:1:1]':
+  name: "Show users groups an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Show users groups an admin via the UI 01"
+    FEATURE: './spec/features/users/show-user-groups_spec.rb[1:1:1]'
+'./spec/features/users/show-user-inventory-pools_spec.rb[1:1:1:1:1]':
+  name: "Show users inventory-pools some users exist one @user has two roles in different pools an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Show users inventory-pools some users exist one @user has two roles in different pools an admin via the UI 01"
+    FEATURE: './spec/features/users/show-user-inventory-pools_spec.rb[1:1:1:1:1]'
+'./spec/features/users/show-user-inventory-pools_spec.rb[1:1:1:2:1:1]':
+  name: "Show users inventory-pools some users exist one @user has two roles in different pools two users with exclusive lending_manager roles in two pools the manager1 of pool1 via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Show users inventory-pools some users exist one @user has two roles in different pools two users with exclusive lending_manager roles in two pools the manager1 of pool1 via the UI 01"
+    FEATURE: './spec/features/users/show-user-inventory-pools_spec.rb[1:1:1:2:1:1]'
+'./spec/features/users/show-user-properties_spec.rb[1:1:1]':
+  name: "Show users properties a bunch of users, as an admin via the UI 01"
+  environment_variables:
+    FEATURE_NAME: "Show users properties a bunch of users, as an admin via the UI 01"
+    FEATURE: './spec/features/users/show-user-properties_spec.rb[1:1:1]'

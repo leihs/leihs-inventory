@@ -1,0 +1,16 @@
+include:
+  - path: cider-ci/task-components/ruby-bundle.yml
+
+git_options:
+  submodules:
+    include_match: ^.*$
+
+scripts:
+  admin-build-uberjar:
+    timeout: 60 minutes
+    exclusive_executor_resource: 'build-leihs-admin-jar-{{CIDER_CI_TREE_ID}}'
+    start_when:
+      install-ruby-passed: { script_key: admin-ruby-bundle }
+    body: |
+      cd ${LEIHS_ADMIN_DIR}
+      ./bin/build
