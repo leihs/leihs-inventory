@@ -33,7 +33,7 @@
                         :middleware [db/wrap-tx
 
                                      ring-audits/wrap
-                                     anti-csrf/wrap
+                                     ;anti-csrf/wrap
                                      session/wrap-authenticate
                                      wrap-cookies
 

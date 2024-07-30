@@ -1,0 +1,115 @@
+jobs:
+  inventory-build-uberjar:
+    name: Build inventory uberjar
+    run_when: &ON_BRANCH_UPDATE
+      any branch has been updated:
+        type: branch
+        include_match: ^.*$
+    context:
+      task_defaults: &INVENTORY_TASK_DEFAULTS
+        environment_variables:
+          CI: "true"
+          LEIHS_INVENTORY_DIR: "{{CIDER_CI_WORKING_DIR}}"
+          LEIHS_DATABASE_DIR: "{{LEIHS_INVENTORY_DIR}}/database"
+          DIST_INVENTORY_IMAGE_NAME: "leihs-inventory"
+          DIST_VERSION_NAME: "trial-{{CIDER_CI_TRIAL_ID}}"
+      tasks:
+        inventory-build-uberjar: { include: cider-ci/task-components/uberjar.yml }
+
+  check-feature-tasks:
+    name: Check if feature tasks are up to date
+    run_when: *ON_BRANCH_UPDATE
+    context:
+      include: cider-ci/jobs/feature_tasks_check.yml
+
+  specs:
+    name: Run specs
+    depends_on: &SPEC_DEPENDS
+      uberjar passed:
+        type: job
+        job_key: inventory-build-uberjar
+        states: [passed]
+      feature tasks are up todate:
+        type: job
+        job_key: check-feature-tasks
+        states: [passed]
+    run_when: *SPEC_DEPENDS
+    context:
+      task_defaults: *INVENTORY_TASK_DEFAULTS
+      include:
+        - cider-ci/specs_job-context.yml
+
+  ui-checks:
+    name: Check UI package
+    run_when: *ON_BRANCH_UPDATE
+    tasks:
+      ui-lint:
+        git_options:
+          submodules:
+            include_match: ^.*$
+        scripts:
+          test:
+            body: |
+              ./ui/bin/lint
+
+  lint:
+    name: "Linting"
+    description: |
+      Code checks: static checks and metrics: complexity, duplication, and format,
+        also other consistency checks.
+    priority: 3
+    run_when:
+      any branch has been updated:
+        type: branch
+        include_match: ^.*$
+    context:
+      task_defaults:
+        git_options:
+          submodules:
+            include_match: ^.*$
+      tasks:
+        cljc-lint:
+          scripts:
+            test:
+              body: |
+                #!/usr/bin/env bash
+                set -euo pipefail
+                ./bin/cljfmt check
+        standardrb-lint:
+          scripts:
+            test:
+              body: |
+                #!/usr/bin/env bash
+                set -euo pipefail
+                cd ${API_V2_DIR}
+                standardrb
+                status=$?
+                if [ $status -eq 1 ]; then
+                  exit 1
+                fi
+
+  good-to-merge:
+    name: ⚑ Good To Merge
+    description: |
+      This job depends on all other tests and checks
+      and it will pass if and only if all dependencies have passed.
+      Status of this job is **used by github's "branch protection"**!
+    include: cider-ci/good-to-merge_job-context.yml
+
+  merged-to-master:
+    name: "Merged to master"
+    priority: 999
+    depends_on:
+      master branch matches:
+        type: branch
+        include_match: ^master$
+    run_when:
+      master branch matches:
+        type: branch
+        include_match: ^master$
+    context:
+      tasks:
+        merged-to-master:
+          scripts:
+            test:
+              body: "exit 0"

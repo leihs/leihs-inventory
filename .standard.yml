@@ -1,0 +1,3 @@
+ignore:
+  - 'database/**/*'
+  - 'spec/spec_helper.rb'

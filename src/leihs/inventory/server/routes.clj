@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.routes
   (:refer-clojure :exclude [keyword replace])
   (:require
+   [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-route]]
@@ -24,7 +25,8 @@
       (clojure.string/includes? accept-header "application/json")
       {:status 200
        :headers {"Content-Type" "application/json"}
-       :body {:message "Welcome to my API"}}
+      :body (json/generate-string {:message "Welcome to Inventory-API"})}
+
 
       :else
       {:status 406

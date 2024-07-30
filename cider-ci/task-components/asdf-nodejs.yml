@@ -1,0 +1,12 @@
+traits:
+  asdf: true
+
+scripts:
+
+  admin-nodejs-asdf-install:
+    exclusive_executor_resource: asdf-nodejs
+    body: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      cd $LEIHS_INVENTORY_DIR
+      ./bin/env/nodejs-setup
