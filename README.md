@@ -29,10 +29,3 @@ npm run dev
 Use `./bin/cljfmt check` and  `./bin/cljfmt fix`.
 
 From vim you can use `:! ./bin/cljfmt fix %` to format the current file.
-
-
-Development setup
---
-1. Run backend: `bin/dev-run-backend`
-2. Run frontend: `bin/dev-run-frontend`
-   - No auto-refresh, FE-changes will be displayed after refresh
