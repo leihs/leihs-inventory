@@ -3,13 +3,10 @@
    [clojure.set]
    [leihs.inventory.server.resources.models.main :as mn]
    [leihs.inventory.server.utils.response_helper :as rh]
-   [ring.middleware.accept]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-
+   [ring.middleware.accept]
    [schema.core :as s]))
-
-
 
 (def schema
   {:id s/Uuid
@@ -47,7 +44,6 @@
    ;:updated_at s/Inst
    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
-
 
 (defn accept-json-middleware [handler]
   (fn [request]
@@ -118,6 +114,4 @@
                      :responses {200 {:description "Returns the workflows."
                                       :body s/Any}
                                  400 {:description "Bad Reqeust / Duplicate key value of ?product?"
-                                      :body s/Any}}}}]]
-
-  )
+                                      :body s/Any}}}}]])

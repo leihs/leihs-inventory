@@ -4,7 +4,6 @@
    [clojure.set]
    [ring.middleware.accept]))
 
-
 (defn index-html-response [status]
   {:status status
    :headers {"Content-Type" "text/html"}

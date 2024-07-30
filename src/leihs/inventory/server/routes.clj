@@ -10,7 +10,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])]
     (cond
@@ -20,7 +19,7 @@
        :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                  (slurp (io/resource "md/info.html"))  "</div></body></html>")}
+                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -61,14 +60,14 @@
      {:get {:no-doc true
             :swagger {:info {:title "inventory-api"
                              :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")) )}}
+                             :description (str (slurp (io/resource "md/info.html")))}}
             :handler (swagger/create-swagger-handler)}}]
 
     ["/api-docs/openapi.json"
      {:get {:no-doc true
             :openapi {:openapi "3.0.0"
                       :info {:title "inventory-api"
-                             :description (str (slurp (io/resource "md/info.html")) )
+                             :description (str (slurp (io/resource "md/info.html")))
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]
 

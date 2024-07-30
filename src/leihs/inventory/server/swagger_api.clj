@@ -22,8 +22,6 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.resource :refer [wrap-resource]]))
 
-
-
 (defn create-app [options]
   (let [router (ring/router
 
