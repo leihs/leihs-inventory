@@ -25,17 +25,17 @@
 (defn create-app [options]
   (let [router (ring/router
 
-                 (routes/basic-routes)
+                (routes/basic-routes)
 
-                 {:exception pretty/exception
-                  :data {:coercion reitit.coercion.spec/coercion
-                         :muuntaja m/instance
-                         :middleware [db/wrap-tx
+                {:exception pretty/exception
+                 :data {:coercion reitit.coercion.spec/coercion
+                        :muuntaja m/instance
+                        :middleware [db/wrap-tx
 
-                                      ring-audits/wrap
-                                      anti-csrf/wrap
-                                      session/wrap-authenticate
-                                      wrap-cookies
+                                     ring-audits/wrap
+                                     anti-csrf/wrap
+                                     session/wrap-authenticate
+                                     wrap-cookies
 
                                       ;locale/wrap
                                       ;settings/wrap
@@ -52,37 +52,37 @@
                                       ;wrap-accept
                                       ;ring-exception/wrap
 
-                                      swagger/swagger-feature
-                                      parameters/parameters-middleware
-                                      muuntaja/format-negotiate-middleware
-                                      muuntaja/format-response-middleware
-                                      exception/exception-middleware
-                                      muuntaja/format-request-middleware
-                                      coercion/coerce-response-middleware
-                                      coercion/coerce-request-middleware
-                                      multipart/multipart-middleware]}})]
+                                     swagger/swagger-feature
+                                     parameters/parameters-middleware
+                                     muuntaja/format-negotiate-middleware
+                                     muuntaja/format-response-middleware
+                                     exception/exception-middleware
+                                     muuntaja/format-request-middleware
+                                     coercion/coerce-response-middleware
+                                     coercion/coerce-request-middleware
+                                     multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
-          router
-          (ring/routes
-            (ring/redirect-trailing-slash-handler {:method :strip})
+         router
+         (ring/routes
+          (ring/redirect-trailing-slash-handler {:method :strip})
 
-            (swagger-ui/create-swagger-ui-handler
-              {:path "/inventory/api-docs/"
-               :config {:validatorUrl nil
-                        :urls [;; TODO: revise config to support multiple specs/accept-types
+          (swagger-ui/create-swagger-ui-handler
+           {:path "/inventory/api-docs/"
+            :config {:validatorUrl nil
+                     :urls [;; TODO: revise config to support multiple specs/accept-types
                                ;{:name "openapi" :url "openapi.json"}
-                               {:name "swagger" :url "swagger.json"}]
-                        :urls.primaryName "openapi"
-                        :operationsSorter "alpha"}})
+                            {:name "swagger" :url "swagger.json"}]
+                     :urls.primaryName "openapi"
+                     :operationsSorter "alpha"}})
 
-            (ring/create-default-handler
-              {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})))
+          (ring/create-default-handler
+           {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})))
 
         (wrap-resource "public"
-          {:allow-symlinks? true
-           :cache-bust-paths ["/inventory/css/additional.css"
-                              "/inventory/js/main.js"]
-           :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-                                #".+_[0-9a-f]{40}\..+"]
-           :enabled? true}))))
+                       {:allow-symlinks? true
+                        :cache-bust-paths ["/inventory/css/additional.css"
+                                           "/inventory/js/main.js"]
+                        :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
+                                             #".+_[0-9a-f]{40}\..+"]
+                        :enabled? true}))))

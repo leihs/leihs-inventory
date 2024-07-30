@@ -35,18 +35,16 @@
   (let [path (:uri request)
         path (if (= "/inventory" path) "index.html" path)]
     (if-let [resource (or (io/resource (str "public/" path))
-                        (io/resource (str "public/inventory/" path)))]
+                          (io/resource (str "public/inventory/" path)))]
       {:status 200
        :body (slurp resource)}
       {:status 404
        :body "File not found"})))
 
-
 (defn- incl-other-routes []
   ;; TODO: add other routes here
   ;(concat get-model-route basic-routes)
-  (get-model-route)
-  )
+  (get-model-route))
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
