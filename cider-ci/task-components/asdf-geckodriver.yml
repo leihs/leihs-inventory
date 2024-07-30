@@ -3,10 +3,10 @@ traits:
 
 scripts:
 
-  admin-geckdriver-asdf-install:
+  inventory-geckdriver-asdf-install:
     exclusive_executor_resource: asdf-geckodriver
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
-      cd $LEIHS_ADMIN_DIR
+      cd $LEIHS_INVENTORY_DIR
       ./bin/env/geckodriver-setup

@@ -8,15 +8,15 @@ scripts:
       nodejs is installed:
         script_key: admin-nodejs-asdf-install
       uberjar has been built:
-        script_key: admin-build-uberjar
+        script_key: inventory-build-uberjar
       database has been created:
         script_key: create-database
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
       export HTTP_PORT=${LEIHS_INVENTORY_HTTP_PORT}
-      cd $LEIHS_ADMIN_DIR
-      mkdir -p $LEIHS_ADMIN_DIR/tmp
+      cd $LEIHS_INVENTORY_DIR
+      mkdir -p $LEIHS_INVENTORY_DIR/tmp
       unset PGPORT
       unset PGUSER
       PGPORT=${PG15PORT} PGUSER=${PG15USER} java \
@@ -46,7 +46,7 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
-      cd $LEIHS_ADMIN_DIR
+      cd $LEIHS_INVENTORY_DIR
       export PID=$(cat tmp/service.pid)
       kill $PID
       tail --pid=$PID -f /dev/null

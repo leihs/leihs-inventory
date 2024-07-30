@@ -26,9 +26,9 @@ depends_on: &GOOD_TO_MERGE_DEPENDENTS
     submodule: [shared-clj]
     states: [passed]
 
-  admin-build-uberjar was successful:
+  inventory-build-uberjar was successful:
     type: job
-    job_key: admin-build-uberjar
+    job_key: inventory-build-uberjar
     states: [passed]
 
 run_when: *GOOD_TO_MERGE_DEPENDENTS

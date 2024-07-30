@@ -25,7 +25,7 @@ task_defaults:
   environment_variables:
     LEIHS_DATABASE_NAME: leihs_api_{{CIDER_CI_TRIAL_ID}}
     DB_NAME: '{{LEIHS_DATABASE_NAME}}'
-    LEIHS_ADMIN_DIR: '{{CIDER_CI_WORKING_DIR}}'
+    LEIHS_INVENTORY_DIR: '{{CIDER_CI_WORKING_DIR}}'
     LEIHS_ADMIN_HTTP_HOST: localhost
     LEIHS_SECRET: '{{CIDER_CI_TRIAL_ID}}'
     RAILS_ENV: test
@@ -43,9 +43,9 @@ task_defaults:
     test:
       start_when:
         geckodriver:
-          script_key: admin-geckdriver-asdf-install
+          script_key: inventory-geckdriver-asdf-install
         firefox:
-          script_key: admin-firefox-asdf-install
+          script_key: inventory-firefox-asdf-install
 #     timeout: 700 seconds
       body: |
         #!/usr/bin/env bash

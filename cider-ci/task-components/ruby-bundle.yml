@@ -2,13 +2,13 @@ traits:
   asdf: true
 
 scripts:
-  admin-ruby-bundle:
+  inventory-ruby-bundle:
     exclusive_executor_resource: asdf-ruby
     timeout: 20 Minutes
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
-      cd $LEIHS_ADMIN_DIR
+      cd $LEIHS_INVENTORY_DIR
       ./bin/env/ruby-setup
 
 
