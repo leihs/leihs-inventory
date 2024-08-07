@@ -96,7 +96,12 @@
         model-id (get-in request [:path-params :id])]
 
     (try
-      (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
+      (let [
+
+            ;res (jdbc/delete! tx :models ["id = ?::uuid" model-id])
+
+            res {}
+            ]
 
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model deleted" :id model-id})

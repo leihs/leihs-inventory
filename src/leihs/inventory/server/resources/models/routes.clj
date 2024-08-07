@@ -27,23 +27,9 @@
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
 
 (def schema-min
-  {;:id s/Uuid
-   :type s/Str
+  {:type s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
-   :product s/Str
-   ;(s/optional-key :version) (s/maybe s/Str)
-   ;(s/optional-key :info_url) (s/maybe s/Str)
-   ;(s/optional-key :rental_price) (s/maybe s/Num)
-   ;(s/optional-key :maintenance_period) (s/maybe s/Int)
-   ;(s/optional-key :is_package) (s/maybe s/Bool)
-   ;(s/optional-key :hand_over_note) (s/maybe s/Str)
-   ;(s/optional-key :description) (s/maybe s/Str)
-   ;(s/optional-key :internal_description) (s/maybe s/Str)
-   ;(s/optional-key :technical_detail) (s/maybe s/Str)
-   ;:created_at s/Inst
-   ;:updated_at s/Inst
-   ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   })
+   :product s/Str})
 
 (defn accept-json-middleware [handler]
   (fn [request]
@@ -53,129 +39,108 @@
         rh/INDEX-HTML-RESPONSE-OK))))
 
 (defn get-model-route []
-  ;[
-
-
-   ["/models"
-    {:tags ["Models"]}
-
-    ["" {:get {:accept "application/json"
-               :coercion reitit.coercion.schema/coercion
-               :middleware [accept-json-middleware]
-
-               :swagger {:produces ["application/json" "text/html"]}
-               :handler mn/get-models-handler
-
-               :responses {200 {:description "OK"
-                                :body (s/->Either [s/Any schema])}
-
-                           404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}
-
-         :post {:summary "Create model."
-                :accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-
-                :parameters {:body schema-min}
-                :middleware [accept-json-middleware]
-                :handler mn/create-model-handler
-
-                :responses {200 {:description "Returns the workflows."
-                                 :body s/Any}
-                            400 {:description "Bad Request / Duplicate key value of ?product?"
-                                 :body s/Any}}}}]
-
-    ["/:id" {:get {:accept "application/json"
-                   :coercion reitit.coercion.schema/coercion
-                   :middleware [accept-json-middleware]
-                   :handler mn/get-models-handler
-                   :parameters {:path {:id s/Uuid}}
-
-                   :responses {200 {:description "OK"
-                                    :body (s/->Either [s/Any schema])}
-                               204 {:description "No Content"}
-                               404 {:description "Not Found"}
-                               500 {:description "Internal Server Error"}}}
-
-             :put {:accept "application/json"
-                   :coercion reitit.coercion.schema/coercion
-                   :parameters {:path {:id s/Uuid}
-                                :body schema-min}
-                   :middleware [accept-json-middleware]
-                   :handler mn/update-model-handler
-
-                   :responses {200 {:description "Returns the updated model."
-                                    :body s/Any}}}
-
-             :delete {:accept "application/json"
-                      :coercion reitit.coercion.schema/coercion
-                      :parameters {:path {:id s/Uuid}}
-                      :middleware [accept-json-middleware]
-                      :handler mn/delete-model-handler
-
-                      :responses {200 {:description "Returns the workflows."
-                                       :body s/Any}
-                                  400 {:description "Bad Reqeust / Duplicate key value of ?product?"
-                                       :body s/Any}}}}]]
-
-   ;]
-  )
-(defn get-model-route2 []
-
-
-  [
-
-   "/pools/:pool_id/models"
-
-   {:tags ["Models by pool"]}
+  ["/models"
+   {:tags ["Models"]}
 
    [""
     {:get {:accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
-
            :swagger {:produces ["application/json" "text/html"]}
-
-           :parameters {:path {:pool_id s/Uuid
-                               }
-                        }
-
-
-           :handler mn/get-models-of-pool-handler
-
+           :handler mn/get-models-handler
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
-
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}
+                       500 {:description "Internal Server Error"}}}
 
+     :post {:summary "Create model."
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :parameters {:body schema-min}
+            :middleware [accept-json-middleware]
+            :handler mn/create-model-handler
+            :responses {200 {:description "Returns the created model."
+                             :body s/Any}
+                        400 {:description "Bad Request / Duplicate key value of ?product?"
+                             :body s/Any}}}}]
 
+   ["/:id"
+    {
+     ;:conflicting true
+     :get {:accept "application/json"
+           :conflicting true
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :handler mn/get-models-handler
+           :parameters {:path {:id s/Uuid}}
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+                       204 {:description "No Content"}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}
 
+     :put {:accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :parameters {:path {:id s/Uuid}
+                        :body schema-min}
+           :middleware [accept-json-middleware]
+           :handler mn/update-model-handler
+           :responses {200 {:description "Returns the updated model."
+                            :body s/Any}}}
 
+     :delete {:accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :parameters {:path {:id s/Uuid}}
+              :middleware [accept-json-middleware]
+              :handler mn/delete-model-handler
+              :responses {200 {:description "Returns the deleted model."
+                               :body s/Any}
+                          400 {:description "Bad Request"
+                               :body s/Any}}
 
+              }}
     ]
 
-   ["/:model_id"
+   ])
+
+(defn get-model-route2 []
+  ["/:pool_id"
+   {
+    :conflicting true
+    :tags ["Models by pool"]}
+
+   ;["/models"
+   [""
+    {
+     ;:conflicting true
+     :get {:accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json" "text/html"]}
+           :parameters {:path {:pool_id s/Uuid}}
+           :handler mn/get-models-of-pool-handler
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
+
+   ["/models/:model_id"
     {:get {:accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
-
            :swagger {:produces ["application/json" "text/html"]}
-
            :parameters {:path {:pool_id s/Uuid
-                               :model_id s/Uuid}
-                        }
-
-
+                               :model_id s/Uuid}}
            :handler mn/get-models-of-pool-handler
-
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
-
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}
+                       500 {:description "Internal Server Error"}}}}]
 
-    ]
+   ])
 
-
-])
+;; Finally, combine both route sets in your main route definition
+(defn get-routes []
+  (concat
+    (get-model-route)
+    (get-model-route2)))
