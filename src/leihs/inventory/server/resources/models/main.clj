@@ -10,6 +10,32 @@
 
   (:import (java.time LocalDateTime)))
 
+(defn get-models-of-pool-handler [request]
+  (let [tx (:tx request)
+        id (get-in request [:path-params :id])
+        pool_id (get-in request [:path-params :pool_id])
+        model_id (get-in request [:path-params :model_id])
+
+        p (println ">o> params => " pool_id model_id)
+
+
+        models-query (-> (sql/select :*)
+                         (sql/from :models)
+                         (sql/order-by :models.product)
+
+                         (cond-> id (sql/where [:= :models.id [:cast id :uuid]]))
+
+                         (sql/limit 10))
+        result (-> models-query
+                   sql-format
+                   (->> (jdbc/query tx)))]
+
+    (cond
+      (nil? id) {:body result}
+      (nil? (first result)) {:status 204}
+      :else {:body (first result)})))
+
+
 (defn get-models-handler [request]
   (let [tx (:tx request)
         id (get-in request [:path-params :id])
