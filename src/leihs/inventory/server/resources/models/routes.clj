@@ -53,61 +53,7 @@
         rh/INDEX-HTML-RESPONSE-OK))))
 
 (defn get-model-route []
-  [
-
-  [
-
-   "/pools/:pool_id/models"
-
-   {:tags ["Models by pool"]}
-
-   [""
-    {:get {:accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-
-           :swagger {:produces ["application/json" "text/html"]}
-
-           :parameters {:path {:pool_id s/Uuid
-                               }
-                        }
-
-
-           :handler mn/get-models-of-pool-handler
-
-           :responses {200 {:description "OK"
-                            :body (s/->Either [s/Any schema])}
-
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}
-
-
-
-
-
-    ]
-
-   ["/:model_id"
-    {:get {:accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-
-           :swagger {:produces ["application/json" "text/html"]}
-
-           :parameters {:path {:pool_id s/Uuid
-                               :model_id s/Uuid}
-                        }
-
-
-           :handler mn/get-models-of-pool-handler
-
-           :responses {200 {:description "OK"
-                            :body (s/->Either [s/Any schema])}
-
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}
-
-    ]]
+  ;[
 
 
    ["/models"
@@ -170,4 +116,66 @@
                       :responses {200 {:description "Returns the workflows."
                                        :body s/Any}
                                   400 {:description "Bad Reqeust / Duplicate key value of ?product?"
-                                       :body s/Any}}}}]]])
+                                       :body s/Any}}}}]]
+
+   ;]
+  )
+(defn get-model-route2 []
+
+
+  [
+
+   "/pools/:pool_id/models"
+
+   {:tags ["Models by pool"]}
+
+   [""
+    {:get {:accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+
+           :swagger {:produces ["application/json" "text/html"]}
+
+           :parameters {:path {:pool_id s/Uuid
+                               }
+                        }
+
+
+           :handler mn/get-models-of-pool-handler
+
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}
+
+
+
+
+
+    ]
+
+   ["/:model_id"
+    {:get {:accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+
+           :swagger {:produces ["application/json" "text/html"]}
+
+           :parameters {:path {:pool_id s/Uuid
+                               :model_id s/Uuid}
+                        }
+
+
+           :handler mn/get-models-of-pool-handler
+
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}
+
+    ]
+
+
+])

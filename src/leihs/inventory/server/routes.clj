@@ -4,7 +4,7 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-route2]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -45,8 +45,11 @@
 
 (defn- incl-other-routes []
   ;; TODO: add other routes here
-  ;(concat get-model-route basic-routes)
-  (get-model-route))
+  ;(vec (concat get-model-route get-model-route2))           ;;error
+  ; ["/test" (get-model-route) (get-model-route2)]           ;;ok
+   ["" (get-model-route) (get-model-route2)]               ;;ok
+  ;(get-model-route)
+   )
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
@@ -85,7 +88,8 @@
                                  :body s/Any}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]
-    (incl-other-routes)]])
+    (incl-other-routes)
+    ]])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
