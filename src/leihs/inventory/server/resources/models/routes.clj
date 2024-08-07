@@ -66,7 +66,6 @@
 
    ["/:id"
     {
-     ;:conflicting true
      :get {:accept "application/json"
            :conflicting true
            :coercion reitit.coercion.schema/coercion
@@ -109,7 +108,6 @@
     :conflicting true
     :tags ["Models by pool"]}
 
-   ;["/models"
    [""
     {
      ;:conflicting true
@@ -136,11 +134,6 @@
                             :body (s/->Either [s/Any schema])}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
-
    ])
 
-;; Finally, combine both route sets in your main route definition
-(defn get-routes []
-  (concat
-    (get-model-route)
-    (get-model-route2)))
+

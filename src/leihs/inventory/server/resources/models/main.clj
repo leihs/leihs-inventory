@@ -7,8 +7,7 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-
-  (:import (java.time LocalDateTime)))
+  (:import (org.joda.time LocalDateTime)))
 
 (defn get-models-of-pool-handler [request]
   (let [tx (:tx request)
@@ -19,21 +18,49 @@
         p (println ">o> params => " pool_id model_id)
 
 
-        models-query (-> (sql/select :*)
-                         (sql/from :models)
-                         (sql/order-by :models.product)
+        ;pool_id=8bd16d45-056d-5590-bc7f-12849f034351
+        ;model_id=847906e1-8e03-57bb-a4d5-bf68d70ab706
 
-                         (cond-> id (sql/where [:= :models.id [:cast id :uuid]]))
+        ;; TODO: fix hierarchical model query
+        models-query (->
+                      ;(sql/with-recursive
+                      ;  :model_group_links
+                      ;  (sql/union
+                      ;    ;; Anchor member
+                      ;    (sql/select :mg.id :mg.name)
+                      ;    (sql/from [:model_groups :mg])
+                      ;    (sql/where [:in :mg.id
+                      ;                (sql/select :pmg.model_group_id)
+                      ;                (sql/from :inventory_pools_model_groups :pmg)
+                      ;                (sql/where [:= :pmg.inventory_pool_id [:cast pool_id :uuid]])])
+                      ;    ;; Recursive member
+                      ;    (sql/select :child_mg.id :child_mg.name)
+                      ;    (sql/from [:model_group_links :parent_mg])
+                      ;    (sql/join [:model_group_links :mgl] [:= :parent_mg.id :mgl.parent_id])
+                      ;    (sql/join [:model_groups :child_mg] [:= :mgl.child_id :child_mg.id])))
 
-                         (sql/limit 10))
+                      (sql/select :p.id
+                        ;[:mg_h.id :model_group_id]
+                        [:m.id :model_id]
+                        [:p.name :pool_name]
+                        ;[:mg_h.name :model_group_name]
+                        [:m.product]
+                        )
+                      (sql/from [:inventory_pools :p])
+                      (sql/join [:inventory_pools_model_groups :pmg] [:= :p.id :pmg.inventory_pool_id])
+                      ;(sql/join [:model_group_links :mg_h] [:= :pmg.model_group_id :mg_h.id])
+                      (sql/join [:model_links :ml] [:= :pmg.model_group_id :ml.model_group_id])
+                      (sql/join [:models :m] [:= :ml.model_id :m.id])
+                      (sql/where [:= :p.id [:cast pool_id :uuid]])
+                      (cond-> model_id (sql/where [:= :m.id [:cast model_id :uuid]]))
+                      )
+
         result (-> models-query
                    sql-format
-                   (->> (jdbc/query tx)))]
+                   (->> (jdbc/query tx)))
+        ]
 
-    (cond
-      (nil? id) {:body result}
-      (nil? (first result)) {:status 204}
-      :else {:body (first result)})))
+    {:body result}))
 
 
 (defn get-models-handler [request]

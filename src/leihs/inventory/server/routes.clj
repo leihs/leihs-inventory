@@ -80,7 +80,8 @@
     ["/debug"
      {:tags ["Debug"]}
 
-     ["" {:get {:accept "text/html"
+     ["" {:no-doc true
+          :get {:accept "text/html"
                 :coercion reitit.coercion.schema/coercion
                 :swagger {:produces ["text/html"]}
                 :handler (fn [request] rh/INDEX-HTML-RESPONSE-OK)
