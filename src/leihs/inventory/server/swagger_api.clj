@@ -27,7 +27,8 @@
 
                 (routes/basic-routes)
 
-                {:exception pretty/exception
+                {:conflicts nil
+                 :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
@@ -46,11 +47,10 @@
                                       ;core-routing/wrap-canonicalize-params-maps
                                       ;wrap-params
                                       ;wrap-multipart-params
-                                      ;(status/wrap (path :status))
-                                      ;wrap-content-type
-                                      ;(core-routing/wrap-resolve-handler html/html-handler)
-                                      ;wrap-accept
-                                      ;ring-exception/wrap
+                                     ;wrap-content-type
+                                     ;(core-routing/wrap-resolve-handler html/html-handler)
+                                     ;wrap-accept
+                                     ;ring-exception/wrap
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware

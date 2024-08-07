@@ -3,7 +3,7 @@ traits:
 
 scripts:
 
-  admin-nodejs-asdf-install:
+  inventory-nodejs-asdf-install:
     exclusive_executor_resource: asdf-nodejs
     body: |
       #!/usr/bin/env bash

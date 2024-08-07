@@ -1,9 +1,21 @@
-{:deps {:aliases [:frontend]}
+{
+ :deps {:aliases [:frontend]}
 
  :dev-http {8080 ["resources/public"]}
 
  :builds
- {:frontend
+ {
+  :frontend-dev
   {:output-dir "resources/public/inventory/js"
    :target :browser
-   :modules {:main {:init-fn leihs.inventory.client.main/init}}}}}
+   :modules {:main {:init-fn leihs.inventory.client.main/init}}
+   :devtools {:enabled true}
+   :compiler-options {:infer-externs true}}
+
+  :frontend-prod
+  {:output-dir "resources/public/inventory/js"
+   :target :browser
+   :modules {:main {:init-fn leihs.inventory.client.main/init}}
+   :devtools {:enabled false}
+   :compiler-options {:infer-externs true
+                      :optimizations :advanced}}}}

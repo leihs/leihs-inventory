@@ -1,10 +1,7 @@
 (ns leihs.inventory.client.pages.models.api
   (:require [cljs-http.client :as http]))
 
-(def base-url
-  "http://localhost:3260/inventory/models"
-  #_"http://localhost:3360/models" ; mock api
-  )
+(def base-url "/inventory/models")
 
 (defn get-many []
   (http/get base-url {:headers {"Accept" "application/json"}}))
