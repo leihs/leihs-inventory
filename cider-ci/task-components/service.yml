@@ -3,10 +3,10 @@ include:
 
 scripts:
 
-  admin-service-run:
+  inventory-service-run:
     start_when:
       nodejs is installed:
-        script_key: admin-nodejs-asdf-install
+        script_key: inventory-nodejs-asdf-install
       uberjar has been built:
         script_key: inventory-build-uberjar
       database has been created:
@@ -23,7 +23,7 @@ scripts:
         -jar target/leihs-inventory.jar \
         run --pid-file tmp/service.pid
 
-  admin-service-is-running:
+  inventory-service-is-running:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
@@ -34,15 +34,15 @@ scripts:
       done
     start_when:
       run server is executing:
-        script_key: admin-service-run
+        script_key: inventory-service-run
         states: [executing]
 
   test:
     start_when:
       admin service is running:
-        script_key: admin-service-is-running
+        script_key: inventory-service-is-running
 
-  shutdown-admin-service:
+  shutdown-inventory-service:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
@@ -57,6 +57,6 @@ scripts:
 
   delete-database:
     start_when:
-      shutdown-admin-service is in termial state:
-        script_key: shutdown-admin-service
+      shutdown-inventory-service is in termial state:
+        script_key: shutdown-inventory-service
         states: [aborted, defective, passed, failed, skipped]
