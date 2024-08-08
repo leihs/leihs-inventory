@@ -27,9 +27,7 @@
 
                 (routes/basic-routes)
 
-                {
-                 :conflicts nil
-
+                {:conflicts nil
 
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion

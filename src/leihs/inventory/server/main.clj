@@ -55,21 +55,19 @@
         options (into (sorted-map) options)
         print-summary #(println (main-usage summary {:args args :options options}))
 
-
         p (println ">o> cmd=" cmd)
-        p (println ">o> options=" options)
-        ]
+        p (println ">o> options=" options)]
     (repl/init options)
     (cond (:help options) (do
                             (println ">o> print-help")
                             (print-summary))
           :else (do
-                  (println ">o> cond-else" )
+                  (println ">o> cond-else")
                   (case cmd
-                  :run (do
-                            (println ">o> print-run")
-                         (run/main options (rest arguments)))
-                  (print-summary))))))
+                    :run (do
+                           (println ">o> print-run")
+                           (run/main options (rest arguments)))
+                    (print-summary))))))
 
 ; dynamic restart on require
 (when @args* (main))

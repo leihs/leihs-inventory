@@ -87,8 +87,7 @@
     ["/debug"
      {:tags ["Debug"]}
 
-     ["" {
-          :conflicting true
+     ["" {:conflicting true
           :no-doc true
           :get {:accept "text/html"
                 :coercion reitit.coercion.schema/coercion
