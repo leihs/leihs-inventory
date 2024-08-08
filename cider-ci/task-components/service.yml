@@ -27,6 +27,9 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
+      
+      echo "port is ${LEIHS_INVENTORY_HTTP_PORT}"
+      
       until curl --silent --fail -I \
         -H 'Accept: application/json' \
         "http://localhost:${LEIHS_INVENTORY_HTTP_PORT}/inventory/status";
