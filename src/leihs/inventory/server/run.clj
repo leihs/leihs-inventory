@@ -14,25 +14,26 @@
    [taoensso.timbre :refer [info]]))
 
 (defn run [options]
+  (println ">o> server.run.run")
   (catcher/snatch
-   {:return-fn (fn [e] (System/exit -1))}
-   (info "Invoking run with options: " options)
-   (shutdown/init options)
-   (let [status (status/init)]
-     (db/init options (:health-check-registry status)))
-   (http-server/start options (sui/create-app options))))
+    {:return-fn (fn [e] (System/exit -1))}
+    (info "Invoking run with options: " options)
+    (shutdown/init options)
+    (let [status (status/init)]
+      (db/init options (:health-check-registry status)))
+    (http-server/start options (sui/create-app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def cli-options
   (concat
-   [["-h" "--help"]
-    shutdown/pid-file-option]
-   (http-server/cli-options :default-http-port 3260)
-   db/cli-options))
+    [["-h" "--help"]
+     shutdown/pid-file-option]
+    (http-server/cli-options :default-http-port 3260)
+    db/cli-options))
 
 (defn main-usage [options-summary & more]
-  (->> ["leihs-inventory"
+  (->> ["leihs-inventory2"
         ""
         "usage: leihs-inventory [<gopts>] run [<opts>] [<args>]"
         ""
@@ -44,14 +45,18 @@
           ["-------------------------------------------------------------------"
            (with-out-str (pprint more))
            "-------------------------------------------------------------------"])]
-       flatten (clojure.string/join \newline)))
+    flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
-  (let [{:keys [options arguments errors summary]}
-        (cli/parse-opts args cli-options :in-order true)
+  (println ">o> server.run.main")
+  (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
-                          flatten (into []))
-        options (merge gopts options)]
+                       flatten (into []))
+        p (println ">o> (not used) pass-on-args=" pass-on-args)
+        options (merge gopts options)
+
+        p (println ">o> options=" options)
+        ]
     (cond
       (:help options) (println (main-usage summary {:args args :options options}))
       :else (run options))))

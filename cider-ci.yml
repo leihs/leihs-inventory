@@ -50,7 +50,7 @@ jobs:
         scripts:
           test:
             body: |
-              echo "TODO: fix setup"
+              echo "TODO: fix frontend-setup"
               ./src/leihs/inventory/client/bin/lint
 
   lint:

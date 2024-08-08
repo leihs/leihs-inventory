@@ -28,7 +28,7 @@
    repl/cli-options))
 
 (defn main-usage [options-summary & more]
-  (->> ["Leihs Inventory"
+  (->> ["Leihs Inventory1"
         ""
         "usage: leihs-inventory [<opts>] SCOPE [<scope-opts>] [<args>]"
         ""
@@ -53,12 +53,23 @@
                                   args cli-options :in-order true)
         cmd (some-> arguments first keyword)
         options (into (sorted-map) options)
-        print-summary #(println (main-usage summary {:args args :options options}))]
+        print-summary #(println (main-usage summary {:args args :options options}))
+
+
+        p (println ">o> cmd=" cmd)
+        p (println ">o> options=" options)
+        ]
     (repl/init options)
-    (cond (:help options) (print-summary)
-          :else (case cmd
-                  :run (run/main options (rest arguments))
-                  (print-summary)))))
+    (cond (:help options) (do
+                            (println ">o> print-help")
+                            (print-summary))
+          :else (do
+                  (println ">o> cond-else" )
+                  (case cmd
+                  :run (do
+                            (println ">o> print-run")
+                         (run/main options (rest arguments)))
+                  (print-summary))))))
 
 ; dynamic restart on require
 (when @args* (main))

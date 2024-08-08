@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo ">o> PROJECT_DIR: start"
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
 TMPDIR="${TMPDIR:-/tmp}" # fallback to /tmp if TMPDIR is not set, as in Ubuntu e.g.
@@ -8,20 +9,31 @@ BUILDCACHE_TMPDIR="${BUILDCACHE_TMPDIR:-$TMPDIR}"
 BUILDCACHE_TMPDIR=${BUILDCACHE_TMPDIR%/} # remove trailing slash
 mkdir -p $BUILDCACHE_TMPDIR
 
-JAR_PREFIX_NAME=madek-api-v2
+JAR_PREFIX_NAME=leihs-inventory
 JAR_REL_PATH=$JAR_PREFIX_NAME.jar
+echo ">o> PROJECT_DIR: $PROJECT_DIR"
 cd $PROJECT_DIR
 
 # cleanup
 rm -f $JAR_REL_PATH
 
 function build {
+
+  echo ">o> build1"
+
+
   echo "Building $JAR_REL_PATH"
   ./bin/clean
+  echo ">o> build2"
+
   rm -f $JAR_REL_PATH
   # ./bin/clj-deps-graph
+
   ./bin/clj-uberjar
+  echo ">o> build3"
+
   ./bin/clean
+  echo ">o> build4"
 }
 
 if [[ -n $(git status -s) ]]; then

@@ -63,7 +63,8 @@
     ; {:get {:handler inventory-handler}}]
 
     ["/api-docs"
-     {:get {:handler inventory-handler :no-doc true}}]
+     {:get {:conflicting true
+            :handler inventory-handler :no-doc true}}]
 
     ["/api-docs/swagger.json"
      {:get {:no-doc true
@@ -86,7 +87,9 @@
     ["/debug"
      {:tags ["Debug"]}
 
-     ["" {:no-doc true
+     ["" {
+          :conflicting true
+          :no-doc true
           :get {:accept "text/html"
                 :coercion reitit.coercion.schema/coercion
                 :swagger {:produces ["text/html"]}

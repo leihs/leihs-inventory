@@ -27,7 +27,11 @@
 
                 (routes/basic-routes)
 
-                {:exception pretty/exception
+                {
+                 :conflicts nil
+
+
+                 :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
                         :middleware [db/wrap-tx

@@ -40,10 +40,14 @@
 
 (defn get-model-route []
   ["/models"
-   {:tags ["Models"]}
+   {
+    :conflicting true
+    :tags ["Models"]}
 
    [""
-    {:get {:accept "application/json"
+    {:get {
+           :conflicting true
+           :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json" "text/html"]}
@@ -102,8 +106,10 @@
     :tags ["Models by pool"]}
 
    [""
-    {;:conflicting true
-     :get {:accept "application/json"
+    {
+     :get {
+           :conflicting true
+           :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json" "text/html"]}
