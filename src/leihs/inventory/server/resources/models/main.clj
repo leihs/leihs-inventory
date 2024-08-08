@@ -97,6 +97,7 @@
 
     (try
       (let [res (jdbc/update! tx :models model ["id = ?::uuid" model-id])]
+
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model updated" :id model-id})
           (bad-request {:error "Failed to update model" :details "Model not found"})))
@@ -111,6 +112,7 @@
 
     (try
       (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
+
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model deleted" :id model-id})
           (bad-request {:error "Failed to delete model" :details "Model not found"})))

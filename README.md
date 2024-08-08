@@ -34,7 +34,6 @@ From vim you can use `:! ./bin/cljfmt fix %` to format the current file.
 #### Ruby
 Use `standardrb` and  `standardrb --fix`.
 
-
 Artifact-Build process
 - **server.main** is used to run app/entrypoint of jar
 - **server.run** creates the app
