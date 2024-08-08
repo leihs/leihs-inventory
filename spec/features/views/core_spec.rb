@@ -26,10 +26,15 @@ feature "Call /" do
       prepare_http_client
     end
 
-    scenario "json response is correct" do
+    it "json response is correct" do
       resp = http_client.get "/"
       expect(resp.status).to be == 200
       expect(resp.body["message"]).to be == "Welcome to Inventory-API"
+    end
+
+    it "status-check for cider" do
+      resp = http_client.get "/inventory/status"
+      expect(resp.status).to be == 204
     end
   end
 end

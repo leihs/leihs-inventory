@@ -62,6 +62,10 @@
     ;[#"/(?!api-docs).*"
     ; {:get {:handler inventory-handler}}]
 
+    ["/status"
+     {:get {:accept "application/json"
+            :handler (fn [_] {:status 204})}}]
+
     ["/api-docs"
      {:get {:conflicting true
             :handler inventory-handler :no-doc true}}]
