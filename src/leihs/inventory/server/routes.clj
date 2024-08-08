@@ -3,10 +3,13 @@
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
+   [leihs.core.status :as status]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
    [leihs.inventory.server.utils.response_helper :as rh]
+
    [reitit.openapi :as openapi]
+
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
    [ring.util.response :refer [response redirect]]
@@ -59,12 +62,9 @@
 
    ["/inventory"
 
-    ;[#"/(?!api-docs).*"
-    ; {:get {:handler inventory-handler}}]
-
     ["/status"
      {:get {:accept "application/json"
-            :handler (fn [_] {:status 204})}}]
+            :handler status/status-handler}}]
 
     ["/api-docs"
      {:get {:conflicting true

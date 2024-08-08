@@ -34,7 +34,9 @@ feature "Call /" do
 
     it "status-check for cider" do
       resp = http_client.get "/inventory/status"
-      expect(resp.status).to be == 204
+      expect(resp.status).to be == 200
+      expect(resp.body["memory"]["ok?"]).to be == true
+      expect(resp.body["health-checks"]["HikariPool-1.pool.ConnectivityCheck"]["healthy?"]).to be == true
     end
   end
 end
