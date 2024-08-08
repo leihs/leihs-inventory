@@ -81,7 +81,7 @@ jobs:
               body: |
                 #!/usr/bin/env bash
                 set -euo pipefail
-                cd ${API_V2_DIR}
+                cd ${LEIHS_INVENTORY_DIR}
                 standardrb
                 status=$?
                 if [ $status -eq 1 ]; then
