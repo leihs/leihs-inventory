@@ -64,6 +64,8 @@ jobs:
         include_match: ^.*$
     context:
       task_defaults:
+        environment_variables:
+          LEIHS_INVENTORY_DIR: "{{CIDER_CI_WORKING_DIR}}"
         git_options:
           submodules:
             include_match: ^.*$
@@ -81,6 +83,7 @@ jobs:
               body: |
                 #!/usr/bin/env bash
                 set -euo pipefail
+                echo "LID: $LEIHS_INVENTORY_DIR"
                 cd ${LEIHS_INVENTORY_DIR}
                 standardrb
                 status=$?
