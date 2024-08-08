@@ -11,7 +11,7 @@ task_defaults:
   environment_variables:
     LEIHS_INVENTORY_DIR: '{{CIDER_CI_WORKING_DIR}}'
     LEIHS_DATABASE_DIR: '{{LEIHS_INVENTORY_DIR}}/database'
-    LEIHS_DATABASE_NAME: 'leihs_inventory_{{CIDER_CI_TRIAL_ID}}'
+    LEIHS_DATABASE_NAME: 'leihs_{{CIDER_CI_TRIAL_ID}}'
     RAILS_ENV: test
 tasks:
   check-feature-tasks:
