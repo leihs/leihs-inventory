@@ -50,7 +50,7 @@ jobs:
         scripts:
           test:
             body: |
-              ./ui/bin/lint
+              ./src/leihs/inventory/client/bin/lint
 
   lint:
     name: "Linting"
