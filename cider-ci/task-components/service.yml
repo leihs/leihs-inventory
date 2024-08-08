@@ -19,10 +19,15 @@ scripts:
       mkdir -p $LEIHS_INVENTORY_DIR/tmp
       unset PGPORT
       unset PGUSER
+      
+      echo "Starting inventory service"
+      echo "pgport: ${PG15PORT}"
+      echo "pguser: ${PG15USER}"
+      
       PGPORT=${PG15PORT} PGUSER=${PG15USER} java \
         -jar leihs-inventory.jar \
         run --pid-file tmp/service.pid
-      echo "Inventory service is running"
+      
 
   inventory-service-is-running:
     body: |
