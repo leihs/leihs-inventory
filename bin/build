@@ -18,22 +18,14 @@ cd $PROJECT_DIR
 rm -f $JAR_REL_PATH
 
 function build {
-
-  echo ">o> build1"
-
-
   echo "Building $JAR_REL_PATH"
   ./bin/clean
-  echo ">o> build2"
 
   rm -f $JAR_REL_PATH
   # ./bin/clj-deps-graph
 
   ./bin/clj-uberjar
-  echo ">o> build3"
-
   ./bin/clean
-  echo ">o> build4"
 }
 
 if [[ -n $(git status -s) ]]; then
@@ -58,7 +50,5 @@ fi
 
 # Clean cached jars older than a week
 find $BUILDCACHE_TMPDIR -maxdepth 1 -name "${JAR_PREFIX_NAME}_*.jar" -type f -mtime +7 -delete
-
-
 
 # vim: set ft=sh

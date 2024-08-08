@@ -1,11 +1,7 @@
 {
  :paths ["src" "shared-clj/src" "resources"]
-
  :deps
- ;{org.clojure/clojure {:mvn/version "1.10.3"}
-
-  {org.clojure/clojure {:mvn/version "1.11.0"}
-
+ {org.clojure/clojure {:mvn/version "1.11.0"}
   better-cond/better-cond {:mvn/version "2.1.5"}
   cheshire/cheshire {:mvn/version "5.13.0"}
   clj-http/clj-http {:mvn/version "3.12.3"}
@@ -24,8 +20,6 @@
   ring/ring-core {:mvn/version "1.12.2"}
   ring/ring-defaults {:mvn/version "0.3.2"}
   ring/ring-jetty-adapter {:mvn/version "1.12.1"}
-
-  ;clj-yaml/clj-yaml {:mvn/version "0.7.106"}
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
   }
 
@@ -46,7 +40,7 @@
   :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
                     metosin/reitit {:mvn/version "0.7.0"}
                     metosin/reitit-frontend {:mvn/version "0.7.0"}
-                    noencore/noencore {:mvn/version "0.3.7"} ; (transitive dependency of cljs-http; enforce new version to avoid :redef warnings)
+                    noencore/noencore {:mvn/version "0.3.7"}
                     reagent/reagent {:mvn/version "1.2.0"}}
              :extra-deps {binaryage/devtools {:mvn/version "1.0.7"}
                           thheller/shadow-cljs {:mvn/version "2.25.8"}}}
@@ -58,7 +52,4 @@
 
   :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "2.0.211"}}
             :exec-fn hf.depstar.uberjar/build-jar
-            :exec-args {:aot true :jar "leihs-inventory.jar" :main-class leihs.inventory.server.main}}
-            ;:exec-args {:aot true :jar "leihs-inventory.jar" :main-class leihs.inventory.server.run}}
-  }
- }
+            :exec-args {:aot true :jar "leihs-inventory.jar" :main-class leihs.inventory.server.main}}}}

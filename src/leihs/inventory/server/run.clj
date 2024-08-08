@@ -14,7 +14,6 @@
    [taoensso.timbre :refer [info]]))
 
 (defn run [options]
-  (println ">o> server.run.run")
   (catcher/snatch
    {:return-fn (fn [e] (System/exit -1))}
    (info "Invoking run with options: " options)
@@ -33,7 +32,7 @@
    db/cli-options))
 
 (defn main-usage [options-summary & more]
-  (->> ["leihs-inventory2"
+  (->> ["leihs-inventory"
         ""
         "usage: leihs-inventory [<gopts>] run [<opts>] [<args>]"
         ""
@@ -48,14 +47,10 @@
        flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
-  (println ">o> server.run.main")
   (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
                           flatten (into []))
-        p (println ">o> (not used) pass-on-args=" pass-on-args)
-        options (merge gopts options)
-
-        p (println ">o> options=" options)]
+        options (merge gopts options)]
     (cond
       (:help options) (println (main-usage summary {:args args :options options}))
       :else (run options))))

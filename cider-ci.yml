@@ -84,7 +84,6 @@ jobs:
               body: |
                 #!/usr/bin/env bash
                 set -euo pipefail
-                echo "LID: $LEIHS_INVENTORY_DIR"
                 cd ${LEIHS_INVENTORY_DIR}
                 standardrb
                 status=$?

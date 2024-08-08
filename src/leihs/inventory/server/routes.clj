@@ -7,12 +7,10 @@
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
    [leihs.inventory.server.utils.response_helper :as rh]
-
    [reitit.openapi :as openapi]
-
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
-   [ring.util.response :refer [response redirect]]
+   [ring.util.response :refer [redirect]]
    [schema.core :as s]))
 
 (defn root-handler [request]
@@ -51,11 +49,7 @@
 
 (defn- incl-other-routes []
   ;; TODO: add other routes here
-  ;(vec (concat get-model-route get-model-route2))           ;;error
-  ; ["/test" (get-model-route) (get-model-route2)]           ;;ok
-  ["" (get-model-route) (get-model-by-pool-route)] ;;ok
-  ;(get-model-route)
-  )
+  ["" (get-model-route) (get-model-by-pool-route)])
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]

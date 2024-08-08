@@ -5,7 +5,6 @@
             [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
-            [leihs.core.status :as status]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
             [muuntaja.core :as m]
@@ -29,7 +28,6 @@
                 (routes/basic-routes)
 
                 {:conflicts nil
-
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
@@ -49,7 +47,6 @@
                                       ;core-routing/wrap-canonicalize-params-maps
                                       ;wrap-params
                                       ;wrap-multipart-params
-                                      ;(status/wrap (path :status)) ;; /status
                                      ;wrap-content-type
                                      ;(core-routing/wrap-resolve-handler html/html-handler)
                                      ;wrap-accept

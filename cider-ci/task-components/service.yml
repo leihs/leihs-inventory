@@ -16,7 +16,6 @@ scripts:
       set -euo pipefail
       export HTTP_PORT=${LEIHS_INVENTORY_HTTP_PORT}
       cd $LEIHS_INVENTORY_DIR
-
       mkdir -p $LEIHS_INVENTORY_DIR/tmp
       unset PGPORT
       unset PGUSER

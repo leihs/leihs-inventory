@@ -11,15 +11,8 @@
 
 (defn get-models-of-pool-handler [request]
   (let [tx (:tx request)
-        id (get-in request [:path-params :id])
         pool_id (get-in request [:path-params :pool_id])
         model_id (get-in request [:path-params :model_id])
-
-        p (println ">o> params => " pool_id model_id)
-
-;pool_id=8bd16d45-056d-5590-bc7f-12849f034351
-        ;model_id=847906e1-8e03-57bb-a4d5-bf68d70ab706
-
         ;; TODO: fix hierarchical model query
         models-query (->
                       ;(sql/with-recursive
@@ -84,9 +77,7 @@
         model body-params
         model (assoc body-params
                      :created_at created_ts
-                     :updated_at created_ts)
-
-        p (println ">o> create-model" model)]
+                     :updated_at created_ts)]
 
     (try
       (let [res (jdbc/insert! tx :models model)]
@@ -116,8 +107,7 @@
 
 (defn delete-model-handler [request]
   (let [tx (:tx request)
-        model-id (get-in request [:path-params :id])
-        p (println ">o> delete" model-id)]
+        model-id (get-in request [:path-params :id])]
 
     (try
       (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]

@@ -5,8 +5,4 @@ cd $PROJECT_DIR
 $PROJECT_DIR/bin/env/java-setup
 $PROJECT_DIR/bin/env/clojure-setup
 clojure -Spom
-
-echo ">o> uberjar1"
-#clojure -A:depstar:resources -m hf.depstar.uberjar leihs-inventory.jar -C -m leihs.inventory.server.main
 clojure -X:uberjar
-echo ">o> uberjar2"
