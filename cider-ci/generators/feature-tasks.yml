@@ -8,6 +8,11 @@
   environment_variables:
     FEATURE_NAME: "Call / with accept=application/json 01"
     FEATURE: './spec/features/views/core_spec.rb[1:2:1]'
+'./spec/features/views/core_spec.rb[1:2:2]':
+  name: "Call / with accept=application/json 02"
+  environment_variables:
+    FEATURE_NAME: "Call / with accept=application/json 02"
+    FEATURE: './spec/features/views/core_spec.rb[1:2:2]'
 './spec/features/views/inventory_spec.rb[1:1:1]':
   name: "Call /inventory  with accept=text/html 01"
   environment_variables:
