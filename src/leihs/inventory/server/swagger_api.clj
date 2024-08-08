@@ -27,16 +27,7 @@
 
                 (routes/basic-routes)
 
-
-
-                {
-                 ;:conflicts nil
-                 :conflicts (fn [conflicts]
-                               ;(println (exception/format-exception :path-conflicts nil conflicts)))}
-                               (println  conflicts))
-
-
-                 :exception pretty/exception
+                {:exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
@@ -86,10 +77,7 @@
                      :operationsSorter "alpha"}})
 
           (ring/create-default-handler
-           {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)}))
-
-
-          )
+           {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})))
 
         (wrap-resource "public"
                        {:allow-symlinks? true

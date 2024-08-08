@@ -7,7 +7,7 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import (org.joda.time LocalDateTime)))
+  (:import (java.time LocalDateTime)))
 
 (defn get-models-of-pool-handler [request]
   (let [tx (:tx request)
@@ -17,8 +17,7 @@
 
         p (println ">o> params => " pool_id model_id)
 
-
-        ;pool_id=8bd16d45-056d-5590-bc7f-12849f034351
+;pool_id=8bd16d45-056d-5590-bc7f-12849f034351
         ;model_id=847906e1-8e03-57bb-a4d5-bf68d70ab706
 
         ;; TODO: fix hierarchical model query
@@ -41,27 +40,23 @@
 
                       (sql/select :p.id
                         ;[:mg_h.id :model_group_id]
-                        [:m.id :model_id]
-                        [:p.name :pool_name]
+                                  [:m.id :model_id]
+                                  [:p.name :pool_name]
                         ;[:mg_h.name :model_group_name]
-                        [:m.product]
-                        )
+                                  [:m.product])
                       (sql/from [:inventory_pools :p])
                       (sql/join [:inventory_pools_model_groups :pmg] [:= :p.id :pmg.inventory_pool_id])
                       ;(sql/join [:model_group_links :mg_h] [:= :pmg.model_group_id :mg_h.id])
                       (sql/join [:model_links :ml] [:= :pmg.model_group_id :ml.model_group_id])
                       (sql/join [:models :m] [:= :ml.model_id :m.id])
                       (sql/where [:= :p.id [:cast pool_id :uuid]])
-                      (cond-> model_id (sql/where [:= :m.id [:cast model_id :uuid]]))
-                      )
+                      (cond-> model_id (sql/where [:= :m.id [:cast model_id :uuid]])))
 
         result (-> models-query
                    sql-format
-                   (->> (jdbc/query tx)))
-        ]
+                   (->> (jdbc/query tx)))]
 
     {:body result}))
-
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
@@ -89,7 +84,9 @@
         model body-params
         model (assoc body-params
                      :created_at created_ts
-                     :updated_at created_ts)]
+                     :updated_at created_ts)
+
+        p (println ">o> create-model" model)]
 
     (try
       (let [res (jdbc/insert! tx :models model)]
@@ -109,7 +106,6 @@
 
     (try
       (let [res (jdbc/update! tx :models model ["id = ?::uuid" model-id])]
-
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model updated" :id model-id})
           (bad-request {:error "Failed to update model" :details "Model not found"})))
@@ -120,16 +116,11 @@
 
 (defn delete-model-handler [request]
   (let [tx (:tx request)
-        model-id (get-in request [:path-params :id])]
+        model-id (get-in request [:path-params :id])
+        p (println ">o> delete" model-id)]
 
     (try
-      (let [
-
-            ;res (jdbc/delete! tx :models ["id = ?::uuid" model-id])
-
-            res {}
-            ]
-
+      (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
         (if (= 1 (:next.jdbc/update-count res))
           (response {:message "Model deleted" :id model-id})
           (bad-request {:error "Failed to delete model" :details "Model not found"})))

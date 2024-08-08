@@ -65,8 +65,7 @@
                              :body s/Any}}}}]
 
    ["/:id"
-    {
-     :get {:accept "application/json"
+    {:get {:accept "application/json"
            :conflicting true
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -95,22 +94,15 @@
               :responses {200 {:description "Returns the deleted model."
                                :body s/Any}
                           400 {:description "Bad Request"
-                               :body s/Any}}
+                               :body s/Any}}}}]])
 
-              }}
-    ]
-
-   ])
-
-(defn get-model-route2 []
+(defn get-model-by-pool-route []
   ["/:pool_id"
-   {
-    :conflicting true
+   {:conflicting true
     :tags ["Models by pool"]}
 
    [""
-    {
-     ;:conflicting true
+    {;:conflicting true
      :get {:accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -133,7 +125,6 @@
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-   ])
+                       500 {:description "Internal Server Error"}}}}]])
 
 

@@ -4,11 +4,12 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-route2]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
+   [ring.util.response :refer [response redirect]]
    [schema.core :as s]))
 
 (defn root-handler [request]
@@ -25,8 +26,7 @@
       (clojure.string/includes? accept-header "application/json")
       {:status 200
        :headers {"Content-Type" "application/json"}
-      :body (json/generate-string {:message "Welcome to Inventory-API"})}
-
+       :body (json/generate-string {:message "Welcome to Inventory-API"})}
 
       :else
       {:status 406
@@ -34,30 +34,36 @@
        :body "Not Acceptable"})))
 
 (defn inventory-handler [request]
-  (let [path (:uri request)
-        path (if (= "/inventory" path) "index.html" path)]
-    (if-let [resource (or (io/resource (str "public/" path))
-                          (io/resource (str "public/inventory/" path)))]
-      {:status 200
-       :body (slurp resource)}
-      {:status 404
-       :body "File not found"})))
+  (let [uri (:uri request)
+        path (if (= "/inventory" uri) "index.html" uri)
+        resource (or (io/resource (str "public/" path))
+                     (io/resource (str "public/inventory" path)))]
+
+    (cond
+      (and (nil? resource) (= uri "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
+      resource {:status 200
+                :body (slurp resource)}
+      :else {:status 404
+             :body "File not found"})))
 
 (defn- incl-other-routes []
   ;; TODO: add other routes here
   ;(vec (concat get-model-route get-model-route2))           ;;error
   ; ["/test" (get-model-route) (get-model-route2)]           ;;ok
-   ["" (get-model-route) (get-model-route2)]               ;;ok
+  ["" (get-model-route) (get-model-by-pool-route)] ;;ok
   ;(get-model-route)
-   )
+  )
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
 
    ["/inventory"
 
-    [#"/(?!api-docs).*"
-     {:get {:handler inventory-handler}}]
+    ;[#"/(?!api-docs).*"
+    ; {:get {:handler inventory-handler}}]
+
+    ["/api-docs"
+     {:get {:handler inventory-handler :no-doc true}}]
 
     ["/api-docs/swagger.json"
      {:get {:no-doc true
@@ -89,8 +95,7 @@
                                  :body s/Any}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]
-    (incl-other-routes)
-    ]])
+    (incl-other-routes)]])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
