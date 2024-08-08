@@ -23,7 +23,7 @@ task_defaults:
       max: 3999
 
   environment_variables:
-    LEIHS_DATABASE_NAME: leihs_api_{{CIDER_CI_TRIAL_ID}}
+    LEIHS_DATABASE_NAME: leihs_inventory_{{CIDER_CI_TRIAL_ID}}
     DB_NAME: '{{LEIHS_DATABASE_NAME}}'
     LEIHS_INVENTORY_DIR: '{{CIDER_CI_WORKING_DIR}}'
     LEIHS_ADMIN_HTTP_HOST: localhost
