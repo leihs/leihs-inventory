@@ -50,7 +50,8 @@ jobs:
         scripts:
           test:
             body: |
-              ./ui/bin/lint
+              echo "TODO: fix frontend-setup"
+              ./src/leihs/inventory/client/bin/lint
 
   lint:
     name: "Linting"
@@ -64,6 +65,8 @@ jobs:
         include_match: ^.*$
     context:
       task_defaults:
+        environment_variables:
+          LEIHS_INVENTORY_DIR: "{{CIDER_CI_WORKING_DIR}}"
         git_options:
           submodules:
             include_match: ^.*$
@@ -81,7 +84,7 @@ jobs:
               body: |
                 #!/usr/bin/env bash
                 set -euo pipefail
-                cd ${API_V2_DIR}
+                cd ${LEIHS_INVENTORY_DIR}
                 standardrb
                 status=$?
                 if [ $status -eq 1 ]; then

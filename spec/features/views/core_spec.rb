@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
 
-feature "Call /" do
+feature "Request " do
   context " with accept=text/html" do
     before :each do
       visit "/"
@@ -26,10 +26,21 @@ feature "Call /" do
       prepare_http_client
     end
 
-    scenario "json response is correct" do
-      resp = http_client.get "/"
-      expect(resp.status).to be == 200
-      expect(resp.body["message"]).to be == "Welcome to Inventory-API"
+    context "against /" do
+      scenario "json response is correct" do
+        resp = http_client.get "/"
+        expect(resp.status).to be == 200
+        expect(resp.body["message"]).to be == "Welcome to Inventory-API"
+      end
+    end
+
+    context "against /inventory/status" do
+      scenario "status-check for cider" do
+        resp = http_client.get "/inventory/status"
+        expect(resp.status).to be == 200
+        expect(resp.body["memory"]["ok?"]).to be == true
+        expect(resp.body["health-checks"]["HikariPool-1.pool.ConnectivityCheck"]["healthy?"]).to be == true
+      end
     end
   end
 end

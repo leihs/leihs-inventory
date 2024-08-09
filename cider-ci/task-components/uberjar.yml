@@ -8,7 +8,7 @@ git_options:
 scripts:
   inventory-build-uberjar:
     timeout: 60 minutes
-    exclusive_executor_resource: 'build-leihs-admin-jar-{{CIDER_CI_TREE_ID}}'
+    exclusive_executor_resource: 'build-leihs-inventory-jar-{{CIDER_CI_TREE_ID}}'
     start_when:
       install-ruby-passed: { script_key: inventory-ruby-bundle }
     body: |

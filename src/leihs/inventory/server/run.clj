@@ -47,8 +47,7 @@
        flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
-  (let [{:keys [options arguments errors summary]}
-        (cli/parse-opts args cli-options :in-order true)
+  (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
                           flatten (into []))
         options (merge gopts options)]
