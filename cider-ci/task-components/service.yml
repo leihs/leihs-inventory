@@ -36,19 +36,10 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
-      
-      sleep 4
-      
-      while true; do
-        result=$(curl --fail -I -H 'Accept: application/json' "http://localhost:${LEIHS_INVENTORY_HTTP_PORT}/inventory/status" 2>&1)
-        if [ $? -eq 0 ]; then
-          echo "Inventory service is up and running:"
-          echo "$result"
-          break
-        else
-          echo "waiting for inventory service to start"
-          sleep 1
-        fi
+      until curl --silent --fail -I \
+        -H 'Accept: application/json' \
+        "http://localhost:${LEIHS_INVENTORY_HTTP_PORT}/inventory/status";
+        do sleep 1;
       done
     start_when:
       run server is executing:
