@@ -14,6 +14,9 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
+      
+      sleep 2
+      
       export HTTP_PORT=${LEIHS_INVENTORY_HTTP_PORT}
       cd $LEIHS_INVENTORY_DIR
       mkdir -p $LEIHS_INVENTORY_DIR/tmp
@@ -33,6 +36,9 @@ scripts:
     body: |
       #!/usr/bin/env bash
       set -euo pipefail
+      
+      sleep 4
+      
       while true; do
         result=$(curl --fail -I -H 'Accept: application/json' "http://localhost:${LEIHS_INVENTORY_HTTP_PORT}/inventory/status" 2>&1)
         if [ $? -eq 0 ]; then
