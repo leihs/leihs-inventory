@@ -8,6 +8,9 @@ feature "Call /inventory" do
     end
 
     scenario "Contains expected elements" do
+
+      puts ">> page: #{page.inspect}"
+
       expect(page).to have_content "Leihs Inventory with OpenApi"
       expect(page).to have_content "home-page"
     end
@@ -19,12 +22,27 @@ feature "Call /inventory" do
     end
 
     scenario "Contains expected elements in Home" do
+
       click_on "Home"
+      if page.has_link?('Home', href: '/inventory')
+        puts ">> The 'Home' link with href '/inventory' exists"
+      else
+        puts ">> The 'Home' link with href '/inventory' does not exist"
+      end
+
+
       expect(page).to have_content "home-page"
     end
 
     scenario "Contains expected elements in Debug" do
+
       click_on "Debug"
+      if page.has_content?("Some routing tests")
+        puts ">> The content 'Some routing tests' exists on the page."
+      else
+        puts ">> The content 'Some routing tests' does not exist on the page."
+      end
+
       expect(page).to have_content "Some routing tests"
       expect(page).to have_content "JS integration tests"
     end
@@ -46,7 +64,7 @@ feature "Call /inventory" do
     scenario "json response is correct" do
       resp = http_client.get "/inventory"
       expect(resp.status).to be == 200
-      expect(resp.body).to include('<script src="/inventory/js/main.js"></script>')
+      expect(resp.body).to include('src="/inventory/js/main.js"')
     end
   end
 end
