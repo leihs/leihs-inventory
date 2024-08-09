@@ -8,35 +8,36 @@ feature "Call /inventory" do
     end
 
     scenario "Contains expected elements" do
-
-      puts ">> page: #{page.inspect}"
+      puts ">> page: #{page.html}"
 
       expect(page).to have_content "Leihs Inventory with OpenApi"
       expect(page).to have_content "home-page"
     end
 
     scenario "Contains expected elements in Model" do
-      click_on "Models"
+      click_link("Models")
+
+      # click_on "Models"
       expect(page).to have_content "Add Model"
       expect(page).to have_content "Refresh"
     end
 
     scenario "Contains expected elements in Home" do
-
-      click_on "Home"
-      if page.has_link?('Home', href: '/inventory')
+      # click_on "Home"
+      click_link("Home")
+      if page.has_link?("Home", href: "/inventory")
         puts ">> The 'Home' link with href '/inventory' exists"
       else
         puts ">> The 'Home' link with href '/inventory' does not exist"
       end
 
-
       expect(page).to have_content "home-page"
     end
 
     scenario "Contains expected elements in Debug" do
+      # click_on "Debug"
+      click_link("Debug")
 
-      click_on "Debug"
       if page.has_content?("Some routing tests")
         puts ">> The content 'Some routing tests' exists on the page."
       else
