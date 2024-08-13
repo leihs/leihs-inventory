@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "shadow-cljs watch frontend",
-    "build": "shadow-cljs compile frontend"
+    "build": "shadow-cljs release frontend"
   },
   "devDependencies": {
     "eslint": "^8.57.0",

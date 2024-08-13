@@ -20,6 +20,7 @@ function build {
 
   rm -f $JAR_REL_PATH
 
+  ./bin/cljs-release
   ./bin/clj-uberjar
   ./bin/clean
 }
