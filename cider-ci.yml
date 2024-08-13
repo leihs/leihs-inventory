@@ -39,20 +39,6 @@ jobs:
       include:
         - cider-ci/specs_job-context.yml
 
-  ui-checks:
-    name: Check UI package
-    run_when: *ON_BRANCH_UPDATE
-    tasks:
-      ui-lint:
-        git_options:
-          submodules:
-            include_match: ^.*$
-        scripts:
-          test:
-            body: |
-              echo "TODO: fix frontend-setup"
-              ./src/leihs/inventory/client/bin/lint
-
   lint:
     name: "Linting"
     description: |
