@@ -53,33 +53,58 @@
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
-        id (get-in request [:path-params :id] )
+        id (get-in request [:path-params :id])
 
-        params (get request :path-params)
-        p (println ">o> params1=" params)
+        ;; Retrieve parameters from query
+        query-params (get-in request [:parameters :query])
+        _ (println ">o> params3=" query-params)
 
-        ; >o> params3= {:id #uuid "847906e1-8e03-57bb-a4d5-bf68d70ab706", :page 1, :size 3, :sort_by :manufacturer-desc}
+        ;; Pagination defaults
+        page (or (:page query-params) 1)
+        size (or (:size query-params) 10)
+        offset (* (dec page) size)
 
+        ;; Sorting
+        sort-by (case (:sort_by query-params)
+                  :manufacturer-asc [:models.manufacturer :asc]
+                  :manufacturer-desc [:models.manufacturer :desc]
+                  :product-asc [:models.product :asc]
+                  :product-desc [:models.product :desc]
+                  [:models.product :asc]) ;; default sorting
 
-        params (get-in request [:parameters :query])
-        p (println ">o> params3=" params)
-        p (println ">o> params3=" (type (:id params)))
+        ;; Filters
+        filter-manufacturer (:filter_manufacturer query-params)
+        filter-product (:filter_product query-params)
 
+        ;; Build the base query
         models-query (-> (sql/select :*)
                          (sql/from :models)
-                         (sql/order-by :models.product)
 
-                         (cond-> id (sql/where [:= :models.id [:cast id :uuid]]))
+                         ;; Apply filtering
+                         (cond-> filter-manufacturer
+                           (sql/where [:= :models.manufacturer filter-manufacturer]))
 
-                         (sql/limit 10))
+                         (cond-> filter-product
+                           (sql/where [:= :models.product filter-product]))
+
+                         ;; Apply sorting
+                         (sql/order-by sort-by)
+
+                         ;; Apply pagination
+                         (sql/limit size)
+                         (sql/offset offset))
+
+        ;; Execute the query
         result (-> models-query
                    sql-format
                    (->> (jdbc/query tx)))]
 
+    ;; Return result based on presence of `id`
     (cond
       (nil? id) {:body result}
       (nil? (first result)) {:status 204}
       :else {:body (first result)})))
+
 
 (defn create-model-handler [request]
   (let [created_ts (LocalDateTime/now)
