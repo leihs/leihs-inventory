@@ -53,7 +53,18 @@
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
-        id (get-in request [:path-params :id])
+        id (get-in request [:path-params :id] )
+
+        params (get request :path-params)
+        p (println ">o> params1=" params)
+
+        ; >o> params3= {:id #uuid "847906e1-8e03-57bb-a4d5-bf68d70ab706", :page 1, :size 3, :sort_by :manufacturer-desc}
+
+
+        params (get-in request [:parameters :query])
+        p (println ">o> params3=" params)
+        p (println ">o> params3=" (type (:id params)))
+
         models-query (-> (sql/select :*)
                          (sql/from :models)
                          (sql/order-by :models.product)

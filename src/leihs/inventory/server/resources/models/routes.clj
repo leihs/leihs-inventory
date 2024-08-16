@@ -62,7 +62,36 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json" "text/html"]}
+           :swagger {:produces ["application/json" "text/html"]
+                     ;:parameters {:query {:page {:description "Page number, defaults to 1"
+                     ;                            :required false
+                     ;                            :type "integer"
+                     ;                            :default 1}
+                     ;                     :size {:description "Number of items per page, defaults to 100"
+                     ;                            :required false
+                     ;                            :type "integer"
+                     ;                            :default 100}
+                     ;                     :sort_by {:description "Sort order"
+                     ;                               :required false
+                     ;                               :enum ["manufacturer-asc" "manufacturer-desc" "product-asc" "product-desc"]}
+                     ;                     :filter_manufacturer {:description "Filter by manufacturer"
+                     ;                                           :required false
+                     ;                                           :type "string"}
+                     ;                     :filter_product {:description "Filter by product"
+                     ;                                      :required false
+                     ;                                      :type "string"}}}
+                     }
+
+           ;; Actual parameters schema for query (Reitit Coercion)
+           ;; params (get-in request [:parameters :query])
+           :parameters {:query {
+                                ;:id s/Uuid
+                                :page s/Int
+                                :size s/Int
+                                :sort_by (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                (s/optional-key :filter_manufacturer) s/Str
+                                (s/optional-key :filter_product) s/Str}}
+
            :handler mn/get-models-handler
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
