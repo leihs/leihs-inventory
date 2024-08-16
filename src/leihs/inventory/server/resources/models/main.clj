@@ -80,12 +80,12 @@
         base-query (-> (sql/select :*)
                        (sql/from :models)
 
-                       ;; Apply filtering with SQL LIKE for partial matches
+                       ;; Apply case-insensitive filtering with SQL ILIKE for partial matches
                        (cond-> filter-manufacturer
-                         (sql/where [:like :models.manufacturer (str "%" filter-manufacturer "%")]))
+                         (sql/where [:ilike :models.manufacturer (str "%" filter-manufacturer "%")]))
 
                        (cond-> filter-product
-                         (sql/where [:like :models.product (str "%" filter-product "%")]))
+                         (sql/where [:ilike :models.product (str "%" filter-product "%")]))
 
                        ;; Apply sorting
                        (sql/order-by sort-by))
