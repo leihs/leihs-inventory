@@ -70,6 +70,7 @@
           (swagger-ui/create-swagger-ui-handler
            {:path "/inventory/api-docs/"
             :config {:validatorUrl nil
+                     :withCredentials true
                      :urls [;; TODO: revise config to support multiple specs/accept-types
                                ;{:name "openapi" :url "openapi.json"}
                             {:name "swagger" :url "swagger.json"}]

@@ -4,8 +4,12 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler dev-auth-routes]]
+
+   [leihs.inventory.server.resources.categories.routes :refer [get-category-by-pool-route]]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
+
+   [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -38,7 +42,7 @@
   (let [uri (:uri request)
         path (if (= "/inventory" uri) "index.html" uri)
         resource (or (io/resource (str "public/" path))
-                     (io/resource (str "public/inventory" path)))]
+                   (io/resource (str "public/inventory" path)))]
 
     (cond
       (and (nil? resource) (= uri "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
@@ -50,8 +54,12 @@
 (defn- incl-other-routes []
   [(get-model-route)
    (get-model-by-pool-route)
-     ;(token-routes)
+   (get-category-by-pool-route)
+   (dev-auth-routes)
    ])
+
+
+
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
@@ -81,14 +89,20 @@
 
                                             :basicAuth {:type "basic"}
 
+
                                             :SessionAuth {:type "apiKey"
                                                           :name "Cookie" ;; Define it as a "cookie"
-                                                          :in "cookie"}}
+                                                          :in "cookie"}
 
-;; Apply security globally to routes
+                                            }
+
+                      ;; Apply security globally to routes
                       ;:security [{:BearerAuth []}]  ;; Apply Bearer token globally
+
                       }
-            :handler (swagger/create-swagger-handler)}}]
+            :handler (swagger/create-swagger-handler)
+
+            }}]
 
     ["/api-docs/openapi.json"
      {:get {:no-doc true
