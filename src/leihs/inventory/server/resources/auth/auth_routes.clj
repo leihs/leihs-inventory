@@ -5,8 +5,6 @@
    [buddy.auth.middleware :refer [wrap-authentication]]
    [buddy.sign.jwt :as jwt]
    [clojure.set]
-   [leihs.inventory.server.resources.models.main :as mn]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [schema.core :as s]))
