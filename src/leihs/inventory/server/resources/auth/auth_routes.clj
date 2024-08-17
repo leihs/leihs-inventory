@@ -5,8 +5,7 @@
    [buddy.auth.middleware :refer [wrap-authentication]]
    [buddy.sign.jwt :as jwt]
    [clojure.set]
-   [cider-ci.open-session.bcrypt :refer [checkpw]]
-
+   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
    [clojure.string :as str]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -31,6 +30,30 @@
   (println ">o> generate-token.user-id=" (str ">" user-id "<"))
   (jwt/sign {:user-id user-id} secret {:alg :hs256}))
 
+;; Helper function to convert a string to UUID
+(defn to-uuid [id]
+  (UUID/fromString id))
+
+;; Function to fetch hashed password from the database
+(defn fetch-hashed-password [request username auth-system-id]
+  (let [query "SELECT asu.data FROM authentication_systems_users asu
+               JOIN users u ON u.id = asu.user_id
+               WHERE u.login = ? AND asu.id = ?"
+        result (jdbc/execute-one! (:tx request) [query username (to-uuid auth-system-id)])]
+    (:data result)))
+
+;; Function to verify password
+(defn verify-password [request username password auth-system-id]
+  (if-let [hashed-password (fetch-hashed-password request username auth-system-id)]
+    (try
+      (println ">o> check password=" password "hashed-password=" hashed-password)
+      ;; Use the `checkpw` function from bcrypt to verify the password
+      (checkpw password hashed-password)
+      (catch Exception e
+        (println ">o> check exception=" e)
+        false))
+    false))
+
 ;; Basic Authentication Handler
 (defn basic-auth-handler [request]
   (let [auth-header (get-in request [:headers "authorization"])
@@ -42,6 +65,33 @@
     (if (and (= username "admin") (= password "password"))
       {:status 200 :body {:token (generate-token username)}}
       {:status 401 :body "Invalid credentials"})))
+
+;; Handler to authenticate user
+(defn authenticate-handler [request]
+  (let [{:keys [username password auth-system-id]} (:body-params request)]
+    (if (verify-password request username password auth-system-id)
+      (response/response {:status "success" :message "User authenticated successfully"})
+      (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401))))
+
+;; Function to update the hashed password in the database
+(defn set-password [request username password auth-system-id]
+  (let [
+        ;hashed-password (hashers/derive password)  ;; Hash the plain password
+        hashed-password (hashpw password)  ;; Hash the plain password
+        query "UPDATE authentication_systems_users
+               SET data = ?
+               WHERE user_id = (SELECT id FROM users WHERE login = ?) AND id = ?"]
+    (jdbc/execute-one! (:tx request) [query hashed-password username (to-uuid auth-system-id)])))
+
+;; Handler for setting the user's password
+(defn set-password-handler [request]
+  (let [{:keys [username password auth-system-id]} (:body-params request)]
+    (try
+      (set-password request username password auth-system-id)
+      (response/response {:status "success" :message "Password updated successfully"})
+      (catch Exception e
+        (println "Error updating password: " e)
+        (response/status (response/response {:status "failure" :message "Error updating password"}) 500)))))
 
 ;; Route handlers
 (defn hello-handler [request]
@@ -56,95 +106,6 @@
       (println "User not authenticated")
       {:status 403 :body "Forbidden"})))
 
-(defn to-uuid [id]
-  (UUID/fromString id))
-
-
-;; Function to fetch hashed password from the database
-(defn fetch-hashed-password [request username auth-system-id]
-  (let [
-        p (println ">o> fetch-hashed-password" )
-        query "SELECT asu.data FROM authentication_systems_users asu
-               JOIN users u ON u.id = asu.user_id
-               WHERE u.login = ? AND asu.id = ?"
-        result (jdbc/execute-one! (:tx request) [query username (to-uuid auth-system-id)])
-        p (println ">o> result=" result)
-        ]
-    (:data result)))
-
-;; Function to verify password
-(defn verify-password [request username password auth-system-id]
-  (if-let [hashed-password (fetch-hashed-password request username auth-system-id)]
-    (try
-      (println ">o> check=" password hashed-password)
-      (hashers/check password hashed-password)
-      (catch Exception e
-        (println ">o> check=" e)
-        false
-      ))
-    false))
-
-
-(defn verify-password [request username password auth-system-id]
-  (if-let [hashed-password (fetch-hashed-password request username auth-system-id)]
-    (try
-      ;; Print the hashed password and ensure it's in bcrypt format
-      (println ">o> check password=" password "hashed-password=" hashed-password)
-      ;; Ensure the password is checked against a valid bcrypt hash
-      (if (and (string? hashed-password)
-            (re-matches #"\$2[abxy]\$\d+\$.*" hashed-password)) ;; Check for valid bcrypt format
-        (hashers/check password hashed-password)
-        (do
-          (println ">o> Invalid bcrypt hash format" hashed-password)
-          false))
-      (catch Exception e
-        (println ">o> check exception=" e)
-        false))
-    false))
-
-(defn utf8 [s]
-  (String. (.getBytes s "UTF-8")))
-
-(defn verify-password [request username password auth-system-id]
-  (if-let [hashed-password (fetch-hashed-password request username auth-system-id)]
-    (try
-      (println ">o> check password=" password "hashed-password=" hashed-password)
-      ;; Convert both password and hashed-password to UTF-8
-      (let [utf8-password (utf8 password)
-            utf8-hashed-password (utf8 hashed-password)]
-        ;(hashers/check utf8-password utf8-hashed-password) ;;broken
-        (checkpw password hashed-password)                  ;;works
-        )
-      (catch Exception e
-        (println ">o> check exception=" e)
-        false))
-    false))
-
-
-(defn pr [str fnc]
-  (println ">oo> HELPER / " str fnc)
-  fnc
-  )
-
-;; Handler to authenticate user
-(defn authenticate-handler [request]
-  (let [{:keys [username password auth-system-id]} (:body-params request)
-        ;; d86d4c53-8afc-4d78-8663-635b01df9fdf
-        p (println ">o> auth=" username password auth-system-id)
-        ]
-    (if (pr "verify?" (verify-password request username password auth-system-id))
-      (response/response {:status "success" :message "User authenticated successfully"})
-      (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401))))
-
-;; Define the authentication route
-;(defn auth-routes []
-;  [["/authenticate"
-;    {:post {:description "Authenticate user with username and password."
-;            :parameters {:body {:username s/Str
-;                                :password s/Str
-;                                :auth-system-id s/Str}} ;; Include authentication_system_id for identifying which system to check
-;            :handler authenticate-handler}}]])
-
 ;; Define authentication routes
 (defn token-routes []
   [["/"
@@ -155,7 +116,6 @@
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:basicAuth []}]}
-             ;:parameters {:body {:username s/Str :password s/Str}}
              :handler basic-auth-handler
              :responses {200 {:description "OK" :body s/Any}
                          401 {:description "Unauthorized"}
@@ -169,17 +129,24 @@
                          :handler protected-handler
                          :middleware [wrap-jwt-auth]}}]
 
+     ;; Route to authenticate user
+     ["authenticate"
+      {:post {
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :description "Authenticate user with username and password."
+              :parameters {:body {:username s/Str
+                                  :password s/Str
+                                  :auth-system-id s/Uuid}}
+              :handler authenticate-handler}}]
 
-
-     ["/authenticate"
-       {:post {
-               :accept "application/json"
-               :coercion reitit.coercion.schema/coercion
-               :description "Authenticate user with username and password. 'd86d4c53-8afc-4d78-8663-635b01df9fdf'"
-               :parameters {:body {:username s/Str
-                                   :password s/Str
-                                   :auth-system-id s/Uuid}} ;; Include authentication_system_id for identifying which system to check
-               :handler authenticate-handler}}]
-
-     ]]])
-
+     ;; Route to set/update the password
+     ["set-password"
+      {:post {
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :description "Set or update the user's password."
+              :parameters {:body {:username s/Str
+                                  :password s/Str
+                                  :auth-system-id s/Uuid}}
+              :handler set-password-handler}}]]]])
