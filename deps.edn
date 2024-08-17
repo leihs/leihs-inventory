@@ -30,6 +30,10 @@
   buddy/buddy-sign {:mvn/version "3.4.333"}
   ;metosin/reitit {:mvn/version "0.5.18"}}
 
+
+
+  ;schema/schema {:mvn/version "1.1.12"}}
+
   }
 
  :aliases

@@ -94,6 +94,8 @@
                                                          :in "header"
                                                          :scheme "bearer"
                                                          :bearerFormat "JWT"}
+
+                                            :basicAuth {:type "basic"}
                                             }
 
                       ;; Apply security globally to routes
