@@ -55,7 +55,7 @@
 
 ;; Token generation
 (defn generate-token [user-id]
-  (println ">o> generate-token.user-id=" user-id)
+  (println ">o> generate-token.user-id=" (str ">" user-id "<"))
   (jwt/sign {:user-id user-id} secret {:alg :hs256}))
 
 ;; Route handlers
@@ -122,7 +122,9 @@
   [["/"
     {:tags ["Login process"]}
     ["login"
-     {:post {:accept "application/json"
+     {:post {
+             :description "Login with username and password. (admin / password)"
+             :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :parameters {:body {:username s/Str :password s/Str}}
              :handler login-handler
@@ -130,7 +132,9 @@
                          401 {:description "Unauthorized"}
                          500 {:description "Internal Server Error"}}}}]
     [["public" {:get hello-handler}]
-     ["protected" {:get {:accept "application/json"
+     ["protected" {:get {
+                         :description "Use 'Token &lt;token&gt;' as Authorization header."
+                         :accept "application/json"
                          :coercion reitit.coercion.schema/coercion
                          :swagger {:security [{:BearerAuth []}]}
                          :handler protected-handler
