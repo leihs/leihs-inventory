@@ -5,6 +5,15 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+
+   [buddy.auth.backends :refer [jws]]
+   [buddy.auth.middleware :refer [wrap-authentication]]
+   [buddy.sign.jwt :as jwt]
+
+   [reitit.ring :as ring]
+   ;[myapp.auth :refer [wrap-jwt-auth]]
+
+
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -53,7 +62,7 @@
         rh/INDEX-HTML-RESPONSE-OK))))
 
 (defn get-model-route []
-  ["/models"
+  [["/models"
    {:conflicting true
     :tags ["Models"]}
 
@@ -139,10 +148,10 @@
               :responses {200 {:description "Returns the deleted model."
                                :body s/Any}
                           400 {:description "Bad Request"
-                               :body s/Any}}}}]])
+                               :body s/Any}}}}]]])
 
 (defn get-model-by-pool-route []
-  ["/:pool_id"
+  [["/:pool_id"
    {:conflicting true
     :tags ["Models by pool"]}
 
@@ -170,4 +179,88 @@
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+                       500 {:description "Internal Server Error"}}}}]]])
+
+
+;; Secret key for signing tokens
+(def secret "mysecretkey")
+
+;; Define JWT backend middleware
+(def auth-backend
+  (jws {:secret secret}))
+
+(defn wrap-jwt-auth [handler]
+  (wrap-authentication handler auth-backend))
+
+(defn generate-token [user-id]
+  (jwt/sign {:user-id user-id}
+    secret
+    {:alg :hs256}))
+
+
+(defn hello-handler [request]
+  {:status 200
+   :body "Hello, World!"})
+
+(defn protected-handler [request]
+  {:status 200
+   :body "This is a protected route!"})
+
+
+(defn login-handler [request]
+  (let [
+        p (println ">o> auth1")
+
+        {:keys [username password]} (:body-params request)
+
+        ]
+    ;; Validate username and password (this is just an example)
+    (if (and (= username "admin")
+          (= password "password"))
+      {:status 200
+       :body {:token (generate-token username)}}
+      {:status 401
+       :body "Invalid credentials"})))
+
+(defn token-routes []
+  [["/"
+   {
+    ;:conflicting true
+    :tags ["Login process"]}
+
+   ["login"
+    {:post {
+            ;:conflicting true
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+            :description "Login with username and password (admin/password)"
+           ;:middleware [accept-json-middleware]
+           ;:swagger {:produces ["application/json"]}
+           :parameters {:body {
+                               :username s/Str
+                               :password s/Str
+                               }}
+           :handler login-handler
+           :responses {200 {:description "OK"
+                            ;:body (s/->Either [s/Any schema])
+                            :body s/Any
+
+                            }
+                       401 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
+
+[["public" {:get hello-handler}]
+ ["protected" {
+               :get {
+                     :security [{:BearerAuth []}]
+                     :accept "application/json"
+                     :coercion reitit.coercion.schema/coercion
+                     :swagger {:security [{:BearerAuth []}]}
+
+                     :handler protected-handler}
+                :middleware [wrap-jwt-auth]}]
+
+ ]
+
+
+]])

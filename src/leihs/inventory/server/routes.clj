@@ -5,7 +5,7 @@
    [clojure.java.io :as io]
    [leihs.core.status :as status]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route token-routes]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -49,7 +49,22 @@
 
 (defn- incl-other-routes []
   ;; TODO: add other routes here
-  ["" (get-model-route) (get-model-by-pool-route)])
+  ["" [ (get-model-route)
+   (get-model-by-pool-route)
+   (token-routes)]
+
+   ]
+  )
+
+
+
+(defn- incl-other-routes []
+  ;; Combine multiple route definitions into a single vector of routes
+  (into []
+    (concat (get-model-route)
+      ;(get-model-by-pool-route)
+      (token-routes))))
+
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
@@ -68,8 +83,24 @@
      {:get {:no-doc true
             :swagger {:info {:title "inventory-api"
                              :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")))}}
-            :handler (swagger/create-swagger-handler)}}]
+                             :description (str (slurp (io/resource "md/info.html")))}
+
+                      ;; Define security schemes for JWT Bearer and Basic Auth
+                      :securityDefinitions {:BearerAuth {:type "apiKey"
+                                                         :name "Authorization"
+                                                         :in "header"
+                                                         :scheme "bearer"
+                                                         :bearerFormat "JWT"}
+                                            }
+
+                      ;; Apply security globally to routes
+                      ;:security [{:BearerAuth []}]  ;; Apply Bearer token globally
+
+
+                      }
+            :handler (swagger/create-swagger-handler)
+
+            }}]
 
     ["/api-docs/openapi.json"
      {:get {:no-doc true
