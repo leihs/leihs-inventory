@@ -5,7 +5,10 @@
    [clojure.java.io :as io]
    [leihs.core.status :as status]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route token-routes]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
+
+   [leihs.inventory.server.resources.auth.auth-routes :refer [ token-routes]]
+
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]

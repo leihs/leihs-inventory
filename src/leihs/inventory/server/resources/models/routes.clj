@@ -140,9 +140,3 @@
                          :handler protected-handler
                          :middleware [wrap-jwt-auth]}}]]]])
 
-;; Entry point for combining routes
-(defn incl-other-routes []
-  (into []
-    (concat (token-routes)
-      (get-model-route)
-      (get-model-by-pool-route))))
