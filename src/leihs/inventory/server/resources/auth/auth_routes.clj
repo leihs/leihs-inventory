@@ -110,7 +110,7 @@
 (defn token-routes []
   [["/"
     {:tags ["Login process"]}
-    ["login"
+    ["token/login"
      {:post {
              :description "Login with username and password. (admin / password)"
              :accept "application/json"
@@ -120,8 +120,8 @@
              :responses {200 {:description "OK" :body s/Any}
                          401 {:description "Unauthorized"}
                          500 {:description "Internal Server Error"}}}}]
-    [["public" {:get hello-handler}]
-     ["protected" {:get {
+    [["token/public" {:get hello-handler}]
+     ["token/protected" {:get {
                          :description "Use 'Token &lt;token&gt;' as Authorization header."
                          :accept "application/json"
                          :coercion reitit.coercion.schema/coercion
@@ -130,22 +130,22 @@
                          :middleware [wrap-jwt-auth]}}]
 
      ;; Route to authenticate user
-     ["authenticate"
+     ["auth/authenticate"
       {:post {
               :accept "application/json"
+              :description "Authenticate user with username and password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
-              :description "Authenticate user with username and password."
               :parameters {:body {:username s/Str
                                   :password s/Str
                                   :auth-system-id s/Uuid}}
               :handler authenticate-handler}}]
 
      ;; Route to set/update the password
-     ["set-password"
+     ["auth/set-password"
       {:post {
               :accept "application/json"
+              :description "Set or update the user's password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
-              :description "Set or update the user's password."
               :parameters {:body {:username s/Str
                                   :password s/Str
                                   :auth-system-id s/Uuid}}
