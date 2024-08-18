@@ -73,6 +73,37 @@
       (response/response {:status "success" :message "User authenticated successfully"})
       (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401))))
 
+
+;; ---------- SESSION COOKIE HANDLING ----------
+
+(defn create-cookie [cookie-name token-value]
+  "Creates a session cookie with the given token value."
+  {:value token-value
+   :http-only true    ;; Prevent access to cookie via JavaScript (XSS protection)
+   :secure true       ;; Only send cookie over HTTPS (important for production)
+   :same-site :strict ;; Prevent the browser from sending this cookie along with cross-site requests
+   :path "/"          ;; Cookie is valid for the entire site
+   :max-age 3600})    ;; Cookie expires in 1 hour (3600 seconds)
+
+;; Handler to authenticate user and set session cookie
+(defn authenticate-handler [request]
+  (let [{:keys [username password auth-system-id]} (:body-params request)]
+    (if (verify-password request username password auth-system-id)
+      (let [token (generate-token username)  ;; Generate JWT token
+            cookie {:value token
+                    :http-only true
+                    :secure true  ;; Make sure to use HTTPS for secure cookies
+                    :max-age 3600  ;; Set cookie expiration to 1 hour
+                    :path "/"}]  ;; Cookie available for all routes
+        ;; Return the response with the session cookie
+        (-> (response/response {:status "success" :message "User authenticated successfully"})
+            (response/set-cookie "session-token" cookie)))  ;; Set the cookie in response
+      ;; If authentication fails
+      (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401))))
+
+
+;; ------------------------------------------------------
+
 ;; Function to update the hashed password in the database
 (defn set-password [request username password auth-system-id]
   (let [
@@ -122,6 +153,10 @@
                          401 {:description "Unauthorized"}
                          500 {:description "Internal Server Error"}}}}]
 
+
+    ;; TODO: Create new session for one minute
+
+
     ;; TODO: Add a route to set/update the token-hashed password, api-token
     ;; /admin/token/create-new-token (latest one)
     ;; Generate new token by passing
@@ -148,7 +183,7 @@
       {:post {
               :summary "Authenticate user by login ( and fetch token ) ADD: basicAuth"
               :accept "application/json"
-              :description "Authenticate user with username and password. (bcrypt)"
+              :description "Authenticate user with username and password. (bcrypt)  d86d4c53-8afc-4d78-8663-635b01df9fdf"
               :coercion reitit.coercion.schema/coercion
               :parameters {:body {:username s/Str
                                   :password s/Str
