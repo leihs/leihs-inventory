@@ -13,7 +13,8 @@
    [reitit.coercion.spec]
    [ring.util.response :as response]
    [schema.core :as s])
-  (:import (java.util Base64 UUID)))
+  (:import (java.time Duration Instant)
+           (java.util Base64 UUID)))
 
 ;; JWT secret key and backend setup
 (def secret "my-secret-key")
@@ -29,6 +30,14 @@
 (defn generate-token [user-id]
   (println ">o> generate-token.user-id=" (str ">" user-id "<"))
   (jwt/sign {:user-id user-id} secret {:alg :hs256}))
+
+
+;; Generate bcrypt hash with a specific cost factor (06 in this case)
+(defn generate-bcrypt-hash [token]
+  ;(hashers/derive token {:alg :bcrypt+sha512 :iterations 6}))
+  (hashers/derive token {:alg :hs256}))
+
+
 
 (defn generate-token2 [user-id]
   (println ">o> generate-token.user-id=" (str ">" user-id "<"))
@@ -80,14 +89,36 @@
 
   )
 
-;; Basic Authentication Handler
-(defn basic-auth-handler [request]
+
+(defn extract-basic-auth [request]
   (let [auth-header (get-in request [:headers "authorization"])
         encoded-credentials (when auth-header
                               (second (re-find #"^Basic (.+)$" auth-header)))
         credentials (when encoded-credentials
                       (String. (.decode (Base64/getDecoder) encoded-credentials)))
         [username password] (str/split credentials #":")
+
+        p (println ">o> extract-basic-auth=" username password)
+        ]
+    ;{:username username :password password}
+
+    ;[username password]
+    (vector username password)
+    ))
+
+;; Basic Authentication Handler
+(defn basic-auth-handler [request]
+  (let [
+
+        ;auth-header (get-in request [:headers "authorization"])
+        ;encoded-credentials (when auth-header
+        ;                      (second (re-find #"^Basic (.+)$" auth-header)))
+        ;credentials (when encoded-credentials
+        ;              (String. (.decode (Base64/getDecoder) encoded-credentials)))
+        ;[username password] (str/split credentials #":")
+
+
+        [username password] (extract-basic-auth request)
 
         p (println ">o> auth=" username password)
 
@@ -199,18 +230,37 @@
 ;; Create an api_token record in the database
 (defn create-api-token [request user-id scopes description]
   (let [
-        {:keys [username password]} (:body-params request)
+
+        p (println ">o> user-id=" user-id)
+        p (println ">o> scopes=" scopes)
+        p (println ">o> description=" description)
 
 
-        verfication-entry-result (verify-password-entry request username password)
+        ;{:keys [username password]} (:body-params request)
+        ;
+        ;
+        ;verfication-entry-result (verify-password-entry request username password)
+        ;
+        ;
+        ;{:keys [full-token token-part]} (generate-token (:id verfication-entry-result))
+        full-token (generate-token user-id)
+        p (println ">o> res=" full-token)
+
+        token-part (subs full-token 0 10)
+
+        p (println ">o> abc??" (hash-token full-token))
+        ;hashed-token (hash-token full-token)
+        hashed-token (generate-bcrypt-hash full-token)
+        ;hashed-token (hashpw full-token)                    ;; TODO
+        p (println ">o> hashed-token=" hashed-token)
+
+        hashed-token (hashpw full-token)                    ;; TODO
+        p (println ">o> hashed-token2=" hashed-token)
 
 
-        {:keys [full-token token-part]} (generate-token (:id verfication-entry-result))
 
-        hashed-token (hash-token full-token)
-
-        now (java.time.Instant/now)
-        expires-at (.plus (java.time.Instant/now) (java.time.Duration/ofDays 365))]
+        now (Instant/now)
+        expires-at (.plus (Instant/now) (Duration/ofDays 365))]
     ;; Insert token into database
     (jdbc/execute-one! (:tx request)
       ["INSERT INTO api_tokens (user_id, token_hash, token_part, scope_read, scope_write, scope_admin_read, scope_admin_write, description, created_at, updated_at, expires_at)
@@ -224,10 +274,31 @@
 
 ;; API token handler
 (defn create-api-token-handler [request]
-  (let [{:keys [user_id description scopes]} (:body-params request)
-        scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)] ;; Default scopes
+  (let [
+        ;{:keys [user_id description scopes]} (:body-params request)
+
+
+        [username password] (extract-basic-auth request)
+
+
+        {:keys [description scopes]} (:body-params request)
+
+        verfication-entry-result (verify-password-entry request username password)
+
+        p (println ">o> auth=" username password)
+        p (println ">o> auth2=" verfication-entry-result)
+
+        user_id (:id verfication-entry-result)
+
+        scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)
+
+        p (println ">o> scopes=" scopes)
+
+        ]                                                   ;; Default scopes
     (if user_id
-      (let [result (create-api-token request user_id scopes description)]
+      (let [result (create-api-token request user_id scopes description)
+            p (println ">o> result=" result)
+            ]
         (response/response {:status "success"
                             :token (:token result)          ;; Full token returned here
                             :expires_at (:expires_at result)
@@ -244,23 +315,23 @@
      {:tags ["Login process"]}
 
      [""
-     {:post {:summary "Create an API token for a user"
-             :description "Generates an API token for a user with specific permissions and scopes."
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:basicAuth []}]}
-             :parameters {:body {
-                                 :description s/Str
-                                 :scopes {:read s/Bool
-                                          :write s/Bool
-                                          :admin_read s/Bool
-                                          :admin_write s/Bool}}}
-             :handler create-api-token-handler}}
+      {:post {:summary "Create an API token for a user - BROKEN"
+              :description "Generates an API token for a user with specific permissions and scopes."
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :swagger {:security [{:basicAuth []}]}
+              :parameters {:body {
+                                  :description s/Str
+                                  :scopes {:read s/Bool
+                                           :write s/Bool
+                                           :admin_read s/Bool
+                                           :admin_write s/Bool}}}
+              :handler create-api-token-handler}}
       ]
 
      ["/login"
       {:post {
-              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth"
+              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth / api_token"
               :description "Login with username and password. (admin / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
