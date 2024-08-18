@@ -3,15 +3,15 @@
    [buddy.auth :refer [authenticated?]]
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
+   [buddy.hashers :as hashers]
    [buddy.sign.jwt :as jwt]
-   [clojure.set]
    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [clojure.set]
    [clojure.string :as str]
+   [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :as response]
-   [next.jdbc :as jdbc]
-   [buddy.hashers :as hashers]
    [schema.core :as s])
   (:import (java.util Base64 UUID)))
 
@@ -30,21 +30,28 @@
   (println ">o> generate-token.user-id=" (str ">" user-id "<"))
   (jwt/sign {:user-id user-id} secret {:alg :hs256}))
 
+(defn generate-token2 [user-id]
+  (println ">o> generate-token.user-id=" (str ">" user-id "<"))
+  (jwt/sign {:user-id user-id} secret {:alg :hs256}))
+
 ;; Helper function to convert a string to UUID
 (defn to-uuid [id]
   (UUID/fromString id))
 
+(defn hash-token [token]
+  (hashers/derive token))
+
 ;; Function to fetch hashed password from the database
-(defn fetch-hashed-password [request username auth-system-id]
+(defn fetch-hashed-password [request username]
   (let [query "SELECT asu.data FROM authentication_systems_users asu
                JOIN users u ON u.id = asu.user_id
-               WHERE u.login = ? AND asu.id = ?"
-        result (jdbc/execute-one! (:tx request) [query username (to-uuid auth-system-id)])]
+               WHERE u.login = ? AND asu.authentication_system_id = 'password'"
+        result (jdbc/execute-one! (:tx request) [query username])]
     (:data result)))
 
 ;; Function to verify password
-(defn verify-password [request username password auth-system-id]
-  (if-let [hashed-password (fetch-hashed-password request username auth-system-id)]
+(defn verify-password [request username password]
+  (if-let [hashed-password (fetch-hashed-password request username)]
     (try
       (println ">o> check password=" password "hashed-password=" hashed-password)
       ;; Use the `checkpw` function from bcrypt to verify the password
@@ -54,6 +61,25 @@
         false))
     false))
 
+
+(defn verify-password-entry [request username password]
+  (let [
+        verfication-ok (verify-password request username password)
+
+        ;; fetch user_id from db by username
+        query "SELECT * FROM users u WHERE u.login = ?"
+        result (jdbc/execute-one! (:tx request) [query username])
+        ]
+
+    (if verfication-ok
+      result
+      nil
+
+      )
+    )
+
+  )
+
 ;; Basic Authentication Handler
 (defn basic-auth-handler [request]
   (let [auth-header (get-in request [:headers "authorization"])
@@ -61,15 +87,45 @@
                               (second (re-find #"^Basic (.+)$" auth-header)))
         credentials (when encoded-credentials
                       (String. (.decode (Base64/getDecoder) encoded-credentials)))
-        [username password] (str/split credentials #":")]
-    (if (and (= username "admin") (= password "password"))
-      {:status 200 :body {:token (generate-token username)}}
+        [username password] (str/split credentials #":")
+
+        p (println ">o> auth=" username password)
+
+
+        verfication-entry-result (verify-password-entry request username password)
+
+        p (println ">o> verfication-ok=" verfication-entry-result)
+
+        query "SELECT t.* FROM api_tokens t
+               JOIN users u ON u.id = t.user_id
+               WHERE u.login = ?"
+        result (jdbc/execute-one! (:tx request) [query username])
+
+        ;_ (if nil? result
+        ;           (do
+        ;             (println ">o> result is nil")
+        ;             (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401)
+        ;             ;;
+        ;
+        ;             ))
+
+
+        p (println ">o> result=" result)
+        data result
+
+        p (println ">o> data=" data)
+        token (generate-token2 data)
+
+        ]
+    ;(if (and (= username "admin") (= password "password"))
+    (if verfication-entry-result
+      {:status 200 :body {:token token}}
       {:status 401 :body "Invalid credentials"})))
 
 ;; Handler to authenticate user
 (defn authenticate-handler [request]
   (let [{:keys [username password auth-system-id]} (:body-params request)]
-    (if (verify-password request username password auth-system-id)
+    (if (verify-password request username password)
       (response/response {:status "success" :message "User authenticated successfully"})
       (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401))))
 
@@ -79,22 +135,22 @@
 (defn create-cookie [cookie-name token-value]
   "Creates a session cookie with the given token value."
   {:value token-value
-   :http-only true    ;; Prevent access to cookie via JavaScript (XSS protection)
-   :secure true       ;; Only send cookie over HTTPS (important for production)
-   :same-site :strict ;; Prevent the browser from sending this cookie along with cross-site requests
-   :path "/"          ;; Cookie is valid for the entire site
-   :max-age 3600})    ;; Cookie expires in 1 hour (3600 seconds)
+   :http-only true                                          ;; Prevent access to cookie via JavaScript (XSS protection)
+   :secure true                                             ;; Only send cookie over HTTPS (important for production)
+   :same-site :strict                                       ;; Prevent the browser from sending this cookie along with cross-site requests
+   :path "/"                                                ;; Cookie is valid for the entire site
+   :max-age 3600})                                          ;; Cookie expires in 1 hour (3600 seconds)
 
 ;; Handler to authenticate user and set session cookie
 (defn authenticate-handler [request]
   (let [{:keys [username password auth-system-id]} (:body-params request)]
-    (if (verify-password request username password auth-system-id)
-      (let [token (generate-token username)  ;; Generate JWT token
+    (if (verify-password request username password)
+      (let [token (generate-token username)                 ;; Generate JWT token
             cookie {:value token
                     :http-only true
-                    :secure true  ;; Make sure to use HTTPS for secure cookies
-                    :max-age 3600  ;; Set cookie expiration to 1 hour
-                    :path "/"}]  ;; Cookie available for all routes
+                    :secure true                            ;; Make sure to use HTTPS for secure cookies
+                    :max-age 3600                           ;; Set cookie expiration to 1 hour
+                    :path "/"}]                             ;; Cookie available for all routes
         ;; Return the response with the session cookie
         (-> (response/response {:status "success" :message "User authenticated successfully"})
             (response/set-cookie "session-token" cookie)))  ;; Set the cookie in response
@@ -108,7 +164,7 @@
 (defn set-password [request username password auth-system-id]
   (let [
         ;hashed-password (hashers/derive password)  ;; Hash the plain password
-        hashed-password (hashpw password)  ;; Hash the plain password
+        hashed-password (hashpw password)                   ;; Hash the plain password
         query "UPDATE authentication_systems_users
                SET data = ?
                WHERE user_id = (SELECT id FROM users WHERE login = ?) AND id = ?"]
@@ -128,6 +184,7 @@
 (defn hello-handler [request]
   {:status 200 :body "Hello, World!"})
 
+
 (defn protected-handler [request]
   (if (authenticated? request)
     (do
@@ -137,49 +194,118 @@
       (println "User not authenticated")
       {:status 403 :body "Forbidden"})))
 
+
+
+;; Create an api_token record in the database
+(defn create-api-token [request user-id scopes description]
+  (let [
+        {:keys [username password]} (:body-params request)
+
+
+        verfication-entry-result (verify-password-entry request username password)
+
+
+        {:keys [full-token token-part]} (generate-token (:id verfication-entry-result))
+
+        hashed-token (hash-token full-token)
+
+        now (java.time.Instant/now)
+        expires-at (.plus (java.time.Instant/now) (java.time.Duration/ofDays 365))]
+    ;; Insert token into database
+    (jdbc/execute-one! (:tx request)
+      ["INSERT INTO api_tokens (user_id, token_hash, token_part, scope_read, scope_write, scope_admin_read, scope_admin_write, description, created_at, updated_at, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+       user-id hashed-token token-part
+       (:read scopes) (:write scopes) (:admin_read scopes) (:admin_write scopes)
+       description now now expires-at])
+    {:token full-token                                      ;; Return full token to the user
+     :expires_at expires-at
+     :scopes scopes}))
+
+;; API token handler
+(defn create-api-token-handler [request]
+  (let [{:keys [user_id description scopes]} (:body-params request)
+        scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)] ;; Default scopes
+    (if user_id
+      (let [result (create-api-token request user_id scopes description)]
+        (response/response {:status "success"
+                            :token (:token result)          ;; Full token returned here
+                            :expires_at (:expires_at result)
+                            :scopes scopes}))
+      (response/status (response/response {:status "failure" :message "Missing user_id"}) 400))))
+
+
+
 ;; Define authentication routes
 (defn token-routes []
   [["/"
-    {:tags ["Login process"]}
-    ["token/login"
-     {:post {
-             :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth"
-             :description "Login with username and password. (admin / password)"
+
+    ["token"
+     {:tags ["Login process"]}
+
+     [""
+     {:post {:summary "Create an API token for a user"
+             :description "Generates an API token for a user with specific permissions and scopes."
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:basicAuth []}]}
-             :handler basic-auth-handler
-             :responses {200 {:description "OK" :body s/Any}
-                         401 {:description "Unauthorized"}
-                         500 {:description "Internal Server Error"}}}}]
+             :parameters {:body {
+                                 :description s/Str
+                                 :scopes {:read s/Bool
+                                          :write s/Bool
+                                          :admin_read s/Bool
+                                          :admin_write s/Bool}}}
+             :handler create-api-token-handler}}
+      ]
+
+     ["/login"
+      {:post {
+              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth"
+              :description "Login with username and password. (admin / password)"
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :swagger {:security [{:basicAuth []}]}
+              :handler basic-auth-handler
+              :responses {200 {:description "OK" :body s/Any}
+                          401 {:description "Unauthorized"}
+                          500 {:description "Internal Server Error"}}}}]
 
 
-    ;; TODO: Create new session for one minute
+     ;; TODO: Create new session for one minute
 
 
-    ;; TODO: Add a route to set/update the token-hashed password, api-token
-    ;; /admin/token/create-new-token (latest one)
-    ;; Generate new token by passing
-    ;; 1. username & password
-    ;; 2. token
-    ;; 3. scope_read / scope_write (boolean)
-    ;; 3. scope_admin_read / scope_admin_write (boolean)
-    ;; 3. scope_system_admin_read / scope_system_admin_write (boolean)
+     ;; TODO: Add a route to set/update the token-hashed password, api-token
+     ;; /admin/token/create-new-token (latest one)
+     ;; Generate new token by passing
+     ;; 1. username & password
+     ;; 2. token
+     ;; 3. scope_read / scope_write (boolean)
+     ;; 3. scope_admin_read / scope_admin_write (boolean)
+     ;; 3. scope_system_admin_read / scope_system_admin_write (boolean)
 
 
-    [["token/public" {:get hello-handler}]
-     ["token/protected" {:get {
-                         :description "Use 'Token &lt;token&gt;' as Authorization header."
-                         :accept "application/json"
-                         :coercion reitit.coercion.schema/coercion
-                         :swagger {:security [{:BearerAuth []} {:SessionAuth []} ]}
-                         :handler protected-handler
-                         :middleware [wrap-jwt-auth]}}]
 
-     ;; --------------------------------------------------------------------------------------
+
+     ["/public" {:get hello-handler}]
+     ["/protected" {:get {
+                          :description "Use 'Token &lt;token&gt;' as Authorization header."
+                          :accept "application/json"
+                          :coercion reitit.coercion.schema/coercion
+                          :swagger {:security [{:BearerAuth []} {:SessionAuth []}]}
+                          :handler protected-handler
+                          :middleware [wrap-jwt-auth]}}]
+
+     ]
+
+
+
+    ;; --------------------------------------------------------------------------------------
+
+    ["auth"
+     {:tags ["Auth"]}
 
      ;; Route to authenticate user
-     ["auth/authenticate"
+     ["/authenticate"
       {:post {
               :summary "Authenticate user by login ( and fetch token ) ADD: basicAuth"
               :accept "application/json"
@@ -191,7 +317,7 @@
               :handler authenticate-handler}}]
 
      ;; Route to set/update the password
-     ["auth/set-password"
+     ["/set-password"
       {:post {
               :summary "Set password by login OR token,  ADD: basicAuth & token"
               :accept "application/json"
