@@ -172,7 +172,7 @@
                          :description "Use 'Token &lt;token&gt;' as Authorization header."
                          :accept "application/json"
                          :coercion reitit.coercion.schema/coercion
-                         :swagger {:security [{:BearerAuth []}]}
+                         :swagger {:security [{:BearerAuth []} {:SessionAuth []} ]}
                          :handler protected-handler
                          :middleware [wrap-jwt-auth]}}]
 

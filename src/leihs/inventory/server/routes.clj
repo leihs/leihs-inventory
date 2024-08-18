@@ -96,6 +96,12 @@
                                                          :bearerFormat "JWT"}
 
                                             :basicAuth {:type "basic"}
+
+
+                                            :SessionAuth {:type "apiKey"
+                                                           :name "Cookie"  ;; Define it as a "cookie"
+                                                           :in "cookie"}
+
                                             }
 
                       ;; Apply security globally to routes
