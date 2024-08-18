@@ -90,7 +90,7 @@
   )
 
 
-(defn extract-basic-auth [request]
+(defn extract-basic-auth-from-header [request]
   (let [auth-header (get-in request [:headers "authorization"])
         encoded-credentials (when auth-header
                               (second (re-find #"^Basic (.+)$" auth-header)))
@@ -118,7 +118,7 @@
         ;[username password] (str/split credentials #":")
 
 
-        [username password] (extract-basic-auth request)
+        [username password] (extract-basic-auth-from-header request)
 
         p (println ">o> auth=" username password)
 
@@ -174,7 +174,16 @@
 
 ;; Handler to authenticate user and set session cookie
 (defn authenticate-handler [request]
-  (let [{:keys [username password auth-system-id]} (:body-params request)]
+  (let [
+
+        ;{:keys [username password auth-system-id]} (:body-params request)
+
+
+        [username password] (extract-basic-auth-from-header request)
+        ]
+
+
+
     (if (verify-password request username password)
       (let [token (generate-token username)                 ;; Generate JWT token
             cookie {:value token
@@ -192,24 +201,37 @@
 ;; ------------------------------------------------------
 
 ;; Function to update the hashed password in the database
-(defn set-password [request username password auth-system-id]
+(defn set-password [request username password]
   (let [
         ;hashed-password (hashers/derive password)  ;; Hash the plain password
         hashed-password (hashpw password)                   ;; Hash the plain password
         query "UPDATE authentication_systems_users
                SET data = ?
-               WHERE user_id = (SELECT id FROM users WHERE login = ?) AND id = ?"]
-    (jdbc/execute-one! (:tx request) [query hashed-password username (to-uuid auth-system-id)])))
+               WHERE user_id = (SELECT id FROM users WHERE login = ?)"]
+    (jdbc/execute-one! (:tx request) [query hashed-password username])))
 
 ;; Handler for setting the user's password
 (defn set-password-handler [request]
-  (let [{:keys [username password auth-system-id]} (:body-params request)]
+  (let [
+
+        {:keys [new-password1]} (:body-params request)
+
+        [username password] (extract-basic-auth-from-header request)
+
+        ]
     (try
-      (set-password request username password auth-system-id)
-      (response/response {:status "success" :message "Password updated successfully"})
+
+      (if (verify-password request username password)
+        (do
+          (set-password request username new-password1)
+          (response/response {:status "success" :message "Password updated successfully"}))
+        (response/status (response/response {:status "failure" :message "Invalid credentials"}) 401)
+        )
+
       (catch Exception e
         (println "Error updating password: " e)
-        (response/status (response/response {:status "failure" :message "Error updating password"}) 500)))))
+        (response/status (response/response {:status "failure" :message "Error updating password"}) 500))
+      )))
 
 ;; Route handlers
 (defn hello-handler [request]
@@ -278,7 +300,7 @@
         ;{:keys [user_id description scopes]} (:body-params request)
 
 
-        [username password] (extract-basic-auth request)
+        [username password] (extract-basic-auth-from-header request)
 
 
         {:keys [description scopes]} (:body-params request)
@@ -312,10 +334,10 @@
   [["/"
 
     ["token"
-     {:tags ["Login process"]}
+     {:tags ["Auth / Token"]}
 
      [""
-      {:post {:summary "Create an API token for a user - BROKEN"
+      {:post {:summary "Create an API token for a user - BROKEN / api_tokens"
               :description "Generates an API token for a user with specific permissions and scopes."
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
@@ -331,7 +353,7 @@
 
      ["/login"
       {:post {
-              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth / api_token"
+              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth / api_tokens"
               :description "Login with username and password. (admin / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
@@ -373,28 +395,39 @@
     ;; --------------------------------------------------------------------------------------
 
     ["auth"
-     {:tags ["Auth"]}
+     {:tags ["Auth / Login process"]}
 
      ;; Route to authenticate user
      ["/authenticate"
       {:post {
-              :summary "Authenticate user by login ( and fetch token ) ADD: basicAuth"
+              :summary "OK | Authenticate user by login ( and fetch token ) ADD: basicAuth"
               :accept "application/json"
               :description "Authenticate user with username and password. (bcrypt)  d86d4c53-8afc-4d78-8663-635b01df9fdf"
               :coercion reitit.coercion.schema/coercion
-              :parameters {:body {:username s/Str
-                                  :password s/Str
-                                  :auth-system-id s/Uuid}}
+              :swagger {:security [{:basicAuth []}]}
+
+              ;:parameters {:body {
+              ;
+              ;                    :username s/Str
+              ;                    :password s/Str
+              ;                    :auth-system-id s/Uuid
+              ;
+              ;                    }}
               :handler authenticate-handler}}]
 
      ;; Route to set/update the password
      ["/set-password"
       {:post {
-              :summary "Set password by login OR token,  ADD: basicAuth & token"
+              :summary "OK | Set password by login OR token,  ADD: basicAuth & token"
               :accept "application/json"
               :description "Set or update the user's password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
-              :parameters {:body {:username s/Str
-                                  :password s/Str
-                                  :auth-system-id s/Uuid}}
+              :swagger {:security [{:basicAuth []}]}
+
+              :parameters {:body {
+                                  ;:username s/Str
+                                  :new-password1 s/Str
+                                  ;:auth-system-id s/Uuid
+
+                                  }}
               :handler set-password-handler}}]]]])
