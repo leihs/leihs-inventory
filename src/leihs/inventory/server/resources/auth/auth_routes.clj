@@ -112,6 +112,7 @@
     {:tags ["Login process"]}
     ["token/login"
      {:post {
+             :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth"
              :description "Login with username and password. (admin / password)"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
@@ -120,6 +121,17 @@
              :responses {200 {:description "OK" :body s/Any}
                          401 {:description "Unauthorized"}
                          500 {:description "Internal Server Error"}}}}]
+
+    ;; TODO: Add a route to set/update the token-hashed password, api-token
+    ;; /admin/token/create-new-token (latest one)
+    ;; Generate new token by passing
+    ;; 1. username & password
+    ;; 2. token
+    ;; 3. scope_read / scope_write (boolean)
+    ;; 3. scope_admin_read / scope_admin_write (boolean)
+    ;; 3. scope_system_admin_read / scope_system_admin_write (boolean)
+
+
     [["token/public" {:get hello-handler}]
      ["token/protected" {:get {
                          :description "Use 'Token &lt;token&gt;' as Authorization header."
@@ -129,9 +141,12 @@
                          :handler protected-handler
                          :middleware [wrap-jwt-auth]}}]
 
+     ;; --------------------------------------------------------------------------------------
+
      ;; Route to authenticate user
      ["auth/authenticate"
       {:post {
+              :summary "Authenticate user by login ( and fetch token ) ADD: basicAuth"
               :accept "application/json"
               :description "Authenticate user with username and password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
@@ -143,6 +158,7 @@
      ;; Route to set/update the password
      ["auth/set-password"
       {:post {
+              :summary "Set password by login OR token,  ADD: basicAuth & token"
               :accept "application/json"
               :description "Set or update the user's password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
