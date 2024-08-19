@@ -63,10 +63,17 @@
 
 (defn- incl-other-routes []
   ;; Combine multiple route definitions into a single vector of routes
-  (into []
-    (concat (get-model-route)
-      ;(get-model-by-pool-route)
-      (token-routes))))
+  ;(into []
+  ;  (concat (get-model-route)
+  ;    ;(get-model-by-pool-route)
+  ;    (token-routes)))
+
+
+  [(get-model-route)
+     (get-model-by-pool-route)
+     (token-routes)]
+
+  )
 
 
 (defn basic-routes []

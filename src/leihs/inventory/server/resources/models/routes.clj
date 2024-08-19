@@ -73,12 +73,10 @@
 
 (defn login-handler [request]
   (let [{:keys [username password]} (:body-params request)]
-    ;; Validate username and password (this is just an example)
     (if (and (= username "admin") (= password "password"))
       {:status 200 :body {:token (generate-token username)}}
       {:status 401 :body "Invalid credentials"})))
 
-;; Define model routes (example)
 (defn get-model-route []
   [["/models"
     {:tags ["Models"]}
@@ -105,38 +103,34 @@
                          400 {:description "Bad Request" :body s/Any}}}}]]])
 
 (defn get-model-by-pool-route []
-  [["/:pool_id"
-    {:tags ["Models by pool"]}
-    ["/"
-     {:get {:accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :parameters {:path {:pool_id s/Uuid}}
-            :handler mn/get-models-of-pool-handler
-            :responses {200 {:description "OK" :body (s/->Either [s/Any schema])}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+  ["/:pool_id"
+   {:conflicting true
+    :tags ["Models by pool"]}
 
-;; Define authentication routes for token handling
-(defn token-routes []
-  [["/"
-    {:tags ["Login process"]}
-    ["login"
-     {:post {
-             :description "Login with username and password. (admin / password)"
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :parameters {:body {:username s/Str :password s/Str}}
-             :handler login-handler
-             :responses {200 {:description "OK" :body s/Any}
-                         401 {:description "Unauthorized"}
-                         500 {:description "Internal Server Error"}}}}]
-    [["public" {:get hello-handler}]
-     ["protected" {:get {
-                         :description "Use 'Token &lt;token&gt;' as Authorization header."
-                         :accept "application/json"
-                         :coercion reitit.coercion.schema/coercion
-                         :swagger {:security [{:BearerAuth []}]}
-                         :handler protected-handler
-                         :middleware [wrap-jwt-auth]}}]]]])
+   [""
+    {:get {:conflicting true
+           :summary "OK | Fetch models by pool with pagination/sort/filter"
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json" "text/html"]}
+           :parameters {:path {:pool_id s/Uuid}}
+           :handler mn/get-models-of-pool-handler
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
 
+   ["/models/:model_id"
+    {:get {:accept "application/json"
+           :summary "OK | Fetch models by pool and model ID."
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json" "text/html"]}
+           :parameters {:path {:pool_id s/Uuid
+                               :model_id s/Uuid}}
+           :handler mn/get-models-of-pool-handler
+           :responses {200 {:description "OK"
+                            :body (s/->Either [s/Any schema])}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]])
