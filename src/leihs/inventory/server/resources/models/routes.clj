@@ -4,6 +4,7 @@
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
    [buddy.sign.jwt :as jwt]
+   [clojure.java.io :as io]
    [clojure.set]
    [leihs.inventory.server.resources.models.main :as mn]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -82,6 +83,8 @@
     {:tags ["Models"]}
     ["/"
      {:get {:accept "application/json"
+            :summary "OK | Fetch models by pool with pagination/sort/filter"
+            :description (slurp (io/resource "md/pagination-sort-filter.html"))
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :parameters {:query {:page s/Int
@@ -109,7 +112,8 @@
 
    [""
     {:get {:conflicting true
-           :summary "OK | Fetch models by pool with pagination/sort/filter"
+           :summary "OK | Fetch models by pool"
+           :description (slurp (io/resource "md/pagination-sort-filter.html"))
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]

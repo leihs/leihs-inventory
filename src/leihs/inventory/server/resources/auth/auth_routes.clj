@@ -329,7 +329,6 @@
 
 
 
-;; Define authentication routes
 (defn token-routes []
   [["/"
 
@@ -352,8 +351,7 @@
       ]
 
      ["/login"
-      {:post {
-              :summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth / api_tokens"
+      {:post {:summary "Authenticate user by login ( .. and fetch token ) ADD: basicAuth / api_tokens"
               :description "Login with username and password. (admin / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
@@ -377,8 +375,6 @@
      ;; 3. scope_system_admin_read / scope_system_admin_write (boolean)
 
 
-
-
      ["/public" {:get hello-handler}]
      ["/protected" {:get {
                           :description "Use 'Token &lt;token&gt;' as Authorization header."
@@ -387,9 +383,7 @@
                           :swagger {:security [{:BearerAuth []} {:SessionAuth []}]}
                           :handler protected-handler
                           :middleware [wrap-jwt-auth]}}]
-
      ]
-
 
 
     ;; --------------------------------------------------------------------------------------
@@ -405,14 +399,6 @@
               :description "Authenticate user with username and password. (bcrypt)  d86d4c53-8afc-4d78-8663-635b01df9fdf"
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}]}
-
-              ;:parameters {:body {
-              ;
-              ;                    :username s/Str
-              ;                    :password s/Str
-              ;                    :auth-system-id s/Uuid
-              ;
-              ;                    }}
               :handler authenticate-handler}}]
 
      ;; Route to set/update the password
@@ -423,11 +409,5 @@
               :description "Set or update the user's password. (bcrypt)"
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}]}
-
-              :parameters {:body {
-                                  ;:username s/Str
-                                  :new-password1 s/Str
-                                  ;:auth-system-id s/Uuid
-
-                                  }}
+              :parameters {:body {:new-password1 s/Str}}
               :handler set-password-handler}}]]]])

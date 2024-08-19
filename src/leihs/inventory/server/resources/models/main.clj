@@ -48,23 +48,20 @@
         result (-> models-query
                    sql-format
                    (->> (jdbc/query tx)))]
-
     {:body result}))
+
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
-        id (get-in request [:path-params :id])
+        ;id (get-in request [:path-params :id])
 
-        ;; Retrieve parameters from query
         query-params (get-in request [:parameters :query])
         _ (println ">o> params3=" query-params)
 
-        ;; Pagination defaults
         page (or (:page query-params) 1)
         per_page (or (:size query-params) 10)
         offset (* (dec page) per_page)
 
-        ;; Sorting
         sort-by (case (:sort_by query-params)
                   :manufacturer-asc [:models.manufacturer :asc]
                   :manufacturer-desc [:models.manufacturer :desc]
@@ -72,53 +69,44 @@
                   :product-desc [:models.product :desc]
                   [:models.product :asc]) ;; default sorting
 
-        ;; Filters
         filter-manufacturer (:filter_manufacturer query-params)
         filter-product (:filter_product query-params)
 
-        ;; Base query for filtering and sorting (without pagination)
         base-query (-> (sql/select :*)
                        (sql/from :models)
 
-                       ;; Apply case-insensitive filtering with SQL ILIKE for partial matches
                        (cond-> filter-manufacturer
                          (sql/where [:ilike :models.manufacturer (str "%" filter-manufacturer "%")]))
 
                        (cond-> filter-product
                          (sql/where [:ilike :models.product (str "%" filter-product "%")]))
 
-                       ;; Apply sorting
                        (sql/order-by sort-by))
 
-        ;; Query to get total number of products (without limit/offset)
         total-products-query (-> base-query
                                  sql-format
                                  (->> (jdbc/query tx)))
 
-        ;; Calculate total number of products
         total_products (count total-products-query)
 
-        ;; Calculate total number of pages
         total_pages (int (Math/ceil (/ total_products (float per_page))))
 
-        ;; Apply pagination (LIMIT and OFFSET)
         paginated-query (-> base-query
                             (sql/limit per_page)
                             (sql/offset offset)
                             sql-format
                             (->> (jdbc/query tx)))
 
-        ;; Paginated products
-        paginated_products (mapv identity paginated-query)]
+        paginated_products (mapv identity paginated-query)
 
-    ;; Response with pagination info
-    {:body {:data paginated_products
-            :pagination {:page page
-                         :per_page per_page
+        pagination-info {:total_records total_products
+                         :current_page page
                          :total_pages total_pages
-                         :total_products total_products
-                         :products (count paginated_products)}}}))
+                         :next_page (when (< page total_pages) (inc page))
+                         :prev_page (when (> page 1) (dec page))}]
 
+    {:body {:data paginated_products
+            :pagination pagination-info}}))
 
 
 (defn create-model-handler [request]
