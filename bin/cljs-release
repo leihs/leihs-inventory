@@ -12,6 +12,4 @@ ${PROJECT_DIR}/bin/env/clojure-setup
 ${PROJECT_DIR}/bin/env/nodejs-setup
 
 npm ci
-
-rm -rf ${PROJECT_DIR}/resources/public/inventory/js/
 npm run build
