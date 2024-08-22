@@ -99,7 +99,7 @@
             :handler (openapi/create-openapi-handler)}}]
 
     [""
-     {:get {:handler inventory-handler :no-doc true}}]
+     {:get {:handler (fn [request] rh/INDEX-HTML-RESPONSE-OK) :no-doc true}}]
 
     ["/debug"
      {:tags ["Debug"]}

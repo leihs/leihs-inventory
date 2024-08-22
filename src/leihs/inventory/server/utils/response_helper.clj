@@ -7,7 +7,7 @@
 (defn index-html-response [status]
   {:status status
    :headers {"Content-Type" "text/html"}
-   :body (slurp (io/resource "public/index.html"))})
+   :body (slurp (io/resource "public/inventory/index.html"))})
 
 (def INDEX-HTML-RESPONSE-OK (index-html-response 200))
 (def INDEX-HTML-RESPONSE-NOT-FOUND (index-html-response 404))
