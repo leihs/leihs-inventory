@@ -5,8 +5,8 @@
    [ring.middleware.accept]))
 
 (defn index-html-response [status]
-  (let [index (io/resource "public/inventory/index.html")
-        default (io/resource "public/inventory/index-default.html")]
+  (let [index (io/resource "public/index.html")
+        default (io/resource "public/index-fallback.html")]
     {:status status
      :headers {"Content-Type" "text/html"}
      :body (slurp (if (nil? index) default index))}))

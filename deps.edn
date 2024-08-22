@@ -1,5 +1,4 @@
-{
- :paths ["src" "shared-clj/src" "resources"]
+{:paths ["src" "shared-clj/src" "resources"]
  :deps
  {org.clojure/clojure {:mvn/version "1.11.4"}
   better-cond/better-cond {:mvn/version "2.1.5"}
@@ -20,8 +19,7 @@
   ring/ring-core {:mvn/version "1.12.2"}
   ring/ring-defaults {:mvn/version "0.5.0"}
   ring/ring-jetty-adapter {:mvn/version "1.12.2"}
-  clj-yaml/clj-yaml {:mvn/version "0.4.0"}
-  }
+  clj-yaml/clj-yaml {:mvn/version "0.4.0"}}
 
  :aliases
  {:build {:deps
@@ -41,7 +39,9 @@
                     metosin/reitit {:mvn/version "0.7.1"}
                     metosin/reitit-frontend {:mvn/version "0.7.1"}
                     noencore/noencore {:mvn/version "0.3.8"}
-                    reagent/reagent {:mvn/version "1.2.0"}}
+                    reagent/reagent {:mvn/version "1.2.0"}
+                    com.pitch/uix.core {:mvn/version "1.0.1"}
+                    com.pitch/uix.dom {:mvn/version "1.0.1"}}
              :extra-deps {binaryage/devtools {:mvn/version "1.0.7"}
                           thheller/shadow-cljs {:mvn/version "2.28.14"}}}
 

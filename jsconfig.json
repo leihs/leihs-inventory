@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "allowJs": true,
+    "paths": {
+      "@/*": ["src/leihs/inventory/client/*"],
+      "@@/*": ["src/leihs/inventory/client/components/ui/*"]
+    }
+  }
+}

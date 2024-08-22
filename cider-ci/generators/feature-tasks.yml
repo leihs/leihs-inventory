@@ -13,11 +13,11 @@
   environment_variables:
     FEATURE_NAME: "Request  with accept=application/json against /inventory/status 01"
     FEATURE: './spec/features/views/core_spec.rb[1:2:2:1]'
-'./spec/features/views/inventory_spec.rb[1:2:1]':
-  name: "Call /inventory with accept=application/json 01"
+'./spec/features/views/inventory_spec.rb[1:1:1]':
+  name: "Call /inventory  with accept=text/html 01"
   environment_variables:
-    FEATURE_NAME: "Call /inventory with accept=application/json 01"
-    FEATURE: './spec/features/views/inventory_spec.rb[1:2:1]'
+    FEATURE_NAME: "Call /inventory  with accept=text/html 01"
+    FEATURE: './spec/features/views/inventory_spec.rb[1:1:1]'
 './spec/features/views/swagger_spec.rb[1:1:1]':
   name: "Call swagger-endpoints  with accept=text/html 01"
   environment_variables:
