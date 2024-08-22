@@ -1,24 +1,24 @@
 (ns leihs.inventory.client.main
-  (:require ["react-dom/client" :refer [createRoot]]
-            [leihs.inventory.client.layout :as layout]
-            [leihs.inventory.client.routing :as routing]
-            [reagent.core :as r]
-            [reagent.dom :as rdom]))
+  (:require
+   ["@/i18n.js"]
+   ["@tanstack/react-query" :refer [QueryClient QueryClientProvider]]
+   ["react-router-dom" :refer [RouterProvider]]
 
-(def REACT18 true)
-(defonce root (when REACT18 (createRoot (js/document.getElementById "app"))))
+   [leihs.inventory.client.routes :refer [routes]]
+   [uix.core :as uix :refer [$ defui]]
+   [uix.dom]))
+
+(defonce query-client (new QueryClient))
+
+(defui app []
+  ($ QueryClientProvider {:client query-client}
+     ($ RouterProvider {:router routes})))
+
+(defonce root
+  (uix.dom/create-root (js/document.getElementById "app")))
+
 (defn render []
-  (js/console.log "render root")
-  (if REACT18
-    (.render root (r/as-element [layout/app-view]))
-    (rdom/render [layout/app-view] (js/document.getElementById "app"))))
+  (uix.dom/render-root ($ app) root))
 
-#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
-(defn init []
-  (js/console.log "init")
-  (routing/start!)
+(defn ^:export init []
   (render))
-
-#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
-(defn ^:dev/after-load after-load []
-  (init))

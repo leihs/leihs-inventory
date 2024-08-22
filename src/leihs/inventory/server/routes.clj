@@ -22,7 +22,7 @@
        :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                  (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")) "</div></body></html>")}
+                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -48,10 +48,8 @@
              :body "File not found"})))
 
 (defn- incl-other-routes []
-  [(get-model-route)
-   (get-model-by-pool-route)
-     ;(token-routes)
-   ])
+  ;; TODO: add other routes here
+  ["" (get-model-route) (get-model-by-pool-route)])
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
@@ -70,31 +68,14 @@
      {:get {:no-doc true
             :swagger {:info {:title "inventory-api"
                              :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
-
-                      ;; Define security schemes for JWT Bearer and Basic Auth
-                      :securityDefinitions {:BearerAuth {:type "apiKey"
-                                                         :name "Authorization"
-                                                         :in "header"
-                                                         :scheme "bearer"
-                                                         :bearerFormat "JWT"}
-
-                                            :basicAuth {:type "basic"}
-
-                                            :SessionAuth {:type "apiKey"
-                                                          :name "Cookie" ;; Define it as a "cookie"
-                                                          :in "cookie"}}
-
-;; Apply security globally to routes
-                      ;:security [{:BearerAuth []}]  ;; Apply Bearer token globally
-                      }
+                             :description (str (slurp (io/resource "md/info.html")))}}
             :handler (swagger/create-swagger-handler)}}]
 
     ["/api-docs/openapi.json"
      {:get {:no-doc true
             :openapi {:openapi "3.0.0"
                       :info {:title "inventory-api"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                             :description (str (slurp (io/resource "md/info.html")))
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]
 
