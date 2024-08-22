@@ -1,10 +1,10 @@
 (ns leihs.inventory.client.components.navbar
-  (:require [uix.core :as uix :refer [defui $]]
-            [uix.dom]
-            ["lucide-react" :refer [LayoutGrid ChevronsUpDown CircleUser]]
-            ["@@/input" :refer [Input]]
+  (:require ["@@/button" :refer [Button]]
             ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuTrigger DropdownMenuContent DropdownMenuItem]]
-            ["@@/button" :refer [Button]]))
+            ["@@/input" :refer [Input]]
+            ["lucide-react" :refer [LayoutGrid ChevronsUpDown CircleUser]]
+            [uix.core :as uix :refer [defui $]]
+            [uix.dom]))
 
 (defui main []
   ($ :nav {:className "w-full flex flex-row text-sm items-center"}
