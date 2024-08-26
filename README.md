@@ -18,6 +18,9 @@ Install and start:
 
 ```sh
 bin/dev-run-frontend
+
+# build fe-artefacts
+npm run build --emptyOutDir
 ```
 
 For a quicker start when already installed before:

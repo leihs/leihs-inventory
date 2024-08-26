@@ -30,11 +30,20 @@
 
 (defn get-assets []
   ;; Directory containing your assets
-  (let [assets-dir (io/file "resources/public/inventory/assets")
-        files (file-seq assets-dir)]
+  (let [
+        assets-dir (io/file "resources/public/inventory/assets")
+        assets-dir2 (io/file "resources/public/inventory/css")
+        files (file-seq assets-dir)
+        files2 (file-seq assets-dir2)
+
+        merged-files (concat files files2)
+        ]
+
+
+
     ;; Filter the files and create a map for the assets
     (into {}
-      (for [file files
+      (for [file merged-files
             :when (.isFile file)]                           ;; Only process files, not directories
         (let [filename (.getName file)
               uri (str "/inventory/assets/" filename)
@@ -54,6 +63,40 @@
                 ;:file (.getPath file)
                 :file uri
                 :file-path (str "public/" uri)
+                :content-type mime-type}})))))
+
+
+(defn get-assets []
+  ;; Directories containing your assets
+  (let [assets-dir (io/file "resources/public/inventory/assets")
+        css-dir (io/file "resources/public/inventory/css")
+        files (file-seq assets-dir)
+        files2 (file-seq css-dir)
+
+        merged-files (concat files files2)]
+
+    ;; Filter the files and create a map for the assets
+    (into {}
+      (for [file merged-files
+            :when (.isFile file)]  ;; Only process files, not directories
+        (let [full-path (.getPath file)
+              filename (.getName file)
+
+              ;; Determine the URI based on the directory
+              uri (cond
+                    (.startsWith full-path (.getPath assets-dir)) (str "/inventory/assets/" filename)
+                    (.startsWith full-path (.getPath css-dir)) (str "/inventory/css/" filename))
+
+              ;; Determine MIME type based on file extension
+              mime-type (cond
+                          (str/ends-with? filename ".js") "text/javascript"
+                          (str/ends-with? filename ".css") "text/css"
+                          (str/ends-with? filename ".svg") "image/svg+xml"
+                          :else "application/octet-stream")]
+
+          ;; Map the file path and MIME type
+          {uri {:file uri
+                :file-path full-path  ;; Full path to the file
                 :content-type mime-type}})))))
 
 
@@ -77,7 +120,8 @@
 
         assets (get-assets)
 
-        p (println ">o> >>> assets=" assets)
+        p (println ">o> >>> ???? assets=" assets)
+        p (println ">o> >>> ???? assets=" uri)
 
         asset (get assets uri)
 
@@ -100,13 +144,15 @@
       (not (nil? asset)) (if asset
                            (let [{:keys [file-path file content-type]} asset
 
-                                 p (println ">o> get-resource.file=" file)
+                                 p (println ">o> >>>>>>>>>>>>>>>>>>> get-resource.file-path=" file-path)
+                                 p (println ">o> >>>>>>>>>>>>>>>>>>> get-resource.file=" file)
 
-                                 ;resource (io/resource (str "public/" file))
-                                 resource (io/resource file-path)
-                                 p (println ">o> create-default-handler.resource" resource)
+                                 resource (io/resource (str "public/" file))
+                                 ;resource (io/resource file-path)
+                                 ;resource (io/resource file)
+                                 ;p (println ">o> >>>>>>>>>>>>>>>>>>> create-default-handler.resource" resource)
 
-                                 p (println ">o> infos: " file content-type)
+                                 ;p (println ">o> infos: " file content-type)
                                  ]                          ;; Get the resource file path
                              (if resource
                                {:status 200

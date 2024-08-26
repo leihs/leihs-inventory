@@ -37,70 +37,6 @@
        :body "Not Acceptable"})))
 
 (defn inventory-handler [request]
-  (let [uri (:uri request)
-        path (if (= "/inventory" uri) "index.html" uri)
-        resource (or (io/resource (str "public/" path))
-                     (io/resource (str "public/inventory" path)))]
-
-    (cond
-      (and (nil? resource) (= uri "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
-      resource {:status 200
-                :body (slurp resource)}
-      :else {:status 404
-             :body "File not found"})))
-
-
-
-
-;(defn inventory-handler [request]
-;  (let [uri (:uri request)
-;        p (println ">o> inventory-handler.uri=" uri)
-;        path (if (= "/inventory" uri) "/index.html" uri)
-;        p (println ">o> inventory-handler.path=" path)
-;
-;        resource (or
-;                   ;(io/resource (str "public/" path))
-;                   (io/resource (str "public/inventory" path))
-;                   ;(io/resource (str "public/inventory/js" path))
-;                   ;(io/resource (str "public/inventory/dist" path))
-;                   (io/resource (str "public/inventory/assets" path))
-;                   )
-;
-;        mime-type (ext-mime-type path)
-;        p (println ">o> mime-type=" mime-type)
-;        p (println ">o> resource=" resource)
-;
-;        ]
-;
-;    (println ">o> abc!!!!!!!!!!!!!!!!!!!!!!!")
-;
-;    (cond
-;      (and (nil? resource) (= uri "/inventory/api-docs"))
-;      {:status 302 :headers {"Location" "/inventory/api-docs/index.html"}}
-;
-;      resource
-;      (do
-;       (println ">o> abc1" resource)
-;
-;        {:status 200
-;       :headers {"Content-Type" (or mime-type "application/octet-stream")}
-;       :body (slurp resource)})
-;
-;      (and (nil? resource) (= path "index.html"))
-;      (do
-;       (println ">o> abc2")
-;       {:status 200
-;       :headers {"Content-Type" (or mime-type "application/octet-stream")}
-;       :body (slurp resource)})
-;
-;      :else
-;      {:status 404
-;       :body "File not found"})))
-
-
-
-
-(defn inventory-handler [request]
   (println ">o> inventory-handler" )
   (let [uri (:uri request)
         path (if (= "/inventory" uri) "/index.html" uri)
@@ -115,8 +51,6 @@
       resource {:status 200 :headers {"Content-Type" mime-type} :body (slurp resource)}
       :else {:status 404 :body "File not found"})))
 
-
-
 (defn- incl-other-routes []
   ;; TODO: add other routes here
   ["" (get-model-route) (get-model-by-pool-route)])
@@ -125,19 +59,6 @@
   [["/" {:no-doc true :get {:handler root-handler}}]
 
    ["/inventory"
-
-    ;[""
-    ; {:get {:handler inventory-handler :no-doc true}}]
-    ;
-    ;["/index.html"
-    ; {:get {:handler inventory-handler :no-doc true}}]
-    ;
-    ;["/assets/index-z2lRr12x.css"
-    ; {:get {:handler inventory-handler :no-doc true}}]
-    ;
-    ;["/assets/index-Dh2A7FpX.js"
-    ; {:get {:handler inventory-handler :no-doc true}}]
-
 
     ["/status"
      {:get {:accept "application/json"
@@ -175,17 +96,9 @@
                                  :body s/Any}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]
-    ;(incl-other-routes)
+    (incl-other-routes)
 
     ]])
-
-
-
-
-
-
-
-
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
