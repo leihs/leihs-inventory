@@ -9,17 +9,13 @@
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
-
             [muuntaja.core :as m]
-
             [reitit.coercion.schema]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
-
             [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]
-
             [reitit.ring.middleware.multipart :as multipart]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
@@ -29,109 +25,37 @@
             [ring.middleware.cookies :refer [wrap-cookies]]))
 
 (defn get-assets []
-  ;; Directory containing your assets
-  (let [
-        assets-dir (io/file "resources/public/inventory/assets")
-        assets-dir2 (io/file "resources/public/inventory/css")
-        files (file-seq assets-dir)
-        files2 (file-seq assets-dir2)
-
-        merged-files (concat files files2)
-        ]
-
-
-
-    ;; Filter the files and create a map for the assets
-    (into {}
-      (for [file merged-files
-            :when (.isFile file)]                           ;; Only process files, not directories
-        (let [filename (.getName file)
-              uri (str "/inventory/assets/" filename)
-              mime-type (cond
-                          (str/ends-with? filename ".js") "text/javascript"
-                          (str/ends-with? filename ".css") "text/css"
-                          (str/ends-with? filename ".svg") "image/svg+xml"
-                          :else "application/octet-stream")
-
-              ;file (.getPath file)
-              ;p (println ">o> file" file)
-              ;file (str/replace full-path #"resources/public/" "")
-
-              ]
-          ;; Map the file path and MIME type
-          {uri {
-                ;:file (.getPath file)
-                :file uri
-                :file-path (str "public/" uri)
-                :content-type mime-type}})))))
-
-
-(defn get-assets []
-  ;; Directories containing your assets
   (let [assets-dir (io/file "resources/public/inventory/assets")
         css-dir (io/file "resources/public/inventory/css")
         files (file-seq assets-dir)
         files2 (file-seq css-dir)
-
         merged-files (concat files files2)]
 
-    ;; Filter the files and create a map for the assets
     (into {}
       (for [file merged-files
-            :when (.isFile file)]  ;; Only process files, not directories
+            :when (.isFile file)]
         (let [full-path (.getPath file)
               filename (.getName file)
 
-              ;; Determine the URI based on the directory
               uri (cond
                     (.startsWith full-path (.getPath assets-dir)) (str "/inventory/assets/" filename)
                     (.startsWith full-path (.getPath css-dir)) (str "/inventory/css/" filename))
 
-              ;; Determine MIME type based on file extension
               mime-type (cond
                           (str/ends-with? filename ".js") "text/javascript"
                           (str/ends-with? filename ".css") "text/css"
                           (str/ends-with? filename ".svg") "image/svg+xml"
                           :else "application/octet-stream")]
-
-          ;; Map the file path and MIME type
           {uri {:file uri
-                :file-path full-path  ;; Full path to the file
+                :file-path full-path
                 :content-type mime-type}})))))
 
 
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
-
-        ;uri (if (= "/inventory" uri) "/inventory/index.html" uri)
-
-        p (println ">o> >>> uri=" uri)
-
-        ;;; Define the mapping of URI to file path and MIME type
-        ;assets {
-        ;        "/inventory" {:file "public/inventory/index.html" :content-type "text/html"}
-        ;        "/inventory/" {:file "public/inventory/index.html" :content-type "text/html"}
-        ;        ;"inventory" {:file "public/inventory/index.html" :content-type "text/html"}
-        ;        ;"/assets/index-Dh2A7FpX.js" {:file "public/inventory/assets/index-Dh2A7FpX.js" :content-type "application/javascript"}
-        ;        "/inventory/assets/index-Ci25JBn3.js" {:file "public/inventory/assets/index-Ci25JBn3.js" :content-type "text/javascript"}
-        ;        "/inventory/assets/index-z2lRr12x.css" {:file "public/inventory/assets/index-z2lRr12x.css" :content-type "text/css"}
-        ;        "/inventory/assets/vite.svg" {:file "public/inventory/assets/zhdk-logo.svg" :content-type "text/png"}
-        ;        }
-
         assets (get-assets)
-
-        p (println ">o> >>> ???? assets=" assets)
-        p (println ">o> >>> ???? assets=" uri)
-
         asset (get assets uri)
-
-        p (println ">o> >>> asset=" asset)
-
         ]
-
-    (println ">o> >>> create-default-handler" uri)
-    (println ">o> >>> create-default-handler.asset" asset)
-
 
     (cond
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html"))) {:status 302
@@ -140,34 +64,21 @@
 
       (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
-      ;; Check if the URI matches any predefined asset
       (not (nil? asset)) (if asset
-                           (let [{:keys [file-path file content-type]} asset
-
-                                 p (println ">o> >>>>>>>>>>>>>>>>>>> get-resource.file-path=" file-path)
-                                 p (println ">o> >>>>>>>>>>>>>>>>>>> get-resource.file=" file)
-
+                           (let [{:keys [file content-type]} asset
                                  resource (io/resource (str "public/" file))
-                                 ;resource (io/resource file-path)
-                                 ;resource (io/resource file)
-                                 ;p (println ">o> >>>>>>>>>>>>>>>>>>> create-default-handler.resource" resource)
-
-                                 ;p (println ">o> infos: " file content-type)
-                                 ]                          ;; Get the resource file path
+                                 ]
                              (if resource
                                {:status 200
                                 :headers {"Content-Type" content-type}
-                                :body (slurp resource)}     ;; Serve the file with appropriate MIME type
+                                :body (slurp resource)}
 
-                               ;(rh/INDEX-HTML-RESPONSE-NOT-FOUND)
                                (rh/index-html-response 404)
-                               ))                           ;; Fallback to not found
-                           ;(rh/INDEX-HTML-RESPONSE-NOT-FOUND)
+                               ))
                            (rh/index-html-response 404)
-                           )
-
+                          )
       )
-    ))                                                      ;; Fallback to not found
+    ))
 
 
 
@@ -225,42 +136,6 @@
                         :urls.primaryName "openapi"
                         :operationsSorter "alpha"}})
 
-
-
             (ring/create-default-handler
-              ;{:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})
-              ;{:not-found (fn [request] rh/INDEX-HTML-RESPONSE-OK)})
-
-              ;{:not-found custom-not-found-handler})
-              {:not-found (fn [request] (custom-not-found-handler request))})
-
-            ;{:not-found (fn [request]
-            ;
-            ;              (println ">o> create-default-handler" (:uri request))
-            ;
-            ;              rh/INDEX-HTML-RESPONSE-OK
-            ;
-            ;
-            ;
-            ;              )}
-
-            )
-
-          ;)
-          )
-
-        ;(wrap-resource "public"
-        ;
-        ;  {:cache-bust-paths ["/inventory/assets/index-z2lRr12x.css"
-        ;                     "/inventory/assets/index-Dh2A7FpX.js"
-        ;       "/inventory/index.html"] }
-        ;  )
-        ;(wrap-resource "public"
-        ;  {:allow-symlinks? true
-        ;   :cache-bust-paths ["/inventory/css/additional.css"
-        ;                      "/inventory/js/main.js"]
-        ;   :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-        ;                        #".+_[0-9a-f]{40}\..+"]
-        ;   :enabled? true})
-
+              {:not-found (fn [request] (custom-not-found-handler request))})))
         )))

@@ -15,6 +15,6 @@ resources/public/inventory/js/
 src/leihs/inventory/client/.shadow
 target/
 tmp/
-#resources/public/inventory/assets/*
-#!resources/public/inventory/assets/zhdk-logo.svg
-#resources/public/inventory/index.html
+resources/public/inventory/assets/*
+!resources/public/inventory/assets/zhdk-logo.svg
+resources/public/inventory/index.html

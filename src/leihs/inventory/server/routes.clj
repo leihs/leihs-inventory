@@ -10,9 +10,7 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.util.mime-type :refer [ext-mime-type]]
-
    [ring.middleware.accept]
-   [ring.util.response :refer [redirect]]
    [schema.core :as s]))
 
 (defn root-handler [request]
@@ -37,7 +35,6 @@
        :body "Not Acceptable"})))
 
 (defn inventory-handler [request]
-  (println ">o> inventory-handler" )
   (let [uri (:uri request)
         path (if (= "/inventory" uri) "/index.html" uri)
         resource (io/resource (str "public/inventory" path))
@@ -96,9 +93,7 @@
                                  :body s/Any}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]
-    (incl-other-routes)
-
-    ]])
+    (incl-other-routes)]])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)

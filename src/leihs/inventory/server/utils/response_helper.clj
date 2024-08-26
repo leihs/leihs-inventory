@@ -5,7 +5,6 @@
    [ring.middleware.accept]))
 
 (defn index-html-response [status]
-  (println ">o> O> default >> index-html-response" )
   {:status status
    :headers {"Content-Type" "text/html"}
    :body (slurp (io/resource "public/inventory/index.html"))})
