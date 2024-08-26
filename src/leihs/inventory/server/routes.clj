@@ -9,8 +9,8 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [ring.util.mime-type :refer [ext-mime-type]]
    [ring.middleware.accept]
+   [ring.util.mime-type :refer [ext-mime-type]]
    [schema.core :as s]))
 
 (defn root-handler [request]
@@ -39,10 +39,10 @@
         path (if (= "/inventory" uri) "/index.html" uri)
         resource (io/resource (str "public/inventory" path))
         mime-type (or (ext-mime-type path)
-                    (cond
-                      (.endsWith path ".css") "text/css"
-                      (.endsWith path ".js") "application/javascript"
-                      :else "application/octet-stream"))]
+                      (cond
+                        (.endsWith path ".css") "text/css"
+                        (.endsWith path ".js") "application/javascript"
+                        :else "application/octet-stream"))]
     (cond
       (and (nil? resource) (= uri "/inventory/api-docs")) {:status 302 :headers {"Location" "/inventory/api-docs/index.html"}}
       resource {:status 200 :headers {"Content-Type" mime-type} :body (slurp resource)}
