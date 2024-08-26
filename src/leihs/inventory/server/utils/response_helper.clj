@@ -5,9 +5,11 @@
    [ring.middleware.accept]))
 
 (defn index-html-response [status]
+  (println ">o> O> default >> index-html-response" )
   {:status status
    :headers {"Content-Type" "text/html"}
-   :body (slurp (io/resource "leihs/inventory/client/index.html"))})
+   ;:body (slurp (io/resource "leihs/inventory/client/index.html"))})
+   :body (slurp (io/resource "public/inventory/index.html"))})
 
 (def ^:export INDEX-HTML-RESPONSE-OK (index-html-response 200))
 (def ^:export INDEX-HTML-RESPONSE-NOT-FOUND (index-html-response 404))
