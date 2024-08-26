@@ -1,9 +1,11 @@
 (ns leihs.inventory.server.swagger-api
-  (:require [clojure.string]
+  (:require [clojure.java.io :as io]
+            [clojure.string]
             [leihs.core.auth.session :as session]
             [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
+            [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
             [muuntaja.core :as m]
@@ -11,19 +13,72 @@
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
+
             [reitit.ring.coercion :as coercion]
-
-            [ring.middleware.content-type :refer [wrap-content-type]]
-            [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-
             [reitit.ring.middleware.exception :as exception]
+
             [reitit.ring.middleware.multipart :as multipart]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
-            [ring.middleware.cookies :refer [wrap-cookies]]
-            [ring.middleware.resource :refer [wrap-resource]]))
+            [ring.middleware.content-type :refer [wrap-content-type]]
+            [ring.middleware.cookies :refer [wrap-cookies]]))
+
+
+(defn custom-not-found-handler [request]
+  (let [uri (:uri request)
+
+        ;uri (if (= "/inventory" uri) "/inventory/index.html" uri)
+
+        ;; Define the mapping of URI to file path and MIME type
+        assets {
+                "inventory" {:file "public/inventory/index.html" :content-type "text/html"}
+                ;"inventory" {:file "public/inventory/index.html" :content-type "text/html"}
+                ;"/assets/index-Dh2A7FpX.js" {:file "public/inventory/assets/index-Dh2A7FpX.js" :content-type "application/javascript"}
+                "/assets/index-Dh2A7FpX.js" {:file "public/inventory/assets/index-Dh2A7FpX.js" :content-type "text/javascript"}
+                "/assets/index-z2lRr12x.css" {:file "public/inventory/assets/index-z2lRr12x.css" :content-type "text/css"}}
+        asset (get assets uri)
+
+
+        ]
+
+    (println ">o> create-default-handler" uri)
+    (println ">o> create-default-handler.asset" asset)
+
+
+    (cond
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+
+     (not (nil? asset)    )
+
+       ;; Check if the URI matches any predefined asset
+       (if asset
+         (let [{:keys [file content-type]} asset
+               resource (io/resource file)
+               p (println ">o> create-default-handler.resource" resource)
+
+               p (println ">o> infos: " file content-type)
+               ]                                               ;; Get the resource file path
+           (if resource
+             {:status 200
+              :headers {"Content-Type" content-type}
+              :body (slurp resource)}                          ;; Serve the file with appropriate MIME type
+
+             ;(rh/INDEX-HTML-RESPONSE-NOT-FOUND)
+             (rh/index-html-response 404)
+             ))              ;; Fallback to not found
+         ;(rh/INDEX-HTML-RESPONSE-NOT-FOUND)
+         (rh/index-html-response 404)
+         )
+
+
+
+
+      )
+))                 ;; Fallback to not found
+
+
 
 (defn create-app [options]
   (let [router (ring/router
@@ -82,17 +137,33 @@
 
 
             (ring/create-default-handler
-             {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})
+              ;{:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})
+              ;{:not-found (fn [request] rh/INDEX-HTML-RESPONSE-OK)})
+
+              ;{:not-found custom-not-found-handler})
+              {:not-found (fn [request] (custom-not-found-handler request))})
+
+            ;{:not-found (fn [request]
+            ;
+            ;              (println ">o> create-default-handler" (:uri request))
+            ;
+            ;              rh/INDEX-HTML-RESPONSE-OK
+            ;
+            ;
+            ;
+            ;              )}
 
             )
+
+          ;)
           )
 
-        (wrap-resource "public/inventory"
-
-          {:cache-bust-paths ["/inventory/assets/index-z2lRr12x.css"
-                             "/inventory/assets/index-Dh2A7FpX.js"
-               "/inventory/index.html"] }
-          )
+        ;(wrap-resource "public"
+        ;
+        ;  {:cache-bust-paths ["/inventory/assets/index-z2lRr12x.css"
+        ;                     "/inventory/assets/index-Dh2A7FpX.js"
+        ;       "/inventory/index.html"] }
+        ;  )
         ;(wrap-resource "public"
         ;  {:allow-symlinks? true
         ;   :cache-bust-paths ["/inventory/css/additional.css"

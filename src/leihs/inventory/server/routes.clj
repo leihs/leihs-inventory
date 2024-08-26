@@ -101,6 +101,7 @@
 
 
 (defn inventory-handler [request]
+  (println ">o> inventory-handler" )
   (let [uri (:uri request)
         path (if (= "/inventory" uri) "/index.html" uri)
         resource (io/resource (str "public/inventory" path))
@@ -125,17 +126,17 @@
 
    ["/inventory"
 
-    [""
-     {:get {:handler inventory-handler :no-doc true}}]
-
-    ["/index.html"
-     {:get {:handler inventory-handler :no-doc true}}]
-
-    ["/assets/index-z2lRr12x.css"
-     {:get {:handler inventory-handler :no-doc true}}]
-
-    ["/assets/index-Dh2A7FpX.js"
-     {:get {:handler inventory-handler :no-doc true}}]
+    ;[""
+    ; {:get {:handler inventory-handler :no-doc true}}]
+    ;
+    ;["/index.html"
+    ; {:get {:handler inventory-handler :no-doc true}}]
+    ;
+    ;["/assets/index-z2lRr12x.css"
+    ; {:get {:handler inventory-handler :no-doc true}}]
+    ;
+    ;["/assets/index-Dh2A7FpX.js"
+    ; {:get {:handler inventory-handler :no-doc true}}]
 
 
     ["/status"
@@ -174,7 +175,17 @@
                                  :body s/Any}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]
-    (incl-other-routes)]])
+    ;(incl-other-routes)
+
+    ]])
+
+
+
+
+
+
+
+
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
