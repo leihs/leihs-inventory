@@ -85,6 +85,7 @@
            :conflicting true
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
            :handler mn/get-models-handler
            :parameters {:path {:id s/Uuid}}
            :responses {200 {:description "OK"

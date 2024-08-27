@@ -1,10 +1,13 @@
 (ns leihs.inventory.server.swagger-api
-  (:require [clojure.string]
-            [leihs.core.anti-csrf.back :as anti-csrf]
+  (:require [clojure.java.io :as io]
+            [clojure.string]
+            [clojure.string :as str]
             [leihs.core.auth.session :as session]
+            [leihs.core.core :refer [presence str]]
             [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
+            [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
             [muuntaja.core :as m]
@@ -19,8 +22,121 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
-            [ring.middleware.cookies :refer [wrap-cookies]]
-            [ring.middleware.resource :refer [wrap-resource]]))
+            [ring.middleware.cookies :refer [wrap-cookies]]))
+
+(defn get-assets []
+  (let [dirs (map io/file ["resources/public/inventory/assets"
+                           "resources/public/inventory/css"
+                           "resources/public/inventory/static"
+                           "resources/public/inventory/js"])
+        dir-map {(.getPath (io/file "resources/public/inventory/assets")) "/inventory/assets/"
+                 (.getPath (io/file "resources/public/inventory/css")) "/inventory/css/"
+                 (.getPath (io/file "resources/public/inventory/static")) "/inventory/static/"
+                 (.getPath (io/file "resources/public/inventory/js")) "/inventory/js/"}
+        mime-map {".js" "text/javascript"
+                  ".css" "text/css"
+                  ".svg" "image/svg+xml"}
+        merged-files (apply concat (map file-seq dirs))]
+
+    (into {}
+          (for [file merged-files
+                :when (.isFile file)]
+            (let [full-path (.getPath file)
+                  filename (.getName file)
+
+                  uri (some (fn [[dir-path uri-prefix]]
+                              (when (.startsWith full-path dir-path)
+                                (str uri-prefix filename)))
+                            dir-map)
+
+                  mime-type (or (some (fn [[ext mime]]
+                                        (when (str/ends-with? filename ext)
+                                          mime))
+                                      mime-map)
+                                "application/octet-stream")]
+
+              {uri {:file (str "public" uri)
+                    :file-path full-path
+                    :content-type mime-type}})))))
+
+(defn- create-root-page []
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+       </head><div class='max-width'>
+       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+
+(def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
+
+(defn custom-not-found-handler [request]
+  (let [uri (:uri request)
+        assets (get-assets)
+        asset (get assets uri)]
+    (cond
+
+      (= uri "/") (create-root-page)
+
+      (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
+      {:status 302
+       :headers {"Location" "/inventory"}
+       :body ""}
+
+      (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
+      {:status 302
+       :headers {"Location" "/inventory/api-docs/index.html"}
+       :body ""}
+
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+
+      (not (nil? asset)) (if asset
+                           (let [{:keys [file content-type]} asset
+                                 resource (io/resource file)]
+                             (if resource
+                               {:status 200
+                                :headers {"Content-Type" content-type}
+                                :body (slurp resource)}
+                               (rh/index-html-response 411)))
+                           (rh/index-html-response 412))
+
+      (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
+      (rh/index-html-response 200)
+      :else (rh/index-html-response 413))))
+
+(defn default-handler-fetch-resource [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])]
+      (if (.contains (str accept-header) "/json")
+        (handler request)
+        (custom-not-found-handler request)))))
+
+(defn browser-request-matches-javascript? [request]
+  "Returns true if the accepted type is javascript or
+  if the :uri ends with .js. Note that browsers do not
+  use the proper accept type for javascript script tags."
+  (boolean (or (= (-> request :accept :mime) :javascript)
+               (re-find #".+\.js$" (or (-> request :uri presence) "")))))
+
+(defn wrap-dispatch-content-type
+  ([handler]
+   (fn [request]
+     (wrap-dispatch-content-type handler request)))
+  ([handler request]
+   (cond
+     (= (-> request :accept :mime) :json) (or (handler request)
+                                              (throw (ex-info "This resource does not provide a json response."
+                                                              {:status 407})))
+     (and (= (-> request :accept :mime) :html)
+          (#{:get :head} (:request-method request))
+          (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
+     :else (let [response (handler request)]
+             (if (and (nil? response)
+                      (not (#{:post :put :patch :delete} (:request-method request)))
+                      (= (-> request :accept :mime) :html)
+                      (not (browser-request-matches-javascript? request)))
+               (rh/index-html-response 408)
+               response)))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -34,7 +150,7 @@
                         :middleware [db/wrap-tx
 
                                      ring-audits/wrap
-                                     ;anti-csrf/wrap
+                                      ;anti-csrf/wrap
                                      session/wrap-authenticate
                                      wrap-cookies
 
@@ -47,10 +163,14 @@
                                       ;core-routing/wrap-canonicalize-params-maps
                                       ;wrap-params
                                       ;wrap-multipart-params
-                                     ;wrap-content-type
-                                     ;(core-routing/wrap-resolve-handler html/html-handler)
-                                     ;wrap-accept
-                                     ;ring-exception/wrap
+                                      ;wrap-content-type
+
+                                      ;(core-routing/wrap-resolve-handler html/html-handler)
+                                     dispatch-content-type/wrap-accept
+                                      ;ring-exception/wrap
+
+                                     default-handler-fetch-resource ;; provide resources
+                                     wrap-dispatch-content-type
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware
@@ -70,19 +190,9 @@
           (swagger-ui/create-swagger-ui-handler
            {:path "/inventory/api-docs/"
             :config {:validatorUrl nil
-                     :urls [;; TODO: revise config to support multiple specs/accept-types
-                               ;{:name "openapi" :url "openapi.json"}
-                            {:name "swagger" :url "swagger.json"}]
+                     :urls [{:name "swagger" :url "swagger.json"}]
                      :urls.primaryName "openapi"
                      :operationsSorter "alpha"}})
 
           (ring/create-default-handler
-           {:not-found (fn [request] rh/INDEX-HTML-RESPONSE-NOT-FOUND)})))
-
-        (wrap-resource "public"
-                       {:allow-symlinks? true
-                        :cache-bust-paths ["/inventory/css/additional.css"
-                                           "/inventory/js/main.js"]
-                        :never-expire-paths [#".*fontawesome-[^\/]*\d+\.\d+\.\d+\/.*"
-                                             #".+_[0-9a-f]{40}\..+"]
-                        :enabled? true}))))
+           {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))
