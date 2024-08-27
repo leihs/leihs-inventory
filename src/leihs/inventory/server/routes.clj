@@ -5,11 +5,12 @@
    [clojure.java.io :as io]
    [leihs.core.status :as status]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-route get-model-by-pool-route]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
+   [ring.util.response]
    [ring.util.response :refer [redirect]]
    [schema.core :as s]))
 
@@ -21,6 +22,7 @@
        :headers {"Content-Type" "text/html"}
        :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
+       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
                   (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
@@ -35,26 +37,72 @@
        :body "Not Acceptable"})))
 
 (defn inventory-handler [request]
-  (let [uri (:uri request)
-        path (if (= "/inventory" uri) "inventory/index.html" uri)
+  (println ">o> inventory-handler")
+  (let [path (:uri request)
         resource (or (io/resource (str "public/" path))
                      (io/resource (str "public/inventory" path)))]
 
     (cond
-      (and (nil? resource) (= uri "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
+      (and (nil? resource) (= path "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
+      (= path "/inventory/index.html") (redirect "/inventory")
       resource {:status 200
                 :body (slurp resource)}
       :else {:status 404
              :body "File not found"})))
 
+;(defn inventory-handler [request]
+;  (println ">o> inventory-handler")
+;  (let [path (:uri request)
+;        inventory-path "public/inventory/index.html"
+;        default-path "public/inventory/index-default.html"
+;        resource (or (io/resource (str "public/" path))
+;                   (io/resource (str "public/inventory" path)))
+;        index-resource (io/resource inventory-path)
+;        default-resource (io/resource default-path)]
+;
+;    (cond
+;      ;; Redirect to /inventory/api-docs/index.html if accessing /inventory/api-docs
+;      (and (nil? resource) (= path "/inventory/api-docs")) (redirect "/inventory/api-docs/index.html")
+;
+;      ;; Redirect /inventory/index.html to /inventory, checking if the index exists
+;      (= path "/inventory/index.html") (redirect "/inventory")
+;
+;      ;; If accessing /inventory, serve index.html or index-default.html if index.html doesn't exist
+;      (= path "/inventory") (if index-resource
+;                              {:status 200
+;                               :body (slurp index-resource)}
+;                              {:status 200
+;                               :body (slurp default-resource)})
+;
+;      ;; If the resource exists, serve it
+;      resource {:status 200
+;                :body (slurp resource)}
+;
+;      ;; Otherwise, return 404
+;      :else {:status 404
+;             :body "File not found"})))
+
 (defn- incl-other-routes []
   ;; TODO: add other routes here
-  ["" (get-model-route) (get-model-by-pool-route)])
+  ["" (get-model-route)
+   (get-model-by-pool-route)])
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
 
    ["/inventory"
+
+    ;; this works
+    ["/models/inventory-list"
+     {:get {:conflicting true
+            :accept "text/html"
+            :coercion reitit.coercion.schema/coercion
+            :swagger {:produces ["text/html"]}
+            :handler (fn [request] rh/INDEX-HTML-RESPONSE-OK)
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
 
     ["/status"
      {:get {:accept "application/json"
@@ -79,7 +127,7 @@
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]
 
-    [""
+    ["/index.html"
      {:get {:handler inventory-handler :no-doc true}}]
 
     ["/debug"

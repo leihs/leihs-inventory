@@ -17,3 +17,4 @@ src/leihs/inventory/client/.shadow
 
 target/
 tmp/
+resources/public/inventory/index.html

@@ -79,12 +79,24 @@
                              :body s/Any}
                         400 {:description "Bad Request / Duplicate key value of ?product?"
                              :body s/Any}}}}]
+   ;;; this works
+   ;["/inventory-list"
+   ; {:get {:conflicting true
+   ;        :accept "text/html"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :swagger {:produces ["text/html"]}
+   ;        :handler (fn [request] rh/INDEX-HTML-RESPONSE-OK)
+   ;        :responses {200 {:description "OK"
+   ;                         :body (s/->Either [s/Any schema])}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
 
    ["/:id"
     {:get {:accept "application/json"
            :conflicting true
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
            :handler mn/get-models-handler
            :parameters {:path {:id s/Uuid}}
            :responses {200 {:description "OK"

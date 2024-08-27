@@ -2,6 +2,12 @@
 
 ## Development
 
+### Endpoints
+- http://localhost:3260/
+- http://localhost:3260/inventory
+- http://localhost:3260/inventory/api-docs/index.html
+
+
 ### Start server
 
 ```sh
