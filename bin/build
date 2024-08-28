@@ -59,6 +59,21 @@ else
         mv $JAR_REL_PATH $CACHED_JAR
     fi
     echo "check5a"
+
+
+    if [ -d "${CACHED_JAR}" ]; then
+      echo "${CACHED_JAR} Directory exists."
+    else
+      echo "${CACHED_JAR} Directory does not exist."
+    fi
+
+    if [ -d "${JAR_REL_PATH}" ]; then
+      echo "${JAR_REL_PATH} Directory exists."
+    else
+      echo "${JAR_REL_PATH} Directory does not exist."
+    fi
+
+
     echo "Linking $CACHED_JAR to $JAR_REL_PATH"
     ln -sf $CACHED_JAR $JAR_REL_PATH
     echo "check5b"
