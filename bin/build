@@ -45,6 +45,14 @@ else
         touch $CACHED_JAR
     else
         build
+
+        if [ -d "${BUILDCACHE_TMPDIR}/target" ]; then
+          echo "Directory exists."
+        else
+          echo "Directory does not exist."
+        fi
+
+        mkdir -p "${BUILDCACHE_TMPDIR}/target"
         mv $JAR_REL_PATH $CACHED_JAR
     fi
     echo "Linking $CACHED_JAR to $JAR_REL_PATH"
