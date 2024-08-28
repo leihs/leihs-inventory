@@ -36,10 +36,11 @@ echo "check3"
     git status -v
     build
 else
-echo "check4"
+    echo "check4"
     echo "OK no uncommitted changes, building or using cache"
     DIGEST=$(git log -1 HEAD --pretty=format:%T)
-    CACHED_JAR="${BUILDCACHE_TMPDIR}/${JAR_PREFIX_NAME}_${DIGEST}.jar"
+    CACHED_JAR="${BUILDCACHE_TMPDIR}/target/${JAR_PREFIX_NAME}_${DIGEST}.jar"
+    echo "CACHED_JAR: $CACHED_JAR"
     if [[ -f $CACHED_JAR ]]; then
         touch $CACHED_JAR
     else
@@ -48,6 +49,7 @@ echo "check4"
     fi
     echo "Linking $CACHED_JAR to $JAR_REL_PATH"
     ln -sf $CACHED_JAR $JAR_REL_PATH
+    echo "check5"
 fi
 
 echo "check5"
