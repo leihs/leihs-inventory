@@ -1,86 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "check0"
+
+### VARIABLES and PWD #########################################################
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
-TMPDIR="${TMPDIR:-/tmp}" # fallback to /tmp if TMPDIR is not set, as in Ubuntu e.g.
-BUILDCACHE_TMPDIR="${BUILDCACHE_TMPDIR:-$TMPDIR}"
-BUILDCACHE_TMPDIR=${BUILDCACHE_TMPDIR%/} # remove trailing slash
-mkdir -p $BUILDCACHE_TMPDIR
+cd "${PROJECT_DIR}"
 
-echo "check1"
-JAR_PREFIX_NAME=leihs-inventory
-JAR_REL_PATH=target/$JAR_PREFIX_NAME.jar
-cd $PROJECT_DIR
+source "${PROJECT_DIR}/bin/env/asdf-helper.bash"
+asdf-load
 
-echo "check2"
-echo "check2 $JAR_REL_PATH"
+source "${PROJECT_DIR}/bin/env/project.sh"
+source "${PROJECT_DIR}/shared-clj/bin/helpers/build.sh"
 
-# cleanup
-rm -f $JAR_REL_PATH
 
-function build {
-  echo "Building $JAR_REL_PATH"
-  ./bin/clean
+# you can override here some of the vars defined in helpers/build.sh, e.g.
+# SHARED_CLJ_DIR="${PROJECT_DIR}/server/shared-clj"
 
-  rm -f $JAR_REL_PATH
 
+### functions #################################################################
+
+function build_core {
   ./bin/cljs-release
+  ./bin/set-built-info
   ./bin/clj-uberjar
-  ./bin/clean
 }
 
-if [[ -n $(git status -s) ]]; then
-echo "check3"
-    echo "WARNING uncommitted changes, (re)building from scratch, no linking"
-    git status -v
-    build
-else
-    echo "check4"
-    echo "OK no uncommitted changes, building or using cache"
-    DIGEST=$(git log -1 HEAD --pretty=format:%T)
-    CACHED_JAR="${BUILDCACHE_TMPDIR}/target/${JAR_PREFIX_NAME}_${DIGEST}.jar"
-    echo "CACHED_JAR: $CACHED_JAR"
-    if [[ -f $CACHED_JAR ]]; then
-        echo "check4a"
-
-        touch $CACHED_JAR
-    else
-        echo "check4b"
-        build
-
-        if [ -d "${BUILDCACHE_TMPDIR}/target" ]; then
-          echo "Directory exists."
-        else
-          echo "Directory does not exist."
-        fi
-
-        mkdir -p "${BUILDCACHE_TMPDIR}/target"
-        mv $JAR_REL_PATH $CACHED_JAR
-    fi
-    echo "check5a"
 
 
-    if [ -d "${CACHED_JAR}" ]; then
-      echo "${CACHED_JAR} Directory exists."
-    else
-      echo "${CACHED_JAR} Directory does not exist."
-    fi
+### MAIN ######################################################################
 
-    if [ -d "${JAR_REL_PATH}" ]; then
-      echo "${JAR_REL_PATH} Directory exists."
-    else
-      echo "${JAR_REL_PATH} Directory does not exist."
-    fi
+build
+cd -
+echo "OK ✔"
 
-
-    echo "Linking $CACHED_JAR to $JAR_REL_PATH"
-    ln -sf $CACHED_JAR $JAR_REL_PATH
-    echo "check5b"
-fi
-
-echo "check5"
-# Clean cached jars older than a week
-find $BUILDCACHE_TMPDIR -maxdepth 1 -name "${JAR_PREFIX_NAME}_*.jar" -type f -mtime +7 -delete
-
-# vim: set ft=sh
+# vi: ft=sh
