@@ -20,7 +20,7 @@ scripts:
       unset PGPORT
       unset PGUSER
       PGPORT=${PG15PORT} PGUSER=${PG15USER} java \
-        -jar leihs-inventory.jar \
+        -jar target/leihs-inventory.jar \
         run --pid-file tmp/service.pid
 
   inventory-service-is-running:
