@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+echo "check0"
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
 TMPDIR="${TMPDIR:-/tmp}" # fallback to /tmp if TMPDIR is not set, as in Ubuntu e.g.
@@ -7,9 +8,13 @@ BUILDCACHE_TMPDIR="${BUILDCACHE_TMPDIR:-$TMPDIR}"
 BUILDCACHE_TMPDIR=${BUILDCACHE_TMPDIR%/} # remove trailing slash
 mkdir -p $BUILDCACHE_TMPDIR
 
+echo "check1"
 JAR_PREFIX_NAME=leihs-inventory
 JAR_REL_PATH=target/$JAR_PREFIX_NAME.jar
 cd $PROJECT_DIR
+
+echo "check2"
+echo "check2 $JAR_REL_PATH"
 
 # cleanup
 rm -f $JAR_REL_PATH
@@ -26,10 +31,12 @@ function build {
 }
 
 if [[ -n $(git status -s) ]]; then
+echo "check3"
     echo "WARNING uncommitted changes, (re)building from scratch, no linking"
     git status -v
     build
 else
+echo "check4"
     echo "OK no uncommitted changes, building or using cache"
     DIGEST=$(git log -1 HEAD --pretty=format:%T)
     CACHED_JAR="${BUILDCACHE_TMPDIR}/${JAR_PREFIX_NAME}_${DIGEST}.jar"
@@ -43,6 +50,7 @@ else
     ln -sf $CACHED_JAR $JAR_REL_PATH
 fi
 
+echo "check5"
 # Clean cached jars older than a week
 find $BUILDCACHE_TMPDIR -maxdepth 1 -name "${JAR_PREFIX_NAME}_*.jar" -type f -mtime +7 -delete
 

@@ -13,4 +13,5 @@ scripts:
       install-ruby-passed: { script_key: inventory-ruby-bundle }
     body: |
       cd ${LEIHS_INVENTORY_DIR}
+      echo ">o> uberjar1"
       ./bin/build
