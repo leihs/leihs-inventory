@@ -1,0 +1,24 @@
+- name: stop leihs-inventory-service
+  service:
+    name: leihs-inventory
+    enabled: false
+    state: stopped
+  failed_when: false
+
+- name: make sure leihs-inventory-service user exists
+  user:
+    name: "{{leihs_inventory_user}}"
+    comment: "Leihs Inventory Service"
+    shell: /bin/false
+    system: yes
+    state: present
+
+- name: setup directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner }}"
+    group: "{{ item.owner }}"
+    mode: 0755
+  loop:
+    - { path: "{{leihs_inventory_dir}}", owner: root }

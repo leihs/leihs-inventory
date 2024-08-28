@@ -1,0 +1,11 @@
+- name: apt unzip
+  apt:
+    name: unzip
+    state: present
+
+- name: copy jar
+  copy:
+    src: "{{role_path}}/../../../leihs-inventory.jar"
+    dest: "{{leihs_inventory_dir}}/leihs-inventory.jar"
+    owner: root
+    mode: 0644

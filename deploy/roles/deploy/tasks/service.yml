@@ -1,0 +1,21 @@
+- name: install service from template
+  template:
+    src: leihs-inventory.service
+    dest: /etc/systemd/system/leihs-inventory.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+  failed_when: false
+
+- name: (re)start leihs-inventory-service
+  service:
+    name: leihs-inventory
+    state: restarted
+  register: leihs_inventory_service_details
+  until: leihs_inventory_service_details.status.ActiveState == "active"
+  retries: 3
+  delay: 15

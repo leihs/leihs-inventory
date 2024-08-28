@@ -1,0 +1,3 @@
+leihs_inventory_dir: /leihs/server/leihs-inventory
+leihs_inventory_user: leihs-inventory
+leihs_inventory_service_xmx: 256

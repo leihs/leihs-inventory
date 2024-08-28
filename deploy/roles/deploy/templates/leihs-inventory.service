@@ -1,0 +1,32 @@
+[Unit]
+Description=Leihs Inventory Service
+After=syslog.target
+After=network.target
+
+BindsTo=leihs-datalayer.service
+After=leihs-datalayer.service
+PartOf=leihs-datalayer.service
+
+StartLimitIntervalSec=180
+StartLimitBurst=6
+
+
+[Service]
+WorkingDirectory={{leihs_inventory_dir}}
+User={{leihs_inventory_user}}
+Group={{leihs_inventory_user}}
+
+Restart=on-failure
+Restart=always
+RestartSec=5
+
+EnvironmentFile=/etc/leihs/pg.env
+Environment=TMPDIR={{leihs_tmp_dir}}
+Environment=HTTP_SERVER_PORT={{leihs_inventory_port}}
+ExecStart=/usr/bin/env java "-Xmx{{ leihs_inventory_service_xmx }}m" \
+  -jar leihs-inventory.jar server
+
+[Install]
+WantedBy=multi-user.target
+
+# vi: ft=systemd
