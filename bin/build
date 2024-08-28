@@ -8,7 +8,7 @@ BUILDCACHE_TMPDIR=${BUILDCACHE_TMPDIR%/} # remove trailing slash
 mkdir -p $BUILDCACHE_TMPDIR
 
 JAR_PREFIX_NAME=leihs-inventory
-JAR_REL_PATH=$JAR_PREFIX_NAME.jar
+JAR_REL_PATH=target/$JAR_PREFIX_NAME.jar
 cd $PROJECT_DIR
 
 # cleanup
