@@ -3,7 +3,7 @@
             [clojure.string]
             [clojure.string :as str]
             [leihs.core.auth.session :as session]
-            [leihs.core.core :refer [presence str]]
+            [leihs.core.core :refer [presence]]
             [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
@@ -39,25 +39,25 @@
         merged-files (apply concat (map file-seq dirs))]
 
     (into {}
-          (for [file merged-files
-                :when (.isFile file)]
-            (let [full-path (.getPath file)
-                  filename (.getName file)
+      (for [file merged-files
+            :when (.isFile file)]
+        (let [full-path (.getPath file)
+              filename (.getName file)
 
-                  uri (some (fn [[dir-path uri-prefix]]
-                              (when (.startsWith full-path dir-path)
-                                (str uri-prefix filename)))
-                            dir-map)
+              uri (some (fn [[dir-path uri-prefix]]
+                          (when (.startsWith full-path dir-path)
+                            (str uri-prefix filename)))
+                    dir-map)
 
-                  mime-type (or (some (fn [[ext mime]]
-                                        (when (str/ends-with? filename ext)
-                                          mime))
-                                      mime-map)
-                                "application/octet-stream")]
+              mime-type (or (some (fn [[ext mime]]
+                                    (when (str/ends-with? filename ext)
+                                      mime))
+                              mime-map)
+                          "application/octet-stream")]
 
-              {uri {:file (str "public" uri)
-                    :file-path full-path
-                    :content-type mime-type}})))))
+          {uri {:file (str "public" uri)
+                :file-path full-path
+                :content-type mime-type}})))))
 
 (defn- create-root-page []
   {:status 200
@@ -116,7 +116,7 @@
   if the :uri ends with .js. Note that browsers do not
   use the proper accept type for javascript script tags."
   (boolean (or (= (-> request :accept :mime) :javascript)
-               (re-find #".+\.js$" (or (-> request :uri presence) "")))))
+             (re-find #".+\.js$" (or (-> request :uri presence) "")))))
 
 (defn wrap-dispatch-content-type
   ([handler]
@@ -125,34 +125,34 @@
   ([handler request]
    (cond
      (= (-> request :accept :mime) :json) (or (handler request)
-                                              (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 407})))
+                                            (throw (ex-info "This resource does not provide a json response."
+                                                     {:status 407})))
      (and (= (-> request :accept :mime) :html)
-          (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
+       (#{:get :head} (:request-method request))
+       (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
      :else (let [response (handler request)]
              (if (and (nil? response)
-                      (not (#{:post :put :patch :delete} (:request-method request)))
-                      (= (-> request :accept :mime) :html)
-                      (not (browser-request-matches-javascript? request)))
+                   (not (#{:post :put :patch :delete} (:request-method request)))
+                   (= (-> request :accept :mime) :html)
+                   (not (browser-request-matches-javascript? request)))
                (rh/index-html-response 408)
                response)))))
 
 (defn create-app [options]
   (let [router (ring/router
 
-                (routes/basic-routes)
+                 (routes/basic-routes)
 
-                {:conflicts nil
-                 :exception pretty/exception
-                 :data {:coercion reitit.coercion.spec/coercion
-                        :muuntaja m/instance
-                        :middleware [db/wrap-tx
+                 {:conflicts nil
+                  :exception pretty/exception
+                  :data {:coercion reitit.coercion.spec/coercion
+                         :muuntaja m/instance
+                         :middleware [db/wrap-tx
 
-                                     ring-audits/wrap
+                                      ring-audits/wrap
                                       ;anti-csrf/wrap
-                                     session/wrap-authenticate
-                                     wrap-cookies
+                                      session/wrap-authenticate
+                                      wrap-cookies
 
                                       ;locale/wrap
                                       ;settings/wrap
@@ -166,33 +166,33 @@
                                       ;wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
-                                     dispatch-content-type/wrap-accept
+                                      dispatch-content-type/wrap-accept
                                       ;ring-exception/wrap
 
-                                     default-handler-fetch-resource ;; provide resources
-                                     wrap-dispatch-content-type
+                                      default-handler-fetch-resource ;; provide resources
+                                      wrap-dispatch-content-type
 
-                                     swagger/swagger-feature
-                                     parameters/parameters-middleware
-                                     muuntaja/format-negotiate-middleware
-                                     muuntaja/format-response-middleware
-                                     exception/exception-middleware
-                                     muuntaja/format-request-middleware
-                                     coercion/coerce-response-middleware
-                                     coercion/coerce-request-middleware
-                                     multipart/multipart-middleware]}})]
+                                      swagger/swagger-feature
+                                      parameters/parameters-middleware
+                                      muuntaja/format-negotiate-middleware
+                                      muuntaja/format-response-middleware
+                                      exception/exception-middleware
+                                      muuntaja/format-request-middleware
+                                      coercion/coerce-response-middleware
+                                      coercion/coerce-request-middleware
+                                      multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
-         router
-         (ring/routes
-          (ring/redirect-trailing-slash-handler {:method :strip})
+          router
+          (ring/routes
+            (ring/redirect-trailing-slash-handler {:method :strip})
 
-          (swagger-ui/create-swagger-ui-handler
-           {:path "/inventory/api-docs/"
-            :config {:validatorUrl nil
-                     :urls [{:name "swagger" :url "swagger.json"}]
-                     :urls.primaryName "openapi"
-                     :operationsSorter "alpha"}})
+            (swagger-ui/create-swagger-ui-handler
+              {:path "/inventory/api-docs/"
+               :config {:validatorUrl nil
+                        :urls [{:name "swagger" :url "swagger.json"}]
+                        :urls.primaryName "openapi"
+                        :operationsSorter "alpha"}})
 
-          (ring/create-default-handler
-           {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))
+            (ring/create-default-handler
+              {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))

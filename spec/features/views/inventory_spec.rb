@@ -7,10 +7,10 @@ feature "Call /inventory" do
       visit "/inventory"
     end
 
-    # scenario "Contains expected elements" do
-    #   expect(page).to have_content "Leihs Inventory with OpenApi"
-    #   expect(page).to have_content "home-page"
-    # end
+    scenario "Contains expected elements" do
+      expect(page).to have_content "Leihs Inventory with OpenApi"
+      expect(page).to have_content "home-page"
+    end
 
     # scenario "Contains expected elements in Model" do
     #   click_on "Models"
