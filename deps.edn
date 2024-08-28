@@ -1,12 +1,12 @@
 {
  :paths ["src" "shared-clj/src" "resources"]
  :deps
- {org.clojure/clojure {:mvn/version "1.11.0"}
+ {org.clojure/clojure {:mvn/version "1.11.4"}
   better-cond/better-cond {:mvn/version "2.1.5"}
   cheshire/cheshire {:mvn/version "5.13.0"}
-  clj-http/clj-http {:mvn/version "3.12.3"}
+  clj-http/clj-http {:mvn/version "3.13.0"}
   cljsjs/react-dom {:mvn/version "18.2.0-1"}
-  clojure.java-time/clojure.java-time {:mvn/version "1.3.0"}
+  clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
   com.flocktory/wet {:mvn/version "0.2.1"}
   com.layerware/hugsql {:mvn/version "0.5.3"}
   com.rpl/specter {:mvn/version "1.1.4"}
@@ -14,12 +14,12 @@
   leihs-core/leihs-core {:local/root "./shared-clj"}
   metosin/reitit {:mvn/version "0.7.1"}
   metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
-  org.clojure/data.generators {:mvn/version "1.0.0"}
-  org.clojure/spec.alpha {:mvn/version "0.3.218"}
-  org.threeten/threeten-extra {:mvn/version "1.7.2"}
+  org.clojure/data.generators {:mvn/version "1.1.0"}
+  org.clojure/spec.alpha {:mvn/version "0.5.238"}
+  org.threeten/threeten-extra {:mvn/version "1.8.0"}
   ring/ring-core {:mvn/version "1.12.2"}
-  ring/ring-defaults {:mvn/version "0.3.2"}
-  ring/ring-jetty-adapter {:mvn/version "1.12.1"}
+  ring/ring-defaults {:mvn/version "0.5.0"}
+  ring/ring-jetty-adapter {:mvn/version "1.12.2"}
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
   }
 
@@ -31,25 +31,25 @@
           :ns-default scripts.build}
 
   :cljfmt {:extra-deps {io.github.weavejester/cljfmt
-                        {:git/tag "0.11.2"
-                         :sha "fb26b22f569724b05c93eb2502592dfc2de898c3"}}
+                        {:git/tag "0.12.0"
+                         :sha "434408f6909924f524c8027b37422d32bb49622d"}}
            :main-opts ["-m" "cljfmt.main"]}
 
   :cljc-paths ["src" "shared-clj/src"]
 
-  :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.46"}
-                    metosin/reitit {:mvn/version "0.7.0"}
-                    metosin/reitit-frontend {:mvn/version "0.7.0"}
-                    noencore/noencore {:mvn/version "0.3.7"}
+  :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.48"}
+                    metosin/reitit {:mvn/version "0.7.1"}
+                    metosin/reitit-frontend {:mvn/version "0.7.1"}
+                    noencore/noencore {:mvn/version "0.3.8"}
                     reagent/reagent {:mvn/version "1.2.0"}}
              :extra-deps {binaryage/devtools {:mvn/version "1.0.7"}
-                          thheller/shadow-cljs {:mvn/version "2.25.8"}}}
+                          thheller/shadow-cljs {:mvn/version "2.28.14"}}}
 
-  :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.5.1109"}}
+  :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
              :main-opts ["-m" "antq.core"]}
 
   :resource-paths ["resources"]
 
-  :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "2.0.211"}}
+  :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "2.0.216"}}
             :exec-fn hf.depstar.uberjar/build-jar
             :exec-args {:aot true :jar "leihs-inventory.jar" :main-class leihs.inventory.server.main}}}}
