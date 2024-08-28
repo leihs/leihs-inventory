@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+# set -x
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
-$PROJECT_DIR/bin/env/java-setup
 cd $PROJECT_DIR
-./bin/build
-java -jar target/leihs-inventory.jar --dev-mode true -r run "$@"
+./bin/env/ruby-setup
+./bin/set-built-info.rb
 
 # vi: ft=sh

@@ -49,7 +49,4 @@
              :main-opts ["-m" "antq.core"]}
 
   :resource-paths ["resources"]
-
-  :uberjar {:extra-deps {seancorfield/depstar {:mvn/version "2.0.216"}}
-            :exec-fn hf.depstar.uberjar/build-jar
-            :exec-args {:aot true :jar "leihs-inventory.jar" :main-class leihs.inventory.server.main}}}}
+  }}
