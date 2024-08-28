@@ -67,9 +67,7 @@
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
 
                       ;; Define security schemes for JWT Bearer and Basic Auth
-                      :securityDefinitions {
-
-                                            :basicAuth {:type "basic"}
+                      :securityDefinitions {:basicAuth {:type "basic"}
 
                                             :SessionAuth {:type "apiKey"
                                                           :name "Cookie" ;; Define it as a "cookie"
@@ -89,9 +87,8 @@
             :handler (openapi/create-openapi-handler)}}]
 
     ["/debug"
-     {:tags ["Debug"]}
+     {:tags ["Debug"]}]
 
-     ]
     (incl-other-routes)]])
 
 ;#### debug ###################################################################
