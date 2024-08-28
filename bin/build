@@ -42,8 +42,11 @@ else
     CACHED_JAR="${BUILDCACHE_TMPDIR}/target/${JAR_PREFIX_NAME}_${DIGEST}.jar"
     echo "CACHED_JAR: $CACHED_JAR"
     if [[ -f $CACHED_JAR ]]; then
+        echo "check4a"
+
         touch $CACHED_JAR
     else
+        echo "check4b"
         build
 
         if [ -d "${BUILDCACHE_TMPDIR}/target" ]; then
@@ -55,9 +58,10 @@ else
         mkdir -p "${BUILDCACHE_TMPDIR}/target"
         mv $JAR_REL_PATH $CACHED_JAR
     fi
+    echo "check5a"
     echo "Linking $CACHED_JAR to $JAR_REL_PATH"
     ln -sf $CACHED_JAR $JAR_REL_PATH
-    echo "check5"
+    echo "check5b"
 fi
 
 echo "check5"
