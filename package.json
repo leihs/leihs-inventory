@@ -4,7 +4,9 @@
     "dev": "shadow-cljs watch frontend & vite",
     "build": "npm run clean && shadow-cljs release frontend && vite build",
     "clean": "rm -rf ./src/leihs/inventory/client/.shadow & rm -rf ./resources/public/inventory/assets/",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write ./src/leihs/inventory/client",
+    "format:check": "prettier --check ./src/leihs/inventory/client"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
