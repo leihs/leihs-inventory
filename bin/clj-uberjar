@@ -1,8 +1,7 @@
-§#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
-cd $PROJECT_DIR
-$PROJECT_DIR/bin/env/java-setup
-$PROJECT_DIR/bin/env/clojure-setup
-clojure -Spom
-clojure -X:uberjar
+source ${PROJECT_DIR}/shared-clj/bin/helpers/clj.sh
+PROJECT_NAME=admin clj_uberjar
+
+# vi: ft=sh

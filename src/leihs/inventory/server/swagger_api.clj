@@ -3,7 +3,7 @@
             [clojure.string]
             [clojure.string :as str]
             [leihs.core.auth.session :as session]
-            [leihs.core.core :refer [presence str]]
+            [leihs.core.core :refer [presence]]
             [leihs.core.db]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]

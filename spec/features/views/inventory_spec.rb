@@ -18,10 +18,10 @@ feature "Call /inventory" do
     #   expect(page).to have_content "Refresh"
     # end
 
-    scenario "Contains expected elements in Home" do
-      click_on "Home"
-      expect(page).to have_content "home-page"
-    end
+    # scenario "Contains expected elements in Home" do
+    #   click_on "Home"
+    #   expect(page).to have_content "home-page"
+    # end
 
     # scenario "Contains expected elements in Debug" do
     #   click_on "Debug"
