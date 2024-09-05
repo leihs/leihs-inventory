@@ -4,6 +4,7 @@
    [leihs.inventory.client.routes.debug.page :as debug]
    [leihs.inventory.client.routes.layout :as root]
    [leihs.inventory.client.routes.models.page :as models]
+   [leihs.inventory.client.routes.notfound :as notfound]
    [leihs.inventory.client.routes.page :as home]
    [uix.core :as uix :refer [$]]
    [uix.dom]))
@@ -13,6 +14,8 @@
    (clj->js
     [{:element
       ($ root/layout)
+      :errorElement
+      ($ notfound/page)
 
       :children
       (clj->js
@@ -25,5 +28,5 @@
         {:path "inventory/debug"
          :element ($ debug/page)}
 
-        {:path "inventory/models/:tab"
+        {:path "inventory/models"
          :element ($ models/page)}])}])))

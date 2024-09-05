@@ -10,28 +10,28 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn js [js]
+(defn jc [js]
   (js->clj js {:keywordize-keys true}))
 
-(defn cljs [clj]
+(defn cj [clj]
   (clj->js clj))
 
 (defn fetch-inventory []
-  (-> (js/fetch "/inventory/models"
-                (clj->js {:headers {"Accept" "application/json"}}))
-      (.then #(-> % .json))
-      (.then #(js->clj % {:keywordize-keys true}))))
+  (.. (js/fetch "/inventory/models"
+                (cj {:headers {"Accept" "application/json"}}))
+      (then #(.json %))
+      (then #(jc %))))
 
 (defui page []
-  (let [models (js (useQuery (cljs {:queryKey ["inventory"]
-                                    :queryFn fetch-inventory})))
-        tab-route (js (useParams))
-        [tab-value set-tab-value!] (uix/use-state "inventory-list")
+  (let [models (jc (useQuery (cj {:queryKey ["inventory"]
+                                  :queryFn fetch-inventory})))
+        tab-route (jc (useParams))
+        [tab-value set-tab-value!] (uix/use-state "list")
         [t] (useTranslation)]
 
     (uix/use-effect
      (fn []
-       (set-tab-value! (:tab tab-route)))
+       (set-tab-value! (or (:tab tab-route) "list")))
      [tab-route])
 
     (cond
@@ -44,12 +44,12 @@
       (:isSuccess models)
       ($ :article
          ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
-            (t "title"))
+            (t "models.title", "Inventarliste - Ausleihe Toni Areal Localized"))
          ($ Tabs {:defaultValue tab-value}
             ($ :div {:className "flex w-full"}
                ($ TabsList
-                  ($ TabsTrigger {:value "inventory-list"}
-                     ($ Link {:to "/inventory"} "Inventarliste"))
+                  ($ TabsTrigger {:value "list"}
+                     ($ Link {:to "/inventory/models"} "Inventarliste"))
                   ($ TabsTrigger {:value "borrow"}
                      ($ Link {:to "/inventory/borrow"} "Ausleihe"))
                   ($ TabsTrigger {:value "statistik"}
@@ -58,7 +58,7 @@
                   ($ :<>
                      ($ CirclePlus {:className "mr-2 h-4 w-4"})
                      ($ :<> "Inventar hinzufügen"))))
-            ($ TabsContent {:value "inventory-list"}
+            ($ TabsContent {:value "list"}
                ($ inventory-list/main {:data (:data models)})))))))
 
 

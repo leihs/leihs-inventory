@@ -1,7 +1,26 @@
 {
-  "title": "Inventarliste - Ausleihe Toni Areal Localized",
-  "description": {
-    "part1": "To get started, edit <1>src/App.js</1> and save to reload.",
-    "part2": "Switch language between english and german using buttons above."
+  "header": {
+    "links": {
+      "lending14_one": "Apple",
+      "lending14_other": "Apples",
+      "inventory": "inventory",
+      "lending": "Loan"
+    }
+  },
+  "models": {
+    "title": "Inventory list - Loan Toni Area Localized"
+  },
+  "debug": {
+    "welcome": "Welcome",
+    "welcome-text": "Welcome to the debug page. There is some useful functionality here"
+  },
+  "translate-check": {
+    "open": "Open Translation Check"
+  },
+  "root": {
+    "welcome": "Welcome to Miet’s Inventory!"
+  },
+  "notfound": {
+    "back-to-home": "Back to home page"
   }
 }

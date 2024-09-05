@@ -1,0 +1,26 @@
+{
+  "header": {
+    "links": {
+      "lending14_one": "Manzana",
+      "lending14_other": "manzanas",
+      "inventory": "inventario",
+      "lending": "Préstamo"
+    }
+  },
+  "models": {
+    "title": "Listado de inventario - Préstamo Toni Área Localizada"
+  },
+  "debug": {
+    "welcome": "Bienvenido",
+    "welcome-text": "Bienvenido a la página de depuración. Hay algunas funciones útiles aquí."
+  },
+  "translate-check": {
+    "open": "Abrir verificación de traducción"
+  },
+  "root": {
+    "welcome": "¡Bienvenido al inventario de Miet!"
+  },
+  "notfound": {
+    "back-to-home": "Volver a la página de inicio"
+  }
+}

@@ -1,17 +1,14 @@
 # Leihs Inventory
 
-
 ## TODOs
 
 0. Move/upgrade from depstar to tools.build
-0. Properly setup static resouces with cache-busting; wrap-resource in
+1. Properly setup static resouces with cache-busting; wrap-resource in
    leihs.inventory.server.swagger-api, see exemplary use of
    `leihs.core.http-cache-buster2` in leihs-admin;
-0. Deliver SPA depending on accept headers, see leihs-admin
-0. Add container build test; see leihs-admin
-0. Add deploy role in this repository, madek-api-v2 for example
-
-
+2. Deliver SPA depending on accept headers, see leihs-admin
+3. Add container build test; see leihs-admin
+4. Add deploy role in this repository, madek-api-v2 for example
 
 ## Development
 
@@ -34,6 +31,10 @@ For a quicker start when already installed before:
 ```sh
 npm run dev
 ```
+
+### Sync Locales
+
+npx i18next-locales-sync -p de -s fr es en -l resources/public/inventory/static/locales/ --spaces 2 --useEmptyString true
 
 ### Formatting Code
 
@@ -60,6 +61,3 @@ scp leihs-inventory.jar <user>@<server>:/leihs/inventory/leihs-inventory.jar
 
 systemctl restart leihs-inventory.service
 ```
-
-
-

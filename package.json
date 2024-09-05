@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
+    "@types/node": "^22.5.4",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
@@ -21,6 +22,7 @@
     "eslint-plugin-react": "^7.34.1",
     "globals": "^15.3.0",
     "http-proxy-middleware": "^3.0.0",
+    "i18next-locales-sync": "^2.1.0",
     "postcss": "^8.4.21",
     "prettier": "3.2.5",
     "shadow-cljs": "2.22.10",
@@ -37,6 +39,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@tanstack/react-query": "^5.21.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "body-parser": "^1.20.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.6.0",
@@ -50,6 +53,9 @@
     "react-i18next": "^14.1.1",
     "react-router-dom": "^6.22.3",
     "tailwind-merge": "^2.2.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "translate": "^3.0.0",
+    "translation-check": "^1.1.0",
+    "vite-plugin-i18next-save-missing": "github:belafonte/vite-plugin-i18next-save-missing"
   }
 }

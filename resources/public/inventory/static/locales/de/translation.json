@@ -1,7 +1,26 @@
 {
-  "title": "Willkommen zu react und react-i18next",
-  "description": {
-    "part1": "Um loszulegen, ändere <1>src/App(DE).js</1> und speichere um neuzuladen.",
-    "part2": "Wechsle die Sprache zwischen deutsch und englisch mit Hilfe der beiden Schalter."
+  "header": {
+    "links": {
+      "lending14_one": "Apfel",
+      "lending14_other": "Äpfel",
+      "inventory": "Inventar",
+      "lending": "Ausleihe"
+    }
+  },
+  "models": {
+    "title": "Inventarliste - Ausleihe Toni Areal Localized"
+  },
+  "debug": {
+    "welcome": "Willkommen",
+    "welcome-text": "Willkommen auf der Debug Seite. Hier gibt es ein paar nützliche Funktionalität"
+  },
+  "translate-check": {
+    "open": "Open Translation Check"
+  },
+  "root": {
+    "welcome": "Welcome to Leihs Inventory!"
+  },
+  "notfound": {
+    "back-to-home": "Zurück zur Startseite"
   }
 }

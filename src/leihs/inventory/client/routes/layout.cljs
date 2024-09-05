@@ -1,8 +1,8 @@
 (ns leihs.inventory.client.routes.layout
   (:require
    ["react-router-dom" :as router]
-   ;; [client.routes.components.aside :as aside]
    [leihs.inventory.client.routes.components.header :as header]
+   ;; [client.routes.components.aside :as aside]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 

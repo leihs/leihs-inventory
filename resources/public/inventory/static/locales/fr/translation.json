@@ -1,0 +1,26 @@
+{
+  "header": {
+    "links": {
+      "lending14_one": "Pomme",
+      "lending14_other": "Pommes",
+      "inventory": "inventaire",
+      "lending": "Prêt"
+    }
+  },
+  "models": {
+    "title": "Liste d'inventaire - Prêt Toni Zone Localisé"
+  },
+  "debug": {
+    "welcome": "Accueillir",
+    "welcome-text": "Bienvenue sur la page de débogage. Il y a quelques fonctionnalités utiles ici"
+  },
+  "translate-check": {
+    "open": "Vérification de la traduction ouverte"
+  },
+  "root": {
+    "welcome": "Bienvenue dans l'inventaire de Miet !"
+  },
+  "notfound": {
+    "back-to-home": "Retour à la page d'accueil"
+  }
+}

@@ -15,7 +15,6 @@
    [uix.dom]))
 
 (defui main [{:keys [data]}]
-  (js/console.debug data)
   ($ Card {:className "mt-4"}
      ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
         ($ :div

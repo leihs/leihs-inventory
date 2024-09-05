@@ -15,6 +15,7 @@ resources/public/inventory/js/
 resources/public/inventory/assets/
 resources/public/index.html
 src/leihs/inventory/client/.shadow
+resources/built-info.yml
 
 target/
 tmp/
