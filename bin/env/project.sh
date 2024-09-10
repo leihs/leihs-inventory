@@ -1,1 +1,1 @@
-PROJECT_NAME=leihs-inventory
+PROJECT_NAME="leihs-inventory"
