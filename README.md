@@ -15,6 +15,10 @@
 ### Start server
 
 ```sh
+# to build latest FE and run BE
+npm inst
+npm run build
+
 bin/dev-run-backend
 ```
 
@@ -33,8 +37,9 @@ npm run dev
 ```
 
 ### Sync Locales
-
+```sh
 npx i18next-locales-sync -p de -s fr es en -l resources/public/inventory/static/locales/ --spaces 2 --useEmptyString true
+```
 
 ### Formatting Code
 

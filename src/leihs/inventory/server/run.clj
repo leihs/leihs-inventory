@@ -32,7 +32,7 @@
    db/cli-options))
 
 (defn main-usage [options-summary & more]
-  (->> ["leihs-inventory"
+  (->> ["Leihs Inventory"
         ""
         "usage: leihs-inventory [<gopts>] run [<opts>] [<args>]"
         ""

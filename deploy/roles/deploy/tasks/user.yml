@@ -1,0 +1,4 @@
+- user:
+    name: '{{leihs_inventory_user}}'
+    system: yes
+  name: create leihs-inventory user

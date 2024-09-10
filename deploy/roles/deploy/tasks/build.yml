@@ -1,0 +1,9 @@
+- name: create jar
+  tags: [builds_artefact, builds_artefact_with_java]
+  delegate_to: localhost
+  args:
+    executable: /bin/bash
+  shell: |
+    DEPLOY_DIR='{{playbook_dir}}'
+    PROJECT_DIR="${DEPLOY_DIR}/../inventory"
+    ${PROJECT_DIR}/bin/build
