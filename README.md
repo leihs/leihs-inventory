@@ -15,6 +15,9 @@
 ### Start server
 
 ```sh
+# to build latest FE and run BE
+npm run build
+
 bin/dev-run-backend
 ```
 
