@@ -25,41 +25,31 @@ firefox_bin_path = Pathname.new(`asdf where firefox`.strip).join("bin/firefox").
 Selenium::WebDriver::Firefox.path = firefox_bin_path
 
 Capybara.register_driver :firefox do |app|
-  capabilities = Selenium::WebDriver::Remote::Capabilities.firefox(
-    # TODO: trust the cert used in container and remove this:
-    acceptInsecureCerts: true
-  )
-
-  profile = Selenium::WebDriver::Firefox::Profile.new
-  # TODO: configure language for locale testing
-  # profile["intl.accept_languages"] = "en"
-  #
-  profile_config = {
-    "browser.helperApps.neverAsk.saveToDisk" => "image/jpeg,application/pdf,application/json",
-    "browser.download.folderList" => 2, # custom location
-    "browser.download.dir" => BROWSER_DOWNLOAD_DIR.to_s
-  }
-  profile_config.each { |k, v| profile[k] = v }
-
-  opts = Selenium::WebDriver::Firefox::Options.new(
+  options = Selenium::WebDriver::Firefox::Options.new(
     binary: firefox_bin_path,
-    profile: profile,
     log_level: :trace
   )
 
-  # NOTE: good for local dev
-  if ENV["LEIHS_TEST_HEADLESS"].present?
-    opts.args << "--headless"
-  end
-  # opts.args << '--devtools' # NOTE: useful for local debug
+  # Accept insecure certificates
+  options.accept_insecure_certs = true
 
-  # driver = Selenium::WebDriver.for :firefox, options: opts
-  # Capybara::Selenium::Driver.new(app, browser: browser, options: opts)
+  # Create a new profile with preferences
+  profile = Selenium::WebDriver::Firefox::Profile.new
+  profile["browser.helperApps.neverAsk.saveToDisk"] = "image/jpeg,application/pdf,application/json"
+  profile["browser.download.folderList"] = 2 # Custom location
+  profile["browser.download.dir"] = BROWSER_DOWNLOAD_DIR.to_s
+
+  options.profile = profile
+
+  # NOTE: good for local dev
+  options.args << "--headless" if ENV["LEIHS_TEST_HEADLESS"].present?
+  # Uncomment the line below for debugging with devtools
+  # options.args << '--devtools'
+
   Capybara::Selenium::Driver.new(
     app,
     browser: :firefox,
-    options: opts,
-    desired_capabilities: capabilities
+    options: options
   )
 end
 

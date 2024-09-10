@@ -24,11 +24,11 @@ scripts:
 
       lxc file push --recursive ${CIDER_CI_WORKING_DIR} ${CONTAINER_NAME}/tmp/
 
-      lxc exec ${CONTAINER_NAME} -- mv /tmp/${CIDER_CI_TRIAL_ID} /leihs-inventory
-      lxc exec ${CONTAINER_NAME} -- chown -R root:root /leihs-inventory
-      lxc exec ${CONTAINER_NAME} -- touch /leihs-inventory/test.txt
-      lxc exec ${CONTAINER_NAME} -- ls -l /leihs-inventory
-      lxc exec ${CONTAINER_NAME} -- rm /leihs-inventory/test.txt
+      lxc exec ${CONTAINER_NAME} -- mv /tmp/${CIDER_CI_TRIAL_ID} /inventory
+      lxc exec ${CONTAINER_NAME} -- chown -R root:root /inventory
+      lxc exec ${CONTAINER_NAME} -- touch /inventory/test.txt
+      lxc exec ${CONTAINER_NAME} -- ls -l /inventory
+      lxc exec ${CONTAINER_NAME} -- rm /inventory/test.txt
 
   container-prepare:
     start_when:
@@ -39,8 +39,8 @@ scripts:
       set -euo pipefail
       set -x
 
-      lxc exec ${CONTAINER_NAME} -- /leihs-inventory/container-build/bin/prepare
-      lxc exec ${CONTAINER_NAME} -- /leihs-inventory/container-build/bin/asdf-install
+      lxc exec ${CONTAINER_NAME} -- /inventory/container-build/bin/prepare
+      lxc exec ${CONTAINER_NAME} -- /inventory/container-build/bin/asdf-install
 
   container-build:
     start_when:
@@ -53,9 +53,9 @@ scripts:
       set -x
 
       # odd
-      lxc exec ${CONTAINER_NAME} -- git config --global --add safe.directory /leihs-inventory
+      lxc exec ${CONTAINER_NAME} -- git config --global --add safe.directory /inventory
 
-      lxc exec ${CONTAINER_NAME} -- /leihs-inventory/bin/build
+      lxc exec ${CONTAINER_NAME} -- /inventory/bin/build
 
   container-destroy:
     start_when:
