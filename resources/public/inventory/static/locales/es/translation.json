@@ -9,7 +9,10 @@
     }
   },
   "models": {
-    "title": "Listado de inventario - Préstamo Toni Área Localizada"
+    "title": "Listado de inventario - Préstamo Toni Área Localizada",
+    "tabs": {
+      "entitlement-groups": "partes interesadas"
+    }
   },
   "debug": {
     "welcome": "Bienvenido",

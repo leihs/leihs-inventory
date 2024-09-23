@@ -8,7 +8,10 @@
     }
   },
   "models": {
-    "title": "Inventarliste - Ausleihe Toni Areal Localized"
+    "title": "Inventarliste - Ausleihe Toni Areal Localized",
+    "tabs": {
+      "entitlement-groups": "Anspruchsgruppen"
+    }
   },
   "debug": {
     "welcome": "Willkommen",

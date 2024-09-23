@@ -1,8 +1,7 @@
 (ns leihs.inventory.client.routes.layout
   (:require
-   ["react-router-dom" :as router]
+   ["react-router-dom" :as router :refer [Outlet]]
    [leihs.inventory.client.routes.components.header :as header]
-   ;; [client.routes.components.aside :as aside]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
@@ -10,4 +9,4 @@
   ($ :<>
      ($ header/main)
      ($ :main {:className "container"}
-        ($ router/Outlet))))
+        ($ Outlet))))

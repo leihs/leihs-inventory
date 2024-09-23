@@ -9,7 +9,10 @@
     }
   },
   "models": {
-    "title": "Liste d'inventaire - Prêt Toni Zone Localisé"
+    "title": "Liste d'inventaire - Prêt Toni Zone Localisé",
+    "tabs": {
+      "entitlement-groups": "parties prenantes"
+    }
   },
   "debug": {
     "welcome": "Accueillir",

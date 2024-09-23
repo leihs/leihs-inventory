@@ -8,7 +8,10 @@
     }
   },
   "models": {
-    "title": "Inventory list - Loan Toni Area Localized"
+    "title": "Inventory list - Loan Toni Area Localized",
+    "tabs": {
+      "entitlement-groups": "stakeholders"
+    }
   },
   "debug": {
     "welcome": "Welcome",

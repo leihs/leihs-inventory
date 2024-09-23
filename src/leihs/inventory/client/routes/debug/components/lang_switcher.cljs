@@ -23,4 +23,5 @@
              ($ DropdownMenuLabel "Available Languages")
              ($ DropdownMenuSeparator)
              (for [language languages]
-               ($ DropdownMenuItem {:onClick #(.. i18next (changeLanguage language))} language)))))))
+               ($ DropdownMenuItem {:key language
+                                    :onClick #(.. i18next (changeLanguage language))} language)))))))
