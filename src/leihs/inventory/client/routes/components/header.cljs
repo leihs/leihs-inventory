@@ -12,7 +12,7 @@
 
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 px-4 md:px-6 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row text-sm items-center"}
-          ($ :img {:src "/zhdk-logo.svg" :className ""})
+          ($ :img {:src "/inventory/static/zhdk-logo.svg" :className ""})
           ($ Input {:placeholder "Suche global" :className "mx-12 w-fit"})
           ($ :div {:className "flex gap-6"}
              ($ :a {:href "/lending"}

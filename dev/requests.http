@@ -1,0 +1,17 @@
+
+GET http://localhost:3260/inventory/{{inventory_pool_id}}
+Accept: application/json
+Content-Type: application/json
+
+###
+
+POST http://localhost:3260/inventory/{{inventory_pool_id}}/models
+Accept: application/json
+Content-Type: application/json
+
+{
+    "product": "New Product",
+    "version": "1.0",
+    "type": "Software",
+    "is_package": false
+}

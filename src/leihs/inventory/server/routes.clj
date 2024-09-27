@@ -66,15 +66,11 @@
                              :version "2.0.0"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
 
-                      ;; Define security schemes for JWT Bearer and Basic Auth
-                      :securityDefinitions {:basicAuth {:type "basic"}
-
-                                            :SessionAuth {:type "apiKey"
-                                                          :name "Cookie" ;; Define it as a "cookie"
-                                                          :in "cookie"}}
+                      ;; Define security schemes for Bearer and Basic Auth
+                      :securityDefinitions {:basicAuth {:type "basic"}}
 
                       ;; Apply security globally to routes
-                      ;:security [{:BearerAuth []}]  ;; Apply Bearer token globally
+                      ;:security [{:BearerAuth []}]
                       }
             :handler (swagger/create-swagger-handler)}}]
 

@@ -2,6 +2,7 @@
   "header": {
     "links": {
       "lending14_one": "Manzana",
+      "lending14_many": "",
       "lending14_other": "manzanas",
       "inventory": "inventario",
       "lending": "Préstamo"

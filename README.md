@@ -52,6 +52,29 @@ Use `standardrb` and `standardrb --fix`.
 
 See `./bin/build`
 
+
+### DEV-Setup
+1. proxy
+```bash
+# leihs/integration-tests
+./bin/start-reverse-proxy
+```
+1. inventory
+```bash
+# leihs/inventory
+./bin/dev-run-backend
+```
+2. my (provides simple login)
+```bash
+# leihs/my
+./bin/dev-run-backend
+```
+3. legacy (not required)
+```bash
+# leihs/legacy
+./bin/rails server -p 3210 
+```
+
 ### Create artifact & deploy manually
 
 ```bash

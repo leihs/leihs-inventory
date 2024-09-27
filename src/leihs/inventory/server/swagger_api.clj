@@ -8,6 +8,7 @@
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
+            [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
             [muuntaja.core :as m]
@@ -22,7 +23,8 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
-            [ring.middleware.cookies :refer [wrap-cookies]]))
+            [ring.middleware.cookies :refer [wrap-cookies]]
+            [ring.util.response :as response]))
 
 (defn get-assets []
   (let [dirs (map io/file ["resources/public/inventory/assets"
@@ -70,13 +72,24 @@
 
 (def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
 
+(defn file-exists? [uri]
+  (let [file-path (str "resources/public" uri)]
+    (.exists (java.io.File. file-path))))
+
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
         asset (get assets uri)]
     (cond
+      ; TODO: activate this after /login & /logout are available
+;      (not (session-valid? request)) (response/redirect "/sign-in?return-to=%2Finventory")
 
       (= uri "/") (create-root-page)
+
+      (and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
+      {:status 200
+       :headers {"Content-Type" "application/json"}
+       :body (slurp (io/resource (str "public" uri)))}
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
@@ -97,12 +110,12 @@
                                {:status 200
                                 :headers {"Content-Type" content-type}
                                 :body (slurp resource)}
-                               (rh/index-html-response 411)))
-                           (rh/index-html-response 412))
+                               (rh/index-html-response 404)))
+                           (rh/index-html-response 404))
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
-      :else (rh/index-html-response 413))))
+      :else (rh/index-html-response 404))))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -138,6 +151,13 @@
                (rh/index-html-response 408)
                response)))))
 
+(defn redirect-if-no-session
+  [handler]
+  (fn [request]
+    (if (session-valid? request)
+      (handler request)
+      (response/redirect "/login?return-to=inventory"))))
+
 (defn create-app [options]
   (let [router (ring/router
 
@@ -148,6 +168,8 @@
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
+
+                                     ; redirect-if-no-session
 
                                      ring-audits/wrap
                                       ;anti-csrf/wrap
