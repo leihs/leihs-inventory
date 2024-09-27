@@ -3,13 +3,13 @@
    [clojure.set]
    [leihs.inventory.server.resources.models.by-pool :refer [get-models-of-pool-handler
                                                             create-model-handler-by-pool
+                                                            delete-model-handler-by-pool
                                                             get-models-of-pool-handler
-                                                            update-model-handler-by-pool
-                                                            delete-model-handler-by-pool]]
-   [leihs.inventory.server.resources.models.main :refer [get-models-handler
-                                                         create-model-handler
-                                                         update-model-handler
-                                                         delete-model-handler]]
+                                                            update-model-handler-by-pool]]
+   [leihs.inventory.server.resources.models.main :refer [create-model-handler
+                                                         delete-model-handler
+                                                         get-models-handler
+                                                         update-model-handler]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -39,18 +39,18 @@
    :type s/Str
    :product s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
-    ;(s/optional-key :version) (s/maybe s/Str)
-    ;(s/optional-key :info_url) (s/maybe s/Str)
-    ;(s/optional-key :rental_price) (s/maybe s/Num)
-    ;(s/optional-key :maintenance_period) (s/maybe s/Int)
-    ;(s/optional-key :is_package) (s/maybe s/Bool)
-    ;(s/optional-key :hand_over_note) (s/maybe s/Str)
-    ;(s/optional-key :description) (s/maybe s/Str)
-    ;(s/optional-key :internal_description) (s/maybe s/Str)
-    ;(s/optional-key :technical_detail) (s/maybe s/Str)
-    ;:created_at s/Inst
-    ;:updated_at s/Inst
-    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
+   ;(s/optional-key :version) (s/maybe s/Str)
+   ;(s/optional-key :info_url) (s/maybe s/Str)
+   ;(s/optional-key :rental_price) (s/maybe s/Num)
+   ;(s/optional-key :maintenance_period) (s/maybe s/Int)
+   ;(s/optional-key :is_package) (s/maybe s/Bool)
+   ;(s/optional-key :hand_over_note) (s/maybe s/Str)
+   ;(s/optional-key :description) (s/maybe s/Str)
+   ;(s/optional-key :internal_description) (s/maybe s/Str)
+   ;(s/optional-key :technical_detail) (s/maybe s/Str)
+   ;:created_at s/Inst
+   ;:updated_at s/Inst
+   ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
 
 (defn accept-json-middleware [handler]
@@ -62,8 +62,9 @@
 
 (defn get-model-route []
   ["/models"
-   {:conflicting true
-    :tags ["Models"]}
+
+   {:swagger {:conflicting true
+              :tags ["Models"] :security []}}
 
    [""
     {:get {:conflicting true
@@ -129,8 +130,9 @@
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
-   {:conflicting true
-    :tags ["Models by pool"]}
+
+   {:swagger {:conflicting true
+              :tags ["Models by pool"] :security []}}
 
    [""
     {:get {:conflicting true
@@ -155,7 +157,6 @@
                           :body {:product s/Str
                                  :version s/Str
                                  (s/optional-key :type) (s/enum "Software" "Model")
-                                  ;;default: Model
                                  (s/optional-key :is_package) s/Bool}}
 
              :handler create-model-handler-by-pool
