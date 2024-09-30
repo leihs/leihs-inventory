@@ -1,0 +1,22 @@
+- name: inventory directory
+  file:
+    path: /var/www/inventory
+    state: directory
+    mode: 0755
+
+- name: maintenance page HTML
+  template:
+    src: maintenance.html
+    dest: /var/www/inventory/503.html
+    mode: 0644
+
+- name: maintenance page config
+  template:
+    src: maintenance.conf
+    dest: /etc/apache2/leihs/conf.d/leihs_800_inventory.conf
+    mode: 0644
+
+- name: reload reverse-proxy
+  service:
+    name: apache2
+    state: reloaded
