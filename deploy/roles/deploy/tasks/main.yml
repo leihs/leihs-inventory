@@ -1,3 +1,14 @@
+- name: rp_maintenance
+  include_tasks: rev_prox_maintenance.yml
+  when: publish_inventory == true
+
+- name: rp_off
+  include_tasks: rev_prox_disabled.yml
+  when: publish_inventory == false
+
+- name: prepare
+  include_tasks: prepare.yml
+
 - file:
     path: "{{leihs_inventory_dir}}"
     state: absent
@@ -5,6 +16,7 @@
 
 - include_tasks: user.yml
 - include_tasks: build.yml
+  when: publish_inventory == true
 
 - file:
     path: "{{leihs_inventory_dir}}"
@@ -12,12 +24,14 @@
     owner: "{{leihs_inventory_user}}"
     recurse: yes
   name: create empty {{leihs_inventory_dir}}
+  when: publish_inventory == true
 
 - copy:
     src: "{{playbook_dir}}/../inventory/target/leihs-inventory.jar"
     dest: "{{leihs_inventory_dir}}/leihs-inventory.jar"
     owner: "{{leihs_inventory_user}}"
   name: copy jar over to server
+  when: publish_inventory == true
 
 - include_tasks: log-dir.yml
 - include_tasks: tmp-dir.yml
@@ -30,3 +44,4 @@
   name: set permissions for leihs-inventory dir
 
 - include_tasks: service.yml
+  when: publish_inventory == true
