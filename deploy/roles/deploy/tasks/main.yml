@@ -1,0 +1,32 @@
+- file:
+    path: "{{leihs_inventory_dir}}"
+    state: absent
+  name: remove existing leihs-inventory dir
+
+- include_tasks: user.yml
+- include_tasks: build.yml
+
+- file:
+    path: "{{leihs_inventory_dir}}"
+    state: directory
+    owner: "{{leihs_inventory_user}}"
+    recurse: yes
+  name: create empty {{leihs_inventory_dir}}
+
+- copy:
+    src: "{{playbook_dir}}/../inventory/target/leihs-inventory.jar"
+    dest: "{{leihs_inventory_dir}}/leihs-inventory.jar"
+    owner: "{{leihs_inventory_user}}"
+  name: copy jar over to server
+
+- include_tasks: log-dir.yml
+- include_tasks: tmp-dir.yml
+
+- file:
+    path: "{{leihs_inventory_dir}}"
+    state: directory
+    owner: "{{leihs_inventory_user}}"
+    recurse: yes
+  name: set permissions for leihs-inventory dir
+
+- include_tasks: service.yml
