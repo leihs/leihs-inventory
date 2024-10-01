@@ -1,17 +1,13 @@
 (ns leihs.inventory.server.resources.auth.session
   (:require
-
-   [buddy.auth.backends.token :refer [jws-backend]]
-   [buddy.auth.middleware :refer [wrap-authentication]]
-
-   [buddy.core.codecs :refer [bytes->b64 bytes->str]]
-
-   [buddy.core.hash :as hash]
-   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
-   [clojure.walk :refer [keywordize-keys]]
-   [cryptohash-clj.api :refer :all]
-
-   [next.jdbc :as jdbc]))
+    [buddy.auth.backends.token :refer [jws-backend]]
+    [buddy.auth.middleware :refer [wrap-authentication]]
+    [buddy.core.codecs :refer [bytes->b64 bytes->str]]
+    [buddy.core.hash :as hash]
+    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+    [clojure.walk :refer [keywordize-keys]]
+    [cryptohash-clj.api :refer :all]
+    [next.jdbc :as jdbc]))
 
 (def LEIHS_SESSION_COOKIE_NAME :leihs-user-session)
 
@@ -19,8 +15,11 @@
   (-> token hash/sha256 bytes->b64 bytes->str))
 
 (def expiration-sql-expr
-  [:+ :user_sessions.created_at
-   [:* :authentication_systems.session_max_lifetime_hours [:raw "INTERVAL '1 hour'"]]])
+  [:+
+   :user_sessions.created_at
+   [:*
+    :authentication_systems.session_max_lifetime_hours
+    [:raw "INTERVAL '1 hour'"]]])
 
 (def selects
   [[:authentication_systems.id :auth_system_id]
@@ -39,7 +38,7 @@
 
 (defn user-session [token tx]
 
-  (let [        sql-query ["SELECT
+  (let [sql-query ["SELECT
             authentication_systems.id AS auth_system_id,
             authentication_systems.name AS auth_system_name,
             user_sessions.created_at AS session_created_at,
@@ -56,47 +55,37 @@
             WHERE token_hash=encode(digest(?, 'sha256'), 'hex')"
                    token]
 
-        res (jdbc/execute-one! tx sql-query)
-        ]
-    res
-    ))
-
-;; TODO
-(defn- session-enabled? []
-  true)
+        res       (jdbc/execute-one! tx sql-query)]
+    res))
 
 (defn- get-cookie-value [request]
   (-> request keywordize-keys :cookies
       LEIHS_SESSION_COOKIE_NAME :value))
 
 (defn find-user-by-id [tx user-id]
-  (jdbc/execute-one! tx
-    ["SELECT * FROM users WHERE id = ?" user-id]))
+  (jdbc/execute-one! tx ["SELECT * FROM users WHERE id = ?" user-id]))
 
 (defn is-admin [user-id tx]
   (let [user (find-user-by-id tx user-id)]
     (boolean (:is_admin user))))
 
 (defn- handle [request handler]
-  (if-let [token (and (session-enabled?) (get-cookie-value request))]
-    (let [          tx (:tx request)          ]
+  (if-let [token  (get-cookie-value request)]
+    (let [tx (:tx request)]
 
       (if-let [user-session (user-session token tx)]
-        (let [user-id (:user_id user-session)
+        (let [user-id    (:user_id user-session)
               expires-at (:session_expires_at user-session)
-              user (find-user-by-id tx user-id)
-              user (assoc user :type "User")   ]
+              user       (find-user-by-id tx user-id)
+              user       (assoc user :type "User")]
 
-          (handler (assoc request
-                          :authenticated-entity user
-                          :is_admin (is-admin user-id tx)
-                          :authentication-method "Session"
-                          :session-expires-at expires-at                          )))
-
-
-        {:status 401 :body {:message "The session is invalid or expired!"}}  ))
-
-
+          (handler
+           (assoc request
+                  :authenticated-entity  user
+                  :is_admin              (is-admin user-id tx)
+                  :authentication-method "Session"
+                  :session-expires-at    expires-at)))
+        {:status 401 :body {:message "The session is invalid or expired!"}}))
     (handler request)))
 
 (defn wrap [handler]

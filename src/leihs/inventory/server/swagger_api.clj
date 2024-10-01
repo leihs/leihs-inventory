@@ -26,7 +26,6 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.util.response :as response]))
 
-
 (def SESSION_HANDLING_ACTIVATED? true)
 
 (defn get-assets []
@@ -83,11 +82,6 @@
   (let [file-path (str "resources/public" uri)]
     (.exists (java.io.File. file-path))))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-
 (defn file-uri?
   "Checks if the given URI ends with a file extension using a regex.
   Extensions can be like .txt, .pdf, .jpg, etc."
@@ -114,16 +108,16 @@
        :body    (slurp (io/resource (str "public" uri)))}
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      (pr ">o>2"
+
           {:status  302
            :headers {"Location" "/inventory"}
-           :body    ""})
+           :body    ""}
 
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      (pr ">o>3"
+
           {:status  302
            :headers {"Location" "/inventory/api-docs/index.html"}
-           :body    ""})
+           :body    ""}
 
       (not (nil? asset))
       (if asset
@@ -137,10 +131,9 @@
         (rh/index-html-response 404))
 
       (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
-      (pr ">o>4 redirect" (response/redirect "/sign-in?return-to=%2Finventory"))
+     (response/redirect "/sign-in?return-to=%2Finventory")
 
       (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
-
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
@@ -173,7 +166,7 @@
                                                          {:status 407})))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
+          (not (browser-request-matches-javascript? request))) (rh/index-html-response 409)
      :else                                (let [response (handler request)]
                                             (if (and (nil? response)
                                                      (not (#{:post :put :patch :delete} (:request-method request)))
