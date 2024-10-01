@@ -53,7 +53,6 @@
       result
       nil)))
 
-
 (defn extract-basic-auth-from-header [request]
   (try
     (let [auth-header (get-in request [:headers "authorization"])
@@ -158,27 +157,6 @@
                WHERE user_id = (SELECT id FROM users WHERE login = ?)"]
     (jdbc/execute-one! (:tx request) [query hashed-password login])))
 
-
-;(defn fetch-and-print-entry [request login]
-;  (let [query  "SELECT data FROM authentication_systems_users
-;               WHERE user_id = (SELECT id FROM users WHERE login = ?)"
-;        result (jdbc/execute-one! (:tx request) [query login])]
-;    (when (seq result)
-;      (println "Retrieved entry:" (-> result :data)))))
-
-;(defn fetch-user-data [request login]
-;  (let [query       "SELECT user_id, data, authentication_system_id FROM authentication_systems_users
-;               WHERE user_id = (SELECT id FROM users WHERE login = ?)"
-;        asu-result  (jdbc/execute-one! (:tx request) [query login])
-;
-;        query       "SELECT id, login, firstname, lastname, email, is_system_admin, is_admin,
-;        admin_protected, pool_protected FROM users
-;               WHERE  login = ?"
-;        user-result (jdbc/execute-one! (:tx request) [query login])]
-;    {:user                         user-result
-;     :authentication_systems_users asu-result}))
-
-
 (defn set-password-handler [request]
   (try
     (let [{:keys [new-password1]} (:body-params request)
@@ -204,29 +182,10 @@
        (->> (jdbc/execute-one! tx))
        :pw_hash)))
 
-;(defn sql-command [login pw-hash tx]
-;  (let [subquery (-> (sql/select :id)
-;                     (sql/from :users)
-;                     (sql/where [:= :login login])
-;                     sql-format)
-;        res      (jdbc/execute-one! tx subquery)
-;        query    (-> (sql/update :authentication_systems_users)
-;                     (sql/set {:data pw-hash})
-;                     (sql/where
-;                      [:and
-;                       [:= :user_id (:id res)]
-;                       [:= :authentication_system_id "password"]])
-;                     (sql/returning :*))]
-;    (sql-format query)))
-
-;(defn set-password-original [login password tx]
-;  (let [pw-hash     (password-hash password tx)
-;        sql-command (sql-command login pw-hash tx)
-;        res         (jdbc/execute! tx sql-command)]
-;    res))
-
-(defn hello-world-handler [request]
-  {:status 200 :body "Hello, World!"})
+(defn public-endpoint-handler [request]
+  {:status 200 :body {:reuqest-method (:request-method request)
+                       :request-url (:uri request)
+                       :message "Hello, World!"}})
 
 (defn protected-handler [request]
   (if (authenticated? request)
@@ -348,7 +307,7 @@
 
      ["/public"
       {:get {:swagger {:security []}
-             :handler hello-world-handler}}]
+             :handler public-endpoint-handler}}]
      ["/protected"
       {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
              :accept      "application/json"
@@ -373,31 +332,9 @@
                                                  :admin_write s/Bool}}}
               :handler     create-api-token-handler}}]
 
-     ;; TODO: rewrite to fetch all tokens?
-     ;["/login"
-     ; {:get {:summary "Authenticate user by login ( .. and fetch token )"
-     ;        :description "Login with login and password (login / password)"
-     ;        :accept "application/json"
-     ;        :coercion reitit.coercion.schema/coercion
-     ;        :swagger {:security [{:basicAuth []}]}
-     ;        :handler basic-auth-handler
-     ;        :responses {200 {:description "OK" :body s/Any}
-     ;                    401 {:description "Unauthorized"}
-     ;                    500 {:description "Internal Server Error"}}}}]
-
-     ;; TODO: Add a route to set/update the token-hashed password, api-token
-     ;; /admin/token/create-new-token (latest one)
-     ;; Generate new token by passing
-     ;; 1. login & password
-     ;; 2. token
-     ;; 3. scope_read / scope_write (boolean)
-     ;; 3. scope_admin_read / scope_admin_write (boolean)
-     ;; 3. scope_system_admin_read / scope_system_admin_write (boolean)
-
-
      ["/public"
       {:get {:swagger {:security []}
-             :handler hello-world-handler}}]
+             :handler public-endpoint-handler}}]
 
      ["/protected"
       {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
