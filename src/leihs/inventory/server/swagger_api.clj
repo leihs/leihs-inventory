@@ -26,49 +26,56 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.util.response :as response]))
 
+
+(def SESSION_HANDLING_ACTIVATED? true)
+
 (defn get-assets []
-  (let [dirs (map io/file ["resources/public/inventory/assets"
+  (let [dirs         (map io/file
+                          ["resources/public/inventory/assets"
                            "resources/public/inventory/css"
                            "resources/public/inventory/static"
                            "resources/public/inventory/js"])
-        dir-map {(.getPath (io/file "resources/public/inventory/assets")) "/inventory/assets/"
-                 (.getPath (io/file "resources/public/inventory/css")) "/inventory/css/"
-                 (.getPath (io/file "resources/public/inventory/static")) "/inventory/static/"
-                 (.getPath (io/file "resources/public/inventory/js")) "/inventory/js/"}
-        mime-map {".js" "text/javascript"
-                  ".css" "text/css"
-                  ".svg" "image/svg+xml"}
+        dir-map      {(.getPath (io/file "resources/public/inventory/assets")) "/inventory/assets/"
+                      (.getPath (io/file "resources/public/inventory/css"))    "/inventory/css/"
+                      (.getPath (io/file "resources/public/inventory/static")) "/inventory/static/"
+                      (.getPath (io/file "resources/public/inventory/js"))     "/inventory/js/"}
+        mime-map     {".js"  "text/javascript"
+                      ".css" "text/css"
+                      ".svg" "image/svg+xml"}
         merged-files (apply concat (map file-seq dirs))]
 
     (into {}
-      (for [file merged-files
-            :when (.isFile file)]
-        (let [full-path (.getPath file)
-              filename (.getName file)
+          (for [file  merged-files
+                :when (.isFile file)]
+            (let [full-path (.getPath file)
+                  filename  (.getName file)
 
-              uri (some (fn [[dir-path uri-prefix]]
-                          (when (.startsWith full-path dir-path)
-                            (str uri-prefix filename)))
-                    dir-map)
+                  uri       (some
+                             (fn [[dir-path uri-prefix]]
+                               (when (.startsWith full-path dir-path)
+                                     (str uri-prefix filename)))
+                             dir-map)
 
-              mime-type (or (some (fn [[ext mime]]
-                                    (when (str/ends-with? filename ext)
+                  mime-type (or
+                             (some
+                              (fn [[ext mime]]
+                                (when (str/ends-with? filename ext)
                                       mime))
                               mime-map)
-                          "application/octet-stream")]
+                             "application/octet-stream")]
 
-          {uri {:file (str "public" uri)
-                :file-path full-path
-                :content-type mime-type}})))))
+              {uri {:file         (str "public" uri)
+                    :file-path    full-path
+                    :content-type mime-type}})))))
 
 (defn- create-root-page []
-  {:status 200
+  {:status  200
    :headers {"Content-Type" "text/html"}
-   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+   :body    (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+                 (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
 
@@ -79,8 +86,7 @@
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn file-uri?
   "Checks if the given URI ends with a file extension using a regex.
@@ -90,51 +96,55 @@
     (boolean (re-find file-extension-regex uri))))
 
 (defn custom-not-found-handler [request]
-  (let [uri (:uri request)
+  (let [uri    (:uri request)
         assets (get-assets)
-        asset (get assets uri)]
+        asset  (get assets uri)]
     (cond
 
-      (= uri "/") (create-root-page)
+      (= uri "/")                             (create-root-page)
 
       (clojure.string/includes? uri "/sign-in")
-      {:status 200
+      {:status  200
        :headers {"Content-Type" "text/html"}
-       :body (slurp (io/resource "public/sign-in-fallback.html"))}
+       :body    (slurp (io/resource "public/sign-in-fallback.html"))}
 
       (and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
-      {:status 200
+      {:status  200
        :headers {"Content-Type" "application/json"}
-       :body (slurp (io/resource (str "public" uri)))}
+       :body    (slurp (io/resource (str "public" uri)))}
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      (pr ">o>2" {:status 302
-                  :headers {"Location" "/inventory"}
-                  :body ""})
+      (pr ">o>2"
+          {:status  302
+           :headers {"Location" "/inventory"}
+           :body    ""})
 
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      (pr ">o>3" {:status 302
-                  :headers {"Location" "/inventory/api-docs/index.html"}
-                  :body ""})
+      (pr ">o>3"
+          {:status  302
+           :headers {"Location" "/inventory/api-docs/index.html"}
+           :body    ""})
 
-      ;; TODO: de/activate session-handling, use /login & /logout
-  (and (not (file-uri? uri))  (not (session-valid? request))) (pr ">o>4 redirect" (response/redirect "/sign-in?return-to=%2Finventory"))
+      (not (nil? asset))
+      (if asset
+        (let [{:keys [file content-type]} asset
+              resource                    (io/resource file)]
+          (if resource
+            {:status  200
+             :headers {"Content-Type" content-type}
+             :body    (slurp resource)}
+            (rh/index-html-response 404)))
+        (rh/index-html-response 404))
+
+      (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
+      (pr ">o>4 redirect" (response/redirect "/sign-in?return-to=%2Finventory"))
 
       (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
-      (not (nil? asset)) (if asset
-                           (let [{:keys [file content-type]} asset
-                                 resource (io/resource file)]
-                             (if resource
-                               {:status 200
-                                :headers {"Content-Type" content-type}
-                                :body (slurp resource)}
-                               (rh/index-html-response 404)))
-                           (rh/index-html-response 404))
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
-      :else (rh/index-html-response 404))))
+      :else                                   (rh/index-html-response 404))))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -147,8 +157,9 @@
   "Returns true if the accepted type is javascript or
   if the :uri ends with .js. Note that browsers do not
   use the proper accept type for javascript script tags."
-  (boolean (or (= (-> request :accept :mime) :javascript)
-             (re-find #".+\.js$" (or (-> request :uri presence) "")))))
+  (boolean
+   (or (= (-> request :accept :mime) :javascript)
+       (re-find #".+\.js$" (or (-> request :uri presence) "")))))
 
 (defn wrap-dispatch-content-type
   ([handler]
@@ -157,18 +168,19 @@
   ([handler request]
    (cond
      (= (-> request :accept :mime) :json) (or (handler request)
-                                            (throw (ex-info "This resource does not provide a json response."
-                                                     {:status 407})))
+                                              (throw
+                                                (ex-info "This resource does not provide a json response."
+                                                         {:status 407})))
      (and (= (-> request :accept :mime) :html)
-       (#{:get :head} (:request-method request))
-       (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
-     :else (let [response (handler request)]
-             (if (and (nil? response)
-                   (not (#{:post :put :patch :delete} (:request-method request)))
-                   (= (-> request :accept :mime) :html)
-                   (not (browser-request-matches-javascript? request)))
-               (rh/index-html-response 408)
-               response)))))
+          (#{:get :head} (:request-method request))
+          (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
+     :else                                (let [response (handler request)]
+                                            (if (and (nil? response)
+                                                     (not (#{:post :put :patch :delete} (:request-method request)))
+                                                     (= (-> request :accept :mime) :html)
+                                                     (not (browser-request-matches-javascript? request)))
+                                              (rh/index-html-response 408)
+                                              response)))))
 
 (defn redirect-if-no-session
   [handler]
@@ -180,60 +192,62 @@
 (defn create-app [options]
   (let [router (ring/router
 
-                 (routes/basic-routes)
+                (routes/basic-routes)
 
-                 {:conflicts nil
-                  :exception pretty/exception
-                  :data {:coercion reitit.coercion.spec/coercion
-                         :muuntaja m/instance
-                         :middleware [db/wrap-tx
+                {:conflicts nil
+                 :exception pretty/exception
+                 :data      {:coercion   reitit.coercion.spec/coercion
+                             :muuntaja   m/instance
+                             :middleware [db/wrap-tx
 
-                                      ; redirect-if-no-session
+                                          ; redirect-if-no-session
 
-                                      ring-audits/wrap
-                                      ;anti-csrf/wrap
-                                      session/wrap-authenticate
-                                      wrap-cookies
+                                          ring-audits/wrap
+                                          ;anti-csrf/wrap
+                                          session/wrap-authenticate
+                                          wrap-cookies
 
-                                      ;locale/wrap
-                                      ;settings/wrap
-                                      ;datasource/wrap-tx
-                                      ;wrap-json-response
-                                      ;(wrap-json-body {:keywords? true})
-                                      ;wrap-empty
-                                      ;core-routing/wrap-canonicalize-params-maps
-                                      ;wrap-params
-                                      ;wrap-multipart-params
-                                      ;wrap-content-type
+                                          ;locale/wrap
+                                          ;settings/wrap
+                                          ;datasource/wrap-tx
+                                          ;wrap-json-response
+                                          ;(wrap-json-body {:keywords? true})
+                                          ;wrap-empty
+                                          ;core-routing/wrap-canonicalize-params-maps
+                                          ;wrap-params
+                                          ;wrap-multipart-params
+                                          ;wrap-content-type
 
-                                      ;(core-routing/wrap-resolve-handler html/html-handler)
-                                      dispatch-content-type/wrap-accept
-                                      ;ring-exception/wrap
+                                          ;(core-routing/wrap-resolve-handler html/html-handler)
+                                          dispatch-content-type/wrap-accept
+                                          ;ring-exception/wrap
 
-                                      default-handler-fetch-resource ;; provide resources
-                                      wrap-dispatch-content-type
+                                          default-handler-fetch-resource
+                                          ;; provide resources
+                                          wrap-dispatch-content-type
 
-                                      swagger/swagger-feature
-                                      parameters/parameters-middleware
-                                      muuntaja/format-negotiate-middleware
-                                      muuntaja/format-response-middleware
-                                      exception/exception-middleware
-                                      muuntaja/format-request-middleware
-                                      coercion/coerce-response-middleware
-                                      coercion/coerce-request-middleware
-                                      multipart/multipart-middleware]}})]
+                                          swagger/swagger-feature
+                                          parameters/parameters-middleware
+                                          muuntaja/format-negotiate-middleware
+                                          muuntaja/format-response-middleware
+                                          exception/exception-middleware
+                                          muuntaja/format-request-middleware
+                                          coercion/coerce-response-middleware
+                                          coercion/coerce-request-middleware
+                                          multipart/multipart-middleware]}})]
 
-    (-> (ring/ring-handler
-          router
-          (ring/routes
-            (ring/redirect-trailing-slash-handler {:method :strip})
+    (->
+     (ring/ring-handler
+      router
+      (ring/routes
+       (ring/redirect-trailing-slash-handler {:method :strip})
 
-            (swagger-ui/create-swagger-ui-handler
-              {:path "/inventory/api-docs/"
-               :config {:validatorUrl nil
-                        :urls [{:name "swagger" :url "swagger.json"}]
-                        :urls.primaryName "openapi"
-                        :operationsSorter "alpha"}})
+       (swagger-ui/create-swagger-ui-handler
+        {:path   "/inventory/api-docs/"
+         :config {:validatorUrl     nil
+                  :urls             [{:name "swagger" :url "swagger.json"}]
+                  :urls.primaryName "openapi"
+                  :operationsSorter "alpha"}})
 
-            (ring/create-default-handler
-              {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))
+       (ring/create-default-handler
+        {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))

@@ -33,8 +33,9 @@ npm run dev
 ```
 
 ### Sync Locales
-
+```sh
 npx i18next-locales-sync -p de -s fr es en -l resources/public/inventory/static/locales/ --spaces 2 --useEmptyString true
+```
 
 ### Formatting Code
 
@@ -54,22 +55,34 @@ See `./bin/build`
 
 
 ### DEV-Setup
+#### Standalone setup
+1. `/inventory`   
+   http://localhost:3260/
+   ```bash
+   # leihs/inventory
+   ./bin/dev-run-backend
+   ```
+
+
+#### Setup with proxy/my/inventory
 1. proxy
+   http://localhost:3200/
 ```bash
 # leihs/integration-tests
 ./bin/start-reverse-proxy
 ```
-1. inventory
-```bash
-# leihs/inventory
-./bin/dev-run-backend
-```
-2. my (provides simple login)
+2. inventory
+   http://localhost:3260/
+   ```bash
+   # leihs/inventory
+   ./bin/dev-run-backend
+   ```
+3. my (provides simple login)
 ```bash
 # leihs/my
 ./bin/dev-run-backend
 ```
-3. legacy (not required)
+4. legacy (not required)
 ```bash
 # leihs/legacy
 ./bin/rails server -p 3210 
