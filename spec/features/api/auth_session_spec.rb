@@ -4,8 +4,7 @@ require "pry"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      login = "test-user"
-      @user = FactoryBot.create(:user, login: login)
+      @user = FactoryBot.create(:user, login: "test-user")
     end
 
     let :client do
@@ -28,9 +27,6 @@ feature "Call swagger-endpoints" do
     end
 
     it 'returns id of created request3' do
-      puts "user.login: #{@user.login}"
-      puts "user.password: #{@user.password}"
-
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to be == 403
 
@@ -39,8 +35,6 @@ feature "Call swagger-endpoints" do
 
       cookie = parse_cookie(resp.headers["set-cookie"])
       cookie_token = cookie["leihs-user-session"]
-      puts "leihs-user-session token : #{cookie}"
-
       cookie = CGI::Cookie.new("name" => "leihs-user-session",
                                "value" => cookie_token)
 
