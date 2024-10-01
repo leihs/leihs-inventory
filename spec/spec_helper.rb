@@ -10,7 +10,6 @@ require "config/web"
 
 require "helpers/global"
 require "helpers/user"
-require "helpers/CookieParserHelper"
 
 RSpec.configure do |config|
   config.include Helpers::Global
