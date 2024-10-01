@@ -50,8 +50,8 @@ def wtoken_header_plain_faraday_json_client(token)
   end
 end
 
-def wtoken_header_plain_faraday_json_client_get(token, url)
-  token_header_plain_faraday_json_client(:get, url, token)
+def wtoken_header_plain_faraday_json_client_get(token, url, headers: {})
+  token_header_plain_faraday_json_client(:get, url, token, headers: headers)
 end
 
 def wtoken_header_plain_faraday_json_client_post(token, url, body: nil)
@@ -68,8 +68,10 @@ end
 
 def token_header_plain_faraday_json_client(method, url, token, body: nil, headers: {})
   Faraday.new(url: api_base_url) do |conn|
-    conn.headers["Authorization"] = "token #{token}"
+    # conn.headers["Authorization"] = "token #{token}"
+    conn.headers["Authorization"] = "Token #{token}"
     conn.headers["Content-Type"] = "application/json"
+    conn.headers["Accept"] = "application/json"
     conn.headers.update(headers)
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
