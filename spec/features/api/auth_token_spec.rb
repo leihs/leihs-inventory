@@ -9,11 +9,9 @@ feature "Call swagger-endpoints" do
       @protected_url = "/inventory/token/protected"
     end
 
-    let :client do
-      plain_faraday_client
-    end
+    let(:client) { plain_faraday_client }
 
-    it 'returns id of created request' do
+    it 'returns 401 for unauthenticated request' do
       resp = client.post @create_token_url do |req|
         req.body = {
           description: "string",
@@ -26,11 +24,10 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
       end
-# binding.pry
-      expect(resp.status).to be == 401
+      expect(resp.status).to eq(401)
     end
 
-    it 'returns id of created request2' do
+    it 'returns 401 for incorrect credentials' do
       resp = basic_auth_plain_faraday_json_client("abc", "def").post(@create_token_url) do |req|
         req.body = {
           description: "string",
@@ -42,12 +39,11 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
-
       end
-      expect(resp.status).to be == 401
+      expect(resp.status).to eq(401)
     end
 
-    it 'returns id of created request2' do
+    it 'returns 200 for correct credentials' do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
           description: "string",
@@ -59,14 +55,13 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
-
       end
-      expect(resp.status).to be == 200
+      expect(resp.status).to eq(200)
     end
 
-    it 'returns id of created request3' do
+    it 'returns 200 and valid token for protected resource access' do
       resp = plain_faraday_json_client.get(@protected_url)
-      expect(resp.status).to be == 401
+      expect(resp.status).to eq(401)
 
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
@@ -79,53 +74,16 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
-        end
-      # binding.pry
-
-
-      expect(resp.status).to be == 200
-      expect(resp.body["token"]).to be
-
-      token= resp.body["token"]
-
-      puts "token: #{token}"
-
-
-      # sleep 0.1
-
-      # cookie = parse_cookie(resp.headers["set-cookie"])
-      # cookie_token = cookie["leihs-user-session"]
-      # cookie = CGI::Cookie.new("name" => "leihs-user-session",
-      #                          "value" => cookie_token)
-
-      # resp = session_auth_plain_faraday_json_client(cookie.to_s).get(@protected_url) do |req|
+      end
+      expect(resp.status).to eq(200)
+      token = resp.body["token"]
+      expect(token).to be
 
       resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url)
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url, headers: { "Accept" => "text/html" })
-
-      # binding.pry
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url) do |req|
-      # resp = wtoken_header_plain_faraday_json_client(@protected_url) do |req|
-      #   req.headers["Content-Type"] = "application/json"
-      #   req.headers["Authorization"] = "Token #{token}"
-      # end
-
-# binding.pry
-
-      expect(resp.status).to be == 200
-
-      # expect(resp.body["token"]["scopes"].values).to all(eq(true))  # Check that all scope values are false
-
-
-      # expect(resp.status).to be == 302
-      # expect(resp.headers["location"]).to eq "/sign-in?return-to=%2Finventory"
-
+      expect(resp.status).to eq(200)
     end
 
-    it 'returns id of created request3, no creds' do
-      resp = plain_faraday_json_client.get(@protected_url)
-      expect(resp.status).to be == 401
-
+    it 'returns 200 with all scopes set to false' do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
           description: "string",
@@ -136,55 +94,20 @@ feature "Call swagger-endpoints" do
             admin_write: false
           }
         }.to_json
-        # req.headers["Accept"] = "application/json"
         req.headers["Content-Type"] = "application/json"
-
       end
-      # binding.pry
-
-
-      expect(resp.status).to be == 200
-      expect(resp.body["token"]).to be
-
-      token= resp.body["token"]
-
-      puts "token: #{token}"
-
-
-      # sleep 0.1
-
-      # cookie = parse_cookie(resp.headers["set-cookie"])
-      # cookie_token = cookie["leihs-user-session"]
-      # cookie = CGI::Cookie.new("name" => "leihs-user-session",
-      #                          "value" => cookie_token)
-
-      # resp = session_auth_plain_faraday_json_client(cookie.to_s).get(@protected_url) do |req|
+      expect(resp.status).to eq(200)
+      token = resp.body["token"]
+      expect(token).to be
 
       resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url)
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url, headers: { "Accept" => "text/html" })
-
-      # binding.pry
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url) do |req|
-      # resp = wtoken_header_plain_faraday_json_client(@protected_url) do |req|
-      #   req.headers["Content-Type"] = "application/json"
-      #   req.headers["Authorization"] = "Token #{token}"
-      # end
-
-# binding.pry
-
-      expect(resp.status).to be == 200
-      expect(resp.body["token"]["scopes"].values).to all(eq(false))  # Check that all scope values are false
-
-
-      # expect(resp.status).to be == 302
-      # expect(resp.headers["location"]).to eq "/sign-in?return-to=%2Finventory"
-
+      expect(resp.status).to eq(200)
+      expect(resp.body["token"]["scopes"].values).to all(eq(false))
     end
 
-
-    it 'returns id of created request3' do
+    it 'redirects to sign-in when accessing protected resource without valid token' do
       resp = plain_faraday_json_client.get(@protected_url)
-      expect(resp.status).to be == 401
+      expect(resp.status).to eq(401)
 
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
@@ -197,46 +120,14 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
-        end
-      # binding.pry
+      end
+      expect(resp.status).to eq(200)
+      token = resp.body["token"]
+      expect(token).to be
 
-
-      expect(resp.status).to be == 200
-      expect(resp.body["token"]).to be
-
-      token= resp.body["token"]
-
-      puts "token: #{token}"
-
-
-      # sleep 0.1
-
-      # cookie = parse_cookie(resp.headers["set-cookie"])
-      # cookie_token = cookie["leihs-user-session"]
-      # cookie = CGI::Cookie.new("name" => "leihs-user-session",
-      #                          "value" => cookie_token)
-
-      # resp = session_auth_plain_faraday_json_client(cookie.to_s).get(@protected_url) do |req|
-
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url)
       resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url, headers: { "Accept" => "text/html" })
-
-      # binding.pry
-      # resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url) do |req|
-      # resp = wtoken_header_plain_faraday_json_client(@protected_url) do |req|
-      #   req.headers["Content-Type"] = "application/json"
-      #   req.headers["Authorization"] = "Token #{token}"
-      # end
-
-      # binding.pry
-      # expect(resp.status).to be == 200
-
-      expect(resp.status).to be == 302
+      expect(resp.status).to eq(302)
       expect(resp.headers["location"]).to eq "/sign-in?return-to=%2Finventory"
-
     end
-
-
-
   end
 end
