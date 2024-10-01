@@ -6,18 +6,19 @@
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/checkbox" :refer [Checkbox]]
+   ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [Form FormControl FormDescription FormField FormItem
-                      FormLabel FormMessage]] ;;                               NavigationMenuLink NavigationMenuList
-   ["@@/input" :refer [Input]] ;; ["@@/navigation-menu" :refer [NavigationMenu NavigationMenuContent
-   ["@@/select" :refer [Select]]
+                      FormLabel FormMessage]]
+   ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
 
-   ["react-hook-form" :refer [useForm]] ;;                               NavigationMenuLink NavigationMenuList
+   ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.models.create.components.image-upload :as image-upload]
    [uix.core :as uix :refer [$ defui]]
-   [uix.dom])) ;;                               NavigationMenuIndicator NavigationMenuItem
+   [uix.dom]))
 
 (defn on-submit [data]
   (js/console.debug "is valid: " data))
@@ -73,6 +74,13 @@
                                                                            (:props input)
                                                                            (:field (jc %))))))
 
+                                                           (-> input :component (= "dropzone"))
+                                                           ($ FormLabel (:label field)
+                                                              ($ FormControl
+                                                                 ($ Dropzone (merge
+                                                                              (:props input)
+                                                                              (:field (jc %))))))
+
                                                            (-> input :component (= "textarea"))
                                                            ($ FormLabel (:label field)
                                                               ($ FormControl
@@ -81,13 +89,14 @@
                                                                               (:field (jc %))))))
 
                                                            (-> input :component (= "checkbox"))
-                                                           ($ FormControl
-                                                              ($ :<>
-                                                                 ($ Checkbox (merge)
-                                                                    (:props input)
-                                                                    (:field (jc %)))
+                                                           ($ :<>
+                                                              ($ FormControl
+                                                                 ($ Checkbox (merge
+                                                                              {:checked (-> (jc %) :field :value)
+                                                                               :onCheckedChange (-> (jc %) :field :onChange)}
+                                                                              (:props input))))
 
-                                                                 ($ FormLabel {:className "pl-4"} (:label field))))
+                                                              ($ FormLabel {:className "pl-4"} (:label field)))
 
                                                            :else
                                                            ($ :div "input type not implemented -> " (:component input))))

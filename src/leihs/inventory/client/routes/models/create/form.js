@@ -1,8 +1,16 @@
 import { z } from "zod"
 
+const fileSchema = z.object({
+  name: z.string(),
+  size: z.number().max(5 * 1024 * 1024, "File size should not exceed 5MB"), // Example: max 5MB
+  type: z
+    .string()
+    .regex(/^image\/(jpeg|png)$/, "Only JPEG and PNG files are allowed"),
+})
+
 export const schema = z.object({
-  is_package: z.boolean().default(false).optional(),
-  product: z.string(),
+  is_package: z.boolean().default(false),
+  product: z.string().min(5, "Produktname muss mindestens 5 Zeichen lang sein"),
   version: z.coerce.number().positive("Version musss positiv sein"),
   manufacturer: z.string(),
   description: z.string(),
@@ -11,7 +19,7 @@ export const schema = z.object({
   hand_over_note: z.string(),
   entitlements: z.string().array(),
   categories: z.string().array(),
-  images: z.string().array(),
+  images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
   accessories: z.string().array(),
   model_links: z.string().array(),
@@ -156,11 +164,11 @@ export const structure = [
         label: "Bilder",
         description: "Listen Sie die Bild-URLs auf",
         input: {
-          component: "input",
+          component: "dropzone",
           props: {
-            type: "file",
-            placeholder: "Bild-URLs eingeben",
-            "auto-complete": "off",
+            sortable: true,
+            multiple: true,
+            filetypes: "jpeg,png",
           },
         },
       },
@@ -174,11 +182,11 @@ export const structure = [
         label: "Anhänge",
         description: "Listen Sie die Anhang-URLs auf",
         input: {
-          component: "input",
+          component: "dropzone",
           props: {
-            type: "file",
-            placeholder: "Anhang-URLs eingeben",
-            "auto-complete": "off",
+            sortable: false,
+            multiple: true,
+            filetypes: "pdf",
           },
         },
       },

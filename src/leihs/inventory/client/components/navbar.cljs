@@ -8,7 +8,7 @@
 
 (defui main []
   ($ :nav {:className "w-full flex flex-row text-sm items-center"}
-     ($ :img {:src "/inventory/static/zhdk-logo.svg" :className ""})
+     ($ :img {:src "/zhdk-logo.svg" :className ""})
      ($ Input {:placeholder "Suche global" :className "mx-12 w-fit"})
      ($ :div {:className "flex gap-6"}
         ($ :a {:href "/verleih"} "Verleih")
