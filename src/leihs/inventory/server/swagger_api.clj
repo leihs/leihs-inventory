@@ -65,7 +65,7 @@
    :headers {"Content-Type" "text/html"}
    :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
-       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <img src=\"/inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
@@ -127,7 +127,8 @@
 
     (some (fn [[key value]]                ;; Destructure the key-value pair
             (println "Checking key:" key)  ;; Print the key for debugging
-            (if (clojure.string/includes? (str key) uri)
+            ;(if (clojure.string/includes? (str key) uri)
+            (if (or (clojure.string/includes? (str key) uri) (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
               (do
                 (println "Match found for URI:" uri)
                 (println "Returning file:" (:file value)) ;; Return the :file from the matched value
