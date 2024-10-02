@@ -122,7 +122,8 @@
 
 (defn fetch-file-entry [uri assets]
 
-  (if (file-request? uri)
+  ;(if (file-request? uri)
+  (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
 
 
     (some (fn [[key value]]                ;; Destructure the key-value pair
@@ -140,6 +141,17 @@
 
     nil
     ))
+
+
+(defn fetch-file-entry "Return asset-entry if file requested and uri contains no '/static/'"  [uri assets]
+  (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
+    (some (fn [[key value]]
+            (if (or (clojure.string/includes? (str key) uri)
+                  (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
+              value))  ;; Return the value directly if a match is found
+      assets)
+    nil))
+
 
 
 
