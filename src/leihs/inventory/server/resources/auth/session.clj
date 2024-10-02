@@ -1,13 +1,13 @@
 (ns leihs.inventory.server.resources.auth.session
   (:require
-    [buddy.auth.backends.token :refer [jws-backend]]
-    [buddy.auth.middleware :refer [wrap-authentication]]
-    [buddy.core.codecs :refer [bytes->b64 bytes->str]]
-    [buddy.core.hash :as hash]
-    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
-    [clojure.walk :refer [keywordize-keys]]
-    [cryptohash-clj.api :refer :all]
-    [next.jdbc :as jdbc]))
+   [buddy.auth.backends.token :refer [jws-backend]]
+   [buddy.auth.middleware :refer [wrap-authentication]]
+   [buddy.core.codecs :refer [bytes->b64 bytes->str]]
+   [buddy.core.hash :as hash]
+   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [clojure.walk :refer [keywordize-keys]]
+   [cryptohash-clj.api :refer :all]
+   [next.jdbc :as jdbc]))
 
 (def LEIHS_SESSION_COOKIE_NAME :leihs-user-session)
 
@@ -55,7 +55,7 @@
             WHERE token_hash=encode(digest(?, 'sha256'), 'hex')"
                    token]
 
-        res       (jdbc/execute-one! tx sql-query)]
+        res (jdbc/execute-one! tx sql-query)]
     res))
 
 (defn- get-cookie-value [request]
@@ -70,21 +70,21 @@
     (boolean (:is_admin user))))
 
 (defn- handle [request handler]
-  (if-let [token  (get-cookie-value request)]
+  (if-let [token (get-cookie-value request)]
     (let [tx (:tx request)]
 
       (if-let [user-session (user-session token tx)]
-        (let [user-id    (:user_id user-session)
+        (let [user-id (:user_id user-session)
               expires-at (:session_expires_at user-session)
-              user       (find-user-by-id tx user-id)
-              user       (assoc user :type "User")]
+              user (find-user-by-id tx user-id)
+              user (assoc user :type "User")]
 
           (handler
            (assoc request
-                  :authenticated-entity  user
-                  :is_admin              (is-admin user-id tx)
+                  :authenticated-entity user
+                  :is_admin (is-admin user-id tx)
                   :authentication-method "Session"
-                  :session-expires-at    expires-at)))
+                  :session-expires-at expires-at)))
         {:status 401 :body {:message "The session is invalid or expired!"}}))
     (handler request)))
 

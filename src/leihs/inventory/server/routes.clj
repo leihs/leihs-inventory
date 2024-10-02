@@ -2,57 +2,57 @@
   (:refer-clojure :exclude
                   [keyword replace])
   (:require
-    [cheshire.core :as json]
-    [clojure.java.io :as io]
-    [leihs.core.status :as status]
-    [leihs.inventory.server.resources.auth.auth-routes
-     :refer
-     [logout-handler
-      authenticate-handler
+   [cheshire.core :as json]
+   [clojure.java.io :as io]
+   [leihs.core.status :as status]
+   [leihs.inventory.server.resources.auth.auth-routes
+    :refer
+    [logout-handler
+     authenticate-handler
       ;      reset-password
-      set-password-handler
-      token-routes]]
-    [leihs.inventory.server.resources.auth.session :as ab]
-    [leihs.inventory.server.resources.models.main]
-    [leihs.inventory.server.resources.models.routes
-     :refer
-     [get-model-by-pool-route get-model-route]]
-    [reitit.openapi :as openapi]
-    [reitit.swagger :as swagger]
-    [ring.middleware.accept]
-    [ring.util.response]
-    [ring.util.response :refer [redirect]]
-    [schema.core :as s]))
+     set-password-handler
+     token-routes]]
+   [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.resources.models.main]
+   [leihs.inventory.server.resources.models.routes
+    :refer
+    [get-model-by-pool-route get-model-route]]
+   [reitit.openapi :as openapi]
+   [reitit.swagger :as swagger]
+   [ring.middleware.accept]
+   [ring.util.response]
+   [ring.util.response :refer [redirect]]
+   [schema.core :as s]))
 
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])]
     (cond
       (clojure.string/includes? accept-header "text/html")
-      {:status  200
+      {:status 200
        :headers {"Content-Type" "text/html"}
-       :body    (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+       :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                     (slurp (io/resource "md/info.html")) "</div></body></html>")}
+                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
-      {:status  200
+      {:status 200
        :headers {"Content-Type" "application/json"}
-       :body    (json/generate-string {:message "Welcome to Inventory-API"})}
+       :body (json/generate-string {:message "Welcome to Inventory-API"})}
 
       :else
-      {:status  406
+      {:status 406
        :headers {"Content-Type" "text/plain"}
-       :body    "Not Acceptable"})))
+       :body "Not Acceptable"})))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
-      (= path "/inventory/api-docs")   (redirect "/inventory/api-docs/index.html")
+      (= path "/inventory/api-docs") (redirect "/inventory/api-docs/index.html")
       (= path "/inventory/index.html") (redirect "/inventory")
-      :else                            {:status 404
-                                        :body   "File not found"})))
+      :else {:status 404
+             :body "File not found"})))
 
 (defn- incl-other-routes []
   ["" (get-model-route)
@@ -68,62 +68,61 @@
      {:swagger {:tags ["Auth"] :security []}}
 
      ["login"
-      {:get {:summary  "[] OK | Authenticate user by login ( set cookie with token )"
-              :accept   "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :swagger  {:security [{:basicAuth []}]}
-              :handler  authenticate-handler}}]
+      {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :swagger {:security [{:basicAuth []}]}
+             :handler authenticate-handler}}]
 
      ["logout"
-      {:get {:accept     "application/json"
-             :coercion   reitit.coercion.schema/coercion
-             :swagger    {:security []}
+      {:get {:accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :swagger {:security []}
              :middleware [ab/wrap]
-             :handler    logout-handler}}]
+             :handler logout-handler}}]
 
      ["set-password"
-      {:post {:summary    "OK | Set password by basicAuth for already authenticated user"
-              :accept     "application/json"
-              :coercion   reitit.coercion.schema/coercion
-              :swagger    {:security [{:basicAuth []}]}
+      {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :swagger {:security [{:basicAuth []}]}
               :parameters {:body {:new-password1 s/Str}}
-              :handler    set-password-handler}}]]
+              :handler set-password-handler}}]]
 
     ["/"
      {:swagger {:tags ["Status"] :security []}}
      ["status"
-      {:get {:accept  "application/json"
+      {:get {:accept "application/json"
              :handler status/status-handler
              :swagger {:security []}}}]]
 
-
     ["/api-docs"
      {:get {:conflicting true
-            :handler     swagger-api-docs-handler
-            :no-doc      true}}]
+            :handler swagger-api-docs-handler
+            :no-doc true}}]
 
     ["/api-docs/swagger.json"
-     {:get {:no-doc  true
-            :swagger {:info                {:title       "inventory-api"
-                                            :version     "2.0.0"
-                                            :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+     {:get {:no-doc true
+            :swagger {:info {:title "inventory-api"
+                             :version "2.0.0"
+                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
 
-                      :securityDefinitions {:apiAuth   {:type "apiKey"
-                                                        :name "Authorization"
-                                                        :in   "header"}
+                      :securityDefinitions {:apiAuth {:type "apiKey"
+                                                      :name "Authorization"
+                                                      :in "header"}
                                             :basicAuth {:type "basic"}}
-                      :security            [{:basicAuth [] "auth" []}
-                                            {:apiAuth {:type "apiKey"
-                                                       :name "Authorization"
-                                                       :in   "header"}}]}
+                      :security [{:basicAuth [] "auth" []}
+                                 {:apiAuth {:type "apiKey"
+                                            :name "Authorization"
+                                            :in "header"}}]}
             :handler (swagger/create-swagger-handler)}}]
 
     ["/api-docs/openapi.json"
-     {:get {:no-doc  true
+     {:get {:no-doc true
             :openapi {:openapi "3.0.0"
-                      :info    {:title       "inventory-api"
-                                :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
-                                :version     "3.0.0"}}
+                      :info {:title "inventory-api"
+                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                             :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]
 
     ["/debug"

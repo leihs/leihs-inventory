@@ -91,9 +91,9 @@ end
 def parse_leihs_session(session_string)
   session_hash = {}
 
-  session_parts = session_string.split('&')
+  session_parts = session_string.split("&")
   session_parts.each do |session_part|
-    key, value = session_part.split('=', 2)
+    key, value = session_part.split("=", 2)
     session_hash[key] = CGI.unescape(value.to_s.strip) if key
   end
   session_hash
@@ -102,18 +102,18 @@ end
 def parse_cookie(cookie_string)
   cookie_hash = {}
 
-  cookie_parts = cookie_string.split(',')
+  cookie_parts = cookie_string.split(",")
 
   cookie_parts.each do |cookie_part|
-    key_value_part = cookie_part.split(';').first.strip
+    key_value_part = cookie_part.split(";").first.strip
 
-    key, value = key_value_part.split('=', 2)
+    key, value = key_value_part.split("=", 2)
     next unless key && value
 
-    if key == 'leihs-session'
-      cookie_hash[key] = parse_leihs_session(value)
+    cookie_hash[key] = if key == "leihs-session"
+      parse_leihs_session(value)
     else
-      cookie_hash[key] = value.strip
+      value.strip
     end
   end
 

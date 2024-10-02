@@ -8,22 +8,22 @@ feature "Call swagger-endpoints" do
 
     let(:client) { plain_faraday_client }
 
-    it 'returns 403 for unauthenticated request' do
+    it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"
       expect(resp.status).to eq(403)
     end
 
-    it 'returns 403 for incorrect credentials' do
+    it "returns 403 for incorrect credentials" do
       resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
       expect(resp.status).to eq(403)
     end
 
-    it 'returns 200 for correct credentials' do
+    it "returns 200 for correct credentials" do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
       expect(resp.status).to eq(200)
     end
 
-    it 'accesses protected resource with valid session cookie' do
+    it "accesses protected resource with valid session cookie" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
