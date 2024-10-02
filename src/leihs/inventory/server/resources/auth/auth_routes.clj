@@ -32,106 +32,15 @@
   fnc)
 
 (defn fetch-hashed-password [request login]
-  (let [system_id 'password'
-        system_id "password"
-
-
-        query     "SELECT asu.data FROM authentication_systems_users asu
-               JOIN users u ON u.id = asu.user_id
-               WHERE u.login = ? AND asu.authentication_system_id = 'password'"
-        p         (println ">o> query" query login)
-        result    (jdbc/execute-one! (:tx request) [query login])
-        p         (println ">o> result" result)
-
-        ;         query  (str "SELECT asu.data FROM authentication_systems_users asu
-        ;               JOIN users u ON u.id = asu.user_id
-        ;               WHERE u.login = '" login "' AND asu.authentication_system_id = 'password'")
-
-
-        ;         query (-> (sql/select :asu.data)
-        ;                   (sql/from [:authentication_systems_users :asu])
-        ;                   (sql/join :users  [:= :users.id :asu.user_id])
-        ;                   (sql/where [:= :users.login login]
-        ;                              [:= :asu.authentication_system_id system_id])
-        ;                   sql-format)
-        ;
-        ;        p (println ">o> query2" query)
-        ;        result (jdbc/execute-one! (:tx request) query)
-        ;        p (println ">o> resul2t" result)
-
-        ;                              [:= :authentication_systems_users.authentication_system_id [:cast system_id :string]])
-
-;        query     (-> (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id)
-;                      (sql/from :authentication_systems_users)
-;                      (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-;                      sql-format)
-;
-;        p         (println ">o> query1" query)
-;        result    (jdbc/execute! (:tx request) query)
-;        p         (println ">o> resul1t" result)
-;
-;        _ (println "Login value: " login)
-;
-;        query     (-> (sql/select :users.id)
-;                      (sql/from :authentication_systems_users)
-;                      (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-;                      (sql/where [:= :users.login login])
-;                      sql-format)
-;
-;        p         (println ">o> query2" query)
-;        result    (jdbc/execute! (:tx request) query)
-;        p         (println ">o> resul2t" result)
-;
-
-        query     (-> (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
-;        query     (-> (sql/select :users.id)
-                      (sql/from :authentication_systems_users)
-                      (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-                      (sql/where [:= :users.login login])
-                      sql-format)
-
-        p         (println ">o> query3" query)
-        result    (jdbc/execute-one! (:tx request) query)
-        p         (println ">o> resul3t" result)
-
-;
-;        query     (-> (sql/select :users.id)
-;                      (sql/from :authentication_systems_users)
-;                      (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-;                      (sql/where [:and
-;                                  [:ilike :users.login "test-user"]
-;                                  [:ilike :authentication_systems_users.authentication_system_id "password"]])
-;
-;                      sql-format)
-;
-;        p         (println ">o> query3aaa" query)
-;        result    (jdbc/execute! (:tx request) query)
-;        p         (println ">o> resul3aaat" result)
-;
-;
-;        query     (-> (sql/select :*)
-;                      (sql/from :authentication_systems_users)
-;                      (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-;                      (sql/where
-;                                               [:and
-;                       [:ilike :users.login login]
-;                                                [:ilike :authentication_systems_users.authentication_system_id system_id]])
-;                      sql-format)
-;
-;        p         (println ">o> query4" query)
-;        result    (jdbc/execute! (:tx request) query)
-;        p         (println ">o> resul4t" result)
-;
-
-
-
-
-
-        ;        p (println ">o> result2" (:data result))
-        ]
-        (:data result)
-;    result
-    ))
+  (let [query     (->
+                    (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
+                    (sql/from :authentication_systems_users)
+                    (sql/join :users [:= :users.id :authentication_systems_users.user_id])
+                    (sql/where [:= :users.login login]
+                               [:= :asu.authentication_system_id "password"])
+                    sql-format)
+        result    (jdbc/execute-one! (:tx request) query)]
+    (:data result)))
 
 (defn verify-password [request login password]
   (if-let [user (fetch-hashed-password request login)]
