@@ -1,3 +1,6 @@
+- name: Ensure Inventory is built DEV
+  command: echo "Building inventory..."
+
 - name: rp_maintenance
   include_tasks: rev_prox_maintenance.yml
   when: publish_inventory == true
