@@ -11,13 +11,10 @@
    [crypto.random]
    [cryptohash-clj.api :refer :all]
    [digest :as d]
-   [honey.sql :refer [format]
-    :rename {format sql-format}]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.auth.session :as ab]
-   [leihs.inventory.server.resources.utils.request
-    :refer
-    [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -26,10 +23,6 @@
   (:import (com.google.common.io BaseEncoding)
            (java.time Duration Instant)
            (java.util Base64 UUID)))
-
-(defn pr [str fnc]
-  (println ">oo> HELPER / " str)
-  fnc)
 
 (defn fetch-hashed-password [request login]
   (let [query (->
@@ -45,8 +38,7 @@
 (defn verify-password [request login password]
   (if-let [user (fetch-hashed-password request login)]
     (try
-      (let [p (println ">o> user" user)
-            hashed-password user
+      (let [hashed-password user
             res (checkpw password hashed-password)]
         res)
       (catch Exception e

@@ -61,7 +61,6 @@ end
 
 def token_header_plain_faraday_json_client(method, url, token, body: nil, headers: {})
   Faraday.new(url: api_base_url) do |conn|
-    # conn.headers["Authorization"] = "token #{token}"
     conn.headers["Authorization"] = "Token #{token}"
     conn.headers["Content-Type"] = "application/json"
     conn.headers["Accept"] = "application/json"
@@ -90,7 +89,6 @@ end
 
 def parse_leihs_session(session_string)
   session_hash = {}
-
   session_parts = session_string.split("&")
   session_parts.each do |session_part|
     key, value = session_part.split("=", 2)
@@ -101,9 +99,7 @@ end
 
 def parse_cookie(cookie_string)
   cookie_hash = {}
-
   cookie_parts = cookie_string.split(",")
-
   cookie_parts.each do |cookie_part|
     key_value_part = cookie_part.split(";").first.strip
 

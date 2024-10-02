@@ -5,18 +5,13 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
-   [leihs.inventory.server.resources.auth.auth-routes
-    :refer
-    [logout-handler
-     authenticate-handler
-      ;      reset-password
-     set-password-handler
-     token-routes]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler
+                                                              authenticate-handler
+                                                              set-password-handler
+                                                              token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.models.main]
-   [leihs.inventory.server.resources.models.routes
-    :refer
-    [get-model-by-pool-route get-model-route]]
+   [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]

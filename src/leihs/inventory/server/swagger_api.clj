@@ -26,7 +26,7 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.util.response :as response]))
 
-(def SESSION_HANDLING_ACTIVATED? false)
+(def SESSION_HANDLING_ACTIVATED? true)
 
 (defn get-assets []
   (let [dirs (map io/file
@@ -108,13 +108,11 @@
        :body (slurp (io/resource (str "public" uri)))}
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-
       {:status 302
        :headers {"Location" "/inventory"}
        :body ""}
 
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-
       {:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
