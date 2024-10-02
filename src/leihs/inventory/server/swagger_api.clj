@@ -70,31 +70,9 @@
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 
-(def mime-types
-  {".html" "text/html"
-   ".css" "text/css"
-   ".js" "application/javascript"
-   ".json" "application/json"
-   ".png" "image/png"
-   ".jpg" "image/jpeg"
-   ".jpeg" "image/jpeg"
-   ".gif" "image/gif"
-   ".txt" "text/plain"
-   ".pdf" "application/pdf"})
 
-
-(def known-file-extensions #{".html" ".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".pdf" ".txt" ".svg"})
-
-
-(defn get-file-extension [uri]
-  (let [filename (.getName (io/file uri))]
-    (when-let [dot-index (clojure.string/last-index-of filename ".")]
-      (subs filename dot-index))))
-(defn get-content-type [uri]
-  (let [ext (get-file-extension uri)]
-    (get mime-types ext "application/octet-stream")))       ;; default to binary content
-
-
+;(def known-file-extensions #{".html" ".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".pdf" ".txt" ".svg"})
+(def known-file-extensions #{".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".svg"})
 
 
 
@@ -109,53 +87,17 @@
 
 (defn file-request? [uri]
   (some #(str/ends-with? uri %) known-file-extensions))
-(defn fetch-file-entry [uri file-entries]
-
-  (if (file-request? uri)
-    (some #(when (clojure.string/includes? (:file %) uri) %) file-entries)
-
-    nil
-    )
-
-  )
 
 
-(defn fetch-file-entry [uri assets]
-
-  ;(if (file-request? uri)
-  (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
-
-
-    (some (fn [[key value]]                ;; Destructure the key-value pair
-            (println "Checking key:" key)  ;; Print the key for debugging
-            ;(if (clojure.string/includes? (str key) uri)
-            (if (or (clojure.string/includes? (str key) uri) (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
-              (do
-                (println "Match found for URI:" uri)
-                (println "Returning file:" (:file value)) ;; Return the :file from the matched value
-                ;(:file value)
-                value
-                )
-              (println "No match for URI:" uri)))
-      assets)
-
-    nil
-    ))
-
-
-(defn fetch-file-entry "Return asset-entry if file requested and uri contains no '/static/'"  [uri assets]
+(defn fetch-file-entry "Return asset-entry if file requested and uri contains no '/static/'" [uri assets]
+  ;(if (and (file-request? uri) )
   (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
     (some (fn [[key value]]
             (if (or (clojure.string/includes? (str key) uri)
                   (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
-              value))  ;; Return the value directly if a match is found
+              value))                                       ;; Return the value directly if a match is found
       assets)
     nil))
-
-
-
-
-;; Return nil if no match is found
 
 
 (defn custom-not-found-handler [request]
@@ -166,8 +108,8 @@
 
         p (println ">o> uri" uri)
 
-        asset (get assets uri)
-        p (println ">o> asset1" asset)
+        ;asset (get assets uri)
+        ;p (println ">o> asset1" asset)
 
         asset (fetch-file-entry uri assets)
         p (println ">o> asset2" asset)
@@ -177,32 +119,11 @@
 
       (= uri "/") (create-root-page)
 
-      ;(= uri "/inventory/zhdk-logo.svg")
-
-
       (str/starts-with? uri "/inventory/locales/")
-      ;(or (str/starts-with? uri "/inventory/locales/") (= uri "/zhdk-logo.svg"))
-      (let [
-
-            src (str/replace-first uri "/inventory" "public/inventory/static")
-
-            ;src (cond
-            ;      (clojure.string/includes? uri "/locales") (str/replace-first uri "/inventory" "public/inventory/static")
-            ;      (= uri "/zhdk-logo.svg") "public/inventory/static/zhdk-logo.svg"
-            ;
-            ;
-            ;      )
-
-            ]
-
-        {:status 200
-         :headers {"Content-Type" "application/json"}
-         ;:headers {"Content-Type" (get-content-type uri)}
-         :body (slurp (io/resource (pr ">o> res=" src)))}
-        )
-
-
-      ;(slurp (io/resource (pr ">o> res=" (str "public/inventory/static/locales" uri))))
+        (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
+          {:status 200
+           :headers {"Content-Type" "application/json"}
+           :body (slurp (io/resource src))})
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
