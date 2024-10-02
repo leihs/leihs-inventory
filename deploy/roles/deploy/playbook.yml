@@ -1,9 +1,0 @@
-# leihs/deploy/playbook.yml
-
----
-- hosts: localhost
-  tasks:
-    - name: Build Inventory using the deploy role
-      include_role:
-        name: deploy
-      tags: build_inventory
