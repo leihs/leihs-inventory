@@ -6,6 +6,7 @@ require "config/factories"
 
 require "config/browser"
 require "config/http_client"
+require "config/web"
 
 require "helpers/global"
 require "helpers/user"

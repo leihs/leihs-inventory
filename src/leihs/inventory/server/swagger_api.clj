@@ -26,6 +26,8 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.util.response :as response]))
 
+(def SESSION_HANDLING_ACTIVATED? true)
+
 (defn get-assets []
   (let [dirs (map io/file ["resources/public/inventory/assets"
                            "resources/public/inventory/css"
@@ -76,15 +78,25 @@
   (let [file-path (str "resources/public" uri)]
     (.exists (java.io.File. file-path))))
 
+(defn file-uri?
+  "Checks if the given URI ends with a file extension using a regex.
+  Extensions can be like .txt, .pdf, .jpg, etc."
+  [uri]
+  (let [file-extension-regex #"\.(?i)(txt|pdf|jpg|jpeg|png|gif|doc|docx|xls|xlsx|csv|json|xml|html|zip|tar|gz|rar|mp3|mp4|wav)$"]
+    (boolean (re-find file-extension-regex uri))))
+
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
         asset (get assets uri)]
     (cond
-      ; TODO: activate this after /login & /logout are available
-;      (not (session-valid? request)) (response/redirect "/sign-in?return-to=%2Finventory")
 
       (= uri "/") (create-root-page)
+
+      (clojure.string/includes? uri "/sign-in")
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body (slurp (io/resource "public/sign-in-fallback.html"))}
 
       (and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
       {:status 200
@@ -101,7 +113,7 @@
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
 
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+      ;(and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
@@ -112,6 +124,11 @@
                                 :body (slurp resource)}
                                (rh/index-html-response 404)))
                            (rh/index-html-response 404))
+
+      (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
+      (response/redirect "/sign-in?return-to=%2Finventory")
+
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
