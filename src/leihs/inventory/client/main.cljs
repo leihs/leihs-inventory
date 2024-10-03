@@ -11,8 +11,9 @@
 (defonce query-client (new QueryClient))
 
 (defui app []
-  ($ QueryClientProvider {:client query-client}
-     ($ RouterProvider {:router routes})))
+  ($ uix/strict-mode
+     ($ QueryClientProvider {:client query-client}
+        ($ RouterProvider {:router routes}))))
 
 (defonce root
   (uix.dom/create-root (js/document.getElementById "app")))

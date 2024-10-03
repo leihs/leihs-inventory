@@ -11,12 +11,12 @@
                       FormLabel FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
-   ["@hookform/resolvers/zod" :refer [zodResolver]]
 
+   ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.components.image-upload :as image-upload]
+   [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -60,29 +60,36 @@
                            ($ :h2 {:className "text-lg"} (:title section))
                            ($ :hr {:className "mb-4"})
 
-                           (for [field (:fields section)]
+                           (for [block (:blocks section)]
                              ($ FormField {:control (cj control)
-                                           :key (:name field)
-                                           :name (:name field)
+                                           :key (:name block)
+                                           :name (:name block)
                                            :render #($ FormItem {:class-name "mt-6"}
-                                                       (let [input (:input field)]
+                                                       (let [input (:input block)]
                                                          (cond
                                                            (-> input :component (= "input"))
-                                                           ($ FormLabel (:label field)
+                                                           ($ FormLabel (:label block)
                                                               ($ FormControl
                                                                  ($ Input (merge
                                                                            (:props input)
                                                                            (:field (jc %))))))
 
                                                            (-> input :component (= "dropzone"))
-                                                           ($ FormLabel (:label field)
+                                                           ($ FormLabel (:label block)
                                                               ($ FormControl
                                                                  ($ Dropzone (merge
                                                                               (:props input)
                                                                               (:field (jc %))))))
 
+                                                           (-> input :component (= "accessory-list"))
+                                                           ($ FormLabel (:label block)
+                                                              ($ FormControl
+                                                                 ($ AccessoryList (merge
+                                                                                   (:props input)
+                                                                                   (:field (jc %))))))
+
                                                            (-> input :component (= "textarea"))
-                                                           ($ FormLabel (:label field)
+                                                           ($ FormLabel (:label block)
                                                               ($ FormControl
                                                                  ($ Textarea (merge
                                                                               (:props input)
@@ -96,13 +103,13 @@
                                                                                :onCheckedChange (-> (jc %) :field :onChange)}
                                                                               (:props input))))
 
-                                                              ($ FormLabel {:className "pl-4"} (:label field)))
+                                                              ($ FormLabel {:className "pl-4"} (:label block)))
 
                                                            :else
                                                            ($ :div "input type not implemented -> " (:component input))))
 
                                                        ($ FormDescription
-                                                          ($ :<> (:description field)))
+                                                          ($ :<> (:description block)))
 
                                                        ($ FormMessage))}))))))
 
