@@ -49,3 +49,7 @@
 
 - include_tasks: service.yml
   when: publish_inventory == true
+
+- name: reverse-proxy
+  include_tasks: reverse-proxy.yml
+  when: publish_inventory == true
