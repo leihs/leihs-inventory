@@ -19,7 +19,11 @@
   ring/ring-core {:mvn/version "1.12.2"}
   ring/ring-defaults {:mvn/version "0.5.0"}
   ring/ring-jetty-adapter {:mvn/version "1.12.2"}
-  clj-yaml/clj-yaml {:mvn/version "0.4.0"}}
+  clj-yaml/clj-yaml {:mvn/version "0.4.0"}
+  cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
+  buddy/buddy-auth {:mvn/version "2.2.0"}
+  digest/digest {:mvn/version "1.4.10"}
+  cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}}
 
  :aliases
  {:build {:deps
