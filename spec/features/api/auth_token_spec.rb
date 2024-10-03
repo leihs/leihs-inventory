@@ -9,7 +9,7 @@ feature "Call swagger-endpoints" do
       @protected_url = "/inventory/token/protected"
     end
 
-    let(:client) { plain_faraday_client }
+    let(:client) { plain_faraday_json_client }
 
     it "returns 401 for unauthenticated request" do
       resp = client.post @create_token_url do |req|
