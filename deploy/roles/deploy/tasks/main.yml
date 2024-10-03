@@ -1,5 +1,6 @@
-- name: Ensure Inventory is built DEV
-  command: echo "Building inventory..."
+- name: DEBUG-Print publish_inventory variable
+  debug:
+    var: publish_inventory
 
 - name: rp_maintenance
   include_tasks: rev_prox_maintenance.yml
