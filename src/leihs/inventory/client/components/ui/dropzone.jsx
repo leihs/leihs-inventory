@@ -1,11 +1,12 @@
 import * as React from "react"
-import { Upload, Trash, Image, FileText, GripHorizontal } from "lucide-react"
-import { arrayMove, SortableContext } from "@dnd-kit/sortable"
+import { Upload, Trash, Image, FileText } from "lucide-react"
+import { arrayMove } from "@dnd-kit/sortable"
 import { Button } from "@@/button"
+import { Card } from "@@/card"
 import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
 import truncate from "truncate"
-import SortableList from "@/components/react/sortable_list"
+import SortableList from "@/components/react/sortable-list"
 
 function Item({
   children,
@@ -90,7 +91,6 @@ export const Dropzone = React.forwardRef(
           ? filetypes[props.filetypes]
           : []
 
-    console.debug(props.filetypes)
     const dropzone = useDropzone({
       ...props,
       accept: accept,

@@ -21,7 +21,7 @@ export const schema = z.object({
   categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
-  accessories: z.string().array(),
+  accessories: z.string().array().optional(),
   model_links: z.string().array(),
   properties: z.string().array(),
 })
@@ -29,7 +29,7 @@ export const schema = z.object({
 export const structure = [
   {
     title: "Produkt",
-    fields: [
+    blocks: [
       {
         name: "is_package",
         label: "dies ist ein Paket?",
@@ -127,7 +127,7 @@ export const structure = [
   },
   {
     title: "Zuteilungen",
-    fields: [
+    blocks: [
       {
         name: "entitlements",
         label: "Berechtigungen",
@@ -144,7 +144,7 @@ export const structure = [
   },
   {
     title: "Kategorien",
-    fields: [
+    blocks: [
       {
         name: "categories",
         label: "Kategorien",
@@ -158,7 +158,7 @@ export const structure = [
   },
   {
     title: "Bilder",
-    fields: [
+    blocks: [
       {
         name: "images",
         label: "Bilder",
@@ -176,7 +176,7 @@ export const structure = [
   },
   {
     title: "Anhänge",
-    fields: [
+    blocks: [
       {
         name: "attachments",
         label: "Anhänge",
@@ -194,17 +194,16 @@ export const structure = [
   },
   {
     title: "Zubehör",
-    fields: [
+    blocks: [
       {
         name: "accessories",
         label: "Zubehör",
         description: "Listen Sie das Zubehör auf",
         input: {
-          component: "input",
+          component: "accessory-list",
           props: {
-            type: "file",
+            button: "Zubehör hinzufügen",
             placeholder: "Zubehör eingeben",
-            "auto-complete": "off",
           },
         },
       },
@@ -212,7 +211,7 @@ export const structure = [
   },
   {
     title: "Ergänzende Modelle",
-    fields: [
+    blocks: [
       {
         name: "model_links",
         label: "Modell-Links",
@@ -230,7 +229,7 @@ export const structure = [
   },
   {
     title: "Eigenschaften",
-    fields: [
+    blocks: [
       {
         name: "properties",
         label: "Eigenschaften",
