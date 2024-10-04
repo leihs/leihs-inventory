@@ -20,7 +20,7 @@ def plain_faraday_json_client
   # Logger logger = Logger.getLogger("");
 
   Faraday.new(
-    url: api_base_url,
+    url: http_base_url,
     headers: {accept: "application/json"}
   ) do |conn|
     # Add request logging
@@ -45,7 +45,7 @@ def plain_faraday_json_client2
   # Logger logger = Logger.getLogger("");
 
   @plain_faraday_json_client ||= Faraday.new(
-    url: api_base_url,
+    url: http_base_url,
     headers: {accept: "application/json"}
   ) do |conn|
     # Add request logging
