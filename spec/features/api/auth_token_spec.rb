@@ -24,7 +24,6 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-
       end
       expect(resp.status).to eq(401)
     end
@@ -42,7 +41,6 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-
       end
       expect(resp.status).to eq(401)
     end
@@ -60,7 +58,6 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-
       end
       expect(resp.status).to eq(200)
     end
@@ -104,7 +101,6 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -131,7 +127,6 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
