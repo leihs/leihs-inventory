@@ -1,12 +1,25 @@
 require "faraday"
 require "faraday_middleware"
 
-def api_port
-  @api_port ||= ENV["API_V2_HTTP_PORT"].presence || 3260
+# def api_port
+#   @api_port ||= ENV["API_V2_HTTP_PORT"].presence || 3260
+# end
+#
+# def api_base_url
+#   @api_base_url ||= "http://localhost:#{api_port}"
+# end
+
+
+def http_port
+  @port ||= Integer(ENV["LEIHS_INVENTORY_HTTP_PORT"].presence || 3260)
+end
+
+def http_host
+  @host ||= ENV["LEIHS_INVENTORY_HTTP_HOST"].presence || "localhost"
 end
 
 def api_base_url
-  @api_base_url ||= "http://localhost:#{api_port}"
+  @http_base_url ||= "http://#{http_host}:#{http_port}"
 end
 
 def plain_faraday_client
