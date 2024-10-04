@@ -26,6 +26,8 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.util.response :as response]))
 
+(def SESSION_HANDLING_ACTIVATED? true)
+
 (defn get-assets []
   (let [dirs (map io/file ["resources/public/inventory/assets"
                            "resources/public/inventory/css"
@@ -66,30 +68,84 @@
    :headers {"Content-Type" "text/html"}
    :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
-       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <img src=\"/inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
+
+
+;(def known-file-extensions #{".html" ".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".pdf" ".txt" ".svg"})
+(def known-file-extensions #{".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".svg"})
+
+
+
 (def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
 
-(defn file-exists? [uri]
-  (let [file-path (str "resources/public" uri)]
-    (.exists (java.io.File. file-path))))
+;(defn file-exists? [uri]
+;  (let [file-path (str "resources/public" uri)]
+;    (.exists (java.io.File. file-path))))
+;
+(defn file-uri?
+  "Checks if the given URI ends with a file extension using a regex.
+  Extensions can be like .txt, .pdf, .jpg, etc."
+  [uri]
+  (let [file-extension-regex #"\.(?i)(txt|pdf|jpg|jpeg|png|gif|doc|docx|xls|xlsx|csv|json|xml|html|zip|tar|gz|rar|mp3|mp4|wav)$"]
+    (boolean (re-find file-extension-regex uri))))
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+(defn file-request? [uri]
+  (some #(str/ends-with? uri %) known-file-extensions))
+
+(defn fetch-file-entry "Return asset-entry if file requested and uri contains no '/static/'" [uri assets]
+  ;(if (and (file-request? uri) )
+  (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
+    (some (fn [[key value]]
+            (if (or (clojure.string/includes? (str key) uri)
+                  (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
+              value))                                       ;; Return the value directly if a match is found
+      assets)
+    nil))
 
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
-        asset (get assets uri)]
+
+        p (println ">o> assets" assets)
+
+        p (println ">o> uri" uri)
+
+        ;asset (get assets uri)
+        ;p (println ">o> asset1" asset)
+
+        asset (fetch-file-entry uri assets)
+        p (println ">o> asset2" asset)
+
+        ]
     (cond
-      ; TODO: activate this after /login & /logout are available
-;      (not (session-valid? request)) (response/redirect "/sign-in?return-to=%2Finventory")
 
       (= uri "/") (create-root-page)
 
-      (and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
+      (clojure.string/includes? uri "/sign-in")
       {:status 200
-       :headers {"Content-Type" "application/json"}
-       :body (slurp (io/resource (str "public" uri)))}
+       :headers {"Content-Type" "text/html"}
+       :body (slurp (io/resource "public/sign-in-fallback.html"))}
+
+      ;(and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
+      ;{:status 200
+      ; :headers {"Content-Type" "application/json"}
+      ; :body (slurp (io/resource (str "public" uri)))}
+
+      (str/starts-with? uri "/inventory/locales/")
+      (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
+        {:status 200
+         :headers {"Content-Type" "application/json"}
+         :body (slurp (io/resource src))})
+
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
@@ -101,7 +157,7 @@
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
 
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+      ;(and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
@@ -112,6 +168,11 @@
                                 :body (slurp resource)}
                                (rh/index-html-response 404)))
                            (rh/index-html-response 404))
+
+      (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
+      (response/redirect "/sign-in?return-to=%2Finventory")
+
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
