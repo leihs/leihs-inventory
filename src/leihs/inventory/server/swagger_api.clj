@@ -11,6 +11,7 @@
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
+            [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
             [reitit.coercion.spec]
@@ -24,98 +25,9 @@
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
             [ring.middleware.cookies :refer [wrap-cookies]]
-            [ring.util.response :as response]))
-
-(defn get-assets []
-  (let [dirs (map io/file ["resources/public/inventory/assets"
-                           "resources/public/inventory/css"
-                           "resources/public/inventory/static"
-                           "resources/public/inventory/js"])
-        dir-map {(.getPath (io/file "resources/public/inventory/assets")) "/inventory/assets/"
-                 (.getPath (io/file "resources/public/inventory/css")) "/inventory/css/"
-                 (.getPath (io/file "resources/public/inventory/static")) "/inventory/static/"
-                 (.getPath (io/file "resources/public/inventory/js")) "/inventory/js/"}
-        mime-map {".js" "text/javascript"
-                  ".css" "text/css"
-                  ".svg" "image/svg+xml"}
-        merged-files (apply concat (map file-seq dirs))]
-
-    (into {}
-          (for [file merged-files
-                :when (.isFile file)]
-            (let [full-path (.getPath file)
-                  filename (.getName file)
-
-                  uri (some (fn [[dir-path uri-prefix]]
-                              (when (.startsWith full-path dir-path)
-                                (str uri-prefix filename)))
-                            dir-map)
-
-                  mime-type (or (some (fn [[ext mime]]
-                                        (when (str/ends-with? filename ext)
-                                          mime))
-                                      mime-map)
-                                "application/octet-stream")]
-
-              {uri {:file (str "public" uri)
-                    :file-path full-path
-                    :content-type mime-type}})))))
-
-(defn- create-root-page []
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
-       </head><div class='max-width'>
-       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
-       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-              (slurp (io/resource "md/info.html")) "</div></body></html>")})
-
-(def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
-
-(defn file-exists? [uri]
-  (let [file-path (str "resources/public" uri)]
-    (.exists (java.io.File. file-path))))
-
-(defn custom-not-found-handler [request]
-  (let [uri (:uri request)
-        assets (get-assets)
-        asset (get assets uri)]
-    (cond
-      ; TODO: activate this after /login & /logout are available
-;      (not (session-valid? request)) (response/redirect "/sign-in?return-to=%2Finventory")
-
-      (= uri "/") (create-root-page)
-
-      (and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
-      {:status 200
-       :headers {"Content-Type" "application/json"}
-       :body (slurp (io/resource (str "public" uri)))}
-
-      (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      {:status 302
-       :headers {"Location" "/inventory"}
-       :body ""}
-
-      (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      {:status 302
-       :headers {"Location" "/inventory/api-docs/index.html"}
-       :body ""}
-
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
-
-      (not (nil? asset)) (if asset
-                           (let [{:keys [file content-type]} asset
-                                 resource (io/resource file)]
-                             (if resource
-                               {:status 200
-                                :headers {"Content-Type" content-type}
-                                :body (slurp resource)}
-                               (rh/index-html-response 404)))
-                           (rh/index-html-response 404))
-
-      (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
-      (rh/index-html-response 200)
-      :else (rh/index-html-response 404))))
+            [ring.util.response :as response])
+  (:import [java.net URL JarURLConnection]
+           [java.util.jar JarFile]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -169,7 +81,7 @@
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
 
-                                     ; redirect-if-no-session
+                                      ; redirect-if-no-session
 
                                      ring-audits/wrap
                                       ;anti-csrf/wrap

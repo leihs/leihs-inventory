@@ -1,16 +1,23 @@
 (ns leihs.inventory.server.routes
-  (:refer-clojure :exclude [keyword replace])
+  (:refer-clojure :exclude
+                  [keyword replace])
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler
+                                                              authenticate-handler
+                                                              set-password-handler
+                                                              token-routes]]
+   [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
    [ring.util.response]
-   [ring.util.response :refer [redirect]]))
+   [ring.util.response :refer [redirect]]
+   [schema.core :as s]))
 
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])]
@@ -43,22 +50,51 @@
              :body "File not found"})))
 
 (defn- incl-other-routes []
-  ;; TODO: add other routes here
   ["" (get-model-route)
-   (get-model-by-pool-route)])
+   (get-model-by-pool-route)
+   (token-routes)])
 
 (defn basic-routes []
   [["/" {:no-doc true :get {:handler root-handler}}]
 
    ["/inventory"
 
-    ["/status"
-     {:get {:accept "application/json"
-            :handler status/status-handler}}]
+    ["/"
+     {:swagger {:tags ["Auth"] :security []}}
+
+     ["login"
+      {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :swagger {:security [{:basicAuth []}]}
+             :handler authenticate-handler}}]
+
+     ["logout"
+      {:get {:accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :swagger {:security []}
+             :middleware [ab/wrap]
+             :handler logout-handler}}]
+
+     ["set-password"
+      {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+              :accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :swagger {:security [{:basicAuth []}]}
+              :parameters {:body {:new-password1 s/Str}}
+              :handler set-password-handler}}]]
+
+    ["/"
+     {:swagger {:tags ["Status"] :security []}}
+     ["status"
+      {:get {:accept "application/json"
+             :handler status/status-handler
+             :swagger {:security []}}}]]
 
     ["/api-docs"
      {:get {:conflicting true
-            :handler swagger-api-docs-handler :no-doc true}}]
+            :handler swagger-api-docs-handler
+            :no-doc true}}]
 
     ["/api-docs/swagger.json"
      {:get {:no-doc true
@@ -66,12 +102,14 @@
                              :version "2.0.0"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
 
-                      ;; Define security schemes for Bearer and Basic Auth
-                      :securityDefinitions {:basicAuth {:type "basic"}}
-
-                      ;; Apply security globally to routes
-                      ;:security [{:BearerAuth []}]
-                      }
+                      :securityDefinitions {:apiAuth {:type "apiKey"
+                                                      :name "Authorization"
+                                                      :in "header"}
+                                            :basicAuth {:type "basic"}}
+                      :security [{:basicAuth [] "auth" []}
+                                 {:apiAuth {:type "apiKey"
+                                            :name "Authorization"
+                                            :in "header"}}]}
             :handler (swagger/create-swagger-handler)}}]
 
     ["/api-docs/openapi.json"

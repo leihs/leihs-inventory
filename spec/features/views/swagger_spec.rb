@@ -15,7 +15,7 @@ feature "Call swagger-endpoints" do
 
   context "swagger.json exists" do
     let :http_client do
-      plain_faraday_client
+      plain_faraday_json_client
     end
 
     scenario "json response is correct" do

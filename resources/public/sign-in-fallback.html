@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centered List</title>
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            list-style-type: none !important;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container h1 {
+            margin-bottom: 20px;
+        }
+
+        .container a {
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        .container a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: normal;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        b {
+            font-weight: bold;
+            color: #d23669;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>INFO: Use Swagger-API-Endpoints for login / logout</h1>
+    <ul>
+        <li><a href="/inventory/api-docs/">Swagger-UI [ /inventory/login & /inventory/logout ]</a></li>
+        <li><a href="/inventory/">Lehs Inventory [ /inventory ]</a></li>
+    </ul>
+</div>
+<div id="app"></div>
+</body>
+</html>

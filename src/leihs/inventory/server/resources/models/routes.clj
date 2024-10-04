@@ -62,8 +62,9 @@
 
 (defn get-model-route []
   ["/models"
-   {:conflicting true
-    :tags ["Models"]}
+
+   {:swagger {:conflicting true
+              :tags ["Models"] :security []}}
 
    [""
     {:get {:conflicting true
@@ -129,8 +130,9 @@
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
-   {:conflicting true
-    :tags ["Models by pool"]}
+
+   {:swagger {:conflicting true
+              :tags ["Models by pool"] :security []}}
 
    [""
     {:get {:conflicting true
