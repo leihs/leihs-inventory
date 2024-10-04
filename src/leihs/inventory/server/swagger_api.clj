@@ -15,6 +15,8 @@
             [reitit.coercion.schema]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
             [reitit.ring :as ring]
             [reitit.ring.coercion :as coercion]
             [reitit.ring.middleware.exception :as exception]
@@ -29,7 +31,11 @@
 (def SESSION_HANDLING_ACTIVATED? true)
 
 (defn get-assets []
-  (let [dirs (map io/file ["resources/public/inventory/assets"
+  (let [
+        p (println ">o> test-fetch1" (io/resource  "public/inventory/css/additional.css"))
+
+
+        dirs (map io/file ["resources/public/inventory/assets"
                            "resources/public/inventory/css"
                            "resources/public/inventory/static"
                            "resources/public/inventory/js"])
@@ -62,6 +68,56 @@
               {uri {:file (str "public" uri)
                     :file-path full-path
                     :content-type mime-type}})))))
+
+
+
+
+;(defn get-assets []
+;  (let [dirs (map #(io/resource (str "public/inventory/" %)) ["assets"
+;                                                              "css"
+;                                                              "static"
+;                                                              "js"])
+;        dir-map (into {}
+;                  (for [[dir-key uri-prefix] [["assets" "/inventory/assets/"]
+;                                              ["css" "/inventory/css/"]
+;                                              ["static" "/inventory/static/"]
+;                                              ["js" "/inventory/js/"]]]
+;                    (let [url (io/resource (str "public/inventory/" dir-key))]
+;                      ;; Handle cases where resource is not found (nil)
+;                      (when url
+;                        [(.getFile url) uri-prefix]))))
+;        mime-map {".js" "text/javascript"
+;                  ".css" "text/css"
+;                  ".svg" "image/svg+xml"}]
+;
+;    ;; Now we loop through files, ensuring that we use the file path properly
+;    (into {}
+;      (for [dir dirs
+;            :when dir ;; Skip if dir is nil
+;            :let [files (file-seq (io/file (.getFile dir)))]
+;            file files
+;            :when (.isFile file)]
+;        (let [full-path (.getPath file)
+;              filename (.getName file)
+;
+;              ;; Use dir-map with proper handling of the file paths
+;              uri (some (fn [[dir-path uri-prefix]]
+;                          (when (.startsWith full-path dir-path)
+;                            (str uri-prefix filename)))
+;                    dir-map)
+;
+;              mime-type (or (some (fn [[ext mime]]
+;                                    (when (str/ends-with? filename ext)
+;                                      mime))
+;                              mime-map)
+;                          "application/octet-stream")]
+;
+;          {uri {:file (str "public" uri)
+;                :file-path full-path
+;                :content-type mime-type}})))))
+
+
+
 
 (defn- create-root-page []
   {:status 200
