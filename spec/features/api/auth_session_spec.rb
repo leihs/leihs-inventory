@@ -3,6 +3,7 @@ require "spec_helper"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
+      plain_faraday_json_client
       @user = FactoryBot.create(:user, login: "test-user")
     end
 

@@ -4,6 +4,7 @@ require "pry"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
+      plain_faraday_json_client
       @user = FactoryBot.create(:user, login: "test-user")
       @create_token_url = "/inventory/token/"
       @protected_url = "/inventory/token/protected"
