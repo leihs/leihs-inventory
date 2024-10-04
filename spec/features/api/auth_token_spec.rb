@@ -22,7 +22,7 @@ feature "Call swagger-endpoints" do
             admin_write: true
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(401)
     end
@@ -38,7 +38,7 @@ feature "Call swagger-endpoints" do
             admin_write: true
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(401)
     end
@@ -54,7 +54,7 @@ feature "Call swagger-endpoints" do
             admin_write: true
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(200)
     end
@@ -73,7 +73,7 @@ feature "Call swagger-endpoints" do
             admin_write: true
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -94,7 +94,7 @@ feature "Call swagger-endpoints" do
             admin_write: false
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -119,7 +119,7 @@ feature "Call swagger-endpoints" do
             admin_write: true
           }
         }.to_json
-        req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
