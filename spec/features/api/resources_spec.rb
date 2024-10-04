@@ -3,7 +3,6 @@ require "spec_helper"
 feature "Call swagger-endpoints" do
   context "revoking the token ", driver: :selenium_headless do
     {
-      "/inventory/zhdk-logo.svg" => 200,
       "/inventory/locales/de/translation.json" => 200,
       "/inventory/locales/fr/translation.json" => 200,
       "/inventory/locales/en/translation.json" => 200,

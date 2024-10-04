@@ -25,8 +25,7 @@
            (java.util Base64 UUID)))
 
 (defn fetch-hashed-password [request login]
-  (let [
-        p (println ">o> login=" login)
+  (let [p (println ">o> login=" login)
         query (->
                (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
                (sql/from :authentication_systems_users)

@@ -72,12 +72,8 @@
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
-
-
 ;(def known-file-extensions #{".html" ".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".pdf" ".txt" ".svg"})
 (def known-file-extensions #{".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".svg"})
-
-
 
 (def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
 
@@ -95,8 +91,7 @@
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn file-request? [uri]
   (some #(str/ends-with? uri %) known-file-extensions))
@@ -106,9 +101,9 @@
   (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
     (some (fn [[key value]]
             (if (or (clojure.string/includes? (str key) uri)
-                  (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
-              value))                                       ;; Return the value directly if a match is found
-      assets)
+                    (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
+              value)) ;; Return the value directly if a match is found
+          assets)
     nil))
 
 (defn custom-not-found-handler [request]
@@ -123,9 +118,8 @@
         ;p (println ">o> asset1" asset)
 
         asset (fetch-file-entry uri assets)
-        p (println ">o> asset2" asset)
+        p (println ">o> asset2" asset)]
 
-        ]
     (cond
 
       (= uri "/") (create-root-page)
@@ -145,7 +139,6 @@
         {:status 200
          :headers {"Content-Type" "application/json"}
          :body (slurp (io/resource src))})
-
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
