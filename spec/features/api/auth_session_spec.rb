@@ -6,7 +6,7 @@ feature "Call swagger-endpoints" do
       @user = FactoryBot.create(:user, login: "test-user")
     end
 
-    let(:client) { plain_faraday_client }
+    let(:client) { plain_faraday_json_client }
 
     it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"
