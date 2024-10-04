@@ -15,7 +15,7 @@ feature "Request " do
 
   context "with accept=application/json" do
     let :http_client do
-      plain_faraday_client
+      plain_faraday_json_client
     end
 
     let :prepare_http_client do
@@ -29,7 +29,6 @@ feature "Request " do
     context "against /" do
       scenario "json response is correct" do
         resp = http_client.get "/"
-        puts "resp: #{resp.inspect}"
         expect(resp.status).to be == 200
         expect(resp.body["message"]).to be == "Welcome to Inventory-API"
       end
