@@ -72,15 +72,10 @@
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
-;(def known-file-extensions #{".html" ".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".pdf" ".txt" ".svg"})
 (def known-file-extensions #{".css" ".js" ".json" ".png" ".jpg" ".jpeg" ".gif" ".svg"})
 
 (def whitelisted-routes-for-ssa-response ["/inventory/models/inventory-list"])
 
-;(defn file-exists? [uri]
-;  (let [file-path (str "resources/public" uri)]
-;    (.exists (java.io.File. file-path))))
-;
 (defn file-uri?
   "Checks if the given URI ends with a file extension using a regex.
   Extensions can be like .txt, .pdf, .jpg, etc."
@@ -118,11 +113,6 @@
        :headers {"Content-Type" "text/html"}
        :body (slurp (io/resource "public/sign-in-fallback.html"))}
 
-      ;(and (nil? asset) (file-exists? uri) (clojure.string/includes? uri "locales"))
-      ;{:status 200
-      ; :headers {"Content-Type" "application/json"}
-      ; :body (slurp (io/resource (str "public" uri)))}
-
       (str/starts-with? uri "/inventory/locales/")
       (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
         {:status 200
@@ -139,7 +129,7 @@
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
 
-      ;(and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
@@ -153,8 +143,6 @@
 
       (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")
-
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)

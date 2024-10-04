@@ -1,14 +1,6 @@
 require "faraday"
 require "faraday_middleware"
 
-# def api_port
-#   @api_port ||= ENV["API_V2_HTTP_PORT"].presence || 3260
-# end
-#
-# def api_base_url
-#   @api_base_url ||= "http://localhost:#{api_port}"
-# end
-
 def http_port
   @port ||= Integer(ENV["LEIHS_INVENTORY_HTTP_PORT"].presence || 3260)
 end
@@ -52,16 +44,6 @@ def plain_faraday_json_client2
     conn.adapter Faraday.default_adapter
   end
 end
-
-# def plain_faraday_client
-#   Faraday.new(
-#     url: http_base_url,
-#     headers: {accept: "application/json"}
-#   ) do |conn|
-#     conn.adapter Faraday.default_adapter
-#     conn.response :json, content_type: /\bjson$/
-#   end
-# end
 
 def basic_auth_plain_faraday_json_client(login, password)
   @basic_auth_plain_faraday_json_client ||= Faraday.new(
