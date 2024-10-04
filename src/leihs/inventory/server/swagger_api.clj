@@ -102,7 +102,13 @@
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)]
+        asset (fetch-file-entry uri assets)
+
+        p (println ">o> uri" uri)
+        p (println ">o> assets" assets)
+        p (println ">o> asset" asset)
+
+        ]
 
     (cond
 
@@ -133,20 +139,27 @@
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
-                                 resource (io/resource file)]
+                                 resource (io/resource file)
+
+                                 p (println ">o> asset" asset)
+
+                                 p (println ">o> file" file)
+                                 p (println ">o> content-type" content-type)
+                                 ]
                              (if resource
                                {:status 200
                                 :headers {"Content-Type" content-type}
                                 :body (slurp resource)}
-                               (rh/index-html-response 404)))
-                           (rh/index-html-response 404))
+                                ;:body (slurp resource)}
+                               (pr ">o> 404-1" (rh/index-html-response 404))))
+                           (pr ">o> 404-2" (rh/index-html-response 404)))
 
       (and SESSION_HANDLING_ACTIVATED? (not (file-uri? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")
 
       (and (nil? asset) (some #(= % uri) whitelisted-routes-for-ssa-response))
       (rh/index-html-response 200)
-      :else (rh/index-html-response 404))))
+      :else (pr ">o> NOT-FOUND" (rh/index-html-response 404)))))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
