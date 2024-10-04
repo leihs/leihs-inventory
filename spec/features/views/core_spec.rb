@@ -18,13 +18,13 @@ feature "Request " do
       plain_faraday_json_client
     end
 
-    let :prepare_http_client do
-      http_client.headers["Accept"] = "application/json"
-    end
-
-    before :each do
-      prepare_http_client
-    end
+    # let :prepare_http_client do
+    #   http_client.headers["Accept"] = "application/json"
+    # end
+    #
+    # before :each do
+    #   prepare_http_client
+    # end
 
     context "against /" do
       scenario "json response is correct" do
