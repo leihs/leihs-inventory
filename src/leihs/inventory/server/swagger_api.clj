@@ -89,7 +89,6 @@
     (boolean (re-find file-extension-regex uri))))
 
 (defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
   fnc)
 
@@ -97,28 +96,18 @@
   (some #(str/ends-with? uri %) known-file-extensions))
 
 (defn fetch-file-entry "Return asset-entry if file requested and uri contains no '/static/'" [uri assets]
-  ;(if (and (file-request? uri) )
   (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
     (some (fn [[key value]]
             (if (or (clojure.string/includes? (str key) uri)
                     (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
-              value)) ;; Return the value directly if a match is found
+              value))
           assets)
     nil))
 
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
-
-        p (println ">o> assets" assets)
-
-        p (println ">o> uri" uri)
-
-        ;asset (get assets uri)
-        ;p (println ">o> asset1" asset)
-
-        asset (fetch-file-entry uri assets)
-        p (println ">o> asset2" asset)]
+        asset (fetch-file-entry uri assets)]
 
     (cond
 

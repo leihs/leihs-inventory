@@ -4,6 +4,9 @@ require "pry"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
+      # basic_auth_plain_faraday_json_client
+      # wtoken_header_plain_faraday_json_client_get
+
       @user = FactoryBot.create(:user, login: "test-user")
       @create_token_url = "/inventory/token/"
       @protected_url = "/inventory/token/protected"
@@ -23,7 +26,13 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+
       end
+
+      puts "resp: #{resp.inspect}"
+      binding.pry
+
       expect(resp.status).to eq(401)
     end
 
@@ -39,7 +48,12 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+
       end
+
+      puts "resp: #{resp.inspect}"
+
       expect(resp.status).to eq(401)
     end
 
@@ -55,7 +69,12 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+
       end
+
+      puts "resp: #{resp.inspect}"
+
       expect(resp.status).to eq(200)
     end
 
@@ -74,7 +93,13 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+        # req.headers["Accept"] = "text/html"
       end
+
+
+      puts "resp: #{resp.inspect}"
+
       expect(resp.status).to eq(200)
       token = resp.body["token"]
       expect(token).to be
@@ -95,7 +120,12 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+
       end
+
+      puts "resp: #{resp.inspect}"
+
       expect(resp.status).to eq(200)
       token = resp.body["token"]
       expect(token).to be
@@ -120,7 +150,13 @@ feature "Call swagger-endpoints" do
           }
         }.to_json
         req.headers["Content-Type"] = "application/json"
+        req.headers["Accept"] = "application/json"
+
       end
+
+      puts "resp: #{resp.inspect}"
+
+
       expect(resp.status).to eq(200)
       token = resp.body["token"]
       expect(token).to be

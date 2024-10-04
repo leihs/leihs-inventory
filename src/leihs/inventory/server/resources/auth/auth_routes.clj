@@ -25,15 +25,13 @@
            (java.util Base64 UUID)))
 
 (defn fetch-hashed-password [request login]
-  (let [p (println ">o> login=" login)
-        query (->
+  (let [query (->
                (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
                (sql/from :authentication_systems_users)
                (sql/join :users [:= :users.id :authentication_systems_users.user_id])
                (sql/where [:= :users.login login]
                           [:= :authentication_systems_users.authentication_system_id "password"])
                sql-format)
-        p (println ">o> query=" query)
         result (jdbc/execute-one! (:tx request) query)]
     (:data result)))
 
@@ -51,10 +49,7 @@
 (defn verify-password-entry [request login password]
   (let [verfication-ok (verify-password request login password)
         query "SELECT * FROM users u WHERE u.login = ?"
-        result (jdbc/execute-one! (:tx request) [query login])
-
-        p (println ">o> verfication-ok" verfication-ok)
-        p (println ">o> result" result)]
+        result (jdbc/execute-one! (:tx request) [query login])]
     (if verfication-ok
       result
       nil)))

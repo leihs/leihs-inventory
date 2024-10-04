@@ -37,6 +37,11 @@ feature "Request " do
     context "against /inventory/status" do
       scenario "status-check for cider" do
         resp = http_client.get "/inventory/status"
+
+        puts "resp: #{resp.inspect}"
+
+        binding.pry
+
         expect(resp.status).to be == 200
         expect(resp.body["memory"]["ok?"]).to be == true
         expect(resp.body["health-checks"]["HikariPool-1.pool.ConnectivityCheck"]["healthy?"]).to be == true
