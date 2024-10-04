@@ -25,15 +25,13 @@
            (java.util Base64 UUID)))
 
 (defn fetch-hashed-password [request login]
-  (let [p (println ">o> login=" login)
-        query (->
+  (let [query (->
                (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
                (sql/from :authentication_systems_users)
                (sql/join :users [:= :users.id :authentication_systems_users.user_id])
                (sql/where [:= :users.login login]
                           [:= :authentication_systems_users.authentication_system_id "password"])
                sql-format)
-        p (println ">o> query=" query)
         result (jdbc/execute-one! (:tx request) query)]
     (:data result)))
 
@@ -44,17 +42,14 @@
             res (checkpw password hashed-password)]
         res)
       (catch Exception e
-        (println "Error in verify-password:" e)
+        (println "Error in verify-password:" (.getMessage e))
         false))
     false))
 
 (defn verify-password-entry [request login password]
   (let [verfication-ok (verify-password request login password)
         query "SELECT * FROM users u WHERE u.login = ?"
-        result (jdbc/execute-one! (:tx request) [query login])
-
-        p (println ">o> verfication-ok" verfication-ok)
-        p (println ">o> result" result)]
+        result (jdbc/execute-one! (:tx request) [query login])]
     (if verfication-ok
       result
       nil)))
@@ -150,7 +145,7 @@
              (response/response {:status "failure" :message "No active session found"}) 404))))
 
       (catch Exception e
-        (println "Error in logout-handler:" e)
+        (println "Error in logout-handler:" (.getMessage e))
         (response/status (response/response {:message (.getMessage e)}) 400)))))
 
 ;; ------------------------------------------------------
@@ -174,7 +169,7 @@
          (response/response {:status "failure" :message "Invalid credentials"}) 401)))
 
     (catch Exception e
-      (println "Error updating password: " e)
+      (println "Error updating password: " (.getMessage e))
       (response/status
        (response/response
         {:message "Error updating password"})
@@ -240,7 +235,7 @@
               expires-sql]
 
         res (try (jdbc/execute-one! (:tx request) data)
-                 (catch Exception e (println "Error inserting token:" e) nil))]
+                 (catch Exception e (println "Error inserting token:" (.getMessage e)) nil))]
     {:token full-token
      :expires_at expires-at
      :scopes scopes}))
