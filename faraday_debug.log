@@ -1,0 +1,110 @@
+# Logfile created on 2024-10-04 16:37:46 +0200 by logger.rb/v1.6.1
+I, [2024-10-04T16:37:46.076302 #69488]  INFO -- request: GET http://localhost:3260/
+I, [2024-10-04T16:37:46.076341 #69488]  INFO -- request: Accept: "application/json"
+User-Agent: "Faraday v1.10.4"
+I, [2024-10-04T16:37:46.079139 #69488]  INFO -- response: Status 200
+I, [2024-10-04T16:37:46.079185 #69488]  INFO -- response: content-type: "application/json"
+content-length: "38"
+server: "http-kit"
+date: "Fri, 4 Oct 2024 14:37:46 GMT"
+I, [2024-10-04T16:37:46.081726 #69488]  INFO -- response: {"message"=>"Welcome to Inventory-API"}
+
+I, [2024-10-04T16:38:30.052557 #83494]  INFO -- request: GET http://localhost:3260/inventory/status
+I, [2024-10-04T16:38:30.052618 #83494]  INFO -- request: Accept: "application/json"
+User-Agent: "Faraday v1.10.4"
+I, [2024-10-04T16:38:30.101538 #83494]  INFO -- response: Status 200
+I, [2024-10-04T16:38:30.101611 #83494]  INFO -- response: content-type: "application/json; charset=utf-8"
+content-length: "668"
+server: "http-kit"
+date: "Fri, 4 Oct 2024 14:38:30 GMT"
+I, [2024-10-04T16:38:30.104098 #83494]  INFO -- response: {"memory"=>
+  {"ok?"=>true,
+   "max"=>"16 GB",
+   "allocated"=>"1.73 GB",
+   "used"=>"555.65 MB",
+   "usage"=>0.03391408920288086},
+ "db-pool"=>
+  {"gauges"=>
+    {"HikariPool-1.pool.ActiveConnections"=>0,
+     "HikariPool-1.pool.IdleConnections"=>2,
+     "HikariPool-1.pool.MaxConnections"=>16,
+     "HikariPool-1.pool.MinConnections"=>2,
+     "HikariPool-1.pool.PendingConnections"=>0,
+     "HikariPool-1.pool.TotalConnections"=>2},
+   "timers"=>
+    {"HikariPool-1.pool.Wait"=>
+      {"count"=>5,
+       "mean-reate"=>0.002157084001994119,
+       "one-minute-rate"=>7.94557890806241e-17,
+       "five-minute-rate"=>0.00010142832171881678,
+       "fifteen-minute-rate"=>0.01570087471790346}}},
+ "health-checks"=>
+  {"HikariPool-1.pool.ConnectivityCheck"=>
+    {"healthy?"=>true, "message"=>nil, "error"=>nil}}}
+
+I, [2024-10-04T16:38:49.073742 #97186]  INFO -- request: GET http://localhost:3260/inventory/status
+I, [2024-10-04T16:38:49.073794 #97186]  INFO -- request: Accept: "application/json"
+User-Agent: "Faraday v1.10.4"
+I, [2024-10-04T16:38:49.077137 #97186]  INFO -- response: Status 200
+I, [2024-10-04T16:38:49.077188 #97186]  INFO -- response: content-type: "application/json; charset=utf-8"
+content-length: "669"
+server: "http-kit"
+date: "Fri, 4 Oct 2024 14:38:49 GMT"
+I, [2024-10-04T16:38:49.079328 #97186]  INFO -- response: {"memory"=>
+  {"ok?"=>true,
+   "max"=>"16 GB",
+   "allocated"=>"1.73 GB",
+   "used"=>"563.65 MB",
+   "usage"=>0.03440237045288086},
+ "db-pool"=>
+  {"gauges"=>
+    {"HikariPool-1.pool.ActiveConnections"=>0,
+     "HikariPool-1.pool.IdleConnections"=>2,
+     "HikariPool-1.pool.MaxConnections"=>16,
+     "HikariPool-1.pool.MinConnections"=>2,
+     "HikariPool-1.pool.PendingConnections"=>0,
+     "HikariPool-1.pool.TotalConnections"=>2},
+   "timers"=>
+    {"HikariPool-1.pool.Wait"=>
+      {"count"=>6,
+       "mean-reate"=>0.002567479412781607,
+       "one-minute-rate"=>0.012453894499523178,
+       "five-minute-rate"=>0.0032393747972672407,
+       "fifteen-minute-rate"=>0.016445530859528174}}},
+ "health-checks"=>
+  {"HikariPool-1.pool.ConnectivityCheck"=>
+    {"healthy?"=>true, "message"=>nil, "error"=>nil}}}
+
+I, [2024-10-04T16:40:21.360723 #25804]  INFO -- request: GET http://localhost:3260/inventory/status
+I, [2024-10-04T16:40:21.360784 #25804]  INFO -- request: Accept: "application/json"
+User-Agent: "Faraday v1.10.4"
+I, [2024-10-04T16:40:21.364291 #25804]  INFO -- response: Status 200
+I, [2024-10-04T16:40:21.364339 #25804]  INFO -- response: content-type: "application/json; charset=utf-8"
+content-length: "669"
+server: "http-kit"
+date: "Fri, 4 Oct 2024 14:40:21 GMT"
+I, [2024-10-04T16:40:21.366530 #25804]  INFO -- response: {"memory"=>
+  {"ok?"=>true,
+   "max"=>"16 GB",
+   "allocated"=>"1.73 GB",
+   "used"=>"565.65 MB",
+   "usage"=>0.03452432155609131},
+ "db-pool"=>
+  {"gauges"=>
+    {"HikariPool-1.pool.ActiveConnections"=>0,
+     "HikariPool-1.pool.IdleConnections"=>2,
+     "HikariPool-1.pool.MaxConnections"=>16,
+     "HikariPool-1.pool.MinConnections"=>2,
+     "HikariPool-1.pool.PendingConnections"=>0,
+     "HikariPool-1.pool.TotalConnections"=>2},
+   "timers"=>
+    {"HikariPool-1.pool.Wait"=>
+      {"count"=>7,
+       "mean-reate"=>0.0028815952045217834,
+       "one-minute-rate"=>0.006657022371594035,
+       "five-minute-rate"=>0.004889875028020509,
+       "fifteen-minute-rate"=>0.015888704477047877}}},
+ "health-checks"=>
+  {"HikariPool-1.pool.ConnectivityCheck"=>
+    {"healthy?"=>true, "message"=>nil, "error"=>nil}}}
+

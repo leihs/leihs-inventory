@@ -29,6 +29,7 @@ feature "Request " do
     context "against /" do
       scenario "json response is correct" do
         resp = http_client.get "/"
+        puts "resp: #{resp.inspect}"
         expect(resp.status).to be == 200
         expect(resp.body["message"]).to be == "Welcome to Inventory-API"
       end
@@ -37,10 +38,6 @@ feature "Request " do
     context "against /inventory/status" do
       scenario "status-check for cider" do
         resp = http_client.get "/inventory/status"
-
-        puts "resp: #{resp.inspect}"
-
-        binding.pry
 
         expect(resp.status).to be == 200
         expect(resp.body["memory"]["ok?"]).to be == true

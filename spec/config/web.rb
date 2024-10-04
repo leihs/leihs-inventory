@@ -1,5 +1,6 @@
 require "faraday"
 require "faraday_middleware"
+require 'logger'
 
 def api_port
   @api_port ||= ENV["API_V2_HTTP_PORT"].presence || 3260
@@ -23,19 +24,41 @@ end
 
 
 
-
-
-
 def plain_faraday_json_client
+
+  logger = Selenium::WebDriver.logger
+
+  # logger = Logger.new('faraday_debug.log')
+  # Logger logger = Logger.getLogger("");
+
   @plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,
     headers: {accept: "application/json"}
   ) do |conn|
+    # Add request logging
+    conn.request :url_encoded
+
+    # Custom logger for file logging
+    conn.response :logger, logger, { headers: true, bodies: true }
+
     yield(conn) if block_given?
+
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
   end
 end
+
+
+# def plain_faraday_json_client
+#   @plain_faraday_json_client ||= Faraday.new(
+#     url: api_base_url,
+#     headers: {accept: "application/json"}
+#   ) do |conn|
+#     yield(conn) if block_given?
+#     conn.response :json, content_type: /\bjson$/
+#     conn.adapter Faraday.default_adapter
+#   end
+# end
 
 # def plain_faraday_client
 #   Faraday.new(
