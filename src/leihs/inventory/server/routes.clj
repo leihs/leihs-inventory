@@ -5,13 +5,23 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler
-                                                              authenticate-handler
+   [leihs.inventory.server.resources.accessories.routes :refer [get-accessories-routes]]
+   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
+                                                              logout-handler
                                                               set-password-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.entitlements.routes :refer [get-entitlements-routes]]
+   [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
+   [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.model-links.routes :refer [get-model-links-routes]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
+   [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
+   [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
+   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
@@ -52,6 +62,18 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
+   (get-properties-routes)
+   (get-pools-routes)
+   (get-categories-routes)
+
+   ;(get-items-routes)
+   ;(get-attachments-routes)
+   ;(get-accessories-routes)
+   ;(get-entitlements-routes)
+   ;(get-model-links-routes)
+
+   (get-images-routes)
+   (get-user-routes)
    (token-routes)])
 
 (defn basic-routes []

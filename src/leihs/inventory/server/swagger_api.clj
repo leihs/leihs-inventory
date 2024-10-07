@@ -32,7 +32,7 @@
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])]
-      (if (.contains (str accept-header) "/json")
+      (if (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"])
         (handler request)
         (custom-not-found-handler request)))))
 

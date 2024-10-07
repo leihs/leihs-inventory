@@ -48,6 +48,76 @@
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 10"
     FEATURE: './spec/features/api/auth_token_spec.rb[1:1:6]'
+'./spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:1:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with direct access rights as a group manager 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with direct access rights as a group manager 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:1:1]'
+'./spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:2:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool without any access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool without any access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:2:1]'
+'./spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:3:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool when creating a new model and retrieving it from the pool 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool when creating a new model and retrieving it from the pool 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:3:1]'
+'./spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:3:2]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool when creating a new model and retrieving it from the pool 02"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool when creating a new model and retrieving it from the pool 02"
+    FEATURE: './spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:3:2]'
+'./spec/features/api/inventory-pools/pools_group_spec.rb[1:1:1:1]':
+  name: "Call inventory-pool endpoints Retrieving models from an inventory pool User with group manager access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool User with group manager access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:1:1]'
+'./spec/features/api/inventory-pools/pools_group_spec.rb[1:1:2:1]':
+  name: "Call inventory-pool endpoints Retrieving models from an inventory pool User without any access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool User without any access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:2:1]'
+'./spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:1]':
+  name: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:1]'
+'./spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:2]':
+  name: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 02"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 02"
+    FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:2]'
+'./spec/features/api/models_spec.rb[1:1:1:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 01"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:1:1]'
+'./spec/features/api/models_spec.rb[1:1:1:2]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 02"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:1:2]'
+'./spec/features/api/models_spec.rb[1:1:2:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 01"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:2:1]'
+'./spec/features/api/models_spec.rb[1:1:2:2]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 02"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:2:2]'
+'./spec/features/api/models_spec.rb[1:1:3:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 01"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:3:1]'
+'./spec/features/api/models_spec.rb[1:1:3:2:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 01"
+    FEATURE: './spec/features/api/models_spec.rb[1:1:3:2:1]'
 './spec/features/api/resources_spec.rb[1:1:1]':
   name: "Call swagger-endpoints revoking the token 01"
   environment_variables:
