@@ -12,6 +12,9 @@
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
+
+   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
+
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
@@ -52,6 +55,7 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
+   (get-user-routes)
    (token-routes)])
 
 (defn basic-routes []

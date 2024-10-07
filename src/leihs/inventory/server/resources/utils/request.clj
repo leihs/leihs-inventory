@@ -16,3 +16,10 @@
   (-> request
       AUTHENTICATED_ENTITY
       boolean not))
+
+
+(defn path-params [request]
+  (-> request :parameters :path ))
+
+(defn body-params [request]
+  (-> request :parameters :body ))

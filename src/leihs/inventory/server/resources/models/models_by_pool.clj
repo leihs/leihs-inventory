@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.by-pool
+(ns leihs.inventory.server.resources.models.models-by-pool
   (:require
    [clojure.set]
    [honey.sql :refer [format]

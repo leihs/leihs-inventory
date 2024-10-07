@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.models.by-pool :refer [get-models-of-pool-handler
+   [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                             create-model-handler-by-pool
                                                             get-models-of-pool-handler
                                                             update-model-handler-by-pool
@@ -10,6 +10,9 @@
                                                          create-model-handler
                                                          update-model-handler
                                                          delete-model-handler]]
+
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -53,12 +56,12 @@
     ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
 
-(defn accept-json-middleware [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
-        (handler request)
-        rh/INDEX-HTML-RESPONSE-OK))))
+;(defn accept-json-middleware [handler]
+;  (fn [request]
+;    (let [accept-header (get-in request [:headers "accept"])]
+;      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
+;        (handler request)
+;        rh/INDEX-HTML-RESPONSE-OK))))
 
 (defn get-model-route []
   ["/models"
