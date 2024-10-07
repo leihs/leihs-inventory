@@ -15,7 +15,7 @@
                                                          update-model-handler
                                                          delete-model-handler]]
 
-   [leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler]]
+   [leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler get-user-details-handler]]
 
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -153,6 +153,22 @@
                             ;:body (s/->Either [s/Any schema])}
                             ;:body s/Any}
                             :body [schema-min]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}
+                       }}}]
+
+   ["details/:user_id"
+    {:get {:conflicting true
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {:user_id s/Uuid}}
+           :handler get-user-details-handler
+           :responses {200 {:description "OK"
+                            ;:body (s/->Either [s/Any schema])}
+                            :body s/Any}
+                            ;:body [schema-min]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}
                        }}}]
