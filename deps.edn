@@ -23,7 +23,8 @@
   cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
   buddy/buddy-auth {:mvn/version "2.2.0"}
   digest/digest {:mvn/version "1.4.10"}
-  cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}}
+  cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
+  org.clojure/data.codec {:mvn/version "0.1.1"}}
 
  :aliases
  {:build {:deps
