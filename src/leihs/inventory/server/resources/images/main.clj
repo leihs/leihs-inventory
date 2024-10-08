@@ -20,45 +20,6 @@
    [java.io ByteArrayInputStream]))
 
 
-(defn ->when [x pred y]
-  (if pred
-    (-> x y)
-    x))
-
-;(defn decode-base64 [base64-str]
-;  (let [decoder (b64/decode (.getBytes base64-str "UTF-8"))]
-;    (io/input-stream decoder)))
-
-
-;(defn serve-image-base64-url [result]
-;  (let [base64-content (:content result)
-;        content-type (:content_type result)
-;        data-url (str "data:" content-type ";base64," base64-content)]
-;    {:status 200
-;     ;:headers {"Content-Type" "text/plain"} ; Optional: specify a content type that displays raw text or data
-;     :headers {"Content-Type" "image/jpeg"} ; Optional: specify a content type that displays raw text or data
-;     :body data-url}))
-;
-;(defn decode-base64 [base64-str]
-;  (let [decoded-bytes (.decode (Base64/getDecoder) base64-str)]
-;    (ByteArrayInputStream. decoded-bytes)))
-;
-;
-;(defn serve-base64-image [result]
-;  {:status 200
-;   :headers {"Content-Type" (:content_type result)
-;             "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")
-;             "Content-Transfer-Encoding" "base64"}
-;   ;:body (:content result)}) ; directly sending the Base64 content as body
-;   :body (encode (.getBytes (:content result)))
-;   }) ; directly sending the Base64 content as body
-
-(defn ->when [x pred y]
-  (if pred
-    (-> x y)
-    x))
-
-
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
@@ -73,18 +34,73 @@
 
 
 
+;(defn url-safe-to-standard-base64 [base64-str]
+;  (-> base64-str
+;    (clojure.string/replace "-" "+")
+;    (clojure.string/replace "_" "/")))
+;
+;
+;
+;(defn add-padding [base64-str]
+;  (let [mod (mod (count base64-str) 4)]
+;    (cond
+;      (= mod 2) (str base64-str "==")
+;      (= mod 3) (str base64-str "=")
+;      :else base64-str)))
+;
+;
+;(defn decode-base64-str [base64-str]
+;  (let [cleaned-str (-> base64-str
+;                      clean-base64-string
+;                      url-safe-to-standard-base64
+;                      add-padding)
+;        decoder (Base64/getDecoder)]
+;    (.decode decoder cleaned-str)))
+;
+;(defn save-base64-image-to-file [base64-str output-filepath]
+;  (try
+;    (let [decoded-bytes (decode-base64-str base64-str)]
+;      (with-open [output-stream (io/output-stream output-filepath)]
+;        (.write output-stream decoded-bytes)))
+;    (catch IllegalArgumentException e
+;      (println "Failed to decode Base64 string:" (.getMessage e)))))
+;
+;
+;
+;(defn serve-image-file [filepath content-type]
+;  {:status 200
+;   :headers {"Content-Type" content-type
+;             "Content-Disposition" (str "inline; filename=\"" (.getName (io/file filepath)) "\"")}
+;   :body (io/input-stream filepath)})
+;
+;(defn handle-base64-image-request [result]
+;  (let [output-filepath (:filename result)
+;        content-type (:content_type result)
+;        base64-str (:content result)]
+;    (save-base64-image-to-file base64-str output-filepath)
+;    (serve-image-file output-filepath content-type)))
+
+
+
+
+
+
+
+
+
+
+
+;(ns your-namespace
+;  (:require [clojure.java.io :as io])
+;  (:import (java.util Base64)))
+
+(defn clean-base64-string [base64-str]
+  (clojure.string/replace base64-str #"\s+" ""))
+
 (defn url-safe-to-standard-base64 [base64-str]
   (-> base64-str
     (clojure.string/replace "-" "+")
     (clojure.string/replace "_" "/")))
-
-
-
-(defn save-base64-image-to-file [base64-str output-filepath]
-  (let [decoder (Base64/getDecoder)
-        decoded-bytes (.decode decoder base64-str)]
-    (with-open [output-stream (io/output-stream output-filepath)]
-      (.write output-stream decoded-bytes))))
 
 (defn add-padding [base64-str]
   (let [mod (mod (count base64-str) 4)]
@@ -92,7 +108,6 @@
       (= mod 2) (str base64-str "==")
       (= mod 3) (str base64-str "=")
       :else base64-str)))
-
 
 (defn decode-base64-str [base64-str]
   (let [cleaned-str (-> base64-str
@@ -102,27 +117,31 @@
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
-(defn save-base64-image-to-file [base64-str output-filepath]
+(defn handle-base64-image-request [result]
   (try
-    (let [decoded-bytes (decode-base64-str base64-str)]
-      (with-open [output-stream (io/output-stream output-filepath)]
-        (.write output-stream decoded-bytes)))
+    (let [content-type (:content_type result)
+          base64-str (:content result)
+
+          p (println ">o> base64-str" base64-str)
+
+          decoded-bytes (decode-base64-str base64-str)]
+      {:status 200
+       :headers {"Content-Type" content-type
+                 "Content-Disposition" "inline"}
+       :body (io/input-stream (java.io.ByteArrayInputStream. decoded-bytes))})
     (catch IllegalArgumentException e
-      (println "Failed to decode Base64 string:" (.getMessage e)))))
+      {:status 400
+       :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
 
 
-(defn serve-image-file [filepath content-type]
-  {:status 200
-   :headers {"Content-Type" content-type
-             "Content-Disposition" (str "inline; filename=\"" (.getName (io/file filepath)) "\"")}
-   :body (io/input-stream filepath)})
 
-(defn handle-base64-image-request [base64-str]
-  (let [output-filepath "output-image.jpg"
-        content-type "image/jpeg"]
-    (save-base64-image-to-file base64-str output-filepath)
-    (serve-image-file output-filepath content-type)))
+
+
+
+
+
+
 
 
 (defn create-image-response [result]
@@ -243,7 +262,8 @@
         (and (not json-request?) image_id)
 
         ;(create-image-response (first result)
-        (pr ">o>3" (handle-base64-image-request (:content (first result))))
+        (pr ">o>3" (handle-base64-image-request (first result)))
+        ;(pr ">o>3" (handle-base64-image-request (:content (first result))))
         )
 
 
@@ -364,7 +384,11 @@
         (and (not json-request?) image_id)
 
         ;(create-image-response (first result)
-        (pr ">o>3" (handle-base64-image-request (:content (first result))))
+        ;(pr ">o>3" (handle-base64-image-request (:content (first result))))
+
+        (pr ">o>3" (handle-base64-image-request (first result)))
+
+
         )
 
 
