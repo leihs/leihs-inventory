@@ -19,6 +19,7 @@
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
+   [leihs.inventory.server.resources.entitlements.routes :refer [get-entitlements-routes]]
 
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -64,6 +65,7 @@
    (get-items-routes)
    (get-attachments-routes)
    (get-images-routes)
+   (get-entitlements-routes)
    (get-model-links-routes)
    (get-user-routes)
    (token-routes)])
