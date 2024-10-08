@@ -1,22 +1,23 @@
 (ns leihs.inventory.server.routes
   (:refer-clojure :exclude
-                  [keyword replace])
+   [keyword replace])
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler
-                                                              authenticate-handler
+   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
+                                                              logout-handler
                                                               set-password-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
+   [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
-
-   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
-   [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
-   [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
+   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
+   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
 
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -35,7 +36,7 @@
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
+               (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -58,8 +59,9 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
-    (get-properties-routes)
+   (get-properties-routes)
    (get-items-routes)
+   (get-attachments-routes)
    (get-images-routes)
    (get-user-routes)
    (token-routes)])
