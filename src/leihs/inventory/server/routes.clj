@@ -16,6 +16,7 @@
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
+   [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
 
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -57,6 +58,7 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
+    (get-properties-routes)
    (get-items-routes)
    (get-images-routes)
    (get-user-routes)
