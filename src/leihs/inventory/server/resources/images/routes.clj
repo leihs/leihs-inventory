@@ -30,18 +30,14 @@
 
    ["images/:id/thumbnail"
     {:get {:conflicting true
+           :description "Determines image thumbnail by targetID"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
-           ;:swagger {:produces ["application/json"]}
            :swagger {:produces ["application/json" "image/jpeg"]}
-
            :parameters {:path { :id s/Uuid}}
            :handler get-image-thumbnail-handler
-           :responses {200 {:description "OK"
-                            ;:body [schema-min]}
-                            ;:body s/Any
-                            }
+           :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -50,14 +46,10 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
-           ;:swagger {:produces ["application/json"]}
            :swagger {:produces ["application/json" "image/jpeg"]}
            :parameters {:path {:id s/Uuid}}
            :handler get-images-handler
-           :responses {200 {:description "OK"
-                            ;:body [schema-min]}
-                            ;:body s/Any
-                            }
+           :responses {200 {:description "OK" }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -67,13 +59,8 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           ;:parameters {:path {:id s/Uuid}}
-           ;:parameters {:path {:pool_id s/Uuid}}
            :handler get-images-handler
-           :responses {200 {:description "OK"
-                            ;:body [schema-min]}
-                            ;:body s/Any
-                            }
+           :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 

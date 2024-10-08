@@ -1,45 +1,19 @@
-;(ns leihs.inventory.server.resources.images.main
-;  (:require
-;   [clojure.data.codec.base64 :as b64]
-;   ;[clojure.java.io :as io]
-;
-;   [clojure.set]
-;
-;   [honey.sql :refer [format] :rename {format sql-format}]
-;   [honey.sql.helpers :as sql]
-;   [leihs.inventory.server.resources.utils.request :refer [path-params]]
-;   [next.jdbc.sql :as jdbc]
-;
-;   [ring.middleware.accept]
-;   [ring.util.response :refer [bad-request response status]]
-;   [taoensso.timbre :refer [error]])
-;
-;  (:import [java.util Base64]
-;    [java.io ByteArrayInputStream])
-;  )
-
 
 (ns leihs.inventory.server.resources.images.main
   (:require
-   ;[clojure.data.codec.base64 :as b64]  ; Remove this line
+
+   [clojure.java.io :as io]
 
    [clojure.set]
-
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
 
+   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]
-  [clojure.java.io :as io]
 
-
-   ;[ring.util.response :as response]
-
-  ;(require '[clojure.java.io :as io])
-  ;(import '[java.util Base64]
    )
 
   (:import [java.util Base64]
@@ -154,9 +128,9 @@
 (defn create-image-response [result]
   {:status 200
    :headers {"Content-Type" (:content_type result)
-             "Content-Length" (str (:size result)) ; Ensure size is converted to string
+             "Content-Length" (str (:size result))          ; Ensure size is converted to string
              "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")}
-   :body (:data result)}) ; Directly assigns the data without decoding
+   :body (:data result)})                                   ; Directly assigns the data without decoding
 
 
 (defn create-image-response [result]
@@ -165,7 +139,7 @@
    ;          "Content-Length" (str (:size result)) ; Ensure size is converted to string
    ;          "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")}
    ;:body (:data result)}) ; Directly assigns the data without decoding
-   :body result}) ; Directly assigns the data without decoding
+   :body result})                                           ; Directly assigns the data without decoding
 
 
 
@@ -193,7 +167,7 @@
           p (println ">o> >>>" image_id is-thumbnail?)
 
           query (-> (sql/select :i.*)
-          ;query (-> (sql/select :i.target_id)
+                  ;query (-> (sql/select :i.target_id)
                   (sql/from [:images :i])
                   ;(sql/where [:= :i.inventory_pool_id pool_id])
                   ;(cond-> image_id (sql/where [:= :i.id item_id]))
@@ -202,15 +176,15 @@
 
                   (cond-> image_id
 
-                  (sql/where [:= :i.target_id
+                    (sql/where [:= :i.target_id
 
-                              (-> (sql/select :i.target_id)
-                                (sql/from [:images :i])
-                                (sql/where [:= :i.id image_id])
+                                (-> (sql/select :i.target_id)
+                                  (sql/from [:images :i])
+                                  (sql/where [:= :i.id image_id])
 
-                                )
+                                  )
 
-                              ])
+                                ])
                     )
 
 
@@ -259,27 +233,26 @@
 
       (cond
         ;(and json-request?  image_id) (pr ">o>2"(response  {:data result})) ;one
-        (and json-request?  image_id) (pr ">o>2"(response   result)) ;one
+        (and json-request? image_id) (pr ">o>2" (response result)) ;one
         ;(and json-request?  image_id) (pr ">o>2"{        :headers {"Content-Type" "application/json"}
         ;                                         :data result
         ;                                         :status 200
         ;                                         }) ;one
 
-        (and json-request?  (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
+        (and json-request? (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
         (and (not json-request?) image_id)
 
         ;(create-image-response (first result)
-        (pr ">o>3"(handle-base64-image-request (:content (first result))))
-          )
+        (pr ">o>3" (handle-base64-image-request (:content (first result))))
+        )
 
 
-        ;)
+      ;)
 
 
       ;(if      (= accept-header "image/jpeg")
       ;(handle-base64-image-request (:content result))
       ; )
-
 
       )
     (catch Exception e
@@ -310,29 +283,29 @@
           p (println ">o> request.keys2 =>>" (:headers request))
           p (println ">o> request.keys3 =>>" (get request [:headers "accept"]))
 
-          is-thumbnail? false
+          is-thumbnail? true
 
           p (println ">o> >>>" image_id is-thumbnail?)
 
           query (-> (sql/select :i.*)
-          ;query (-> (sql/select :i.target_id)
+                  ;query (-> (sql/select :i.target_id)
                   (sql/from [:images :i])
                   ;(sql/where [:= :i.inventory_pool_id pool_id])
                   ;(cond-> image_id (sql/where [:= :i.id item_id]))
                   (sql/where [:= :i.thumbnail is-thumbnail?])
 
+                  (cond-> is-thumbnail? (sql/where [:= :i.thumbnail is-thumbnail?] ))
 
                   (cond-> image_id
+                    (sql/where [:= :i.target_id
 
-                  (sql/where [:= :i.target_id
+                                (-> (sql/select :i.target_id)
+                                  (sql/from [:images :i])
+                                  (sql/where [:= :i.id image_id])
 
-                              (-> (sql/select :i.target_id)
-                                (sql/from [:images :i])
-                                (sql/where [:= :i.id image_id])
+                                  )
 
-                                )
-
-                              ])
+                                ])
                     )
 
 
@@ -381,27 +354,26 @@
 
       (cond
         ;(and json-request?  image_id) (pr ">o>2"(response  {:data result})) ;one
-        (and json-request?  image_id) (pr ">o>2"(response   result)) ;one
+        (and json-request? image_id) (pr ">o>2" (response result)) ;one
         ;(and json-request?  image_id) (pr ">o>2"{        :headers {"Content-Type" "application/json"}
         ;                                         :data result
         ;                                         :status 200
         ;                                         }) ;one
 
-        (and json-request?  (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
+        (and json-request? (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
         (and (not json-request?) image_id)
 
         ;(create-image-response (first result)
-        (pr ">o>3"(handle-base64-image-request (:content (first result))))
-          )
+        (pr ">o>3" (handle-base64-image-request (:content (first result))))
+        )
 
 
-        ;)
+      ;)
 
 
       ;(if      (= accept-header "image/jpeg")
       ;(handle-base64-image-request (:content result))
       ; )
-
 
       )
     (catch Exception e
