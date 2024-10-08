@@ -12,6 +12,7 @@
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.model-links.routes :refer [ get-model-links-routes]]
 
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
@@ -63,6 +64,7 @@
    (get-items-routes)
    (get-attachments-routes)
    (get-images-routes)
+   (get-model-links-routes)
    (get-user-routes)
    (token-routes)])
 

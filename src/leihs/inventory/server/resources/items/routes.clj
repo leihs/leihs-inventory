@@ -18,10 +18,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def schema-min
-  {:id s/Uuid
-   :name s/Str
-   (s/optional-key :description) (s/maybe s/Str)})
 
 (defn get-items-routes []
   ["/:pool_id"
@@ -56,19 +52,5 @@
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
-
-   ;["details/:user_id"
-   ; {:get {:conflicting true
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-middleware]
-   ;        :swagger {:produces ["application/json"]}
-   ;        :parameters {:path {:user_id s/Uuid}}
-   ;        :handler get-user-details-handler
-   ;        :responses {200 {:description "OK"
-   ;                         :body s/Any}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
-
 
    ])
