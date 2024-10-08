@@ -11,7 +11,7 @@
                                                          create-model-handler
                                                          update-model-handler
                                                          delete-model-handler]]
-   [leihs.inventory.server.resources.images.main :refer [ get-images-handler]]
+   [leihs.inventory.server.resources.images.main :refer [ get-images-handler get-image-thumbnail-handler]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -37,7 +37,7 @@
            :swagger {:produces ["application/json" "image/jpeg"]}
 
            :parameters {:path { :id s/Uuid}}
-           :handler get-images-handler
+           :handler get-image-thumbnail-handler
            :responses {200 {:description "OK"
                             ;:body [schema-min]}
                             ;:body s/Any
@@ -61,7 +61,7 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["images"
+   ["images/"
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

@@ -35,6 +35,9 @@
    [taoensso.timbre :refer [error]]
   [clojure.java.io :as io]
 
+
+   ;[ring.util.response :as response]
+
   ;(require '[clojure.java.io :as io])
   ;(import '[java.util Base64]
    )
@@ -82,6 +85,12 @@
     x))
 
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
 
 
 
@@ -142,6 +151,23 @@
     (serve-image-file output-filepath content-type)))
 
 
+(defn create-image-response [result]
+  {:status 200
+   :headers {"Content-Type" (:content_type result)
+             "Content-Length" (str (:size result)) ; Ensure size is converted to string
+             "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")}
+   :body (:data result)}) ; Directly assigns the data without decoding
+
+
+(defn create-image-response [result]
+  {:status 200
+   ;:headers {"Content-Type" (:content_type result)
+   ;          "Content-Length" (str (:size result)) ; Ensure size is converted to string
+   ;          "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")}
+   ;:body (:data result)}) ; Directly assigns the data without decoding
+   :body result}) ; Directly assigns the data without decoding
+
+
 
 (defn get-images-handler [request]
   (try
@@ -149,6 +175,8 @@
 
 
           accept-header (get-in request [:headers "accept"])
+          is-jpeg? (= accept-header "image/jpeg")
+          json-request? (= accept-header "application/json")
 
 
           p (println ">o> ????")
@@ -186,7 +214,7 @@
                     )
 
 
-                  ;(sql/limit 10)
+                  (sql/limit 2)
                   sql-format)
 
 
@@ -205,11 +233,14 @@
 
           p (println ">o> query" query)
 
+
+
+
           result (jdbc/query tx query)
 
-          result (first result)
+          ;result (first result)
 
-          p (println ">o> result" result)
+          ;p (println ">o> result" result)
           ]
       ;(response result)
 
@@ -225,7 +256,152 @@
       ;(serve-image-base64-url result)
       ;(serve-base64-image result)
 
-      (handle-base64-image-request (:content result))
+
+      (cond
+        ;(and json-request?  image_id) (pr ">o>2"(response  {:data result})) ;one
+        (and json-request?  image_id) (pr ">o>2"(response   result)) ;one
+        ;(and json-request?  image_id) (pr ">o>2"{        :headers {"Content-Type" "application/json"}
+        ;                                         :data result
+        ;                                         :status 200
+        ;                                         }) ;one
+
+        (and json-request?  (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
+        (and (not json-request?) image_id)
+
+        ;(create-image-response (first result)
+        (pr ">o>3"(handle-base64-image-request (:content (first result))))
+          )
+
+
+        ;)
+
+
+      ;(if      (= accept-header "image/jpeg")
+      ;(handle-base64-image-request (:content result))
+      ; )
+
+
+      )
+    (catch Exception e
+      (error "Failed to get pools of user" e)
+      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+
+
+
+
+
+
+(defn get-image-thumbnail-handler [request]
+  (try
+    (let [tx (:tx request)
+
+
+          accept-header (get-in request [:headers "accept"])
+          is-jpeg? (= accept-header "image/jpeg")
+          json-request? (= accept-header "application/json")
+
+
+          p (println ">o> ????")
+          ;pool_id (-> request path-params :pool_id)
+          image_id (-> request path-params :id)
+
+
+          p (println ">o> request.keys1 =>>" (keys request))
+          p (println ">o> request.keys2 =>>" (:headers request))
+          p (println ">o> request.keys3 =>>" (get request [:headers "accept"]))
+
+          is-thumbnail? false
+
+          p (println ">o> >>>" image_id is-thumbnail?)
+
+          query (-> (sql/select :i.*)
+          ;query (-> (sql/select :i.target_id)
+                  (sql/from [:images :i])
+                  ;(sql/where [:= :i.inventory_pool_id pool_id])
+                  ;(cond-> image_id (sql/where [:= :i.id item_id]))
+                  (sql/where [:= :i.thumbnail is-thumbnail?])
+
+
+                  (cond-> image_id
+
+                  (sql/where [:= :i.target_id
+
+                              (-> (sql/select :i.target_id)
+                                (sql/from [:images :i])
+                                (sql/where [:= :i.id image_id])
+
+                                )
+
+                              ])
+                    )
+
+
+                  (sql/limit 10)
+                  sql-format)
+
+
+          ;query (-> (sql/select :i.target_id)
+          ;        (sql/from [:images :i])
+          ;        (sql/where [:= :i.id item_id])
+          ;        sql-format)
+          ;
+          ;query (-> (sql/select :i.target_id)
+          ;        (sql/from [:images :i])
+          ;        ;(sql/where [:= :i.inventory_pool_id pool_id])
+          ;        ;(cond-> image_id (sql/where [:= :i.id item_id]))
+          ;        (sql/where [:= :i.id item_id])
+          ;        ;(sql/limit 10)
+          ;        sql-format)
+
+          p (println ">o> query" query)
+
+
+
+
+          result (jdbc/query tx query)
+
+          ;result (first result)
+
+          ;p (println ">o> result" result)
+          ]
+      ;(response result)
+
+      ;{:status 200, :headers {
+      ;                        "Content-Type" (:content_type result)
+      ;                        "Content-Length" (:size result)
+      ;                        "Content-Disposition" (str "inline; filename=\"" (:filename result) "\";")
+      ;                        ;"Content-Transfer-Encoding" "binary"
+      ;                        ;}, :body (decode-base64 (:data result))}
+      ;                        }, :body  (:data result)}
+
+
+      ;(serve-image-base64-url result)
+      ;(serve-base64-image result)
+
+
+      (cond
+        ;(and json-request?  image_id) (pr ">o>2"(response  {:data result})) ;one
+        (and json-request?  image_id) (pr ">o>2"(response   result)) ;one
+        ;(and json-request?  image_id) (pr ">o>2"{        :headers {"Content-Type" "application/json"}
+        ;                                         :data result
+        ;                                         :status 200
+        ;                                         }) ;one
+
+        (and json-request?  (nil? image_id)) (pr ">o>1" (response {:data result})) ;;all
+        (and (not json-request?) image_id)
+
+        ;(create-image-response (first result)
+        (pr ">o>3"(handle-base64-image-request (:content (first result))))
+          )
+
+
+        ;)
+
+
+      ;(if      (= accept-header "image/jpeg")
+      ;(handle-base64-image-request (:content result))
+      ; )
+
 
       )
     (catch Exception e
