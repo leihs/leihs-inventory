@@ -10,17 +10,6 @@
    [taoensso.timbre :refer [error]]))
 
 
-(defn ->when [x pred y]
-  (if pred
-    (-> x y)
-    x))
-
-
-(defn ->when [x pred y]
-  (if pred
-    (-> x y)
-    x))
-
 (defn get-items-of-pool-handler [request]
   (try
     (let [tx (:tx request)

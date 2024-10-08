@@ -5,6 +5,7 @@
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc.sql :as jdbc]
+   [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -28,6 +29,26 @@
       (nil? id) {:body result}
       (nil? (first result)) {:status 204}
       :else {:body (first result)})))
+
+
+(defn get-models-compatible-handler [request]
+  (try
+    (let [tx (:tx request)
+          model_id (-> request path-params :model_id)
+          query (-> (sql/select [:m.id :model_id] :m2.*)
+                  (sql/from [:models_compatibles :mc])
+                  (sql/join [:models :m] [:= :mc.model_id :m.id])
+                  (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
+                  ;(sql/where [:= :i.inventory_pool_id pool_id])
+                  (cond-> model_id (sql/where [:= :m.id model_id]))
+                  (sql/limit 10)
+                  sql-format)
+          result (jdbc/query tx query)]
+      (response result))
+    (catch Exception e
+      (error "Failed to get pools of user" e)
+      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+
 
 (defn get-models-handler [request]
   (let [tx (:tx request)

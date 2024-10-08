@@ -9,7 +9,8 @@
    [leihs.inventory.server.resources.models.main :refer [get-models-handler
                                                          create-model-handler
                                                          update-model-handler
-                                                         delete-model-handler]]
+                                                         delete-model-handler
+                                                         get-models-compatible-handler]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
 
@@ -62,74 +63,208 @@
 ;      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
 ;        (handler request)
 ;        rh/INDEX-HTML-RESPONSE-OK))))
+;
+;(defn get-model-route []
+;
+;  [
+;   "/"
+;   {:swagger {:conflicting true
+;              :tags ["Models"] :security []}}
+;
+;   ["models-compatibles"
+;   {:get {:conflicting true
+;          :accept "application/json"
+;          :coercion reitit.coercion.schema/coercion
+;          :middleware [accept-json-middleware]
+;          :swagger {:produces ["application/json"]}
+;          :parameters {:path {:model_id s/Uuid}}
+;          :handler get-models-compatible-handler
+;          :responses {200 {:description "OK"
+;                           ;:body (s/->Either [s/Any schema])}
+;                           :body s/Any}
+;                      404 {:description "Not Found"}
+;                      500 {:description "Internal Server Error"}}}}
+;
+;    {:get {:conflicting true
+;          :accept "application/json"
+;          :coercion reitit.coercion.schema/coercion
+;          :middleware [accept-json-middleware]
+;          :swagger {:produces ["application/json"]}
+;          ;:parameters {:path {:model_id s/Uuid}}
+;          :handler get-models-compatible-handler
+;          :responses {200 {:description "OK"
+;                           ;:body (s/->Either [s/Any schema])}
+;                           :body s/Any}
+;                      404 {:description "Not Found"}
+;                      500 {:description "Internal Server Error"}}}}
+;
+;
+;    ]
+;
+;  [
+;
+;   "models"
+;
+;
+;
+;   [""
+;    {:get {:conflicting true
+;           :accept "application/json"
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json" "text/html"]}
+;           :handler get-models-handler
+;           :description "Get all models, default: page=1, size=10, sort_by=manufacturer-asc"
+;           :parameters {:query {(s/optional-key :page) s/Int
+;                                (s/optional-key :size) s/Int
+;                                (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+;                                (s/optional-key :filter_manufacturer) s/Str
+;                                (s/optional-key :filter_product) s/Str}}
+;           :responses {200 {:description "OK"
+;                            :body (s/->Either [s/Any schema])}
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}
+;
+;     :post {:summary "Create model."
+;            :accept "application/json"
+;            :coercion reitit.coercion.schema/coercion
+;            :parameters {:body schema-min}
+;            :middleware [accept-json-middleware]
+;            :handler create-model-handler
+;            :responses {200 {:description "Returns the created model."
+;                             :body s/Any}
+;                        400 {:description "Bad Request / Duplicate key value of ?product?"
+;                             :body s/Any}}}}]
+;
+;   ["/:id"
+;    {:get {:accept "application/json"
+;           :conflicting true
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json"]}
+;           :handler get-models-handler
+;           :parameters {:path {:id s/Uuid}}
+;           :responses {200 {:description "OK"
+;                            :body (s/->Either [s/Any schema])}
+;                       204 {:description "No Content"}
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}
+;
+;     :put {:accept "application/json"
+;           :coercion reitit.coercion.schema/coercion
+;           :parameters {:path {:id s/Uuid}
+;                        :body schema-min}
+;           :middleware [accept-json-middleware]
+;           :handler update-model-handler
+;           :responses {200 {:description "Returns the updated model."
+;                            :body s/Any}}}
+;
+;     :delete {:accept "application/json"
+;              :coercion reitit.coercion.schema/coercion
+;              :parameters {:path {:id s/Uuid}}
+;              :middleware [accept-json-middleware]
+;              :handler delete-model-handler
+;              :responses {200 {:description "Returns the deleted model."
+;                               :body s/Any}
+;                          400 {:description "Bad Request"
+;                               :body s/Any}}}}]]])
+
 
 (defn get-model-route []
-  ["/models"
-
+  ["/"
    {:swagger {:conflicting true
-              :tags ["Models"] :security []}}
+              :tags ["Models"]
+              :security []}}
 
-   [""
+   ["models-compatibles"
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json" "text/html"]}
-           :handler get-models-handler
-           :description "Get all models, default: page=1, size=10, sort_by=manufacturer-asc"
-           :parameters {:query {(s/optional-key :page) s/Int
-                                (s/optional-key :size) s/Int
-                                (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                                (s/optional-key :filter_manufacturer) s/Str
-                                (s/optional-key :filter_product) s/Str}}
+           :swagger {:produces ["application/json"]}
+           ;:parameters {:path {:model_id s/Uuid}}
+           :handler get-models-compatible-handler
            :responses {200 {:description "OK"
-                            :body (s/->Either [s/Any schema])}
+                            :body s/Any}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}
+                       500 {:description "Internal Server Error"}}}}]
 
-     :post {:summary "Create model."
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :parameters {:body schema-min}
-            :middleware [accept-json-middleware]
-            :handler create-model-handler
-            :responses {200 {:description "Returns the created model."
-                             :body s/Any}
-                        400 {:description "Bad Request / Duplicate key value of ?product?"
-                             :body s/Any}}}}]
-
-   ["/:id"
-    {:get {:accept "application/json"
-           :conflicting true
+   ["models-compatibles/:model_id"
+    {:get {:conflicting true
+           :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :handler get-models-handler
-           :parameters {:path {:id s/Uuid}}
+           :parameters {:path {:model_id s/Uuid}}
+           :handler get-models-compatible-handler
            :responses {200 {:description "OK"
-                            :body (s/->Either [s/Any schema])}
-                       204 {:description "No Content"}
+                            :body s/Any}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}
+                       500 {:description "Internal Server Error"}}}}]
 
-     :put {:accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :parameters {:path {:id s/Uuid}
-                        :body schema-min}
-           :middleware [accept-json-middleware]
-           :handler update-model-handler
-           :responses {200 {:description "Returns the updated model."
-                            :body s/Any}}}
+   ["models"
+    [""
+     {:get {:conflicting true
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json" "text/html"]}
+            :handler get-models-handler
+            :description "Get all models, default: page=1, size=10, sort_by=manufacturer-asc"
+            :parameters {:query {(s/optional-key :page) s/Int
+                                 (s/optional-key :size) s/Int
+                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                 (s/optional-key :filter_manufacturer) s/Str
+                                 (s/optional-key :filter_product) s/Str}}
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}
 
-     :delete {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:path {:id s/Uuid}}
-              :middleware [accept-json-middleware]
-              :handler delete-model-handler
-              :responses {200 {:description "Returns the deleted model."
-                               :body s/Any}
-                          400 {:description "Bad Request"
-                               :body s/Any}}}}]])
+      :post {:summary "Create model."
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :parameters {:body schema-min}
+             :middleware [accept-json-middleware]
+             :handler create-model-handler
+             :responses {200 {:description "Returns the created model."
+                              :body s/Any}
+                         400 {:description "Bad Request / Duplicate key value of ?product?"
+                              :body s/Any}}}}]
+
+    ["/:id"
+     {:get {:accept "application/json"
+            :conflicting true
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :handler get-models-handler
+            :parameters {:path {:id s/Uuid}}
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        204 {:description "No Content"}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}
+
+      :put {:accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :parameters {:path {:id s/Uuid}
+                         :body schema-min}
+            :middleware [accept-json-middleware]
+            :handler update-model-handler
+            :responses {200 {:description "Returns the updated model."
+                             :body s/Any}}}
+
+      :delete {:accept "application/json"
+               :coercion reitit.coercion.schema/coercion
+               :parameters {:path {:id s/Uuid}}
+               :middleware [accept-json-middleware]
+               :handler delete-model-handler
+               :responses {200 {:description "Returns the deleted model."
+                                :body s/Any}
+                           400 {:description "Bad Request"
+                                :body s/Any}}}}]]])
+
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
@@ -149,6 +284,7 @@
                             :body (s/->Either [s/Any schema])}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
+
    ["/models"
     [""
      {:post {:conflicting true
