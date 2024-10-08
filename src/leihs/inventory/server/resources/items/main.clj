@@ -26,18 +26,12 @@
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           item_id (-> request path-params :id)
-
-          p (println ">o> >>>" item_id pool_id)
-
           query (-> (sql/select :i.*)
                   (sql/from [:items :i])
                   (sql/where [:= :i.inventory_pool_id pool_id])
                   (cond-> item_id (sql/where [:= :i.id item_id]))
                   (sql/limit 10)
                   sql-format)
-
-          p (println ">o> query" query)
-
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
