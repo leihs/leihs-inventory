@@ -29,12 +29,20 @@
   (:import [java.net URL JarURLConnection]
            [java.util.jar JarFile]))
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])]
-      (if (.contains (str accept-header) "/json")
-        (handler request)
-        (custom-not-found-handler request)))))
+      ;(if (or (.contains (str accept-header) "/json") (.contains (str accept-header) "image/"))
+      (if (some #(clojure.string/includes? accept-header %) ["/json" "image/"])
+
+        (pr "common handler => " (handler request))
+        (pr "not-found-handler" (custom-not-found-handler request))))))
 
 (defn browser-request-matches-javascript? [request]
   "Returns true if the accepted type is javascript or
