@@ -3,6 +3,9 @@
    [clojure.java.io :as io]
             [clojure.string :as str]
 
+
+   [leihs.inventory.server.resources.utils.request :refer [query-params]]
+
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -98,4 +101,19 @@
     (println ">o> paginated_products" paginated-products)
     {:body {:data paginated-products
             :pagination pagination-info}}))
+
+
+
+(defn fetch-pagination-params
+  [request]
+  (let [query-params (query-params request)
+        ;; Retrieve `page` and `size` from query parameters, defaulting to 1 and 10 respectively
+        page (Integer. (or (:page query-params) "1"))
+        per-page (Integer. (or (:size query-params) "10"))
+        offset (* (dec page) per-page)]
+    ;; Return a map containing pagination details
+    {:page page
+     :per-page per-page
+     :offset offset}))
+
 

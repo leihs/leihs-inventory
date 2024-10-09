@@ -51,3 +51,4 @@
 
         (= protocol "jar")
         (list-files-in-jar resource-url dir-uri)))))
+

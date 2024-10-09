@@ -8,15 +8,14 @@
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
 
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
 
 
    [ring.util.response :refer [bad-request response status]]
 
-   [taoensso.timbre :refer [error]])
-(:import (java.time LocalDateTime)))
+   [taoensso.timbre :refer [error]]))
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
@@ -74,6 +73,11 @@
         per_page (or (:size query-params) 10)
         offset (* (dec page) per_page)
 
+
+        {:keys [page per-page offset]} (fetch-pagination-params request)
+
+
+
         ;; Sorting
         sort-by (case (:sort_by query-params)
                   :manufacturer-asc [:models.manufacturer :asc]
@@ -97,13 +101,8 @@
                        (sql/where [:ilike :models.product (str "%" filter-product "%")]))
 
                      (sql/order-by sort-by)
-                     )
-
-        res (create-paginated-response base-query tx per_page page)
-
-        ]
-    res
-    ))
+                     )]
+    (create-paginated-response base-query tx per_page page)))
 
 (defn create-model-handler [request]
   (let [created_ts (LocalDateTime/now)
