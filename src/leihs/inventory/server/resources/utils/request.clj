@@ -20,5 +20,9 @@
 (defn path-params [request]
   (-> request :parameters :path))
 
+
+(defn query-params [request]
+  (-> request :parameters :query))
+
 (defn body-params [request]
   (-> request :parameters :body))

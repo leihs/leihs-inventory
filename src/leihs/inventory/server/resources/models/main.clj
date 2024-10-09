@@ -4,16 +4,19 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.resources.utils.request :refer [query-params]]
+
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
+
+
    [ring.util.response :refer [bad-request response status]]
 
-
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
-
    [taoensso.timbre :refer [error]])
-  (:import (java.time LocalDateTime)))
+(:import (java.time LocalDateTime)))
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
@@ -52,105 +55,6 @@
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
 
-
-;def base-query (-> (sql/from :models)
-;
-;                 (cond-> filter-manufacturer
-;                   (sql/where [:ilike :models.manufacturer (str "%" filter-manufacturer "%")]))
-;
-;                 (cond-> filter-product
-;                   (sql/where [:ilike :models.product (str "%" filter-product "%")]))
-;
-;                 (sql/order-by sort-by))
-;
-;(defn create-base-query [select base-query]
-;
-;  (let [
-;        base-query (->
-;
-;                     (cond-> (nil? select)
-;                       (sql/select [[:%count.* :count]])    ;; fnc to use [[:%count.* :count]] in first query and specified select for results
-;                       (sql/select select))
-;
-;                     base-query
-;
-;                     )
-;
-;        ])
-;
-;  )
-;
-;(create-base-query nil base-query)
-
-
-;; Define base-query to include conditions and sorting
-;(def base-query
-;  (-> (sql/from :models)
-;    (cond-> filter-manufacturer
-;      (sql/where [:ilike :models.manufacturer (str "%" filter-manufacturer "%")]))
-;    (cond-> filter-product
-;      (sql/where [:ilike :models.product (str "%" filter-product "%")]))
-;    (sql/order-by sort-by)))
-
-;; Function to create the base query with dynamic select
-(defn create-base-query
-  ([base-query]
-   (create-base-query nil base-query)
-   )
-
-  ([select base-query]
-   (let [
-
-         p (println ">o> base-query1" base-query)
-
-         base-query (dissoc base-query :order-by)
-         p (println ">o> base-query2" base-query)
-
-         base-query (when (nil? select) (dissoc base-query :select))
-         p (println ">o> base-query3" base-query)
-
-
-
-         res (-> base-query
-
-               ;(cond-> (nil? select) (sql/select [[:%count.* :count]])))
-               (cond-> (nil? select) (sql/select :%count.*)))
-
-         ;(cond->
-         ;  (nil? select) (sql/select :%count.*)
-         ;  (not (nil? select)) (sql/select select)))
-
-
-         p (println ">o> base-query4" res)
-
-         ] res)
-   )
-  )
-
-;
-;(defn create-count-query [base-query]
-;   (let [
-;
-;         p (println ">o> base-query1" base-query)
-;
-;         base-query (dissoc base-query :order-by)
-;         p (println ">o> base-query2" base-query)
-;         base-query (dissoc base-query :select)
-;
-;         ;base-query (when (nil? select) (dissoc base-query :select))
-;         p (println ">o> base-query3" base-query)
-;
-;         res (-> base-query
-;               (sql/select :%count.*))
-;               ;(cond-> (nil? select) (sql/select :%count.*)))
-;         p (println ">o> base-query4" res)
-;
-;         ] res)
-;   )
-
-
-
-
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
@@ -158,53 +62,14 @@
   )
 
 
-;
-;; Function to fetch total product count
-;(defn- fetch-total-products [base-query tx]
-;  (println ">o> abc3")
-;  (let [total-products-query (-> (create-count-query base-query)
-;                               sql-format
-;                               (->> (jdbc/query tx))
-;                               first)]
-;    (println ">o> total_products.new=" total-products-query)
-;    (:count total-products-query)))
-;
-;; Function to fetch paginated product data
-;(defn- fetch-paginated-products [base-query tx per_page offset]
-;  (let [paginated-query (-> base-query
-;                          (sql/limit per_page)
-;                          (sql/offset offset)
-;                          sql-format
-;                          (->> (jdbc/query tx)))]
-;    (println ">o> paginated-query" paginated-query)
-;    (mapv identity paginated-query)))
-;
-;; Main function to call the above functions and return the response
-;(defn get-products-response [base-query tx per_page page]
-;  (let [total-products (fetch-total-products base-query tx)
-;        total-pages (int (Math/ceil (/ total-products (float per_page))))
-;        offset (* (dec page) per_page)
-;        paginated-products (fetch-paginated-products base-query tx per_page offset)
-;        pagination-info {:total_records total-products
-;                         :current_page page
-;                         :per_page per_page
-;                         :total_pages total-pages
-;                         :next_page (when (< page total-pages) (inc page))
-;                         :prev_page (when (> page 1) (dec page))}]
-;    (println ">o> total_products" total-products)
-;    (println ">o> paginated_products" paginated-products)
-;    {:body {:data paginated-products
-;            :pagination pagination-info}}))
-
-
-
-
 (defn get-models-handler [request]
   (let [tx (:tx request)
 
         p (println ">o> abc1")
 
-        query-params (get-in request [:parameters :query])
+        ;query-params (get-in request [:parameters :query])
+        query-params (query-params request)
+
         page (or (:page query-params) 1)
         per_page (or (:size query-params) 10)
         offset (* (dec page) per_page)
@@ -222,8 +87,7 @@
         filter-manufacturer (:filter_manufacturer query-params)
         filter-product (:filter_product query-params)
 
-        base-query (->
-                     (sql/select :*)                        ;; fnc to use [[:%count.* :count]] in first query and specified select for results
+        base-query (-> (sql/select :*)
                      (sql/from :models)
 
                      (cond-> filter-manufacturer
