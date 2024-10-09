@@ -103,18 +103,8 @@
          p (println ">o> base-query2" base-query)
 
          res (-> base-query
-               ;; Conditionally select based on whether `select` is nil
                (cond->
-                 ;(nil? select) (sql/select [[:count.*]])
-                 ;(nil? select) (sql/select [[:raw "count(*)" :count]])
-
-                 ;(nil? select) (sql/select [[:raw "count(*)"]])
                  (nil? select) (sql/select :%count.*)
-
-                 ;(nil? select) (sql/select-count)           ;;not exist
-
-                 ;(nil? select) (sql/select [[:count.* :count]])
-                 ;(nil? select) (sql/select [:count.* :count])
                  (not (nil? select)) (sql/select select)))
 
 
@@ -191,40 +181,43 @@
         total-products-query (-> (create-base-query base-query)
                                sql-format
                                ;println
-                               (->> (jdbc/query tx)))
+                               ;(->> (jdbc/execute-one! tx)))
+                               (->> (jdbc/query tx))
+                               first
+    )
         p (println ">o> abc4")
 
 
         p (println ">o> total_products1.new=" total-products-query)
-        ;total_products (count total-products-query)
-        ;
-        ;p (println ">o> total_products2=" total_products)
-        ;
-        ;p (println ">o> abc5")
-        ;
-        ;total_pages (int (Math/ceil (/ total_products (float per_page))))
-        ;
-        ;paginated-query (-> (create-base-query [:*] base-query)
-        ;                  (sql/limit per_page)
-        ;                  (sql/offset offset)
-        ;                  sql-format
-        ;                  (->> (jdbc/query tx)))
-        ;
-        ;paginated_products (mapv identity paginated-query)
-        ;
-        ;pagination-info {:total_records total_products
-        ;                 :current_page page
-        ;                 :total_pages total_pages
-        ;                 :next_page (when (< page total_pages) (inc page))
-        ;                 :prev_page (when (> page 1) (dec page))}
+        total_products (:count total-products-query)
+
+        p (println ">o> total_products2.????=" total_products)
+
+        p (println ">o> abc5")
+
+        total_pages (int (Math/ceil (/ total_products (float per_page))))
+
+        paginated-query (-> (create-base-query [:*] base-query)
+                          (sql/limit per_page)
+                          (sql/offset offset)
+                          sql-format
+                          (->> (jdbc/query tx)))
+
+        paginated_products (mapv identity paginated-query)
+
+        pagination-info {:total_records total_products
+                         :current_page page
+                         :total_pages total_pages
+                         :next_page (when (< page total_pages) (inc page))
+                         :prev_page (when (> page 1) (dec page))}
 
 
-        pagination-info {:total_records 0
-                         :current_page 0
-                         :total_pages 0
-                         :next_page 0
-                         :prev_page 0}
-        paginated_products []
+        ;pagination-info {:total_records 0
+        ;                 :current_page 0
+        ;                 :total_pages 0
+        ;                 :next_page 0
+        ;                 :prev_page 0}
+        ;paginated_products []
 
         ]
 
