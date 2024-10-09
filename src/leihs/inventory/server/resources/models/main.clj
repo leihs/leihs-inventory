@@ -153,6 +153,48 @@
   fnc
   )
 
+
+
+; Function to fetch total product count
+(defn fetch-total-products [base-query tx]
+  (println ">o> abc3")
+  (let [total-products-query (-> (create-count-query base-query)
+                               sql-format
+                               (->> (jdbc/query tx))
+                               first)]
+    (println ">o> total_products.new=" total-products-query)
+    (:count total-products-query)))
+
+; Function to fetch paginated product data
+(defn fetch-paginated-products [base-query tx per_page offset]
+  (let [paginated-query (-> base-query
+                          (sql/limit per_page)
+                          (sql/offset offset)
+                          sql-format
+                          (->> (jdbc/query tx)))]
+    (println ">o> paginated-query" paginated-query)
+    (mapv identity paginated-query)))
+
+; Main function to call the above functions and return the response
+(defn get-products-response [base-query tx per_page page]
+  (let [total-products (fetch-total-products base-query tx)
+        total-pages (int (Math/ceil (/ total-products (float per_page))))
+        offset (* (dec page) per_page)
+        paginated-products (fetch-paginated-products base-query tx per_page offset)
+        pagination-info {:total_records total-products
+                         :current_page page
+                         :per_page per_page
+                         :total_pages total-pages
+                         :next_page (when (< page total-pages) (inc page))
+                         :prev_page (when (> page 1) (dec page))}]
+    (println ">o> total_products" total-products)
+    (println ">o> paginated_products" paginated-products)
+    {:body {:data paginated-products
+            :pagination pagination-info}}))
+
+
+
+
 (defn get-models-handler [request]
   (let [tx (:tx request)
 
@@ -189,78 +231,59 @@
                      (sql/order-by sort-by)
                      )
 
-        p (println ">o> abc3")
-        ;;; Pagination
-        ;;total-products-query (-> base-query
-        ;total-products-query (->
-        ;
-        ;                       ;(sql/select [[:raw "count(*)"]])
-        ;
-        ;                       (sql/select :%count.*)
-        ;
-        ;                       ;(sql/select-count)
-        ;
-        ;                       (sql/from :models)
-        ;                       ;(create-base-query base-query)
-        ;
-        ;                       ;println
-        ;
-        ;                       sql-format
-        ;                       ;println
-        ;                       (->> (jdbc/query tx)))
-        ;p (println ">o> abc4a.count" total-products-query)
 
 
-        total-products-query (-> (create-count-query base-query)
-                               sql-format
-                               ;println
-                               ;(->> (jdbc/execute-one! tx)))
-                               (->> (jdbc/query tx))
-                               first
-                               )
-        p (println ">o> abc4")
+
+    ;    ; first db-call for count and second for data
+    ;
+    ;    p (println ">o> abc3")
+    ;
+    ;    total-products-query (-> (create-count-query base-query)
+    ;                           sql-format
+    ;                           (->> (jdbc/query tx))
+    ;                           first
+    ;                           )
+    ;    p (println ">o> abc4")
+    ;
+    ;
+    ;    p (println ">o> total_products1.new=" total-products-query)
+    ;    total_products (:count total-products-query)
+    ;
+    ;    p (println ">o> total_products2.????=" total_products)
+    ;
+    ;    p (println ">o> abc5")
+    ;
+    ;    total_pages (int (Math/ceil (/ total_products (float per_page))))
+    ;
+    ;    paginated-query (->  base-query
+    ;                      (sql/limit per_page)
+    ;                      (sql/offset offset)
+    ;                      sql-format
+    ;                      (->> (jdbc/query tx)))
+    ;
+    ;    p (println ">o> paginated-query" paginated-query)
+    ;    paginated_products (mapv identity paginated-query)
+    ;
+    ;    p (println ">o> paginated_products" paginated_products)
+    ;
+    ;    pagination-info {:total_records total_products
+    ;                     :current_page page
+    ;                     :total_pages total_pages
+    ;                     :next_page (when (< page total_pages) (inc page))
+    ;                     :prev_page (when (> page 1) (dec page))}
 
 
-        p (println ">o> total_products1.new=" total-products-query)
-        total_products (:count total-products-query)
-
-        p (println ">o> total_products2.????=" total_products)
-
-        p (println ">o> abc5")
-
-        total_pages (int (Math/ceil (/ total_products (float per_page))))
-        ;
-        ;paginated-query (-> (create-base-query [:*] base-query)
-        ;paginated-query (-> (create-base-query [:*] base-query)
-        paginated-query (->  base-query
-                          (sql/limit per_page)
-                          (sql/offset offset)
-                          sql-format
-                          (->> (jdbc/query tx)))
-
-        p (println ">o> paginated-query" paginated-query)
-        paginated_products (mapv identity paginated-query)
-
-        p (println ">o> paginated_products" paginated_products)
-
-        pagination-info {:total_records total_products
-                         :current_page page
-                         :total_pages total_pages
-                         :next_page (when (< page total_pages) (inc page))
-                         :prev_page (when (> page 1) (dec page))}
-
-
-        ;pagination-info {:total_records 0
-        ;                 :current_page 0
-        ;                 :total_pages 0
-        ;                 :next_page 0
-        ;                 :prev_page 0}
-        ;paginated_products []
+        res (get-products-response base-query tx per_page page)
 
         ]
 
-    {:body {:data paginated_products
-            :pagination pagination-info}}))
+    res
+    ;
+    ;{:body {:data paginated_products
+    ;        :pagination pagination-info}}
+
+
+    ))
 
 (defn create-model-handler [request]
   (let [created_ts (LocalDateTime/now)
