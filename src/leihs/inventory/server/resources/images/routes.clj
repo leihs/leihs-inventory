@@ -18,11 +18,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def schema-min
-  {:id s/Uuid
-   :name s/Str
-   (s/optional-key :description) (s/maybe s/Str)})
-
 (defn get-images-routes []
   ["/"
    {:swagger {:conflicting true
@@ -63,5 +58,4 @@
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
-
    ])

@@ -18,11 +18,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def schema-min
-  {:id s/Uuid
-   :name s/Str
-   (s/optional-key :description) (s/maybe s/Str)})
-
 (defn get-properties-routes []
   ["/"
    {:swagger {:conflicting true
@@ -34,11 +29,8 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           ;:parameters {:path {:id s/Uuid}}
-           ;:parameters {:path {:pool_id s/Uuid}}
            :handler get-properties-handler
            :responses {200 {:description "OK"
-                            ;:body [schema-min]}
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]   ])

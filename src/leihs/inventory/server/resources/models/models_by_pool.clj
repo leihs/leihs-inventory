@@ -53,7 +53,6 @@
   (let [result (get-available-models-of-pool request)]
     {:body result}))
 
-
 (defn create-model-handler-by-pool [request]
   (let [created_ts (LocalDateTime/now)
         body-params (:body-params request)

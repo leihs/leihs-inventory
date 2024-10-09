@@ -33,7 +33,6 @@
            :parameters {:path {:pool_id s/Uuid :id s/Uuid}}
            :handler get-model-links-of-pool-handler
            :responses {200 {:description "OK"
-                            ;:body [schema-min]}
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
@@ -44,11 +43,9 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           ;:parameters {:path {:id s/Uuid}}
            :parameters {:path {:pool_id s/Uuid}}
            :handler get-model-links-of-pool-handler
            :responses {200 {:description "OK"
-                            ;:body [schema-min]}
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]

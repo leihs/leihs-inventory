@@ -13,9 +13,6 @@
   (try
     (let [tx (:tx request)
           query (-> (sql/select :p.*)
-                  (sql/from [:properties :p])
-                  ;(sql/where [:= :p.inventory_pool_id pool_id])
-                  ;(cond-> item_id (sql/where [:= :p.id item_id]))
                   (sql/limit 10)
                   sql-format)
           result (jdbc/query tx query)]

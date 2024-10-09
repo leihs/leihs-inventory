@@ -29,10 +29,7 @@
 
 (def SESSION_HANDLING_ACTIVATED? true)
 
-(def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"
-
-                                          ;"/inventory/images"
-                                          ])
+(def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"

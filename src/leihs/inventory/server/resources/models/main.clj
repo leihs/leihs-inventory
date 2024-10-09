@@ -30,7 +30,6 @@
       (nil? (first result)) {:status 204}
       :else {:body (first result)})))
 
-
 (defn get-models-compatible-handler [request]
   (try
     (let [tx (:tx request)
@@ -39,7 +38,6 @@
                   (sql/from [:models_compatibles :mc])
                   (sql/join [:models :m] [:= :mc.model_id :m.id])
                   (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                  ;(sql/where [:= :i.inventory_pool_id pool_id])
                   (cond-> model_id (sql/where [:= :m.id model_id]))
                   (sql/limit 10)
                   sql-format)
@@ -48,7 +46,6 @@
     (catch Exception e
       (error "Failed to get pools of user" e)
       (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
-
 
 (defn get-models-handler [request]
   (let [tx (:tx request)

@@ -20,7 +20,7 @@
                   (sql/join [:model_groups :mg] [:= :m.model_group_id :mg.id])
                   (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
                   (sql/join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
-                  (sql/where [:= :ip.id pool_id]) ; Adjusted to use `:ip.id` as an example
+                  (sql/where [:= :ip.id pool_id])
                   (cond-> model_link_id (sql/where [:= :m.id model_link_id]))
                   (sql/limit 10)
                   sql-format)
@@ -28,5 +28,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of user" e)
-      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+      (error "Failed to get pools of model-links" e)
+      (bad-request {:error "Failed to get pools of model-links" :details (.getMessage e)}))))
