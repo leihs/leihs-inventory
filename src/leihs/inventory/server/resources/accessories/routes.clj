@@ -1,7 +1,7 @@
-(ns leihs.inventory.server.resources.entitlements.routes
+(ns leihs.inventory.server.resources.accessories.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.entitlements.main :refer [get-entitlement-groups-of-pool-handler]]
+   [leihs.inventory.server.resources.accessories.main :refer [get-accessories-of-pool-handler get-accessories-handler]]
    [leihs.inventory.server.resources.models.main :refer [get-models-handler
                                                          create-model-handler
                                                          update-model-handler
@@ -18,32 +18,61 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-entitlements-routes []
-  ["/:pool_id"
-   {:swagger {:conflicting true
-              :tags ["Entitlements"] :security []}}
+(defn get-accessories-routes []
 
-   ["/entitlement-groups/:id"
+  ["/"
+   {:swagger {:conflicting true
+              :tags ["Accessories"] :security []}}
+
+   [":pool_id"
+
+    ["/accessories/:id"
+     {:get {:conflicting true
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :parameters {:path {:pool_id s/Uuid :id s/Uuid}}
+            :handler get-accessories-of-pool-handler
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
+
+    ["/accessories"
+     {:get {:conflicting true
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :parameters {:path {:pool_id s/Uuid}}
+            :handler get-accessories-of-pool-handler
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]]
+
+   ["accessories/:id"
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :parameters {:path {:pool_id s/Uuid :id s/Uuid}}
-           :handler get-entitlement-groups-of-pool-handler
+           :parameters {:path {:id s/Uuid}}
+           :handler get-accessories-handler
            :responses {200 {:description "OK"
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["/entitlement-groups"
+   ["accessories/"
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :parameters {:path {:pool_id s/Uuid}}
-           :handler get-entitlement-groups-of-pool-handler
+         ;:parameters {:path {:pool_id s/Uuid}}
+           :handler get-accessories-handler
            :responses {200 {:description "OK"
                             :body s/Any}
                        404 {:description "Not Found"}

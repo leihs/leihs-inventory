@@ -5,6 +5,7 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
+   [leihs.inventory.server.resources.accessories.routes :refer [get-accessories-routes]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
@@ -64,6 +65,7 @@
    (get-attachments-routes)
    (get-images-routes)
    (get-entitlements-routes)
+   (get-accessories-routes)
    (get-model-links-routes)
    (get-user-routes)
    (token-routes)])

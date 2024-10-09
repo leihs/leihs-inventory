@@ -23,5 +23,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of items" e)
-      (bad-request {:error "Failed to get pools of items" :details (.getMessage e)}))))
+      (error "Failed to get items" e)
+      (bad-request {:error "Failed to get items" :details (.getMessage e)}))))

@@ -19,5 +19,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of properties" e)
-      (bad-request {:error "Failed to get pools of properties" :details (.getMessage e)}))))
+      (error "Failed to get properties" e)
+      (bad-request {:error "Failed to get properties" :details (.getMessage e)}))))

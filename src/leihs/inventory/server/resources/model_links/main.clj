@@ -27,5 +27,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of model-links" e)
-      (bad-request {:error "Failed to get pools of model-links" :details (.getMessage e)}))))
+      (error "Failed to get model-links" e)
+      (bad-request {:error "Failed to get model-links" :details (.getMessage e)}))))

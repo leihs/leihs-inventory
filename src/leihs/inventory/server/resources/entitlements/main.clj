@@ -9,7 +9,7 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-model-links-of-pool-handler [request]
+(defn get-entitlement-groups-of-pool-handler [request]
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
@@ -28,5 +28,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of entitlements" e)
-      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+      (error "Failed to get entitlement-groups" e)
+      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))

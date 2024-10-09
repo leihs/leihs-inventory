@@ -22,8 +22,8 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of user" e)
-      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+      (error "Failed to get user" e)
+      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
 (defn get-user-details-handler [request]
   (try
@@ -55,5 +55,5 @@
                  :token token-res
                  :auth auth-res}))
     (catch Exception e
-      (error "Failed to get pools of user" e)
-      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+      (error "Failed to get user" e)
+      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
