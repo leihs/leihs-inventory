@@ -102,17 +102,50 @@
          base-query (dissoc base-query :order-by)
          p (println ">o> base-query2" base-query)
 
+         base-query (when (nil? select) (dissoc base-query :select))
+         p (println ">o> base-query3" base-query)
+
+
+
          res (-> base-query
-               (cond->
-                 (nil? select) (sql/select :%count.*)
-                 (not (nil? select)) (sql/select select)))
+
+               ;(cond-> (nil? select) (sql/select [[:%count.* :count]])))
+               (cond-> (nil? select) (sql/select :%count.*)))
+
+         ;(cond->
+         ;  (nil? select) (sql/select :%count.*)
+         ;  (not (nil? select)) (sql/select select)))
 
 
-         p (println ">o> base-query3" res)
+         p (println ">o> base-query4" res)
 
          ] res)
    )
   )
+
+
+(defn create-count-query [base-query]
+   (let [
+
+         p (println ">o> base-query1" base-query)
+
+         base-query (dissoc base-query :order-by)
+         p (println ">o> base-query2" base-query)
+         base-query (dissoc base-query :select)
+
+         ;base-query (when (nil? select) (dissoc base-query :select))
+         p (println ">o> base-query3" base-query)
+
+         res (-> base-query
+               (sql/select :%count.*))
+               ;(cond-> (nil? select) (sql/select :%count.*)))
+         p (println ">o> base-query4" res)
+
+         ] res)
+   )
+
+
+
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
@@ -144,7 +177,7 @@
         filter-product (:filter_product query-params)
 
         base-query (->
-                     ;(sql/select :*)                      ;; fnc to use [[:%count.* :count]] in first query and specified select for results
+                     (sql/select :*)                        ;; fnc to use [[:%count.* :count]] in first query and specified select for results
                      (sql/from :models)
 
                      (cond-> filter-manufacturer
@@ -178,13 +211,13 @@
         ;p (println ">o> abc4a.count" total-products-query)
 
 
-        total-products-query (-> (create-base-query base-query)
+        total-products-query (-> (create-count-query base-query)
                                sql-format
                                ;println
                                ;(->> (jdbc/execute-one! tx)))
                                (->> (jdbc/query tx))
                                first
-    )
+                               )
         p (println ">o> abc4")
 
 
@@ -196,14 +229,19 @@
         p (println ">o> abc5")
 
         total_pages (int (Math/ceil (/ total_products (float per_page))))
-
-        paginated-query (-> (create-base-query [:*] base-query)
+        ;
+        ;paginated-query (-> (create-base-query [:*] base-query)
+        ;paginated-query (-> (create-base-query [:*] base-query)
+        paginated-query (->  base-query
                           (sql/limit per_page)
                           (sql/offset offset)
                           sql-format
                           (->> (jdbc/query tx)))
 
+        p (println ">o> paginated-query" paginated-query)
         paginated_products (mapv identity paginated-query)
+
+        p (println ">o> paginated_products" paginated_products)
 
         pagination-info {:total_records total_products
                          :current_page page
