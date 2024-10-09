@@ -15,7 +15,17 @@
 
    [ring.util.response :refer [bad-request response status]]
 
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [error]]
+
+   )
+
+  (:import [java.net URL JarURLConnection]
+
+(java.time LocalDateTime)
+
+
+  [java.util.jar JarFile])
+  )
 
 (defn get-models-handler [request]
   (let [tx (:tx request)

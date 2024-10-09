@@ -1,48 +1,14 @@
 (ns leihs.inventory.server.utils.pagination
   (:require
    [clojure.java.io :as io]
-            [clojure.string :as str]
-
-
-   [leihs.inventory.server.resources.utils.request :refer [query-params]]
-
-   [honey.sql :refer [format]
-    :rename {format sql-format}]
+   [clojure.string :as str]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-
-            ;[leihs.core.auth.session :as session]
-            ;[leihs.core.core :refer [presence]]
-            ;[leihs.core.db :as db]
-            ;[leihs.core.ring-audits :as ring-audits]
-            ;[leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-            ;[leihs.inventory.server.routes :as routes]
-            ;[leihs.inventory.server.utils.response_helper :as rh]
-            ;[muuntaja.core :as m]
-            ;[reitit.coercion.schema]
-            ;[reitit.coercion.spec]
-            ;[reitit.dev.pretty :as pretty]
-            ;[reitit.ring :as ring]
-            ;[reitit.ring.coercion :as coercion]
-            ;[reitit.ring.middleware.exception :as exception]
-            ;[reitit.ring.middleware.multipart :as multipart]
-            ;[reitit.ring.middleware.muuntaja :as muuntaja]
-            ;[reitit.ring.middleware.parameters :as parameters]
-            ;[reitit.swagger :as swagger]
-            ;[reitit.swagger-ui :as swagger-ui]
-            ;[ring.middleware.cookies :refer [wrap-cookies]]
-            ;[ring.util.response :as response]
-   )
-
-  ;(:import [java.net URL JarURLConnection]
-  ;         [java.util.jar JarFile])
-  )
-
-
-
-
+   ))
 
 (defn- create-count-query [base-query]
   (let [
@@ -103,7 +69,7 @@
             :pagination pagination-info}}))
 
 
-
+;; Usage: {:keys [page per-page offset]} (fetch-pagination-params request)
 (defn fetch-pagination-params
   [request]
   (let [query-params (query-params request)
