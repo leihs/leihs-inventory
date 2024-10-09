@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.utils.middleware
   (:require [clojure.string :as str]
-   [leihs.inventory.server.utils.response_helper :as rh]
-   ))
+            [leihs.inventory.server.utils.response_helper :as rh]))
 
 (defn accept-json-middleware [handler]
   (fn [request]

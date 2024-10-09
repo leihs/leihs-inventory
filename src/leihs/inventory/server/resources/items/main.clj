@@ -9,18 +9,17 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
 (defn get-items-of-pool-handler [request]
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
           item_id (-> request path-params :id)
           query (-> (sql/select :i.*)
-                  (sql/from [:items :i])
-                  (sql/where [:= :i.inventory_pool_id pool_id])
-                  (cond-> item_id (sql/where [:= :i.id item_id]))
-                  (sql/limit 10)
-                  sql-format)
+                    (sql/from [:items :i])
+                    (sql/where [:= :i.inventory_pool_id pool_id])
+                    (cond-> item_id (sql/where [:= :i.id item_id]))
+                    (sql/limit 10)
+                    sql-format)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e

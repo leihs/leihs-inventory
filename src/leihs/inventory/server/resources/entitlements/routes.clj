@@ -1,23 +1,22 @@
 (ns leihs.inventory.server.resources.entitlements.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.resources.entitlements.main :refer [get-model-links-of-pool-handler]]
+   [leihs.inventory.server.resources.models.main :refer [get-models-handler
+                                                         create-model-handler
+                                                         update-model-handler
+                                                         delete-model-handler]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    get-models-of-pool-handler
                                                                    update-model-handler-by-pool
                                                                    delete-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.resources.models.main :refer [get-models-handler
-                                                         create-model-handler
-                                                         update-model-handler
-                                                         delete-model-handler]]
-   [leihs.inventory.server.resources.entitlements.main :refer [ get-model-links-of-pool-handler]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
 
 (defn get-entitlements-routes []
   ["/:pool_id"
@@ -51,4 +50,4 @@
                             ;:body [schema-min]}
                             :body s/Any}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]   ])
+                       500 {:description "Internal Server Error"}}}}]])

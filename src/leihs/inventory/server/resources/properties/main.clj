@@ -13,10 +13,11 @@
   (try
     (let [tx (:tx request)
           query (-> (sql/select :p.*)
-                  (sql/limit 10)
-                  sql-format)
+                    (sql/from [:properties :p])
+                    (sql/limit 10)
+                    sql-format)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get pools of user" e)
-      (bad-request {:error "Failed to get pools of user" :details (.getMessage e)}))))
+      (error "Failed to get pools of properties" e)
+      (bad-request {:error "Failed to get pools of properties" :details (.getMessage e)}))))

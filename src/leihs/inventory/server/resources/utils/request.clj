@@ -17,9 +17,8 @@
       AUTHENTICATED_ENTITY
       boolean not))
 
-
 (defn path-params [request]
-  (-> request :parameters :path ))
+  (-> request :parameters :path))
 
 (defn body-params [request]
-  (-> request :parameters :body ))
+  (-> request :parameters :body))

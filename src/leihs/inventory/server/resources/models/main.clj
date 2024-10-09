@@ -4,8 +4,8 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [next.jdbc.sql :as jdbc]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
+   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -35,12 +35,12 @@
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
           query (-> (sql/select [:m.id :model_id] :m2.*)
-                  (sql/from [:models_compatibles :mc])
-                  (sql/join [:models :m] [:= :mc.model_id :m.id])
-                  (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                  (cond-> model_id (sql/where [:= :m.id model_id]))
-                  (sql/limit 10)
-                  sql-format)
+                    (sql/from [:models_compatibles :mc])
+                    (sql/join [:models :m] [:= :mc.model_id :m.id])
+                    (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
+                    (cond-> model_id (sql/where [:= :m.id model_id]))
+                    (sql/limit 10)
+                    sql-format)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e

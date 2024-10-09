@@ -1,23 +1,23 @@
 (ns leihs.inventory.server.resources.images.main
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [clojure.string :as str]
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
-  (:import [java.util Base64]
-   [java.io ByteArrayInputStream]))
+  (:import [java.io ByteArrayInputStream]
+           [java.util Base64]))
 
 (defn- clean-base64-string [base64-str]
   (clojure.string/replace base64-str #"\s+" ""))
 
 (defn- url-safe-to-standard-base64 [base64-str]
   (-> base64-str
-    (clojure.string/replace "-" "+")
-    (clojure.string/replace "_" "/")))
+      (clojure.string/replace "-" "+")
+      (clojure.string/replace "_" "/")))
 
 (defn- add-padding [base64-str]
   (let [mod (mod (count base64-str) 4)]
@@ -28,9 +28,9 @@
 
 (defn- decode-base64-str [base64-str]
   (let [cleaned-str (-> base64-str
-                      clean-base64-string
-                      url-safe-to-standard-base64
-                      add-padding)
+                        clean-base64-string
+                        url-safe-to-standard-base64
+                        add-padding)
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
@@ -55,15 +55,15 @@
           image_id (-> request path-params :id)
           is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
           query (-> (sql/select :i.*)
-                  (sql/from [:images :i])
-                  (sql/where [:= :i.thumbnail is-thumbnail?])
-                  (cond-> image_id
-                    (sql/where [:= :i.target_id
-                                (-> (sql/select :i.target_id)
-                                  (sql/from [:images :i])
-                                  (sql/where [:= :i.id image_id]))]))
-                  (sql/limit 2)
-                  sql-format)
+                    (sql/from [:images :i])
+                    (sql/where [:= :i.thumbnail is-thumbnail?])
+                    (cond-> image_id
+                      (sql/where [:= :i.target_id
+                                  (-> (sql/select :i.target_id)
+                                      (sql/from [:images :i])
+                                      (sql/where [:= :i.id image_id]))]))
+                    (sql/limit 2)
+                    sql-format)
           result (jdbc/query tx query)]
       (cond
         (and json-request? image_id) (response result)
