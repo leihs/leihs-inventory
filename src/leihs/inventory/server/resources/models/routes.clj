@@ -1,16 +1,18 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.models.main :refer [get-models-handler
-                                                         create-model-handler
-                                                         update-model-handler
+   [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
-                                                         get-models-compatible-handler]]
+                                                         get-models-compatible-handler
+                                                         get-models-handler
+                                                         update-model-handler]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
+                                                                   delete-model-handler-by-pool
                                                                    get-models-of-pool-handler
-                                                                   update-model-handler-by-pool
-                                                                   delete-model-handler-by-pool]]
+                                                                   get-models-of-pool-with-pagination-handler
+                                                                   get-pools-handler
+                                                                   update-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -41,18 +43,18 @@
    :type s/Str
    :product s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
-    ;(s/optional-key :version) (s/maybe s/Str)
-    ;(s/optional-key :info_url) (s/maybe s/Str)
-    ;(s/optional-key :rental_price) (s/maybe s/Num)
-    ;(s/optional-key :maintenance_period) (s/maybe s/Int)
-    ;(s/optional-key :is_package) (s/maybe s/Bool)
-    ;(s/optional-key :hand_over_note) (s/maybe s/Str)
-    ;(s/optional-key :description) (s/maybe s/Str)
-    ;(s/optional-key :internal_description) (s/maybe s/Str)
-    ;(s/optional-key :technical_detail) (s/maybe s/Str)
-    ;:created_at s/Inst
-    ;:updated_at s/Inst
-    ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
+   ;(s/optional-key :version) (s/maybe s/Str)
+   ;(s/optional-key :info_url) (s/maybe s/Str)
+   ;(s/optional-key :rental_price) (s/maybe s/Num)
+   ;(s/optional-key :maintenance_period) (s/maybe s/Int)
+   ;(s/optional-key :is_package) (s/maybe s/Bool)
+   ;(s/optional-key :hand_over_note) (s/maybe s/Str)
+   ;(s/optional-key :description) (s/maybe s/Str)
+   ;(s/optional-key :internal_description) (s/maybe s/Str)
+   ;(s/optional-key :technical_detail) (s/maybe s/Str)
+   ;:created_at s/Inst
+   ;:updated_at s/Inst
+   ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
    })
 
 (defn get-model-route []
@@ -68,16 +70,12 @@
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
 
-
-           :parameters {:query {
-                                (s/optional-key :page) s/Int
+           :parameters {:query {(s/optional-key :page) s/Int
                                 (s/optional-key :size) s/Int
                                 ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                 ;(s/optional-key :filter_manufacturer) s/Str
                                 ;(s/optional-key :filter_product) s/Str
-                                }
-                        }
-
+                                }}
            :handler get-models-compatible-handler
            :responses {200 {:description "OK"
                             :body s/Any}
@@ -172,8 +170,19 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json" "text/html"]}
-           :parameters {:path {:pool_id s/Uuid}}
-           :handler get-models-of-pool-handler
+
+           ;:parameters {:path {:pool_id s/Uuid}}
+
+           :parameters {
+                        :path {:pool_id s/Uuid}
+
+                        :query {(s/optional-key :page) s/Int
+                                (s/optional-key :size) s/Int
+                                (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                (s/optional-key :filter_manufacturer) s/Str
+                                (s/optional-key :filter_product) s/Str}}
+
+           :handler get-pools-handler
            :responses {200 {:description "OK"
                             :body (s/->Either [s/Any schema])}
                        404 {:description "Not Found"}
@@ -181,7 +190,29 @@
 
    ["/models"
     [""
-     {:post {:conflicting true
+     {:get {:accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json" "text/html"]}
+
+            ;:parameters {:path {:pool_id s/Uuid}}
+
+            :parameters {:path {:pool_id s/Uuid}
+
+                         :query {(s/optional-key :page) s/Int
+                                 (s/optional-key :size) s/Int
+                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                 (s/optional-key :filter_manufacturer) s/Str
+                                 (s/optional-key :filter_product) s/Str}}
+
+            ;:handler get-models-of-pool-handler
+            :handler get-models-of-pool-with-pagination-handler
+            :responses {200 {:description "OK"
+                             :body (s/->Either [s/Any schema])}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}
+
+      :post {:conflicting true
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :middleware [accept-json-middleware]
@@ -190,7 +221,7 @@
                           :body {:product s/Str
                                  :version s/Str
                                  (s/optional-key :type) (s/enum "Software" "Model")
-                                  ;;default: Model
+                                 ;;default: Model
                                  (s/optional-key :is_package) s/Bool}}
 
              :handler create-model-handler-by-pool
