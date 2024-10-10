@@ -193,11 +193,7 @@
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}
-
-            ;:parameters {:path {:pool_id s/Uuid}}
-
             :parameters {:path {:pool_id s/Uuid}
-
                          :query {(s/optional-key :page) s/Int
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
@@ -206,6 +202,7 @@
 
             ;:handler get-models-of-pool-handler
             :handler get-models-of-pool-with-pagination-handler
+
             :responses {200 {:description "OK"
                              :body (s/->Either [s/Any schema])}
                         404 {:description "Not Found"}
