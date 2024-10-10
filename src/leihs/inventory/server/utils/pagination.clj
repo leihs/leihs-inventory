@@ -69,17 +69,15 @@
             :pagination pagination-info}}))
 
 
-;; Usage: {:keys [page per-page offset]} (fetch-pagination-params request)
+;; Usage: {:keys [page size]} (fetch-pagination-params request)
 (defn fetch-pagination-params
   [request]
   (let [query-params (query-params request)
-        ;; Retrieve `page` and `size` from query parameters, defaulting to 1 and 10 respectively
         page (Integer. (or (:page query-params) "1"))
-        per-page (Integer. (or (:size query-params) "10"))
-        offset (* (dec page) per-page)]
-    ;; Return a map containing pagination details
+        size (Integer. (or (:size query-params) "10"))
+        ]
     {:page page
-     :per-page per-page
-     :offset offset}))
+     :size size
+     }))
 
 
