@@ -4,83 +4,99 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
+
    [ring.util.response :refer [bad-request response status]]
+
    [taoensso.timbre :refer [error]])
-  (:import (java.time LocalDateTime)))
+
+  (:import [java.net URL JarURLConnection]
+
+           (java.time LocalDateTime)
+
+           [java.util.jar JarFile]))
+
+(defn get-models-compatible-handler [request]
+  (try
+    (let [tx (:tx request)
+          model_id (-> request path-params :model_id)
+
+          p (println ">o> model_id" model_id)
+
+          base-query (-> (sql/select [:m.id :model_id] :m2.*)
+                         (sql/from [:models_compatibles :mc])
+                         (sql/join [:models :m] [:= :mc.model_id :m.id])
+                         (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
+                         (cond-> model_id (sql/where [:= :m.id model_id])))]
+
+      (if model_id
+        (response (jdbc/query tx (-> base-query sql-format)))
+        (let [{:keys [page size]} (fetch-pagination-params request)] (create-paginated-response base-query tx size page))))
+
+    (catch Exception e
+      (error "Failed to get user" e)
+      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc)
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
-        id (get-in request [:path-params :id])
-        models-query (-> (sql/select :*)
-                         (sql/from :models)
-                         (sql/order-by :models.product)
 
-                         (cond-> id (sql/where [:= :models.id [:cast id :uuid]]))
+        p (println ">o> abc1")
 
-                         (sql/limit 10))
-        result (-> models-query
-                   sql-format
-                   (->> (jdbc/query tx)))]
+        model_id (-> request path-params :id)
 
-    (cond
-      (nil? id) {:body result}
-      (nil? (first result)) {:status 204}
-      :else {:body (first result)})))
+;query-params (get-in request [:parameters :query])
+        query-params (query-params request)
 
-(defn get-models-handler [request]
-  (let [tx (:tx request)
-        query-params (get-in request [:parameters :query])
-        page (or (:page query-params) 1)
-        per_page (or (:size query-params) 10)
-        offset (* (dec page) per_page)
+        ;page (or (:page query-params) 1)
+        ;per_page (or (:size query-params) 10)
+        ;offset (* (dec page) per_page)
 
+        {:keys [page size]} (fetch-pagination-params request)
+
+        p (println ">o> pagei" page size)
+
+;; Sorting
         sort-by (case (:sort_by query-params)
-                  :manufacturer-asc [:models.manufacturer :asc]
-                  :manufacturer-desc [:models.manufacturer :desc]
-                  :product-asc [:models.product :asc]
-                  :product-desc [:models.product :desc]
-                  [:models.product :asc]) ;; default sorting
+                  :manufacturer-asc [:m.manufacturer :asc]
+                  :manufacturer-desc [:m.manufacturer :desc]
+                  :product-asc [:m.product :asc]
+                  :product-desc [:m.product :desc]
+                  [:m.product :asc]) ;; default sorting
+        p (println ">o> abc2")
 
-        filter-manufacturer (:filter_manufacturer query-params)
-        filter-product (:filter_product query-params)
+        ;; Filtering
+        filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
+        filter-product (if-not model_id (:filter_product query-params) nil)
 
+        p (println ">o> abc3")
         base-query (-> (sql/select :*)
-                       (sql/from :models)
+                       (sql/from [:models :m])
 
                        (cond-> filter-manufacturer
-                         (sql/where [:ilike :models.manufacturer (str "%" filter-manufacturer "%")]))
+                         (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
 
                        (cond-> filter-product
-                         (sql/where [:ilike :models.product (str "%" filter-product "%")]))
+                         (sql/where [:ilike :m.product (str "%" filter-product "%")]))
+
+                       (cond-> model_id (sql/where [:= :m.id model_id]))
 
                        (sql/order-by sort-by))
 
-        total-products-query (-> base-query
-                                 sql-format
-                                 (->> (jdbc/query tx)))
+        p (println ">o> abc4" base-query)]
+    ;(create-paginated-response base-query tx size page)
 
-        total_products (count total-products-query)
-
-        total_pages (int (Math/ceil (/ total_products (float per_page))))
-
-        paginated-query (-> base-query
-                            (sql/limit per_page)
-                            (sql/offset offset)
-                            sql-format
-                            (->> (jdbc/query tx)))
-
-        paginated_products (mapv identity paginated-query)
-
-        pagination-info {:total_records total_products
-                         :current_page page
-                         :total_pages total_pages
-                         :next_page (when (< page total_pages) (inc page))
-                         :prev_page (when (> page 1) (dec page))}]
-
-    {:body {:data paginated_products
-            :pagination pagination-info}}))
+    (if model_id
+      (response (jdbc/query tx (-> base-query sql-format)))
+      (let [{:keys [page size]} (fetch-pagination-params request)] (create-paginated-response base-query tx size page)))))
 
 (defn create-model-handler [request]
   (let [created_ts (LocalDateTime/now)
