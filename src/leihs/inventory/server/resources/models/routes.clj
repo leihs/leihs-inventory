@@ -173,8 +173,7 @@
 
            ;:parameters {:path {:pool_id s/Uuid}}
 
-           :parameters {
-                        :path {:pool_id s/Uuid}
+           :parameters {:path {:pool_id s/Uuid}
 
                         :query {(s/optional-key :page) s/Int
                                 (s/optional-key :size) s/Int

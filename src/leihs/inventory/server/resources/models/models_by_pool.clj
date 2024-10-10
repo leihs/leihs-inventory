@@ -166,11 +166,9 @@
                      :updated_at created_ts)]
 
     (try
-      (let [res (jdbc/insert! tx :models model)]
-        (if res
-          (response res)
-          (bad-request {:error "Failed to create model"})))
-
+      (if-let [res (jdbc/insert! tx :models model)]
+        (response res)
+        (bad-request {:error "Failed to create model"}))
       (catch Exception e
         (error "Failed to create model" e)
         (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
@@ -178,12 +176,21 @@
 (defn update-model-handler-by-pool [request]
   (let [model-id (get-in request [:path-params :id])
         body-params (:body-params request)
+        p (println ">o> model-id2 ???" model-id)
+
         tx (:tx request)
         model body-params
+        p (println ">o> model" model)
 
         available-models (get-models-handler request) ;; FIXME
+        p (println ">o> available-models1" available-models)
+        available-models (first available-models) ;; FIXME
 
-        model-id (:model_id (first available-models))]
+        p (println ">o> available-models2" available-models)
+
+        model-id (:id available-models)
+
+        p (println ">o> model-id2 ???" model-id)]
 
     (try
       (let [res (jdbc/update! tx :models model ["id = ?::uuid" model-id])]
@@ -200,7 +207,7 @@
   (let [tx (:tx request)
         model-id (get-in request [:path-params :id])
         available-models (get-models-handler request) ;; FIXME
-        model-id (:model_id (first available-models))]
+        model-id (:id (first available-models))]
 
     (try
       (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
