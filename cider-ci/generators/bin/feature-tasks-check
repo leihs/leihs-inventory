@@ -21,14 +21,20 @@ fi
 
 ./cider-ci/generators/bin/feature-tasks-create
 
+echo "1Feature tasks created"
 if [ ! -f $FEATURE_TASKS_FILE ]; then
   echoerr "$FEATURE_TASKS_FILE not present"
   exit 1
-fi 
+fi
+
+echo "2Checking if $FEATURE_TASKS_FILE is up to date"
+echo "git status --porcelain $FEATURE_TASKS_FILE"
 
 if [ -z "$(git status --porcelain $FEATURE_TASKS_FILE)" ]; then
+  echo "3a my $FEATURE_TASKS_FILE is up to date"
   echo "$FEATURE_TASKS_FILE is up to date"
 else
+  echo "3b my $FEATURE_TASKS_FILE is not up to date"
   echoerr "$FEATURE_TASKS_FILE is not up to date"
   echoerr "call DB_NAME=... ./cider-ci/generators/bin/feature-tasks-create (DB_NAME must be one of installed DBs, see -> psql -l) and commit"
   exit 1

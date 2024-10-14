@@ -23,4 +23,5 @@ tasks:
             script_key: inventory-ruby-bundle
         body: | 
           #!/usr/bin/env bash
+          echo ">> PGHOST=${PG15HOST} PGPORT=${PG15PORT} PGUSER=${PG15USER} 
           PGPORT=${PG15PORT} PGUSER=${PG15USER} ./cider-ci/generators/bin/feature-tasks-check
