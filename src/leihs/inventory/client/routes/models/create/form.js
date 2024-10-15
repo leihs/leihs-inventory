@@ -236,6 +236,7 @@ export const structure = [
     title: "Eigenschaften",
     blocks: [
       {
+        simple: false,
         name: "properties",
         label: "Eigenschaften",
         description: "Listen Sie die Eigenschaften auf",

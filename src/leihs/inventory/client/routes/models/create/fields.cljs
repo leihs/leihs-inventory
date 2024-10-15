@@ -11,6 +11,7 @@
    [uix.core :as uix :refer [defui $]]))
 
 (defui fields [{:keys [block field]}]
+
   ($ FormItem {:class-name "mt-6"}
      (let [input (:input block)]
        (cond
