@@ -38,17 +38,18 @@ function SortableList({ children, items, onDragEnd, setItems = false }) {
   )
 }
 
-function Draggable({ children, className, id, ...props }) {
+function Draggable({ children, className, id, asChild = false, ...props }) {
   const { transition, transform, setNodeRef } = useSortable({ id })
+  const Comp = asChild ? Slot : "div"
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
   return (
-    <div style={style} {...props} ref={setNodeRef}>
+    <Comp style={style} {...props} ref={setNodeRef}>
       {children}
-    </div>
+    </Comp>
   )
 }
 

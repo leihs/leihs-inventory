@@ -7,7 +7,9 @@ import { cn } from "@@/utils"
 export function Scrollspy({ children, className }) {
   return (
     <ScrollspyProvider>
-      <div className={className + " scroll-smooth"}>{children}</div>
+      <div className={className + " scroll-smooth flex flex-col lg:flex-row"}>
+        {children}
+      </div>
     </ScrollspyProvider>
   )
 }

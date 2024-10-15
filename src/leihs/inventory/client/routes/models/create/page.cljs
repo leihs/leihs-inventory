@@ -5,18 +5,12 @@
    ["@/routes/models/create/form" :refer [schema structure]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
-   ["@@/checkbox" :refer [Checkbox]]
-   ["@@/dropzone" :refer [Dropzone]]
-   ["@@/form" :refer [Form FormControl FormDescription FormField FormItem
-                      FormLabel FormMessage]]
-   ["@@/input" :refer [Input]]
-   ["@@/textarea" :refer [Textarea]]
-
+   ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.create.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -61,57 +55,9 @@
                            ($ :hr {:className "mb-4"})
 
                            (for [block (:blocks section)]
-                             ($ FormField {:control (cj control)
-                                           :key (:name block)
-                                           :name (:name block)
-                                           :render #($ FormItem {:class-name "mt-6"}
-                                                       (let [input (:input block)]
-                                                         (cond
-                                                           (-> input :component (= "input"))
-                                                           ($ FormLabel (:label block)
-                                                              ($ FormControl
-                                                                 ($ Input (merge
-                                                                           (:props input)
-                                                                           (:field (jc %))))))
-
-                                                           (-> input :component (= "dropzone"))
-                                                           ($ FormLabel (:label block)
-                                                              ($ FormControl
-                                                                 ($ Dropzone (merge
-                                                                              (:props input)
-                                                                              (:field (jc %))))))
-
-                                                           (-> input :component (= "accessory-list"))
-                                                           ($ FormLabel (:label block)
-                                                              ($ FormControl
-                                                                 ($ AccessoryList (merge
-                                                                                   (:props input)
-                                                                                   (:field (jc %))))))
-
-                                                           (-> input :component (= "textarea"))
-                                                           ($ FormLabel (:label block)
-                                                              ($ FormControl
-                                                                 ($ Textarea (merge
-                                                                              (:props input)
-                                                                              (:field (jc %))))))
-
-                                                           (-> input :component (= "checkbox"))
-                                                           ($ :<>
-                                                              ($ FormControl
-                                                                 ($ Checkbox (merge
-                                                                              {:checked (-> (jc %) :field :value)
-                                                                               :onCheckedChange (-> (jc %) :field :onChange)}
-                                                                              (:props input))))
-
-                                                              ($ FormLabel {:className "pl-4"} (:label block)))
-
-                                                           :else
-                                                           ($ :div "input type not implemented -> " (:component input))))
-
-                                                       ($ FormDescription
-                                                          ($ :<> (:description block)))
-
-                                                       ($ FormMessage))}))))))
+                             ($ form-fields/field {:key (:name block)
+                                                   :control control
+                                                   :block block}))))))
 
                 ($ :div {:className "h-max flex space-x-2 sticky top-[10vh]"}
 

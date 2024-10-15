@@ -59,7 +59,7 @@
                     :on-change #(set-accessory! (.. % -target -value))
                     :on-blur (:onBlur props)
                     :aria-invalid (:aria-invalid props)
-                    :aria-describedby (::aria-describedby props)})
+                    :aria-describedby (:aria-describedby props)})
 
           ($ Button {:type "button"
                      :className ""
