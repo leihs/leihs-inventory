@@ -25,6 +25,7 @@
 
    ["/entitlement-groups/:id"
     {:get {:conflicting true
+           :summary "OK | a.k.a 'Anspruchsgruppen'"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -38,6 +39,7 @@
 
    ["/entitlement-groups"
     {:get {:conflicting true
+           :summary "OK | a.k.a 'Anspruchsgruppen'"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]

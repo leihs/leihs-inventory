@@ -74,5 +74,5 @@
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (handle-base64-image-request (first result))))
     (catch Exception e
-      (error "Failed to retrieve image" e)
+      (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

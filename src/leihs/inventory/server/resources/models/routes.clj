@@ -354,6 +354,7 @@
    ["/models"
     [""
      {:get {:accept "application/json"
+            :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models?search_term="
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}

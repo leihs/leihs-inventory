@@ -6,6 +6,8 @@
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
+            [leihs.core.sign-in.back :as be]
+            [leihs.core.sign-in.simple-login :refer [sign-in-view]]
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
@@ -28,9 +30,7 @@
            [java.util.jar JarFile]))
 
 (def SESSION_HANDLING_ACTIVATED? true)
-
 (def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
-
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
                            ".svg" "image/svg+xml"
@@ -39,16 +39,12 @@
                            ".jpg" "image/jpeg"
                            ".jpeg" "image/jpeg"
                            ".gif" "image/gif"})
-
 (def ALLOWED_RESOURCE_PATHS ["public/inventory/assets"
                              "public/inventory/css"
                              "public/inventory/static"
                              "public/inventory/js"])
-
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
-
 (def RESOURCE_FILES (apply concat (map list-files-in-dir ALLOWED_RESOURCE_PATHS)))
-
 (def SUPPORTED_LOCALES ["/en/" "/de/" "/es/" "/fr/"])
 
 (defn file-request?
@@ -101,24 +97,25 @@
         asset (fetch-file-entry uri assets)]
     (cond
       (= uri "/") (create-root-page)
-      (clojure.string/includes? uri "/sign-in")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (slurp (io/resource "public/sign-in-fallback.html"))}
+
       (and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
         {:status 200
          :headers {"Content-Type" "application/json"}
          :body (slurp (io/resource src))})
+
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
        :headers {"Location" "/inventory"}
        :body ""}
+
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
       {:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response request 200)
+
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
                                  resource (io/resource file)]
@@ -126,10 +123,13 @@
                                {:status 200
                                 :headers {"Content-Type" content-type}
                                 :body (slurp resource)}
-                               (rh/index-html-response 404)))
-                           (rh/index-html-response 404))
+                               (rh/index-html-response request 404)))
+                           (rh/index-html-response request 404))
+
       (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")
+
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
-      (rh/index-html-response 200)
-      :else (rh/index-html-response 404))))
+      (rh/index-html-response request 200)
+
+      :else (rh/index-html-response request 404))))

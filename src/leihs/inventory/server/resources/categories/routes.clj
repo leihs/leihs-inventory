@@ -22,7 +22,7 @@
    [schema.core :as s]))
 
 (defn create-description [url]
-  (str "GET " url " Accept: application/json"))
+  (str "- GET " url " Accept: application/json "))
 
 (defn get-categories-routes []
 
@@ -66,8 +66,9 @@
 
     ["/model-groups"
      ["" {:get {:conflicting true
-                :summary "OK | Zuteilungen anzeigen, [type='Category']"
-                :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=") "| FYI: pool_id is not used by query")
+                :summary "OK | a.k.a 'Categories'"
+                :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=")
+                                  " - FYI: pool_id is not used by query")
                 :accept "application/json"
                ;; TODO: add name-filter and pagination, used?-attribute
                 :coercion reitit.coercion.schema/coercion
@@ -82,7 +83,7 @@
 
      ["/:model_group_id"
       {:get {:conflicting true
-             :summary "Zuteilungen anzeigen"
+             :summary "OK | a.k.a 'Categories'"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :middleware [accept-json-middleware]
@@ -122,7 +123,7 @@
 
     ["/entitlement-groups"
      ["" {:get {:conflicting true
-                :summary "OK | Kategorie anzeigen / ?category == groups?     WRONG => entitlement_groups"
+                :summary "OK | a.k.a 'Anspruchsgruppen'"
                 :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
                 :accept "application/json"
                 :coercion reitit.coercion.schema/coercion
@@ -137,7 +138,7 @@
 
      ["/:entitlement_group_id"
       {:get {:conflicting true
-             :summary "Kategorie anzeigen"
+             :summary "OK | a.k.a 'Anspruchsgruppen'"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :middleware [accept-json-middleware]

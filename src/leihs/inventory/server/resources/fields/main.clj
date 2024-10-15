@@ -37,7 +37,6 @@
            ;           [:exists (user-group-access-right-subquery user-id CUSTOMER-ROLES)]])
            ;        sql-format)
            ;res (jdbc/query tx query)
-           ;p (println ">o> res" res)
 
            base-query (-> (sql/select :*)
                           (sql/from [(-> (sql/select :f.id

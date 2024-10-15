@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.utils.session
   (:require
-   [clojure.string :as clojure.string]))
+   [clojure.string :as clojure.string]
+   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]))
 
 (defn parse-cookie [request]
   (let [cookie-str (get-in request [:headers "cookie"])]
@@ -16,6 +17,7 @@
             {})))))
 
 (defn session-valid? [request]
-  (let [session (parse-cookie request)]
-    (and (get session "leihs-user-session")
-         (get session "leihs-anti-csrf-token"))))
+  (let [session (parse-cookie request)
+        is-authenticated? (authenticated? request)]
+    (and is-authenticated?
+         (get session "leihs-user-session"))))

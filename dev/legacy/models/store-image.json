@@ -1,0 +1,7 @@
+curl 'https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models/store_image_react' \
+-X 'POST' \
+-H 'Accept: */*' \
+-H 'Cache-Control: no-cache' \
+-H 'Connection: keep-alive' \
+-H 'Content-Length: 167979' \
+-H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundarysgCStNAgSdixTAPy' \

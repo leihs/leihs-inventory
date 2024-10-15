@@ -1,15 +1,23 @@
 (ns leihs.inventory.server.swagger-api
-  (:require [clojure.java.io :as io]
+  (:require [byte-streams :as bs]
+            [cheshire.core :as json]
+            [clojure.java.io :as io]
             [clojure.string]
             [clojure.string :as str]
+            [clojure.uuid :as uuid]
+            [clojure.walk :refer [keywordize-keys]]
+            [leihs.core.anti-csrf.back :as anti-csrf]
+            [leihs.core.auth.core :as auth]
             [leihs.core.auth.session :as session]
-            [leihs.core.core :refer [presence]]
-            [leihs.core.db]
+            [leihs.core.constants :as constants]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
+            [leihs.core.routing.back :as core-routing]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-            [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
+            [leihs.core.sign-in.back :as be]
+            [leihs.inventory.server.constants :as consts]
             [leihs.inventory.server.routes :as routes]
+            [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [muuntaja.core :as m]
@@ -24,51 +32,21 @@
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
+            [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.cookies :refer [wrap-cookies]]
-            [ring.util.response :as response])
-  (:import [java.net URL JarURLConnection]
-           [java.util.jar JarFile]))
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.util.codec :as codec]
+            [ring.util.response :as response]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"])
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)
+          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
+      (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
+              (some #(= % uri) whitelist-uris-for-api))
         (handler request)
         (custom-not-found-handler request)))))
-
-(defn browser-request-matches-javascript? [request]
-  "Returns true if the accepted type is javascript or
-  if the :uri ends with .js. Note that browsers do not
-  use the proper accept type for javascript script tags."
-  (boolean (or (= (-> request :accept :mime) :javascript)
-               (re-find #".+\.js$" (or (-> request :uri presence) "")))))
-
-(defn wrap-dispatch-content-type
-  ([handler]
-   (fn [request]
-     (wrap-dispatch-content-type handler request)))
-  ([handler request]
-   (cond
-     (= (-> request :accept :mime) :json) (or (handler request)
-                                              (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 407})))
-     (and (= (-> request :accept :mime) :html)
-          (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (pr "html-requested!!!" (rh/index-html-response 409))
-     :else (let [response (handler request)]
-             (if (and (nil? response)
-                      (not (#{:post :put :patch :delete} (:request-method request)))
-                      (= (-> request :accept :mime) :html)
-                      (not (browser-request-matches-javascript? request)))
-               (rh/index-html-response 408)
-               response)))))
-
-(defn redirect-if-no-session
-  [handler]
-  (fn [request]
-    (if (session-valid? request)
-      (handler request)
-      (response/redirect "/login?return-to=inventory"))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -80,13 +58,17 @@
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
                         :middleware [db/wrap-tx
+                                     core-routing/wrap-canonicalize-params-maps
+                                     muuntaja/format-middleware
+                                     ring-audits/wrap
 
                                       ; redirect-if-no-session
+                                      ; auth/wrap-authenticate ;broken workflow caused by token
 
-                                     ring-audits/wrap
-                                      ;anti-csrf/wrap
+                                     csrf/extract-header
                                      session/wrap-authenticate
                                      wrap-cookies
+                                     csrf/wrap-csrf
 
                                       ;locale/wrap
                                       ;settings/wrap
@@ -94,17 +76,17 @@
                                       ;wrap-json-response
                                       ;(wrap-json-body {:keywords? true})
                                       ;wrap-empty
-                                      ;core-routing/wrap-canonicalize-params-maps
-                                      ;wrap-params
-                                      ;wrap-multipart-params
-                                      ;wrap-content-type
+                                      ;wrap-form-params
+
+                                     wrap-params
+                                     wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
                                      dispatch-content-type/wrap-accept
                                       ;ring-exception/wrap
 
                                      default-handler-fetch-resource ;; provide resources
-                                     wrap-dispatch-content-type
+                                     csrf/wrap-dispatch-content-type
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware

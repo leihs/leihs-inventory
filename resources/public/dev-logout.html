@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Out</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .form-inline {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+        .form-group {
+            margin: 0.5rem;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Sign Out</h1>
+<form class="form-inline" onsubmit="event.preventDefault(); signOut();">
+    <div class="form-group">
+        <label class="sr-only" for="sign-out">Leihs Simple Logout</label>
+        <p>For testing only</p>
+        <button id="sign-out" class="btn" type="submit">Sign out</button>
+    </div>
+</form>
+
+<p id="error-message" class="error-message">Failed to sign out. Please try again.</p>
+
+<script>
+    function signOut() {
+        const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMetaTag ? csrfMetaTag.getAttribute('content') : null;
+        const url = '/sign-out';
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'text/html'
+        }
+
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({})
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Successfully signed out");
+                    window.location.replace('/');
+                } else {
+                    response.text().then(text => {
+                        console.error("Failed to sign out:", text);
+                        document.getElementById('error-message').style.display = 'block';
+                        try {
+                            const json = JSON.parse(text);
+                            console.error("Error message:", json.message);
+                            document.getElementById('error-message').textContent = json && json.message ? json.detail : text;
+                            return;
+                        } catch (e) {
+                            console.error("Error message:", text);
+                        }
+
+                        document.getElementById('error-message').textContent = text;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                document.getElementById('error-message').style.display = 'block';
+            });
+    }
+</script>
+</body>
+</html>

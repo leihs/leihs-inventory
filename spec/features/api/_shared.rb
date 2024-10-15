@@ -149,11 +149,8 @@ shared_context :setup_access_rights do
 
     # -------------------------
 
-    # links = FactoryBot.create(:model_link)
-    # ok model-group
     @category = FactoryBot.create(:category, direct_models: [@models.first])
 
-    # ok group_access_right & access_right
     @manager = FactoryBot.create :user
     @group = FactoryBot.create(:group, name: "Group 1")
     FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
@@ -181,5 +178,12 @@ shared_context :setup_models_min_api do
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
     FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+  end
+end
+
+shared_context :setup_models_api_base do
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
   end
 end

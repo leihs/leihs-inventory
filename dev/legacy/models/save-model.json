@@ -1,0 +1,42 @@
+// curl 'https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models' \
+// POST
+
+// 1. save data
+// 2. save image
+// 3. save attachement
+
+{
+  "model": {
+    "type": "model",
+    "product": "abc",
+    "version": "",
+    "manufacturer": "",
+    "description": "",
+    "technical_detail": "",
+    "internal_description": "",
+    "hand_over_note": "",
+    "category_ids": [],
+    "compatible_ids": [
+      "621e9d2e-87e9-4a32-a403-4c516cd56712"
+    ],
+    "properties_attributes": [
+      {
+        "key": "eigen",
+        "value": "schaft"
+      }
+    ],
+    "partitions_attributes": {},
+    "accessories_attributes": {
+      "rails_dummy_id_0": {
+        "inventory_pool_toggle": "1,8bd16d45-056d-5590-bc7f-12849f034351",
+        "name": "zubehör"
+      }
+    },
+    "images_attributes": {},
+    "attachments_attributes": {},
+    "is_package": false
+  }
+}
+
+
+

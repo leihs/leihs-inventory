@@ -1,0 +1,5 @@
+curl 'https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models/store_attachment_react' \
+-X 'POST' \
+-H 'Cache-Control: no-cache' \
+-H 'Connection: keep-alive' \
+-H 'Content-Length: 167979' \

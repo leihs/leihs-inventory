@@ -55,7 +55,7 @@
         res (jdbc/execute-one! tx sql-query)]
     res))
 
-(defn- get-cookie-value [request]
+(defn get-cookie-value [request]
   (-> request keywordize-keys :cookies
       LEIHS_SESSION_COOKIE_NAME :value))
 

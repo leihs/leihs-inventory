@@ -1,0 +1,3559 @@
+// https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=item
+
+[
+  {
+    "type": "text",
+    "group": null,
+    "label": "Inventory Code",
+    "required": true,
+    "attribute": "inventory_code",
+    "forPackage": true,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "id": "inventory_code",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "autocomplete-search",
+    "group": null,
+    "label": "Model",
+    "required": true,
+    "attribute": [
+      "model",
+      "id"
+    ],
+    "form_name": "model_id",
+    "value_attr": "id",
+    "search_attr": "search_term",
+    "search_path": "/manage/8bd16d45-056d-5590-bc7f-12849f034351/models?all=true",
+    "target_type": "item",
+    "display_attr": "product",
+    "display_attr_ext": "version",
+    "item_value_label": [
+      "model",
+      "product"
+    ],
+    "item_value_label_ext": [
+      "model",
+      "version"
+    ],
+    "id": "model_id",
+    "values": null,
+    "default": null
+  },
+  {
+    "type": "text",
+    "group": "General Information",
+    "label": "Serial Number",
+    "attribute": "serial_number",
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "id": "serial_number",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "General Information",
+    "label": "IMEI-Number",
+    "attribute": [
+      "properties",
+      "imei_number"
+    ],
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "properties_imei_number",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "textarea",
+    "group": "General Information",
+    "label": "Note",
+    "attribute": "note",
+    "forPackage": true,
+    "id": "note",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "attachment",
+    "group": "General Information",
+    "label": "Attachments",
+    "attribute": "attachments",
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "id": "attachments",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "select",
+    "group": "Status",
+    "label": "Retirement",
+    "values": [
+      {
+        "label": "No",
+        "value": false
+      },
+      {
+        "label": "Yes",
+        "value": true
+      }
+    ],
+    "default": false,
+    "attribute": "retired",
+    "forPackage": true,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "id": "retired",
+    "search_path": null
+  },
+  {
+    "type": "textarea",
+    "group": "Status",
+    "label": "Reason for Retirement",
+    "required": true,
+    "attribute": "retired_reason",
+    "forPackage": true,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "visibility_dependency_value": "true",
+    "visibility_dependency_field_id": "retired",
+    "id": "retired_reason",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "radio",
+    "group": "Status",
+    "label": "Working order",
+    "values": [
+      {
+        "label": "OK",
+        "value": false
+      },
+      {
+        "label": "Broken",
+        "value": true
+      }
+    ],
+    "default": false,
+    "attribute": "is_broken",
+    "forPackage": true,
+    "target_type": "item",
+    "id": "is_broken",
+    "search_path": null
+  },
+  {
+    "type": "radio",
+    "group": "Status",
+    "label": "Completeness",
+    "values": [
+      {
+        "label": "OK",
+        "value": false
+      },
+      {
+        "label": "Incomplete",
+        "value": true
+      }
+    ],
+    "default": false,
+    "attribute": "is_incomplete",
+    "forPackage": true,
+    "target_type": "item",
+    "id": "is_incomplete",
+    "search_path": null
+  },
+  {
+    "type": "radio",
+    "group": "Status",
+    "label": "Borrowable",
+    "values": [
+      {
+        "label": "OK",
+        "value": true
+      },
+      {
+        "label": "Unborrowable",
+        "value": false
+      }
+    ],
+    "default": false,
+    "attribute": "is_borrowable",
+    "forPackage": true,
+    "id": "is_borrowable",
+    "search_path": null
+  },
+  {
+    "type": "textarea",
+    "group": "Status",
+    "label": "Status note",
+    "attribute": "status_note",
+    "forPackage": true,
+    "target_type": "item",
+    "id": "status_note",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "autocomplete",
+    "group": "Location",
+    "label": "Building",
+    "values": [
+      {
+        "value": "18191460-0543-5f73-8d89-de286f1c9893",
+        "label": "Andere Non-ZHDK Addresse (ZO)"
+      },
+      {
+        "value": "6e16ecff-5315-5e88-8973-988585440c8e",
+        "label": "Ausstellungsstrasse, 100 (AU)"
+      },
+      {
+        "value": "061c00d6-762a-5211-9c89-8b0fdc0a14a8",
+        "label": "Ausstellungsstrasse, 60 (SQ)"
+      },
+      {
+        "value": "4356b13b-8bc5-418e-b131-0b62cc5aee3a",
+        "label": "Baslerstrasse, 30 (MC)"
+      },
+      {
+        "value": "f4c3a612-db95-5537-aa93-9ace955436e0",
+        "label": "Brunngasse 13 (BRU)"
+      },
+      {
+        "value": "40b67326-8825-54c1-ae93-8f12c8211a41",
+        "label": "Dolderstrasse 5 (DOL)"
+      },
+      {
+        "value": "cb21be34-1c8c-57de-b6bf-877907dec0dc",
+        "label": "Friedaustrasse 4 (FRD)"
+      },
+      {
+        "value": "fa9ea8c7-6c82-4cef-a265-8e036f6d9fac",
+        "label": "Gessnerallee (GA)"
+      },
+      {
+        "value": "ce6032c6-1c3f-5e26-90f3-bfc4aee00449",
+        "label": "Hafnerstrasse, 27 (HS1)"
+      },
+      {
+        "value": "17d6fd88-a8d4-5028-ab69-3406bf492130",
+        "label": "Hafnerstrasse 29 (HS2)"
+      },
+      {
+        "value": "fc39ebba-ccd7-555e-a207-5d7a50b9443c",
+        "label": "Hafnerstrasse, 31 (HF)"
+      },
+      {
+        "value": "e6170a9d-2d4a-5e73-a701-2ce0fe20ac66",
+        "label": "Hafnerstrasse, 39 (DI)"
+      },
+      {
+        "value": "9a34d0fc-e45e-5227-87f0-77d4274d2cea",
+        "label": "Hafnerstrasse, 41 (DG)"
+      },
+      {
+        "value": "7231df31-d2f8-54e2-b8d2-2b1782137e78",
+        "label": "Heimadresse des Benutzers (ZP)"
+      },
+      {
+        "value": "27882aa6-5197-5c5d-ae74-4e7246c206e4",
+        "label": "Höschgasse 3 (MB)"
+      },
+      {
+        "value": "8161e56b-cfd3-5ac0-aeeb-6a9d8ff9e277",
+        "label": "Höschgasse 4 (VE)"
+      },
+      {
+        "value": "5cf5302c-5499-4f1c-9969-49e573d63a23",
+        "label": "Höschgasse 8 (HG)"
+      },
+      {
+        "value": "652e2160-bd3e-5f90-8420-5d89f555d35c",
+        "label": "K17 (K17)"
+      },
+      {
+        "value": "345c9ab7-e754-51ae-a783-8c492569c554",
+        "label": "Karl-Stauffer-Strasse, 26 (KST)"
+      },
+      {
+        "value": "3eb47e94-ab42-4511-aa38-6e1f086ddb8a",
+        "label": "Konradstrasse 72 (KS)"
+      },
+      {
+        "value": "611e2151-389a-5eaf-9b09-3358f43743ce",
+        "label": "Leimbachstrasse 227 (LEI)"
+      },
+      {
+        "value": "4fe476da-73be-5ea5-a72f-daaf2f454a24",
+        "label": "Limmatstrasse, 45 (LS)"
+      },
+      {
+        "value": "e1e60b2d-812c-5afe-9980-3dd1aa2873ea",
+        "label": "Limmatstrasse, 47 (LH)"
+      },
+      {
+        "value": "45f8d5f7-cbaa-54c6-b5dd-40bd620cc3c6",
+        "label": "Limmatstrasse, 57 (KO)"
+      },
+      {
+        "value": "05fe8938-68d4-53e5-ac07-24b5104f0859",
+        "label": "Limmatstrasse, 65 (LI)"
+      },
+      {
+        "value": "286e48aa-c1cd-5550-a3ff-736ae8f76179",
+        "label": "----LÖSCHEN---Gesnerallee (GA9) (GG)"
+      },
+      {
+        "value": "a7f1ede1-c1a2-5930-8d93-f13862936e53",
+        "label": "Nicht spezifizierte Adresse (ZZ)"
+      },
+      {
+        "value": "1d5ce081-fc67-4743-95aa-52d9aa941cc2",
+        "label": "Niederhasli (NIHA)"
+      },
+      {
+        "value": "bc851fe2-0bb9-57b9-aa4a-21644ccad220",
+        "label": "Sihlquai, 125 (FI)"
+      },
+      {
+        "value": "ad3d8d0c-d72b-5688-b274-7b10ef730daa",
+        "label": "Sihlquai 131/133 (PI)"
+      },
+      {
+        "value": "da0849a5-2987-5dfe-82d0-bdd4826ce9f0",
+        "label": "Toni-Areal (TONI)"
+      },
+      {
+        "value": "abae04c5-d767-425e-acc2-7ce04df645d1",
+        "label": "Unbekanntes Gebäude (UG)"
+      },
+      {
+        "value": "a4895f5e-2e2f-52c2-8e3f-a1b1768c76f5",
+        "label": "Wolfbachstr. 18 (WOL)"
+      }
+    ],
+    "required": true,
+    "attribute": [
+      "room",
+      "building_id"
+    ],
+    "forPackage": true,
+    "target_type": "item",
+    "exclude_from_submit": true,
+    "id": "building_id",
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "autocomplete",
+    "group": "Location",
+    "label": "Room",
+    "required": true,
+    "attribute": "room_id",
+    "forPackage": true,
+    "values_url": "/manage/rooms.json?building_id=$$$parent_value$$$",
+    "target_type": "item",
+    "values_label_method": "to_s",
+    "values_dependency_field_id": "building_id",
+    "id": "room_id",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Location",
+    "label": "Shelf",
+    "attribute": "shelf",
+    "forPackage": true,
+    "target_type": "item",
+    "id": "shelf",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "select",
+    "group": "Inventory",
+    "label": "Relevant for inventory",
+    "values": [
+      {
+        "label": "No",
+        "value": false
+      },
+      {
+        "label": "Yes",
+        "value": true
+      }
+    ],
+    "default": true,
+    "attribute": "is_inventory_relevant",
+    "forPackage": true,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "is_inventory_relevant",
+    "search_path": null
+  },
+  {
+    "type": "autocomplete",
+    "group": "Inventory",
+    "label": "Owner",
+    "values": [
+      {
+        "value": "8bd16d45-056d-5590-bc7f-12849f034351",
+        "label": "Ausleihe Toni-Areal"
+      },
+      {
+        "value": "82a48074-8a4d-5d3b-b1dd-8e35954137e8",
+        "label": "AVS-Ausstattung"
+      },
+      {
+        "value": "c092bbb0-3a12-4412-869f-ea1686bd059f",
+        "label": "AVS-Dauerausleihen"
+      },
+      {
+        "value": "8a4fa6e3-2b36-46b9-9508-212d4f5125c6",
+        "label": "AV-Services"
+      },
+      {
+        "value": "b451c4b8-bd20-40cd-bb08-42b3ccee7bd6",
+        "label": "AVS-IASpace"
+      },
+      {
+        "value": "980e5637-37e8-5adc-a692-fd0cc2cc7f25",
+        "label": "AVS-Inventar"
+      },
+      {
+        "value": "b534b07c-d9bf-4572-840c-0a630b8cd8ed",
+        "label": "AVS-Museum/Ausstellungen"
+      },
+      {
+        "value": "27b7e10b-66ad-5dcc-ae73-4b11551dadfe",
+        "label": "AVS-Veranstaltungstechnik"
+      },
+      {
+        "value": "d1a7a88d-6c22-4318-83bc-d9c8bb78e971",
+        "label": "Basic GUI"
+      },
+      {
+        "value": "76d54c17-49f1-55e8-b6af-2e9dc0209be3",
+        "label": "DDK - Filmstudio 1.J33"
+      },
+      {
+        "value": "57f51769-0e08-5abe-aaba-61a872477f36",
+        "label": "DDK Theater Technik AV"
+      },
+      {
+        "value": "c7dedd05-a08c-5910-8e67-5cc9c250acfd",
+        "label": "DDK - Veranstaltungstechnik"
+      },
+      {
+        "value": "eb64a67b-ff75-5d57-b043-074645d7b45e",
+        "label": "Departement Kulturanalysen und -vermittlung"
+      },
+      {
+        "value": "ebca1932-f85a-54d4-a61b-2dbbb3e8cb54",
+        "label": "Departement Musik"
+      },
+      {
+        "value": "667a93e6-496a-59c0-8315-d51d44973e3c",
+        "label": "DMU - ICST"
+      },
+      {
+        "value": "80022c26-1b43-4e8d-80cf-9ef6321ce59c",
+        "label": "DMU Orchesterinventar"
+      },
+      {
+        "value": "9bbc5358-1b53-4d12-9e39-487813a21320",
+        "label": "DMU - Schlagzeugmaterial"
+      },
+      {
+        "value": "6c046295-6d69-4ac7-87f6-3a51126193c7",
+        "label": "E-Learning"
+      },
+      {
+        "value": "e3dadec7-12a2-52f6-8d6f-475ea5d74ee7",
+        "label": "Farb-Licht Zentrum"
+      },
+      {
+        "value": "5863967f-9804-4909-a9b7-92254616d6b2",
+        "label": "FM Inventar"
+      },
+      {
+        "value": "ed324c19-b5e8-539d-8dc6-87fb09022a5a",
+        "label": "ICST-Ausleihe"
+      },
+      {
+        "value": "4a1ba40c-467e-5efe-8cf1-e8d3dbb59f04",
+        "label": "ITZ-Ausstellungen"
+      },
+      {
+        "value": "5dd25b58-fa56-5095-bd97-2696d92c2fb1",
+        "label": "IT-Zentrum"
+      },
+      {
+        "value": "60bdbca8-00ea-4d88-aab8-68c274d34b8a",
+        "label": "ITZ-Network"
+      },
+      {
+        "value": "ffaa3aea-2a1f-4d6a-bdfc-f3be93699750",
+        "label": "ITZ Occassions-Shop"
+      },
+      {
+        "value": "3977012c-ce0e-501f-889b-8715fdb5d83b",
+        "label": "ITZ-Software"
+      },
+      {
+        "value": "a02b8163-9a16-5066-b48e-9eb74cf8b791",
+        "label": "Kostüm- und Kleinrequisitenfundus DDK"
+      },
+      {
+        "value": "1ae0a2bf-cd0f-51de-a121-8991d24ad90a",
+        "label": "Maschinen"
+      },
+      {
+        "value": "561c02a0-e7e1-404b-aafe-c4d5d63da8a3",
+        "label": "Möbel- und Grossrequisitenfundus DDK"
+      },
+      {
+        "value": "88c43fa9-a9ba-5812-b9eb-a6b649905884",
+        "label": "Modellbau"
+      },
+      {
+        "value": "c1ef75b1-a024-5bcb-ad04-dd76affabad2",
+        "label": "Musikklub Mehrspur"
+      },
+      {
+        "value": "2f407df8-6261-4c9d-84bb-e20f98c75b08",
+        "label": "TEMP_AVS-Ausstellungen"
+      },
+      {
+        "value": "8d3631ee-818b-56d2-9d08-b9369d62d1e1",
+        "label": "temp_INV-Veranstaltungstechnik"
+      },
+      {
+        "value": "f67266a6-d4ce-5bbf-8cc0-1c2ae008cc20",
+        "label": "Vertiefung Mediale Künste"
+      },
+      {
+        "value": "03616625-b31f-5229-bb1a-9b4f28eb1566",
+        "label": "Vertiefung Szenografie"
+      },
+      {
+        "value": "77e88ec8-9ff6-5435-818e-dc902fc631a6",
+        "label": "Werkstatt Ausleihe"
+      },
+      {
+        "value": "26eef80e-cf73-4214-97b6-e0e3c7f6f1e4",
+        "label": "WSL-Campuscard/Schlüssel"
+      },
+      {
+        "value": "bccadb7a-dd2d-5851-9d4b-d338eda47453",
+        "label": "Art Education (inaktiv)"
+      },
+      {
+        "value": "87d82e14-2afd-5380-897f-f0a267fbc87f",
+        "label": "Bachelor of Arts in Theater (inaktiv)"
+      },
+      {
+        "value": "043c03f3-4c75-55fe-9eec-f9c396ea4469",
+        "label": "Bellerive (inaktiv)"
+      },
+      {
+        "value": "2fee461f-e938-507d-ba53-642ab0b8b5ec",
+        "label": "BTK (inaktiv)"
+      },
+      {
+        "value": "b26802f5-deca-573b-a5d0-ead29ddbd7f5",
+        "label": "DDK Leitung (inaktiv)"
+      },
+      {
+        "value": "daedf21e-21b6-537b-8624-d95ead22d4dd",
+        "label": "Departement Design (inaktiv)"
+      },
+      {
+        "value": "86baf3fb-4d81-53dd-bec2-773484fa910d",
+        "label": "Departement Kunst \u0026 Medien (inaktiv)"
+      },
+      {
+        "value": "98f25feb-73a4-58bd-971b-80c05a37431b",
+        "label": "DKV Leitung (inaktiv)"
+      },
+      {
+        "value": "d8fca6e8-1895-5bac-b017-42f49e1a9f71",
+        "label": "DMU Leitung (inaktiv)"
+      },
+      {
+        "value": "48524d44-2b35-51c8-bf7b-a7e5e0194c42",
+        "label": "Fachrichtung Tanz (inaktiv)"
+      },
+      {
+        "value": "720c9df2-0aa5-58c7-8371-f0867677a3e3",
+        "label": "Fachstelle Forschung (inaktiv)"
+      },
+      {
+        "value": "0caa4a0b-fa66-5636-9fda-6c2c33eeb026",
+        "label": "Facility Management (inaktiv)"
+      },
+      {
+        "value": "95d7244b-320a-5e20-9006-700a7bb999e8",
+        "label": "F\u0026E (inaktiv)"
+      },
+      {
+        "value": "56370544-1b6c-5238-bfec-e6e190b8df09",
+        "label": "Finanzen (inaktiv)"
+      },
+      {
+        "value": "3e3449ad-9217-5c1d-8ba0-a05eddefc8d6",
+        "label": "Hochschuladministration (inaktiv)"
+      },
+      {
+        "value": "9ea81e59-1e16-5abc-bf4d-f4bedafd6d50",
+        "label": "Hochschulkommunikation (inaktiv)"
+      },
+      {
+        "value": "3e28e566-8871-53fc-90a0-b074aa2b7606",
+        "label": "IKM (inaktiv)"
+      },
+      {
+        "value": "9d86dd78-1232-5980-b32e-43be997d9b1e",
+        "label": "Institut design2context (inaktiv)"
+      },
+      {
+        "value": "92050043-aa22-5d0a-83b6-fee96867bb1d",
+        "label": "Institute for Art Education (Dept. Kulturanalysen und Vermittlung) (inaktiv)"
+      },
+      {
+        "value": "051841f9-d95f-5890-bf75-918d8ebb6491",
+        "label": "Institute for Cultural Studies in the Arts (Dept. Kulturanalysten und -vermittlung) (inaktiv)"
+      },
+      {
+        "value": "f9fc1737-ae0b-5181-9e02-b8640f2b330a",
+        "label": "Institute for the Performing Arts and Film (Dept. Darstellende Künste und Film) (inaktiv)"
+      },
+      {
+        "value": "a0eb3097-b660-5bb9-8057-130a337f3598",
+        "label": "Institut für Designforschung (inaktiv)"
+      },
+      {
+        "value": "1d68e270-d11f-5857-ac8a-629287c9419e",
+        "label": "Institut für Design und Technologie (inaktiv)"
+      },
+      {
+        "value": "373b367c-b813-5732-80a1-9d0ad1528647",
+        "label": "Institut für Gegenwartskünste (inaktiv)"
+      },
+      {
+        "value": "e6c9a77b-a81b-5a20-8a79-112137aaa238",
+        "label": "Institut für Theorie (Dept. Kunst \u0026 Medien) (inaktiv)"
+      },
+      {
+        "value": "fc5a841e-36c6-5dc3-8207-1306c1fb89bf",
+        "label": "ITZ-Ausleihe (inaktiv)"
+      },
+      {
+        "value": "2b71bb71-da8c-5bb6-9202-4af7d7a121a4",
+        "label": "ITZ-Business Applikationen (inaktiv)"
+      },
+      {
+        "value": "0ad32629-4627-5c0b-a5e8-cf7c8c61ba70",
+        "label": "Jazzschule (inaktiv)"
+      },
+      {
+        "value": "9fdaf7bb-c24d-5efc-97cf-67e9a2e7f7c5",
+        "label": "MAS-Musiktherapie (inaktiv)"
+      },
+      {
+        "value": "90735039-21ea-550b-9b67-7d9f38901c22",
+        "label": "Master Art Education (inaktiv)"
+      },
+      {
+        "value": "d8225e7b-d328-511b-a19f-85bae5aa4588",
+        "label": "Master Design (inaktiv)"
+      },
+      {
+        "value": "b2d942b1-bb75-5f15-b34d-79d17da2a7e4",
+        "label": "Master Fine Arts (inaktiv)"
+      },
+      {
+        "value": "a768cc22-9df3-5835-92a7-b8aacb6b2f49",
+        "label": "Master Music Performance (inaktiv)"
+      },
+      {
+        "value": "60485f2f-d89a-5e49-a80c-80da8f4e4301",
+        "label": "Master Musikpädagogik (inaktiv)"
+      },
+      {
+        "value": "5ade8ab4-b99e-527c-872b-ac65fa32d739",
+        "label": "Master of Arts in Film (inaktiv)"
+      },
+      {
+        "value": "fcb78029-4ef5-5fad-9b21-3dace8b4cd34",
+        "label": "Master of Arts in Theater (inaktiv)"
+      },
+      {
+        "value": "4fa99899-5fda-5894-ac44-4421811b9ecc",
+        "label": "Master Specialized Music Performance (inaktiv)"
+      },
+      {
+        "value": "404340be-3007-5b80-9fd1-72654d80dbbd",
+        "label": "Medien- und Informationszentrum (inaktiv)"
+      },
+      {
+        "value": "777bb487-c435-51db-96f3-c1c584ffe136",
+        "label": "Museum (inaktiv)"
+      },
+      {
+        "value": "d0c788a2-ed8a-5705-9faa-d48c90c02f23",
+        "label": "NDS (inaktiv)"
+      },
+      {
+        "value": "11508b47-6317-5871-a689-4f0843710e2e",
+        "label": "Personal (inaktiv)"
+      },
+      {
+        "value": "2c874851-b964-5f0b-bd77-c9810ee0853a",
+        "label": "Produktionszentrum (inaktiv)"
+      },
+      {
+        "value": "d8da4234-2de9-5e1e-a903-2c8f584d7c3f",
+        "label": "Propädeutikum (inaktiv)"
+      },
+      {
+        "value": "304f8943-9049-50a2-8b17-288ed140411a",
+        "label": "Rektorat (inaktiv)"
+      },
+      {
+        "value": "c512ceea-6d39-5399-86aa-b7e6da5782bd",
+        "label": "Sammlungen (inaktiv)"
+      },
+      {
+        "value": "0dacb593-e8c0-5f0f-846e-db36e9bbde15",
+        "label": "Schwerpunkt Komposition für Film, Theater und Medien (inaktiv)"
+      },
+      {
+        "value": "0871efeb-e137-57e5-bdaa-3d84e2fb9f25",
+        "label": "Theater der Künste (inaktiv)"
+      },
+      {
+        "value": "e16ad9aa-995b-5c58-ac0d-88fd86f0a635",
+        "label": "Vertiefung Bildende Kunst (inaktiv)"
+      },
+      {
+        "value": "3b25f313-a45e-5696-8f29-3cd715a22cc4",
+        "label": "Vertiefung CAST (inaktiv)"
+      },
+      {
+        "value": "7b1c4405-3c01-5c3e-b89d-aa8d870674ce",
+        "label": "Vertiefung Fotografie (inaktiv)"
+      },
+      {
+        "value": "badacfac-d73c-5c5a-b440-b2c7e24c73b5",
+        "label": "Vertiefung Game Design (inaktiv)"
+      },
+      {
+        "value": "e628e900-dbbc-576c-89d0-af37f0f69d20",
+        "label": "Vertiefung Industrial Design (inaktiv)"
+      },
+      {
+        "value": "339fbcd9-6bec-50f9-a715-38bcff546e6e",
+        "label": "Vertiefung Instrument/Gesang (inaktiv)"
+      },
+      {
+        "value": "4decdd88-ceeb-5b41-b857-a48c28775067",
+        "label": "Vertiefung Interaction Design (inaktiv)"
+      },
+      {
+        "value": "22820c04-07b0-5de8-bef5-2812b34434b0",
+        "label": "Vertiefung Kirchenmusik (inaktiv)"
+      },
+      {
+        "value": "97cb0e14-6e29-5955-84c7-359638a6ebb2",
+        "label": "Vertiefung Komposition und Musiktheorie (inaktiv)"
+      },
+      {
+        "value": "11b4ed10-5a9d-5427-8801-9536fcf9fe6f",
+        "label": "Vertiefung Musik \u0026 Bewegung (inaktiv)"
+      },
+      {
+        "value": "6f62ecf8-b8dd-52a1-828a-598818059ed1",
+        "label": "Vertiefung Schulmusik (inaktiv)"
+      },
+      {
+        "value": "4b629b04-533c-501d-92cf-08226bf6f141",
+        "label": "Vertiefung Scientific Visualization (inaktiv)"
+      },
+      {
+        "value": "ca5f6ae1-14e7-5f77-9ee4-99024c2f6696",
+        "label": "Vertiefung Style\u0026Design (inaktiv)"
+      },
+      {
+        "value": "667db49a-2de1-5f78-8df9-99807093c93a",
+        "label": "Vertiefung Theorie - Studien zur Medien-, Kunst- und Designpraxis (inaktiv)"
+      },
+      {
+        "value": "52abda6a-82ad-577f-ac28-af7ff28d1aa0",
+        "label": "Vertiefung Tonmeister (inaktiv)"
+      },
+      {
+        "value": "2fe14412-1361-567e-a6fa-6260b6a8b3b4",
+        "label": "Vertiefung Visuelle Kommunikation (inaktiv)"
+      },
+      {
+        "value": "dfab9c7a-c264-54e0-8f7f-df471f04cb22",
+        "label": "Weiterbildung (inaktiv)"
+      },
+      {
+        "value": "952370bc-eb72-5909-973f-22a8ac70b73e",
+        "label": "Z+ (inaktiv)"
+      },
+      {
+        "value": "91affef6-57fd-5cd9-8646-b29ac905f4b7",
+        "label": "ZHdK-Inventar (inaktiv)"
+      },
+      {
+        "value": "7221d339-0064-5bce-b06b-e49387470bd6",
+        "label": "zx_Ausleihe Florhofgasse (inaktiv)"
+      },
+      {
+        "value": "040f275a-cbc2-5c21-9e98-8613fde1ccab",
+        "label": "zx_AV-Ausleihe (inaktiv)"
+      }
+    ],
+    "attribute": [
+      "owner",
+      "id"
+    ],
+    "forPackage": true,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "id": "owner_id",
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "date",
+    "group": "Inventory",
+    "label": "Last Checked",
+    "default": "2024-10-25",
+    "attribute": "last_check",
+    "forPackage": true,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "last_check",
+    "values": null,
+    "search_path": null
+  },
+  {
+    "type": "autocomplete",
+    "group": "Inventory",
+    "label": "Responsible department",
+    "values": [
+      {
+        "value": "8bd16d45-056d-5590-bc7f-12849f034351",
+        "label": "Ausleihe Toni-Areal"
+      },
+      {
+        "value": "82a48074-8a4d-5d3b-b1dd-8e35954137e8",
+        "label": "AVS-Ausstattung"
+      },
+      {
+        "value": "c092bbb0-3a12-4412-869f-ea1686bd059f",
+        "label": "AVS-Dauerausleihen"
+      },
+      {
+        "value": "8a4fa6e3-2b36-46b9-9508-212d4f5125c6",
+        "label": "AV-Services"
+      },
+      {
+        "value": "b451c4b8-bd20-40cd-bb08-42b3ccee7bd6",
+        "label": "AVS-IASpace"
+      },
+      {
+        "value": "980e5637-37e8-5adc-a692-fd0cc2cc7f25",
+        "label": "AVS-Inventar"
+      },
+      {
+        "value": "b534b07c-d9bf-4572-840c-0a630b8cd8ed",
+        "label": "AVS-Museum/Ausstellungen"
+      },
+      {
+        "value": "27b7e10b-66ad-5dcc-ae73-4b11551dadfe",
+        "label": "AVS-Veranstaltungstechnik"
+      },
+      {
+        "value": "d1a7a88d-6c22-4318-83bc-d9c8bb78e971",
+        "label": "Basic GUI"
+      },
+      {
+        "value": "76d54c17-49f1-55e8-b6af-2e9dc0209be3",
+        "label": "DDK - Filmstudio 1.J33"
+      },
+      {
+        "value": "57f51769-0e08-5abe-aaba-61a872477f36",
+        "label": "DDK Theater Technik AV"
+      },
+      {
+        "value": "c7dedd05-a08c-5910-8e67-5cc9c250acfd",
+        "label": "DDK - Veranstaltungstechnik"
+      },
+      {
+        "value": "eb64a67b-ff75-5d57-b043-074645d7b45e",
+        "label": "Departement Kulturanalysen und -vermittlung"
+      },
+      {
+        "value": "ebca1932-f85a-54d4-a61b-2dbbb3e8cb54",
+        "label": "Departement Musik"
+      },
+      {
+        "value": "667a93e6-496a-59c0-8315-d51d44973e3c",
+        "label": "DMU - ICST"
+      },
+      {
+        "value": "80022c26-1b43-4e8d-80cf-9ef6321ce59c",
+        "label": "DMU Orchesterinventar"
+      },
+      {
+        "value": "9bbc5358-1b53-4d12-9e39-487813a21320",
+        "label": "DMU - Schlagzeugmaterial"
+      },
+      {
+        "value": "6c046295-6d69-4ac7-87f6-3a51126193c7",
+        "label": "E-Learning"
+      },
+      {
+        "value": "e3dadec7-12a2-52f6-8d6f-475ea5d74ee7",
+        "label": "Farb-Licht Zentrum"
+      },
+      {
+        "value": "5863967f-9804-4909-a9b7-92254616d6b2",
+        "label": "FM Inventar"
+      },
+      {
+        "value": "ed324c19-b5e8-539d-8dc6-87fb09022a5a",
+        "label": "ICST-Ausleihe"
+      },
+      {
+        "value": "4a1ba40c-467e-5efe-8cf1-e8d3dbb59f04",
+        "label": "ITZ-Ausstellungen"
+      },
+      {
+        "value": "5dd25b58-fa56-5095-bd97-2696d92c2fb1",
+        "label": "IT-Zentrum"
+      },
+      {
+        "value": "60bdbca8-00ea-4d88-aab8-68c274d34b8a",
+        "label": "ITZ-Network"
+      },
+      {
+        "value": "ffaa3aea-2a1f-4d6a-bdfc-f3be93699750",
+        "label": "ITZ Occassions-Shop"
+      },
+      {
+        "value": "3977012c-ce0e-501f-889b-8715fdb5d83b",
+        "label": "ITZ-Software"
+      },
+      {
+        "value": "a02b8163-9a16-5066-b48e-9eb74cf8b791",
+        "label": "Kostüm- und Kleinrequisitenfundus DDK"
+      },
+      {
+        "value": "1ae0a2bf-cd0f-51de-a121-8991d24ad90a",
+        "label": "Maschinen"
+      },
+      {
+        "value": "561c02a0-e7e1-404b-aafe-c4d5d63da8a3",
+        "label": "Möbel- und Grossrequisitenfundus DDK"
+      },
+      {
+        "value": "88c43fa9-a9ba-5812-b9eb-a6b649905884",
+        "label": "Modellbau"
+      },
+      {
+        "value": "c1ef75b1-a024-5bcb-ad04-dd76affabad2",
+        "label": "Musikklub Mehrspur"
+      },
+      {
+        "value": "2f407df8-6261-4c9d-84bb-e20f98c75b08",
+        "label": "TEMP_AVS-Ausstellungen"
+      },
+      {
+        "value": "8d3631ee-818b-56d2-9d08-b9369d62d1e1",
+        "label": "temp_INV-Veranstaltungstechnik"
+      },
+      {
+        "value": "f67266a6-d4ce-5bbf-8cc0-1c2ae008cc20",
+        "label": "Vertiefung Mediale Künste"
+      },
+      {
+        "value": "03616625-b31f-5229-bb1a-9b4f28eb1566",
+        "label": "Vertiefung Szenografie"
+      },
+      {
+        "value": "77e88ec8-9ff6-5435-818e-dc902fc631a6",
+        "label": "Werkstatt Ausleihe"
+      },
+      {
+        "value": "26eef80e-cf73-4214-97b6-e0e3c7f6f1e4",
+        "label": "WSL-Campuscard/Schlüssel"
+      },
+      {
+        "value": "bccadb7a-dd2d-5851-9d4b-d338eda47453",
+        "label": "Art Education (inaktiv)"
+      },
+      {
+        "value": "87d82e14-2afd-5380-897f-f0a267fbc87f",
+        "label": "Bachelor of Arts in Theater (inaktiv)"
+      },
+      {
+        "value": "043c03f3-4c75-55fe-9eec-f9c396ea4469",
+        "label": "Bellerive (inaktiv)"
+      },
+      {
+        "value": "2fee461f-e938-507d-ba53-642ab0b8b5ec",
+        "label": "BTK (inaktiv)"
+      },
+      {
+        "value": "b26802f5-deca-573b-a5d0-ead29ddbd7f5",
+        "label": "DDK Leitung (inaktiv)"
+      },
+      {
+        "value": "daedf21e-21b6-537b-8624-d95ead22d4dd",
+        "label": "Departement Design (inaktiv)"
+      },
+      {
+        "value": "86baf3fb-4d81-53dd-bec2-773484fa910d",
+        "label": "Departement Kunst \u0026 Medien (inaktiv)"
+      },
+      {
+        "value": "98f25feb-73a4-58bd-971b-80c05a37431b",
+        "label": "DKV Leitung (inaktiv)"
+      },
+      {
+        "value": "d8fca6e8-1895-5bac-b017-42f49e1a9f71",
+        "label": "DMU Leitung (inaktiv)"
+      },
+      {
+        "value": "48524d44-2b35-51c8-bf7b-a7e5e0194c42",
+        "label": "Fachrichtung Tanz (inaktiv)"
+      },
+      {
+        "value": "720c9df2-0aa5-58c7-8371-f0867677a3e3",
+        "label": "Fachstelle Forschung (inaktiv)"
+      },
+      {
+        "value": "0caa4a0b-fa66-5636-9fda-6c2c33eeb026",
+        "label": "Facility Management (inaktiv)"
+      },
+      {
+        "value": "95d7244b-320a-5e20-9006-700a7bb999e8",
+        "label": "F\u0026E (inaktiv)"
+      },
+      {
+        "value": "56370544-1b6c-5238-bfec-e6e190b8df09",
+        "label": "Finanzen (inaktiv)"
+      },
+      {
+        "value": "3e3449ad-9217-5c1d-8ba0-a05eddefc8d6",
+        "label": "Hochschuladministration (inaktiv)"
+      },
+      {
+        "value": "9ea81e59-1e16-5abc-bf4d-f4bedafd6d50",
+        "label": "Hochschulkommunikation (inaktiv)"
+      },
+      {
+        "value": "3e28e566-8871-53fc-90a0-b074aa2b7606",
+        "label": "IKM (inaktiv)"
+      },
+      {
+        "value": "9d86dd78-1232-5980-b32e-43be997d9b1e",
+        "label": "Institut design2context (inaktiv)"
+      },
+      {
+        "value": "92050043-aa22-5d0a-83b6-fee96867bb1d",
+        "label": "Institute for Art Education (Dept. Kulturanalysen und Vermittlung) (inaktiv)"
+      },
+      {
+        "value": "051841f9-d95f-5890-bf75-918d8ebb6491",
+        "label": "Institute for Cultural Studies in the Arts (Dept. Kulturanalysten und -vermittlung) (inaktiv)"
+      },
+      {
+        "value": "f9fc1737-ae0b-5181-9e02-b8640f2b330a",
+        "label": "Institute for the Performing Arts and Film (Dept. Darstellende Künste und Film) (inaktiv)"
+      },
+      {
+        "value": "a0eb3097-b660-5bb9-8057-130a337f3598",
+        "label": "Institut für Designforschung (inaktiv)"
+      },
+      {
+        "value": "1d68e270-d11f-5857-ac8a-629287c9419e",
+        "label": "Institut für Design und Technologie (inaktiv)"
+      },
+      {
+        "value": "373b367c-b813-5732-80a1-9d0ad1528647",
+        "label": "Institut für Gegenwartskünste (inaktiv)"
+      },
+      {
+        "value": "e6c9a77b-a81b-5a20-8a79-112137aaa238",
+        "label": "Institut für Theorie (Dept. Kunst \u0026 Medien) (inaktiv)"
+      },
+      {
+        "value": "fc5a841e-36c6-5dc3-8207-1306c1fb89bf",
+        "label": "ITZ-Ausleihe (inaktiv)"
+      },
+      {
+        "value": "2b71bb71-da8c-5bb6-9202-4af7d7a121a4",
+        "label": "ITZ-Business Applikationen (inaktiv)"
+      },
+      {
+        "value": "0ad32629-4627-5c0b-a5e8-cf7c8c61ba70",
+        "label": "Jazzschule (inaktiv)"
+      },
+      {
+        "value": "9fdaf7bb-c24d-5efc-97cf-67e9a2e7f7c5",
+        "label": "MAS-Musiktherapie (inaktiv)"
+      },
+      {
+        "value": "90735039-21ea-550b-9b67-7d9f38901c22",
+        "label": "Master Art Education (inaktiv)"
+      },
+      {
+        "value": "d8225e7b-d328-511b-a19f-85bae5aa4588",
+        "label": "Master Design (inaktiv)"
+      },
+      {
+        "value": "b2d942b1-bb75-5f15-b34d-79d17da2a7e4",
+        "label": "Master Fine Arts (inaktiv)"
+      },
+      {
+        "value": "a768cc22-9df3-5835-92a7-b8aacb6b2f49",
+        "label": "Master Music Performance (inaktiv)"
+      },
+      {
+        "value": "60485f2f-d89a-5e49-a80c-80da8f4e4301",
+        "label": "Master Musikpädagogik (inaktiv)"
+      },
+      {
+        "value": "5ade8ab4-b99e-527c-872b-ac65fa32d739",
+        "label": "Master of Arts in Film (inaktiv)"
+      },
+      {
+        "value": "fcb78029-4ef5-5fad-9b21-3dace8b4cd34",
+        "label": "Master of Arts in Theater (inaktiv)"
+      },
+      {
+        "value": "4fa99899-5fda-5894-ac44-4421811b9ecc",
+        "label": "Master Specialized Music Performance (inaktiv)"
+      },
+      {
+        "value": "404340be-3007-5b80-9fd1-72654d80dbbd",
+        "label": "Medien- und Informationszentrum (inaktiv)"
+      },
+      {
+        "value": "777bb487-c435-51db-96f3-c1c584ffe136",
+        "label": "Museum (inaktiv)"
+      },
+      {
+        "value": "d0c788a2-ed8a-5705-9faa-d48c90c02f23",
+        "label": "NDS (inaktiv)"
+      },
+      {
+        "value": "11508b47-6317-5871-a689-4f0843710e2e",
+        "label": "Personal (inaktiv)"
+      },
+      {
+        "value": "2c874851-b964-5f0b-bd77-c9810ee0853a",
+        "label": "Produktionszentrum (inaktiv)"
+      },
+      {
+        "value": "d8da4234-2de9-5e1e-a903-2c8f584d7c3f",
+        "label": "Propädeutikum (inaktiv)"
+      },
+      {
+        "value": "304f8943-9049-50a2-8b17-288ed140411a",
+        "label": "Rektorat (inaktiv)"
+      },
+      {
+        "value": "c512ceea-6d39-5399-86aa-b7e6da5782bd",
+        "label": "Sammlungen (inaktiv)"
+      },
+      {
+        "value": "0dacb593-e8c0-5f0f-846e-db36e9bbde15",
+        "label": "Schwerpunkt Komposition für Film, Theater und Medien (inaktiv)"
+      },
+      {
+        "value": "0871efeb-e137-57e5-bdaa-3d84e2fb9f25",
+        "label": "Theater der Künste (inaktiv)"
+      },
+      {
+        "value": "e16ad9aa-995b-5c58-ac0d-88fd86f0a635",
+        "label": "Vertiefung Bildende Kunst (inaktiv)"
+      },
+      {
+        "value": "3b25f313-a45e-5696-8f29-3cd715a22cc4",
+        "label": "Vertiefung CAST (inaktiv)"
+      },
+      {
+        "value": "7b1c4405-3c01-5c3e-b89d-aa8d870674ce",
+        "label": "Vertiefung Fotografie (inaktiv)"
+      },
+      {
+        "value": "badacfac-d73c-5c5a-b440-b2c7e24c73b5",
+        "label": "Vertiefung Game Design (inaktiv)"
+      },
+      {
+        "value": "e628e900-dbbc-576c-89d0-af37f0f69d20",
+        "label": "Vertiefung Industrial Design (inaktiv)"
+      },
+      {
+        "value": "339fbcd9-6bec-50f9-a715-38bcff546e6e",
+        "label": "Vertiefung Instrument/Gesang (inaktiv)"
+      },
+      {
+        "value": "4decdd88-ceeb-5b41-b857-a48c28775067",
+        "label": "Vertiefung Interaction Design (inaktiv)"
+      },
+      {
+        "value": "22820c04-07b0-5de8-bef5-2812b34434b0",
+        "label": "Vertiefung Kirchenmusik (inaktiv)"
+      },
+      {
+        "value": "97cb0e14-6e29-5955-84c7-359638a6ebb2",
+        "label": "Vertiefung Komposition und Musiktheorie (inaktiv)"
+      },
+      {
+        "value": "11b4ed10-5a9d-5427-8801-9536fcf9fe6f",
+        "label": "Vertiefung Musik \u0026 Bewegung (inaktiv)"
+      },
+      {
+        "value": "6f62ecf8-b8dd-52a1-828a-598818059ed1",
+        "label": "Vertiefung Schulmusik (inaktiv)"
+      },
+      {
+        "value": "4b629b04-533c-501d-92cf-08226bf6f141",
+        "label": "Vertiefung Scientific Visualization (inaktiv)"
+      },
+      {
+        "value": "ca5f6ae1-14e7-5f77-9ee4-99024c2f6696",
+        "label": "Vertiefung Style\u0026Design (inaktiv)"
+      },
+      {
+        "value": "667db49a-2de1-5f78-8df9-99807093c93a",
+        "label": "Vertiefung Theorie - Studien zur Medien-, Kunst- und Designpraxis (inaktiv)"
+      },
+      {
+        "value": "52abda6a-82ad-577f-ac28-af7ff28d1aa0",
+        "label": "Vertiefung Tonmeister (inaktiv)"
+      },
+      {
+        "value": "2fe14412-1361-567e-a6fa-6260b6a8b3b4",
+        "label": "Vertiefung Visuelle Kommunikation (inaktiv)"
+      },
+      {
+        "value": "dfab9c7a-c264-54e0-8f7f-df471f04cb22",
+        "label": "Weiterbildung (inaktiv)"
+      },
+      {
+        "value": "952370bc-eb72-5909-973f-22a8ac70b73e",
+        "label": "Z+ (inaktiv)"
+      },
+      {
+        "value": "91affef6-57fd-5cd9-8646-b29ac905f4b7",
+        "label": "ZHdK-Inventar (inaktiv)"
+      },
+      {
+        "value": "7221d339-0064-5bce-b06b-e49387470bd6",
+        "label": "zx_Ausleihe Florhofgasse (inaktiv)"
+      },
+      {
+        "value": "040f275a-cbc2-5c21-9e98-8613fde1ccab",
+        "label": "zx_AV-Ausleihe (inaktiv)"
+      }
+    ],
+    "attribute": [
+      "inventory_pool",
+      "id"
+    ],
+    "forPackage": true,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "id": "inventory_pool_id",
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Inventory",
+    "label": "User/Typical usage",
+    "attribute": "user_name",
+    "forPackage": true,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "user_name",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Invoice Information",
+    "label": "P4U-Nummer",
+    "attribute": [
+      "properties",
+      "p4u"
+    ],
+    "forPackage": false,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "id": "properties_p4u",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "radio",
+    "group": "Invoice Information",
+    "label": "Reference",
+    "values": [
+      {
+        "label": "Running Account",
+        "value": "invoice"
+      },
+      {
+        "label": "Investment",
+        "value": "investment"
+      }
+    ],
+    "default": "invoice",
+    "required": true,
+    "attribute": [
+      "properties",
+      "reference"
+    ],
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "id": "properties_reference",
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Invoice Information",
+    "label": "Project Number",
+    "required": true,
+    "attribute": [
+      "properties",
+      "project_number"
+    ],
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": true
+    },
+    "visibility_dependency_value": "investment",
+    "visibility_dependency_field_id": "properties_reference",
+    "id": "properties_project_number",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Invoice Information",
+    "label": "Invoice Number",
+    "attribute": "invoice_number",
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "invoice_number",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "date",
+    "group": "Invoice Information",
+    "label": "Invoice Date",
+    "attribute": "invoice_date",
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "id": "invoice_date",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Invoice Information",
+    "label": "Initial Price",
+    "currency": true,
+    "attribute": "price",
+    "forPackage": true,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "id": "price",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "autocomplete",
+    "group": "Invoice Information",
+    "label": "Supplier",
+    "values": [
+      {
+        "value": "ae4abcb6-fb7e-5944-bc65-64e9e8e29131",
+        "label": "2M Audio GmbH"
+      },
+      {
+        "value": "756e0bb5-68df-48da-960e-ce0b16252ac6",
+        "label": "3DIO"
+      },
+      {
+        "value": "b6f790ef-06c5-5cc6-85da-37ff5b777f94",
+        "label": "Abacus"
+      },
+      {
+        "value": "95d74d68-5cb6-58fb-8846-30b9b392a07c",
+        "label": "A. Baggenstos \u0026 Co.AG"
+      },
+      {
+        "value": "38ce24b5-58d2-59ef-b298-7cb933f9c91d",
+        "label": "Acer Switzerland\r\nDietikon"
+      },
+      {
+        "value": "d1545c39-151c-56ab-b169-d8391015f7a7",
+        "label": "adnx"
+      },
+      {
+        "value": "56209118-2de7-5280-8b39-8c41bc320b5f",
+        "label": "Adobe"
+      },
+      {
+        "value": "e8fba00f-bca6-5e8b-ae91-d9974d750eb4",
+        "label": "AgileBits"
+      },
+      {
+        "value": "2296de0d-cced-590d-8bc1-fddef3eab530",
+        "label": "ALPA Capaul \u0026 Leber Ltd.\r\n8032 Zuerich"
+      },
+      {
+        "value": "dc294966-0231-5a4d-afa5-471443c32ba6",
+        "label": "Ambient München"
+      },
+      {
+        "value": "714fb51c-9199-4809-b064-3eddd5db725e",
+        "label": "Ammonit"
+      },
+      {
+        "value": "2afbea2c-2507-5ad5-9a3b-f2dcd7849cd2",
+        "label": "Anne-Süster Andresen"
+      },
+      {
+        "value": "17e8d22f-0dc2-439b-899b-1d0ee6c2406f",
+        "label": "Antares"
+      },
+      {
+        "value": "ec230b21-25d1-4d42-a43d-ad7132b7ebcd",
+        "label": "anykey IT AG"
+      },
+      {
+        "value": "5f7fa812-1e63-5102-9028-b5023fe2261f",
+        "label": "Apple Sales International"
+      },
+      {
+        "value": "805afd9b-2a8f-51a2-a035-f4afe58a25a0",
+        "label": "Apple Store"
+      },
+      {
+        "value": "0f2529cb-5899-5f45-9470-5339e8c72ade",
+        "label": "Application Systems Heidelberg Software GmbH"
+      },
+      {
+        "value": "e09e9845-a310-40fd-9a9a-45ad7071fc4d",
+        "label": "Aquarian Audio \u0026 Scientific"
+      },
+      {
+        "value": "1fecb0e3-d95d-5776-ae4b-bb92d5f2c278",
+        "label": "Architronic"
+      },
+      {
+        "value": "8f89d625-3f70-57c9-8e36-655fb9a1e27f",
+        "label": "Arnold Gruppe"
+      },
+      {
+        "value": "5f55b4fc-af6e-5b8d-879a-364503445d52",
+        "label": "ARP DATACON AG"
+      },
+      {
+        "value": "b4ece7e3-fd2d-5fb4-870c-cdc019920e07",
+        "label": "ARP Schweiz AG"
+      },
+      {
+        "value": "4c90d264-edef-4566-86f3-c2a251d3cb03",
+        "label": "Arthio Productions GmbH"
+      },
+      {
+        "value": "860805db-2e56-532d-946f-c8bf57bb0c27",
+        "label": "Asknet"
+      },
+      {
+        "value": "3c33e9ec-ecc8-42ba-a2d2-a3ad887d7342",
+        "label": "ASL Electronic"
+      },
+      {
+        "value": "226d831f-4170-5c74-8f3c-c3421470f075",
+        "label": "Audio Bauer Pro AG"
+      },
+      {
+        "value": "1c94511e-e070-5c8c-b236-422a78737a14",
+        "label": "Audiocare AG, Pratteln"
+      },
+      {
+        "value": "8e2e545e-1020-5acc-8bb7-4116f09da9da",
+        "label": "Audio-Ciné"
+      },
+      {
+        "value": "fc4e2d80-0e5a-5ea7-9129-f56ebdd98e13",
+        "label": "Audiofile Engineering"
+      },
+      {
+        "value": "515e70f0-59ad-5d64-9790-432a21537ab0",
+        "label": "Audiopartner"
+      },
+      {
+        "value": "e59010ef-391b-436f-9aed-b6ea756a488a",
+        "label": "Audio Pro Heilbronn Elektroakustik GmbH"
+      },
+      {
+        "value": "84f66e26-fa7b-417c-ae51-4d29b47d86b5",
+        "label": "AudioSource SA"
+      },
+      {
+        "value": "ab151a44-935f-5303-8ff7-0805d0c3da9b",
+        "label": "Audiovisual Ganz, 8036 Zürich"
+      },
+      {
+        "value": "c4839b96-5de0-4b51-a37e-106e1187e25e",
+        "label": "Audiowerk"
+      },
+      {
+        "value": "27987daa-e972-5789-93cf-3e2c8ef8e7cf",
+        "label": "Auro"
+      },
+      {
+        "value": "05bd741d-31e2-4757-ade1-9726d62fba5c",
+        "label": "Autodesk"
+      },
+      {
+        "value": "7a12b74d-d1e9-573d-8bfa-d2605ba191c8",
+        "label": "Avast"
+      },
+      {
+        "value": "2b4e23fe-0a2e-52f9-94b0-314a1dcf8e41",
+        "label": "AVC-Systems AG"
+      },
+      {
+        "value": "46a96330-57f0-4015-9bbf-389c46f95d35",
+        "label": "Aver"
+      },
+      {
+        "value": "1e1d29ab-7afe-5533-8dea-066ea59f1c04",
+        "label": "Avid"
+      },
+      {
+        "value": "89027eec-7382-58b3-aac3-d9b21fe173bb",
+        "label": "Avision AG"
+      },
+      {
+        "value": "603a4101-de03-541f-bd39-52aebf335943",
+        "label": "AV Media, B.Lüthi"
+      },
+      {
+        "value": "847caa6a-7526-5afa-a247-7ef16ae923a6",
+        "label": "AVMedia Meilen"
+      },
+      {
+        "value": "023462b9-3940-4ac1-8ced-68ce3f99a6ca",
+        "label": "AVS Systeme AG"
+      },
+      {
+        "value": "4c1988d9-2f79-5fc6-b349-1b5c51a2e9df",
+        "label": "axure"
+      },
+      {
+        "value": "01dd90ba-1a23-595b-b159-7ae4b000fa0b",
+        "label": "Bachmann Electronics"
+      },
+      {
+        "value": "ca17d441-f685-420e-9602-1f8ea22755fd",
+        "label": "BACKSTAGE"
+      },
+      {
+        "value": "a832e80f-ee17-51a7-a378-548674043ef5",
+        "label": "Banana SA"
+      },
+      {
+        "value": "fdc16c52-52a4-50a5-b0a9-27896dd0573b",
+        "label": "BBS Licht"
+      },
+      {
+        "value": "f5ced1d5-6df7-5a25-8c1f-a43995b83155",
+        "label": "BBS Licht, Bühnentechnik Schenk GmbH"
+      },
+      {
+        "value": "d31a24e9-cca5-579c-ba09-a2d0ec716d19",
+        "label": "Bechtle"
+      },
+      {
+        "value": "22dc2416-fd15-5b48-8213-d5b027d1b339",
+        "label": "Beepa"
+      },
+      {
+        "value": "1c5eacef-a708-4658-81e6-28a7f3ab13e0",
+        "label": "Beetronics"
+      },
+      {
+        "value": "cc015e5f-3188-590b-9bb4-fccb240f04b0",
+        "label": "Beltronic IT AG"
+      },
+      {
+        "value": "e9c9a596-1f69-4bf3-a345-22f50e0a48cc",
+        "label": "besttrading.ch"
+      },
+      {
+        "value": "d0f510e6-6cdb-4b48-913d-9056bef69350",
+        "label": "bestware.com"
+      },
+      {
+        "value": "aedee356-f3cf-4ee2-bd51-ddba7148dfb1",
+        "label": "B\u0026H Photo-Video-ProAudio"
+      },
+      {
+        "value": "725f0e2c-2cfc-4344-9c1b-4151d73ad72c",
+        "label": "bigapplebuddy"
+      },
+      {
+        "value": "49c29a3d-a664-50b1-8644-8f3d19b8864b",
+        "label": "BIRDSONG Media GmbH"
+      },
+      {
+        "value": "96077064-d7ca-4ef4-8ebb-1f80a3cd0f6c",
+        "label": "Black Box"
+      },
+      {
+        "value": "5978a495-b99d-54b7-ab73-79070c378f45",
+        "label": "Bleuel Elctronic ag"
+      },
+      {
+        "value": "8878c4bb-c277-5d68-8c28-47e996c06d58",
+        "label": "Board"
+      },
+      {
+        "value": "b4539232-cef3-55eb-9847-020b5d44b4e0",
+        "label": "Bolex Ryter"
+      },
+      {
+        "value": "d21800c5-27a2-5cb8-83af-445a37fcf6f0",
+        "label": "Bombich"
+      },
+      {
+        "value": "c1164170-959f-58f9-8024-04f9fcb53c96",
+        "label": "Bosch"
+      },
+      {
+        "value": "e6236340-a0e4-5958-91a0-0abdc06b25fc",
+        "label": "Brack"
+      },
+      {
+        "value": "cb4993c5-1fa2-52a7-b6d8-ce10e5e2c319",
+        "label": "Brack Electronics"
+      },
+      {
+        "value": "d498d967-80e0-5da6-b8df-be232418c0dc",
+        "label": "Brainworks"
+      },
+      {
+        "value": "f294afad-bb8e-42cc-ac32-8ff9c612e4bf",
+        "label": "brentford ag"
+      },
+      {
+        "value": "57b37278-16a8-53f4-b761-5a00c1d5a457",
+        "label": "Brütsch Rüegger"
+      },
+      {
+        "value": "20e527ff-4148-5895-9a91-47955930e6e2",
+        "label": "Buchmann Direct Electronics"
+      },
+      {
+        "value": "f11f6ae8-ce00-5649-a1e0-1293c7b9a729",
+        "label": "Buikema Dennis, Rheinfelden"
+      },
+      {
+        "value": "0a82b562-958d-5e30-b403-321578aa904b",
+        "label": "CadSoft"
+      },
+      {
+        "value": "6d9654ab-032c-5ab6-afff-7d815d0c9e90",
+        "label": "Camille Budin"
+      },
+      {
+        "value": "b0d95576-4932-5695-aac7-9f3f1c79402f",
+        "label": "Canon"
+      },
+      {
+        "value": "f7bffbc3-f53d-5789-9783-d7599b94142c",
+        "label": "Cast (C. Adolph \u0026 Rst Distribution GMBH)"
+      },
+      {
+        "value": "4008120d-9eb4-5acf-aeed-221e10344fbc",
+        "label": "Cast (H\u0026S)\r\n"
+      },
+      {
+        "value": "e9afe7b7-9647-526f-a55a-79b9b9f52c65",
+        "label": "cast switzerland AG"
+      },
+      {
+        "value": "0176726c-cae9-547c-9ac2-74a22d9d2793",
+        "label": "Catchbox"
+      },
+      {
+        "value": "ae47bb3a-54b6-52ed-b236-9959e7664a84",
+        "label": "Celemony"
+      },
+      {
+        "value": "636d8d89-2999-5220-96c7-34dfd3dadd4d",
+        "label": "chal-tec gmbh"
+      },
+      {
+        "value": "c05c73a2-d24a-536c-918d-70f0d8a8dc11",
+        "label": "Cine-Audio - Markus Schinabeck"
+      },
+      {
+        "value": "f63b6937-c3da-5050-9dfc-51974dde7b8c",
+        "label": "Cinegate Berlin"
+      },
+      {
+        "value": "366c217f-c02e-521e-9879-6935d9489e76",
+        "label": "Cinegrell\r\n8048 Zürich"
+      },
+      {
+        "value": "d76fe654-7bde-5d3f-b738-15d6dde4c785",
+        "label": "Cinetec"
+      },
+      {
+        "value": "bfee31e2-b37b-5f98-a0ed-19bd426978e4",
+        "label": "CIT"
+      },
+      {
+        "value": "9b7f99b7-ed64-5182-8b42-f0b69aa19a00",
+        "label": "cleverbridge"
+      },
+      {
+        "value": "b2be96f5-2396-44e4-bbc1-c7e609974c0f",
+        "label": "Computacenter"
+      },
+      {
+        "value": "27eab232-7f51-4344-b7e2-6b61f3ae6ae5",
+        "label": "Computer Controls AG"
+      },
+      {
+        "value": "861a36ec-54c2-540c-abff-21722486691f",
+        "label": "Computerworks"
+      },
+      {
+        "value": "05d49bfa-ff61-5e31-8738-6c973484d808",
+        "label": "Conrad Electronics AG"
+      },
+      {
+        "value": "6d8930fc-82f4-5940-9ceb-704cb804a828",
+        "label": "conTimbre"
+      },
+      {
+        "value": "4fb3835c-9096-5919-95ed-d81cd5ac7607",
+        "label": "Contrik"
+      },
+      {
+        "value": "3ac7fefb-e823-50c7-a82a-c32738dbc35b",
+        "label": "Contrik AG"
+      },
+      {
+        "value": "e3933286-a42d-5237-8dfa-41536d4a1cde",
+        "label": "Cordial Film München"
+      },
+      {
+        "value": "402379af-4351-5428-825c-29b69d043d79",
+        "label": "Core Sound , Teaneck/US"
+      },
+      {
+        "value": "3dde590e-99eb-5186-b650-d656008d64fb",
+        "label": "Cornell Lab of Ornithology"
+      },
+      {
+        "value": "94a2638a-2715-412c-bb3d-c9e14fbca126",
+        "label": "Crealine.net"
+      },
+      {
+        "value": "36cba7e2-d5df-4b60-b289-f6f8e7c97113",
+        "label": "crealine.net media systems"
+      },
+      {
+        "value": "b0ae3716-6c0d-5a76-bbcc-a5b3546631b2",
+        "label": "Crealogix"
+      },
+      {
+        "value": "dba57ebe-27e6-595f-99d2-6ecc2e46e41a",
+        "label": "Crystal Display Electronics AG "
+      },
+      {
+        "value": "9d30f4b7-7608-52a5-a24a-c6c54edf9f22",
+        "label": "Cycling 74"
+      },
+      {
+        "value": "9577c7bf-b9cb-557c-9639-4c90de67e31b",
+        "label": "data"
+      },
+      {
+        "value": "7582f913-d142-5612-8915-f64dfb9f78b4",
+        "label": "Data Quest AG"
+      },
+      {
+        "value": "7e5b5f47-5fea-530a-a2e8-fb9d1e26a112",
+        "label": "Decibel SA"
+      },
+      {
+        "value": "f379f91b-b94b-51e7-b8e1-f6279ec2a18c",
+        "label": "Dedotec Schweiz"
+      },
+      {
+        "value": "9d04b077-43c7-4db5-91b0-10abc4f8a014",
+        "label": "Defi Technique SA"
+      },
+      {
+        "value": "822eea26-fbcc-57a5-84ae-bc428791b2a7",
+        "label": "Dell"
+      },
+      {
+        "value": "c43aa5f1-fd6c-50eb-a552-ae40b62e1c65",
+        "label": "Dieter Meyer"
+      },
+      {
+        "value": "d4b14e63-a909-4e88-96e4-23f529c3d063",
+        "label": "digikey"
+      },
+      {
+        "value": "9e6683d6-a271-5f1f-bc70-38523e7fde5f",
+        "label": "Digit"
+      },
+      {
+        "value": "1899f594-0114-4ba1-a69b-8ebcbb0645da",
+        "label": "digital audio services"
+      },
+      {
+        "value": "2b6cb53d-45cc-571a-a87c-1b4f827c6e47",
+        "label": "Digital River"
+      },
+      {
+        "value": "64385d0b-83de-51b1-8a87-ef8621030bf7",
+        "label": " digitec"
+      },
+      {
+        "value": "89b6de22-46a5-595a-ab31-ce18d5f166d8",
+        "label": "Digitec"
+      },
+      {
+        "value": "6ecb6e24-a5bc-4a3d-889a-5d8bc141563a",
+        "label": "Digitec Galaxus AG"
+      },
+      {
+        "value": "ef62d029-b42c-5918-a087-2a5e4d71b3d8",
+        "label": "Digitec\r\nZürich"
+      },
+      {
+        "value": "a610f438-28df-5139-991e-77bc5207c7c6",
+        "label": "Digitec Zürich"
+      },
+      {
+        "value": "cc3b71c0-d6ab-5a46-b428-271259ad9d1e",
+        "label": "DigitecZürich"
+      },
+      {
+        "value": "fe998b3e-5a02-5bf6-b549-c467aef4a803",
+        "label": "Distrelec"
+      },
+      {
+        "value": "3d3d55ac-e88f-5c40-971c-df371a64a332",
+        "label": "diverse"
+      },
+      {
+        "value": "91e35ff9-81e9-5aef-9f34-7139b0cc14d7",
+        "label": "Diwega GmbH"
+      },
+      {
+        "value": "3831ca5b-d71b-4a32-91b4-0a4faa6542cc",
+        "label": "dji Store"
+      },
+      {
+        "value": "9899d7e1-e604-5f73-aa1d-fa5d35c577ae",
+        "label": "Dr.Diewald Film\r\nRegensburg"
+      },
+      {
+        "value": "13afbcab-bc88-4646-b91f-db33c54274ff",
+        "label": "Droneland.dk"
+      },
+      {
+        "value": "247c3949-671e-5028-ad41-fb4a4e6619cb",
+        "label": "DRS"
+      },
+      {
+        "value": "33a92a2b-f1ac-5813-878b-0cd8b2f5e762",
+        "label": "Dr. W.A. Günther"
+      },
+      {
+        "value": "b4f65d2e-d120-53a8-ab01-1a46fef05d0f",
+        "label": "dshop"
+      },
+      {
+        "value": "29a10738-47f2-5203-b9ad-6ca4b2c8d0a8",
+        "label": "DUBLER AG"
+      },
+      {
+        "value": "7b778aa3-cfb5-4ea8-9084-f060f7019cde",
+        "label": "dve advanced systems GmbH"
+      },
+      {
+        "value": "f5b02dc5-ef17-5b99-8fe6-9246453c0d60",
+        "label": "Dynabit AG"
+      },
+      {
+        "value": "c7f6e523-a1ab-48f6-9129-48a1b8981830",
+        "label": "DZED Systems LLC"
+      },
+      {
+        "value": "a080df0d-b5bb-56b0-95fb-fa654a5ded87",
+        "label": "Eberhard "
+      },
+      {
+        "value": "e0fc5da5-007c-4079-82c0-95b81dfa19ab",
+        "label": "EBI Elite Brands INC"
+      },
+      {
+        "value": "e6f78e6b-7790-5ccf-b1ed-ddc06766d848",
+        "label": "echochamber.ch"
+      },
+      {
+        "value": "078988d6-07b3-5351-9c8c-483ca8c65de7",
+        "label": "ECM, Electric Claudio Merlo SA"
+      },
+      {
+        "value": "723b817e-5549-5e0d-bc15-4967e1855282",
+        "label": "ECM, Electro Claudio Merlo SA"
+      },
+      {
+        "value": "8a093d7e-a384-5a5c-b164-a679a5466af3",
+        "label": "ECM Merlo"
+      },
+      {
+        "value": "a19d339d-500e-42a3-ab69-700728ae1cda",
+        "label": "edelkrone"
+      },
+      {
+        "value": "1f35b2e5-827e-4528-bd21-8c5888809dc9",
+        "label": "Effekt Boutique"
+      },
+      {
+        "value": "3acaea33-0f86-5436-a8ea-0ce02647c6de",
+        "label": "Eichenberger Electric AG"
+      },
+      {
+        "value": "17210a46-a0ba-5627-84f7-ae461dc6aee5",
+        "label": "Eichmann"
+      },
+      {
+        "value": "b4c4b66c-ef82-4544-8c36-4a0337aaaa44",
+        "label": "Eickmeyer"
+      },
+      {
+        "value": "26acdf36-11cf-5606-b50e-1ffae4ffee1d",
+        "label": "Eigenbau"
+      },
+      {
+        "value": "b905dbff-0e02-5d5b-ba8a-c2ac9e87f6bf",
+        "label": "Eisele"
+      },
+      {
+        "value": "0f055885-6726-5aef-83bc-01a6ac25d646",
+        "label": "Elecomp"
+      },
+      {
+        "value": "a39f3ca4-2aa8-588e-9ef9-5630bc8f7faf",
+        "label": "Electric Claudio Merlot"
+      },
+      {
+        "value": "9af271c2-d1fb-5a73-8294-e0286b13e682",
+        "label": "Electro Claudio Merlo\r\nP.O. Box 168\r\nZona Industriale 4\r\n6807 Taverne"
+      },
+      {
+        "value": "0e58c650-6a0a-595c-b91d-0e8ea8b82a71",
+        "label": "Elektro Materiél SA"
+      },
+      {
+        "value": "23da9b67-44fa-5271-a22c-b1590f3bc58e",
+        "label": "ELV Elektronik AG"
+      },
+      {
+        "value": "e4783c3f-1e34-5a12-816c-2c5b0a3d72ba",
+        "label": "EOTEC, 4132 Muttenz"
+      },
+      {
+        "value": "59f09bb0-2c6c-5f95-8494-d067ee03c8f6",
+        "label": "E. Pasinelli AG, Kölliken, www.pasi.ch"
+      },
+      {
+        "value": "623a617e-1831-5f19-b856-106a9089df15",
+        "label": "Erno"
+      },
+      {
+        "value": "19b5d801-4ecf-455d-9562-46c460d5004d",
+        "label": "Esoteric Software LLC"
+      },
+      {
+        "value": "a74fad36-a77e-5f4d-905f-fec2ca5240b2",
+        "label": "ETC"
+      },
+      {
+        "value": "0e9e32bd-4d62-57da-b017-6605ffa79e2a",
+        "label": "ETH"
+      },
+      {
+        "value": "82a980b3-9c9d-5b85-8652-cb6d398dc831",
+        "label": "Eurebis"
+      },
+      {
+        "value": "061a3973-8d4b-49d0-8a75-c3a183eb6b50",
+        "label": "event AG"
+      },
+      {
+        "value": "27fc29af-4303-4be4-81b4-051ec660b5a4",
+        "label": "Exponential Audio"
+      },
+      {
+        "value": "0f281a43-b450-4727-b4ed-ecbb3bb2961b",
+        "label": "eyefactive GmbH"
+      },
+      {
+        "value": "0b76aa1f-5205-5d7c-a3ba-a3f21ee32178",
+        "label": "Fama Film\r\n8026 Zürich"
+      },
+      {
+        "value": "8f2ce8fb-aa4f-51ce-b79b-7ec6edaf3361",
+        "label": "Farnell"
+      },
+      {
+        "value": "cd6946c3-c248-5f21-9399-335729f8187e",
+        "label": "Fastspring"
+      },
+      {
+        "value": "a7b69cba-b6c1-5a45-a7cd-858071ceea87",
+        "label": "FGV Schmidle\r\nMünchen"
+      },
+      {
+        "value": "4ac1d2eb-fab2-5a1c-90f3-3dfc0f330048",
+        "label": "Fierro \u0026 Co. FLU-LUX"
+      },
+      {
+        "value": "3d0e32c0-a898-5991-bc30-e3a23f5e83a7",
+        "label": "figure 53"
+      },
+      {
+        "value": "ea78c7ef-2be8-4d96-8f3c-31a0532519ed",
+        "label": "Final Draft"
+      },
+      {
+        "value": "01dc454d-a2d2-55ab-8cb2-3c0f6adbe411",
+        "label": "Fineartpix"
+      },
+      {
+        "value": "9718ca38-586a-539d-a668-7bb3e0e8bcd4",
+        "label": "Fisso Baitella AG"
+      },
+      {
+        "value": "04e08303-7a5f-5a37-83e8-67f3674e8c24",
+        "label": "F.Lüscher"
+      },
+      {
+        "value": "956c652b-eee1-5511-9195-d80c7eb85863",
+        "label": "Flyline Music AG"
+      },
+      {
+        "value": "1c3f82c8-65db-4eec-84b1-d254f1b8ef09",
+        "label": "Fokus GmbH"
+      },
+      {
+        "value": "443b9d5d-883b-51fa-b385-80b475c057d0",
+        "label": "Foto Ganz"
+      },
+      {
+        "value": "4c399b1e-9ea4-506f-9add-1bf044158473",
+        "label": "Foto Video Zumstein AG"
+      },
+      {
+        "value": "64ecb336-3020-5c84-be33-227cd46b127e",
+        "label": "fournova"
+      },
+      {
+        "value": "489cb6c0-a9de-4398-a42a-8dad68eb7248",
+        "label": "F. Steinfels"
+      },
+      {
+        "value": "48c19055-df1d-50ad-8262-82fd52b47bfb",
+        "label": "FTK\r\nFilmtechnikerkollektiv\r\n8048 Zürich"
+      },
+      {
+        "value": "4fe7c520-1ecd-5d7f-ba64-432ae78ec3f7",
+        "label": "Fuchs Foto Video"
+      },
+      {
+        "value": "c54ceff0-248a-5fe5-a522-78375cd9a236",
+        "label": "Furtronic AG"
+      },
+      {
+        "value": "b99c1eb9-e7d4-5f31-bd52-779e5d87b677",
+        "label": "Furtronic\r\nS-VHS ex TD 7308"
+      },
+      {
+        "value": "d76864b9-f15e-5db3-b2dd-33d6db03b265",
+        "label": "Furtronic\r\nS-VHS ex TD 7309"
+      },
+      {
+        "value": "53a5ecfd-cbe9-502e-bc13-be97039ab50d",
+        "label": "Fust"
+      },
+      {
+        "value": "699595fa-4b47-4cd7-8177-918bcdb4075b",
+        "label": "Galaxus"
+      },
+      {
+        "value": "0d20ed93-6f23-5650-a004-25f1fb26bf35",
+        "label": "Gallery Systems Inc. N.Y. USA"
+      },
+      {
+        "value": "d59a5886-74be-5d0d-b542-96d2385d7a84",
+        "label": "Gecko-Cam GmbH, München/D"
+      },
+      {
+        "value": "ecc7dcee-61b9-51bf-9ad7-2f91348ff6c1",
+        "label": "GenArts"
+      },
+      {
+        "value": "73a976a0-f7f1-593e-8a58-691029ca72a1",
+        "label": "Georg Seifert"
+      },
+      {
+        "value": "a2f112be-9da1-4f78-9a44-245181a51dd7",
+        "label": "Geo Science SA"
+      },
+      {
+        "value": "14e0a416-8051-5d0b-8327-b43fa55b3376",
+        "label": "German Maestro, D-74847 Obrigheim"
+      },
+      {
+        "value": "56c8b782-a8bc-5be8-bed1-7ff4d4706de1",
+        "label": "gib-Solutions"
+      },
+      {
+        "value": "05c1c30e-d6cd-5351-904b-e33502998e69",
+        "label": "Gifas"
+      },
+      {
+        "value": "377694a5-8f18-54fb-9707-bac9ebb1e7db",
+        "label": "Gisler"
+      },
+      {
+        "value": "4cd12292-5d6a-5ffd-aacb-cabf5f796040",
+        "label": "Glatz AG"
+      },
+      {
+        "value": "c82eba12-43b6-5180-a73e-eb058a98d0b3",
+        "label": "Globus"
+      },
+      {
+        "value": "27e8e2bd-66c5-5881-a5ce-b18f51585fc9",
+        "label": "Gotham Audio"
+      },
+      {
+        "value": "ef18d727-b02c-5bcc-b3bc-c4465ee4ddac",
+        "label": "Go Wild AG"
+      },
+      {
+        "value": "931ef9b9-d164-5d1a-bffe-0a7bd7f9bd20",
+        "label": "Graphic Art"
+      },
+      {
+        "value": "0debf9d2-a6d3-40d8-bc62-d33cc412007c",
+        "label": "Grossleinwand"
+      },
+      {
+        "value": "d3c5981a-c735-56c6-8cf8-26ce2fd0988a",
+        "label": "hawk"
+      },
+      {
+        "value": "c220d3ef-e93f-5c8c-99e3-40d6cbce9916",
+        "label": "HBJ"
+      },
+      {
+        "value": "f3fc34ec-e11c-57f2-a56e-bef3611418c2",
+        "label": "HCA München"
+      },
+      {
+        "value": "8ff5c5bc-f6ef-5e48-901c-3d056784a6f6",
+        "label": "Heddier Elec.\r\nGermany"
+      },
+      {
+        "value": "5b89dd78-2c13-56fd-ab2a-6f1d284d9f5f",
+        "label": "Heer Musik AG, Zürich"
+      },
+      {
+        "value": "c64e0b0e-5e12-5dea-b61c-9cee49fa42e5",
+        "label": "Heiniger AG.ch"
+      },
+      {
+        "value": "e6a2e7f0-a926-5f97-bd80-037a51425da5",
+        "label": "Helpinstill"
+      },
+      {
+        "value": "c542c1ec-1a48-5a22-9275-0c5485279fb3",
+        "label": "Herzog Tech"
+      },
+      {
+        "value": "2a046ec0-56b7-5566-a41f-f02bdcdad0b3",
+        "label": "Hifi-Fischer"
+      },
+      {
+        "value": "ef13f288-7be5-544f-81a9-89c42951a7f7",
+        "label": "HMB Tec"
+      },
+      {
+        "value": "0258427c-b2ef-5167-bd60-383aa06a616f",
+        "label": "HOMAG Schweiz"
+      },
+      {
+        "value": "6cf2bef1-f057-540d-8ab0-229c78096e43",
+        "label": " House of Sound"
+      },
+      {
+        "value": "dec65efd-eae7-5e1d-a08a-9aaf5b9801fd",
+        "label": "House of Sound"
+      },
+      {
+        "value": "18c029e5-22e0-576d-bb18-5cca18ae535c",
+        "label": "H\u0026S"
+      },
+      {
+        "value": "2477fdff-6f8f-5fde-be35-dd6fb53ad5c3",
+        "label": "H\u0026S Vertieb Villeneuve (Cast)"
+      },
+      {
+        "value": "6a8527ff-ca87-4ab3-bfac-9546e6aceeab",
+        "label": "HTC"
+      },
+      {
+        "value": "664323db-2db9-54eb-bbcb-89b10b8ee3bb",
+        "label": "huspo sports factory ; 8304 Wallisellen"
+      },
+      {
+        "value": "daae4414-073b-5482-8fe2-f67f60cea474",
+        "label": "iart"
+      },
+      {
+        "value": "bab72773-4a14-5c2d-8ccd-d2aa959cd5e1",
+        "label": "Idee und Klang Studio"
+      },
+      {
+        "value": "65a0a374-f28b-481c-acb4-879e56445e4e",
+        "label": "imagelink AG"
+      },
+      {
+        "value": "dcaee546-42ee-5fe4-a001-401176c52ed5",
+        "label": "IM Holding GmbH; D-09648 Mittweida"
+      },
+      {
+        "value": "640d3e52-f8f4-5e33-aa07-0246b9faf5d8",
+        "label": "Indu Electric Gerber GmbH"
+      },
+      {
+        "value": "df116763-24aa-56a7-a98e-afad277893f2",
+        "label": "Indupro AG, Dietikon"
+      },
+      {
+        "value": "064e4eb4-adae-55c4-b14b-06bfc3e34b79",
+        "label": "InfraNova"
+      },
+      {
+        "value": "45a5e9d0-72b2-5bf4-aa89-88c5bdd926e3",
+        "label": "INNEO Solutions GmbH"
+      },
+      {
+        "value": "710313bf-cae0-5022-abd1-7141ac302533",
+        "label": "Inovis"
+      },
+      {
+        "value": "4106353e-f113-541b-96b7-da464158587f",
+        "label": "InpuTech AG\r\n8196 Wil/ZH"
+      },
+      {
+        "value": "be1c2544-ab5d-572d-9be0-ca5f57ce2696",
+        "label": "IQ Unlimited"
+      },
+      {
+        "value": "d057c109-ad9a-5c97-a5b8-46ac1fdb8cad",
+        "label": "IQ Unlimited, Zürich"
+      },
+      {
+        "value": "3a8fb2d3-45bd-457c-aff7-4909af7252b3",
+        "label": "IRCAM"
+      },
+      {
+        "value": "431c2ac1-018f-56da-a24a-46e9abdac0f8",
+        "label": "IT-Zentrum ZHdK"
+      },
+      {
+        "value": "44fe3a06-39a7-5368-8214-125a18f4e44a",
+        "label": "iZotope"
+      },
+      {
+        "value": "a129040a-b3ac-5c48-90a6-5221d7aebb0b",
+        "label": "Jackpoint\r\n8005 Zürich"
+      },
+      {
+        "value": "fc73997d-ef1d-41e5-a03e-677fe04d9690",
+        "label": "JACOB Electronic GmbH"
+      },
+      {
+        "value": "350da639-9d65-4d69-886c-d667ddeae0cd",
+        "label": "JAM Software GmbH"
+      },
+      {
+        "value": "5e4fb1fb-20b2-486f-a735-37f09c846d5f",
+        "label": "JB-Lighting"
+      },
+      {
+        "value": "563ca814-ee00-5d99-b16b-3ed84a68f71e",
+        "label": "John Lay Electronics"
+      },
+      {
+        "value": "c2fd8296-37d3-5425-9590-6a5bf359f4dc",
+        "label": "Jumbo"
+      },
+      {
+        "value": "79deec74-d7e8-5a82-9909-de00f649abca",
+        "label": "Jumbo-Baumarkt"
+      },
+      {
+        "value": "7662340a-709c-52a1-aeb8-e34e491cac30",
+        "label": "Jürg Nigg"
+      },
+      {
+        "value": "d1fb438b-2861-5f48-81f8-a72e9e56d617",
+        "label": "K55 GmbH, Universitätstr. 13, 8006 Zürich"
+      },
+      {
+        "value": "9ed6c1aa-a578-548a-8fb0-760f81940e02",
+        "label": "Kagi"
+      },
+      {
+        "value": "273b8100-16ae-5112-9f1a-4b4a3c288f0a",
+        "label": "Kaiser Shop"
+      },
+      {
+        "value": "369dfdc1-f5a9-5544-aab0-830fd7636aec",
+        "label": "Kärcher"
+      },
+      {
+        "value": "22a32837-e6a7-4109-9537-0983a2dbc751",
+        "label": "Kilchenmann AG"
+      },
+      {
+        "value": "5866930d-ece0-5502-b25e-b6487244c83a",
+        "label": "Kilchmann Telematik\r\nMühlackerstr.199\r\n8046 Zürich"
+      },
+      {
+        "value": "de27585c-d78a-5c60-9074-5be7791c41dc",
+        "label": "Kinomatik GbR\r\nAuf der Altenburg\r\n70376 Stuttgart"
+      },
+      {
+        "value": "cb40d0de-209a-5822-ae66-395288d67156",
+        "label": "klemm-music"
+      },
+      {
+        "value": "d0cc87a0-d74d-59c8-81e3-10a3bef3c7fb",
+        "label": "K\u0026M"
+      },
+      {
+        "value": "6b6ebeb7-d03a-419e-be33-56c4e4c75f62",
+        "label": "Kolok"
+      },
+      {
+        "value": "e8794931-2c42-5d5c-b9da-bb323d226597",
+        "label": "Kolor"
+      },
+      {
+        "value": "3dff17fa-7298-504b-bf19-e560c280320f",
+        "label": "Korpf Multimedia"
+      },
+      {
+        "value": "e55e3319-465d-4317-9462-070ec1d8f7d5",
+        "label": "kovision AG"
+      },
+      {
+        "value": "22d33892-1f01-58c0-8e7d-9ab2a5265205",
+        "label": "Kuhlmann AG"
+      },
+      {
+        "value": "b2443266-80e4-5074-baa2-ece3b3c8aec2",
+        "label": "Lake Solutions\r\n8304 Wallisellen"
+      },
+      {
+        "value": "12cb713c-9f7e-43f1-bc2c-9dbf14b154e3",
+        "label": "Lang Baranday AG"
+      },
+      {
+        "value": "15811523-e1e3-4270-bd30-aab8a694b941",
+        "label": "Lautsprecher Teufel GmbH"
+      },
+      {
+        "value": "3ae95220-7784-453f-99c6-4fdd0a62f531",
+        "label": "Lectrosonics"
+      },
+      {
+        "value": "5b977c0e-a8d9-4eb5-b4db-c1c3e3cb5fc4",
+        "label": "LEDitgo GmbH"
+      },
+      {
+        "value": "697f5fa0-f3b9-5868-b99b-aa5ebf00358d",
+        "label": "Leica Microsystems AG\r\n9435 Heergbrugg"
+      },
+      {
+        "value": "663da27f-442d-5c87-88de-03f6ba381fb6",
+        "label": "Lenovo"
+      },
+      {
+        "value": "d20338d8-1182-5ea6-91da-ea96c3a0a76a",
+        "label": "Letec"
+      },
+      {
+        "value": "e1975a77-5a08-5c46-bb04-f7c854e22378",
+        "label": "Leuchten-Giger"
+      },
+      {
+        "value": "6de178db-5a15-5701-bd47-9b1b79b72d3c",
+        "label": "Leuchten-Giger, www.leuchtengiger.ch"
+      },
+      {
+        "value": "a5a02a2e-ac74-54d4-9dad-1ec8a2f9e396",
+        "label": "Lexicon"
+      },
+      {
+        "value": "5dfc9f2a-e774-5e39-b61f-bf99e57a43a3",
+        "label": "Lichtbau, 3012 Bern"
+      },
+      {
+        "value": "b350ee52-8f18-5f74-8e6d-47d52c7505db",
+        "label": "Lidl"
+      },
+      {
+        "value": "dbec749f-75e7-5882-89da-100976aac11e",
+        "label": "Liesegang"
+      },
+      {
+        "value": "93a7324d-b940-58bd-ad10-d3de758d7fc7",
+        "label": "Light\u0026Byte AG"
+      },
+      {
+        "value": "754a5519-db59-59f9-86f4-e6a722784d38",
+        "label": "light design eventtechnik"
+      },
+      {
+        "value": "ab2545de-16e5-5789-b4f4-9c7e527ffd3a",
+        "label": "Limax"
+      },
+      {
+        "value": "a679d574-1a42-5ee8-9a3b-867d349c9490",
+        "label": "Limax Erkener"
+      },
+      {
+        "value": "a85bc6af-1c89-49ad-9392-b27f3593d91d",
+        "label": "LINEXA ANSTALT"
+      },
+      {
+        "value": "db1ee027-41bf-5982-894f-8911a05a5436",
+        "label": "LINQPAD"
+      },
+      {
+        "value": "6d54da69-b4d4-57b4-89a8-7ce0d4f5f01f",
+        "label": "LINX"
+      },
+      {
+        "value": "0fe0f8e5-a6c4-5053-b092-395d757d14e2",
+        "label": "logitec"
+      },
+      {
+        "value": "cba1038b-ff9f-5c3e-b015-aefc3905e224",
+        "label": "logitech"
+      },
+      {
+        "value": "f3cb01f8-58d1-5e1b-89c0-ecfa728a20fd",
+        "label": "LOOK"
+      },
+      {
+        "value": "8fdb21ff-bdc1-4cc5-93c0-82c5ea69c010",
+        "label": "Loops\u0026Bits"
+      },
+      {
+        "value": "c5d29601-37a1-464e-8a32-f86144c07768",
+        "label": "Luxonis"
+      },
+      {
+        "value": "ad73edd0-35d2-5fd1-b3e8-92565a835044",
+        "label": "LYNX"
+      },
+      {
+        "value": "68f73e43-cae9-51fd-a82c-9abd5ae520df",
+        "label": "Maggot"
+      },
+      {
+        "value": "8da8c51e-037f-49a4-adde-b53d9361f3fc",
+        "label": "Manus Technology Group"
+      },
+      {
+        "value": "d68a7e9d-b6d3-4f2f-9a28-69b386894c23",
+        "label": "Massey Plugins Inc. "
+      },
+      {
+        "value": "2f4a5020-a28d-525b-96ea-af14eb9599d5",
+        "label": "MatchingNeeds"
+      },
+      {
+        "value": "7f46db84-1d8c-5162-abf5-66cb0991740e",
+        "label": "Mathworks"
+      },
+      {
+        "value": "26ee403d-a5b2-49b0-b725-d54cd4ff67da",
+        "label": "Maxon"
+      },
+      {
+        "value": "d9eb8320-c5bf-5af6-9454-28a7e7f9e7ba",
+        "label": "MBF Filmtechnik Frankfurt a M"
+      },
+      {
+        "value": "3bb5a441-bcfc-5148-8b89-b207ed799f67",
+        "label": "McDSP"
+      },
+      {
+        "value": "bc6d087c-a26c-520a-aaba-320aa088fca7",
+        "label": "Media Solutions"
+      },
+      {
+        "value": "dfa130b3-a631-5ea6-ade0-f04c81eab218",
+        "label": "Mediastrand - München"
+      },
+      {
+        "value": "9511db22-4b73-5ac0-b6d6-b04ff0d600c0",
+        "label": "Medium"
+      },
+      {
+        "value": "1e88600c-23c5-5a8e-bc50-579236045778",
+        "label": "Megarent"
+      },
+      {
+        "value": "00ce0f08-86ba-5a15-94c5-2428a019af72",
+        "label": "Menzi ebz AG"
+      },
+      {
+        "value": "05cb8d0c-f9c5-53a5-b5a8-5c0136e23761",
+        "label": "Merlin Productions GmbH"
+      },
+      {
+        "value": "f17ccc65-6b35-4d9c-9ecb-f92f3587a559",
+        "label": "Meta.com"
+      },
+      {
+        "value": "e20c9146-dc7c-5c56-9348-06c9a19dbe68",
+        "label": "Mettle"
+      },
+      {
+        "value": "9377183c-8f38-459d-81b7-5b28e5d60a77",
+        "label": "MGM Audio AG"
+      },
+      {
+        "value": "b2218947-7f80-5b02-8129-f6378974d0d8",
+        "label": "microspot.ch"
+      },
+      {
+        "value": "b569b9d7-461f-45c7-93ea-4e5d72e940dc",
+        "label": "Milieufilm GbR"
+      },
+      {
+        "value": "c46418fd-f357-5a98-9136-81e9ae5da47d",
+        "label": "Minolta AG"
+      },
+      {
+        "value": "0431f13f-fb64-43f2-96d3-6d78d809c9cd",
+        "label": "Missfelder Consulting"
+      },
+      {
+        "value": "0733d5cb-aed5-5402-8e08-a7f6ba825479",
+        "label": "mkw Trading GmbH"
+      },
+      {
+        "value": "1695beab-9916-504f-9652-71fd77a21002",
+        "label": "MMP\r\nSchönenbergstr.50\r\n8816 Hirzel"
+      },
+      {
+        "value": "fbbc5ad5-b0b9-58a9-adc0-2c17c7dbf90a",
+        "label": "MODARTT S.A.S"
+      },
+      {
+        "value": "46345b9f-f905-57e8-ae02-18a6cc75c6d0",
+        "label": "Monacor Schweiz AG"
+      },
+      {
+        "value": "235b7d24-376d-55f4-9790-1ef0fbfb7f90",
+        "label": "MOPS digital imaging"
+      },
+      {
+        "value": "749c4ae9-f9d8-59e4-892e-48476d2322c2",
+        "label": "Motcom AG"
+      },
+      {
+        "value": "78e2afe6-bd99-5ae5-a522-197f01a3fcc0",
+        "label": "Müller-Spring AG, Brugg"
+      },
+      {
+        "value": "38e0b92d-bc65-504c-b2c5-94fdf00f0711",
+        "label": "Multiplanet GmbH"
+      },
+      {
+        "value": "fea84ea3-5e1f-5d5b-8b52-8ca9ac560b49",
+        "label": "Music Network AG"
+      },
+      {
+        "value": "eccd5192-f73a-509b-b922-674b32f2b15c",
+        "label": "Music Store"
+      },
+      {
+        "value": "55fcd0b6-9b41-58a6-a2ce-4e2c0c84c8da",
+        "label": "Musik Aktiv"
+      },
+      {
+        "value": "ee5b5792-7274-4903-913e-66ccc844959d",
+        "label": "musikelectronic geithain"
+      },
+      {
+        "value": "730c8848-b032-5ad1-927b-64df8456c915",
+        "label": "Musik Produktiv"
+      },
+      {
+        "value": "29f7a484-7b47-5ed7-97b9-aafabd5fc207",
+        "label": "MusiX AG"
+      },
+      {
+        "value": "1008f1f4-c205-5008-b5e4-f8ecda3c9c16",
+        "label": "MusiX AG, Giebenach"
+      },
+      {
+        "value": "89748f23-fb62-4a38-897d-150c41310176",
+        "label": "mycommerce"
+      },
+      {
+        "value": "a0cbf193-1727-41fd-bf33-93b7c5ed8aa5",
+        "label": "mylemon.at"
+      },
+      {
+        "value": "31727359-bccf-580b-828e-6e019dbbefb2",
+        "label": "Nabertherm"
+      },
+      {
+        "value": "bf1ba8a3-130e-525b-8793-9b20a2c29e74",
+        "label": "NaturalPoint"
+      },
+      {
+        "value": "934f4e64-272b-5396-ac72-67f459dbf594",
+        "label": "Neat"
+      },
+      {
+        "value": "644a091a-6b59-5308-9b41-ae90b173ff06",
+        "label": "Netcloud"
+      },
+      {
+        "value": "ad67f94e-b2d8-515b-af50-2858ab824de5",
+        "label": "Netkiosk"
+      },
+      {
+        "value": "eeefa019-90c2-5be7-904d-c5bb4dcd88c3",
+        "label": "netto24"
+      },
+      {
+        "value": "57492711-c74e-5445-9ca2-b3b32e481545",
+        "label": "Neukomm"
+      },
+      {
+        "value": "5d983fb8-3919-55e5-9a0d-83098c6004c8",
+        "label": "Neuland AG, Rotkreuz"
+      },
+      {
+        "value": "12342f5a-9aca-5124-b658-189979546806",
+        "label": "Neumann"
+      },
+      {
+        "value": "20de5f83-d151-5430-942a-7d3c7452dcd2",
+        "label": "Neurobehavioral Systems, Inc."
+      },
+      {
+        "value": "e847c4c1-74ea-5194-a3b1-fa0872eafc41",
+        "label": "nextway\r\nwww.nextway.ch"
+      },
+      {
+        "value": "f430a959-b1e1-5006-878b-0c8d0b2e03b2",
+        "label": "Nick Didkovsky"
+      },
+      {
+        "value": "214b6bf6-61ca-5140-8c73-964ae3a8f2c1",
+        "label": "Nikon AG, 8132 Egg"
+      },
+      {
+        "value": "7a1a3e93-6759-5afb-94f1-ce2fb05449bc",
+        "label": "Nikon AG, 8700 Küsnacht"
+      },
+      {
+        "value": "fea7a256-caae-507e-95dc-86bce2b0fa45",
+        "label": "Noise Makers"
+      },
+      {
+        "value": "ec6961eb-35e4-4665-8202-706129566784",
+        "label": "Nreal Hangzhou Tairuo Technology Co."
+      },
+      {
+        "value": "bb4e0d75-5146-4e14-afaf-59a6fece5ebe",
+        "label": "NUGEN Audio"
+      },
+      {
+        "value": "2b6a3ef8-4b6c-5a17-901e-512f8ca85bb4",
+        "label": "Océ (Schweiz) AG"
+      },
+      {
+        "value": "b43133db-6978-56e5-9a7b-db32bcfd1031",
+        "label": "OfficeWorld"
+      },
+      {
+        "value": "96b2c5eb-c6a0-5354-a5a8-0b6ea2869280",
+        "label": "OHC Computer\r\nFlughofstr.57\r\n8152 Glattbrugg\r\nKd.Nr.: 111380"
+      },
+      {
+        "value": "14b28a04-3e23-5a08-bb6e-fe3a88bef073",
+        "label": "om"
+      },
+      {
+        "value": "2bce027d-86a1-581e-9396-523d78ccc670",
+        "label": "omn"
+      },
+      {
+        "value": "d7a580c0-2db0-521a-87ae-46a16ea80df4",
+        "label": "Omnipex"
+      },
+      {
+        "value": "372cc3b8-b9bb-5676-9d3c-491977b2f114",
+        "label": "Opal"
+      },
+      {
+        "value": "137729c8-4e54-43c4-b3ad-1b837fbefbe3",
+        "label": "opalcameras.com"
+      },
+      {
+        "value": "c8eaccd6-dd03-5f15-8384-aa62d0d16114",
+        "label": "OPO Oeschger"
+      },
+      {
+        "value": "d86ee1cf-423f-5093-b8b0-6f028a73dec9",
+        "label": "Osram"
+      },
+      {
+        "value": "d0c557a7-1b28-57d9-84db-96234ac99339",
+        "label": "Otto Fischer"
+      },
+      {
+        "value": "e3483c9e-aacf-5161-9d78-58bc9c76fb9a",
+        "label": "Paessler AG"
+      },
+      {
+        "value": "53da40db-8246-46f1-9bbe-89bc42249b83",
+        "label": "Pathworks"
+      },
+      {
+        "value": "1c1428e9-b579-569c-a1ed-c3fed92e2ac0",
+        "label": "PCHC, 9201 Gossau"
+      },
+      {
+        "value": "bd45b6f3-5bc4-5ced-859d-90fb08e9617b",
+        "label": "PCP.ch"
+      },
+      {
+        "value": "54d9a59d-3c24-5c30-964f-3af15eef270a",
+        "label": "PDF Tools AG"
+      },
+      {
+        "value": "6ddeeb27-ad08-5107-a101-a6ea0c9b73b1",
+        "label": "PEK AG"
+      },
+      {
+        "value": "1ce2d574-5738-5f00-ba37-f5c0a1771ace",
+        "label": "Peryton"
+      },
+      {
+        "value": "a11b4aaf-4fa5-5900-be6b-112cbfa2a0fc",
+        "label": "PhaseOne"
+      },
+      {
+        "value": "cd05ae7c-da2e-51bd-b623-6ce91301fbc9",
+        "label": "PKE"
+      },
+      {
+        "value": "5c4fe4fc-1ac8-45b7-b962-35fb8006b24e",
+        "label": "PlantCare AG"
+      },
+      {
+        "value": "dcc5376c-e173-4ca0-b0ac-281b1787ba60",
+        "label": "Plantronics.Inc."
+      },
+      {
+        "value": "0c9ead3a-e693-46bb-9d32-178539aea86c",
+        "label": "Plentycom"
+      },
+      {
+        "value": "cbf772cc-eb4b-4804-897a-0063d5a03e47",
+        "label": "Plugin Square"
+      },
+      {
+        "value": "359bdc5e-0538-5a78-961e-dde0a7115421",
+        "label": "Plusmusic AG"
+      },
+      {
+        "value": "de49c19f-f928-476d-8fb3-3de878c48890",
+        "label": "Pomfort"
+      },
+      {
+        "value": "f417201f-3128-46ce-b5ab-83bc25dbf075",
+        "label": "PRISMA"
+      },
+      {
+        "value": "8ca7793a-5d05-5ca0-9c76-b4a4d7064d91",
+        "label": "Pro Bauteam"
+      },
+      {
+        "value": "3e06d87b-fd82-5fe0-83ef-0eb2b6d0f0c2",
+        "label": "Professional AV-Media, 8706 Meilen"
+      },
+      {
+        "value": "9ca8cefa-9e8d-5bf9-99fb-371397a1f0c9",
+        "label": "Profot AG"
+      },
+      {
+        "value": "e8ca25a0-0aab-5ba6-8636-50ec598ae9f0",
+        "label": "Promedias AG"
+      },
+      {
+        "value": "44efbf84-c8bf-51e9-88b6-fab50ffb50ed",
+        "label": "Promusig AG"
+      },
+      {
+        "value": "b226f95f-ba9f-42cd-acf3-8677575de4e4",
+        "label": "Prosoft Engineering"
+      },
+      {
+        "value": "aa2f26d8-817a-5715-a080-e392be7616c9",
+        "label": "PZ / AV-Technik"
+      },
+      {
+        "value": "430f18f4-15e1-4e93-ae6f-d955a3ceb767",
+        "label": "Qlab"
+      },
+      {
+        "value": "1bb49998-bd57-59c8-abe4-dcddb5aaef7e",
+        "label": "Raas Soundequipment\r\n3011 Bern"
+      },
+      {
+        "value": "1f005807-ca2b-5448-9d77-dac32a6e3527",
+        "label": "Ramge Software Distribution"
+      },
+      {
+        "value": "6077672e-c2a1-4222-b9e3-4f70588788c2",
+        "label": "Rane"
+      },
+      {
+        "value": "e161c2b6-4cc8-5429-8445-304ce093a861",
+        "label": "Red Giant"
+      },
+      {
+        "value": "9b2d0e1d-1d51-58ae-a72c-7e62966edcf1",
+        "label": "Reichelt Elektronik"
+      },
+      {
+        "value": "0641ab32-19d1-40b8-9285-7bd78d415f82",
+        "label": "RELEC SA"
+      },
+      {
+        "value": "15d21c31-74e3-426c-adc9-a1eb8da4d90c",
+        "label": "Relens"
+      },
+      {
+        "value": "a395f303-9615-4d2a-925d-7decaeb35322",
+        "label": "RGBP AG"
+      },
+      {
+        "value": "ef272d8d-a7d9-508f-819d-6afaea519149",
+        "label": "Rogue Amoeba"
+      },
+      {
+        "value": "36839f7f-a141-4623-8b15-cb6971a3d16b",
+        "label": "Rokoko Europe "
+      },
+      {
+        "value": "3129852a-2555-5f80-8c25-1b3b62620695",
+        "label": "Roland Schweiz AG"
+      },
+      {
+        "value": "0932255e-34ac-58d2-b0f2-aae5deb17a27",
+        "label": "Roth \u0026 Schmid Photographie\r\nBuhrain 30\r\nCH-8052 Zürich"
+      },
+      {
+        "value": "fdb67285-2f33-5b63-845c-3ed13995dd32",
+        "label": "Rotronic AG"
+      },
+      {
+        "value": "81179500-e5c4-5305-909b-ed4417e34d65",
+        "label": "R\u0026V"
+      },
+      {
+        "value": "e80b253d-125d-5a74-ba9c-3727056d962b",
+        "label": "Ryter"
+      },
+      {
+        "value": "1a78a91a-ef5a-454b-aee6-58e311d66bc5",
+        "label": "Sabre Music Technology"
+      },
+      {
+        "value": "4356320e-4fe1-431c-bfbd-b64fd8feaa89",
+        "label": "Sacher Music GmbH"
+      },
+      {
+        "value": "c3fde900-c4fc-52ed-b1bc-10fe21b9ac7b",
+        "label": "Santschi"
+      },
+      {
+        "value": "e7724b7a-8789-4e66-8441-8c46ab562105",
+        "label": "SAS"
+      },
+      {
+        "value": "59525150-0fc6-5860-8921-137492646660",
+        "label": "Satshop (satshop.ch)"
+      },
+      {
+        "value": "edd844a0-ceae-51ad-bc82-4d737891d6cf",
+        "label": "Schachenmann\r\n"
+      },
+      {
+        "value": "380da61d-4909-5251-840b-0016bf0c9711",
+        "label": "Schaefer AG"
+      },
+      {
+        "value": "d924fb7d-be31-5c28-b999-f85a4acd0a61",
+        "label": "Schäfer"
+      },
+      {
+        "value": "0147f134-1b99-43cf-b4f8-4dc158d9fd68",
+        "label": "Schenker Technologies GmbH"
+      },
+      {
+        "value": "ad0b4aae-389a-5b9b-87c0-7965e015e9ef",
+        "label": "Schenkung Toni-Material"
+      },
+      {
+        "value": "1472fc05-b6c6-48c5-a36b-11a0f10392b3",
+        "label": "SchneidersLaden GmbH"
+      },
+      {
+        "value": "2781d33f-eea1-571a-91bf-e5b5d8b2e9b3",
+        "label": "Schumacher\u0026Frey GMBH"
+      },
+      {
+        "value": "574879cd-4f8c-59cc-abb0-1ab92e5895f2",
+        "label": "Schweizer AG"
+      },
+      {
+        "value": "bdc4e271-f489-4034-b79b-95e2ff787c97",
+        "label": "SDS Music Factory AG"
+      },
+      {
+        "value": "528ae2c8-13af-567c-b7c4-a05312b571e9",
+        "label": "SEC Simola Eichmann Comm."
+      },
+      {
+        "value": "ab94f862-d920-5b56-8e3c-42cbb4526c68",
+        "label": "segor electronics GmbH\r\nKaiserin-Augusta-Allee 94\r\n10589 Berlin"
+      },
+      {
+        "value": "16ef2801-e587-4cd4-9667-401347602034",
+        "label": "Senetic AG"
+      },
+      {
+        "value": "1a1400eb-61e2-520a-8d17-c41ff96ec25d",
+        "label": "Sennheiser Schweiz AG"
+      },
+      {
+        "value": "24470cd6-aef9-527b-b92a-f880ddae6fed",
+        "label": "Sertronics"
+      },
+      {
+        "value": "d81ba324-4e1d-5334-94f4-1d8ea8eb11f6",
+        "label": "Shareit"
+      },
+      {
+        "value": "f4f65ddd-7754-56e6-bddb-49097b2b583c",
+        "label": "Showlight"
+      },
+      {
+        "value": "1989bf3c-924a-5103-9d3a-607d7d38c449",
+        "label": "Showlight AG, Frauenfeld, www.showlight.com"
+      },
+      {
+        "value": "301886c2-6406-5f05-b54f-ec4cc3a6de7b",
+        "label": "siehe Notiz"
+      },
+      {
+        "value": "7a407ad1-3c38-415b-add6-ebca8605827a",
+        "label": "Siemens"
+      },
+      {
+        "value": "9e5b0aac-0724-5455-8247-c5e6f82f15c1",
+        "label": "Sigg EDV"
+      },
+      {
+        "value": "aea5639c-8705-5941-86cc-86cef19c8796",
+        "label": "Simon Zwick und Jonathan Rauprich GbR"
+      },
+      {
+        "value": "30228696-8244-4b91-9d12-720158f24bab",
+        "label": "sinndrin genossenschaft"
+      },
+      {
+        "value": "5abf7f7a-b8f9-5049-97f9-0fe34d65a5dd",
+        "label": "Sintratec GmbH"
+      },
+      {
+        "value": "6077bb58-7910-4463-9fb5-9f24cbe0888f",
+        "label": "sinus-technologies"
+      },
+      {
+        "value": "5fafb2aa-5e01-43ca-bd00-68d4c790c824",
+        "label": "Siquell GmbH"
+      },
+      {
+        "value": "9383e62a-4e20-5f26-94f0-7096dcab0a8c",
+        "label": "SLG Broadcast AG"
+      },
+      {
+        "value": "4491b01c-b5c5-5dc3-b5a5-030ecbcd8472",
+        "label": "SmallHD.com"
+      },
+      {
+        "value": "7d9b6351-a0af-5db5-8457-8abb2fc7b2e3",
+        "label": "SMI SensoMotoric Instruments GmbH"
+      },
+      {
+        "value": "b7b9ccbd-af1f-54ed-8287-cd80134bed14",
+        "label": "SoftwareOne AG"
+      },
+      {
+        "value": "6856e1d6-391b-4d12-b306-ac8ad61b9722",
+        "label": "Solarwinds"
+      },
+      {
+        "value": "24086ae7-18d1-501d-8350-08a51baee341",
+        "label": "Solid Solutions AG"
+      },
+      {
+        "value": "35e33cb8-41ae-5ad9-8b37-42f620711f1b",
+        "label": "Sonic Design"
+      },
+      {
+        "value": "4efb2572-d4d5-5ef4-a4b0-567002d93a4e",
+        "label": "Sonic Design Distribution"
+      },
+      {
+        "value": "bc3a2153-b95b-5adc-8f71-7b35065b99e4",
+        "label": "Sonnox"
+      },
+      {
+        "value": "9a96a8c1-3e2b-47e3-b659-07f84bc3f992",
+        "label": "SoundImports"
+      },
+      {
+        "value": "55fe61c2-c572-52c2-afb0-088f7fd9d18d",
+        "label": "Sound Service, Steinhausen"
+      },
+      {
+        "value": "eff7a596-baaf-5044-8f54-21bd2f0164a7",
+        "label": "Sounds\u0026More GmbH"
+      },
+      {
+        "value": "7317a59b-8ca2-5c17-a778-c0852ebb5898",
+        "label": "SoundToys"
+      },
+      {
+        "value": "71080de7-c234-5e3b-9b0d-2a0ddb9dcfab",
+        "label": "SOWACOM GmbH"
+      },
+      {
+        "value": "98a5a17e-24f1-4ba0-ae4e-5664115c741d",
+        "label": "Soyuz"
+      },
+      {
+        "value": "33bec1fb-7a90-5b69-baf0-8f15fe557156",
+        "label": "Stagelight"
+      },
+      {
+        "value": "97ed0a76-15ac-56c1-829c-71118a36589e",
+        "label": "Steg-Computer"
+      },
+      {
+        "value": "3b564d1f-6859-5594-8665-319a14e1b2a9",
+        "label": "Steinberg"
+      },
+      {
+        "value": "6f3d5fd6-53dc-5c93-b45b-af4e735d61d4",
+        "label": "Strand"
+      },
+      {
+        "value": "3d8433ad-d780-48ff-b75a-bb22b66ba0e7",
+        "label": "Strauss Elektroakustik"
+      },
+      {
+        "value": "9db7aaf9-3003-580f-a414-dd6f1b598969",
+        "label": "Studica Ltd."
+      },
+      {
+        "value": "8a6529a6-4af0-4eed-976b-6bf3e23b500e",
+        "label": "Sublime"
+      },
+      {
+        "value": "9eff6004-877b-51a3-b3ab-51be7a1c3b0f",
+        "label": "Supravision AG"
+      },
+      {
+        "value": "48f6debf-d8ce-4682-82b2-df4d9806c2d3",
+        "label": "SWEDX"
+      },
+      {
+        "value": "61cc0d67-25c8-5878-bf10-6c0ddca652a6",
+        "label": "Swisscom"
+      },
+      {
+        "value": "805fd415-eefe-40bb-b614-f4c34c8a9d99",
+        "label": "swiss-untis IT GmbH"
+      },
+      {
+        "value": "088634f3-b5e2-50d7-9cdb-bb25e2cb851f",
+        "label": "Teamlink AG"
+      },
+      {
+        "value": "cdd861c6-16b8-536e-9338-29ef24ba7eee",
+        "label": "Teamviewer GmbH"
+      },
+      {
+        "value": "c6aa4a25-25db-5ca2-a8ea-0e2834a49a6d",
+        "label": "tec"
+      },
+      {
+        "value": "85ff250c-6af3-5d09-9470-56dc96e7728f",
+        "label": "technocraft"
+      },
+      {
+        "value": "aa1c7c5d-686c-5a0a-aec0-b97823247bd1",
+        "label": "TecnoStore LLC"
+      },
+      {
+        "value": "5e986de3-0c6a-5f1b-bad7-97fddbec8b89",
+        "label": "Tekno\r\n8047 Zürich"
+      },
+      {
+        "value": "edf98f9e-9d4e-53b0-9733-95e65ff70d8b",
+        "label": "Telion AG"
+      },
+      {
+        "value": "e502dda3-4f3c-4468-ba6d-10ec8672913d",
+        "label": "Teltec"
+      },
+      {
+        "value": "4c73661a-9845-4e11-b70b-548a1785efcb",
+        "label": "Teradek"
+      },
+      {
+        "value": "4630bbc0-4243-5536-85c7-e86988a32e10",
+        "label": "Theatre Lighting"
+      },
+      {
+        "value": "74da7d50-01c9-5842-916b-82f18731e8e8",
+        "label": "Theatre Lighting Company"
+      },
+      {
+        "value": "b444e4a3-4d63-43f7-8d39-6ea94614a42f",
+        "label": "The Cargo Cult"
+      },
+      {
+        "value": "0a9c1c86-b960-55df-8523-12c69088f466",
+        "label": "Thomann , Deutschland"
+      },
+      {
+        "value": "8660645d-e730-545a-a79b-362d767361b0",
+        "label": "T-House Productions"
+      },
+      {
+        "value": "90c8105e-fcf9-51b4-83b3-0a716f0d3173",
+        "label": "Tonart Audiotechnik "
+      },
+      {
+        "value": "c6438cad-b911-54cf-8863-20f7c9b9a3ac",
+        "label": "Toni"
+      },
+      {
+        "value": "55af06f7-56f6-554e-9155-5f9785b312d3",
+        "label": "Toni Ausstattung"
+      },
+      {
+        "value": "e96c92df-58cb-5211-bac2-181314c7e9d8",
+        "label": "Toni-Projekt"
+      },
+      {
+        "value": "dbc26a4c-6d82-528f-b7e4-c1a8cce1299d",
+        "label": "Tonspur AG"
+      },
+      {
+        "value": "8761761f-b9ad-517c-9b26-fbd182d2cec1",
+        "label": "tpc AG"
+      },
+      {
+        "value": "11ede4ae-fa71-5944-b308-cdc58ec6b37e",
+        "label": "transtec"
+      },
+      {
+        "value": "b850e042-1119-5081-88d3-7072f2301b6e",
+        "label": "TroikaTronix"
+      },
+      {
+        "value": "1cdae469-f7f3-4d9d-a917-17216562d0af",
+        "label": "ttsmp3.com"
+      },
+      {
+        "value": "22a07628-389f-544a-bc99-b79a13f04827",
+        "label": "Tucton"
+      },
+      {
+        "value": "0e88a30a-e4e9-58b5-8d0e-8622622687b3",
+        "label": "Tweaklab, 4056 Basel"
+      },
+      {
+        "value": "f6ba5ddf-b360-53f3-af84-58f700094259",
+        "label": "Twocanoes"
+      },
+      {
+        "value": "04e173ab-08dc-58ee-bd70-426bcb95c2cb",
+        "label": "UltraFlex"
+      },
+      {
+        "value": "90eb24c2-c180-5aa5-9218-8ed6df8ecc72",
+        "label": "unbekannt"
+      },
+      {
+        "value": "8a7d5b8d-d604-5a0c-beda-ed4d938fb715",
+        "label": "Unity 3D Asset Store"
+      },
+      {
+        "value": "8675640d-e669-589c-b050-6b63c3ee62e3",
+        "label": "Universität Zürich"
+      },
+      {
+        "value": "0bddfbd0-f308-52e6-9c08-39fb684cff2e",
+        "label": "UpBeat Bertastrasse 8003 Zürich"
+      },
+      {
+        "value": "56504d79-a361-5301-8136-5ca19242d690",
+        "label": "UpBeat\r\nBertastrasse 8\r\n8003 Zürich"
+      },
+      {
+        "value": "32103855-8b61-590c-b4fe-1fa505dd76f5",
+        "label": "Valenton"
+      },
+      {
+        "value": "e497a516-3731-5de5-8052-30f0e01fe55a",
+        "label": "VanDyke Software"
+      },
+      {
+        "value": "a9ca7dfc-b276-5013-9b45-102d3be9ac1b",
+        "label": "VASP"
+      },
+      {
+        "value": "6c31e8f1-ff69-4518-8f75-e58089ee16c6",
+        "label": "VenTrade"
+      },
+      {
+        "value": "8ef2e3e3-5468-5fd7-b216-4bc9111f1b15",
+        "label": "VFB 4104 Oberwil"
+      },
+      {
+        "value": "e522b18a-7b6a-59de-b669-a75019253027",
+        "label": "VFB Video Film Beleuchtung Oberwil"
+      },
+      {
+        "value": "776a4409-5807-4db1-87d4-c3d4d8fedeb8",
+        "label": "Videolink AG"
+      },
+      {
+        "value": "0a580d66-885e-51bd-a676-ade925508db1",
+        "label": "Video Pilot"
+      },
+      {
+        "value": "dd3948e0-bb35-4bba-9b2f-ef8c81572f6c",
+        "label": "Viewsonic"
+      },
+      {
+        "value": "d0fe9a1e-426f-5690-bbb7-04e47d03efee",
+        "label": "Visopta\r\nAV Ganz\r\n5242 Lupfig"
+      },
+      {
+        "value": "b1dfeea6-979b-50e5-a680-62c4c1acd7c2",
+        "label": "Visuals Switzerland"
+      },
+      {
+        "value": "35382b78-f317-4a13-8fec-3fc7731080c4",
+        "label": "Visuell-Akustik AG"
+      },
+      {
+        "value": "9e768bcd-b416-4b98-95c4-009acc6ecd0b",
+        "label": "VITEC"
+      },
+      {
+        "value": "78ccd594-bea5-4265-a914-1aad6d64e95a",
+        "label": "VMware"
+      },
+      {
+        "value": "16b612b7-790b-408f-ab4f-536f64883649",
+        "label": "Wellen\u0026Noethen"
+      },
+      {
+        "value": "285747a2-cfcc-4d0b-87b8-88794e939fd6",
+        "label": "whirlwind"
+      },
+      {
+        "value": "5e3eb0f0-b10f-4c31-af96-8f21483d6fc4",
+        "label": "Wildlife Acoustics"
+      },
+      {
+        "value": "4bea2935-1e41-5d96-920c-38f7f813e429",
+        "label": "WinData Team AG"
+      },
+      {
+        "value": "a00b8870-a205-5db3-8fcc-1dbcbe267903",
+        "label": "Work Concept"
+      },
+      {
+        "value": "79f7200c-e59b-5e64-8a37-0a762d9cf9ab",
+        "label": "www.cjwdev.co.uk/"
+      },
+      {
+        "value": "10a4b8ba-9d64-5886-a321-d024add29314",
+        "label": "www.scientific-solutions.ch"
+      },
+      {
+        "value": "f73e5292-1dde-4dcd-a479-8819651d753f",
+        "label": "Xsens Technologies B.V."
+      },
+      {
+        "value": "ce083d43-4a15-4d32-a8d4-36d0fc30fa10",
+        "label": "XYTRONIX"
+      },
+      {
+        "value": "4bcd1ddd-8d66-5c89-b383-f62b292d3107",
+        "label": "Yamahiko.info"
+      },
+      {
+        "value": "58225c9b-8581-5151-a692-104c3b75e09f",
+        "label": "Yampe.ch"
+      },
+      {
+        "value": "5b177852-33b5-5fc0-bcc3-d3bebed469c0",
+        "label": "Y\u0026C Electronic"
+      },
+      {
+        "value": "413b9647-a61c-44b7-837e-29225444279d",
+        "label": "YO YO Games"
+      },
+      {
+        "value": "c41f08a9-b7ea-50bf-8ad8-6f7488957cb3",
+        "label": "ZAP Audio S.A."
+      },
+      {
+        "value": "b20fb4a1-ae2f-5c96-85d3-f30b00ba0732",
+        "label": "Z\u0026B"
+      },
+      {
+        "value": "b6f3659a-564a-5b49-a941-068206ed9e19",
+        "label": "Zellweger Güttinger AG"
+      },
+      {
+        "value": "ef3d1d06-c610-4217-a185-3a70835d19ec",
+        "label": "Zettaplan AG"
+      },
+      {
+        "value": "3168e31a-ab2a-5a34-9c4d-a36f5bde3adf",
+        "label": "ZHDK"
+      },
+      {
+        "value": "9904b84d-0c1f-41ae-bbf0-da482251b571",
+        "label": "ZTE"
+      },
+      {
+        "value": "0c07b660-430c-5c33-a9f6-bb8a3d19db6a",
+        "label": "Zumtobel Licht AG"
+      },
+      {
+        "value": "51303a32-3cde-4869-b5c9-c4a195943513",
+        "label": "Zylia Sp. z o.o"
+      },
+      {
+        "value": "080cc5f1-8c29-4cfe-a33d-2c1918e6b86d",
+        "label": "Zynaptiq"
+      },
+      {
+        "value": "e6bb9903-ef52-46fe-b739-cce4f713545a",
+        "label": "Zynaptiq GmbH"
+      }
+    ],
+    "attribute": [
+      "supplier",
+      "id"
+    ],
+    "extensible": true,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "extended_key": [
+      "supplier",
+      "name"
+    ],
+    "id": "supplier_id",
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "date",
+    "group": "Invoice Information",
+    "label": "Warranty expiration",
+    "attribute": [
+      "properties",
+      "warranty_expiration"
+    ],
+    "permissions": {
+      "role": "lending_manager",
+      "owner": true
+    },
+    "target_type": "item",
+    "id": "properties_warranty_expiration",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Eigenschaften",
+    "label": "Verbrauch in kw/h",
+    "attribute": [
+      "properties",
+      "electrical_power"
+    ],
+    "forPackage": false,
+    "permissions": {
+      "role": "lending_manager",
+      "owner": false
+    },
+    "target_type": "item",
+    "id": "properties_electrical_power",
+    "values": null,
+    "default": null,
+    "search_path": null
+  },
+  {
+    "type": "text",
+    "group": "Eigenschaften",
+    "label": "Ampère",
+    "attribute": [
+      "properties",
+      "ampere"
+    ],
+    "forPackage": false,
+    "permissions": {
+      "role": "inventory_manager",
+      "owner": false
+    },
+    "target_type": "item",
+    "id": "properties_ampere",
+    "values": null,
+    "default": null,
+    "search_path": null
+  }
+]
