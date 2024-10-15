@@ -80,10 +80,9 @@
 (defn base-pool-query [query pool-id ]
   (-> query
     (sql/from [:items :i])
+      (sql/join [:rooms :r] [:= :r.id :i.room_id])
+      (sql/join [:buildings :b] [:= :b.id :r.building_id])
     (cond->
-      ;pool-id (sql/join [:model_links :ml] [:= :m.id :ml.model_id])
-      ;pool-id (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
-      ;pool-id (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
       pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
 
@@ -126,30 +125,19 @@
 
          ;filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          ;filter-product (if-not model_id (:filter_product query-params) nil)
-         ;
+
+
+         ;; TODO: missing
+         ;warranty_expiration (present within properties)
+         ;current_location
+         ;location
+         ;type
+         ;can_destroy
+         ;children
+
          ;base-query (-> (sql/select-distinct :i.*)
-         base-query (-> (sql/select :i.*)
+         base-query (-> (sql/select :i.* [:b.name :building_name] [:r.name :room_name])
                       ((fn [query] (base-pool-query query pool_id )))
-
-                      ;(cond-> (or item_id (= option-type "items"))
-                      ;  ((fn [q] (item-query q item_id))))
-
-
-                      ;(cond-> (or properties_id (= option-type "properties"))
-                      ;  ((fn [q] (properties-query q properties_id))))
-                      ;(cond-> (or accessories_id (= option-type "accessories"))
-                      ;  ((fn [q] (accessories-query q accessories_id option-type))))
-                      ;(cond-> (or attachments_id (= option-type "attachments"))
-                      ;  ((fn [q] (attachments-query q attachments_id option-type))))
-                      ;(cond-> (or entitlement_id (= option-type "entitlements"))
-                      ;  ((fn [q] (entitlements-query q entitlement_id))))
-                      ;(cond-> (or model_link_id (= option-type "model-links"))
-                      ;  ((fn [q] (model-links-query q model_link_id pool_id))))
-
-                      ;(cond-> filter-manufacturer
-                      ;  (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
-                      ;(cond-> filter-product
-                      ;  (sql/where [:ilike :m.product (str "%" filter-product "%")]))
 
                       (cond-> item_id (sql/where [:= :i.id item_id]))
                       (cond-> (and sort-by item_id) (sql/order-by item_id)))]
