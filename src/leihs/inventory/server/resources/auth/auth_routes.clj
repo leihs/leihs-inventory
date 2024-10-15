@@ -313,8 +313,7 @@
       {:get {:swagger {:security []}
              :handler public-endpoint-handler}}]
      ["/protected"
-      {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
-             :accept "application/json"
+      {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security []}
              :handler protected-handler

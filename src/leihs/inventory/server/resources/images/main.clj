@@ -54,6 +54,8 @@
           json-request? (= accept-header "application/json")
           image_id (-> request path-params :id)
           is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
+
+          ;; FIXME
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
                     (sql/where [:= :i.thumbnail is-thumbnail?])
@@ -62,6 +64,7 @@
                                   (-> (sql/select :i.target_id)
                                       (sql/from [:images :i])
                                       (sql/where [:= :i.id image_id]))]))
+                  ; TODO: limit
                     (sql/limit 2)
                     sql-format)
           result (jdbc/query tx query)]

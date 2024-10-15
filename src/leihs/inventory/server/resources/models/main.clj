@@ -23,12 +23,12 @@
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
                          (cond-> model_id (sql/where [:= :m.id model_id])))]
       (if model_id
-        (response (jdbc/query tx (-> base-query sql-format)))
-        (let [{:keys [page size]} (fetch-pagination-params request)]
-          (create-paginated-response base-query tx size page))))
+        (response (jdbc/query tx (-> base-query sql-format))))
+      (let [{:keys [page size]} (fetch-pagination-params request)]
+        (response (create-paginated-response base-query tx size page))))
     (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
+      (error "Failed to get models-compatible" e)
+      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
 
 (defn get-models-handler [request]
   (let [tx (:tx request)

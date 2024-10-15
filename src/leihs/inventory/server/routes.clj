@@ -14,13 +14,16 @@
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.entitlements.routes :refer [get-entitlements-routes]]
+   [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.model-links.routes :refer [get-model-links-routes]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
+   [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
+   [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
@@ -66,7 +69,10 @@
    (get-pools-routes)
    (get-categories-routes)
 
-   ;(get-items-routes)
+   (get-owner-department-routes)
+   (get-items-routes)
+   (get-supplier-routes)
+   (get-fields-routes)
    ;(get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)

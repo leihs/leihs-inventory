@@ -3,83 +3,21 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
+                                                            entitlements-query item-query
+                                                            model-links-query properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import (java.time LocalDateTime)
-           (java.util UUID)))
+  (:import [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util.jar JarFile]))
 
-(defn remove-select [query]
-  (-> query
-      (dissoc :select :select-distinct)))
-
-(defn item-query [query item-id]
-  (-> query
-      remove-select
-      (sql/select-distinct [:i.*])
-      (sql/join [:items :i] [:= :m.id :i.model_id])
-      (cond-> item-id
-        (sql/where [:= :i.id item-id]))))
-
-(defn entitlements-query [query entitlement-id]
-  (-> query
-      remove-select
-      (sql/select-distinct [:e.*])
-      (sql/join [:entitlements :e] [:= :m.id :e.model_id])
-      (cond-> entitlement-id
-        (sql/where [:= :e.id entitlement-id]))))
-
-(defn model-links-query [query model-links-id pool_id]
-  (-> query
-      remove-select
-      (sql/select-distinct [:ml.*])
-      (cond-> (nil? pool_id) (sql/join [:model_links :ml] [:= :m.id :ml.model_id]))
-      (cond-> model-links-id
-        (sql/where [:= :ml.id model-links-id]))))
-
-(defn properties-query [query properties-id]
-  (-> query
-      remove-select
-      (sql/select-distinct [:p.*])
-      (sql/join [:properties :p] [:= :m.id :p.model_id])
-      (cond-> properties-id
-        (sql/where [:= :p.id properties-id]))))
-
-(defn accessories-query
-  ([query accessories-id]
-   (accessories-query query accessories-id "n/d"))
-  ([query accessories-id type]
-   (-> query
-       remove-select
-       (sql/select-distinct [:a.*])
-       (sql/join [:accessories :a] [:= :m.id :a.model_id])
-       (cond-> accessories-id
-         (sql/where [:= :a.id accessories-id])))))
-
-(defn attachments-query
-  ([query attachment-id]
-   (attachments-query query attachment-id "n/d"))
-  ([query attachment-id type]
-   (-> query
-       remove-select
-       (sql/select-distinct :a.id :a.content :a.filename :a.item_id)
-       (sql/join [:attachments :a] [:= :m.id :a.model_id])
-       (cond-> attachment-id
-         (sql/where [:= :a.id attachment-id])))))
-
-(defn base-pool-query [query pool-id type]
-  (-> query
-      (sql/from [:models :m])
-      (cond->
-       pool-id (sql/join [:model_links :ml] [:= :m.id :ml.model_id])
-       pool-id (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
-       pool-id (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-       pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
-       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
-
-(defn extract-option-by-uri [input-str]
+(defn- extract-option-type-from-uri [input-str]
   (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
         last-segment (-> input-str
                          (clojure.string/split #"/")
@@ -88,25 +26,13 @@
       last-segment
       nil)))
 
-(defn valid-get-request? [request]
-  (let [method (:request-method request)
-        uri (:uri request)
-        uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
-    (and (= method :get)
-         (not (re-find uuid-regex uri)))))
-
-(defn- pagination-response [request base-query]
-  (let [{:keys [page size]} (fetch-pagination-params request)
-        tx (:tx request)]
-    (create-paginated-response base-query tx size page)))
-
 (defn get-models-handler
   ([request]
    (get-models-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
-         option-type (extract-option-by-uri (:uri request))
+         option-type (extract-option-type-from-uri (:uri request))
          query-params (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          sort-by (case (:sort_by query-params)
@@ -137,10 +63,7 @@
                           (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                         (cond-> model_id (sql/where [:= :m.id model_id]))
                         (cond-> (and sort-by model_id) (sql/order-by sort-by)))]
-     (cond
-       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-       with-pagination? (pagination-response request base-query)
-       :else (jdbc/query tx (-> base-query sql-format))))))
+     (create-pagination-response request base-query with-pagination?))))
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (response (get-models-handler request true)))
@@ -152,11 +75,7 @@
   (let [result (get-models-handler request)]
     (response result)))
 
-(defn to-uuid [value]
-  (try
-    (if (instance? String value) (UUID/fromString value) value)
-    (catch Exception e
-      value)))
+;;  ------------
 
 (defn create-model-handler-by-pool [request]
   (let [created_ts (LocalDateTime/now)
