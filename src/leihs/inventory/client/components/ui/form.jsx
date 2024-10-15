@@ -1,6 +1,11 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
-import { Controller, FormProvider, useFormContext } from "react-hook-form"
+import {
+  Controller,
+  FormProvider,
+  useFormContext,
+  useFieldArray,
+} from "react-hook-form"
 
 import { cn } from "@/components/ui/utils"
 import { Label } from "@/components/ui/label"
@@ -8,6 +13,21 @@ import { Label } from "@/components/ui/label"
 const Form = FormProvider
 
 const FormFieldContext = React.createContext({})
+
+// const FormFields = ({ ...props }) => {
+//   const control = props.control;
+//
+//   const { fields, append, remove } = useFieldArray({
+//     control,
+//     name: ""
+//   });
+//
+//   return (
+//     <FormFieldContext.Provider value={{ name: props.name }}>
+//       <Controller name={} {...props} />
+//     </FormFieldContext.Provider>
+//   )
+// }
 
 const FormField = ({ ...props }) => {
   return (
