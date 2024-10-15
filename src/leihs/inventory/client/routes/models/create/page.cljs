@@ -10,7 +10,7 @@
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.fields :as form-fields :refer [fields]]
+   [leihs.inventory.client.routes.models.create.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 

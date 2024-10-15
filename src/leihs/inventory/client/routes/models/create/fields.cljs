@@ -10,67 +10,46 @@
    [leihs.inventory.client.routes.models.create.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
-(defui fields [{:keys [block field]}]
-
-  ($ FormItem {:class-name "mt-6"}
-     (let [input (:input block)]
-       (cond
-         (-> input :component (= "input"))
-         ($ FormLabel (:label block)
-            ($ FormControl
-               ($ Input (merge
-                         (:props input)
-                         (:field (jc field))))))
-
-         (-> input :component (= "dropzone"))
-         ($ FormLabel (:label block)
-            ($ FormControl
-               ($ Dropzone (merge
-                            (:props input)
-                            (:field (jc field))))))
-
-         (-> input :component (= "accessory-list"))
-         ($ FormLabel (:label block)
-            ($ FormControl
-               ($ AccessoryList (merge
-                                 (:props input)
-                                 (:field (jc field))))))
-
-         (-> input :component (= "model-properties"))
-         ($ FormLabel (:label block)
-            ($ FormControl
-               ($ ModelProperties (merge
-                                   (:props input)
-                                   (:field (jc field))))))
-
-         (-> input :component (= "textarea"))
-         ($ FormLabel (:label block)
-            ($ FormControl
-               ($ Textarea (merge
-                            (:props input)
-                            (:field (jc field))))))
-
-         (-> input :component (= "checkbox"))
-         ($ :<>
-            ($ FormControl
-               ($ Checkbox (merge
-                            {:checked (-> (jc field) :field :value)
-                             :onCheckedChange (-> (jc field) :field :onChange)}
-                            (:props input))))
-
-            ($ FormLabel {:className "pl-4"} (:label block)))
-
-         :else
-         ($ :div "input type not implemented -> " (:component input))))
-
-     ($ FormDescription
-        ($ :<> (:description block)))
-
-     ($ FormMessage)))
+(def fields-map
+  {"input" Input
+   "dropzone" Dropzone
+   "textarea" Textarea
+   "checkbox" Checkbox
+   "accessory-list" AccessoryList})
 
 (defui field [{:keys [control block]}]
-  ($ FormField {:control (cj control)
-                :name (:name block)
-                :render (fn [field]
-                          ($ fields {:block block
-                                     :field field}))}))
+  (let [input (:input block)]
+    (cond
+      (-> input :component (= "checkbox"))
+      ($ FormField {:control (cj control)
+                    :name (:name block)
+                    :render #($ FormItem {:class-name "mt-6"}
+                                ($ FormControl
+                                   ($ Checkbox (merge
+                                                {:checked (-> (jc %) :field :value)
+                                                 :onCheckedChange (-> (jc %) :field :onChange)}
+                                                (:props input))))
+
+                                ($ FormLabel {:className "pl-4"} (:label block))
+                                ($ FormDescription
+                                   ($ :<> (:description block)))
+
+                                ($ FormMessage))})
+
+      comment "default case - this renders a component from the component map"
+      :else
+      (let [comp (get fields-map (:component input))]
+        (when comp
+          ($ FormField {:control (cj control)
+                        :name (:name block)
+                        :render #($ FormItem {:class-name "mt-6"}
+                                    ($ FormLabel (:label block))
+                                    ($ FormControl
+                                       ($ comp (merge
+                                                (:props input)
+                                                (:field (jc %)))))
+
+                                    ($ FormDescription
+                                       ($ :<> (:description block)))
+
+                                    ($ FormMessage))}))))))

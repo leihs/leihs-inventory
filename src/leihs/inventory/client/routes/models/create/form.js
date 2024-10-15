@@ -22,8 +22,8 @@ export const schema = z.object({
   technical_detail: z.string(),
   internal_description: z.string(),
   hand_over_note: z.string(),
-  entitlements: z.string().array(),
-  categories: z.string().array(),
+  // entitlements: z.string().array(),
+  // categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
   accessories: z.string().array().optional(),
@@ -130,37 +130,37 @@ export const structure = [
       },
     ],
   },
-  {
-    title: "Zuteilungen",
-    blocks: [
-      {
-        name: "entitlements",
-        label: "Berechtigungen",
-        description: "Listen Sie die Berechtigungen auf",
-        input: {
-          component: "combobox",
-          props: {
-            placeholder: "Berechtigungen eingeben",
-            "auto-complete": "off",
-          },
-        },
-      },
-    ],
-  },
-  {
-    title: "Kategorien",
-    blocks: [
-      {
-        name: "categories",
-        label: "Kategorien",
-        description: "Listen Sie die Kategorien auf",
-        input: {
-          component: "combobox",
-          props: { placeholder: "Kategorien eingeben", "auto-complete": "off" },
-        },
-      },
-    ],
-  },
+  // {
+  //   title: "Zuteilungen",
+  //   blocks: [
+  //     {
+  //       name: "entitlements",
+  //       label: "Berechtigungen",
+  //       description: "Listen Sie die Berechtigungen auf",
+  //       input: {
+  //         component: "combobox",
+  //         props: {
+  //           placeholder: "Berechtigungen eingeben",
+  //           "auto-complete": "off",
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Kategorien",
+  //   blocks: [
+  //     {
+  //       name: "categories",
+  //       label: "Kategorien",
+  //       description: "Listen Sie die Kategorien auf",
+  //       input: {
+  //         component: "combobox",
+  //         props: { placeholder: "Kategorien eingeben", "auto-complete": "off" },
+  //       },
+  //     },
+  //   ],
+  // },
   {
     title: "Bilder",
     blocks: [
@@ -236,7 +236,6 @@ export const structure = [
     title: "Eigenschaften",
     blocks: [
       {
-        simple: false,
         name: "properties",
         label: "Eigenschaften",
         description: "Listen Sie die Eigenschaften auf",
