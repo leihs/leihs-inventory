@@ -1,6 +1,5 @@
 require "spec_helper"
 require "pry"
-require "../../leihs/database/lib/leihs/constants"
 
 def create_model(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
@@ -17,6 +16,13 @@ def create_model(client, inventory_pool_id, product, category_ids)
 end
 
 feature "Inventory Model Management via API" do
+
+  # ALL_USERS_GROUP_UUID
+  #
+  # let :CONST_ALL_USERS_GROUP_UUID do
+  #   '4dd87663-f731-5766-b97d-9494889ca66c'
+  # end
+
   context "Retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
       @login = "test"
