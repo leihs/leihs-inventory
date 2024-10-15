@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.create.components.accessories-list
+(ns leihs.inventory.client.routes.models.create.components.model-properties
   (:require
    ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
    ["@@/button" :refer [Button]]
@@ -40,14 +40,14 @@
 
 (defui main [props]
   (let [props (jc (cj props))
-        [accessories set-accessories!] (uix/use-state [])
+        [properties set-accessories!] (uix/use-state [])
         [accessory set-accessory!] (uix/use-state "")]
 
     (uix/use-effect
      (fn []
-       ((:onChange props) (cj (vec (map :name accessories))))
+       ((:onChange props) (cj (vec (map :name properties))))
        (set-accessory! ""))
-     [accessories set-accessory!])
+     [properties set-accessory!])
 
     ($ :div {:className "flex flex-col gap-4"}
        ($ :div {:className "flex gap-4"}
@@ -66,16 +66,16 @@
                      :disabled (empty? accessory)
                      :variant "outline"
                      :on-click #(set-accessories!
-                                 (conj accessories
+                                 (conj properties
                                        {:id (js/crypto.randomUUID)
                                         :name accessory}))}
 
              ($ CirclePlus {:className "p-1"}) (:button props)))
 
-       ($ SortableList {:items (cj (map :id accessories))
+       ($ SortableList {:items (cj (map :id properties))
                         :onDragEnd #(handle-drag-end % set-accessories!)}
 
-          (for [accessory accessories]
+          (for [accessory properties]
             ($ Draggable {:key (:id accessory)
                           :id (:id accessory)}
 
@@ -94,10 +94,10 @@
                                             (filter
                                              (fn [el] (not= (:id el)
                                                             (:id accessory)))
-                                             accessories))}
+                                             properties))}
                         ($ Trash {:className "p-1"}))))))))))
 
-(def AccessoryList
+(def ModelProperties
   (uix/forward-ref
    (uix/as-react
     (fn [props]

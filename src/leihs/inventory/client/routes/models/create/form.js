@@ -8,6 +8,11 @@ const fileSchema = z.object({
     .regex(/^image\/(jpeg|png)$/, "Only JPEG and PNG files are allowed"),
 })
 
+const modelProperties = z.object({
+  name: z.string(),
+  value: z.string(),
+})
+
 export const schema = z.object({
   is_package: z.boolean().default(false),
   product: z.string().min(5, "Produktname muss mindestens 5 Zeichen lang sein"),
@@ -23,7 +28,7 @@ export const schema = z.object({
   attachments: z.string().array(),
   accessories: z.string().array().optional(),
   model_links: z.string().array(),
-  properties: z.string().array(),
+  properties: z.string().array(modelProperties).optional(),
 })
 
 export const structure = [
@@ -235,11 +240,11 @@ export const structure = [
         label: "Eigenschaften",
         description: "Listen Sie die Eigenschaften auf",
         input: {
-          component: "input",
+          component: "model-properties",
           props: {
-            type: "file",
-            placeholder: "Eigenschaften eingeben",
-            "auto-complete": "off",
+            button: "Eigenschaft hinzufügen",
+            placeholderName: "Eigenschaft",
+            placeholderValue: "Wert",
           },
         },
       },
