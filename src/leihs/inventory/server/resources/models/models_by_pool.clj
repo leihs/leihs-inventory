@@ -152,6 +152,8 @@
   (let [result (get-models-handler request)]
     (response result)))
 
+;;  ------------
+
 (defn to-uuid [value]
   (try
     (if (instance? String value) (UUID/fromString value) value)

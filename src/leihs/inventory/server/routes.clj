@@ -66,7 +66,7 @@
    (get-pools-routes)
    (get-categories-routes)
 
-   ;(get-items-routes)
+   (get-items-routes)
    ;(get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)
