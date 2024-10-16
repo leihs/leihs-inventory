@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.fields.main
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql :as sq]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.models-by-pool :refer [pagination-response valid-get-request?]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
@@ -25,7 +25,7 @@
            user-id (:id (:authenticated-entity request))
 
            inventory-access-base-query (-> (sql/from :inventory_pools)
-                                         (sql/where [:= :inventory_pools.is_active true]))
+                                           (sql/where [:= :inventory_pools.is_active true]))
 
            ;; TODO: example
            ;query (-> inventory-access-base-query
@@ -39,30 +39,28 @@
            ;res (jdbc/query tx query)
            ;p (println ">o> res" res)
 
-
-
            base-query (-> (sql/select :*)
-                        (sql/from [(-> (sql/select :f.id
-                                         :f.data
-                                         [(sq/call :cast
-                                            (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
-                                            :text) :role]
-                                         [(sq/call :cast
-                                            (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
-                                            :boolean) :owner])
-                                     (sql/from [:fields :f])
-                                     (sql/where [:= :f.active true])) :subquery])
-                        (cond-> group_id (sql/where [:= :subquery.id group_id]))
-                        (cond-> (and (some? role) (not (= "customer" role)))
-                          (sql/where [:or
-                                      [:= :subquery.role role]
-                                      [:is :subquery.role nil]]))
-                        (cond-> (and (some? owner) (not (= "customer" role)))
-                          (sql/where [:= :subquery.owner owner]))
-                        (cond-> (= "customer" role)
-                          (sql/where [:or
-                                      [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
-                                      [:is :subquery.role nil]])))]
+                          (sql/from [(-> (sql/select :f.id
+                                                     :f.data
+                                                     [(sq/call :cast
+                                                               (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
+                                                               :text) :role]
+                                                     [(sq/call :cast
+                                                               (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
+                                                               :boolean) :owner])
+                                         (sql/from [:fields :f])
+                                         (sql/where [:= :f.active true])) :subquery])
+                          (cond-> group_id (sql/where [:= :subquery.id group_id]))
+                          (cond-> (and (some? role) (not (= "customer" role)))
+                            (sql/where [:or
+                                        [:= :subquery.role role]
+                                        [:is :subquery.role nil]]))
+                          (cond-> (and (some? owner) (not (= "customer" role)))
+                            (sql/where [:= :subquery.owner owner]))
+                          (cond-> (= "customer" role)
+                            (sql/where [:or
+                                        [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
+                                        [:is :subquery.role nil]])))]
 
        (cond
          (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
