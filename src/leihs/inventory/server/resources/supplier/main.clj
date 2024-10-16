@@ -12,10 +12,10 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-model-group-links-of-pool
+(defn get-suppliers
 
   ([request]
-   (get-model-group-links-of-pool request false))
+   (get-suppliers request false))
 
   ([request with-pagination?]
    (try
@@ -35,18 +35,12 @@
          :else (jdbc/query tx (-> base-query sql-format))))
 
      (catch Exception e
-       (error "Failed to get supplier" e)
-       (bad-request {:error "Failed to get supplier" :details (.getMessage e)})))))
+       (error "Failed to get supplier(s)" e)
+       (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
-(defn get-model-group-links-of-pool-handler [request]
-  (response (get-model-group-links-of-pool request true)))
+(defn get-suppliers-auto-pagination-handler [request]
+  (response (get-suppliers request nil)))
 
-(defn get-model-group-links-of-pool-with-pagination-handler [request]
-  (response (get-model-group-links-of-pool request true)))
-
-(defn get-model-group-links-of-pool-auto-pagination-handler [request]
-  (response (get-model-group-links-of-pool request nil)))
-
-(defn get-model-group-links-of-pool-handler [request]
-  (let [result (get-model-group-links-of-pool request)]
+(defn get-suppliers-handler [request]
+  (let [result (get-suppliers request)]
     (response result)))

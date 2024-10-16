@@ -11,8 +11,8 @@
                                                                    get-models-of-pool-handler
                                                                    update-model-handler-by-pool
                                                                    delete-model-handler-by-pool]]
-   [leihs.inventory.server.resources.supplier.main :refer [get-model-group-links-of-pool-handler
-                                                           get-model-group-links-of-pool-auto-pagination-handler]]
+   [leihs.inventory.server.resources.supplier.main :refer [get-suppliers-handler
+                                                           get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -31,6 +31,8 @@
     {:swagger {:conflicting true
                :tags ["Supplier"] :security []}}
     ["" {:get {:conflicting true
+               :description (str "OK-Legacy |"
+                                "Form: https://https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware]
@@ -39,7 +41,7 @@
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
 
-               :handler get-model-group-links-of-pool-auto-pagination-handler
+               :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
@@ -52,7 +54,7 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
             :parameters {:path {:supplier_id s/Uuid}}
-            :handler get-model-group-links-of-pool-auto-pagination-handler
+            :handler get-suppliers-auto-pagination-handler
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
