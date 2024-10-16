@@ -16,6 +16,7 @@
    [leihs.inventory.server.resources.entitlements.routes :refer [get-entitlements-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.model-links.routes :refer [get-model-links-routes]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
@@ -71,6 +72,7 @@
    (get-owner-department-routes)
    (get-items-routes)
    (get-supplier-routes)
+   (get-fields-routes)
    ;(get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)

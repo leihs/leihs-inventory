@@ -1,0 +1,71 @@
+(ns leihs.inventory.server.resources.fields.routes
+  (:require
+   [clojure.set]
+   ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
+   ;                                                      create-model-handler
+   ;                                                      update-model-handler
+   ;                                                      delete-model-handler]]
+   ;
+   ;[leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
+   ;                                                                create-model-handler-by-pool
+   ;                                                                get-models-of-pool-handler
+   ;                                                                update-model-handler-by-pool
+   ;                                                                delete-model-handler-by-pool]]
+   [leihs.inventory.server.resources.fields.main :refer [get-form-fields-auto-pagination-handler
+                                                         get-form-fields-with-pagination-handler
+                                                         get-form-fields-handler
+
+                                                         ]]
+
+   [leihs.inventory.server.resources.auth.session :as ab]
+
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.response_helper :as rh]
+   [reitit.coercion.schema]
+   [reitit.coercion.spec]
+   [ring.middleware.accept]
+   [schema.core :as s]))
+
+(defn create-description [url]
+  (str "GET " url " Accept: application/json"))
+
+(defn get-fields-routes []
+
+  [""
+
+   ["/fields"
+    {:swagger {:conflicting true
+               :tags ["Supplier"] :security []}}
+    ["" {:get {:conflicting true
+               :description (str "? |"
+                              "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
+               :accept "application/json"
+               :coercion reitit.coercion.schema/coercion
+               :middleware [accept-json-middleware  ab/wrap]
+               :swagger {:produces ["application/json"]}
+
+               :parameters {:query {
+                                    (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                    (s/optional-key :owner) s/Bool
+                                    ;(s/optional-key :size) s/Int
+                                    }}
+
+               :handler get-form-fields-with-pagination-handler
+               ;:handler get-form-fields-handler
+               :responses {200 {:description "OK"
+                                :body s/Any}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}}]
+
+    ["/:field_id"
+     {:get {:conflicting true
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware  ab/wrap]
+            :swagger {:produces ["application/json"]}
+            :parameters {:path {:field_id s/Str}}
+            :handler get-form-fields-handler
+            :responses {200 {:description "OK"
+                             :body s/Any}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]]])
