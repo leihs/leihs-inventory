@@ -1,11 +1,9 @@
 (ns leihs.inventory.server.resources.owner-department.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.owner-department.main :refer [
-                                                           get-owner-department-of-pool-auto-pagination-handler
-                                                           ]]
+   [leihs.inventory.server.resources.owner-department.main :refer [get-owner-department-of-pool-auto-pagination-handler]]
 
-   ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
+;[leihs.inventory.server.resources.models.main :refer [get-models-handler
    ;                                                      create-model-handler
    ;                                                      update-model-handler
    ;                                                      delete-model-handler]]
@@ -26,8 +24,8 @@
 
 (defn get-owner-department-routes []
   [""
-    {:swagger {:conflicting true
-               :tags ["Owner / Department"] :security []}}
+   {:swagger {:conflicting true
+              :tags ["Owner / Department"] :security []}}
 
    ["/owners"
     ["" {:get {:conflicting true
@@ -37,8 +35,7 @@
                :middleware [accept-json-middleware]
                :swagger {:produces ["application/json"]}
 
-               :parameters {
-                            ;:path {:model_id s/Uuid}
+               :parameters {;:path {:model_id s/Uuid}
 
                             :query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
@@ -62,7 +59,6 @@
                              :body s/Any}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
-
 
    ["/departments"
     ;{:swagger {:conflicting true
@@ -74,8 +70,7 @@
                :middleware [accept-json-middleware]
                :swagger {:produces ["application/json"]}
 
-               :parameters {
-                            ;:path {:model_id s/Uuid}
+               :parameters {;:path {:model_id s/Uuid}
 
                             :query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
@@ -98,6 +93,4 @@
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
-   ])
+                        500 {:description "Internal Server Error"}}}}]]])

@@ -13,81 +13,78 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
-
-
 (defn remove-select [query]
   (-> query
-    (dissoc :select :select-distinct)))
+      (dissoc :select :select-distinct)))
 
 (defn item-query [query item-id]
   (-> query
-    remove-select
-    (sql/select-distinct [:i.*])
-    (sql/join [:items :i] [:= :m.id :i.model_id])
-    (cond-> item-id
-      (sql/where [:= :i.id item-id]))))
+      remove-select
+      (sql/select-distinct [:i.*])
+      (sql/join [:items :i] [:= :m.id :i.model_id])
+      (cond-> item-id
+        (sql/where [:= :i.id item-id]))))
 
 (defn entitlements-query [query entitlement-id]
   (-> query
-    remove-select
-    (sql/select-distinct [:e.*])
-    (sql/join [:entitlements :e] [:= :m.id :e.model_id])
-    (cond-> entitlement-id
-      (sql/where [:= :e.id entitlement-id]))))
+      remove-select
+      (sql/select-distinct [:e.*])
+      (sql/join [:entitlements :e] [:= :m.id :e.model_id])
+      (cond-> entitlement-id
+        (sql/where [:= :e.id entitlement-id]))))
 
 (defn model-links-query [query model-links-id pool_id]
   (-> query
-    remove-select
-    (sql/select-distinct [:ml.*])
-    (cond-> (nil? pool_id) (sql/join [:model_links :ml] [:= :m.id :ml.model_id]))
-    (cond-> model-links-id
-      (sql/where [:= :ml.id model-links-id]))))
+      remove-select
+      (sql/select-distinct [:ml.*])
+      (cond-> (nil? pool_id) (sql/join [:model_links :ml] [:= :m.id :ml.model_id]))
+      (cond-> model-links-id
+        (sql/where [:= :ml.id model-links-id]))))
 
 (defn properties-query [query properties-id]
   (-> query
-    remove-select
-    (sql/select-distinct [:p.*])
-    (sql/join [:properties :p] [:= :m.id :p.model_id])
-    (cond-> properties-id
-      (sql/where [:= :p.id properties-id]))))
+      remove-select
+      (sql/select-distinct [:p.*])
+      (sql/join [:properties :p] [:= :m.id :p.model_id])
+      (cond-> properties-id
+        (sql/where [:= :p.id properties-id]))))
 
 (defn accessories-query
   ([query accessories-id]
    (accessories-query query accessories-id "n/d"))
   ([query accessories-id type]
    (-> query
-     remove-select
-     (sql/select-distinct [:a.*])
-     (sql/join [:accessories :a] [:= :m.id :a.model_id])
-     (cond-> accessories-id
-       (sql/where [:= :a.id accessories-id])))))
+       remove-select
+       (sql/select-distinct [:a.*])
+       (sql/join [:accessories :a] [:= :m.id :a.model_id])
+       (cond-> accessories-id
+         (sql/where [:= :a.id accessories-id])))))
 
 (defn attachments-query
   ([query attachment-id]
    (attachments-query query attachment-id "n/d"))
   ([query attachment-id type]
    (-> query
-     remove-select
-     (sql/select-distinct :a.id :a.content :a.filename :a.item_id)
-     (sql/join [:attachments :a] [:= :m.id :a.model_id])
-     (cond-> attachment-id
-       (sql/where [:= :a.id attachment-id])))))
+       remove-select
+       (sql/select-distinct :a.id :a.content :a.filename :a.item_id)
+       (sql/join [:attachments :a] [:= :m.id :a.model_id])
+       (cond-> attachment-id
+         (sql/where [:= :a.id attachment-id])))))
 
-(defn base-pool-query [query pool-id ]
+(defn base-pool-query [query pool-id]
   (-> query
-    (sql/from [:items :i])
+      (sql/from [:items :i])
       (sql/join [:rooms :r] [:= :r.id :i.room_id])
       (sql/join [:buildings :b] [:= :b.id :r.building_id])
-    (cond->
-      pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
-      pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
+      (cond->
+       pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
+       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
 
 (defn extract-option-by-uri [input-str]
   (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
         last-segment (-> input-str
-                       (clojure.string/split #"/")
-                       last)]
+                         (clojure.string/split #"/")
+                         last)]
     (if (some #(= last-segment %) valid-segments)
       last-segment
       nil)))
@@ -97,7 +94,7 @@
         uri (:uri request)
         uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
     (and (= method :get)
-      (not (re-find uuid-regex uri)))))
+         (not (re-find uuid-regex uri)))))
 
 (defn- pagination-response [request base-query]
   (let [{:keys [page size]} (fetch-pagination-params request)
@@ -123,8 +120,7 @@
          ;filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          ;filter-product (if-not model_id (:filter_product query-params) nil)
 
-
-         ;; TODO: missing
+;; TODO: missing
          ;warranty_expiration (present within properties)
          ;current_location
          ;location
@@ -134,10 +130,10 @@
 
          ;base-query (-> (sql/select-distinct :i.*)
          base-query (-> (sql/select :i.* [:b.name :building_name] [:r.name :room_name])
-                      ((fn [query] (base-pool-query query pool_id )))
+                        ((fn [query] (base-pool-query query pool_id)))
 
-                      (cond-> item_id (sql/where [:= :i.id item_id]))
-                      (cond-> (and sort-by item_id) (sql/order-by item_id)))]
+                        (cond-> item_id (sql/where [:= :i.id item_id]))
+                        (cond-> (and sort-by item_id) (sql/order-by item_id)))]
      (cond
        (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
        with-pagination? (pagination-response request base-query)
@@ -152,7 +148,6 @@
 (defn get-items-of-pool-handler [request]
   (let [result (get-items-handler request)]
     (response result)))
-
 
 ;; -------------------------------------------------------------------
 ;PUT
@@ -193,14 +188,6 @@
   ; "status_note": "2 Deckel fehlen",
   ; "user_name": ""
   ; }
-
-
-
-
-
-
-
-
 
 ;(defn get-items-of-pool-handler [request]
 ;  (try

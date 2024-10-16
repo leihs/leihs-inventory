@@ -4,14 +4,13 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.models-by-pool :refer [pagination-response valid-get-request?]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
-
 
 (defn get-model-group-links-of-pool
 
@@ -25,10 +24,10 @@
            group_id (-> request path-params :supplier_id)
            {:keys [page size]} (fetch-pagination-params request)
 
-           base-query (-> (sql/select :s.*)
-                        (sql/from [:suppliers :s])
-                        (cond-> group_id (sql/where [:= :s.id group_id]))
-                        )]
+           base-query (-> (sql/select :s.id :s.name :s.note)
+                          (sql/from [:suppliers :s])
+                          (cond-> group_id (sql/where [:= :s.id group_id]))
+                          (sql/order-by :s.name))]
 
        (cond
          (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
@@ -38,7 +37,6 @@
      (catch Exception e
        (error "Failed to get supplier" e)
        (bad-request {:error "Failed to get supplier" :details (.getMessage e)})))))
-
 
 (defn get-model-group-links-of-pool-handler [request]
   (response (get-model-group-links-of-pool request true)))

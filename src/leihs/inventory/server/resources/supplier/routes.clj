@@ -1,19 +1,18 @@
 (ns leihs.inventory.server.resources.supplier.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.supplier.main :refer [get-model-group-links-of-pool-handler
-                                                           get-model-group-links-of-pool-auto-pagination-handler
-                                                           ]]
-
    [leihs.inventory.server.resources.models.main :refer [get-models-handler
                                                          create-model-handler
                                                          update-model-handler
                                                          delete-model-handler]]
+
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    get-models-of-pool-handler
                                                                    update-model-handler-by-pool
                                                                    delete-model-handler-by-pool]]
+   [leihs.inventory.server.resources.supplier.main :refer [get-model-group-links-of-pool-handler
+                                                           get-model-group-links-of-pool-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -37,10 +36,7 @@
                :middleware [accept-json-middleware]
                :swagger {:produces ["application/json"]}
 
-               :parameters {
-                            ;:path {:model_id s/Uuid}
-
-                            :query {(s/optional-key :page) s/Int
+               :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
 
                :handler get-model-group-links-of-pool-auto-pagination-handler
@@ -55,12 +51,9 @@
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
-            :parameters {:path {;:pool_id s/Uuid
-                                :supplier_id s/Uuid}}
+            :parameters {:path {:supplier_id s/Uuid}}
             :handler get-model-group-links-of-pool-auto-pagination-handler
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
-   ])
+                        500 {:description "Internal Server Error"}}}}]]])
