@@ -35,7 +35,7 @@
 
    ["/fields"
     {:swagger {:conflicting true
-               :tags ["Supplier"] :security []}}
+               :tags ["Form fields"] :security []}}
     ["" {:get {:conflicting true
                :description (str "? |"
                               "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
