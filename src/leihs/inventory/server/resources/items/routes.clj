@@ -24,14 +24,17 @@
 
  ""
 
+ [
+  ""
+  {:swagger {:conflicting true
+            :tags ["Items"] :security []}}
+
  ["/items"
   {:get {:conflicting true
          :accept "application/json"
          :coercion reitit.coercion.schema/coercion
          :middleware [accept-json-middleware]
          :swagger {:produces ["application/json"]}
-         ;:parameters {:path {:pool_id s/Uuid}}
-
 
          :parameters {
                       ;:path {:pool_id s/Uuid}
@@ -62,7 +65,7 @@
          :responses {200 {:description "OK"
                           :body s/Any}
                      404 {:description "Not Found"}
-                     500 {:description "Internal Server Error"}}}}]
+                     500 {:description "Internal Server Error"}}}}]]
 
 
 
@@ -74,7 +77,7 @@
 
  ["/:pool_id"
    {:swagger {:conflicting true
-              :tags ["Items"] :security []}}
+              :tags ["Items by pool"] :security []}}
 
    ["/items"
     {:get {
