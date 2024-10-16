@@ -50,22 +50,29 @@
                                                                :boolean) :owner])
                                          (sql/from [:fields :f])
                                          (sql/where [:= :f.active true])) :subquery])
+
                           (cond-> group_id (sql/where [:= :subquery.id group_id]))
+
                           (cond-> (and (some? role) (not (= "customer" role)))
                             (sql/where [:or
                                         [:= :subquery.role role]
                                         [:is :subquery.role nil]]))
+
                           (cond-> (and (some? owner) (not (= "customer" role)))
+                        (sql/where [:= :subquery.owner owner]))
+                          ;
+                          ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+                          ;  with-paginat (sql/where [:= :subquery.owner owner]))
 
-                            (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-                            with-paginat (sql/where [:= :subquery.owner owner]))
-                          (cond-> (= "customer" role)
-                            (sql/where [:or
-                                        [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
-                                        [:is :subquery.role nil]])))]
+                        (cond-> (= "customer" role)
+                          (sql/where [:or
+                                      [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
+                                      [:is :subquery.role nil]])))]
 
-       (condion? (pagination-response request base-query)
-                 :else (jdbc/query tx (-> base-query sql-format))))
+       (cond
+         (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+         with-pagination? (pagination-response request base-query)
+         :else (jdbc/query tx (-> base-query sql-format))))
 
      (catch Exception e
        (error "Failed to get supplier(s)" e)
