@@ -114,17 +114,20 @@
                                      (sql/where [:= :f.active true])) :subquery])
                         ;(cond-> group_id (sql/where [:= :subquery.id group_id]))
 
-                        (cond-> (and (some? role) (not (= "customer" role))) (sql/where [:= :subquery.role role]))
+                        (cond-> (and (some? role) (not (= "customer" role))) (sql/where
+
+                                                                               [
+                                                                                :or
+                                                                               [:= :subquery.role role]
+                                                                                [:is :subquery.role nil]
+                                                                                ]
+
+
+                                                                               ))
 
 
                         (cond-> (and (some? owner) (not (= "customer" role))) (sql/where
-
-                                                                                [
-                                                                                 :or
                                                                                 [:= :subquery.owner owner]
-                                                                                [:is :subquery.role nil]
-           ]
-
 
        ))
 
