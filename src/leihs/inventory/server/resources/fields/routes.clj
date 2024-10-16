@@ -90,6 +90,7 @@
 
                                     ;(s/optional-key :owner) s/Bool
                                     ;(s/optional-key :size) s/Int
+                                    (s/optional-key :type) (s/enum "Software" "Model")
 
                                     (s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int

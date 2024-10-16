@@ -13,8 +13,6 @@
    [taoensso.timbre :refer [error]]))
 
 
-
-
 (defn base-pool-query [query pool-id ]
   (-> query
     (sql/from [:models :m])
@@ -33,32 +31,33 @@
      (let [tx (:tx request)
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
-           {:keys [role owner]} (-> request query-params)
+           {:keys [type]} (-> request query-params)
            {:keys [page size]} (fetch-pagination-params request)
            user-id (:id (:authenticated-entity request))
 
 
            base-query (-> (sql/select :m.*)
-                          ;(sql/from [:models :m])
 
                         ((fn [query] (base-pool-query query pool_id )))
 
-
-                        ;(sql/join [:inventory_pools_model_groups :ipmg] [:= :m.id :ipmg.model_id])
-
-
+                        (cond-> type (sql/where [:= :m.type type]))
                         (sql/where [:= :ipmg.inventory_pool_id pool_id])
-                        ;(cond-> pool_id (sql/where [:= :ip.id pool_id]))
-                        ;(cond-> group_id (sql/where [:= :subquery.id group_id]))
 
-                        )]
+                        )
+
+
+           cus-fnc (fn [result] (map #(hash-map "model" %) result))
+
+
+           ;wrapped-results (map #(hash-map "model" %) res)
+           ]
 
        ;(condion? (pagination-response request base-query)
        ;          :else (jdbc/query tx (-> base-query sql-format))))
 
      (cond
-       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-       with-pagination? (pagination-response request base-query)
+       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query cus-fnc)
+       with-pagination? (pagination-response request base-query cus-fnc)
        :else (jdbc/query tx (-> base-query sql-format))))
 
      (catch Exception e

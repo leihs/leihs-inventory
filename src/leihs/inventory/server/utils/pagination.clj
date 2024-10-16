@@ -29,7 +29,12 @@
                             (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
-(defn create-paginated-response [base-query tx per_page page]
+(defn create-paginated-response
+
+
+
+
+(  [base-query tx per_page page]
   (let [total_records (fetch-total-count base-query tx)
         total-pages (int (Math/ceil (/ total_records (float per_page))))
         offset (* (dec page) per_page)
@@ -42,6 +47,24 @@
                          :prev_page (when (> page 1) (dec page))}]
     {:data paginated-products
      :pagination pagination-info}))
+
+
+(  [base-query tx per_page page cus-fnc]
+  (let [total_records (fetch-total-count base-query tx)
+        total-pages (int (Math/ceil (/ total_records (float per_page))))
+        offset (* (dec page) per_page)
+        paginated-products (fetch-paginated-products base-query tx per_page offset)
+        pagination-info {:total_records total_records
+                         :current_page page
+                         :per_page per_page
+                         :total_pages total-pages
+                         :next_page (when (< page total-pages) (inc page))
+                         :prev_page (when (> page 1) (dec page))}]
+    {:data (cus-fnc paginated-products)
+     :pagination pagination-info}))
+
+
+  )
 
 (defn fetch-pagination-params [request]
   (let [query-params (query-params request)
