@@ -3,8 +3,10 @@
    ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card]]
+   ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [CirclePlus Trash]]
+   ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
@@ -38,39 +40,48 @@
 
            (move-element accessories old-index new-index)))))))
 
-(defui main [props]
-  (let [props (jc (cj props))
+(defui main [{:keys [control props]}]
+  (let [{:keys [fields append]} (jc (hook-form/useFieldArray
+                                     (cj {:control control
+                                          :name "properties"})))
+
         [properties set-accessories!] (uix/use-state [])
         [accessory set-accessory!] (uix/use-state "")]
 
-    (uix/use-effect
-     (fn []
-       ((:onChange props) (cj (vec (map :name properties))))
-       (set-accessory! ""))
-     [properties set-accessory!])
+    (js/console.debug fields append)
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    ((:onChange props) (cj (vec (map :name properties))))
+    ;;    (set-accessory! ""))
+    ;;  [properties set-accessory!])
 
-    ($ :div {:className "flex flex-col gap-4"}
-       ($ :div {:className "flex gap-4"}
+    #_(map-indexed
+       (fn [index field]
+    ;; Your code here, using `index` and `field`
+         )
+       fields)
 
-          ($ Input {:id (:id props)
-                    :ref (-> props :argv :ref)
-                    :value accessory
-                    :placeholer (:placeholder props)
-                    :on-change #(set-accessory! (.. % -target -value))
-                    :on-blur (:onBlur props)
-                    :aria-invalid (:aria-invalid props)
-                    :aria-describedby (:aria-describedby props)})
+    ($ :div {:className "flex flex-col gap-2"}
+       (map-indexed
+        (fn [index field]
+          ($ FormField {:control (cj control)
+                        :key (:id field)
+                        :name (str "properties." index ".name")
+                        :render #($ FormItem {:class-name ""}
+                                    ($ FormControl
+                                       ($ Input (merge
+                                                 (:field (jc %))))))}
 
+             ($ FormMessage))
+          fields))
+
+       ($ :div {:className "flex"}
           ($ Button {:type "button"
                      :className ""
-                     :disabled (empty? accessory)
                      :variant "outline"
-                     :on-click #(set-accessories!
-                                 (conj properties
-                                       {:id (js/crypto.randomUUID)
-                                        :name accessory}))}
+                     :on-click #(append (cj {:name "New"}))}
 
-             ($ CirclePlus {:className "p-1"}) (:button props)))
+             ($ CirclePlus {:className "p-1"}) (-> props :button)))
 
        ($ SortableList {:items (cj (map :id properties))
                         :onDragEnd #(handle-drag-end % set-accessories!)}

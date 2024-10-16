@@ -236,16 +236,30 @@ export const structure = [
     title: "Eigenschaften",
     blocks: [
       {
-        name: "properties",
-        label: "Eigenschaften",
-        description: "Listen Sie die Eigenschaften auf",
-        input: {
-          component: "model-properties",
-          props: {
-            button: "Eigenschaft hinzufügen",
-            placeholderName: "Eigenschaft",
-            placeholderValue: "Wert",
-          },
+        name: "model-properties",
+        component: "model-properties",
+        props: {
+          button: "Eigenschaft hinzufügen",
+          fieldsArray: [
+            {
+              name: "name",
+              label: "Eigenschaft",
+              component: "input",
+              props: {
+                placeholder: "Eigenschaft eingeben",
+                "auto-complete": "off",
+              },
+            },
+            {
+              name: "value",
+              label: "Wert",
+              component: "input",
+              props: {
+                placeholder: "Wert eingeben",
+                "auto-complete": "off",
+              },
+            },
+          ],
         },
       },
     ],

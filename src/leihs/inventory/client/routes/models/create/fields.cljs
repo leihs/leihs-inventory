@@ -20,6 +20,10 @@
 (defui field [{:keys [control block]}]
   (let [input (:input block)]
     (cond
+      (-> block :component (= "model-properties"))
+      ($ ModelProperties {:control control
+                          :props (:props block)})
+
       (-> input :component (= "checkbox"))
       ($ FormField {:control (cj control)
                     :name (:name block)
