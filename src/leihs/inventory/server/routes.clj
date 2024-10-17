@@ -148,7 +148,37 @@
 
                           request (assoc request :settings {})
 
-                          resp (be/routes (convert-params request))]
+                          resp (be/routes (convert-params request))
+
+                          p (println ">o> abc11" (keys request))
+                          p (println ">o> abc12" (:user-session request))
+                          p (println ">o> abc13" (:sessions request))
+                          p (println ">o> abc14" (:token (:query-params-raw request)))
+                          p (println ">o> abc13" (:authenticated-entity request))
+
+                          created-session (get-in resp [:cookies "leihs-user-session" :value])
+
+                          ;p (println ">o> abc14.resp.generated" created-session)
+                          ;request (assoc request (:sessions created-session))
+                          ;
+                          ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+                          ;
+                          ;request (assoc-in request [:cookies "leihs-user-session" :value])
+                          ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
+                          ; Assign session to request under :sessions
+                          request (assoc request :sessions created-session)
+
+                          ; Print out the session for verification
+                          p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+
+                          ; Set the :value key for the "leihs-user-session" cookie
+                          request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
+
+                          ; Print out the cookie value for verification
+                          p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
+
+
+                          ]
 
                       ;; Logging request method and URI for debugging
                       (println ">o> Request Method:" request-method)
