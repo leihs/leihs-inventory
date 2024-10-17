@@ -7,6 +7,7 @@
    [leihs.core.status :as status]
 
    [leihs.core.sign-in.back :as be]
+   [leihs.core.sign-out.back :as so]
 
    [leihs.inventory.server.resources.accessories.routes :refer [get-accessories-routes]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
@@ -35,8 +36,23 @@
    [ring.util.response :refer [redirect]]
    [schema.core :as s]))
 
+
+;(def   WHITELIST-URIS-FOR-API ["/sign-in"])
+
 (defn root-handler [request]
-  (let [accept-header (get-in request [:headers "accept"])]
+  (let [accept-header (get-in request [:headers "accept"])
+
+        ;p (println ">o> root-handler" )
+        ;
+        ;
+        ;WHITELIST-URIS-FOR-API ["/sign-in"]
+        ;uri (:uri request)
+        ;p (println ">o> che??1" uri WHITELIST-URIS-FOR-API)
+        ;
+        ;p (println ">o> che??" (some #(= % uri) WHITELIST-URIS-FOR-API))
+        ;
+        ;p (println ">o> root-handler")
+        ]
     (cond
       (clojure.string/includes? accept-header "text/html")
       {:status 200
@@ -65,6 +81,21 @@
       :else {:status 404
              :body "File not found"})))
 
+
+(defn convert-params [request]
+  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
+
+        request     (assoc request :form-params converted-form-params)
+        request (assoc request :form-params-raw converted-form-params)
+
+        ]
+    ;(assoc request :form-params-raw converted-form-params)
+    request
+    ))
+
+
+
+
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
@@ -85,61 +116,65 @@
    (get-user-routes)
    (token-routes)])
 
+
+
+
+
 (defn basic-routes []
 
   [
 
-   ;["/" {:no-doc false :get {:handler root-handler}}
+   "/"[
+
+  [ ;["/" {:no-doc false :get {:handler root-handler}}
+
+   ""
+
+   ["sign-in"
+    {:no-doc false
+     :post
+     {:handler
+      (fn [request]
+        (let [request-method (:request-method request)
+              uri (:uri request)
+              resp (be/routes (convert-params request))]
+
+          ;; Logging request method and URI for debugging
+          (println ">o> Request Method:" request-method)
+          (println ">o> URI:" uri)
+          (println ">o> Response:" resp)
+
+          resp))}}]
+
+   ["sign-out"
+    {:no-doc false
+     :post
+     {:handler
+      (fn [request]
+        (let [request-method (:request-method request)
+              uri (:uri request)
+              resp (so/routes (convert-params request))]
+
+          ;; Logging request method and URI for debugging
+          (println ">o> Request Method:" request-method)
+          (println ">o> URI:" uri)
+          (println ">o> Response:" resp)
+
+          resp))}}]
 
 
-   ["/"
-
-    ["/abc"
-
-[    {:post {
-                          ;:summary "[] OK | Authenticate user by login ( set cookie with token )"
-                          ;:accept "application/json"
-                          :accept "text/html"
-                          :coercion reitit.coercion.schema/coercion
-                          :swagger {:security [{:basicAuth []}]}
-                          :handler be/routes }}
-
-              {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-                     :accept "text/html"
-                     :coercion reitit.coercion.schema/coercion
-                     :swagger {:security [{:basicAuth []}]}
-                     :handler (fn [request]
-                                { :status 200
-                                 :headers {"Content-Type" "text/html"}
-                                 :body (str "fuuuuuuck 1")})}}]
 
 
-     ]
-
-
-     ;[
-     ; "/sign-in"
-     ;
-     ; {:swagger {:tags ["Auth"] :security []}}
-     ;
-     ; [    {:post {
-     ;              ;:summary "[] OK | Authenticate user by login ( set cookie with token )"
-     ;              ;:accept "application/json"
-     ;              :accept "text/html"
-     ;              :coercion reitit.coercion.schema/coercion
-     ;              :swagger {:security [{:basicAuth []}]}
-     ;              :handler be/routes }}
-     ;
-     ;  {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-     ;         :accept "text/html"
-     ;         :coercion reitit.coercion.schema/coercion
-     ;         :swagger {:security [{:basicAuth []}]}
-     ;         :handler (fn [request]
-     ;                    { :status 200
-     ;                     :headers {"Content-Type" "text/html"}
-     ;                     :body (str "fuuuuuuck 1")})}}]
-     ; ]
-
+   ["abc"
+    {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+           :accept "text/html"
+           ;:coercion reitit.coercion.schema/coercion
+           ;:swagger {:security [{:basicAuth []}]}
+           :handler (fn [request]
+                      { :status 200
+                       :headers {"Content-Type" "text/html"}
+                       :body (str "fuuuuuuck 1222")})}}]
+]
 
 
    ["inventory"
