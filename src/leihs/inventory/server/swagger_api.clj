@@ -48,7 +48,7 @@
 (:import [java.net URL JarURLConnection]
  [java.util.jar JarFile]))
 
-(def WHITELIST-URIS-FOR-API ["/sign-in" "/ab" "/abc"])
+(def WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out" "/ab" "/abc"])
 
 
 (defn pr [str fnc]

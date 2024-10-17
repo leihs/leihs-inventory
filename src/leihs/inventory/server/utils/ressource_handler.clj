@@ -10,6 +10,7 @@
             [leihs.inventory.server.routes :as routes]
 
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
+   [leihs.core.sign-out.simple-logout :refer [sign-out-view]]
 
    [leihs.core.sign-in.back :as be]
 
@@ -50,6 +51,7 @@
                              "public/inventory/static"
                              "public/inventory/js"
                              "sign-in"
+                             "sign-out"
                              ])
 
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
@@ -107,9 +109,14 @@
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
     (cond
+      ;; TODO: relevant
       (= uri "/login")       {:status 200
                               :headers {"Content-Type" "text/html"}
                               :body (sign-in-view {})}
+
+      (= uri "/logout")       {:status 200
+                              :headers {"Content-Type" "text/html"}
+                              :body (sign-out-view {})}
 
 
       ;(= uri "/sign-in")

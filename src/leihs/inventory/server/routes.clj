@@ -1,27 +1,28 @@
 (ns leihs.inventory.server.routes
   (:refer-clojure :exclude
-                  [keyword replace])
+   [keyword replace])
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
-   [leihs.core.status :as status]
-
    [leihs.core.sign-in.back :as be]
+
    [leihs.core.sign-out.back :as so]
 
-   [leihs.inventory.server.resources.accessories.routes :refer [get-accessories-routes]]
-   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
+   ;[leihs.core.sign-out.front :refer [component] :rename {component logout-component}]
+   ;[leihs.core.sign-out.simple-logout :refer [sign-out-view]]
+
+   [leihs.core.status :as status]
+   ;[hiccup.page :refer [html5]]
+
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
-   [leihs.inventory.server.resources.entitlements.routes :refer [get-entitlements-routes]]
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
-   [leihs.inventory.server.resources.model-links.routes :refer [get-model-links-routes]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
@@ -61,7 +62,7 @@
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
+               (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -85,7 +86,7 @@
 (defn convert-params [request]
   (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
 
-        request     (assoc request :form-params converted-form-params)
+        request (assoc request :form-params converted-form-params)
         request (assoc request :form-params-raw converted-form-params)
 
         ]
@@ -124,130 +125,164 @@
 
   [
 
-   "/"[
+   "/" [
 
-  [ ;["/" {:no-doc false :get {:handler root-handler}}
+        [;["/" {:no-doc false :get {:handler root-handler}}
 
-   ""
+         ""
 
-   ["sign-in"
-    {:no-doc false
-     :post
-     {:handler
-      (fn [request]
-        (let [request-method (:request-method request)
-              uri (:uri request)
-              resp (be/routes (convert-params request))]
+         ["sign-in"
+          {:no-doc false :post
+           {:handler
+            (fn [request]
+              (let [request-method (:request-method request)
+                    uri (:uri request)
+                    resp (be/routes (convert-params request))]
 
-          ;; Logging request method and URI for debugging
-          (println ">o> Request Method:" request-method)
-          (println ">o> URI:" uri)
-          (println ">o> Response:" resp)
+                ;; Logging request method and URI for debugging
+                (println ">o> Request Method:" request-method)
+                (println ">o> URI:" uri)
+                ;(println ">o> Response:" resp)
 
-          resp))}}]
+                resp))}}]
 
-   ["sign-out"
-    {:no-doc false
-     :post
-     {:handler
-      (fn [request]
-        (let [request-method (:request-method request)
-              uri (:uri request)
-              resp (so/routes (convert-params request))]
-
-          ;; Logging request method and URI for debugging
-          (println ">o> Request Method:" request-method)
-          (println ">o> URI:" uri)
-          (println ">o> Response:" resp)
-
-          resp))}}]
+         ["sign-out"
+          {:no-doc false
 
 
+           ;:get {
+           ;      :accept "text/html"
+           ;
+           ;
+           ;      :handler
+           ;      (fn [request]
+           ;        (let [request-method (:request-method request)
+           ;              uri (:uri request)
+           ;              ;resp (so/routes (convert-params request))
+           ;
+           ;
+           ;              ;resp   (html5 logout-component)
+           ;              resp (sign-out-view {})
+           ;
+           ;
+           ;              resp {:status 200
+           ;                    :headers {"Content-Type" "text/html"}
+           ;                    :body resp}
+           ;
+           ;              ]
+           ;
+           ;          ;; Logging request method and URI for debugging
+           ;          (println ">o> Request Method:" request-method)
+           ;          (println ">o> URI:" uri)
+           ;          ;(println ">o> Response:" resp)
+           ;
+           ;          resp))}
 
 
-   ["abc"
-    {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-           :accept "text/html"
-           ;:coercion reitit.coercion.schema/coercion
-           ;:swagger {:security [{:basicAuth []}]}
-           :handler (fn [request]
-                      { :status 200
-                       :headers {"Content-Type" "text/html"}
-                       :body (str "fuuuuuuck 1222")})}}]
-]
+           :post {
 
+                 :accept "application/json"
+                  :handler
+                  (fn [request]
+                    (let [request-method (:request-method request)
+                          uri (:uri request)
+                          resp (so/routes (convert-params request))]
 
-   ["inventory"
+                      ;; Logging request method and URI for debugging
+                      (println ">o> Request Method:" request-method)
+                      (println ">o> URI:" uri)
+                      ;(println ">o> Response:" resp)
 
-    ["/"
-     {:swagger {:tags ["Auth"] :security []}}
+                      resp))}
 
-     ["login"
-      {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:basicAuth []}]}
-             :handler authenticate-handler}}]
+           }]
 
 
 
-     ["logout"
-      {:get {:accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security []}
-             :middleware [ab/wrap]
-             :handler logout-handler}}]
 
-     ["set-password"
-      {:post {:summary "OK | Set password by basicAuth for already authenticated user"
-              :accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :swagger {:security [{:basicAuth []}]}
-              :parameters {:body {:new-password1 s/Str}}
-              :handler set-password-handler}}]]
+         ["abc"
+          {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+                 :accept "text/html"
+                 ;:coercion reitit.coercion.schema/coercion
+                 ;:swagger {:security [{:basicAuth []}]}
+                 :handler (fn [request]
+                            {:status 200
+                             :headers {"Content-Type" "text/html"}
+                             :body (str "fuuuuuuck 1222")})}}]
+         ]
 
-    ["/"
-     {:swagger {:tags ["Status"] :security []}}
-     ["status"
-      {:get {:accept "application/json"
-             :handler status/status-handler
-             :swagger {:security []}}}]]
 
-    ["/api-docs"
-     {:get {:conflicting true
-            :handler swagger-api-docs-handler
-            :no-doc true}}]
+        ["inventory"
 
-    ["/api-docs/swagger.json"
-     {:get {:no-doc true
-            :swagger {:info {:title "inventory-api"
-                             :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+         ["/"
+          {:swagger {:tags ["Auth"] :security []}}
 
-                      :securityDefinitions {:apiAuth {:type "apiKey"
-                                                      :name "Authorization"
-                                                      :in "header"}
-                                            :basicAuth {:type "basic"}}
-                      :security [{:basicAuth [] "auth" []}
-                                 {:apiAuth {:type "apiKey"
-                                            :name "Authorization"
-                                            :in "header"}}]}
-            :handler (swagger/create-swagger-handler)}}]
+          ["login"
+           {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+                  :accept "application/json"
+                  :coercion reitit.coercion.schema/coercion
+                  :swagger {:security [{:basicAuth []}]}
+                  :handler authenticate-handler}}]
 
-    ["/api-docs/openapi.json"
-     {:get {:no-doc true
-            :openapi {:openapi "3.0.0"
-                      :info {:title "inventory-api"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
-                             :version "3.0.0"}}
-            :handler (openapi/create-openapi-handler)}}]
 
-    ["/debug"
-     {:tags ["Debug"]}]
 
-    (incl-other-routes)]
+          ["logout"
+           {:get {:accept "application/json"
+                  :coercion reitit.coercion.schema/coercion
+                  :swagger {:security []}
+                  :middleware [ab/wrap]
+                  :handler logout-handler}}]
 
-    ]
+          ["set-password"
+           {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+                   :accept "application/json"
+                   :coercion reitit.coercion.schema/coercion
+                   :swagger {:security [{:basicAuth []}]}
+                   :parameters {:body {:new-password1 s/Str}}
+                   :handler set-password-handler}}]]
+
+         ["/"
+          {:swagger {:tags ["Status"] :security []}}
+          ["status"
+           {:get {:accept "application/json"
+                  :handler status/status-handler
+                  :swagger {:security []}}}]]
+
+         ["/api-docs"
+          {:get {:conflicting true
+                 :handler swagger-api-docs-handler
+                 :no-doc true}}]
+
+         ["/api-docs/swagger.json"
+          {:get {:no-doc true
+                 :swagger {:info {:title "inventory-api"
+                                  :version "2.0.0"
+                                  :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+
+                           :securityDefinitions {:apiAuth {:type "apiKey"
+                                                           :name "Authorization"
+                                                           :in "header"}
+                                                 :basicAuth {:type "basic"}}
+                           :security [{:basicAuth [] "auth" []}
+                                      {:apiAuth {:type "apiKey"
+                                                 :name "Authorization"
+                                                 :in "header"}}]}
+                 :handler (swagger/create-swagger-handler)}}]
+
+         ["/api-docs/openapi.json"
+          {:get {:no-doc true
+                 :openapi {:openapi "3.0.0"
+                           :info {:title "inventory-api"
+                                  :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                                  :version "3.0.0"}}
+                 :handler (openapi/create-openapi-handler)}}]
+
+         ["/debug"
+          {:tags ["Debug"]}]
+
+         (incl-other-routes)]
+
+        ]
 
    ])
 
