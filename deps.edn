@@ -19,6 +19,12 @@
   ring/ring-core {:mvn/version "1.12.2"}
   ring/ring-defaults {:mvn/version "0.5.0"}
   ring/ring-jetty-adapter {:mvn/version "1.12.2"}
+
+  org.clojure/core.async {:mvn/version "1.6.681"}
+  reagent/reagent {:mvn/version "1.2.0"}
+  cljs-http/cljs-http {:mvn/version "0.1.48"}
+  org.clojure/clojurescript {:mvn/version "1.11.132"}
+
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
   cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
   buddy/buddy-auth {:mvn/version "2.2.0"}

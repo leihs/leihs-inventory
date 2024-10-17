@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Out</title>
+    <style>
+        body { font-family: sans-serif; width: 400px; margin: 2rem auto; text-align: center; }
+        .form-inline { display: flex; justify-content: center; align-items: center; }
+        .btn { padding: 0.5rem 1rem; background-color: #333; color: #fff; border: none; cursor: pointer; }
+        .btn:hover { background-color: #555; }
+        .form-group { margin: 0.5rem; }
+    </style>
+</head>
+<body>
+
+<h1>Sign Out</h1>
+<form class="form-inline" onsubmit="event.preventDefault(); signOut();">
+    <div class="form-group">
+        <label class="sr-only" for="sign-out">Sign out</label>
+        <button id="sign-out" class="btn" type="submit">
+            <span> Sign out </span>
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    function signOut() {
+        console.log("Sign-out button clicked");
+
+        // Set the sign-out URL
+        const url = '/sign-out'; // Adjust this to the correct path
+
+        // Make the asynchronous POST request
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 'Accept': 'application/json'
+                'Accept': 'text/html'
+            },
+            body: JSON.stringify({})
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Successfully signed out");
+                    // Redirect to home page
+                    window.location.replace('/');
+                } else {
+                    response.text().then(text => console.error("Failed to sign out:", text));
+                }
+            })
+            .catch(error => console.error("Fetch error:", error));
+    }
+</script>
+
+</body>
+</html>

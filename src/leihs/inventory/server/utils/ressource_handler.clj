@@ -10,7 +10,7 @@
             [leihs.inventory.server.routes :as routes]
 
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
-   [leihs.core.sign-out.simple-logout :refer [sign-out-view]]
+   ;[leihs.core.sign-out.simple-logout :refer [sign-out-view]]
 
    [leihs.core.sign-in.back :as be]
 
@@ -33,7 +33,7 @@
   (:import [java.net URL JarURLConnection]
            [java.util.jar JarFile]))
 
-(def SESSION_HANDLING_ACTIVATED? false)
+(def SESSION_HANDLING_ACTIVATED? true)
 
 (def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 
@@ -107,41 +107,30 @@
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)]
+        asset (fetch-file-entry uri assets)
+
+
+        p (println ">o> custom-not-found-handler!!!!" )
+        ]
     (cond
       ;; TODO: relevant
-      (= uri "/login")       {:status 200
-                              :headers {"Content-Type" "text/html"}
-                              :body (sign-in-view {})}
-
-      (= uri "/logout")       {:status 200
-                              :headers {"Content-Type" "text/html"}
-                              :body (sign-out-view {})}
-
-
-      ;(= uri "/sign-in")
+      ;(= uri "/sign-in")       {:status 200
+      ;                        :headers {"Content-Type" "text/html"}
+      ;                        :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})}
       ;
-      ;
-      ;                              (let [
-      ;
-      ;                                    p (println ">o> abc" (:request-method request))
-      ;                                    p (println ">o> abc" (:uri request))
-      ;
-      ;                           resp (be/routes request)
-      ;                                p (println ">o> resp" resp)
-      ;                                       ]
-      ;
-      ;                           {:status 200
-      ;                            ;:headers {"Content-Type" "text/html"}
-      ;                            :body resp}
-      ;                                )
+      ;(= uri "/sign-out")       {:status 200
+      ;                        :headers {"Content-Type" "text/html"}
+      ;                        ;:body (sign-out-view {})}
+      ;                        :body (slurp (io/resource "public/dev-logout.html"))}
 
 
       (= uri "/") (create-root-page)
-      (clojure.string/includes? uri "/sign-in")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (slurp (io/resource "public/sign-in-fallback.html"))}
+
+      ;(clojure.string/includes? uri "/sign-in")
+      ;{:status 200
+      ; :headers {"Content-Type" "text/html"}
+      ; :body (slurp (io/resource "public/sign-in-fallback.html"))}
+
       (and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
         {:status 200

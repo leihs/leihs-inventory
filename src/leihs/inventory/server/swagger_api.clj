@@ -8,6 +8,13 @@
    [leihs.core.db :as db]
 
 
+   [leihs.core.auth.core :as auth]
+
+   [leihs.core.anti-csrf.back :as anti-csrf]
+
+
+   [ring.middleware.content-type :refer [wrap-content-type]]
+   [ring.middleware.cookies :refer [wrap-cookies]]
    ;[ring.middleware.params :refer [wrap-params]]
    ;[ring.middleware.form-params :refer [wrap-form-params]]
 
@@ -61,7 +68,7 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           p (println ">o> uri=>" (:uri request))
-          WHITELIST-URIS-FOR-API ["/sign-in" "sign-out" "/ab" "/abc"]
+          WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out" "/ab" "/abc"]
           uri (:uri request)
           p (println ">o> che??1" uri WHITELIST-URIS-FOR-API)
 
@@ -71,6 +78,7 @@
       (if (or (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"]) (some #(= % uri) WHITELIST-URIS-FOR-API))
         (pr ">o> handler" (handler request))
         (pr ">o> custom-fuck" (custom-not-found-handler request))))))
+        ;(custom-not-found-handler request)))))
 
 (defn browser-request-matches-javascript? [request]
   "Returns true if the accepted type is javascript or
@@ -101,12 +109,12 @@
                (rh/index-html-response 408)
                response)))))
 
-(defn redirect-if-no-session
-  [handler]
-  (fn [request]
-    (if (session-valid? request)
-      (handler request)
-      (response/redirect "/login?return-to=inventory"))))
+;(defn redirect-if-no-session
+;  [handler]
+;  (fn [request]
+;    (if (session-valid? request)
+;      (handler request)
+;      (response/redirect "/login?return-to=inventory"))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -122,10 +130,15 @@
 
                                       ; redirect-if-no-session
 
+                                     auth/wrap-authenticate
+
                                       ring-audits/wrap
                                       ;anti-csrf/wrap
-                                      session/wrap-authenticate
+                                      ;session/wrap-authenticate
                                       wrap-cookies
+
+
+                                      anti-csrf/wrap
 
 
                                       ;locale/wrap
@@ -138,7 +151,7 @@
 
                                       wrap-params
                                       ;wrap-multipart-params
-                                      ;wrap-content-type
+                                      wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
                                       dispatch-content-type/wrap-accept
