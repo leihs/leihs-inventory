@@ -5,6 +5,9 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [leihs.core.status :as status]
+
+   [leihs.core.sign-in.back :as be]
+
    [leihs.inventory.server.resources.accessories.routes :refer [get-accessories-routes]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
@@ -83,9 +86,63 @@
    (token-routes)])
 
 (defn basic-routes []
-  [["/" {:no-doc true :get {:handler root-handler}}]
 
-   ["/inventory"
+  [
+
+   ;["/" {:no-doc false :get {:handler root-handler}}
+
+
+   ["/"
+
+    ["/abc"
+
+[    {:post {
+                          ;:summary "[] OK | Authenticate user by login ( set cookie with token )"
+                          ;:accept "application/json"
+                          :accept "text/html"
+                          :coercion reitit.coercion.schema/coercion
+                          :swagger {:security [{:basicAuth []}]}
+                          :handler be/routes }}
+
+              {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+                     :accept "text/html"
+                     :coercion reitit.coercion.schema/coercion
+                     :swagger {:security [{:basicAuth []}]}
+                     :handler (fn [request]
+                                { :status 200
+                                 :headers {"Content-Type" "text/html"}
+                                 :body (str "fuuuuuuck 1")})}}]
+
+
+     ]
+
+
+     ;[
+     ; "/sign-in"
+     ;
+     ; {:swagger {:tags ["Auth"] :security []}}
+     ;
+     ; [    {:post {
+     ;              ;:summary "[] OK | Authenticate user by login ( set cookie with token )"
+     ;              ;:accept "application/json"
+     ;              :accept "text/html"
+     ;              :coercion reitit.coercion.schema/coercion
+     ;              :swagger {:security [{:basicAuth []}]}
+     ;              :handler be/routes }}
+     ;
+     ;  {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+     ;         :accept "text/html"
+     ;         :coercion reitit.coercion.schema/coercion
+     ;         :swagger {:security [{:basicAuth []}]}
+     ;         :handler (fn [request]
+     ;                    { :status 200
+     ;                     :headers {"Content-Type" "text/html"}
+     ;                     :body (str "fuuuuuuck 1")})}}]
+     ; ]
+
+
+
+   ["inventory"
 
     ["/"
      {:swagger {:tags ["Auth"] :security []}}
@@ -96,6 +153,8 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:basicAuth []}]}
              :handler authenticate-handler}}]
+
+
 
      ["logout"
       {:get {:accept "application/json"
@@ -151,7 +210,11 @@
     ["/debug"
      {:tags ["Debug"]}]
 
-    (incl-other-routes)]])
+    (incl-other-routes)]
+
+    ]
+
+   ])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)

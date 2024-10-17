@@ -8,6 +8,11 @@
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
+
+   [leihs.core.sign-in.simple-login :refer [sign-in-view]]
+
+   [leihs.core.sign-in.back :as be]
+
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
             [muuntaja.core :as m]
@@ -27,7 +32,7 @@
   (:import [java.net URL JarURLConnection]
            [java.util.jar JarFile]))
 
-(def SESSION_HANDLING_ACTIVATED? true)
+(def SESSION_HANDLING_ACTIVATED? false)
 
 (def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 
@@ -43,7 +48,9 @@
 (def ALLOWED_RESOURCE_PATHS ["public/inventory/assets"
                              "public/inventory/css"
                              "public/inventory/static"
-                             "public/inventory/js"])
+                             "public/inventory/js"
+                             "sign-in"
+                             ])
 
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
 
@@ -100,6 +107,29 @@
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
     (cond
+      (= uri "/login")       {:status 200
+                              :headers {"Content-Type" "text/html"}
+                              :body (sign-in-view {})}
+
+
+      ;(= uri "/sign-in")
+      ;
+      ;
+      ;                              (let [
+      ;
+      ;                                    p (println ">o> abc" (:request-method request))
+      ;                                    p (println ">o> abc" (:uri request))
+      ;
+      ;                           resp (be/routes request)
+      ;                                p (println ">o> resp" resp)
+      ;                                       ]
+      ;
+      ;                           {:status 200
+      ;                            ;:headers {"Content-Type" "text/html"}
+      ;                            :body resp}
+      ;                                )
+
+
       (= uri "/") (create-root-page)
       (clojure.string/includes? uri "/sign-in")
       {:status 200

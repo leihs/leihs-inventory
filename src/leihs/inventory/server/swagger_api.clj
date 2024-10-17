@@ -6,6 +6,8 @@
             [leihs.core.core :refer [presence]]
             [leihs.core.db]
             [leihs.core.db :as db]
+
+   [leihs.core.sign-in.back :as be]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
@@ -29,12 +31,27 @@
   (:import [java.net URL JarURLConnection]
            [java.util.jar JarFile]))
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"])
-        (handler request)
-        (custom-not-found-handler request)))))
+    (let [accept-header (get-in request [:headers "accept"])
+          p (println ">o> uri=>" (:uri request))
+          WHITELIST-URIS-FOR-API ["/sign-in"]
+          uri (:uri request)
+
+          p (println ">o> che??1" uri WHITELIST-URIS-FOR-API)
+
+          p (println ">o> che??" (some #(= % uri) WHITELIST-URIS-FOR-API))
+          ]
+      (if (or (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"]) (some #(= % uri) WHITELIST-URIS-FOR-API))
+        (pr ">o> handler" (handler request))
+        (pr ">o> custom-fuck" (custom-not-found-handler request))))))
 
 (defn browser-request-matches-javascript? [request]
   "Returns true if the accepted type is javascript or
@@ -87,6 +104,7 @@
                                       ;anti-csrf/wrap
                                      session/wrap-authenticate
                                      wrap-cookies
+
 
                                       ;locale/wrap
                                       ;settings/wrap
