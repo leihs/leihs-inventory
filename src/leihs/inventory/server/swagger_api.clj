@@ -91,8 +91,8 @@
       ;(if (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"])
       (if (or (some #(clojure.string/includes? accept-header %) ["/json" "image/jpeg"]) (some #(= % uri) WHITELIST-URIS-FOR-API))
         (pr ">o> handler" (handler request))
-        (pr ">o> custom-fuck" (custom-not-found-handler request))))))
-        ;(custom-not-found-handler request)))))
+        ;(pr ">o> custom-fuck" (custom-not-found-handler request))))))
+        (custom-not-found-handler request)))))
 
 (defn browser-request-matches-javascript? [request]
   "Returns true if the accepted type is javascript or
