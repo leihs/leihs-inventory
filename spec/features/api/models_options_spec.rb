@@ -51,7 +51,6 @@ feature "Swagger Inventory Endpoints" do
 
       it "supports pagination and returns 200 with limited results" do
         resp = client.get "/inventory/models-compatibles?page=1&size=1"
-        binding.pry
         expect(resp.status).to eq(200)
         # expect(resp.body["data"].count).to eq(1)
         expect(resp.body["pagination"]["total_records"]).to eq(0)
@@ -59,37 +58,44 @@ feature "Swagger Inventory Endpoints" do
 
       context "GET /inventory/models-compatibles" do
 
+        let :first_model do
+          @models.first
+        end
+
         before :each do
           compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-          first_model = @models.first
-          binding.pry
           first_model.add_recommend(compatible_model)
         end
 
         it "supports pagination and returns 200 with limited results" do
-          resp = client.get "/inventory/models-compatibles?page=3&size=1"
+          resp = client.get "/inventory/models-compatibles?page=1&size=1"
 
-          binding.pry
+          # binding.pry
           expect(resp.status).to eq(200)
           expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_records"]).to eq(1)
         end
 
         it "supports pagination and returns 200 with limited results" do
           resp = client.get "/inventory/models-compatibles?page=1&size=1"
           expect(resp.status).to eq(200)
           expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_records"]).to eq(1)
         end
 
         it "supports pagination and returns 200 with limited results" do
+
+          puts "first_model.id: #{first_model.id}"
           resp = client.get "/inventory/models-compatibles/#{first_model.id}"
+
+          # binding.pry
           expect(resp.status).to eq(200)
-          expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["pagination"]["total_records"]).to eq(1)
+
+          expect(resp.body.count).to eq(1)
+          # expect(resp.body["pagination"]["total_records"]).to eq(1)
         end
       end
 
     end
   end
-  end
+end
