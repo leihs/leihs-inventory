@@ -30,9 +30,16 @@
                             (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn create-paginated-response
   ([base-query tx per_page page]
-   (create-paginated-response tx per_page page nil))
+   (create-paginated-response base-query tx per_page page nil))
 
   ([base-query tx per_page page post-data-fnc]
    (let [total_records (fetch-total-count base-query tx)
@@ -46,16 +53,16 @@
                           :next_page (when (< page total-pages) (inc page))
                           :prev_page (when (> page 1) (dec page))}
 
-         pagination-info (if (nil? post-data-fnc) pagination-info
-                             (post-data-fnc paginated-products))]
-     {:data paginated-products
+         paginated-products (if (nil? post-data-fnc) paginated-products
+                             (post-data-fnc paginated-products)) ]
+   {:data paginated-products
       :pagination pagination-info})))
 
 (defn fetch-pagination-params [request]
   (let [query-params (query-params request)
         page (Integer. (or (:page query-params) "1"))
         size (Integer. (or (:size query-params) "10"))]
-    {:page page
+  {:page page
      :size size}))
 
 (defn pagination-response

@@ -50,7 +50,12 @@
                        (cond-> filter-product
                          (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                        (cond-> model_id (sql/where [:= :m.id model_id]))
-                       (sql/order-by sort-by))]
+                       (sql/order-by sort-by))
+
+        p (println ">o> model_id" model_id)
+        ]
+
+
     (if model_id
       (response (jdbc/query tx (-> base-query sql-format)))
       (let [{:keys [page size]} (fetch-pagination-params request)]
