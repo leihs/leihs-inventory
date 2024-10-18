@@ -11,22 +11,22 @@
 
 (defn- create-count-query [base-query]
   (-> base-query
-      (dissoc :order-by :select :select-distinct)
-      (sql/select-distinct :%count.*)))
+    (dissoc :order-by :select :select-distinct)
+    (sql/select-distinct :%count.*)))
 
 (defn- fetch-total-count [base-query tx]
   (let [total-products-query (-> (create-count-query base-query)
-                                 sql-format
-                                 (->> (jdbc/query tx))
-                                 first)]
+                               sql-format
+                               (->> (jdbc/query tx))
+                               first)]
     (:count total-products-query)))
 
 (defn- fetch-paginated-products [base-query tx per_page offset]
   (let [paginated-query (-> base-query
-                            (sql/limit per_page)
-                            (sql/offset offset)
-                            sql-format
-                            (->> (jdbc/query tx)))]
+                          (sql/limit per_page)
+                          (sql/offset offset)
+                          sql-format
+                          (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
 (defn create-paginated-response
@@ -34,37 +34,34 @@
 
 
 
-(  [base-query tx per_page page]
-  (let [total_records (fetch-total-count base-query tx)
-        total-pages (int (Math/ceil (/ total_records (float per_page))))
-        offset (* (dec page) per_page)
-        paginated-products (fetch-paginated-products base-query tx per_page offset)
-        pagination-info {:total_records total_records
-                         :current_page page
-                         :per_page per_page
-                         :total_pages total-pages
-                         :next_page (when (< page total-pages) (inc page))
-                         :prev_page (when (> page 1) (dec page))}]
-    {:data paginated-products
-     :pagination pagination-info}))
+  ([base-query tx per_page page]
+   (let [total_records (fetch-total-count base-query tx)
+         total-pages (int (Math/ceil (/ total_records (float per_page))))
+         offset (* (dec page) per_page)
+         paginated-products (fetch-paginated-products base-query tx per_page offset)
+         pagination-info {:total_records total_records
+                          :current_page page
+                          :per_page per_page
+                          :total_pages total-pages
+                          :next_page (when (< page total-pages) (inc page))
+                          :prev_page (when (> page 1) (dec page))}]
+     {:data paginated-products
+      :pagination pagination-info}))
 
 
-(  [base-query tx per_page page cus-fnc]
-  (let [total_records (fetch-total-count base-query tx)
-        total-pages (int (Math/ceil (/ total_records (float per_page))))
-        offset (* (dec page) per_page)
-        paginated-products (fetch-paginated-products base-query tx per_page offset)
-        pagination-info {:total_records total_records
-                         :current_page page
-                         :per_page per_page
-                         :total_pages total-pages
-                         :next_page (when (< page total-pages) (inc page))
-                         :prev_page (when (> page 1) (dec page))}]
-    {:data (cus-fnc paginated-products)
-     :pagination pagination-info}))
-
-
-  )
+  ([base-query tx per_page page cus-fnc]
+   (let [total_records (fetch-total-count base-query tx)
+         total-pages (int (Math/ceil (/ total_records (float per_page))))
+         offset (* (dec page) per_page)
+         paginated-products (fetch-paginated-products base-query tx per_page offset)
+         pagination-info {:total_records total_records
+                          :current_page page
+                          :per_page per_page
+                          :total_pages total-pages
+                          :next_page (when (< page total-pages) (inc page))
+                          :prev_page (when (> page 1) (dec page))}]
+     {:data (cus-fnc paginated-products)
+      :pagination pagination-info})))
 
 (defn fetch-pagination-params [request]
   (let [query-params (query-params request)

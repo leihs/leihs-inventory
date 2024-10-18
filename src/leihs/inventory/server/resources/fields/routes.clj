@@ -13,12 +13,11 @@
    ;                                                                get-models-of-pool-handler
    ;                                                                update-model-handler-by-pool
    ;                                                                delete-model-handler-by-pool]]
-   [leihs.inventory.server.resources.fields.main :refer [get-form-fields-auto-pagination-handler
-                                                         get-form-fields-with-pagination-handler
-                                                         get-form-fields-handler]]
+   [leihs.inventory.server.resources.fields.main :refer [get-form-fields-handler
+                                                         get-form-fields-with-pagination-handler]]
 
-   [leihs.inventory.server.resources.fields.search :refer [ get-search-with-pagination-handler
-                                                         ]]
+   [leihs.inventory.server.resources.fields.search :refer [get-search-with-pagination-handler
+                                                           ]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -38,8 +37,12 @@
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
     ["" {:get {:conflicting true
-               :description (str "? |"
-                                 "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
+               :summary "(admin-endpoint?)"
+               :description (str "<ul>"
+                              "<li>Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest</li>"
+                              "<li>ToDo: Fields by User/:pool_id?</li>"
+                              "<ul/>"
+                              )
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware ab/wrap]
@@ -75,8 +78,9 @@
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
     ["" {:get {:conflicting true
-               :description (str "? |"
-                                 "https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/inventory.json?search_term=abc&retired=false&used=true&page=1&include_package_models=true&sort=name&order=ASC")
+               :description (str "- https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/inventory.json?search_term=abc&retired=false&used=true&page=1&include_package_models=true&sort=name&order=ASC"
+                              "- TODO: add facets / fix software-query"
+                              )
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware ab/wrap]
@@ -85,11 +89,6 @@
                :parameters {
                             :path {:pool_id s/Uuid}
                             :query {
-                                    ;(s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                    ;(s/optional-key :owner) s/Bool
-
-                                    ;(s/optional-key :owner) s/Bool
-                                    ;(s/optional-key :size) s/Int
                                     (s/optional-key :type) (s/enum "Software" "Model")
 
                                     (s/optional-key :page) s/Int
@@ -103,7 +102,5 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
     ]
-
-
 
    ])
