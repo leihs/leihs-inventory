@@ -17,7 +17,7 @@
 
    [leihs.core.status :as status]
    ;[hiccup.page :refer [html5]]
-
+   [schema.core :as s]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
@@ -139,8 +139,22 @@
           {:no-doc false
 
            :post {
+                  :accept "text/html"
+                  :swagger {:produces ["application/octet-stream"]}
 
-                  :accept "application/json"
+
+                  ;; FIXME:
+                  ;:parameters {:body {
+                  ;                    :user s/Str
+                  ;                    :password s/Str
+                  ;                    :return-to s/Str
+                  ;                    }}
+                  ;:parameters {:form {
+                  ;                                       :user s/Str
+                  ;                                        :password s/Str
+                  ;                                        :return-to s/Str
+                  ;                    }}
+
                   :handler
                   (fn [request]
                     (let [request-method (:request-method request)
@@ -188,8 +202,9 @@
                       resp))}
 
            :get {
+                 :summary "Get sign-in page"
                  :accept "text/html"
-
+                 :swagger {:produces ["text/html"]}
                  :handler (fn [request]
                             {:status 200
                              :headers {"Content-Type" "text/html"}
@@ -251,15 +266,15 @@
 
 
 
-["abc"
- {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-        :accept "text/html"
-        ;:coercion reitit.coercion.schema/coercion
-        ;:swagger {:security [{:basicAuth []}]}
-        :handler (fn [request]
-                   {:status 200
-                    :headers {"Content-Type" "text/html"}
-                    :body (str "fuuuuuuck 1222")})}}]
+;["abc"
+; {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+;        :accept "text/html"
+;        ;:coercion reitit.coercion.schema/coercion
+;        ;:swagger {:security [{:basicAuth []}]}
+;        :handler (fn [request]
+;                   {:status 200
+;                    :headers {"Content-Type" "text/html"}
+;                    :body (str "fuuuuuuck 1222")})}}]
 ]
 
 
@@ -271,8 +286,11 @@
   ["login"
    {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
           :accept "application/json"
+
+
+
           :coercion reitit.coercion.schema/coercion
-          :swagger {:security [{:basicAuth []}]}
+          :swagger {:security [{:basicAuth []}] :deprecated true}
           :handler authenticate-handler}}]
 
 
@@ -280,7 +298,8 @@
   ["logout"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :swagger {:security []}
+          :swagger {:security [] :deprecated true}
+
           :middleware [ab/wrap]
           :handler logout-handler}}]
 
