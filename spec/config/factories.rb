@@ -9,7 +9,9 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 
   config.before(:suite) do
-    FactoryBot.definition_file_paths = %w[./database/lib/leihs/constants ./database/spec/factories ./shared-clj/factories ./spec/factories]
+    # FactoryBot.definition_file_paths = %w[./database/lib/leihs/constants ./database/spec/factories ./shared-clj/factories ./spec/factories]
+    FactoryBot.definition_file_paths = %w[./database/lib/metadata_extractor ./database/lib/leihs/constants ./database/spec/factories ./shared-clj/factories ./spec/factories]
+    # FactoryBot.definition_file_paths = %w[./database/lib ./database/lib/leihs/constants ./database/spec/factories ./shared-clj/factories ./spec/factories]
     FactoryBot.find_definitions
   end
 
