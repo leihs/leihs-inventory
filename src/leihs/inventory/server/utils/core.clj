@@ -9,10 +9,9 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]))
 
-
 (defn single-entity-get-request? [request]
   (let [method (:request-method request)
         uri (:uri request)
         uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
     (and (= method :get)
-      (not (re-find uuid-regex uri)))))
+         (not (re-find uuid-regex uri)))))

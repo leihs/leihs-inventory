@@ -8,8 +8,8 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]])
-(:import
- [java.util UUID]))
+  (:import
+   [java.util UUID]))
 
 (defn to-uuid [value]
   (try

@@ -4,10 +4,10 @@
    [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.pagination :refer [pagination-response ]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?] ]
+   [leihs.inventory.server.utils.pagination :refer [pagination-response]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
@@ -60,15 +60,15 @@
                                         [:is :subquery.role nil]]))
 
                           (cond-> (and (some? owner) (not (= "customer" role)))
-                        (sql/where [:= :subquery.owner owner]))
+                            (sql/where [:= :subquery.owner owner]))
                           ;
                           ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
                           ;  with-paginat (sql/where [:= :subquery.owner owner]))
 
-                        (cond-> (= "customer" role)
-                          (sql/where [:or
-                                      [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
-                                      [:is :subquery.role nil]])))]
+                          (cond-> (= "customer" role)
+                            (sql/where [:or
+                                        [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
+                                        [:is :subquery.role nil]])))]
 
        (cond
          (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)

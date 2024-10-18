@@ -3,11 +3,11 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.pagination :refer [pagination-response ]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?] ]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [pagination-response create-pagination-response]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
@@ -30,24 +30,15 @@
                           (cond-> id (sql/where [:= :i.id id]))
                           (sql/order-by :i.name))]
 
-       (cond
-         (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
-         with-pagination? (pagination-response request base-query)
-         :else (jdbc/query tx (-> base-query sql-format))))
-
+       (create-pagination-response request base-query with-pagination?)
+       ;(cond
+       ;  (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
+       ;  with-pagination? (pagination-response request base-query)
+       ;  :else (jdbc/query tx (-> base-query sql-format)))
+       )
      (catch Exception e
-       (error "Failed to get supplier" e)
-       (bad-request {:error "Failed to get supplier" :details (.getMessage e)})))))
-
-(defn get-model-group-links-of-pool-handler [request]
-  (response (get-owner-department-of-pool request true)))
-
-(defn get-model-group-links-of-pool-with-pagination-handler [request]
-  (response (get-owner-department-of-pool request true)))
+       (error "Failed to get owner/department" e)
+       (bad-request {:error "Failed to get owner/department" :details (.getMessage e)})))))
 
 (defn get-owner-department-of-pool-auto-pagination-handler [request]
   (response (get-owner-department-of-pool request nil)))
-
-(defn get-model-group-links-of-pool-handler [request]
-  (let [result (get-owner-department-of-pool request)]
-    (response result)))

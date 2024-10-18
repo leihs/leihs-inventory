@@ -4,11 +4,11 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
    [next.jdbc.sql :as jdbc]
-
-   [ leihs.inventory.server.utils.converter :refer [to-uuid]]
-    [leihs.inventory.server.utils.core :refer [single-entity-get-request?] ]
 
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])

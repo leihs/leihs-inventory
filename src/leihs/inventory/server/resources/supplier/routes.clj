@@ -22,13 +22,8 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn create-description [url]
-  (str "GET " url " Accept: application/json"))
-
 (defn get-supplier-routes []
-
   [""
-
    ["/supplier"
     {:swagger {:conflicting true
                :tags ["Supplier"] :security []}}

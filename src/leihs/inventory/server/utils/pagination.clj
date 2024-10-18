@@ -5,28 +5,29 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]))
 
 (defn- create-count-query [base-query]
   (-> base-query
-    (dissoc :order-by :select :select-distinct)
-    (sql/select-distinct :%count.*)))
+      (dissoc :order-by :select :select-distinct)
+      (sql/select-distinct :%count.*)))
 
 (defn- fetch-total-count [base-query tx]
   (let [total-products-query (-> (create-count-query base-query)
-                               sql-format
-                               (->> (jdbc/query tx))
-                               first)]
+                                 sql-format
+                                 (->> (jdbc/query tx))
+                                 first)]
     (:count total-products-query)))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
   (let [paginated-query (-> base-query
-                          (sql/limit per_page)
-                          (sql/offset offset)
-                          sql-format
-                          (->> (jdbc/query tx)))]
+                            (sql/limit per_page)
+                            (sql/offset offset)
+                            sql-format
+                            (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
 (defn create-paginated-response
@@ -46,7 +47,7 @@
                           :prev_page (when (> page 1) (dec page))}
 
          pagination-info (if (nil? post-data-fnc) pagination-info
-                          (post-data-fnc paginated-products))         ]
+                             (post-data-fnc paginated-products))]
      {:data paginated-products
       :pagination pagination-info})))
 
@@ -57,12 +58,17 @@
     {:page page
      :size size}))
 
-
 (defn pagination-response
   ([request base-query]
-   (pagination-response request base-query nil) )
+   (pagination-response request base-query nil))
 
   ([request base-query post-data-fnc]
    (let [{:keys [page size]} (fetch-pagination-params request)
          tx (:tx request)]
-     (create-paginated-response base-query tx size page post-data-fnc)))  )
+     (create-paginated-response base-query tx size page post-data-fnc))))
+
+(defn create-pagination-response [request base-query with-pagination?]
+  (cond
+    (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
+    with-pagination? (pagination-response request base-query)
+    :else (jdbc/query (:tx request) (-> base-query sql-format))))
