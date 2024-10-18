@@ -4,9 +4,10 @@
    [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.models-by-pool :refer [pagination-response valid-get-request?]]
+   [leihs.inventory.server.utils.pagination :refer [pagination-response ]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
+   [leihs.inventory.server.utils.core :refer [single-entity-get-request?] ]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
@@ -70,7 +71,7 @@
                                       [:is :subquery.role nil]])))]
 
        (cond
-         (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+         (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
          with-pagination? (pagination-response request base-query)
          :else (jdbc/query tx (-> base-query sql-format))))
 
