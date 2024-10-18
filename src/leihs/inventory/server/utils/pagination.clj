@@ -38,23 +38,29 @@
   )
 
 (defn create-paginated-response
-  ([base-query tx per_page page]
-   (create-paginated-response base-query tx per_page page nil))
+  ([base-query tx size page]
+   (create-paginated-response base-query tx size page nil))
 
-  ([base-query tx per_page page post-data-fnc]
+  ([base-query tx size page post-data-fnc]
+   (println ">o> create-paginated-response" page size post-data-fnc)
+
    (let [total_records (fetch-total-count base-query tx)
-         total-pages (int (Math/ceil (/ total_records (float per_page))))
-         offset (* (dec page) per_page)
-         paginated-products (fetch-paginated-rows base-query tx per_page offset)
+         total-pages (int (Math/ceil (/ total_records (float size))))
+         offset (* (dec page) size)
+         paginated-products (fetch-paginated-rows base-query tx size offset)
+         p (println ">o> paginated-products" paginated-products)
+         p (println ">o> paginated-products" paginated-products)
          pagination-info {:total_records total_records
                           :current_page page
-                          :per_page per_page
+                          :per_page size
                           :total_pages total-pages
                           :next_page (when (< page total-pages) (inc page))
                           :prev_page (when (> page 1) (dec page))}
 
          paginated-products (if (nil? post-data-fnc) paginated-products
-                             (post-data-fnc paginated-products)) ]
+                             (post-data-fnc paginated-products))
+         p (println ">o> paginated-products2" paginated-products)
+         ]
    {:data paginated-products
       :pagination pagination-info})))
 

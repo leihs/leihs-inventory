@@ -13,6 +13,11 @@
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
 (defn get-models-compatible-handler [request]
   (try
     (let [tx (:tx request)
@@ -23,12 +28,12 @@
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
                          (cond-> model_id (sql/where [:= :m.id model_id])))]
       (if model_id
-        (response (jdbc/query tx (-> base-query sql-format)))
+        (response (jdbc/query tx (pr "query" (-> base-query sql-format))))
         (let [{:keys [page size]} (fetch-pagination-params request)]
-          (create-paginated-response base-query tx size page))))
+          (response (create-paginated-response base-query tx size page)))))
     (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
+      (error "Failed to get models-compatible" e)
+      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
