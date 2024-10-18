@@ -20,6 +20,17 @@
   ring/ring-defaults {:mvn/version "0.5.0"}
   ring/ring-jetty-adapter {:mvn/version "1.12.2"}
 
+  ;; https://mvnrepository.com/artifact/org.jsoup/jsoup
+  ;[org.jsoup/jsoup "1.18.1"
+   org.jsoup/jsoup {:mvn/version "1.15.4"}
+   ;org.jsoup/jsoup {:mvn/version "1.18.1"}
+  ;net.cgrand/enlive {:mvn/version "1.1.6"}
+  enlive/enlive {:mvn/version "1.1.6"}
+  hickory/hickory {:mvn/version "0.7.1"}
+
+  ;[hickory "0.7.1"]
+
+
   org.clojure/core.async {:mvn/version "1.6.681"}
   reagent/reagent {:mvn/version "1.2.0"}
   cljs-http/cljs-http {:mvn/version "0.1.48"}

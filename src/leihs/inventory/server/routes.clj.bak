@@ -41,11 +41,8 @@
    [ring.middleware.accept]
    [ring.util.response]
    [ring.util.response :refer [redirect]]
-   [schema.core :as s])
-(:import [java.net URL JarURLConnection]
- [java.util.jar JarFile]
- (java.util UUID)
- ))
+   [schema.core :as s]))
+
 
 ;(def   WHITELIST-URIS-FOR-API ["/sign-in"])
 
@@ -135,9 +132,6 @@
   [
 
    "/" [
-
-        [;["/" {:no-doc false :get {:handler root-handler}}
-
          ""
 
          ["sign-in"
@@ -146,8 +140,6 @@
            :post {
                   :accept "text/html"
                   :swagger {:produces ["application/octet-stream"]}
-
-
                   ;; FIXME:
                   ;:parameters {:body {
                   ;                    :user s/Str
@@ -210,118 +202,51 @@
                  :summary "Get sign-in page"
                  :accept "text/html"
                  :swagger {:produces ["text/html"]}
+                 :handler (fn [request]
+                            {:status 200
+                             :headers {"Content-Type" "text/html"}
+                             :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
+                             }
+
+                 )
+
+
+
                  ;:handler (fn [request]
                  ;           {:status 200
                  ;            :headers {"Content-Type" "text/html"}
-                 ;            :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
+                 ;
+                 ;            :body (fn [request]
+                 ;                    (let [
+                 ;
+                 ;
+                 ;
+                 ;                          uuid (str (UUID/randomUUID))
+                 ;
+                 ;
+                 ;                          params {:authFlow {:returnTo "/inventory/models"}
+                 ;                                  :csrfToken {:name "csrfToken"
+                 ;                                              :value uuid}
+                 ;                                  }
+                 ;
+                 ;
+                 ;                          html (sign-in-view params)
+                 ;
+                 ;                          html (add-csrf-tags html params)
+                 ;
+                 ;                          ]
+                 ;
+                 ;                      ;(sign-in-view params)
+                 ;                      html
+                 ;                      )
+                 ;                    )
+                 ;            ;}          }          }          }
+                 ;            ;:body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
                  ;            }
                  ;
-                 ;)
+                 ;           ) }
 
 
-
-
-
-
-
-
-                 :handler (fn [request]
-                            (let [
-
-
-                                  uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                                  params {:authFlow {:returnTo "/inventory/models"}
-                                          :csrfToken {:name "csrfToken"
-                                                      :value uuid}} ;; Parameters including CSRF token
-                                  html (sign-in-view params)  ;; Generate the original HTML using the params
-
-                                  ;; Debugging the original HTML
-                                  _ (println ">o> html.before" html (type html))
-
-                                  ;; Add CSRF tokens to the HTML and debug the result
-                                  html-with-csrf (add-csrf-tags html params)
-                                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))]
-
-                              ;; Return the modified HTML in the response
-                              {:status 200
-                               :headers {"Content-Type" "text/html; charset=utf-8"}
-                               :body html-with-csrf})) ;; Return the modified HTML with CSRF token inserted
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                 ;:handler (fn [request]
-                 ;           {:status 200
-                 ;            :headers {"Content-Type" "text/html"}
-                 ;
-                 ;
-                 ;
-                 ;
-                 ;            ;:body                                     (let [
-                 ;            ;
-                 ;            ;
-                 ;            ;
-                 ;            ;              uuid (str (UUID/randomUUID))
-                 ;            ;
-                 ;            ;
-                 ;            ;              params {:authFlow {:returnTo "/inventory/models"}
-                 ;            ;                      :csrfToken {:name "csrfToken"
-                 ;            ;                                  :value uuid}
-                 ;            ;                      }
-                 ;            ;
-                 ;            ;
-                 ;            ;              html (sign-in-view params)
-                 ;            ;
-                 ;            ;              p (println ">o> html.before" html (type html))
-                 ;            ;
-                 ;            ;              html (add-csrf-tags html params)
-                 ;            ;              p (println ">o> html.after" html (type html))
-                 ;            ;
-                 ;            ;              ]
-                 ;            ;
-                 ;            ;          ;(sign-in-view params)
-                 ;            ;          html
-                 ;            ;          )
-                 ;
-                 ;
-                 ;
-                 ;
-                 ;
-                 ;            :body
-                 ;            (let [uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                 ;                  params {:authFlow {:returnTo "/inventory/models"}
-                 ;                          :csrfToken {:name "csrfToken"
-                 ;                                      :value uuid}} ;; Parameters including CSRF token
-                 ;                  html (sign-in-view params)  ;; Generate the original HTML using the params
-                 ;
-                 ;                  ;; Debugging the original HTML
-                 ;                  _ (println ">o> html.before" html (type html))
-                 ;
-                 ;                  ;; Add CSRF tokens to the HTML and debug the result
-                 ;                  html-with-csrf (add-csrf-tags html params)
-                 ;                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))]
-                 ;
-                 ;              ;;; Ensure the body is returned as a valid HTML string
-                 ;              ;{:status 200
-                 ;              ; :headers {"Content-Type" "text/html; charset=utf-8"}
-                 ;              ; :body html-with-csrf}
-                 ;
-                 ;              html-with-csrf
-                 ;
-                 ;              ) ;; Return the modified HTML with CSRF token inserted
-                 ;
-                 ;
-                 ;            }                           )
 
 
                  }
