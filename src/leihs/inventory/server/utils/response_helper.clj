@@ -37,11 +37,11 @@
         ;p (println ">o> abc1" html)
 
 
-        ab ( anti-csrf-token request )
-        p (println ">o> (html) anti-csrf-token" ab)
+        mtoken ( anti-csrf-token request )
+        p (println ">o> (html) anti-csrf-token" mtoken)
 
-        ab( anti-csrf-props request)
-        p (println ">o> (html) anti-csrf-props" ab)
+        mprops( anti-csrf-props request)
+        p (println ">o> (html) anti-csrf-props" mprops)
 
 
         _ (println ">o> !!!!!1 (html) fetch.anti-csrf-token1" (:anti-csrf-token request))
@@ -51,7 +51,22 @@
                                                        :value
                                                        presence))
 
-        uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+
+
+
+        ;uuid (if (:anti-csrf-token request)
+        ;       presence
+        ;       (let [
+        ;         uuid (str (UUID/randomUUID))
+        ;             ]
+        ;
+        ;         )
+        ;       )
+
+        ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+
+        uuid mtoken
+
         params {
                 :authFlow {:returnTo "/inventory/models"}
                 :csrfToken {:name "csrfToken"

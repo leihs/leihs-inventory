@@ -1,50 +1,48 @@
 (ns leihs.inventory.server.swagger-api
-  (:require [clojure.java.io :as io]
+  (:require [cheshire.core :as json]
+   [clojure.java.io :as io]
    [clojure.string]
    [clojure.string :as str]
-   [leihs.core.auth.session :as session]
-   [leihs.core.constants :as constants]
-   [leihs.core.core :refer [presence]]
-   [leihs.core.db]
    [clojure.uuid :as uuid]
-
- [cheshire.core :as json]
-
-
-  [clojure.walk :refer [keywordize-keys]]
-
-
-   [leihs.core.anti-csrf.back :refer [anti-csrf-token anti-csrf-props x-csrf-token!]]
-   [leihs.inventory.server.resources.auth.session :refer [get-cookie-value user-session]]
-
-   [leihs.core.db :as db]
-
+   [clojure.walk :refer [keywordize-keys]]
+   [leihs.core.anti-csrf.back]
+   [leihs.core.anti-csrf.back :as anti-csrf]
 
    [leihs.core.auth.core :as auth]
 
-   [leihs.core.anti-csrf.back :as anti-csrf]
+   [leihs.core.auth.session :as session]
 
 
-   [ring.middleware.content-type :refer [wrap-content-type]]
-   [ring.middleware.cookies :refer [wrap-cookies]]
+   [leihs.core.constants :as constants]
+
+
+   ;[leihs.core.anti-csrf.back :refer [anti-csrf-token anti-csrf-props x-csrf-token!]]
+   [leihs.core.core :refer [presence]]
+
+   [leihs.core.db]
+
+
+   [leihs.core.db :as db]
+
+   [leihs.core.ring-audits :as ring-audits]
+
+
+   [leihs.core.routing.back :as core-routing]
+   [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    ;[ring.middleware.params :refer [wrap-params]]
-   ;[ring.middleware.form-params :refer [wrap-form-params]]
+
+   ;[ring.middleware.form-params :refer [wrap-form-params]];;not work
 
 
    ;[ring.middleware.params :refer [wrap-params       wrap-form-params
    ;                                wrap-multipart-params]]
 
 
-   [leihs.core.ring-audits :as ring-audits]
-   [leihs.core.routing.back :as core-routing]
-
-   [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-
+   [leihs.core.sign-in.back :as be]
+   [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
 
    ;[leihs.inventory.server.routes :refer [WHITELIST-URIS-FOR-API]]
 
-   [leihs.core.sign-in.back :as be]
-   [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
    [leihs.inventory.server.routes :as routes]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
@@ -60,6 +58,7 @@
    [reitit.ring.middleware.parameters :as parameters]
    [reitit.swagger :as swagger]
    [reitit.swagger-ui :as swagger-ui]
+   [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
    ;[ring.middleware.form-params :refer [wrap-form-params]]
    [ring.middleware.params :refer [wrap-params]]
@@ -129,7 +128,7 @@
   [cookie-header]
   (->> (str/split cookie-header #"; ")
     (map #(str/split % #"="))
-    (map (fn [[k v]] [(keyword k) {:value v}])) ;; Format cookies as {:cookie-name {:value "cookie-value"}}
+    (map (fn [[k v]] [(keyword k) {:value v}]))             ;; Format cookies as {:cookie-name {:value "cookie-value"}}
     (into {})))
 
 (defn add-cookies-to-request
@@ -185,12 +184,24 @@
   (if (nil? token)
     false
 
-  (try
-    (UUID/fromString token)  ;; attempts to parse as UUID, will throw if invalid
-    true
-    (catch IllegalArgumentException _ ;; if parsing fails, catch the exception
-      false)))
-    )
+    (try
+      (UUID/fromString token)                               ;; attempts to parse as UUID, will throw if invalid
+      true
+      (catch IllegalArgumentException _                     ;; if parsing fails, catch the exception
+        false)))
+  )
+
+
+(defn convert-params [request]
+  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
+
+        request (assoc request :form-params converted-form-params)
+        request (assoc request :form-params-raw converted-form-params)
+
+        ]
+    ;(assoc request :form-params-raw converted-form-params)
+    request
+    ))
 
 (defn extract-header
   [handler]
@@ -226,9 +237,48 @@
 
           token (get-cookie-value request)
 
+
+          request (convert-params request)
+
+
+
+
+          p (println ">o> r-params" (:form-params request))
+          p (println ">o> r-params" (:form-params-raw request))
+
+          ;request (if (http-unsafe? request)
+          ;       (let [
+          ;
+          ;
+          ;             p (println ">o> SET POST CSRF")
+          ;
+          ;                ])
+          ;
+          ;
+          ;    )
+
+
           ;anti-csrf (get-in request [:headers "anti-csrf-token"]) ;; wrapper
           ;request (assoc request :anti-csrf-token anti-csrf) ;; used by wrapper
           ;p (println ">o> >HEADER-TOKEN< (:anti-csrf-token request) => " (:anti-csrf-token request))
+
+          head (get-in request [:headers "x-csrf-token"])
+          body (get-in request [:body "x-csrf-token"])
+          form (get-in request [:form "x-csrf-token"])
+          p (println ">o> abc1" head body form)
+
+          ;head (get-in request [:headers "x-csrf-token"])
+          body (get-in request [:body])
+          form (get-in request [:form])
+          p (println ">o> abc2" body form)
+
+          form-params (:form-params request)
+          p (println ">o> abc3" form-params)
+          p (println ">o> abc3a" (:parameters request))
+          p (println ">o> abc3b" (:params request))
+          p (println ">o> abc3b" (:query request))
+          p (println ">o> abc3b" request)
+
 
           ;; TODO: REQUEST
           x-csrf-token (get-in request [:headers "x-csrf-token"]) ;; meta
@@ -236,8 +286,8 @@
 
 
           x-csrf-token (if (valid-uuid? x-csrf-token)
-                                       x-csrf-token
-                    nil)
+                         x-csrf-token
+                         nil)
 
           request (assoc request :anti-csrf-token x-csrf-token) ;; used by wrapper
           p (println ">o> >HEADER-TOKEN< (:x-csrf-token request) =>" (:x-csrf-token request))
@@ -246,22 +296,22 @@
 
           ;; this works
           abc (-> request
-            :cookies
-            (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
-            :value
-            presence)
+                :cookies
+                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
+                :value
+                presence)
           p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-          p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token ))
-;
-;          abc (-> request
-;                :cookies
-;                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
-;)
-;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-;
-;          abc (-> request
-;            :cookies)
-;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+          p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token))
+          ;
+          ;          abc (-> request
+          ;                :cookies
+          ;                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
+          ;)
+          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+          ;
+          ;          abc (-> request
+          ;            :cookies)
+          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
 
 
           tx (:tx request)
@@ -285,15 +335,15 @@
           ]
 
       (try
-      (handler request)
+        (handler request)
         (catch Exception e
           (println ">o> ERROR" (.getMessage e))
 
           (->
-            (response/response (json/generate-string{:status "failure"
-                                                     :message "1CSRF-Token/Session not valid"
-                                                     :detail (.getMessage e)
-                                                     }))
+            (response/response (json/generate-string {:status "failure"
+                                                      :message "1CSRF-Token/Session not valid"
+                                                      :detail (.getMessage e)
+                                                      }))
             (response/status 404)
             (response/content-type "application/json"))
           )))))
@@ -315,8 +365,8 @@
           p (println ">o> csrf-token3b COOKIE3 !!!!!! " (:cookies request))
           p (println ">o> csrf-token3b COOKIE3 !!!!!! " (:anti-csrf-token request))
 
-          token1  (:cookies request)
-          token2  (:anti-csrf-token request)
+          token1 (:cookies request)
+          token2 (:anti-csrf-token request)
 
           max-age 3600
           token (or token2 token1)
@@ -324,7 +374,7 @@
           tx (:tx request)
 
           p (println ">o> token!!!!!!!!!!!!!" token)
-        p (println ">o> URI" (:uri request))
+          p (println ">o> URI" (:uri request))
 
           ]
 
@@ -373,21 +423,21 @@
 
             (assoc :status 200)
 
-            (update  :headers merge (select-keys (:headers res) ["Content-Type"])))
+            (update :headers merge (select-keys (:headers res) ["Content-Type"])))
 
           ;(response/set-cookie "leihs-anti-csrf-token" token {:max-age max-age :path "/"})
 
-          ) ;; Modify options as necessary
+          )                                                 ;; Modify options as necessary
 
 
         (catch Exception e
           (println ">o> ERROR" (.getMessage e))
 
           (->
-            (response/response (json/generate-string{:status "failure"
-                                                     :message "2CSRF-Token/Session not valid"
-                                                     :detail (.getMessage e)
-                                                     }))
+            (response/response (json/generate-string {:status "failure"
+                                                      :message "2CSRF-Token/Session not valid"
+                                                      :detail (.getMessage e)
+                                                      }))
             (response/status 404)
             (response/content-type "application/json")
             )
@@ -409,24 +459,24 @@
     (fn [request]
       ;; Your main processing logic here
       (println "Inside main wrapped-anti-csrf processing")
-      (wrapped-handler request)))) ;; Use wrapped-handler with all middleware applied
+      (wrapped-handler request))))                          ;; Use wrapped-handler with all middleware applied
 
 
 (defn my-before1
   [handler]
   (fn [request]
-  (println ">o> my-before1" )
+    (println ">o> my-before1")
 
     (handler request)
 
-  ))
+    ))
 
 (defn my-before2
   [handler]
   (fn [request]
-  (println ">o> my-before2" )
+    (println ">o> my-before2")
     (handler request)
-  ))
+    ))
 
 
 
@@ -453,7 +503,7 @@
                                       extract-header
 
 
-                                     ;auth/wrap-authenticate ;broken workflow caused by token
+                                      ;auth/wrap-authenticate ;broken workflow caused by token
                                       ;anti-csrf/wrap
 
 
@@ -474,6 +524,8 @@
                                       ;wrap-form-params
 
                                       wrap-params
+                                      ;wrap-form-params
+
                                       ;wrap-multipart-params
                                       wrap-content-type
 

@@ -4,26 +4,25 @@
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
+   [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
+
    [leihs.core.auth.session :refer [wrap-authenticate]]
 
-   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
-
    [leihs.core.sign-in.back :as be]
-
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
 
    [leihs.core.sign-out.back :as so]
 
+   [leihs.core.status :as status]
+
    ;[leihs.core.sign-out.front :refer [component] :rename {component logout-component}]
    ;[leihs.core.sign-out.simple-logout :refer [sign-out-view]]
 
-   [leihs.core.status :as status]
-   ;[hiccup.page :refer [html5]]
-   [schema.core :as s]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
                                                               token-routes]]
+   ;[hiccup.page :refer [html5]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
@@ -36,16 +35,13 @@
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
+   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
-   [ring.util.response]
-   [ring.util.response :refer [redirect]]
-   [schema.core :as s])
-(:import [java.net URL JarURLConnection]
- [java.util.jar JarFile]
- (java.util UUID)
- ))
+   ;[ring.util.response :refer [redirect]]
+   [ring.util.response :refer [bad-request response status redirect]]
+   [schema.core :as s]))
 
 ;(def   WHITELIST-URIS-FOR-API ["/sign-in"])
 
@@ -143,9 +139,12 @@
          ["sign-in"
           {:no-doc false
 
+           ;; TODO: how to fetch params from request?
+
            :post {
                   :accept "text/html"
-                  :swagger {:produces ["application/octet-stream"]}
+                  ;:swagger {:produces ["application/octet-stream"]}
+                  :swagger {:produces ["application/multipart-form-data"]}
 
 
                   ;; FIXME:
@@ -160,51 +159,56 @@
                   ;                                        :return-to s/Str
                   ;                    }}
 
-                  :handler
-                  (fn [request]
-                    (let [request-method (:request-method request)
-                          uri (:uri request)
-
-                          request (assoc request :settings {})
-
-                          resp (be/routes (convert-params request))
-
-                          p (println ">o> abc11" (keys request))
-                          p (println ">o> abc12" (:user-session request))
-                          p (println ">o> abc13" (:sessions request))
-                          p (println ">o> abc14" (:token (:query-params-raw request)))
-                          p (println ">o> abc13" (:authenticated-entity request))
-
-                          created-session (get-in resp [:cookies "leihs-user-session" :value])
-
-                          ;p (println ">o> abc14.resp.generated" created-session)
-                          ;request (assoc request (:sessions created-session))
-                          ;
-                          ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-                          ;
-                          ;request (assoc-in request [:cookies "leihs-user-session" :value])
-                          ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
-                          ; Assign session to request under :sessions
-                          request (assoc request :sessions created-session)
-
-                          ; Print out the session for verification
-                          p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-
-                          ; Set the :value key for the "leihs-user-session" cookie
-                          request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
-
-                          ; Print out the cookie value for verification
-                          p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
+                  :parameters {:form {:name string?, :email string?}}
+                  :handler (fn [{{:keys [form-params]} :parameters}]
+                             (response {:message "Form received"
+                                  :data form-params}))}
+           ;}]]])
 
 
-                          ]
-
-                      ;; Logging request method and URI for debugging
-                      (println ">o> Request Method:" request-method)
-                      (println ">o> URI:" uri)
-                      ;(println ">o> Response:" resp)
-
-                      resp))}
+                  ;:handler (fn [request]
+                  ;           (let [request-method (:request-method request)
+                  ;                 uri (:uri request)
+                  ;
+                  ;                 request (assoc request :settings {})
+                  ;
+                  ;                 resp (be/routes (convert-params request))
+                  ;
+                  ;                 p (println ">o> abc11" (keys request))
+                  ;                 p (println ">o> abc12" (:user-session request))
+                  ;                 p (println ">o> abc13" (:sessions request))
+                  ;                 p (println ">o> abc14" (:token (:query-params-raw request)))
+                  ;                 p (println ">o> abc13" (:authenticated-entity request))
+                  ;
+                  ;                 created-session (get-in resp [:cookies "leihs-user-session" :value])
+                  ;
+                  ;                 ;p (println ">o> abc14.resp.generated" created-session)
+                  ;                 ;request (assoc request (:sessions created-session))
+                  ;                 ;
+                  ;                 ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+                  ;                 ;
+                  ;                 ;request (assoc-in request [:cookies "leihs-user-session" :value])
+                  ;                 ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
+                  ;                 ; Assign session to request under :sessions
+                  ;                 request (assoc request :sessions created-session)
+                  ;
+                  ;                 ; Print out the session for verification
+                  ;                 p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+                  ;
+                  ;                 ; Set the :value key for the "leihs-user-session" cookie
+                  ;                 request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
+                  ;
+                  ;                 ; Print out the cookie value for verification
+                  ;                 p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
+                  ;
+                  ;                 ]
+                  ;
+                  ;             ;; Logging request method and URI for debugging
+                  ;             (println ">o> Request Method:" request-method)
+                  ;             (println ">o> URI:" uri)
+                  ;             ;(println ">o> Response:" resp)
+                  ;
+                  ;             resp))}
 
            :get {
                  :summary "Get sign-in page"
@@ -227,13 +231,20 @@
 
                  :handler (fn [request]
                             (let [
+                                  mtoken (anti-csrf-token request)
+                                  p (println ">o> (html) anti-csrf-token" mtoken)
+
+                                  mprops (anti-csrf-props request)
+                                  p (println ">o> (html) anti-csrf-props" mprops)
+
+                                  uuid mtoken
 
 
-                                  uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+                                  ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
                                   params {:authFlow {:returnTo "/inventory/models"}
-                                          :csrfToken {:name "csrfToken"
+                                          :csrfToken {:name "x-csrf-token"
                                                       :value uuid}} ;; Parameters including CSRF token
-                                  html (sign-in-view params)  ;; Generate the original HTML using the params
+                                  html (sign-in-view params) ;; Generate the original HTML using the params
 
                                   ;; Debugging the original HTML
                                   _ (println ">o> html.before" html (type html))
@@ -245,7 +256,7 @@
                               ;; Return the modified HTML in the response
                               {:status 200
                                :headers {"Content-Type" "text/html; charset=utf-8"}
-                               :body html-with-csrf})) ;; Return the modified HTML with CSRF token inserted
+                               :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
 
 
 
@@ -323,151 +334,150 @@
                  ;
                  ;            }                           )
 
-
                  }
 
-}
+           }
 
-]
+          ]
 
-["sign-out"
- {:no-doc false
+         ["sign-out"
+          {:no-doc false
 
-  :post {
+           :post {
 
-         ;:accept "application/json"
-         :accept "text/html"
+                  ;:accept "application/json"
+                  :accept "text/html"
 
-         ;:middleware [ab/wrap]
-         :middleware [wrap-authenticate]
+                  ;:middleware [ab/wrap]
+                  :middleware [wrap-authenticate]
 
-         :handler
-         (fn [request]
-           (let [
+                  :handler
+                  (fn [request]
+                    (let [
 
-                 p (println ">o> !!!!!!!!!!!!!!!!!!! server/routes.clj::POST /sign-out")
-                 p (println ">o> server/routes.clj::POST /sign-out")
-                 request-method (:request-method request)
-                 uri (:uri request)
-                 resp (so/routes (convert-params request))]
+                          p (println ">o> !!!!!!!!!!!!!!!!!!! server/routes.clj::POST /sign-out")
+                          p (println ">o> server/routes.clj::POST /sign-out")
+                          request-method (:request-method request)
+                          uri (:uri request)
+                          resp (so/routes (convert-params request))]
 
-             ;; Logging request method and URI for debugging
-             (println ">o> Request Method:" request-method)
-             (println ">o> URI:" uri)
-             ;(println ">o> Response:" resp)
+                      ;; Logging request method and URI for debugging
+                      (println ">o> Request Method:" request-method)
+                      (println ">o> URI:" uri)
+                      ;(println ">o> Response:" resp)
 
-             resp))}
+                      resp))}
 
-  :get {
-        :accept "text/html"
+           :get {
+                 :accept "text/html"
 
-        :handler (fn [request]
-                   ;{:status 200
-                   ; :headers {"Content-Type" "text/html"}
-                   ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
-                   ; }
+                 :handler (fn [request]
+                            ;{:status 200
+                            ; :headers {"Content-Type" "text/html"}
+                            ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
+                            ; }
 
-                   {:status 200
-                                            :headers {"Content-Type" "text/html"}
-                                            ;:body (sign-out-view {})}
-                                            :body (slurp (io/resource "public/dev-logout.html"))}
+                            {:status 200
+                             :headers {"Content-Type" "text/html"}
+                             ;:body (sign-out-view {})}
+                             :body (slurp (io/resource "public/dev-logout.html"))}
 
-                   ) }
+                            )}
 
-  }]
-
-
-
-
-;["abc"
-; {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-;        :accept "text/html"
-;        ;:coercion reitit.coercion.schema/coercion
-;        ;:swagger {:security [{:basicAuth []}]}
-;        :handler (fn [request]
-;                   {:status 200
-;                    :headers {"Content-Type" "text/html"}
-;                    :body (str "fuuuuuuck 1222")})}}]
-]
-
-
-["inventory"
-
- ["/"
-  {:swagger {:tags ["Auth"] :security []}}
-
-  ["login"
-   {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
-          :accept "application/json"
+           }]
 
 
 
-          :coercion reitit.coercion.schema/coercion
-          :swagger {:security [{:basicAuth []}] :deprecated true}
-          :handler authenticate-handler}}]
+
+         ;["abc"
+         ; {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+         ;        :accept "text/html"
+         ;        ;:coercion reitit.coercion.schema/coercion
+         ;        ;:swagger {:security [{:basicAuth []}]}
+         ;        :handler (fn [request]
+         ;                   {:status 200
+         ;                    :headers {"Content-Type" "text/html"}
+         ;                    :body (str "fuuuuuuck 1222")})}}]
+         ]
+
+
+        ["inventory"
+
+         ["/"
+          {:swagger {:tags ["Auth"] :security []}}
+
+          ["login"
+           {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+                  :accept "application/json"
 
 
 
-  ["logout"
-   {:get {:accept "application/json"
-          :coercion reitit.coercion.schema/coercion
-          :swagger {:security [] :deprecated true}
+                  :coercion reitit.coercion.schema/coercion
+                  :swagger {:security [{:basicAuth []}] :deprecated true}
+                  :handler authenticate-handler}}]
 
-          :middleware [ab/wrap]
-          :handler logout-handler}}]
 
-  ["set-password"
-   {:post {:summary "OK | Set password by basicAuth for already authenticated user"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :swagger {:security [{:basicAuth []}]}
-           :parameters {:body {:new-password1 s/Str}}
-           :handler set-password-handler}}]]
 
- ["/"
-  {:swagger {:tags ["Status"] :security []}}
-  ["status"
-   {:get {:accept "application/json"
-          :handler status/status-handler
-          :swagger {:security []}}}]]
+          ["logout"
+           {:get {:accept "application/json"
+                  :coercion reitit.coercion.schema/coercion
+                  :swagger {:security [] :deprecated true}
 
- ["/api-docs"
-  {:get {:conflicting true
-         :handler swagger-api-docs-handler
-         :no-doc true}}]
+                  :middleware [ab/wrap]
+                  :handler logout-handler}}]
 
- ["/api-docs/swagger.json"
-  {:get {:no-doc true
-         :swagger {:info {:title "inventory-api"
-                          :version "2.0.0"
-                          :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+          ["set-password"
+           {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+                   :accept "application/json"
+                   :coercion reitit.coercion.schema/coercion
+                   :swagger {:security [{:basicAuth []}]}
+                   :parameters {:body {:new-password1 s/Str}}
+                   :handler set-password-handler}}]]
 
-                   :securityDefinitions {:apiAuth {:type "apiKey"
-                                                   :name "Authorization"
-                                                   :in "header"}
-                                         :basicAuth {:type "basic"}}
-                   :security [{:basicAuth [] "auth" []}
-                              {:apiAuth {:type "apiKey"
-                                         :name "Authorization"
-                                         :in "header"}}]}
-         :handler (swagger/create-swagger-handler)}}]
+         ["/"
+          {:swagger {:tags ["Status"] :security []}}
+          ["status"
+           {:get {:accept "application/json"
+                  :handler status/status-handler
+                  :swagger {:security []}}}]]
 
- ["/api-docs/openapi.json"
-  {:get {:no-doc true
-         :openapi {:openapi "3.0.0"
-                   :info {:title "inventory-api"
-                          :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
-                          :version "3.0.0"}}
-         :handler (openapi/create-openapi-handler)}}]
+         ["/api-docs"
+          {:get {:conflicting true
+                 :handler swagger-api-docs-handler
+                 :no-doc true}}]
 
- ["/debug"
-  {:tags ["Debug"]}]
+         ["/api-docs/swagger.json"
+          {:get {:no-doc true
+                 :swagger {:info {:title "inventory-api"
+                                  :version "2.0.0"
+                                  :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
 
- (incl-other-routes)]
+                           :securityDefinitions {:apiAuth {:type "apiKey"
+                                                           :name "Authorization"
+                                                           :in "header"}
+                                                 :basicAuth {:type "basic"}}
+                           :security [{:basicAuth [] "auth" []}
+                                      {:apiAuth {:type "apiKey"
+                                                 :name "Authorization"
+                                                 :in "header"}}]}
+                 :handler (swagger/create-swagger-handler)}}]
 
-]
+         ["/api-docs/openapi.json"
+          {:get {:no-doc true
+                 :openapi {:openapi "3.0.0"
+                           :info {:title "inventory-api"
+                                  :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                                  :version "3.0.0"}}
+                 :handler (openapi/create-openapi-handler)}}]
 
-] )
+         ["/debug"
+          {:tags ["Debug"]}]
+
+         (incl-other-routes)]
+
+        ]
+
+   ])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)
