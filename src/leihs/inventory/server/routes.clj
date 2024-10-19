@@ -368,8 +368,11 @@
                                   _ (println ">o> html.before" html (type html))
 
                                   ;; Add CSRF tokens to the HTML and debug the result
-                                  ;html-with-csrf (add-csrf-tags html params)
-                                  html-with-csrf (add-csrf-tags2 html params)
+
+                                  ;; TODO: does this work?
+                                  html-with-csrf (add-csrf-tags html params)
+                                  ;html-with-csrf (add-csrf-tags2 html params)
+
                                   _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
                                   html html-with-csrf
                                   ]
