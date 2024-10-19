@@ -8,7 +8,7 @@
 (defn add-csrf-tags
   [html-str {:keys [authFlow csrfToken]}]
   (try
-    (println ">o> abc1" html-str)
+    ;(println ">o> abc1" html-str)
     (let [parsed-html (h/parse html-str)
           hickory-tree (h/as-hickory parsed-html)
           csrf-name (:name csrfToken)
@@ -16,6 +16,8 @@
 
           p (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
           p (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+
+
 
 
           add-meta-tag (fn [tree]
@@ -75,7 +77,7 @@
 (defn add-csrf-tags
   [html-str {:keys [authFlow csrfToken]}]
   (try
-    (println ">o> abc1" html-str)
+    ;(println ">o> abc1" html-str)
 
     ;; Parse the HTML into a Hickory tree
     (let [parsed-html (h/parse html-str)
@@ -125,3 +127,87 @@
       (println "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))
+
+
+
+(ns leihs.inventory.server.utils.html-utils
+  (:require [hickory.core :as h]
+   [hickory.select :as s]
+   [hickory.render :as render]
+   [clojure.string :as str]
+   [clojure.walk :as walk]))
+
+(defn add-csrf-tags
+  [html-str {:keys [authFlow csrfToken]}]
+  (try
+    ;(println ">o> abc1" html-str)
+
+    ;; Parse the HTML into a Hickory tree
+    (let [parsed-html (h/parse html-str)
+          hickory-tree (h/as-hickory parsed-html)
+          csrf-name (:name csrfToken)
+          csrf-value (:value csrfToken)]
+
+      ;; Log the authFlow and csrfToken for debugging
+      (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
+      (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+
+      ;; Function to add the CSRF meta tag into the <head>
+      (defn add-meta-tag [tree]
+        (walk/postwalk
+          (fn [node]
+            (if (and (map? node) (= (:tag node) :head))
+              ;; Add the CSRF meta tag to the <head> content
+              (update node :content conj {:type :element
+                                          :tag :meta
+                                          :attrs {:name csrf-name :content csrf-value}})
+              node))
+          tree))
+
+      ;; Function to update or add a hidden CSRF input field in the form
+      (defn update-csrf-input [tree]
+        (walk/postwalk
+          (fn [node]
+            (if (and (map? node)
+                  (= (:tag node) :input)
+                  (= (get-in node [:attrs :name]) "csrfToken")
+                  (= (get-in node [:attrs :type]) "hidden"))
+              ;; Update the value of the hidden input field for the CSRF token
+              (assoc-in node [:attrs :value] csrf-value)
+              node))
+          tree))
+
+      ;; Function to add a form with a hidden CSRF input field to the <body> if no form exists
+      (defn add-form-if-missing [tree]
+        (walk/postwalk
+          (fn [node]
+            (if (and (map? node) (= (:tag node) :body))
+              ;; Check if there's a form inside the <body>
+              (if (empty? (filter #(= (:tag %) :form) (:content node)))
+                ;; No form exists, so add one with a hidden CSRF input field
+                (update node :content conj {:type :element
+                                            :tag :form
+                                            :attrs {:name csrf-name }
+                                            ;:attrs {:name (get authFlow :returnTo "/") }
+                                            ;:attrs {:name (get authFlow :returnTo "/") :action (get authFlow :returnTo "/")}
+                                            :content [{:type :element
+                                                       :tag :input
+                                                       :attrs {:type "hidden" :name csrf-name :value csrf-value}}]})
+                node)
+              node))
+          tree))
+
+      ;; Apply the transformations: add the meta tag, update the hidden input field, and add form if missing
+      (let [updated-tree (-> hickory-tree
+                           add-meta-tag
+                           update-csrf-input
+                           add-form-if-missing)]
+
+        ;; Convert the updated Hickory tree back to HTML
+        (println ">o> abc2")
+        (str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
+
+    (catch Exception e
+      (println "Error in add-csrf-tags:" (.getMessage e))
+      (.printStackTrace e)
+      html-str)))  ;; Return original HTML in case of error

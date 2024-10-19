@@ -144,7 +144,7 @@
       {:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response 200)
+      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response request 200)
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
                                  resource (io/resource file)]
@@ -152,10 +152,10 @@
                                {:status 200
                                 :headers {"Content-Type" content-type}
                                 :body (slurp resource)}
-                               (rh/index-html-response 404)))
-                           (rh/index-html-response 404))
+                               (rh/index-html-response request 404)))
+                           (rh/index-html-response request 404))
       (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
-      (rh/index-html-response 200)
-      :else (rh/index-html-response 404))))
+      (rh/index-html-response request 200)
+      :else (rh/index-html-response  request 404))))

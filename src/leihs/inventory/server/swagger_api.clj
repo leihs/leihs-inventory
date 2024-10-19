@@ -462,7 +462,7 @@
                                       wrap-cookies
                                       my-before2
 
-                                      ;anti-csrf/wrap
+                                      anti-csrf/wrap
 
 
                                       ;locale/wrap
