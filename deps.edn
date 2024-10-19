@@ -20,6 +20,8 @@
   ring/ring-defaults {:mvn/version "0.5.0"}
   ring/ring-jetty-adapter {:mvn/version "1.12.2"}
 
+  org.clj-commons/byte-streams {:mvn/version "0.3.4"}
+
   ;; https://mvnrepository.com/artifact/org.jsoup/jsoup
   ;[org.jsoup/jsoup "1.18.1"
    org.jsoup/jsoup {:mvn/version "1.15.4"}

@@ -69,7 +69,8 @@
 
         params {
                 :authFlow {:returnTo "/inventory/models"}
-                :csrfToken {:name "csrfToken"
+                ;:csrfToken {:name "csrfToken"
+                :csrfToken {:name "csrf-token"
                             :value uuid}} ;; Parameters including CSRF token
         ;html (sign-in-view params)  ;; Generate the original HTML using the params
 
