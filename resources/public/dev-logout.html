@@ -30,6 +30,9 @@
     function signOut() {
         console.log("Sign-out button clicked");
 
+        // Get CSRF token from the meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         // Set the sign-out URL
         const url = '/sign-out'; // Adjust this to the correct path
 
@@ -38,8 +41,8 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Accept': 'application/json'
-                'Accept': 'text/html'
+                'Accept': 'text/html',
+                'X-CSRF-Token': csrfToken // Add the CSRF token to the request header
             },
             body: JSON.stringify({})
         })

@@ -130,12 +130,12 @@
 
 
 
-(ns leihs.inventory.server.utils.html-utils
-  (:require [hickory.core :as h]
-   [hickory.select :as s]
-   [hickory.render :as render]
-   [clojure.string :as str]
-   [clojure.walk :as walk]))
+;(ns leihs.inventory.server.utils.html-utils
+;  (:require [hickory.core :as h]
+;   [hickory.select :as s]
+;   [hickory.render :as render]
+;   [clojure.string :as str]
+;   [clojure.walk :as walk]))
 
 (defn add-csrf-tags
   [html-str {:keys [authFlow csrfToken]}]
@@ -211,3 +211,22 @@
       (println "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))  ;; Return original HTML in case of error
+
+
+
+;; TODO: works
+(defn add-csrf-tags2
+  [html-str {:keys [authFlow csrfToken]}]
+  (let [csrf-name (:name csrfToken)
+        csrf-value (:value csrfToken)
+        meta-tag (str "<meta name=\"" csrf-name "\" content=\"" csrf-value "\">")
+
+        with-meta-tag (if (re-find #"<head>" html-str)
+                        (clojure.string/replace-first html-str #"<head>" (str "<head>" meta-tag))
+                        html-str)
+
+        updated-html (clojure.string/replace with-meta-tag
+                       #"<input name=\"csrfToken\" type=\"hidden\" value=\"[^\"]*\""
+                       (str "<input name=\"csrfToken\" type=\"hidden\" value=\"" csrf-value "\""))
+        ]
+    updated-html))

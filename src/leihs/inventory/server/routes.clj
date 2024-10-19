@@ -9,9 +9,11 @@
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [cheshire.core :as json]
    [clojure.java.io :as io]
+   [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
 
+   [leihs.core.constants :refer [ANTI_CSRF_TOKEN_COOKIE_NAME]]
 
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [muuntaja.core :as m]
@@ -40,7 +42,7 @@
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
-   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
+   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags add-csrf-tags2]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
@@ -300,7 +302,8 @@
 
                                   ;; Add CSRF tokens to the HTML and debug the result
                                   html-with-csrf (add-csrf-tags html params)
-                                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))]
+                                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+                                  ]
 
                               ;; Return the modified HTML in the response
                               {:status 200
@@ -426,10 +429,37 @@
                             ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
                             ; }
 
-                            {:status 200
-                             :headers {"Content-Type" "text/html"}
-                             ;:body (sign-out-view {})}
-                             :body (slurp (io/resource "public/dev-logout.html"))}
+
+                               (let [
+
+                                     uuid  (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                                     p (println ">o> logout.uuid" uuid)
+
+                                     ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+                                     params {
+                                             :authFlow {:returnTo "/inventory/models???/"}
+                                             ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
+                                             :csrfToken {:name "csrf-token"
+                                                         :value uuid}} ;; Parameters including CSRF token
+                                     ;html (sign-in-view params) ;; Generate the original HTML using the params
+
+                                     html (slurp (io/resource "public/dev-logout.html"))
+
+                                     ;; Debugging the original HTML
+                                     _ (println ">o> html.before" html (type html))
+
+                                     ;; Add CSRF tokens to the HTML and debug the result
+                                     ;html-with-csrf (add-csrf-tags html params)
+                                     html-with-csrf (add-csrf-tags2 html params)
+                                     _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+                                      html html-with-csrf
+                                     ]
+
+                                 {:status 200
+                                  :headers {"Content-Type" "text/html"}
+                                  ;:body (sign-out-view {})}
+                                  :body html}
+                                 )
 
                             )}
 

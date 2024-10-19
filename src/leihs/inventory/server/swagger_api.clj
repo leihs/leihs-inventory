@@ -414,24 +414,24 @@ p (println ">o> body2" body2)
           p (println ">o> >x-csrf-token =>" x-csrf-token (valid-uuid? x-csrf-token))
 
 
-          x-csrf-token (if (valid-uuid? x-csrf-token)
-                         x-csrf-token
-                         nil)
-          p (println ">o> >x-csrf-token (after-maybe-generated)=>" x-csrf-token)
+          ;x-csrf-token (if (valid-uuid? x-csrf-token)
+          ;               x-csrf-token
+          ;               nil)
+          ;p (println ">o> >x-csrf-token (after-maybe-generated)=>" x-csrf-token)
 
-          request (assoc request :anti-csrf-token x-csrf-token) ;; used by wrapper
+          ;request (assoc request :anti-csrf-token x-csrf-token) ;; used by wrapper
           ;p (println ">o> >HEADER-TOKEN< (:x-csrf-token request) =>" (:x-csrf-token request))
 
 
 
-          ;; this works
-          abc (-> request
-                :cookies
-                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
-                :value
-                presence)
-          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-          p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token))
+          ;;; this works
+          ;abc (-> request
+          ;      :cookies
+          ;      (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
+          ;      :value
+          ;      presence)
+          ;p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+          ;p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token))
           ;
           ;          abc (-> request
           ;                :cookies
@@ -470,10 +470,15 @@ p (println ">o> body2" body2)
           (println ">o> ERROR" (.getMessage e))
 
           (->
-            (response/response (json/generate-string {:status "failure"
+            ;(response/response (json/generate-string {:status "failure"
+            ;                                          :message "1CSRF-Token/Session not valid"
+            ;                                          :detail (.getMessage e)
+            ;                                          }))
+
+            (response/response  {:status "failure"
                                                       :message "1CSRF-Token/Session not valid"
                                                       :detail (.getMessage e)
-                                                      }))
+                                                      })
             (response/status 404)
             (response/content-type "application/json"))
           )))))
