@@ -213,6 +213,10 @@
       html-str)))  ;; Return original HTML in case of error
 
 
+;;; TODO: remove this to test csrfToken
+;(defn add-csrf-tags  [html-str {:keys [authFlow csrfToken]}]
+;  html-str)
+
 
 ;; TODO: works
 (defn add-csrf-tags2

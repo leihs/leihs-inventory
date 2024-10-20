@@ -290,6 +290,7 @@
                                           ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
                                           :csrfToken {:name "csrf-token"
                                                       :value uuid}} ;; Parameters including CSRF token
+
                                   html (sign-in-view params) ;; Generate the original HTML using the params
 
                                   ;; Debugging the original HTML

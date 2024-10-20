@@ -31,7 +31,11 @@
         console.log("Sign-out button clicked");
 
         // Get CSRF token from the meta tag
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+console.log("CSRF token.before");
+        const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfMetaTag ? csrfMetaTag.getAttribute('content') : null;
+console.log("CSRF token.after:", csrfToken);
 
         // Set the sign-out URL
         const url = '/sign-out'; // Adjust this to the correct path
