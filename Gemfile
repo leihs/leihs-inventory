@@ -9,9 +9,9 @@ gem "rexml"
 gem "selenium-webdriver", "~> 4.0"
 gem "standard", group: [:development, :test]
 
-# gem 'addressable'
-# gem 'base32-crockford'
-# gem 'factory_bot'
-# gem 'faker'
-# gem 'mimemagic'
-# gem 'exiftool_vendored'
+gem 'addressable'
+gem 'base32-crockford'
+gem 'factory_bot'
+gem 'faker'
+gem 'mimemagic'
+gem 'exiftool_vendored'
