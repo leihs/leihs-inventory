@@ -16,69 +16,69 @@ def create_model(client, inventory_pool_id, product, category_ids)
   end
 end
 
-feature "Inventory API Endpoints - Accessories" do
-  context "when fetching model-links for a specific model in an inventory pool", driver: :selenium_headless do
+feature "Inventory API Endpoints - model-links" do
+  context "when fetching model-links", driver: :selenium_headless do
     include_context :setup_models_api
 
     let(:model_with_accessories) { @models.first }
     let(:model_without_accessories) { @models.third }
     let(:client) { plain_faraday_json_client }
+    let(:inventory_pool_id) { @inventory_pool.id }
 
-    context "GET /inventory/models/:id/model-links for model with model-links" do
-      let(:url) { "/inventory/models/#{model_without_accessories.id}/model-links" }
+    ["/", "/#{@inventory_pool_id}"].each do |path|
+      let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/model-links" }
 
-      context "GET /inventory/models/:id/model-links for model with model-links" do
-        include_context :setup_category_model_linked_to_pool
+      context "Request against base & pool endpoints" do
 
-        it "retrieves all model-links for the model and returns status 200" do
-          puts ">>> ADD inv: #{@models.third}"
+        context "GET for model with model-links" do
+          include_context :setup_category_model_linked_to_pool
 
-          puts "pool: #{@inventory_pool.id}"
+          it "retrieves all model-links for the model and returns status 200" do
 
-          resp = client.get url
-          binding.pry
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+            # puts ">>> ADD inv: #{@models.third}"
+            # puts "pool: #{@inventory_pool.id}"
+
+            resp = client.get url
+            expect(resp.status).to eq(200)
+            expect(resp.body["pagination"]["total_records"]).to eq(1)
+          end
+
+          it "returns paginated results with status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
+            expect(resp.body["pagination"]["total_records"]).to eq(1)
+          end
+
+          it "returns results with status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
+
+            model_with_accessories = resp.body["data"][0]["id"]
+            resp = client.get "#{url}/#{model_with_accessories}"
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(1)
+          end
+
+          it "returns invalid results with status 200" do
+            invalid_id = SecureRandom.uuid
+            resp = client.get "#{url}/#{invalid_id}"
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(0)
+          end
         end
 
-        it "returns paginated results with status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
-        end
+        context "GET  for model without model-links" do
+          it "retrieves no model-links for the model and returns status 200" do
+            resp = client.get url
+            expect(resp.status).to eq(200)
+            expect(resp.body["pagination"]["total_records"]).to eq(0)
+          end
 
-        it "returns results with status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-
-          model_with_accessories = resp.body["data"][0]["id"]
-          resp = client.get "#{url}/#{model_with_accessories}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
-        end
-
-        it "returns invalid results with status 200" do
-          invalid_id = SecureRandom.uuid
-          resp = client.get "#{url}/#{invalid_id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(0)
-        end
-      end
-
-      context "GET /inventory/models/:id/model-links for model without model-links" do
-        # let(:url) { "/inventory/models/#{model_without_accessories.id}/model-links" }
-
-        it "retrieves no model-links for the model and returns status 200" do
-          resp = client.get url
-          binding.pry
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
-        end
-
-        it "returns paginated results with status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          it "returns paginated results with status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
+            expect(resp.body["pagination"]["total_records"]).to eq(0)
+          end
         end
       end
     end
