@@ -562,6 +562,7 @@
 
      ["/entitlements"
       ["" {:get {:accept "application/json"
+                 :summary "(T)"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}

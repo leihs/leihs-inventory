@@ -24,6 +24,12 @@ def create_and_add_items_to_all_existing_models(inventory_pool)
   LeihsModel.all.each do |model|
     FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)
   end
+  end
+
+def create_and_add_items_to_models(inventory_pool, models)
+  models.each do |model|
+    FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)
+  end
 end
 
 def create_and_add_property_to_model(model, key = "my-test-property-key", value = "my-test-property-value")
@@ -60,8 +66,9 @@ shared_context :setup_models_api do
 
     FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
 
-    create_models
-    create_and_add_items_to_all_existing_models(@inventory_pool)
+    @models=create_models
+    # create_and_add_items_to_all_existing_models(@inventory_pool)
+    create_and_add_items_to_models(@inventory_pool, [@models.first])
   end
 
   include_context :setup_models_sub

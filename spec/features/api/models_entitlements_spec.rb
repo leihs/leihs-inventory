@@ -17,7 +17,7 @@ def create_model(client, inventory_pool_id, product, category_ids)
 end
 
 feature "Inventory API Endpoints - Accessories" do
-  context "when fetching items for a specific model in an inventory pool", driver: :selenium_headless do
+  context "when fetching entitlements for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api
 
     let(:model_with_accessories) { @models.first }
@@ -25,10 +25,10 @@ feature "Inventory API Endpoints - Accessories" do
 
     let(:client) { plain_faraday_json_client }
 
-    context "GET /inventory/models/:id/items for model with items" do
-      let(:url) { "/inventory/models/#{model_with_accessories.id}/items" }
+    context "GET /inventory/models/:id/entitlements for model with entitlements" do
+      let(:url) { "/inventory/models/#{model_with_accessories.id}/entitlements" }
 
-      it "retrieves all items for the model and returns status 200" do
+      it "retrieves all entitlements for the model and returns status 200" do
         binding.pry
 
         resp = client.get url
@@ -60,13 +60,12 @@ feature "Inventory API Endpoints - Accessories" do
       end
     end
 
-    context "GET /inventory/models/:id/items for model without items" do
-      let(:url) { "/inventory/models/#{model_without_accessories.id}/items" }
+    context "GET /inventory/models/:id/entitlements for model without entitlements" do
+      let(:url) { "/inventory/models/#{model_without_accessories.id}/entitlements" }
 
-      it "retrieves no items for the model and returns status 200" do
+      it "retrieves no entitlements for the model and returns status 200" do
         resp = client.get url
         expect(resp.status).to eq(200)
-        binding.pry
         expect(resp.body["pagination"]["total_records"]).to eq(0)
       end
 
