@@ -16,6 +16,7 @@
 
    ["pools"
     {:get {:conflicting true
+           :summary "(DEV)"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]

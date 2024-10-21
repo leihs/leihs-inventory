@@ -1,8 +1,8 @@
 FactoryBot.define do
 
   factory :model_link do
-    model_group { FactoryBot.create :model_group }
-    model { FactoryBot.create :model }
+    model_group { FactoryBot.create :category }
+    model { FactoryBot.create :leihs_model }
     quantity { 1 }
   end
 end
