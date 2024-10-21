@@ -25,11 +25,14 @@ feature "Inventory API Endpoints - Accessories" do
 
     let(:client) { plain_faraday_json_client }
 
+    ["/", "/#{@inventory_pool_id}"].each do |path|
+      let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/entitlements" }
+      # let(:url) { "/inventory/models/#{model_with_accessories.id}/entitlements" }
+
     context "GET /inventory/models/:id/entitlements for model with entitlements" do
-      let(:url) { "/inventory/models/#{model_with_accessories.id}/entitlements" }
 
       it "retrieves all entitlements for the model and returns status 200" do
-        binding.pry
+        # binding.pry
 
         resp = client.get url
         expect(resp.status).to eq(200)
@@ -61,7 +64,9 @@ feature "Inventory API Endpoints - Accessories" do
     end
 
     context "GET /inventory/models/:id/entitlements for model without entitlements" do
-      let(:url) { "/inventory/models/#{model_without_accessories.id}/entitlements" }
+      # let(:url) { "/inventory/models/#{model_without_accessories.id}/entitlements" }
+      let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/entitlements" }
+
 
       it "retrieves no entitlements for the model and returns status 200" do
         resp = client.get url
@@ -75,5 +80,6 @@ feature "Inventory API Endpoints - Accessories" do
         expect(resp.body["pagination"]["total_records"]).to eq(0)
       end
     end
+  end
   end
 end

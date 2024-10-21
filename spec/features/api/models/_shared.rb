@@ -46,7 +46,7 @@ def create_and_add_category_to_model(models, category = nil)
     category = FactoryBot.create(:category)  # Create category if not passed as argument
   end
 
-  # binding.pry
+  # # binding.pry
 
   models.each do |model|
     # category = FactoryBot.create(:category, direct_models: [model])  # Create category
@@ -131,3 +131,18 @@ shared_context :setup_models_api do
   include_context :setup_accessory_entitlements
   # include_context :setup_category_model_linked_to_pool
 end
+
+
+shared_context :setup_models_min_api do
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+
+    FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+
+    # @models = create_models
+
+    # create_and_add_items_to_all_existing_models(@inventory_pool)
+    # create_and_add_items_to_models(@inventory_pool, [@models.first])
+  end
+  end
