@@ -48,11 +48,11 @@ feature "Inventory API Endpoints" do
       end
 
       context "when models are linked as compatible" do
-        let(:first_model) { @models.first }
+        let(:model_with_props) { @models.first }
 
         before :each do
           compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-          first_model.add_recommend(compatible_model)
+          model_with_props.add_recommend(compatible_model)
         end
 
         it "returns paginated compatible models with status 200" do
@@ -63,7 +63,7 @@ feature "Inventory API Endpoints" do
         end
 
         it "retrieves a specific compatible model by ID and returns 200" do
-          resp = client.get "/inventory/models-compatibles/#{first_model.id}"
+          resp = client.get "/inventory/models-compatibles/#{model_with_props.id}"
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(1)
         end
