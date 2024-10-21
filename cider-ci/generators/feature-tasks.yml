@@ -478,6 +478,16 @@
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 02"
     FEATURE: './spec/features/api/models/models_spec.rb[1:1:6:2:1]'
+'./spec/features/api/models_test_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 05"
+    FEATURE: './spec/features/api/models_test_spec.rb[1:1:1:1]'
+'./spec/features/api/models_test_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 06"
+    FEATURE: './spec/features/api/models_test_spec.rb[1:1:1:2]'
 './spec/features/api/resources_spec.rb[1:1:1]':
   name: "Call swagger-endpoints revoking the token 01"
   environment_variables:
