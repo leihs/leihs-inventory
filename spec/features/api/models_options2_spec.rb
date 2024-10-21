@@ -18,7 +18,6 @@ end
 
 feature "Inventory API Endpoints" do
   context "when fetching models for a specific inventory pool", driver: :selenium_headless do
-
     include_context :setup_models_api
 
     # before :each do
@@ -100,15 +99,14 @@ feature "Inventory API Endpoints" do
     # end
 
     let(:fmodel) { @models.first }
-
+    let(:smodel) { @models.second }
 
     let(:client) { plain_faraday_json_client }
 
-    let(:url) { "/inventory/models/#{fmodel.id}/accessories" }
-
     context "GET /inventory/models-compatibles" do
-      it "retrieves all compatible models and returns 200" do
+      let(:url) { "/inventory/models/#{fmodel.id}/accessories" }
 
+      it "retrieves all compatible models and returns 200" do
         # binding.pry
         resp = client.get url
         expect(resp.status).to eq(200)
@@ -120,28 +118,23 @@ feature "Inventory API Endpoints" do
         expect(resp.status).to eq(200)
         expect(resp.body["pagination"]["total_records"]).to eq(1)
       end
+    end
 
-      # context "when models are linked as compatible" do
-      #   let(:first_model) { @models.first }
-      #
-      #   before :each do
-      #     compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-      #     first_model.add_recommend(compatible_model)
-      #   end
-      #
-      #   it "returns paginated compatible models with status 200" do
-      #     resp = client.get "/inventory/models-compatibles?page=1&size=1"
-      #     expect(resp.status).to eq(200)
-      #     expect(resp.body["data"].count).to eq(1)
-      #     expect(resp.body["pagination"]["total_records"]).to eq(1)
-      #   end
-      #
-      #   it "retrieves a specific compatible model by ID and returns 200" do
-      #     resp = client.get "/inventory/models-compatibles/#{first_model.id}"
-      #     expect(resp.status).to eq(200)
-      #     expect(resp.body.count).to eq(1)
-      #   end
-      # end
+    context "GET /inventory/models-compatibles" do
+      let(:url) { "/inventory/models/#{smodel.id}/accessories" }
+
+      it "retrieves all compatible models and returns 200" do
+        # binding.pry
+        resp = client.get url
+        expect(resp.status).to eq(200)
+        expect(resp.body["pagination"]["total_records"]).to eq(0)
+      end
+
+      it "returns paginated results with status 200" do
+        resp = client.get "#{url}?page=1&size=1"
+        expect(resp.status).to eq(200)
+        expect(resp.body["pagination"]["total_records"]).to eq(0)
+      end
     end
   end
 end

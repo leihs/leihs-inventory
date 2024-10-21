@@ -9,10 +9,8 @@ class Accessory < Sequel::Model
 end
 
 FactoryBot.define do
-
   factory :accessory do
     leihs_model
     name { Faker::Name.name }
   end
-
 end
