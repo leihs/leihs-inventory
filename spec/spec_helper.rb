@@ -26,7 +26,7 @@ RSpec.configure do |config|
     # auto-pry after failures, except in CI!
     if !ENV["CIDER_CI_TRIAL_ID"].present? && ENV["PRY_ON_EXCEPTION"].present?
       unless example.exception.nil?
-        # binding.pry if example.exception
+        binding.pry if example.exception
       end
     end
   end

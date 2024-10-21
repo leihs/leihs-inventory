@@ -1,6 +1,7 @@
 require_relative "../../database/spec/config/database"
 require "factory_bot"
 require "faker"
+require 'exiftool_vendored'
 
 Sequel::Model.db = database
 Sequel::Model.send :alias_method, :save!, :save
