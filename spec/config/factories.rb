@@ -1,3 +1,4 @@
+require 'exiftool_vendored'
 require_relative "../../database/spec/config/database"
 require "factory_bot"
 require "faker"
