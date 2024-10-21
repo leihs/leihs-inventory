@@ -64,14 +64,14 @@ feature "Inventory API Endpoints" do
 
       puts " filename: #{@filename}"
 
-      binding.pry
+      # binding.pry
     end
 
     let(:client) { plain_faraday_json_client }
 
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns 200" do
-        binding.pry
+        # binding.pry
         resp = client.get "/inventory/models-compatibles"
         expect(resp.status).to eq(200)
         expect(resp.body["pagination"]["total_records"]).to eq(0)
