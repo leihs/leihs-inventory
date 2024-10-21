@@ -88,56 +88,396 @@
   environment_variables:
     FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 02"
     FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:2]'
-'./spec/features/api/models_options_spec.rb[1:1:1:1]':
+'./spec/features/api/models/models_accessories_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 01"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 02"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:1:3]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 03"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:1:3]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:1:4]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 04"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:1:4]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:2:1]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 01"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:2:1]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:2:2]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 02"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:2:2]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:3:1]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 05"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:3:1]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:3:2]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 06"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:3:2]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:3:3]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 07"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:3:3]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:3:4]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model with accessories 08"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:3:4]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:4:1]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 03"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:4:1]'
+'./spec/features/api/models/models_accessories_spec.rb[1:1:4:2]':
+  name: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching accessories GET /inventory/models/:id/accessories for model without accessories 04"
+    FEATURE: './spec/features/api/models/models_accessories_spec.rb[1:1:4:2]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:1:1:1]':
   name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 01"
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 01"
-    FEATURE: './spec/features/api/models_options_spec.rb[1:1:1:1]'
-'./spec/features/api/models_options_spec.rb[1:1:1:2]':
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:1:1:2]':
   name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 02"
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 02"
-    FEATURE: './spec/features/api/models_options_spec.rb[1:1:1:2]'
-'./spec/features/api/models_options_spec.rb[1:1:1:3:1]':
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:1:1:3:1]':
   name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles when models are linked as compatible 01"
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles when models are linked as compatible 01"
-    FEATURE: './spec/features/api/models_options_spec.rb[1:1:1:3:1]'
-'./spec/features/api/models_options_spec.rb[1:1:1:3:2]':
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:3:1]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:1:1:3:2]':
   name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles when models are linked as compatible 02"
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles when models are linked as compatible 02"
-    FEATURE: './spec/features/api/models_options_spec.rb[1:1:1:3:2]'
-'./spec/features/api/models_spec.rb[1:1:1:1]':
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:3:2]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 01"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 02"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:1:3]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 03"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:1:3]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:1:4]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 04"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:1:4]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:2:1]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 01"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:2:1]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:2:2]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 02"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:2:2]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:3:1]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 05"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:3:1]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:3:2]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 06"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:3:2]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:3:3]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 07"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:3:3]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:3:4]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model with entitlements 08"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:3:4]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:4:1]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 03"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:4:1]'
+'./spec/features/api/models/models_entitlements_spec.rb[1:1:4:2]':
+  name: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for model without entitlements 04"
+    FEATURE: './spec/features/api/models/models_entitlements_spec.rb[1:1:4:2]'
+'./spec/features/api/models/models_items_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 01"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_items_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 02"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_items_spec.rb[1:1:1:3]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 03"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:1:3]'
+'./spec/features/api/models/models_items_spec.rb[1:1:1:4]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 04"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:1:4]'
+'./spec/features/api/models/models_items_spec.rb[1:1:2:1]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 01"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:2:1]'
+'./spec/features/api/models/models_items_spec.rb[1:1:2:2]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 02"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:2:2]'
+'./spec/features/api/models/models_items_spec.rb[1:1:3:1]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 05"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:3:1]'
+'./spec/features/api/models/models_items_spec.rb[1:1:3:2]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 06"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:3:2]'
+'./spec/features/api/models/models_items_spec.rb[1:1:3:3]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 07"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:3:3]'
+'./spec/features/api/models/models_items_spec.rb[1:1:3:4]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model with items 08"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:3:4]'
+'./spec/features/api/models/models_items_spec.rb[1:1:4:1]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 03"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:4:1]'
+'./spec/features/api/models/models_items_spec.rb[1:1:4:2]':
+  name: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching items for a specific model in an inventory pool GET /inventory/models/:id/items for model without items 04"
+    FEATURE: './spec/features/api/models/models_items_spec.rb[1:1:4:2]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:1:1]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 01"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:1:1]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:1:2]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 02"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:1:2]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:1:3]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 03"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:1:3]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:1:4]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 04"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:1:4]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:2:1]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 01"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:2:1]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:1:2:2]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 02"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:1:2:2]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:1:1]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 05"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:1:1]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:1:2]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 06"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:1:2]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:1:3]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 07"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:1:3]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:1:4]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET for model with model-links 08"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:1:4]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:2:1]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 03"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:2:1]'
+'./spec/features/api/models/models_model_links_spec.rb[1:1:2:2:2]':
+  name: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - model-links when fetching model-links Request against base & pool endpoints GET  for model without model-links 04"
+    FEATURE: './spec/features/api/models/models_model_links_spec.rb[1:1:2:2:2]'
+'./spec/features/api/models/models_options_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 03"
+    FEATURE: './spec/features/api/models/models_options_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_options_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints when fetching models for a specific inventory pool GET /inventory/models-compatibles 04"
+    FEATURE: './spec/features/api/models/models_options_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:1:1]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 01"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:1:2]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 02"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:1:3]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 03"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:1:3]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:1:4]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 04"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:1:4]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:2:1]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 01"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:2:1]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:2:2]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 02"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:2:2]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:3:1]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 05"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:3:1]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:3:2]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 06"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:3:2]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:3:3]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 07"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:3:3]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:3:4]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model with properties 08"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:3:4]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:4:1]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 03"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:4:1]'
+'./spec/features/api/models/models_properties_spec.rb[1:1:4:2]':
+  name: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Accessories when fetching properties for a specific model in an inventory pool GET /inventory/models/:id/properties for model without properties 04"
+    FEATURE: './spec/features/api/models/models_properties_spec.rb[1:1:4:2]'
+'./spec/features/api/models/models_spec.rb[1:1:1:1]':
   name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 01"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 01"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:1:1]'
-'./spec/features/api/models_spec.rb[1:1:1:2]':
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:1:1]'
+'./spec/features/api/models/models_spec.rb[1:1:1:2]':
   name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 02"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 02"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:1:2]'
-'./spec/features/api/models_spec.rb[1:1:2:1]':
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_spec.rb[1:1:2:1]':
   name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 01"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 01"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:2:1]'
-'./spec/features/api/models_spec.rb[1:1:2:2]':
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:2:1]'
+'./spec/features/api/models/models_spec.rb[1:1:2:2]':
   name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 02"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 02"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:2:2]'
-'./spec/features/api/models_spec.rb[1:1:3:1]':
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:2:2]'
+'./spec/features/api/models/models_spec.rb[1:1:3:1]':
   name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 01"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 01"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:3:1]'
-'./spec/features/api/models_spec.rb[1:1:3:2:1]':
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:3:1]'
+'./spec/features/api/models/models_spec.rb[1:1:3:2:1]':
   name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 01"
   environment_variables:
     FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 01"
-    FEATURE: './spec/features/api/models_spec.rb[1:1:3:2:1]'
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:3:2:1]'
+'./spec/features/api/models/models_spec.rb[1:1:4:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 03"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 03"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:4:1]'
+'./spec/features/api/models/models_spec.rb[1:1:4:2]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 04"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/models 04"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:4:2]'
+'./spec/features/api/models/models_spec.rb[1:1:5:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 03"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 03"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:5:1]'
+'./spec/features/api/models/models_spec.rb[1:1:5:2]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 04"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool GET /inventory/:pool_id/models for specific pool 04"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:5:2]'
+'./spec/features/api/models/models_spec.rb[1:1:6:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models 02"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:6:1]'
+'./spec/features/api/models/models_spec.rb[1:1:6:2:1]':
+  name: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints when fetching models for a pool POST and GET /inventory/:pool_id/models with new models adding another model 02"
+    FEATURE: './spec/features/api/models/models_spec.rb[1:1:6:2:1]'
 './spec/features/api/resources_spec.rb[1:1:1]':
   name: "Call swagger-endpoints revoking the token 01"
   environment_variables:
