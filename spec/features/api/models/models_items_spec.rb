@@ -25,11 +25,18 @@ feature "Inventory API Endpoints - Accessories" do
 
     let(:client) { plain_faraday_json_client }
 
-    context "GET /inventory/models/:id/items for model with items" do
-      let(:url) { "/inventory/models/#{model_with_accessories.id}/items" }
+    ["/", "/#{@inventory_pool_id}"].each do |path|
+      # let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/model-links" }
+      # let(:url) { "/inventory/models/#{model_with_accessories.id}/items" }
+
+
+      let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/items" }
+
+
+      context "GET /inventory/models/:id/items for model with items" do
 
       it "retrieves all items for the model and returns status 200" do
-        binding.pry
+        # binding.pry
 
         resp = client.get url
         expect(resp.status).to eq(200)
@@ -61,12 +68,14 @@ feature "Inventory API Endpoints - Accessories" do
     end
 
     context "GET /inventory/models/:id/items for model without items" do
-      let(:url) { "/inventory/models/#{model_without_accessories.id}/items" }
+      # let(:url) { "/inventory/models/#{model_without_accessories.id}/items" }
+
+      let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/items" }
 
       it "retrieves no items for the model and returns status 200" do
         resp = client.get url
         expect(resp.status).to eq(200)
-        binding.pry
+        # binding.pry
         expect(resp.body["pagination"]["total_records"]).to eq(0)
       end
 
@@ -75,6 +84,7 @@ feature "Inventory API Endpoints - Accessories" do
         expect(resp.status).to eq(200)
         expect(resp.body["pagination"]["total_records"]).to eq(0)
       end
+    end
     end
   end
 end
