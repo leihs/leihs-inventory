@@ -43,7 +43,7 @@ feature "Inventory API Endpoints" do
       abc=FactoryBot.create(:accessory, leihs_model: first_model)
       puts ">>> Accessory.abc: #{abc.id}"
 
-      # binding.pry
+      # # binding.pry
 
 
       # upload_1 = FactoryBot.create(:upload)
@@ -81,7 +81,7 @@ feature "Inventory API Endpoints" do
 
       links = FactoryBot.create(:model_links)
 
-      binding.pry
+      # binding.pry
 
 
 
@@ -99,7 +99,7 @@ feature "Inventory API Endpoints" do
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns 200" do
 
-        binding.pry
+        # binding.pry
         resp = client.get "/inventory/models-compatibles"
         expect(resp.status).to eq(200)
         expect(resp.body["pagination"]["total_records"]).to eq(0)
