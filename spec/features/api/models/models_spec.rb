@@ -1,5 +1,6 @@
 require "spec_helper"
 require "pry"
+require "#{File.dirname(__FILE__)}/_shared"
 
 def create_model(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
@@ -17,83 +18,87 @@ end
 
 feature "Swagger Inventory Endpoints" do
   context "when fetching models for a pool", driver: :selenium_headless do
-    before :each do
-      @user = FactoryBot.create(:user, login: "test", password: "password")
 
-      @inventory_pool = FactoryBot.create(:inventory_pool)
-
-      FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
-
-      @models = 3.times.map do |i|
-        FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-      end
-
-      LeihsModel.all.each do |model|
-        FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
-      end
-    end
+    include_context :setup_models_min_api
 
     let(:client) { plain_faraday_json_client }
+    let(:inventory_pool_id) {
+      puts "inventory_pool_id: #{@inventory_pool.id}"
+      @inventory_pool.id }
 
-    context "GET /inventory/models" do
-      it "retrieves all models and returns 200" do
-        resp = client.get "/inventory/models"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(3)
-      end
+    ["/", "/#{@inventory_pool_id}"].each do |path|
 
-      it "supports pagination and returns 200 with limited results" do
-        resp = client.get "/inventory/models?page=3&size=1"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(1)
-      end
-    end
+      let(:url) { "/inventory#{path}models" }
 
-    context "GET /inventory/:pool_id/models for specific pool" do
-      it "returns an empty list for a new pool and returns 200" do
-        resp = client.get "/inventory/#{@inventory_pool.id}/models"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(0)
-      end
+      context "GET /inventory/models" do
 
-      it "returns paginated empty results for a new pool and returns 200" do
-        resp = client.get "/inventory/#{@inventory_pool.id}/models?page=3&size=1"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(0)
-      end
-    end
-
-    context "POST and GET /inventory/:pool_id/models with new models" do
-      before :each do
-        category = FactoryBot.create(:category)
-        resp = create_model(client, @inventory_pool.id, "Example Model", [category.id])
-
-        expect(resp.status).to eq(200)
-        @model_id = resp.body["id"]
-      end
-
-      it "returns one model after creation and returns 200" do
-        resp = client.get "/inventory/#{@inventory_pool.id}/models"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(1)
-      end
-
-      context "adding another model" do
         before :each do
-          # category = FactoryBot.create(:category, name: "Test-ModelGroup2")
+          @models = create_models
+        end
+
+        it "retrieves all models and returns 200" do
+          resp = client.get url
+          # binding.pry
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"].count).to eq(3)
+        end
+
+        it "supports pagination and returns 200 with limited results" do
+          resp = client.get "#{url}?page=3&size=1"
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"].count).to eq(1)
+        end
+      end
+
+      context "GET /inventory/:pool_id/models for specific pool" do
+        it "returns an empty list for a new pool and returns 200" do
+          resp = client.get url
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"].count).to eq(0)
+        end
+
+        it "returns paginated empty results for a new pool and returns 200" do
+          resp = client.get "#{url}?page=3&size=1"
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"].count).to eq(0)
+        end
+      end
+
+
+      context "POST and GET /inventory/:pool_id/models with new models" do
+        before :each do
           category = FactoryBot.create(:category)
-          resp = create_model(client, @inventory_pool.id, "Example Model2", [category.id])
+          resp = create_model(client, @inventory_pool.id, "Example Model", [category.id])
 
           expect(resp.status).to eq(200)
           @model_id = resp.body["id"]
         end
 
-        it "returns both models and returns 200" do
-          resp = client.get "/inventory/#{@inventory_pool.id}/models"
+        it "returns one model after creation and returns 200" do
+            resp = client.get url
+          # resp = client.get "/inventory/#{@inventory_pool.id}/models"
           expect(resp.status).to eq(200)
-          expect(resp.body["data"].count).to eq(2)
+          expect(resp.body["data"].count).to eq(1)
+        end
+
+        context "adding another model" do
+          before :each do
+            category = FactoryBot.create(:category)
+            resp = create_model(client, @inventory_pool.id, "Example Model2", [category.id])
+
+            expect(resp.status).to eq(200)
+            @model_id = resp.body["id"]
+          end
+
+          it "returns both models and returns 200" do
+            # resp = client.get "/inventory/#{@inventory_pool.id}/models"
+            resp = client.get url
+            expect(resp.status).to eq(200)
+            expect(resp.body["data"].count).to eq(2)
+          end
         end
       end
+
     end
   end
 end
