@@ -4,8 +4,38 @@ require 'pry'
 
 
 
+def create_accessory(inventory_pool_id, model)
 
+  # accessory
+  cde=database[:accessories_inventory_pools].insert(
+    accessory_id: FactoryBot.create(:accessory).id,
+    inventory_pool_id: inventory_pool_id
+  )
 
+  # FIXME
+  abc=FactoryBot.create(:accessory, leihs_model: model)
+  puts ">>> Accessory.abc: #{abc.id}"
+  abc
+
+end
+
+def create_models(count=3)
+  @models = count.times.map do
+    FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+  end
+end
+
+def create_and_add_items_to_all_existing_models(inventory_pool)
+  LeihsModel.all.each do |model|
+    FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)
+  end
+  end
+
+def create_and_add_items(inventory_pool, models)
+  models.each do |model|
+    FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)
+  end
+end
 
 
 shared_context :setup_models_api do
@@ -15,25 +45,31 @@ shared_context :setup_models_api do
 
     FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
 
-    @models = 3.times.map do
-      FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    end
+    # @models = 3.times.map do
+    #   FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    # end
+    create_models
 
-    LeihsModel.all.each do |model|
-      FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
-    end
+    # LeihsModel.all.each do |model|
+    #   FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
+    # end
+
+    create_and_add_items_to_all_existing_models(@inventory_pool)
 
     first_model = @models.first
 
     # accessory
-    cde=database[:accessories_inventory_pools].insert(
-      accessory_id: FactoryBot.create(:accessory).id,
-      inventory_pool_id: @inventory_pool.id
-    )
+    # cde=database[:accessories_inventory_pools].insert(
+    #   accessory_id: FactoryBot.create(:accessory).id,
+    #   inventory_pool_id: @inventory_pool.id
+    # )
+    #
+    # # FIXME
+    # abc=FactoryBot.create(:accessory, leihs_model: first_model)
+    # puts ">>> Accessory.abc: #{abc.id}"
 
-    # FIXME
-    abc=FactoryBot.create(:accessory, leihs_model: first_model)
-    puts ">>> Accessory.abc: #{abc.id}"
+    create_accessory(@inventory_pool.id, first_model)
+
 
     # binding.pry
 
