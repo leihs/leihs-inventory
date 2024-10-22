@@ -2,9 +2,11 @@
   (:require
    ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card]]
+   ["@@/form" :refer [FormField FormItem FormControl FormMessage]]
    ["@@/input" :refer [Input]]
+   ["@@/table" :refer [Table TableHeader TableRow TableHead TableBody TableCell]]
    ["lucide-react" :refer [CirclePlus Trash]]
+   ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
@@ -15,90 +17,83 @@
             idx))
         (map-indexed vector vec)))
 
-(defn move-element [arr old-index new-index]
-  (let [elem (nth arr old-index)
-        arr-without-elem (vec (concat (subvec arr 0 old-index)
-                                      (subvec arr (inc old-index))))
-        new-arr (vec (concat (subvec arr-without-elem 0 new-index)
-                             [elem]
-                             (subvec arr-without-elem new-index)))]
-    new-arr))
-
-(defn handle-drag-end [event set-accessories!]
+(defn handle-drag-end [event fields move]
   (let [ev (jc event)]
     (when-not (= (-> ev :over :id)
                  (-> ev :active :id))
 
-      (set-accessories!
-       (fn [accessories]
-         (let [old-index (find-index-by-id accessories
-                                           (-> ev :active :id))
-               new-index (find-index-by-id accessories
-                                           (-> ev :over :id))]
+      (let [old-index (find-index-by-id fields
+                                        (-> ev :active :id))
+            new-index (find-index-by-id fields
+                                        (-> ev :over :id))]
 
-           (move-element accessories old-index new-index)))))))
+        (move old-index new-index)))))
 
-(defui main [props]
-  (let [props (jc (cj props))
-        [accessories set-accessories!] (uix/use-state [])
-        [accessory set-accessory!] (uix/use-state "")]
+(defui properties-table [{:keys [children inputs]}]
+  ($ Table
+     ($ TableHeader
+        ($ TableRow
+           ($ TableHead (-> inputs (nth 0) :label))
+           ($ TableHead "")))
+     ($ TableBody children)))
 
-    (uix/use-effect
-     (fn []
-       ((:onChange props) (cj (vec (map :name accessories))))
-       (set-accessory! ""))
-     [accessories set-accessory!])
+(defui main [{:keys [control props]}]
+  (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
+                                                 (cj {:control control
+                                                      :name "accessories"})))
+        inputs (:inputs props)]
 
-    ($ :div {:className "flex flex-col gap-4"}
-       ($ :div {:className "flex gap-4"}
+    ($ :div {:className "flex flex-col gap-2"}
 
-          ($ Input {:id (:id props)
-                    :ref (-> props :argv :ref)
-                    :value accessory
-                    :placeholer (:placeholder props)
-                    :on-change #(set-accessory! (.. % -target -value))
-                    :on-blur (:onBlur props)
-                    :aria-invalid (:aria-invalid props)
-                    :aria-describedby (:aria-describedby props)})
+       (when (not-empty fields)
+         ($ :div {:className "rounded-md border"}
 
+            ($ SortableList {:items (cj (map :id fields))
+                             :onDragEnd (fn [e] (handle-drag-end e fields move))}
+               ($ Table
+                  ($ TableBody
+                     (doall
+                      (map-indexed
+                       (fn [index field]
+                         ($ Draggable {:key (:id field)
+                                       :id (:id field)
+                                       :asChild true}
+
+                            ($ TableRow {:key (:id field)}
+
+                               ($ TableCell
+                                  ($ FormField
+                                     {:control (cj control)
+                                      :name (str "accessories." index "." (-> inputs (nth 0) :name))
+                                      :render #($ FormItem
+                                                  ($ FormControl
+                                                     ($ Input (merge
+                                                               (-> inputs (nth 0) :props)
+                                                               (:field (jc %))))))}
+
+                                     ($ FormMessage)))
+
+                               ($ TableCell
+                                  ($ :div {:className "flex gap-2 justify-end"}
+                                     ($ DragHandle {:id (:id field)
+                                                    :className "cursor-move"})
+
+                                     ($ Button {:variant "outline"
+                                                :size "icon"
+                                                :className "cursor-pointer"
+                                                :on-click #(remove index)}
+                                        ($ Trash {:className "p-1"})))))))
+                       fields)))))))
+
+       ($ :div {:className "flex"}
           ($ Button {:type "button"
                      :className ""
-                     :disabled (empty? accessory)
                      :variant "outline"
-                     :on-click #(set-accessories!
-                                 (conj accessories
-                                       {:id (js/crypto.randomUUID)
-                                        :name accessory}))}
+                     :on-click #(append (cj {:accessory ""}))}
 
-             ($ CirclePlus {:className "p-1"}) (:button props)))
-
-       ($ SortableList {:items (cj (map :id accessories))
-                        :onDragEnd #(handle-drag-end % set-accessories!)}
-
-          (for [accessory accessories]
-            ($ Draggable {:key (:id accessory)
-                          :id (:id accessory)}
-
-               ($ Card {:className "flex px-4 py-2 items-center"}
-                  ($ :p {:className "text-[0.85rem] font-medium leading-snug"}
-                     (:name accessory))
-
-                  ($ :div {:className "ml-auto flex gap-2"}
-                     ($ DragHandle {:id (:id accessory)
-                                    :className "cursor-move"})
-
-                     ($ Button {:variant "outline"
-                                :size "icon"
-                                :className "cursor-pointer"
-                                :on-click #(set-accessories!
-                                            (filter
-                                             (fn [el] (not= (:id el)
-                                                            (:id accessory)))
-                                             accessories))}
-                        ($ Trash {:className "p-1"}))))))))))
+             ($ CirclePlus {:className "p-1"}) "Zubehör hinzufügen")))))
 
 (def AccessoryList
-  (uix/forward-ref
-   (uix/as-react
-    (fn [props]
-      (main props)))))
+  (uix/as-react
+   (fn [props]
+     (main props))))

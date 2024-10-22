@@ -14,11 +14,14 @@
   {"input" Input
    "dropzone" Dropzone
    "textarea" Textarea
-   "checkbox" Checkbox
-   "accessory-list" AccessoryList})
+   "checkbox" Checkbox})
 
 (defui field [{:keys [control block]}]
   (cond
+    (-> block :component (= "accessory-list"))
+    ($ AccessoryList {:control control
+                      :props (:props block)})
+
     (-> block :component (= "model-properties"))
     ($ ModelProperties {:control control
                         :props (:props block)})

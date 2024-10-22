@@ -26,7 +26,7 @@ export const schema = z.object({
   // categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
-  accessories: z.string().array().optional(),
+  accessories: z.array(z.object({ accessory: z.string() })),
   model_links: z.string().array(),
   properties: z.array(modelProperties),
 })
@@ -44,7 +44,7 @@ export const structure = [
       {
         name: "product",
         label: "Produkt",
-        description: "Wie soll das Produkt heissen?",
+        // description: "Wie soll das Produkt heissen?",
         input: "input",
         props: {
           placeholder: "Produktnamen eingeben",
@@ -54,7 +54,7 @@ export const structure = [
       {
         name: "version",
         label: "Version",
-        description: "Welche Version hat das Produkt?",
+        // description: "Welche Version hat das Produkt?",
         input: "input",
         props: {
           type: "number",
@@ -65,7 +65,7 @@ export const structure = [
       {
         name: "manufacturer",
         label: "Hersteller",
-        description: "Wer ist der Hersteller?",
+        // description: "Wer ist der Hersteller?",
         input: "input",
         props: {
           placeholder: "Hersteller eingeben",
@@ -75,7 +75,7 @@ export const structure = [
       {
         name: "description",
         label: "Beschreibung",
-        description: "Beschreiben Sie das Produkt",
+        // description: "Beschreiben Sie das Produkt",
         input: "textarea",
         props: {
           placeholder: "Beschreibung eingeben",
@@ -85,7 +85,7 @@ export const structure = [
       {
         name: "technical_detail",
         label: "Technische Details",
-        description: "Geben Sie technische Details an",
+        // description: "Geben Sie technische Details an",
         input: "textarea",
         porps: {
           placeholder: "Technische Details eingeben",
@@ -95,7 +95,7 @@ export const structure = [
       {
         name: "internal_description",
         label: "Interne Beschreibung",
-        description: "Geben Sie eine interne Beschreibung an",
+        // description: "Geben Sie eine interne Beschreibung an",
         input: "textarea",
         props: {
           placeholder: "Interne Beschreibung eingeben",
@@ -105,7 +105,7 @@ export const structure = [
       {
         name: "hand_over_note",
         label: "Übergabevermerk",
-        description: "Geben Sie einen Übergabevermerk an",
+        // description: "Geben Sie einen Übergabevermerk an",
         input: "textarea",
         props: {
           placeholder: "Übergabevermerk eingeben",
@@ -151,7 +151,7 @@ export const structure = [
       {
         name: "images",
         label: "Bilder",
-        description: "Listen Sie die Bild-URLs auf",
+        // description: "Listen Sie die Bild-URLs auf",
         input: "dropzone",
         props: {
           sortable: true,
@@ -167,7 +167,7 @@ export const structure = [
       {
         name: "attachments",
         label: "Anhänge",
-        description: "Listen Sie die Anhang-URLs auf",
+        // description: "Listen Sie die Anhang-URLs auf",
         input: "dropzone",
         props: {
           sortable: false,
@@ -181,13 +181,21 @@ export const structure = [
     title: "Zubehör",
     blocks: [
       {
-        name: "accessories",
-        label: "Zubehör",
-        description: "Listen Sie das Zubehör auf",
-        input: "accessory-list",
+        name: "accessory-list",
+        component: "accessory-list",
         props: {
-          button: "Zubehör hinzufügen",
-          placeholder: "Zubehör eingeben",
+          inputs: [
+            {
+              name: "accessory",
+              label: "Artikel",
+              // description: "Listen Sie das Zubehör auf",
+              component: "input",
+              props: {
+                placeholder: "Zubehör eingeben",
+                "auto-complete": "on",
+              },
+            },
+          ],
         },
       },
     ],
@@ -198,7 +206,7 @@ export const structure = [
       {
         name: "model_links",
         label: "Modell-Links",
-        description: "Listen Sie die Modell-Links auf",
+        // description: "Listen Sie die Modell-Links auf",
         input: "input",
         props: {
           type: "file",
