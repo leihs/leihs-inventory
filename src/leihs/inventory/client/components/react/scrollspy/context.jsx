@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 
 // Create the context
 const ScrollspyContext = React.createContext()
@@ -10,9 +10,12 @@ export const ScrollspyProvider = ({ children }) => {
 
   // Function to add an item
   function addItem(item) {
-    if (items.find((i) => i.id === item.id)) return
-
-    setItems((prev) => [...prev, item])
+    setItems((prev) => {
+      if (prev.find((i) => i.id === item.id)) {
+        return [...prev]
+      }
+      return [...prev, item]
+    })
   }
 
   const value = {
