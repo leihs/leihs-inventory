@@ -5,7 +5,6 @@ gem "capybara", "~> 3.8"
 gem "faraday"
 gem "faraday_middleware"
 gem "pry-nav"
-gem "exiftool_vendored"
 gem "rexml"
 gem "selenium-webdriver", "~> 4.0"
 gem "standard", group: [:development, :test]
