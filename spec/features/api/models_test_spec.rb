@@ -64,7 +64,7 @@ feature "Inventory API Endpoints" do
 
       puts " filename: #{@filename}"
 
-      binding.pry
+      # binding.pry
     end
 
     let(:client) { plain_faraday_json_client }

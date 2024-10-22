@@ -100,7 +100,7 @@ feature "Inventory API Endpoints" do
         # FIXME
         it "retrieves all compatible models and returns 200" do
           resp = plain_faraday_image_client.get "#{url}#{image_id}"
-          binding.pry
+          # binding.pry
           expect(resp.status).to eq(400)
         end
 

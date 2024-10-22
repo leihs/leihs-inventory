@@ -67,7 +67,7 @@ feature "Inventory API Endpoints" do
 
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns 200" do
-        binding.pry
+        # binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
       end

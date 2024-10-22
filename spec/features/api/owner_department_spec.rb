@@ -63,7 +63,7 @@ feature "Inventory API Endpoints" do
       @filename = @image.filename
 
       puts " filename: #{@filename}"
-      binding.pry
+      # binding.pry
     end
 
     let(:client) { plain_faraday_json_client }
