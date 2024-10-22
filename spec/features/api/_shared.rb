@@ -127,14 +127,12 @@ end
 
 def create_and_add_group_permission(inventory_pool, group, role)
   FactoryBot.create :group_access_right, group_id: group.id,
-                    inventory_pool_id: inventory_pool.id, role: role
-
-  end
+    inventory_pool_id: inventory_pool.id, role: role
+end
 
 def create_and_add_user_permission(inventory_pool, user, role)
   FactoryBot.create :access_right, user: user, inventory_pool: inventory_pool, role: role
 end
-
 
 shared_context :setup_models_api2 do
   before :each do
@@ -148,7 +146,6 @@ end
 
 shared_context :setup_access_rights do
   before :each do
-
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
@@ -162,7 +159,7 @@ shared_context :setup_access_rights do
       FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
     end
 
-    first_model = @models.first
+    @models.first
 
     # -------------------------
 
@@ -175,7 +172,7 @@ shared_context :setup_access_rights do
     @group = FactoryBot.create(:group, name: "Group 1")
     FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
     FactoryBot.create :group_access_right, group_id: @group.id,
-                      inventory_pool_id: @inventory_pool.id, role: "customer"
+      inventory_pool_id: @inventory_pool.id, role: "customer"
 
     FactoryBot.create(:supplier)
     building = FactoryBot.create(:building)
@@ -189,7 +186,6 @@ shared_context :setup_access_rights do
 
     @image = FactoryBot.create(:image, :for_leihs_model)
     @filename = @image.filename
-
   end
 end
 

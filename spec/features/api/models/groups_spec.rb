@@ -26,7 +26,6 @@ feature "Inventory API Endpoints - model-links" do
     let(:image_id) { resp.body[0]["id"] }
 
     context "GET /inventory/models-compatibles" do
-
       it "retrieves all compatible models and returns 200" do
         binding.pry
 
@@ -41,6 +40,6 @@ feature "Inventory API Endpoints - model-links" do
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(image_id)
       end
-  end
+    end
   end
 end

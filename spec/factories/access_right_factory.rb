@@ -1,5 +1,4 @@
 FactoryBot.modify do
-
   # factory :suspension do
   # end
 
@@ -22,13 +21,11 @@ FactoryBot.modify do
     after :create do |ac, trans|
       if trans.suspended_until
         FactoryBot.create :suspension,
-                           suspended_until: trans.suspended_until,
-                           suspended_reason: trans.suspended_reason,
-                           inventory_pool_id: ac.inventory_pool_id,
-                           user_id: ac.user_id
+          suspended_until: trans.suspended_until,
+          suspended_reason: trans.suspended_reason,
+          inventory_pool_id: ac.inventory_pool_id,
+          user_id: ac.user_id
       end
     end
-
   end
-
 end

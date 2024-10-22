@@ -31,7 +31,7 @@ feature "Inventory API Endpoints" do
         FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
       end
 
-      first_model = @models.first
+      @models.first
 
       # -------------------------
 
@@ -79,7 +79,6 @@ feature "Inventory API Endpoints" do
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(image_id)
       end
-
     end
   end
 end

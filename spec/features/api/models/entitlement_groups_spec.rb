@@ -45,6 +45,6 @@ feature "Inventory API Endpoints - model-links" do
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(image_id)
       end
-  end
+    end
   end
 end
