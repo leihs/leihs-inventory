@@ -32,7 +32,6 @@ feature "Inventory API Endpoints - Accessories" do
         let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/accessories" }
 
         it "retrieves all accessories for the model and returns status 200" do
-
           # binding.pry
 
           resp = client.get url

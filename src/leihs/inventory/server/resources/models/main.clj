@@ -16,8 +16,7 @@
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 (defn get-models-compatible-handler [request]
   (try
     (let [tx (:tx request)
@@ -57,9 +56,7 @@
                        (cond-> model_id (sql/where [:= :m.id model_id]))
                        (sql/order-by sort-by))
 
-        p (println ">o> model_id" model_id)
-        ]
-
+        p (println ">o> model_id" model_id)]
 
     (if model_id
       (response (jdbc/query tx (-> base-query sql-format)))

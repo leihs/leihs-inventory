@@ -68,7 +68,7 @@
                                       (sql/from [:images :i])
                                       (sql/where [:= :i.id image_id]))]))
                   ; TODO: limit
-                  (sql/limit 2)
+                    (sql/limit 2)
                     sql-format)
           result (jdbc/query tx query)]
 

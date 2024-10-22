@@ -3,7 +3,7 @@ require "pry"
 
 def create_accessory(inventory_pool_id, model)
   # accessory
-  cde = database[:accessories_inventory_pools].insert(
+  database[:accessories_inventory_pools].insert(
     accessory_id: FactoryBot.create(:accessory).id,
     inventory_pool_id: inventory_pool_id
   )
@@ -37,7 +37,7 @@ def create_and_add_category_to_model(models)
     FactoryBot.create(:category, direct_models: [model])
     category.add_direct_model(model)
   end
-  end
+end
 
 def create_and_add_category_to_model(models, category = nil)
   created_categories = []  # Array to store all created categories
@@ -61,22 +61,18 @@ def create_and_add_category_to_model(models, category = nil)
   created_categories  # Return the array of created categories
 end
 
-
 def link_categories_to_pool(categories, inventory_pool)
   categories.each do |category|
     # category.add_direct_model(model)
     database[:inventory_pools_model_groups].insert(inventory_pool.id, category.id)
-
   end
 end
 
-
-def create_and_add_category_to_model_and_link_to_pool(model,inventory_pool, category=nil )
-  categories =create_and_add_category_to_model([model], category)
+def create_and_add_category_to_model_and_link_to_pool(model, inventory_pool, category = nil)
+  categories = create_and_add_category_to_model([model], category)
   link_categories_to_pool(categories, inventory_pool)
   categories
 end
-
 
 def create_and_add_property_to_model(model, key = "my-test-property-key", value = "my-test-property-value")
   model.add_property(FactoryBot.create(:property, key: key, value: value))
@@ -103,16 +99,13 @@ shared_context :setup_accessory_entitlements do
     create_and_add_property_to_model(first_model)
     create_and_add_entitlements(@inventory_pool, first_model)
   end
-  end
+end
 
 shared_context :setup_category_model_linked_to_pool do
   before :each do
-
     # category = FactoryBot.create(:category)
 
-    @categories = create_and_add_category_to_model_and_link_to_pool(@models.third, @inventory_pool )
-    
-    
+    @categories = create_and_add_category_to_model_and_link_to_pool(@models.third, @inventory_pool)
   end
 end
 
@@ -132,7 +125,6 @@ shared_context :setup_models_api do
   # include_context :setup_category_model_linked_to_pool
 end
 
-
 shared_context :setup_models_min_api do
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
@@ -145,4 +137,4 @@ shared_context :setup_models_min_api do
     # create_and_add_items_to_all_existing_models(@inventory_pool)
     # create_and_add_items_to_models(@inventory_pool, [@models.first])
   end
-  end
+end
