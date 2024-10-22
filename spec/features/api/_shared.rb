@@ -125,6 +125,74 @@ shared_context :setup_models_api do
   # include_context :setup_category_model_linked_to_pool
 end
 
+def create_and_add_group_permission(inventory_pool, group, role)
+  FactoryBot.create :group_access_right, group_id: group.id,
+                    inventory_pool_id: inventory_pool.id, role: role
+
+  end
+
+def create_and_add_user_permission(inventory_pool, user, role)
+  FactoryBot.create :access_right, user: user, inventory_pool: inventory_pool, role: role
+end
+
+
+shared_context :setup_models_api2 do
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+
+    create_and_add_user_permission(@inventory_pool, @user, "customer")
+    create_and_add_group_permission(@inventory_pool, @group, "customer")
+  end
+end
+
+shared_context :setup_access_rights do
+  before :each do
+
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+
+    FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+
+    @models = 3.times.map do
+      FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    end
+
+    LeihsModel.all.each do |model|
+      FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
+    end
+
+    first_model = @models.first
+
+    # -------------------------
+
+    # links = FactoryBot.create(:model_link)
+    # ok model-group
+    @category = FactoryBot.create(:category, direct_models: [@models.first])
+
+    # ok group_access_right & access_right
+    @manager = FactoryBot.create :user
+    @group = FactoryBot.create(:group, name: "Group 1")
+    FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
+    FactoryBot.create :group_access_right, group_id: @group.id,
+                      inventory_pool_id: @inventory_pool.id, role: "customer"
+
+    FactoryBot.create(:supplier)
+    building = FactoryBot.create(:building)
+
+    b = Building.find(name: building.name)
+    FactoryBot.create(:room, building: b)
+
+    @model = FactoryBot.create(:leihs_model)
+    @image = FactoryBot.create(:image, :for_category)
+    @filename = @image.filename
+
+    @image = FactoryBot.create(:image, :for_leihs_model)
+    @filename = @image.filename
+
+  end
+end
+
 shared_context :setup_models_min_api do
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
