@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require "#{File.dirname(__FILE__)}/_shared"
+require_relative "../_shared"
 
 def create_model(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
@@ -32,7 +32,6 @@ feature "Inventory API Endpoints - Accessories" do
         let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/accessories" }
 
         it "retrieves all accessories for the model and returns status 200" do
-
           # binding.pry
 
           resp = client.get url

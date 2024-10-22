@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require "#{File.dirname(__FILE__)}/_shared"
+require_relative "../_shared"
 
 def create_model(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
@@ -29,12 +29,10 @@ feature "Inventory API Endpoints - model-links" do
       let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/model-links" }
 
       context "Request against base & pool endpoints" do
-
         context "GET for model with model-links" do
           include_context :setup_category_model_linked_to_pool
 
           it "retrieves all model-links for the model and returns status 200" do
-
             # puts ">>> ADD inv: #{@models.third}"
             # puts "pool: #{@inventory_pool.id}"
 

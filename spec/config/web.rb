@@ -23,6 +23,16 @@ def plain_faraday_client
   end
 end
 
+def plain_faraday_image_client
+  @plain_faraday_client ||= Faraday.new(
+    url: api_base_url,
+    headers: {accept: "image/jpeg"}
+  ) do |conn|
+    yield(conn) if block_given?
+    conn.adapter Faraday.default_adapter
+  end
+end
+
 def plain_faraday_json_client
   @plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,

@@ -41,16 +41,16 @@ feature "Inventory API Endpoints" do
 
       # ok group_access_right & access_right
       @manager = FactoryBot.create :user
-      @group = FactoryBot.create(:group, name: 'Group 1')
-      FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: 'lending_manager'
+      @group = FactoryBot.create(:group, name: "Group 1")
+      FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
       FactoryBot.create :group_access_right, group_id: @group.id,
-                        inventory_pool_id: @inventory_pool.id, role: 'customer'
+        inventory_pool_id: @inventory_pool.id, role: "customer"
 
       FactoryBot.create(:supplier)
       building = FactoryBot.create(:building)
 
       b = Building.find(name: building.name)
-      FactoryBot.create(:room,  building: b)
+      FactoryBot.create(:room, building: b)
 
       @model = FactoryBot.create(:leihs_model)
       # @image = FactoryBot.create(:image, target: @model)
@@ -62,20 +62,15 @@ feature "Inventory API Endpoints" do
       @image = FactoryBot.create(:image, :for_leihs_model)
       @filename = @image.filename
 
-
-
-
       puts " filename: #{@filename}"
 
-      # binding.pry
-
+      binding.pry
     end
 
     let(:client) { plain_faraday_json_client }
 
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns 200" do
-
         # binding.pry
         resp = client.get "/inventory/models-compatibles"
         expect(resp.status).to eq(200)
@@ -111,4 +106,4 @@ feature "Inventory API Endpoints" do
       # end
     end
   end
-end 
+end

@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require "#{File.dirname(__FILE__)}/_shared"
+require_relative "../_shared"
 
 def create_model(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
@@ -18,20 +18,18 @@ end
 
 feature "Swagger Inventory Endpoints" do
   context "when fetching models for a pool", driver: :selenium_headless do
-
     include_context :setup_models_min_api
 
     let(:client) { plain_faraday_json_client }
     let(:inventory_pool_id) {
       puts "inventory_pool_id: #{@inventory_pool.id}"
-      @inventory_pool.id }
+      @inventory_pool.id
+    }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
-
       let(:url) { "/inventory#{path}models" }
 
       context "GET /inventory/models" do
-
         before :each do
           @models = create_models
         end
@@ -64,7 +62,6 @@ feature "Swagger Inventory Endpoints" do
         end
       end
 
-
       context "POST and GET /inventory/:pool_id/models with new models" do
         before :each do
           category = FactoryBot.create(:category)
@@ -75,7 +72,7 @@ feature "Swagger Inventory Endpoints" do
         end
 
         it "returns one model after creation and returns 200" do
-            resp = client.get url
+          resp = client.get url
           # resp = client.get "/inventory/#{@inventory_pool.id}/models"
           expect(resp.status).to eq(200)
           expect(resp.body["data"].count).to eq(1)
@@ -98,7 +95,6 @@ feature "Swagger Inventory Endpoints" do
           end
         end
       end
-
     end
   end
 end
