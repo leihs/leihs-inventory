@@ -18,42 +18,41 @@
    "accessory-list" AccessoryList})
 
 (defui field [{:keys [control block]}]
-  (let [input (:input block)]
-    (cond
-      (-> block :component (= "model-properties"))
-      ($ ModelProperties {:control control
-                          :props (:props block)})
+  (cond
+    (-> block :component (= "model-properties"))
+    ($ ModelProperties {:control control
+                        :props (:props block)})
 
-      (-> input :component (= "checkbox"))
-      ($ FormField {:control (cj control)
-                    :name (:name block)
-                    :render #($ FormItem {:class-name "mt-6"}
-                                ($ FormControl
-                                   ($ Checkbox (merge
-                                                {:checked (-> (jc %) :field :value)
-                                                 :onCheckedChange (-> (jc %) :field :onChange)}
-                                                (:props input))))
+    (-> block :input (= "checkbox"))
+    ($ FormField {:control (cj control)
+                  :name (:name block)
+                  :render #($ FormItem {:class-name "mt-6"}
+                              ($ FormControl
+                                 ($ Checkbox (merge
+                                              {:checked (-> (jc %) :field :value)
+                                               :onCheckedChange (-> (jc %) :field :onChange)}
+                                              (:props block))))
 
-                                ($ FormLabel {:className "pl-4"} (:label block))
-                                ($ FormDescription
-                                   ($ :<> (:description block)))
+                              ($ FormLabel {:className "pl-4"} (:label block))
+                              ($ FormDescription
+                                 ($ :<> (:description block)))
 
-                                ($ FormMessage))})
+                              ($ FormMessage))})
 
-      comment "default case - this renders a component from the component map"
-      :else
-      (let [comp (get fields-map (:component input))]
-        (when comp
-          ($ FormField {:control (cj control)
-                        :name (:name block)
-                        :render #($ FormItem {:class-name "mt-6"}
-                                    ($ FormLabel (:label block))
-                                    ($ FormControl
-                                       ($ comp (merge
-                                                (:props input)
-                                                (:field (jc %)))))
+    comment "default case - this renders a component from the component map"
+    :else
+    (let [comp (get fields-map (:input block))]
+      (when comp
+        ($ FormField {:control (cj control)
+                      :name (:name block)
+                      :render #($ FormItem {:class-name "mt-6"}
+                                  ($ FormLabel (:label block))
+                                  ($ FormControl
+                                     ($ comp (merge
+                                              (:props block)
+                                              (:field (jc %)))))
 
-                                    ($ FormDescription
-                                       ($ :<> (:description block)))
+                                  ($ FormDescription
+                                     ($ :<> (:description block)))
 
-                                    ($ FormMessage))}))))))
+                                  ($ FormMessage))})))))

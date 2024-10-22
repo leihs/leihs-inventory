@@ -38,94 +38,78 @@ export const structure = [
       {
         name: "is_package",
         label: "dies ist ein Paket?",
-        input: {
-          component: "checkbox",
-          props: { defaultChecked: false },
-        },
+        input: "checkbox",
+        props: { defaultChecked: false },
       },
       {
         name: "product",
         label: "Produkt",
         description: "Wie soll das Produkt heissen?",
-        input: {
-          component: "input",
-          props: {
-            placeholder: "Produktnamen eingeben",
-            "auto-complete": "off",
-          },
+        input: "input",
+        props: {
+          placeholder: "Produktnamen eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "version",
         label: "Version",
         description: "Welche Version hat das Produkt?",
-        input: {
-          component: "input",
-          props: {
-            type: "number",
-            placeholder: "Version eingeben",
-            "auto-complete": "off",
-          },
+        input: "input",
+        props: {
+          type: "number",
+          placeholder: "Version eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "manufacturer",
         label: "Hersteller",
         description: "Wer ist der Hersteller?",
-        input: {
-          component: "input",
-          props: {
-            placeholder: "Hersteller eingeben",
-            "auto-complete": "off",
-          },
+        input: "input",
+        props: {
+          placeholder: "Hersteller eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "description",
         label: "Beschreibung",
         description: "Beschreiben Sie das Produkt",
-        input: {
-          component: "textarea",
-          props: {
-            placeholder: "Beschreibung eingeben",
-            "auto-complete": "off",
-          },
+        input: "textarea",
+        props: {
+          placeholder: "Beschreibung eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "technical_detail",
         label: "Technische Details",
         description: "Geben Sie technische Details an",
-        input: {
-          component: "textarea",
-          porps: {
-            placeholder: "Technische Details eingeben",
-            "auto-complete": "off",
-          },
+        input: "textarea",
+        porps: {
+          placeholder: "Technische Details eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "internal_description",
         label: "Interne Beschreibung",
         description: "Geben Sie eine interne Beschreibung an",
-        input: {
-          component: "textarea",
-          props: {
-            placeholder: "Interne Beschreibung eingeben",
-            "auto-complete": "off",
-          },
+        input: "textarea",
+        props: {
+          placeholder: "Interne Beschreibung eingeben",
+          "auto-complete": "off",
         },
       },
       {
         name: "hand_over_note",
         label: "Übergabevermerk",
         description: "Geben Sie einen Übergabevermerk an",
-        input: {
-          component: "textarea",
-          props: {
-            placeholder: "Übergabevermerk eingeben",
-            "auto-complete": "off",
-          },
+        input: "textarea",
+        props: {
+          placeholder: "Übergabevermerk eingeben",
+          "auto-complete": "off",
         },
       },
     ],
@@ -168,13 +152,11 @@ export const structure = [
         name: "images",
         label: "Bilder",
         description: "Listen Sie die Bild-URLs auf",
-        input: {
-          component: "dropzone",
-          props: {
-            sortable: true,
-            multiple: true,
-            filetypes: "jpeg,png",
-          },
+        input: "dropzone",
+        props: {
+          sortable: true,
+          multiple: true,
+          filetypes: "jpeg,png",
         },
       },
     ],
@@ -186,13 +168,11 @@ export const structure = [
         name: "attachments",
         label: "Anhänge",
         description: "Listen Sie die Anhang-URLs auf",
-        input: {
-          component: "dropzone",
-          props: {
-            sortable: false,
-            multiple: true,
-            filetypes: "pdf",
-          },
+        input: "dropzone",
+        props: {
+          sortable: false,
+          multiple: true,
+          filetypes: "pdf",
         },
       },
     ],
@@ -204,12 +184,10 @@ export const structure = [
         name: "accessories",
         label: "Zubehör",
         description: "Listen Sie das Zubehör auf",
-        input: {
-          component: "accessory-list",
-          props: {
-            button: "Zubehör hinzufügen",
-            placeholder: "Zubehör eingeben",
-          },
+        input: "accessory-list",
+        props: {
+          button: "Zubehör hinzufügen",
+          placeholder: "Zubehör eingeben",
         },
       },
     ],
@@ -221,13 +199,11 @@ export const structure = [
         name: "model_links",
         label: "Modell-Links",
         description: "Listen Sie die Modell-Links auf",
-        input: {
-          component: "input",
-          props: {
-            type: "file",
-            placeholder: "Modell-Links eingeben",
-            "auto-complete": "off",
-          },
+        input: "input",
+        props: {
+          type: "file",
+          placeholder: "Modell-Links eingeben",
+          "auto-complete": "off",
         },
       },
     ],
@@ -239,8 +215,7 @@ export const structure = [
         name: "model-properties",
         component: "model-properties",
         props: {
-          button: "Eigenschaft hinzufügen",
-          fieldsArray: [
+          inputs: [
             {
               name: "name",
               label: "Eigenschaft",
