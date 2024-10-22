@@ -36,6 +36,8 @@ feature "Inventory API Endpoints - model-links" do
             # puts ">>> ADD inv: #{@models.third}"
             # puts "pool: #{@inventory_pool.id}"
 
+            binding.pry
+
             resp = client.get url
             expect(resp.status).to eq(200)
             expect(resp.body["pagination"]["total_records"]).to eq(1)
