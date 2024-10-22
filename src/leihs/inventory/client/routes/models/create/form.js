@@ -26,7 +26,7 @@ export const schema = z.object({
   // categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
-  accessories: z.string().array().optional(),
+  accessories: z.array(z.object({ accessory: z.string() })),
   model_links: z.string().array(),
   properties: z.array(modelProperties),
 })
@@ -181,13 +181,21 @@ export const structure = [
     title: "Zubehör",
     blocks: [
       {
-        name: "accessories",
-        label: "Zubehör",
-        description: "Listen Sie das Zubehör auf",
-        input: "accessory-list",
+        name: "accessory-list",
+        component: "accessory-list",
         props: {
-          button: "Zubehör hinzufügen",
-          placeholder: "Zubehör eingeben",
+          inputs: [
+            {
+              name: "accessory",
+              label: "Zubehör",
+              description: "Listen Sie das Zubehör auf",
+              component: "input",
+              props: {
+                placeholder: "Zubehör eingeben",
+                "auto-complete": "on",
+              },
+            },
+          ],
         },
       },
     ],

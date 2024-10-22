@@ -35,7 +35,7 @@
         ($ TableRow
            ($ TableHead (-> inputs (nth 0) :label))
            ($ TableHead (-> inputs (nth 1) :label))
-           ($ TableHead "Actions")))
+           ($ TableHead "")))
      ($ TableBody children)))
 
 (defui main [{:keys [control props]}]
@@ -77,7 +77,7 @@
                             ($ TableCell
                                ($ FormField
                                   {:control (cj control)
-                                   :name (str "properties." index (-> inputs (nth 1) :name))
+                                   :name (str "properties." index "." (-> inputs (nth 1) :name))
                                    :render #($ FormItem
                                                ($ FormControl
                                                   ($ Textarea (merge
@@ -88,7 +88,7 @@
                                   ($ FormMessage)))
 
                             ($ TableCell
-                               ($ :div {:className "ml-auto flex gap-2"}
+                               ($ :div {:className "flex gap-2 justify-end"}
                                   ($ DragHandle {:id (:id field)
                                                  :className "cursor-move"})
 
