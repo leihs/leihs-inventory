@@ -5,6 +5,10 @@ git_options:
   submodules:
     include_match: ^.*$
 
+traits:
+  ci-ax101-03: True
+  asdf: True
+
 scripts:
   inventory-build-uberjar:
     timeout: 60 minutes
