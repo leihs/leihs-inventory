@@ -31,8 +31,6 @@ feature "Inventory API Endpoints" do
         FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
       end
 
-      first_model = @models.first
-
       # -------------------------
 
       # links = FactoryBot.create(:model_link)
