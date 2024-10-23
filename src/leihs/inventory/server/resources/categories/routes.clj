@@ -22,7 +22,7 @@
    [schema.core :as s]))
 
 (defn create-description [url]
-  (str "GET " url " Accept: application/json"))
+  (str "- GET " url " Accept: application/json" " "))
 
 (defn get-categories-routes []
 
@@ -67,7 +67,8 @@
     ["/model-group"
      ["" {:get {:conflicting true
                 :summary "OK | Zuteilungen anzeigen, [type='Category']"
-                :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=") "| FYI: pool_id is not used by query")
+                :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=")
+                               " - FYI: pool_id is not used by query")
                 :accept "application/json"
                ;; TODO: add name-filter and pagination, used?-attribute
                 :coercion reitit.coercion.schema/coercion
@@ -96,6 +97,7 @@
 
     ["/groups"
      ["" {:get {:conflicting true
+                :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups?search_term=Request"
                 :accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :middleware [accept-json-middleware]
