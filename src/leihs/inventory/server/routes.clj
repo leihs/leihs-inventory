@@ -197,8 +197,8 @@
                                      (be/create-error-response username request )
                                      (let [
                                            ;; TODO
-                                           DEV-MODE true
-                                           ;DEV-MODE false
+                                           ;DEV-MODE true
+                                           DEV-MODE false
                                            p (println ">o> 2RETURN-TO AFTER.0")
                                            p (println ">o> 2RETURN-TO AFTER.a" (get-in request [:form-params :return-to]))
                                            p (println ">o> 2RETURN-TO AFTER.b" (get-in request [:form-params]))
@@ -222,6 +222,10 @@
                                            p (println ">o> abc13" (:sessions request))
                                            p (println ">o> abc14" (:token (:query-params-raw request)))
                                            p (println ">o> abc13" (:authenticated-entity request))
+
+
+
+
 
                                            created-session (get-in resp [:cookies "leihs-user-session" :value])
 

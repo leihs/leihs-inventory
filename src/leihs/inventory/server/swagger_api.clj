@@ -5,7 +5,6 @@
    [clojure.string :as str]
    [clojure.uuid :as uuid]
    [clojure.walk :refer [keywordize-keys]]
-   [leihs.core.anti-csrf.back]
    [leihs.core.anti-csrf.back :as anti-csrf]
 
    [leihs.core.auth.core :as auth]
@@ -615,6 +614,55 @@ p (println ">o> body2" body2)
 
 
 
+;; TODO: move this to middleware
+(defn wrap-csrf [handler]
+  (fn [request]
+
+    ;(println ">o> back.wrap1" (get-in request [:headers]))
+    ;(println ">o> back.wrap2" (get-in request [:headers "Referer"]))
+    ;(println ">o> back.wrap3" (get-in request [:headers "referer"]))
+    ;(println ">o> back.wrap4" (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      ))
+
+    (println ">o> back.wrap5")
+
+    (let [
+          referer (get-in request [:headers "referer"])
+          _ (println ">o> back.wrap3.referer" referer)
+
+          api-request? (if referer
+                         (clojure.string/includes? referer "/api-docs/")
+                         false)
+
+          _ (println ">o> back.wrap4.api-request?" api-request?)
+
+
+          ]
+
+      ;(if (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      )
+      (if api-request?
+        (handler request)
+        ;( handler wrap-raw request)
+        (let [
+          resp ((anti-csrf/wrap handler) request)
+              p (println ">o> resp-html !!!!!!!!!!!!!!!!!!!!!!!!!")
+              p (println ">o> resp-html.resp" resp)
+              ]
+
+          resp
+
+          )
+        )
+      )
+
+
+    ;(if (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      )
+    ;    (handler request)
+    ;    ;( handler wrap-raw request)
+    ;    ((wrap-raw handler) request)
+    ;      )
+    ))
+
+
 (defn create-app [options]
   (let [router (ring/router
 
@@ -635,11 +683,13 @@ p (println ">o> body2" body2)
 
                                       ring-audits/wrap
 
-                                      extract-header
 
+                                      ;; HINT: csrf-handling
+                                      extract-header
+                                      ;anti-csrf/wrap
+                                      wrap-csrf
 
                                       ;auth/wrap-authenticate ;broken workflow caused by token
-                                      ;anti-csrf/wrap
 
 
                                       my-before1
@@ -647,7 +697,7 @@ p (println ">o> body2" body2)
                                       wrap-cookies
                                       my-before2
 
-                                      anti-csrf/wrap
+                                      ;anti-csrf/wrap
 
 
                                       ;locale/wrap
