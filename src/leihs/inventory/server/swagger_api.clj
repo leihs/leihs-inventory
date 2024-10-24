@@ -576,9 +576,16 @@
 
                 html (:body resp)
 
+                resp (if (not (nil? html  ))
+                     (->> (add-or-create-return-to-tag html params)
+                       (assoc resp :body))
+                     resp)
 
-                html (add-or-create-return-to-tag html params)
-                resp (assoc resp :body html)
+
+
+       ;)
+                ;html (add-or-create-return-to-tag html params)
+                ;resp (assoc resp :body html)
 
                 ]
 
