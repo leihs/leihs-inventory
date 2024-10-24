@@ -485,24 +485,32 @@
           (println ">o> ERROR2" (.getMessage e))
           (println ">o> ERROR2" e)
 
+          ;(->
+          ;  (response/response (json/generate-string {:status "failure"
+          ;                                            :message "1CSRF-Token/Session not valid"
+          ;                                            :detail (.getMessage e)
+          ;                                            }))
+          ;
+          ;  ;(response/response {:status "failure"
+          ;  ;                    :message "1CSRF-Token/Session not valid"
+          ;  ;                    :detail (.getMessage e)
+          ;  ;                    })
+          ;  (response/status 404)
+          ;  (response/content-type "application/json"))
+
+          ;; TODO: create login-view with error message, GET sign-in
+
+          ;(response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
           (->
-            (response/response (json/generate-string {:status "failure"
-                                                      :message "1CSRF-Token/Session not valid"
-                                                      :detail (.getMessage e)
-                                                      }))
-
-            ;(response/response {:status "failure"
-            ;                    :message "1CSRF-Token/Session not valid"
-            ;                    :detail (.getMessage e)
-            ;                    })
-            (response/status 404)
-            (response/content-type "application/json"))
-
-          ;(let [
-          ;
-          ;
-          ;
-          ;      ])
+            ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
+            ;(response/redirect "/sign-in?return-to=/inventory")
+              (response/response {:status "failure"
+                                  :message "1CSRF-Token/Session not valid"
+                                  :detail (.getMessage e)
+                                  })
+            (response/status 302)
+            (response/content-type "application/json")
+            )
 
 
           )))))
