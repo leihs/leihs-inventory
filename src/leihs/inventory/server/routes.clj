@@ -156,8 +156,8 @@
         mtoken (anti-csrf-token request)
         p (println ">o> (html) anti-csrf-token" mtoken)
 
-        mprops (anti-csrf-props request)
-        p (println ">o> (html) anti-csrf-props" mprops)
+        ;mprops (anti-csrf-props request)
+        ;p (println ">o> (html) anti-csrf-props" mprops)
 
         uuid mtoken
 
@@ -184,11 +184,23 @@
                 :csrfToken {:name "csrf-token"
                             :value uuid}} ;; Parameters including CSRF token
 
-        ;; error-message (:message query)
-        ;error-message (:message query)
-        ;_ (when (some error-message)
-        ;    (assoc params :flashMessages [{:level "error" :message error-message}])
+        ; error-message (:message query)
+        error-message (:message query)
+        p (println ">o> 6paramsA error-message" error-message)
+        p (println ">o> 6paramsB" params)
+
+        ;;params (when (some? error-message)
+        ;params (when (not (nil? error-message))
+        ;    (assoc params :flashMessages [{:level "error" :messageID error-message}])
         ;    )
+
+        params (cond (nil? error-message) params
+                     (empty? error-message) params
+                     :else (assoc params :flashMessages [{:level "error" :messageID error-message}])
+                     )
+
+
+        p (println ">o> 6paramsC" params)
 
 
 
