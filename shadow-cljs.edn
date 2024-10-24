@@ -3,6 +3,7 @@
  {:frontend
   {:output-dir "src/leihs/inventory/client/.shadow"
    :target :esm
+   ;; :compiler-options {:warnings-as-errors true}
    :js-options {:js-provider :import}
                 ;; :external-index "src/leihs/inventory/client/.shadow/imports.js"
                 ;; :external-index-format :esm}

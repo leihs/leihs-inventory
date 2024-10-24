@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react"
 import tsconfigPaths from "vite-tsconfig-paths"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import { handleI18NextRequest } from "vite-plugin-i18next-save-missing"
+import { createFilter } from "vite"
 
 const i18nSaveMissingConfig = {
   locales: ["de", "en", "fr", "es"],
@@ -10,6 +11,27 @@ const i18nSaveMissingConfig = {
   namespace: "translation",
   translate: true,
   translateFrom: "de",
+}
+
+function consoleWatcher() {
+  return {
+    name: "console-watcher",
+    configureServer(server) {
+      // Intercept the console.log method
+      const originalLog = console.log
+      console.log = function(...args) {
+        // Call the original log method
+        originalLog.apply(console, args)
+
+        // Parse the messages
+        const message = args.join(" ")
+        if (message.includes("------ WARNING")) {
+          // Handle the warning message (e.g., log to a file, alert, etc.)
+          console.warn("Parsed Warning:", message)
+        }
+      }
+    },
+  }
 }
 
 const proxyAPIRequests = () => ({
@@ -41,6 +63,7 @@ export default defineConfig({
     tsconfigPaths(),
     proxyAPIRequests(),
     handleI18NextRequest(i18nSaveMissingConfig),
+    consoleWatcher(),
   ],
   publicDir: "../../../../resources/public/inventory/static",
   root: "src/leihs/inventory/client",

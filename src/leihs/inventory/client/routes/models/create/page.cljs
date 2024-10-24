@@ -27,7 +27,6 @@
         params (jc (router/useParams))
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
-
     ($ :article
        ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
           "Inventarliste - Ausleihe Toni Areal")
@@ -59,7 +58,7 @@
                                                    :control control
                                                    :block block}))))))
 
-                ($ :div {:className "h-max flex space-x-2 sticky top-[10vh]"}
+                ($ :div {:className "h-max flex space-x-6 sticky top-[90vh] ml-auto"}
 
                    ($ Link {:to (router/generatePath
                                  "/inventory/:pool-id/models"
