@@ -15,6 +15,8 @@
 
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
+   
+   [leihs.inventory.server.constants :as consts]
 
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
@@ -197,14 +199,17 @@
                                      (be/create-error-response username request )
                                      (let [
                                            ;; TODO
-                                           ;DEV-MODE true
-                                           DEV-MODE false
+                                           ;consts/ACTIVATE-DEV-MODE-REDIRECT true
+                                           ;consts/ACTIVATE-DEV-MODE-REDIRECT false
+
                                            p (println ">o> 2RETURN-TO AFTER.0")
                                            p (println ">o> 2RETURN-TO AFTER.a" (get-in request [:form-params :return-to]))
                                            p (println ">o> 2RETURN-TO AFTER.b" (get-in request [:form-params]))
                                            ; FYI: otherwise shared-clj/src/leihs/core/redirects.clj will set
-                                           ;resp (when DEV-MODE     (assoc-in response [:headers "Location"] "/new-location/"))
-                                           request (if DEV-MODE (try (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                                           ;resp (when consts/ACTIVATE-DEV-MODE-REDIRECT     (assoc-in response [:headers "Location"] "/new-location/"))
+
+                                           ;; to overrule a redirect, we need to set the return-to value
+                                           request (if consts/ACTIVATE-DEV-MODE-REDIRECT (try (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
                                                                      (catch Exception e (println "ERROR @ 2RETURN-TO AFTER") request))
                                                                 request)
 
@@ -257,6 +262,10 @@
 
                                            ]resp)
                                      )
+
+
+
+                                   p (println ">o> !!!!!!! RESP" resp)
 
 
 
