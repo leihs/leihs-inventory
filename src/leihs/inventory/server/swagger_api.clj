@@ -38,13 +38,18 @@
             [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
+(defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
+  (let [accept-header (if (nil? accept-header) "" accept-header)
+        valid? (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
+                   (some #(= % uri) whitelist-uris-for-api))]
+    valid?))
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out"]]
-      (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
-              (some #(= % uri) whitelist-uris-for-api))
+      (if (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
         (handler request)
         (custom-not-found-handler request)))))
 

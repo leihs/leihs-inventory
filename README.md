@@ -37,6 +37,7 @@ npm run dev
 ```
 
 ### Sync Locales
+
 ```sh
 npx i18next-locales-sync -p de -s fr es en -l resources/public/inventory/static/locales/ --spaces 2 --useEmptyString true
 ```
@@ -57,10 +58,21 @@ Use `standardrb` and `standardrb --fix`.
 
 See `./bin/build`
 
-
 ### Development-Setups
+
+#### Frontend Development
+
+1. `/inventory`  
+   http://localhost:8080/
+
+   ```bash
+   # leihs/inventory
+   ./bin/dev-run-backend
+   ```
+
 #### Standalone
-1. `/inventory`   
+
+1. `/inventory`  
    http://localhost:3260/  
    See `SESSION_HANDLING_ACTIVATED?`
    ```bash
@@ -68,21 +80,21 @@ See `./bin/build`
    ./bin/dev-run-backend
    ```
 
-
 #### Setup with proxy/my/inventory
+
 1. Proxy  
-   http://localhost:3200/   
+   http://localhost:3200/
    ```bash
    # leihs/integration-tests
    ./bin/start-reverse-proxy
    ```
-2. `/inventory`   
+2. `/inventory`  
    http://localhost:3260/
    ```bash
    # leihs/inventory
    ./bin/dev-run-backend
    ```
-3. `/my` (provides simple login)   
+3. `/my` (provides simple login)  
    http://localhost:3240/
    ```bash
    # leihs/my
@@ -91,7 +103,7 @@ See `./bin/build`
 4. Legacy (not required)
    ```bash
    # leihs/legacy
-   ./bin/rails server -p 3210 
+   ./bin/rails server -p 3210
    ```
 
 ### Create artifact & deploy manually

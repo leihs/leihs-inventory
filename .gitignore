@@ -11,11 +11,9 @@ leihs-inventory.jar
 pom.xml
 node_modules/
 node_modules/.package-lock.json
-resources/public/inventory/js/
-resources/public/inventory/assets/
-resources/public/index.html
-src/leihs/inventory/client/.shadow
+resources/public/inventory/assets/js/
+resources/public/inventory/assets/css/style.css
 resources/built-info.yml
-
-target/
+dev/gen/
 tmp/
+target
