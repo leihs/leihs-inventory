@@ -185,7 +185,7 @@
 
 
         ;; Convert the updated Hickory tree back to HTML
-        _ (println ">o> abc2")
+        _ (println ">o> abc2.1")
         ;(str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
         html (render/hickory-to-html updated-tree)
             ;html   (pprint-html  html)
@@ -246,7 +246,7 @@
 
 
         ;; Convert the updated Hickory tree back to HTML
-        _ (println ">o> abc2")
+        _ (println ">o> abc2.2")
         ;(str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
         html (render/hickory-to-html updated-tree)
             ;html   (pprint-html  html)

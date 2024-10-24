@@ -184,6 +184,11 @@
                 :csrfToken {:name "csrf-token"
                             :value uuid}} ;; Parameters including CSRF token
 
+        params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
+                     :else params
+                     )
+
+
         ; error-message (:message query)
         error-message (:message query)
         p (println ">o> 6paramsA error-message" error-message)
@@ -480,6 +485,10 @@
                                           :csrfToken {:name "csrf-token"
                                                       :value uuid}} ;; Parameters including CSRF token
                                   ;html (sign-in-view params) ;; Generate the original HTML using the params
+
+                                  params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
+                                           :else params
+                                           )
 
                                   html (slurp (io/resource "public/dev-logout.html"))
 

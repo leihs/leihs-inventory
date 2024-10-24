@@ -20,6 +20,8 @@
 
    [leihs.core.db]
 
+   [leihs.core.json :refer [to-json from-json ]]
+
    [leihs.inventory.server.routes :refer [get-sign-in]]
 
 
@@ -397,7 +399,7 @@
           body (get-in request [:body])
           ;head (get-in request [:headers "x-csrf-token"])
           form (get-in request [:form])
-          p (println ">o> abc2" body form)
+          p (println ">o> abc2.3" body form)
 
 
           body2 (:body-params request)
@@ -504,7 +506,27 @@
 
           ;; TODO: create login-view with error message, GET sign-in
 
+          (if (clojure.string/includes? (:uri request) "/sign-in")
           (response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
+          ;(response/redirect "/sign-out?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
+          ;(response/redirect "/sign-out?return-to=%2Fsign-out&message=1CSRF-Token/Session not valid")
+
+          ;(response/redirect "/sign-out?message=1CSRF-Token/Session not valid")
+
+          (->
+            ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
+            ;(response/redirect "/sign-in?return-to=/inventory")
+              (response/response {:status "failure"
+                                  :message "1CSRF-Token/Session not valid"
+                                  :detail (.getMessage e)
+                                  })
+            (response/status 402)
+            (response/content-type "application/json")
+            )
+
+
+            )
+
 
           ;(->
           ;  ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
@@ -573,40 +595,61 @@
         ;(if (= (:uri request)))
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out"])
           (let [
-                resp ((anti-csrf/wrap handler) request)
-                p (println ">o> resp-html !!!!!!!!!!!!!!!!!!!!!!!!!")
-                p (println ">o> resp-html.1resp" resp)
-                p (println ">o> resp-html.2resp" (:uri request))
+                ;resp ((anti-csrf/wrap handler) request)     ;; FIXME
+                resp (try ((anti-csrf/wrap handler) request)
+                          (catch Exception e
+                                                                   ;(println "Error updating password: " e)
+                                                                   ;(response/status
+                                                                   ;  (response/response
+                                                                   ;    {:message "Error updating password"
+                                                                   ;
+                                                                   ;     :detail (.getMessage e)}
+                                                                   ;     )
+                                                                   ;  400)
+                                                                   {:status 400
+                                                                    :headers {"Content-Type" "application/json"}
+                                                                    :body (to-json {:message "Error updating password"
+                                                                         :detail (.getMessage e)})
+                                                                    }
+                                                                   )
+                          )    ;; FIXME
 
-                status (:status resp)
-                p (println ">o> resp.status" status)
+
+                p (println ">o> resp     >>>>" resp)
 
 
-                contains-error? (and
-                                  (not (nil? (:body resp)))
-                                  (clojure.string/includes? (:body resp) "><div class=\"message\">error:"))
-                p (println ">o> resp-html !!!! contains-error?" contains-error?)
-
-                ;returnTo (if )
-
-                params {}
-
-                ;params {:authFlow {:returnTo "/sign-in"}}
-                ;;params {:authFlow {:return-to '/sign-in'}}
+                ;p (println ">o> resp-html !!!!!!!!!!!!!!!!!!!!!!!!!")
+                ;p (println ">o> resp-html.1resp" resp)
+                ;p (println ">o> resp-html.2resp" (:uri request))
                 ;
+                ;status (:status resp)
+                ;p (println ">o> resp.status" status)
+                ;
+                ;
+                ;contains-error? (and
+                ;                  (not (nil? (:body resp)))
+                ;                  (clojure.string/includes? (:body resp) "><div class=\"message\">error:"))
+                ;p (println ">o> resp-html !!!! contains-error?" contains-error?)
+                ;
+                ;;returnTo (if )
+                ;
+                ;params {}
+                ;
+                ;
+                ;html (:body resp)
+                ;
+                ;resp (if (not (nil? html  ))
+                ;     (->> (add-or-create-return-to-tag html params)
+                ;       (assoc resp :body))
+                ;     resp)
+                ;
+                ;
+                ;p (println ">o> wrap-csrf >>1a ------------------")
+                ;p (println ">o> wrap-csrf >>1a" resp)
+                ;
+                ;p (println ">o> wrap-csrf >>1b ------------------")
 
-                html (:body resp)
 
-                resp (if (not (nil? html  ))
-                     (->> (add-or-create-return-to-tag html params)
-                       (assoc resp :body))
-                     resp)
-
-
-
-       ;)
-                ;html (add-or-create-return-to-tag html params)
-                ;resp (assoc resp :body html)
 
                 ]
 
