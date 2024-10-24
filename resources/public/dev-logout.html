@@ -10,6 +10,7 @@
         .btn { padding: 0.5rem 1rem; background-color: #333; color: #fff; border: none; cursor: pointer; }
         .btn:hover { background-color: #555; }
         .form-group { margin: 0.5rem; }
+        .error-message { color: red; margin-top: 1rem; display: none; }
     </style>
 </head>
 <body>
@@ -26,40 +27,42 @@
     </div>
 </form>
 
+<p id="error-message" class="error-message">Failed to sign out. Please try again.</p>
+
 <script>
     function signOut() {
-        console.log("Sign-out button clicked");
-
-        // Get CSRF token from the meta tag
-
-console.log("CSRF token.before");
         const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = csrfMetaTag ? csrfMetaTag.getAttribute('content') : null;
-console.log("CSRF token.after:", csrfToken);
+        const url = '/sign-out';
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'text/html'
+        }
 
-        // Set the sign-out URL
-        const url = '/sign-out'; // Adjust this to the correct path
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
 
-        // Make the asynchronous POST request
         fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'text/html',
-                'X-CSRF-Token': csrfToken // Add the CSRF token to the request header
-            },
+            headers: headers,
             body: JSON.stringify({})
         })
             .then(response => {
                 if (response.ok) {
                     console.log("Successfully signed out");
-                    // Redirect to home page
                     window.location.replace('/');
                 } else {
-                    response.text().then(text => console.error("Failed to sign out:", text));
+                    response.text().then(text => {
+                        console.error("Failed to sign out:", text);
+                        document.getElementById('error-message').style.display = 'block';
+                    });
                 }
             })
-            .catch(error => console.error("Fetch error:", error));
+            .catch(error => {
+                console.error("Fetch error:", error);
+                document.getElementById('error-message').style.display = 'block';
+            });
     }
 </script>
 
