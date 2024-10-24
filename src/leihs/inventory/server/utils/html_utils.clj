@@ -65,6 +65,21 @@
         node))
     tree))
 
+(defn add-error-message-field [tree error-message-field]
+   (println ">o> tree" tree)
+  (println ">o> error-message-field" error-message-field)
+  (walk/postwalk
+    (fn [node]
+      (if (and (map? node)
+            (= (:tag node) :form))
+        ;; Add the return-to input field if it doesn't already exist
+        (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :class]) "message")) (:content node)))
+        ;(if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :name]) "message")) (:content node)))
+          (update node :content conj error-message-field)
+          node)
+        node))
+    tree))
+
 (defn pprint-html [html-str]
   (with-out-str (pp/pprint html-str)))
 
@@ -167,6 +182,67 @@
 
 
             updated-tree (add-return-field hickory-tree return-field)
+
+
+        ;; Convert the updated Hickory tree back to HTML
+        _ (println ">o> abc2")
+        ;(str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
+        html (render/hickory-to-html updated-tree)
+            ;html   (pprint-html  html)
+            ]
+
+        html
+        )
+
+    (catch Exception e
+      (println "Error in add-csrf-tags:" (.getMessage e))
+      (.printStackTrace e)
+      html-str)))  ;; Return original HTML in case of error
+
+
+(defn add-or-create-error-tag
+  [html-str {:keys [authFlow csrfToken]}]
+  (try
+    ;(println ">o> abc1" html-str)
+
+    ;; Parse the HTML into a Hickory tree
+    (let [
+          p (println ">o> html-str" html-str)
+
+          parsed-html (h/parse html-str)
+          p (println ">o> parsed-html" parsed-html)
+
+          hickory-tree (h/as-hickory parsed-html)
+          p (println ">o> hickory-tree" hickory-tree)
+
+          csrf-name (:name csrfToken)
+          csrf-value (:value csrfToken)
+          returnTo (:returnTo authFlow)
+          errorMessage (:errorMessage authFlow)
+
+          errorMessageField {:type :element
+                        :tag :div
+                        :attrs {:class "message" :value errorMessage}}
+
+          ;]
+
+      ;; Log the authFlow and csrfToken for debugging
+      _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
+      _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+
+      ;;; Function to add t
+
+      ;; Apply the transformations: add the meta tag, update the hidden input field, and add form if missing
+      ;(let [
+            ;updated-tree (-> hickory-tree
+            ;               ;add-meta-tag
+            ;               ;update-csrf-input
+            ;               ;add-form-if-missing
+            ;               (add-return-field return-to)     ;; arity issue
+            ;               )
+
+
+            updated-tree (add-error-message-field hickory-tree errorMessageField)
 
 
         ;; Convert the updated Hickory tree back to HTML

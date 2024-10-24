@@ -486,17 +486,25 @@
           (println ">o> ERROR2" e)
 
           (->
-            ;(response/response (json/generate-string {:status "failure"
-            ;                                          :message "1CSRF-Token/Session not valid"
-            ;                                          :detail (.getMessage e)
-            ;                                          }))
+            (response/response (json/generate-string {:status "failure"
+                                                      :message "1CSRF-Token/Session not valid"
+                                                      :detail (.getMessage e)
+                                                      }))
 
-            (response/response {:status "failure"
-                                :message "1CSRF-Token/Session not valid"
-                                :detail (.getMessage e)
-                                })
+            ;(response/response {:status "failure"
+            ;                    :message "1CSRF-Token/Session not valid"
+            ;                    :detail (.getMessage e)
+            ;                    })
             (response/status 404)
             (response/content-type "application/json"))
+
+          ;(let [
+          ;
+          ;
+          ;
+          ;      ])
+
+
           )))))
 
 
