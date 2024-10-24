@@ -29,7 +29,7 @@
         control (:control (jc form))]
 
     ($ :article
-       ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
+       ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
           "Inventarliste - Ausleihe Toni Areal")
 
        ($ :h3 {:className "text-sm mt-12 mb-6 text-gray-500"}
@@ -59,7 +59,7 @@
                                                    :control control
                                                    :block block}))))))
 
-                ($ :div {:className "h-max flex space-x-2 sticky top-[10vh]"}
+                ($ :div {:className "h-max flex space-x-6 sticky top-[43vh] ml-auto"}
 
                    ($ Link {:to (router/generatePath
                                  "/inventory/:pool-id/models"

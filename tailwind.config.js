@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: [
-    "./src/leihs/inventory/client/.shadow/**/*.{js,jsx,cljs}",
-    "./src/**/*.{js,jsx,cljs}",
-  ],
+  content: ["./src/**/*.{html,js,jsx,tsx,cljs}"],
   prefix: "",
   theme: {
     container: {

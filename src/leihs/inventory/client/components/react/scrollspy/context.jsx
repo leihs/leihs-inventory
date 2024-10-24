@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 
 // Create the context
 const ScrollspyContext = React.createContext()
@@ -6,7 +6,7 @@ const ScrollspyContext = React.createContext()
 // Create a provider component
 export const ScrollspyProvider = ({ children }) => {
   const [current, setCurrent] = React.useState(0)
-  const [items, setItems] = useState([])
+  const [items, setItems] = React.useState([])
 
   // Function to add an item
   function addItem(item) {

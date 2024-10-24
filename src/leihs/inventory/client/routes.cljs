@@ -18,7 +18,8 @@
 (def routes
   (createBrowserRouter
    (cj
-    [{:element
+    [{:path "/inventory"
+      :element
       ($ root-layout)
       :errorElement
       ($ notfound-page)
@@ -32,7 +33,7 @@
         {:path "inventory/debug"
          :element ($ debug-page)}
 
-        {:path "inventory/:pool-id"
+        {:path ":pool-id"
          :children
          (cj [{:path "models/create"
                :element ($ models-create-page)}

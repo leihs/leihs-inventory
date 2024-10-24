@@ -9,7 +9,7 @@
    [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
    [uix.core :as uix :refer [defui $]]))
 
-comment "available form fields"
+;; "available form fields"
 (def fields-map
   {"input" Input
    "dropzone" Dropzone
