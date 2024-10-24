@@ -504,17 +504,18 @@
 
           ;; TODO: create login-view with error message, GET sign-in
 
-          ;(response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
-          (->
-            ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
-            ;(response/redirect "/sign-in?return-to=/inventory")
-              (response/response {:status "failure"
-                                  :message "1CSRF-Token/Session not valid"
-                                  :detail (.getMessage e)
-                                  })
-            (response/status 302)
-            (response/content-type "application/json")
-            )
+          (response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
+
+          ;(->
+          ;  ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
+          ;  ;(response/redirect "/sign-in?return-to=/inventory")
+          ;    (response/response {:status "failure"
+          ;                        :message "1CSRF-Token/Session not valid"
+          ;                        :detail (.getMessage e)
+          ;                        })
+          ;  (response/status 302)
+          ;  (response/content-type "application/json")
+          ;  )
 
 
           )))))
