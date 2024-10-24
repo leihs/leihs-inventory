@@ -20,6 +20,8 @@
 
    [leihs.core.db]
 
+   [leihs.inventory.server.routes :refer [get-sign-in]]
+
 
    ;[leihs.core.anti-csrf.back :refer [anti-csrf-token anti-csrf-props x-csrf-token!]]
    [leihs.core.db :as db]
@@ -245,12 +247,13 @@
 ;                                                         (catch Exception e (println ">o> ERROR" (.getMessage e)) nil)))
 
 
-(defn extract-form-params [request]
+(defn extract-form-params [stream]
   (try
     (let [
-          p (println ">o> extract-form-params.IN" (:body request))
+          ;p (println ">o> extract-form-params.IN" (:body request))
 
-          body-stream (:body request)
+          ;body-stream (:body request)
+          body-stream stream
           _ (println ">o> >1 body-stream" body-stream)
 
           ;; Convert the body stream to string
@@ -330,7 +333,8 @@
           ;
           ;            (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
           ;p (println ">o> body21111d.params" body21111)
-          body-form (extract-form-params request)
+          ;body-form (extract-form-params request)
+          body-form (extract-form-params (:body request))
           p (println ">o> body-form =>" body-form)
           body-token (:x-csrf-token body-form)
           p (println ">o> body-form.token =>" body-token)

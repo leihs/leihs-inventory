@@ -149,7 +149,89 @@
    (token-routes)])
 
 
+;(defn get-sign-in [request]
+;  (let [
+;        mtoken (anti-csrf-token request)
+;        p (println ">o> (html) anti-csrf-token" mtoken)
+;
+;        mprops (anti-csrf-props request)
+;        p (println ">o> (html) anti-csrf-props" mprops)
+;
+;        uuid mtoken
+;
+;        p (println ">o> abcA1" (:query-params request))
+;        query (convert-to-map (:query-params request))
+;        p (println ">o> abcA1a" query)
+;        p (println ">o> abcA2" (:query-params-raw request))
+;
+;
+;        ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+;        params {:authFlow {:returnTo (or  (:return-to query) "/inventory/models")
+;                ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
+;
+;                           }
+;                           ;:flashMessages [{:level "error" :message (:message query)}]
+;                           :flashMessages []
+;
+;
+;                :csrfToken {:name "csrf-token"
+;                            :value uuid}} ;; Parameters including CSRF token
+;
+;        error-message (:message query)
+;        _ (when (some error-message)
+;            (assoc params :flashMessages [{:level "error" :message error-message}])
+;            )
+;
+;
+;
+;        html (sign-in-view params) ;; Generate the original HTML using the params
+;
+;        ;; Debugging the original HTML
+;        _ (println ">o> html.before" html (type html))
+;
+;        ;; Add CSRF tokens to the HTML and debug the result
+;        html-with-csrf (add-csrf-tags html params)
+;        _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+;        ]
+;
+;    ;; Return the modified HTML in the response
+;    {:status 200
+;     :headers {"Content-Type" "text/html; charset=utf-8"}
+;     :body html-with-csrf}))
 
+
+
+(defn get-sign-in [request]
+           (let [
+                 mtoken (anti-csrf-token request)
+                 p (println ">o> (html) anti-csrf-token" mtoken)
+
+                 mprops (anti-csrf-props request)
+                 p (println ">o> (html) anti-csrf-props" mprops)
+
+                 uuid mtoken
+
+
+                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+                 params {:authFlow {:returnTo "/inventory/models"}
+                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
+                         :csrfToken {:name "csrf-token"
+                                     :value uuid}} ;; Parameters including CSRF token
+
+                 html (sign-in-view params) ;; Generate the original HTML using the params
+
+                 ;; Debugging the original HTML
+                 _ (println ">o> html.before" html (type html))
+
+                 ;; Add CSRF tokens to the HTML and debug the result
+                 html-with-csrf (add-csrf-tags html params)
+                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+                 ]
+
+             ;; Return the modified HTML in the response
+             {:status 200
+              :headers {"Content-Type" "text/html; charset=utf-8"}
+              :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
 
 
 (defn basic-routes []
@@ -287,37 +369,40 @@
                  :summary "Get sign-in page"
                  :accept "text/html"
                  :swagger {:produces ["text/html"]}
-                 :handler (fn [request]
-                            (let [
-                                  mtoken (anti-csrf-token request)
-                                  p (println ">o> (html) anti-csrf-token" mtoken)
 
-                                  mprops (anti-csrf-props request)
-                                  p (println ">o> (html) anti-csrf-props" mprops)
+                 :handler get-sign-in
 
-                                  uuid mtoken
-
-
-                                  ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                                  params {:authFlow {:returnTo "/inventory/models"}
-                                          ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-                                          :csrfToken {:name "csrf-token"
-                                                      :value uuid}} ;; Parameters including CSRF token
-
-                                  html (sign-in-view params) ;; Generate the original HTML using the params
-
-                                  ;; Debugging the original HTML
-                                  _ (println ">o> html.before" html (type html))
-
-                                  ;; Add CSRF tokens to the HTML and debug the result
-                                  html-with-csrf (add-csrf-tags html params)
-                                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-                                  ]
-
-                              ;; Return the modified HTML in the response
-                              {:status 200
-                               :headers {"Content-Type" "text/html; charset=utf-8"}
-                               :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
+                 ;:handler (fn [request]
+                 ;           (let [
+                 ;                 mtoken (anti-csrf-token request)
+                 ;                 p (println ">o> (html) anti-csrf-token" mtoken)
+                 ;
+                 ;                 mprops (anti-csrf-props request)
+                 ;                 p (println ">o> (html) anti-csrf-props" mprops)
+                 ;
+                 ;                 uuid mtoken
+                 ;
+                 ;
+                 ;                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+                 ;                 params {:authFlow {:returnTo "/inventory/models"}
+                 ;                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
+                 ;                         :csrfToken {:name "csrf-token"
+                 ;                                     :value uuid}} ;; Parameters including CSRF token
+                 ;
+                 ;                 html (sign-in-view params) ;; Generate the original HTML using the params
+                 ;
+                 ;                 ;; Debugging the original HTML
+                 ;                 _ (println ">o> html.before" html (type html))
+                 ;
+                 ;                 ;; Add CSRF tokens to the HTML and debug the result
+                 ;                 html-with-csrf (add-csrf-tags html params)
+                 ;                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+                 ;                 ]
+                 ;
+                 ;             ;; Return the modified HTML in the response
+                 ;             {:status 200
+                 ;              :headers {"Content-Type" "text/html; charset=utf-8"}
+                 ;              :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
 
                  }
 
