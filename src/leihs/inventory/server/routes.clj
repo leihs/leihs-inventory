@@ -148,7 +148,9 @@
    (get-user-routes)
    (token-routes)])
 
-
+(defn convert-to-map [dict]
+  (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict))
+  )
 (defn get-sign-in [request]
   (let [
         mtoken (anti-csrf-token request)
@@ -159,10 +161,12 @@
 
         uuid mtoken
 
-        p (println ">o> abcA1" (:query-params request))
-        ;query (convert-to-map (:query-params request))
+        ;p (println ">o> abcA1" (:query-params request))
 
-        query nil
+        p (println ">o> query1" (:query-params request))
+        query (convert-to-map (:query-params request))
+        p (println ">o> query2" query)
+        ;query nil
 
         ;p (println ">o> abcA1a" query)
         p (println ">o> abcA2" (:query-params-raw request))
