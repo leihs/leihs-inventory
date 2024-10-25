@@ -151,7 +151,9 @@
 (defn convert-to-map [dict]
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict))
   )
-(defn get-sign-in [request]
+
+
+  (defn get-sign-in [request]
   (let [
         mtoken (anti-csrf-token request)
         p (println ">o> (html) anti-csrf-token" mtoken)
@@ -281,38 +283,15 @@
      :body html}))
 
 
+(defn post-sign-out [request]
+  (let [resp (so/routes (convert-params request))]
+    ;; Log request method and URI for debugging purposes if needed.
+    (println ">o> Handling sign-out request")
+    (println ">o> Request Method:" (:request-method request))
+    (println ">o> URI:" (:uri request))
 
-;(defn get-sign-in [request]
-;           (let [
-;                 mtoken (anti-csrf-token request)
-;                 p (println ">o> (html) anti-csrf-token" mtoken)
-;
-;                 mprops (anti-csrf-props request)
-;                 p (println ">o> (html) anti-csrf-props" mprops)
-;
-;                 uuid mtoken
-;
-;
-;                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-;                 params {:authFlow {:returnTo "/inventory/models"}
-;                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-;                         :csrfToken {:name "csrf-token"
-;                                     :value uuid}} ;; Parameters including CSRF token
-;
-;                 html (sign-in-view params) ;; Generate the original HTML using the params
-;
-;                 ;; Debugging the original HTML
-;                 _ (println ">o> html.before" html (type html))
-;
-;                 ;; Add CSRF tokens to the HTML and debug the result
-;                 html-with-csrf (add-csrf-tags html params)
-;                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-;                 ]
-;
-;             ;; Return the modified HTML in the response
-;             {:status 200
-;              :headers {"Content-Type" "text/html; charset=utf-8"}
-;              :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
+    resp))
+
 
 
 (defn basic-routes []
@@ -509,22 +488,23 @@
 
                   ;:handler get-sign-out
 
-                  :handler
-                  (fn [request]
-                    (let [
-
-                          p (println ">o> !!!!!!!!!!!!!!!!!!! server/routes.clj::POST /sign-out")
-                          p (println ">o> server/routes.clj::POST /sign-out")
-                          request-method (:request-method request)
-                          uri (:uri request)
-                          resp (so/routes (convert-params request))]
-
-                      ;; Logging request method and URI for debugging
-                      (println ">o> Request Method:" request-method)
-                      (println ">o> URI:" uri)
-                      ;(println ">o> Response:" resp)
-
-                      resp))
+                  :handler post-sign-out
+                  ;:handler
+                  ;(fn [request]
+                  ;  (let [
+                  ;
+                  ;        p (println ">o> !!!!!!!!!!!!!!!!!!! server/routes.clj::POST /sign-out")
+                  ;        p (println ">o> server/routes.clj::POST /sign-out")
+                  ;        request-method (:request-method request)
+                  ;        uri (:uri request)
+                  ;        resp (so/routes (convert-params request))]
+                  ;
+                  ;    ;; Logging request method and URI for debugging
+                  ;    (println ">o> Request Method:" request-method)
+                  ;    (println ">o> URI:" uri)
+                  ;    ;(println ">o> Response:" resp)
+                  ;
+                  ;    resp))
                   }
 
            :get {
