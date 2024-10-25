@@ -98,32 +98,13 @@
 
 
 (defn convert-params [request]
-  (println ">o> convert-params" request)
-  (if (nil? (:form-params request))
-    (do
-      (println ">o> convert-params / (:form-params request) NOT SET => " (:form-params request))
-      request)
+  (if-let [form-params (:form-params request)]
+    (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) form-params))]
+      (-> request
+        (assoc :form-params converted-form-params)
+        (assoc :form-params-raw converted-form-params)))
+    request))
 
-    (let [
-          p (println ">o> convert-params.IN" (:form-params request))
-
-          converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
-
-          p (println ">o> convert-params.OUT to [:form-params :form-params-raw]" converted-form-params)
-
-
-
-
-          request (assoc request :form-params converted-form-params)
-          request (assoc request :form-params-raw converted-form-params)
-
-          ]
-      ;(assoc request :form-params-raw converted-form-params)
-      request
-      )
-
-    )
-  )
 
 
 
@@ -152,79 +133,27 @@
   (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict))
   )
 
-
-  (defn get-sign-in [request]
-  (let [
-        mtoken (anti-csrf-token request)
-        p (println ">o> (html) anti-csrf-token" mtoken)
-
-        ;mprops (anti-csrf-props request)
-        ;p (println ">o> (html) anti-csrf-props" mprops)
-
-        uuid mtoken
-
-        ;p (println ">o> abcA1" (:query-params request))
-
-        p (println ">o> query1" (:query-params request))
+(defn get-sign-in [request]
+  (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
-        p (println ">o> query2" query)
-        ;query nil
 
-        ;p (println ">o> abcA1a" query)
-        p (println ">o> abcA2" (:query-params-raw request))
+        ;; Construct params, including CSRF token if activated
+        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
+                    :flashMessages []}
+                 (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
+                                     {:name "csrf-token" :value mtoken}))
+                 (cond-> (not (nil? (:message query)))
+                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
 
-
-        ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-        params {:authFlow {:returnTo (or  (:return-to query) "/inventory/models")
-                ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-
-                           }
-                           ;:flashMessages [{:level "error" :message (:message query)}]
-                           :flashMessages []
-
-
-                :csrfToken {:name "csrf-token"
-                            :value uuid}} ;; Parameters including CSRF token
-
-        params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
-                     :else params
-                     )
-
-
-        ; error-message (:message query)
-        error-message (:message query)
-        p (println ">o> 6paramsA error-message" error-message)
-        p (println ">o> 6paramsB" params)
-
-        ;;params (when (some? error-message)
-        ;params (when (not (nil? error-message))
-        ;    (assoc params :flashMessages [{:level "error" :messageID error-message}])
-        ;    )
-
-        params (cond (nil? error-message) params
-                     (empty? error-message) params
-                     :else (assoc params :flashMessages [{:level "error" :messageID error-message}])
-                     )
-
-
-        p (println ">o> 6paramsC" params)
-
-
-
-        html (sign-in-view params) ;; Generate the original HTML using the params
-
-        ;; Debugging the original HTML
-        _ (println ">o> html.before" html (type html))
-
-        ;; Add CSRF tokens to the HTML and debug the result
-        html-with-csrf (add-csrf-tags html params)
-        _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-        ]
+        ;; Generate the original HTML and add CSRF tags
+        html (as-> (sign-in-view params) $
+               (add-csrf-tags $ params))]
 
     ;; Return the modified HTML in the response
     {:status 200
      :headers {"Content-Type" "text/html; charset=utf-8"}
-     :body html-with-csrf}))
+     :body html}))
+
 
 
 (defn post-sign-in [request]
