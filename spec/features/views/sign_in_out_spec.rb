@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require_relative '../../features/api/_shared'
+require_relative "../../features/api/_shared"
 
 feature "Request" do
   context "with accept=text/html" do
@@ -29,7 +29,6 @@ feature "Request" do
       end
 
       context "sign-in form" do
-
         include_context :setup_models_api_min
 
         scenario "user can fill out and submit the login form successfully" do
@@ -52,7 +51,7 @@ feature "Request" do
           expect(page).to have_content("Sign out")
           click_button "Sign out"
 
-# test redirect to sign-in page after logout
+          # test redirect to sign-in page after logout
           visit "/inventory/models"
           expect(page).to have_content("Leihs Simple Login")
 
