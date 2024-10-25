@@ -205,475 +205,507 @@
 ;>o> ERROR The x-csrf-token has not been send!
 ;>o> ERROR The anti-csrf-token cookie value is not set.
 
-(def ANTI_CSRF_TOKEN_COOKIE_NAME "leihs-anti-csrf-token")
 
 (defn valid-uuid? [token]
   (if (nil? token)
     false
-
     (try
       (UUID/fromString token)                               ;; attempts to parse as UUID, will throw if invalid
       true
       (catch IllegalArgumentException _                     ;; if parsing fails, catch the exception
-        false)))
-  )
-
+        false)))  )
 
 (defn convert-params [request]
-  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
-
-        request (assoc request :form-params converted-form-params)
-        request (assoc request :form-params-raw converted-form-params)
-
-        ]
-    ;(assoc request :form-params-raw converted-form-params)
-    request
-    ))
-
-;(defn extract-form-params [request]
-;  (try
-;
-;                                                         (let [
-;                                                               body-stream (:body request)
-;                                                               p (println ">o> >1 body-stream" body-stream)
-;                                                               body-str (bs/to-string body-stream)
-;                                                               p (println ">o> >1 body-str" body-str)
-;
-;                                                               params (codec/form-decode body-str)
-;                                                               p (println ">o> >1 params" params)
-;                                                               p (println ">o> >1a params" (:user params))
-;                                                               p (println ">o> >1b params" (get params "user")) ;; works
-;                                                               p (println ">o> >1c params" (get params :user))
-;                                                               ]params)
-;
-;                                                         (catch Exception e (println ">o> ERROR" (.getMessage e)) nil)))
-
+  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))]
+    (-> request
+      (assoc :form-params converted-form-params)
+      (assoc :form-params-raw converted-form-params))))
 
 (defn extract-form-params [stream]
   (try
-    (let [
-          ;p (println ">o> extract-form-params.IN" (:body request))
-
-          ;body-stream (:body request)
-          body-stream stream
-          _ (println ">o> >1 body-stream" body-stream)
-
-          ;; Convert the body stream to string
-          body-str (bs/to-string body-stream)
-          _ (println ">o> >1 body-str" body-str)
-
-          ;; Decode form parameters from the string
+    (let [body-str (bs/to-string stream)
           params (codec/form-decode body-str)
-          _ (println ">o> >1 params" params)
-
-          p (println ">o> extract-form-params.1" params)
-          ;; Convert string keys to keywords
-          keyword-params (keywordize-keys params)
-          _ (println ">o> >1a keyword-params" keyword-params)
-          _ (println ">o> >1b keyword-params user:" (:user keyword-params)) ;; This will work now
-
-          p (println ">o> extract-form-params.2.OUT" keyword-params)
-          ]
+          keyword-params (keywordize-keys params)]
       keyword-params)
-
     (catch Exception e
-      (println ">o> ERROR1" (.getMessage e))
+      (println ">o> ERROR" (.getMessage e))
       nil)))
 
-(defn extract-header
-  [handler]
+(defn extract-header [handler]
   (fn [request]
-
-    ;; TODO
-    ; anti-csrf-token
-    ; x-csrf-token (should be == session.anti-csrf-token)
-
-
-    (let [;; set :cookies in request
-
-
-          form-params (:form-params request)
-          p (println ">o> abc3" form-params)
-          p (println ">o> abc3a" (:parameters request))
-          p (println ">o> abc3b" (:params request))
-          p (println ">o> abc3c" (:query request))
-          p (println ">o> abc3d >>>" (:body request))       ;;here
-          p (println ">o> abc3e" (keys request))
-
-
-          ;(defn anti-csrf-token [request]
-          ;  (or (:anti-csrf-token request)
-          ;    (-> request
-          ;      :cookies
-          ;      (get constants/ANTI_CSRF_TOKEN_COOKIE_NAME nil)
-          ;      :value
-          ;      presence)))
-
-          body (get request :body)
-          ;p (println ">o> body21111a" body)
-          ;body21111 (try (slurp body) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
-          ;p (println ">o> body21111b" body21111)
-          ;
-          ;body21111 (try (slurp (:body request)) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
-          ;p (println ">o> body21111c" body21111)
-
-          ;body21111 (try (slurp (bs/to-string (:body request))) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
-          ;body21111 (try
-          ;
-          ;               (let [
-          ;                     body-stream (:body request)
-          ;                     p (println ">o> >1 body-stream" body-stream)
-          ;            body-str (bs/to-string body-stream)
-          ;                     p (println ">o> >1 body-str" body-str)
-          ;
-          ;                     params (codec/form-decode body-str)
-          ;                     p (println ">o> >1 params" params)
-          ;                     p (println ">o> >1a params" (:user params))
-          ;                     p (println ">o> >1b params" (get params "user")) ;; works
-          ;                     p (println ">o> >1c params" (get params :user))
-          ;                        ]params)
-          ;
-          ;            (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
-          ;p (println ">o> body21111d.params" body21111)
-          ;body-form (extract-form-params request)
+    (let [form-params (:form-params request)
           body-form (extract-form-params (:body request))
-          p (println ">o> body-form =>" body-form)
-          body-token (:x-csrf-token body-form)
-          p (println ">o> body-form.token =>" body-token)
-
-
-          ;(get-in request [:form-params :x-csrf-token])
-          request (assoc request :form-params body-form)
-          ;request (assoc request :anti-csrf-token body-token)
-
-          p (println ">o> ------------------------------------")
-
-
-
-          ;; --------------------------------
-
-
-          p (println ">o> csrf-token3b BODY-FORM !!!!!! " body-form)
-          p (println ">o> csrf-token3b COOKIE2 !!!!!! " (:cookies request))
-          p (println ">o> csrf-token3b COOKIE2 !!!!!! " (:anti-csrf-token request))
-
-
-          request (add-cookies-to-request request)
-          p (println ">o> >COOKIE-TOKEN< (:cookies request)" (:cookies request))
-
-          token (get-cookie-value request)
-
-
-          request (convert-params request)
-
-
-
-
-          p (println ">o> r-params" (:form-params request))
-          p (println ">o> r-params" (:form-params-raw request))
-
-          ;request (if (http-unsafe? request)
-          ;       (let [
-          ;
-          ;
-          ;             p (println ">o> SET POST CSRF")
-          ;
-          ;                ])
-          ;
-          ;
-          ;    )
-
-
-          ;anti-csrf (get-in request [:headers "anti-csrf-token"]) ;; wrapper
-          ;request (assoc request :anti-csrf-token anti-csrf) ;; used by wrapper
-          ;p (println ">o> >HEADER-TOKEN< (:anti-csrf-token request) => " (:anti-csrf-token request))
-
-          ;head (get-in request [:headers "x-csrf-token"])
-          ;body (get-in request [:body "x-csrf-token"])
-          ;form (get-in request [:form "x-csrf-token"])
-          ;p (println ">o> abc1" head body form)
-
-
-
-
-          body (get-in request [:body])
-          ;head (get-in request [:headers "x-csrf-token"])
-          form (get-in request [:form])
-          p (println ">o> abc2.3" body form)
-
-
-          body2 (:body-params request)
-          p (println ">o> body2" body2)
-
-
-          ;body-stream (get-in request [:body])
-          ;_ (println ">o> abc3a1" body-stream)
-          ;body-str    (slurp (io/reader body-stream))  ;; Convert stream to string / BREAKS ALL
-          ;_ (println ">o> abc3b1" body-str)
-          ;params      (json/parse-string body-str true)  ;; Parse JSON to map
-          ;_ (println ">o> abc3c1" params)
-
-
-          form-params (:form-params request)
-          p (println ">o> abc3" form-params)
-          p (println ">o> abc3a" (:parameters request))
-          p (println ">o> abc3b" (:params request))
-          p (println ">o> abc3b" (:query request))
-          ;p (println ">o> abc3b" request)
-
-
-          ;; TODO: REQUEST
-          header-x-csrf-token (get-in request [:headers "x-csrf-token"]) ;; meta
-          body-x-csrf-token (get-in request [:body "x-csrf-token"]) ;; meta
-
-          x-csrf-token (or header-x-csrf-token body-x-csrf-token)
-
-          ;request (assoc request :x-csrf-token x-csrf-token) ;; used by wrapper
-
-          p (println ">o> >header-x-csrf-token =>" header-x-csrf-token)
-          p (println ">o> >body-x-csrf-token =>" body-x-csrf-token)
-          p (println ">o> >x-csrf-token =>" x-csrf-token (valid-uuid? x-csrf-token))
-
-
-          ;x-csrf-token (if (valid-uuid? x-csrf-token)
-          ;               x-csrf-token
-          ;               nil)
-          ;p (println ">o> >x-csrf-token (after-maybe-generated)=>" x-csrf-token)
-
-          ;request (assoc request :anti-csrf-token x-csrf-token) ;; used by wrapper
-          ;p (println ">o> >HEADER-TOKEN< (:x-csrf-token request) =>" (:x-csrf-token request))
-
-
-
-          ;;; this works
-          ;abc (-> request
-          ;      :cookies
-          ;      (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
-          ;      :value
-          ;      presence)
-          ;p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-          ;p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token))
-          ;
-          ;          abc (-> request
-          ;                :cookies
-          ;                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
-          ;)
-          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-          ;
-          ;          abc (-> request
-          ;            :cookies)
-          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
-
-
-          tx (:tx request)
-
-          ;;; check if token is in cookies and if user-session is valid
-          ;request (if-let [token (get-cookie-value request)]
-          ;          (if-let [user-session (user-session token tx)]
-          ;            (do
-          ;              (println ">o> WOW!!! User & session found")
-          ;              (assoc request :session {:leihs-anti-csrf-token {:value token}})) ; meta-token of website)
-          ;            (do
-          ;              (println ">o> 2a.No user-session found")
-          ;              request
-          ;              )
-          ;            )
-          ;          (do
-          ;            (println ">o> 1a.No cookie-token for user-session  found")
-          ;            request
-          ;            ))
-
-          ]
-
+          csrf-token (get body-form :x-csrf-token)
+          request (-> request
+                    (assoc :form-params body-form)
+                    (add-cookies-to-request)
+                    (convert-params))]
       (try
         (handler request)
         (catch Exception e
-          (println ">o> ERROR2" (.getMessage e))
-          (println ">o> ERROR2" e)
+          (println ">o> ERROR" (.getMessage e))
+          (if (str/includes? (:uri request) "/sign-in")
+            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+            (-> (response/response {:status "failure"
+                                    :message "CSRF-Token/Session not valid"
+                                    :detail (.getMessage e)})
+              (response/status 402)
+              (response/content-type "application/json"))))))))
 
-          ;(->
-          ;  (response/response (json/generate-string {:status "failure"
-          ;                                            :message "1CSRF-Token/Session not valid"
-          ;                                            :detail (.getMessage e)
-          ;                                            }))
-          ;
-          ;  ;(response/response {:status "failure"
-          ;  ;                    :message "1CSRF-Token/Session not valid"
-          ;  ;                    :detail (.getMessage e)
-          ;  ;                    })
-          ;  (response/status 404)
-          ;  (response/content-type "application/json"))
-
-          ;; TODO: create login-view with error message, GET sign-in
-
-          (if (clojure.string/includes? (:uri request) "/sign-in")
-          (response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
-          ;(response/redirect "/sign-out?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
-          ;(response/redirect "/sign-out?return-to=%2Fsign-out&message=1CSRF-Token/Session not valid")
-
-          ;(response/redirect "/sign-out?message=1CSRF-Token/Session not valid")
-
-          (->
-            ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
-            ;(response/redirect "/sign-in?return-to=/inventory")
-              (response/response {:status "failure"
-                                  :message "1CSRF-Token/Session not valid"
-                                  :detail (.getMessage e)
-                                  })
-            (response/status 402)
-            (response/content-type "application/json")
-            )
-
-
-            )
-
-
-          ;(->
-          ;  ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
-          ;  ;(response/redirect "/sign-in?return-to=/inventory")
-          ;    (response/response {:status "failure"
-          ;                        :message "1CSRF-Token/Session not valid"
-          ;                        :detail (.getMessage e)
-          ;                        })
-          ;  (response/status 302)
-          ;  (response/content-type "application/json")
-          ;  )
-
-
-          )))))
-
-
-(defn my-before1
-  [handler]
-  (fn [request]
-    (println ">o> my-before1")
-
-    (handler request)
-
-    ))
-
-(defn my-before2
-  [handler]
-  (fn [request]
-    (println ">o> my-before2")
-    (handler request)
-    ))
-
-
-
-
-
-;; TODO: move this to middleware
 (defn wrap-csrf [handler]
   (fn [request]
-
-    ;(println ">o> back.wrap1" (get-in request [:headers]))
-    ;(println ">o> back.wrap2" (get-in request [:headers "Referer"]))
-    ;(println ">o> back.wrap3" (get-in request [:headers "referer"]))
-    ;(println ">o> back.wrap4" (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      ))
-
-    (println ">o> back.wrap5")
-
-    (let [
-          referer (get-in request [:headers "referer"])
-          _ (println ">o> back.wrap3.referer" referer)
-
-          api-request? (if referer
-                         (clojure.string/includes? referer "/api-docs/")
-                         false)
-
-          _ (println ">o> back.wrap4.api-request?" api-request?)
-
-          ]
-
-      ;(if (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      )
+    (let [referer (get-in request [:headers "referer"])
+          api-request? (and referer (str/includes? referer "/api-docs/"))]
       (if api-request?
-        ;(if (or api-request? (not consts/ACTIVATE-CSRF))
         (handler request)
-        ;( handler wrap-raw request)
-
-        ;(if (= (:uri request)))
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out"])
-          (let [
-                ;resp ((anti-csrf/wrap handler) request)     ;; FIXME
-                resp (try ((anti-csrf/wrap handler) request)
-                          (catch Exception e
-                                                                   ;(println "Error updating password: " e)
-                                                                   ;(response/status
-                                                                   ;  (response/response
-                                                                   ;    {:message "Error updating password"
-                                                                   ;
-                                                                   ;     :detail (.getMessage e)}
-                                                                   ;     )
-                                                                   ;  400)
-                                                                   {:status 400
-                                                                    :headers {"Content-Type" "application/json"}
-                                                                    :body (to-json {:message "Error updating password"
-                                                                         :detail (.getMessage e)})
-                                                                    }
-                                                                   )
-                          )    ;; FIXME
+          (try
+            ((anti-csrf/wrap handler) request)
+            (catch Exception e
+              {:status 400
+               :headers {"Content-Type" "application/json"}
+               :body (to-json {:message "Error updating password"
+                               :detail (.getMessage e)})}))
+          (handler request))))))
 
-
-                p (println ">o> resp     >>>>" resp)
-
-
-                ;p (println ">o> resp-html !!!!!!!!!!!!!!!!!!!!!!!!!")
-                ;p (println ">o> resp-html.1resp" resp)
-                ;p (println ">o> resp-html.2resp" (:uri request))
-                ;
-                ;status (:status resp)
-                ;p (println ">o> resp.status" status)
-                ;
-                ;
-                ;contains-error? (and
-                ;                  (not (nil? (:body resp)))
-                ;                  (clojure.string/includes? (:body resp) "><div class=\"message\">error:"))
-                ;p (println ">o> resp-html !!!! contains-error?" contains-error?)
-                ;
-                ;;returnTo (if )
-                ;
-                ;params {}
-                ;
-                ;
-                ;html (:body resp)
-                ;
-                ;resp (if (not (nil? html  ))
-                ;     (->> (add-or-create-return-to-tag html params)
-                ;       (assoc resp :body))
-                ;     resp)
-                ;
-                ;
-                ;p (println ">o> wrap-csrf >>1a ------------------")
-                ;p (println ">o> wrap-csrf >>1a" resp)
-                ;
-                ;p (println ">o> wrap-csrf >>1b ------------------")
-
-
-
-                ]
-
-            resp
-
-            )
-
-
-
-          ;resp
-          (handler request)
-          )
-
-        ;]
-        )
-      )
-
-
-    ;(if (clojure.string/includes? (get-in request [:headers 'referer"])   "/api-docs/"      )
-    ;    (handler request)
-    ;    ;( handler wrap-raw request)
-    ;    ((wrap-raw handler) request)
-    ;      )
-    ))
+;; --------
+;(defn convert-params [request]
+;  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
+;
+;        request (assoc request :form-params converted-form-params)
+;        request (assoc request :form-params-raw converted-form-params)
+;
+;        ]
+;    ;(assoc request :form-params-raw converted-form-params)
+;    request
+;    ))
+;
+;
+;(defn extract-form-params [stream]
+;  (try
+;    (let [
+;          ;p (println ">o> extract-form-params.IN" (:body request))
+;
+;          ;body-stream (:body request)
+;          body-stream stream
+;          _ (println ">o> >1 body-stream" body-stream)
+;
+;          ;; Convert the body stream to string
+;          body-str (bs/to-string body-stream)
+;          _ (println ">o> >1 body-str" body-str)
+;
+;          ;; Decode form parameters from the string
+;          params (codec/form-decode body-str)
+;          _ (println ">o> >1 params" params)
+;
+;          p (println ">o> extract-form-params.1" params)
+;          ;; Convert string keys to keywords
+;          keyword-params (keywordize-keys params)
+;          _ (println ">o> >1a keyword-params" keyword-params)
+;          _ (println ">o> >1b keyword-params user:" (:user keyword-params)) ;; This will work now
+;
+;          p (println ">o> extract-form-params.2.OUT" keyword-params)
+;          ]
+;      keyword-params)
+;
+;    (catch Exception e
+;      (println ">o> ERROR1" (.getMessage e))
+;      nil)))
+;
+;(defn extract-header
+;  [handler]
+;  (fn [request]
+;
+;    ;; TODO
+;    ; anti-csrf-token
+;    ; x-csrf-token (should be == session.anti-csrf-token)
+;
+;
+;    (let [;; set :cookies in request
+;
+;
+;          form-params (:form-params request)
+;          p (println ">o> abc3" form-params)
+;          p (println ">o> abc3a" (:parameters request))
+;          p (println ">o> abc3b" (:params request))
+;          p (println ">o> abc3c" (:query request))
+;          p (println ">o> abc3d >>>" (:body request))       ;;here
+;          p (println ">o> abc3e" (keys request))
+;
+;
+;          ;(defn anti-csrf-token [request]
+;          ;  (or (:anti-csrf-token request)
+;          ;    (-> request
+;          ;      :cookies
+;          ;      (get constants/ANTI_CSRF_TOKEN_COOKIE_NAME nil)
+;          ;      :value
+;          ;      presence)))
+;
+;          body (get request :body)
+;          ;p (println ">o> body21111a" body)
+;          ;body21111 (try (slurp body) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
+;          ;p (println ">o> body21111b" body21111)
+;          ;
+;          ;body21111 (try (slurp (:body request)) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
+;          ;p (println ">o> body21111c" body21111)
+;
+;          ;body21111 (try (slurp (bs/to-string (:body request))) (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
+;          ;body21111 (try
+;          ;
+;          ;               (let [
+;          ;                     body-stream (:body request)
+;          ;                     p (println ">o> >1 body-stream" body-stream)
+;          ;            body-str (bs/to-string body-stream)
+;          ;                     p (println ">o> >1 body-str" body-str)
+;          ;
+;          ;                     params (codec/form-decode body-str)
+;          ;                     p (println ">o> >1 params" params)
+;          ;                     p (println ">o> >1a params" (:user params))
+;          ;                     p (println ">o> >1b params" (get params "user")) ;; works
+;          ;                     p (println ">o> >1c params" (get params :user))
+;          ;                        ]params)
+;          ;
+;          ;            (catch Exception e (println ">o> ERROR" (.getMessage e)) nil))
+;          ;p (println ">o> body21111d.params" body21111)
+;          ;body-form (extract-form-params request)
+;          body-form (extract-form-params (:body request))
+;          p (println ">o> body-form =>" body-form)
+;          body-token (:x-csrf-token body-form)
+;          p (println ">o> body-form.token =>" body-token)
+;
+;
+;          ;(get-in request [:form-params :x-csrf-token])
+;          request (assoc request :form-params body-form)
+;          ;request (assoc request :anti-csrf-token body-token)
+;
+;          p (println ">o> ------------------------------------")
+;
+;
+;
+;          ;; --------------------------------
+;
+;
+;          p (println ">o> csrf-token3b BODY-FORM !!!!!! " body-form)
+;          p (println ">o> csrf-token3b COOKIE2 !!!!!! " (:cookies request))
+;          p (println ">o> csrf-token3b COOKIE2 !!!!!! " (:anti-csrf-token request))
+;
+;
+;          request (add-cookies-to-request request)
+;          p (println ">o> >COOKIE-TOKEN< (:cookies request)" (:cookies request))
+;
+;          token (get-cookie-value request)
+;
+;
+;          request (convert-params request)
+;
+;
+;
+;
+;          p (println ">o> r-params" (:form-params request))
+;          p (println ">o> r-params" (:form-params-raw request))
+;
+;          ;request (if (http-unsafe? request)
+;          ;       (let [
+;          ;
+;          ;
+;          ;             p (println ">o> SET POST CSRF")
+;          ;
+;          ;                ])
+;          ;
+;          ;
+;          ;    )
+;
+;
+;          ;anti-csrf (get-in request [:headers "anti-csrf-token"]) ;; wrapper
+;          ;request (assoc request :anti-csrf-token anti-csrf) ;; used by wrapper
+;          ;p (println ">o> >HEADER-TOKEN< (:anti-csrf-token request) => " (:anti-csrf-token request))
+;
+;          ;head (get-in request [:headers "x-csrf-token"])
+;          ;body (get-in request [:body "x-csrf-token"])
+;          ;form (get-in request [:form "x-csrf-token"])
+;          ;p (println ">o> abc1" head body form)
+;
+;
+;
+;
+;          body (get-in request [:body])
+;          ;head (get-in request [:headers "x-csrf-token"])
+;          form (get-in request [:form])
+;          p (println ">o> abc2.3" body form)
+;
+;
+;          body2 (:body-params request)
+;          p (println ">o> body2" body2)
+;
+;
+;          ;body-stream (get-in request [:body])
+;          ;_ (println ">o> abc3a1" body-stream)
+;          ;body-str    (slurp (io/reader body-stream))  ;; Convert stream to string / BREAKS ALL
+;          ;_ (println ">o> abc3b1" body-str)
+;          ;params      (json/parse-string body-str true)  ;; Parse JSON to map
+;          ;_ (println ">o> abc3c1" params)
+;
+;
+;          form-params (:form-params request)
+;          p (println ">o> abc3" form-params)
+;          p (println ">o> abc3a" (:parameters request))
+;          p (println ">o> abc3b" (:params request))
+;          p (println ">o> abc3b" (:query request))
+;          ;p (println ">o> abc3b" request)
+;
+;
+;          ;; TODO: REQUEST
+;          header-x-csrf-token (get-in request [:headers "x-csrf-token"]) ;; meta
+;          body-x-csrf-token (get-in request [:body "x-csrf-token"]) ;; meta
+;
+;          x-csrf-token (or header-x-csrf-token body-x-csrf-token)
+;
+;          ;request (assoc request :x-csrf-token x-csrf-token) ;; used by wrapper
+;
+;          p (println ">o> >header-x-csrf-token =>" header-x-csrf-token)
+;          p (println ">o> >body-x-csrf-token =>" body-x-csrf-token)
+;          p (println ">o> >x-csrf-token =>" x-csrf-token (valid-uuid? x-csrf-token))
+;
+;
+;          ;x-csrf-token (if (valid-uuid? x-csrf-token)
+;          ;               x-csrf-token
+;          ;               nil)
+;          ;p (println ">o> >x-csrf-token (after-maybe-generated)=>" x-csrf-token)
+;
+;          ;request (assoc request :anti-csrf-token x-csrf-token) ;; used by wrapper
+;          ;p (println ">o> >HEADER-TOKEN< (:x-csrf-token request) =>" (:x-csrf-token request))
+;
+;
+;
+;          ;;; this works
+;          ;abc (-> request
+;          ;      :cookies
+;          ;      (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
+;          ;      :value
+;          ;      presence)
+;          ;p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+;          ;p (println ">o> >!!!!TEST, SHOULD BE EQUAL< ABC =>" abc x-csrf-token "O>" (= abc x-csrf-token))
+;          ;
+;          ;          abc (-> request
+;          ;                :cookies
+;          ;                (get (keyword ANTI_CSRF_TOKEN_COOKIE_NAME) nil)
+;          ;)
+;          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+;          ;
+;          ;          abc (-> request
+;          ;            :cookies)
+;          ;          p (println ">o> >COOKIE-TOKEN< ABC =>" abc)
+;
+;
+;          tx (:tx request)
+;
+;          ;;; check if token is in cookies and if user-session is valid
+;          ;request (if-let [token (get-cookie-value request)]
+;          ;          (if-let [user-session (user-session token tx)]
+;          ;            (do
+;          ;              (println ">o> WOW!!! User & session found")
+;          ;              (assoc request :session {:leihs-anti-csrf-token {:value token}})) ; meta-token of website)
+;          ;            (do
+;          ;              (println ">o> 2a.No user-session found")
+;          ;              request
+;          ;              )
+;          ;            )
+;          ;          (do
+;          ;            (println ">o> 1a.No cookie-token for user-session  found")
+;          ;            request
+;          ;            ))
+;
+;          ]
+;
+;      (try
+;        (handler request)
+;        (catch Exception e
+;          (println ">o> ERROR2" (.getMessage e))
+;          (println ">o> ERROR2" e)
+;
+;          ;(->
+;          ;  (response/response (json/generate-string {:status "failure"
+;          ;                                            :message "1CSRF-Token/Session not valid"
+;          ;                                            :detail (.getMessage e)
+;          ;                                            }))
+;          ;
+;          ;  ;(response/response {:status "failure"
+;          ;  ;                    :message "1CSRF-Token/Session not valid"
+;          ;  ;                    :detail (.getMessage e)
+;          ;  ;                    })
+;          ;  (response/status 404)
+;          ;  (response/content-type "application/json"))
+;
+;          ;; TODO: create login-view with error message, GET sign-in
+;
+;          (if (clojure.string/includes? (:uri request) "/sign-in")
+;          (response/redirect "/sign-in?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
+;          ;(response/redirect "/sign-out?return-to=%2Finventory&message=1CSRF-Token/Session not valid")
+;          ;(response/redirect "/sign-out?return-to=%2Fsign-out&message=1CSRF-Token/Session not valid")
+;
+;          ;(response/redirect "/sign-out?message=1CSRF-Token/Session not valid")
+;
+;          (->
+;            ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
+;            ;(response/redirect "/sign-in?return-to=/inventory")
+;              (response/response {:status "failure"
+;                                  :message "1CSRF-Token/Session not valid"
+;                                  :detail (.getMessage e)
+;                                  })
+;            (response/status 402)
+;            (response/content-type "application/json")
+;            )
+;
+;
+;            )
+;
+;
+;          ;(->
+;          ;  ;(response/redirect "/sign-in?return-to=/inventory&message=" (or (.getMessage e) "myErrorMessage"))
+;          ;  ;(response/redirect "/sign-in?return-to=/inventory")
+;          ;    (response/response {:status "failure"
+;          ;                        :message "1CSRF-Token/Session not valid"
+;          ;                        :detail (.getMessage e)
+;          ;                        })
+;          ;  (response/status 302)
+;          ;  (response/content-type "application/json")
+;          ;  )
+;
+;
+;          )))))
+;
+;
+;(defn my-before1
+;  [handler]
+;  (fn [request]
+;    (println ">o> my-before1")
+;
+;    (handler request)
+;
+;    ))
+;
+;(defn my-before2
+;  [handler]
+;  (fn [request]
+;    (println ">o> my-before2")
+;    (handler request)
+;    ))
+;
+;
+;
+;
+;
+;;; TODO: move this to middleware
+;(defn wrap-csrf [handler]
+;  (fn [request]
+;
+;    ;(println ">o> back.wrap1" (get-in request [:headers]))
+;    ;(println ">o> back.wrap2" (get-in request [:headers "Referer"]))
+;    ;(println ">o> back.wrap3" (get-in request [:headers "referer"]))
+;    ;(println ">o> back.wrap4" (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      ))
+;
+;    (println ">o> back.wrap5")
+;
+;    (let [
+;          referer (get-in request [:headers "referer"])
+;          _ (println ">o> back.wrap3.referer" referer)
+;
+;          api-request? (if referer
+;                         (clojure.string/includes? referer "/api-docs/")
+;                         false)
+;
+;          _ (println ">o> back.wrap4.api-request?" api-request?)
+;
+;          ]
+;
+;      ;(if (clojure.string/includes? (get-in request [:headers "referer"])   "/api-docs/"      )
+;      (if api-request?
+;        ;(if (or api-request? (not consts/ACTIVATE-CSRF))
+;        (handler request)
+;        ;( handler wrap-raw request)
+;
+;        ;(if (= (:uri request)))
+;        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out"])
+;          (let [
+;                ;resp ((anti-csrf/wrap handler) request)     ;; FIXME
+;                resp (try ((anti-csrf/wrap handler) request)
+;                          (catch Exception e
+;                                                                   ;(println "Error updating password: " e)
+;                                                                   ;(response/status
+;                                                                   ;  (response/response
+;                                                                   ;    {:message "Error updating password"
+;                                                                   ;
+;                                                                   ;     :detail (.getMessage e)}
+;                                                                   ;     )
+;                                                                   ;  400)
+;                                                                   {:status 400
+;                                                                    :headers {"Content-Type" "application/json"}
+;                                                                    :body (to-json {:message "Error updating password"
+;                                                                         :detail (.getMessage e)})
+;                                                                    }
+;                                                                   )
+;                          )    ;; FIXME
+;
+;
+;                p (println ">o> resp     >>>>" resp)
+;
+;
+;                ;p (println ">o> resp-html !!!!!!!!!!!!!!!!!!!!!!!!!")
+;                ;p (println ">o> resp-html.1resp" resp)
+;                ;p (println ">o> resp-html.2resp" (:uri request))
+;                ;
+;                ;status (:status resp)
+;                ;p (println ">o> resp.status" status)
+;                ;
+;                ;
+;                ;contains-error? (and
+;                ;                  (not (nil? (:body resp)))
+;                ;                  (clojure.string/includes? (:body resp) "><div class=\"message\">error:"))
+;                ;p (println ">o> resp-html !!!! contains-error?" contains-error?)
+;                ;
+;                ;;returnTo (if )
+;                ;
+;                ;params {}
+;                ;
+;                ;
+;                ;html (:body resp)
+;                ;
+;                ;resp (if (not (nil? html  ))
+;                ;     (->> (add-or-create-return-to-tag html params)
+;                ;       (assoc resp :body))
+;                ;     resp)
+;                ;
+;                ;
+;                ;p (println ">o> wrap-csrf >>1a ------------------")
+;                ;p (println ">o> wrap-csrf >>1a" resp)
+;                ;
+;                ;p (println ">o> wrap-csrf >>1b ------------------")
+;
+;
+;
+;                ]
+;
+;            resp
+;
+;            )
+;
+;
+;
+;          ;resp
+;          (handler request)
+;          )
+;
+;        ;]
+;        )
+;      )
+;
+;
+;    ;(if (clojure.string/includes? (get-in request [:headers 'referer"])   "/api-docs/"      )
+;    ;    (handler request)
+;    ;    ;( handler wrap-raw request)
+;    ;    ((wrap-raw handler) request)
+;    ;      )
+;    ))
 
 
 (defn create-app [options]
@@ -696,23 +728,18 @@
 
                                       ring-audits/wrap
 
-
-
                                       ;auth/wrap-authenticate ;broken workflow caused by token
 
-
-                                      ;; order#2
+                                      ;; order#1
                                       ;; HINT: csrf-handling
                                       extract-header
-                                      ;anti-csrf/wrap
 
-                                      ;; order#1
-                                      my-before1
+                                      ;; order#2
                                       session/wrap-authenticate
                                       wrap-cookies
-                                      my-before2
 
 
+                                      ;; order#3
                                       wrap-csrf
 
 
