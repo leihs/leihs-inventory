@@ -74,12 +74,6 @@
         (let [user-id (:user_id user-session)
               expires-at (:session_expires_at user-session)
               user (find-user-by-id tx user-id)
-
-
-              token (get-in request [:cookies "leihs-user-session" :value])
-              _ (println ">o> token" token)
-
-
               user (assoc user :type "User")]
 
           (handler
