@@ -20,10 +20,7 @@
     <div class="form-group">
         <label class="sr-only" for="sign-out">Leihs Simple Logout</label>
         <p>For testing only</p>
-        <button id="sign-out" class="btn" type="submit">
-            <span> Sign out </span>
-            <i class="fas fa-sign-out-alt"></i>
-        </button>
+        <button id="sign-out" class="btn" type="submit">Sign out</button>
     </div>
 </form>
 
@@ -55,8 +52,6 @@
                 } else {
                     response.text().then(text => {
                         console.error("Failed to sign out:", text);
-
-                        // text to json
                         document.getElementById('error-message').style.display = 'block';
                         try {
                             const json = JSON.parse(text);
