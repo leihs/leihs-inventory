@@ -62,13 +62,10 @@
                             const json = JSON.parse(text);
                             console.error("Error message:", json.message);
                             document.getElementById('error-message').textContent = json && json.message ? json.detail  : text;
-                            // document.getElementById('error-message').textContent = json && json.message ? json.message +"\n"+ json.detail  : text;
-                            // document.getElementById('error-message').textContent = json && json.message ? json.message +"</br>"+ json.detail  : text;
                             return;
                         } catch (e) {
                             console.error("Error message:", text);
                         }
-
 
                         document.getElementById('error-message').textContent = text;
                     });

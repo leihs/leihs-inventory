@@ -18,17 +18,13 @@
 
 (defn session-valid? [request]
   (let [session (parse-cookie request)
-
-
-
-        is-authenticated? (authenticated? request)
-        p (println ">o> is-authenticated? => " is-authenticated?)
-        p (println ">o> is-authenticated? => " (:authenticated-entity request))
-        ]
+    is-authenticated? (authenticated? request)
+    p (println ">o> is-authenticated? => " is-authenticated?)
+    p (println ">o> is-authenticated? => " (:authenticated-entity request))
+    ]
 
     (and is-authenticated?
          (get session "leihs-user-session"))
-
 
     ;(and (get session "leihs-user-session")
     ;     (get session "leihs-anti-csrf-token")

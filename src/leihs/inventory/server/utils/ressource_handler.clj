@@ -9,10 +9,8 @@
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
 
-   [leihs.core.sign-in.simple-login :refer [sign-in-view]]
-   ;[leihs.core.sign-out.simple-logout :refer [sign-out-view]]
-
-   [leihs.core.sign-in.back :as be]
+            [leihs.core.sign-in.simple-login :refer [sign-in-view]]
+            [leihs.core.sign-in.back :as be]
 
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
@@ -50,8 +48,8 @@
                              "public/inventory/css"
                              "public/inventory/static"
                              "public/inventory/js"
-                             "sign-in"
-                             "sign-out"
+                             ;"sign-in"
+                             ;"sign-out"
                              ])
 
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
@@ -107,30 +105,9 @@
 (defn custom-not-found-handler [request]
   (let [uri (:uri request)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)
-
-
-        p (println ">o> custom-not-found-handler!!!!" )
-        ]
+        asset (fetch-file-entry uri assets)]
     (cond
-      ;; TODO: relevant
-      ;(= uri "/sign-in")       {:status 200
-      ;                        :headers {"Content-Type" "text/html"}
-      ;                        :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})}
-      ;
-      ;(= uri "/sign-out")       {:status 200
-      ;                        :headers {"Content-Type" "text/html"}
-      ;                        ;:body (sign-out-view {})}
-      ;                        :body (slurp (io/resource "public/dev-logout.html"))}
-
-
       (= uri "/") (create-root-page)
-
-      ;(clojure.string/includes? uri "/sign-in")
-      ;{:status 200
-      ; :headers {"Content-Type" "text/html"}
-      ; :body (slurp (io/resource "public/sign-in-fallback.html"))}
-
       (and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
         {:status 200

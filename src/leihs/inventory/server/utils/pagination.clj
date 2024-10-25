@@ -31,9 +31,6 @@
 
 (defn create-paginated-response
 
-
-
-
 (  [base-query tx per_page page]
   (let [total_records (fetch-total-count base-query tx)
         total-pages (int (Math/ceil (/ total_records (float per_page))))
@@ -48,7 +45,6 @@
     {:data paginated-products
      :pagination pagination-info}))
 
-
 (  [base-query tx per_page page cus-fnc]
   (let [total_records (fetch-total-count base-query tx)
         total-pages (int (Math/ceil (/ total_records (float per_page))))
@@ -62,8 +58,6 @@
                          :prev_page (when (> page 1) (dec page))}]
     {:data (cus-fnc paginated-products)
      :pagination pagination-info}))
-
-
   )
 
 (defn fetch-pagination-params [request]
