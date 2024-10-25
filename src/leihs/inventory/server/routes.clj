@@ -27,11 +27,7 @@
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
 
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
-   ;[leihs.core.sign-out.front :refer [component] :rename {component logout-component}]
-   ;[leihs.core.sign-out.simple-logout :refer [sign-out-view]]
-
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
-   ;[hiccup.page :refer [html5]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
@@ -56,17 +52,6 @@
 
 (defn root-handler [request]
   (let [accept-header (get-in request [:headers "accept"])
-
-        ;p (println ">o> root-handler" )
-        ;
-        ;
-        ;WHITELIST-URIS-FOR-API ["/sign-in"]
-        ;uri (:uri request)
-        ;p (println ">o> che??1" uri WHITELIST-URIS-FOR-API)
-        ;
-        ;p (println ">o> che??" (some #(= % uri) WHITELIST-URIS-FOR-API))
-        ;
-        ;p (println ">o> root-handler")
         ]
     (cond
       (clojure.string/includes? accept-header "text/html")
@@ -104,8 +89,6 @@
         (assoc :form-params converted-form-params)
         (assoc :form-params-raw converted-form-params)))
     request))
-
-
 
 
 
@@ -240,123 +223,8 @@
 
            :post {
                   :accept "text/html"
-
                   :swagger {:produces ["application/multipart-form-data"]}
-
                   :handler post-sign-in
-
-                  ;:handler (fn [request]
-                  ;
-                  ;           ;; TODO: add validation
-                  ;
-                  ;
-                  ;
-                  ;
-                  ;
-                  ;           (let [request-method (:request-method request)
-                  ;                 uri (:uri request)
-                  ;
-                  ;                 request (assoc request :settings {})
-                  ;
-                  ;
-                  ;                 ;; ----------------------------
-                  ;
-                  ;                 p (println ">o> >> FORM-DATA??" (get request :form-params))
-                  ;
-                  ;
-                  ;                 form-data (get request :form-params)
-                  ;                 username (:user form-data)
-                  ;                 pw (:password form-data)
-                  ;
-                  ;                 ;; process form-validation
-                  ;                 resp (if (or (str/blank? username) (str/blank? pw))
-                  ;                   (be/create-error-response username request )
-                  ;                   (let [
-                  ;                         ;; TODO
-                  ;                         ;consts/ACTIVATE-DEV-MODE-REDIRECT true
-                  ;                         ;consts/ACTIVATE-DEV-MODE-REDIRECT false
-                  ;
-                  ;                         p (println ">o> 2RETURN-TO AFTER.0")
-                  ;                         p (println ">o> 2RETURN-TO AFTER.a" (get-in request [:form-params :return-to]))
-                  ;                         p (println ">o> 2RETURN-TO AFTER.b" (get-in request [:form-params]))
-                  ;                         ; FYI: otherwise shared-clj/src/leihs/core/redirects.clj will set
-                  ;                         ;resp (when consts/ACTIVATE-DEV-MODE-REDIRECT     (assoc-in response [:headers "Location"] "/new-location/"))
-                  ;
-                  ;                         ;; to overrule a redirect, we need to set the return-to value
-                  ;                         request (if consts/ACTIVATE-DEV-MODE-REDIRECT (try (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
-                  ;                                                   (catch Exception e (println "ERROR @ 2RETURN-TO AFTER") request))
-                  ;                                              request)
-                  ;
-                  ;                         p (println ">o> 2RETURN-TO AFTER" (get-in request [:form-params :return-to]))
-                  ;
-                  ;                         ;:return-to} :form-params
-                  ;                         ;; ----------------------------
-                  ;
-                  ;
-                  ;                         p (println ">o> !!! sign-in POST")
-                  ;                         resp (be/routes (convert-params request))
-                  ;
-                  ;                         p (println ">o> abc11" (keys request))
-                  ;                         p (println ">o> abc12" (:user-session request))
-                  ;                         p (println ">o> abc13" (:sessions request))
-                  ;                         p (println ">o> abc14" (:token (:query-params-raw request)))
-                  ;                         p (println ">o> abc13" (:authenticated-entity request))
-                  ;
-                  ;
-                  ;
-                  ;
-                  ;
-                  ;                         created-session (get-in resp [:cookies "leihs-user-session" :value])
-                  ;
-                  ;                         ;p (println ">o> abc14.resp.generated" created-session)
-                  ;                         ;request (assoc request (:sessions created-session))
-                  ;                         ;
-                  ;                         ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-                  ;                         ;
-                  ;                         ;request (assoc-in request [:cookies "leihs-user-session" :value])
-                  ;                         ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
-                  ;                         ; Assign session to request under :sessions
-                  ;                         request (assoc request :sessions created-session)
-                  ;
-                  ;                         ; Print out the session for verification
-                  ;                         p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-                  ;
-                  ;                         ; Set the :value key for the "leihs-user-session" cookie
-                  ;                         request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
-                  ;
-                  ;                         ; Print out the cookie value for verification
-                  ;                         p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
-                  ;
-                  ;
-                  ;                         ;:return-to
-                  ;
-                  ;
-                  ;
-                  ;                         p (println ">o> 1RETURN-TO BEFORE" (get-in request [:form-params :return-to]))
-                  ;
-                  ;                         ]resp)
-                  ;                   )
-                  ;
-                  ;
-                  ;
-                  ;                 p (println ">o> !!!!!!! RESP" resp)
-                  ;
-                  ;
-                  ;
-                  ;
-                  ;                 ]
-                  ;
-                  ;             ;;; Logging request method and URI for debugging
-                  ;             ;(println ">o> Request Method:" request-method)
-                  ;             ;(println ">o> URI:" uri)
-                  ;
-                  ;
-                  ;             (println ">o> ---------- CHECK ----------------")
-                  ;             (println ">o> !!! Response:" resp)
-                  ;             (println ">o> ---------- CHECK ----------------")
-                  ;
-                  ;             resp))
-
                   }
 
            :get {
@@ -365,39 +233,6 @@
                  :swagger {:produces ["text/html"]}
 
                  :handler get-sign-in
-
-                 ;:handler (fn [request]
-                 ;           (let [
-                 ;                 mtoken (anti-csrf-token request)
-                 ;                 p (println ">o> (html) anti-csrf-token" mtoken)
-                 ;
-                 ;                 mprops (anti-csrf-props request)
-                 ;                 p (println ">o> (html) anti-csrf-props" mprops)
-                 ;
-                 ;                 uuid mtoken
-                 ;
-                 ;
-                 ;                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                 ;                 params {:authFlow {:returnTo "/inventory/models"}
-                 ;                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-                 ;                         :csrfToken {:name "csrf-token"
-                 ;                                     :value uuid}} ;; Parameters including CSRF token
-                 ;
-                 ;                 html (sign-in-view params) ;; Generate the original HTML using the params
-                 ;
-                 ;                 ;; Debugging the original HTML
-                 ;                 _ (println ">o> html.before" html (type html))
-                 ;
-                 ;                 ;; Add CSRF tokens to the HTML and debug the result
-                 ;                 html-with-csrf (add-csrf-tags html params)
-                 ;                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-                 ;                 ]
-                 ;
-                 ;             ;; Return the modified HTML in the response
-                 ;             {:status 200
-                 ;              :headers {"Content-Type" "text/html; charset=utf-8"}
-                 ;              :body html-with-csrf}))      ;; Return the modified HTML with CSRF token inserted
-
                  }
 
            }
@@ -408,87 +243,14 @@
           {:no-doc false
 
            :post {
-
-                  ;:accept "application/json"
                   :accept "text/html"
-
-                  ;:middleware [ab/wrap]
                   :middleware [wrap-authenticate]
-
-                  ;:handler get-sign-out
-
                   :handler post-sign-out
-                  ;:handler
-                  ;(fn [request]
-                  ;  (let [
-                  ;
-                  ;        p (println ">o> !!!!!!!!!!!!!!!!!!! server/routes.clj::POST /sign-out")
-                  ;        p (println ">o> server/routes.clj::POST /sign-out")
-                  ;        request-method (:request-method request)
-                  ;        uri (:uri request)
-                  ;        resp (so/routes (convert-params request))]
-                  ;
-                  ;    ;; Logging request method and URI for debugging
-                  ;    (println ">o> Request Method:" request-method)
-                  ;    (println ">o> URI:" uri)
-                  ;    ;(println ">o> Response:" resp)
-                  ;
-                  ;    resp))
                   }
 
            :get {
                  :accept "text/html"
-
                   :handler get-sign-out
-
-                 ;:handler (fn [request]
-                 ;           ;{:status 200
-                 ;           ; :headers {"Content-Type" "text/html"}
-                 ;           ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
-                 ;           ; }
-                 ;
-                 ;
-                 ;           (let [
-                 ;
-                 ;                 uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
-                 ;                 p (println ">o> logout.uuid" uuid)
-                 ;
-                 ;                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                 ;                 params {
-                 ;                         :authFlow {:returnTo "/inventory/models???/"}
-                 ;                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-                 ;                         :csrfToken {:name "csrf-token"
-                 ;                                     :value uuid}} ;; Parameters including CSRF token
-                 ;                 ;html (sign-in-view params) ;; Generate the original HTML using the params
-                 ;
-                 ;                 params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
-                 ;                          :else params
-                 ;                          )
-                 ;
-                 ;                 html (slurp (io/resource "public/dev-logout.html"))
-                 ;
-                 ;                 ;; Debugging the original HTML
-                 ;                 _ (println ">o> html.before" html (type html))
-                 ;
-                 ;                 ;; Add CSRF tokens to the HTML and debug the result
-                 ;
-                 ;                 ;; TODO: does this work?
-                 ;                 html-with-csrf (add-csrf-tags html params)
-                 ;                 ;html-with-csrf (add-csrf-tags2 html params)
-                 ;
-                 ;                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-                 ;                 html html-with-csrf
-                 ;                 ]
-                 ;
-                 ;             {:status 200
-                 ;              :headers {"Content-Type" "text/html"}
-                 ;              ;:body (sign-out-view {})}
-                 ;              :body html}
-                 ;             )
-                 ;
-                 ;           )
-
-
                  }
 
            }]
@@ -505,13 +267,9 @@
            {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
                   :accept "application/json"
 
-
-
                   :coercion reitit.coercion.schema/coercion
                   :swagger {:security [{:basicAuth []}] :deprecated true}
                   :handler authenticate-handler}}]
-
-
 
           ["logout"
            {:get {:accept "application/json"
