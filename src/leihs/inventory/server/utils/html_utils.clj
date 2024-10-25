@@ -1,84 +1,83 @@
 (ns leihs.inventory.server.utils.html-utils
-  (:require [hickory.core :as h]
-   [hickory.select :as s]
-   [hickory.render :as render]
-   [clojure.string :as str]
-   [clojure.walk :as walk]
+  (:require [clojure.pprint :as pp]
+            [clojure.string :as str]
+            [clojure.walk :as walk]
+            [hickory.core :as h]
+            [hickory.render :as render]
 
-   [clojure.pprint :as pp]
-   ))
+            [hickory.select :as s]))
 
 (defn add-meta-tag [tree csrf-name csrf-value]
 
   (println ">o> add-meta-tag" tree csrf-name csrf-value)
 
   (walk/postwalk
-    (fn [node]
-      (if (and (map? node) (= (:tag node) :head))
+   (fn [node]
+     (if (and (map? node) (= (:tag node) :head))
         ;; Add the CSRF meta tag to the <head> content
-        (update node :content conj {:type :element
-                                    :tag :meta
-                                    :attrs {:name csrf-name :content csrf-value}})
-        node))
-    tree))
+       (update node :content conj {:type :element
+                                   :tag :meta
+                                   :attrs {:name csrf-name :content csrf-value}})
+       node))
+   tree))
 
 (defn update-csrf-input [tree csrf-value]
   (walk/postwalk
-    (fn [node]
-      (if (and (map? node)
-            (= (:tag node) :input)
-            (= (get-in node [:attrs :name]) "csrfToken")
-            (= (get-in node [:attrs :type]) "hidden"))
+   (fn [node]
+     (if (and (map? node)
+              (= (:tag node) :input)
+              (= (get-in node [:attrs :name]) "csrfToken")
+              (= (get-in node [:attrs :type]) "hidden"))
         ;; Update the value of the hidden input field for the CSRF token
-        (assoc-in node [:attrs :value] csrf-value)
-        node))
-    tree))
+       (assoc-in node [:attrs :value] csrf-value)
+       node))
+   tree))
 
 (defn add-form-if-missing [tree csrf-name csrf-value]
   (walk/postwalk
-    (fn [node]
-      (if (and (map? node) (= (:tag node) :body))
+   (fn [node]
+     (if (and (map? node) (= (:tag node) :body))
         ;; Check if there's a form inside the <body>
-        (if (empty? (filter #(= (:tag %) :form) (:content node)))
+       (if (empty? (filter #(= (:tag %) :form) (:content node)))
           ;; No form exists, so add one with a hidden CSRF input field
-          (update node :content conj {:type :element
-                                      :tag :form
-                                      :attrs {:name csrf-name}
-                                      :content [{:type :element
-                                                 :tag :input
-                                                 :attrs {:type "hidden" :name csrf-name :value csrf-value}}]})
-          node)
-        node))
-    tree))
+         (update node :content conj {:type :element
+                                     :tag :form
+                                     :attrs {:name csrf-name}
+                                     :content [{:type :element
+                                                :tag :input
+                                                :attrs {:type "hidden" :name csrf-name :value csrf-value}}]})
+         node)
+       node))
+   tree))
 
 (defn add-return-field [tree return-field]
-   (println ">o> tree" tree)
+  (println ">o> tree" tree)
   (println ">o> return-field" return-field)
   (walk/postwalk
-    (fn [node]
-      (if (and (map? node)
-            (= (:tag node) :form))
+   (fn [node]
+     (if (and (map? node)
+              (= (:tag node) :form))
         ;; Add the return-to input field if it doesn't already exist
-        (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :name]) "return-to")) (:content node)))
-          (update node :content conj return-field)
-          node)
-        node))
-    tree))
+       (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :name]) "return-to")) (:content node)))
+         (update node :content conj return-field)
+         node)
+       node))
+   tree))
 
 (defn add-error-message-field [tree error-message-field]
-   (println ">o> tree" tree)
+  (println ">o> tree" tree)
   (println ">o> error-message-field" error-message-field)
   (walk/postwalk
-    (fn [node]
-      (if (and (map? node)
-            (= (:tag node) :form))
+   (fn [node]
+     (if (and (map? node)
+              (= (:tag node) :form))
         ;; Add the return-to input field if it doesn't already exist
-        (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :class]) "message")) (:content node)))
+       (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :class]) "message")) (:content node)))
         ;(if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :name]) "message")) (:content node)))
-          (update node :content conj error-message-field)
-          node)
-        node))
-    tree))
+         (update node :content conj error-message-field)
+         node)
+       node))
+   tree))
 
 (defn pprint-html [html-str]
   (with-out-str (pp/pprint html-str)))
@@ -86,8 +85,7 @@
 (defn add-csrf-tags
   [html-str {:keys [authFlow csrfToken]}]
   (try
-    (let [
-          p (println ">o> html-str" html-str)
+    (let [p (println ">o> html-str" html-str)
 
           parsed-html (h/parse html-str)
           p (println ">o> parsed-html" parsed-html)
@@ -107,32 +105,29 @@
           ;]
 
       ;; Log the authFlow and csrfToken for debugging
-      _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
-      _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+          _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
+          _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
 
-            updated-tree (as-> hickory-tree $
-                                 (add-meta-tag $ csrf-name csrf-value)
-                                 (update-csrf-input $  csrf-value)
+          updated-tree (as-> hickory-tree $
+                         (add-meta-tag $ csrf-name csrf-value)
+                         (update-csrf-input $ csrf-value)
                                  ;(add-return-field hickory-tree return-field)
-                                 (add-form-if-missing $ csrf-name csrf-value)
-                           )
+                         (add-form-if-missing $ csrf-name csrf-value))
 
-            raw-html (render/hickory-to-html updated-tree)
+          raw-html (render/hickory-to-html updated-tree)
             ;raw-html (pprint-html raw-html)
-            ]
-        raw-html)
+          ]
+      raw-html)
 
     (catch Exception e
       (println "Error in add-csrf-and-return-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))
 
-
 (defn add-or-create-return-to-tag
   [html-str {:keys [authFlow csrfToken]}]
   (try
-    (let [
-          p (println ">o> html-str" html-str)
+    (let [p (println ">o> html-str" html-str)
 
           parsed-html (h/parse html-str)
           p (println ">o> parsed-html" parsed-html)
@@ -149,32 +144,28 @@
                         :attrs {:type "hidden" :name "return-to" :value returnTo}}
 
       ;; Log the authFlow and csrfToken for debugging
-      _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
-      _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+          _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
+          _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
 
-            updated-tree (add-return-field hickory-tree return-field)
+          updated-tree (add-return-field hickory-tree return-field)
 
-
-        ;; Convert the updated Hickory tree back to HTML
-        _ (println ">o> abc2.1")
+;; Convert the updated Hickory tree back to HTML
+          _ (println ">o> abc2.1")
         ;(str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
-        html (render/hickory-to-html updated-tree)
+          html (render/hickory-to-html updated-tree)
             ;html   (pprint-html  html)
-            ]
-        html
-        )
+          ]
+      html)
 
     (catch Exception e
       (println "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
-      html-str)))  ;; Return original HTML in case of error
-
+      html-str))) ;; Return original HTML in case of error
 
 (defn add-or-create-error-tag
   [html-str {:keys [authFlow csrfToken]}]
   (try
-    (let [
-          p (println ">o> html-str" html-str)
+    (let [p (println ">o> html-str" html-str)
 
           parsed-html (h/parse html-str)
           p (println ">o> parsed-html" parsed-html)
@@ -188,29 +179,27 @@
           errorMessage (:errorMessage authFlow)
 
           errorMessageField {:type :element
-                        :tag :div
-                        :attrs {:class "message" :value errorMessage}}
+                             :tag :div
+                             :attrs {:class "message" :value errorMessage}}
 
-      _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
-      _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
+          _ (println ">o> authFlow / csrfToken" authFlow csrfToken (type csrfToken))
+          _ (println ">o> csrf-name / csrf-value" csrf-name csrf-value (type csrf-value))
 
-            updated-tree (add-error-message-field hickory-tree errorMessageField)
+          updated-tree (add-error-message-field hickory-tree errorMessageField)
 
         ;; Convert the updated Hickory tree back to HTML
-        _ (println ">o> abc2.2")
+          _ (println ">o> abc2.2")
         ;(str "<!DOCTYPE html>\n" (render/hickory-to-html updated-tree))))
-        html (render/hickory-to-html updated-tree)
+          html (render/hickory-to-html updated-tree)
             ;html   (pprint-html  html)
-            ]
+          ]
 
-        html
-        )
+      html)
 
     (catch Exception e
       (println "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
-      html-str)))  ;; Return original HTML in case of error
-
+      html-str))) ;; Return original HTML in case of error
 
 ;; TODO: works
 (defn add-csrf-tags2
@@ -224,7 +213,6 @@
                         html-str)
 
         updated-html (clojure.string/replace with-meta-tag
-                       #"<input name=\"csrfToken\" type=\"hidden\" value=\"[^\"]*\""
-                       (str "<input name=\"csrfToken\" type=\"hidden\" value=\"" csrf-value "\""))
-        ]
+                                             #"<input name=\"csrfToken\" type=\"hidden\" value=\"[^\"]*\""
+                                             (str "<input name=\"csrfToken\" type=\"hidden\" value=\"" csrf-value "\""))]
     updated-html))

@@ -97,25 +97,15 @@
 
 (defn pagination-response
 
-
-
-
   ([request base-query]
-  (let [{:keys [page size]} (fetch-pagination-params request)
-        tx (:tx request)]
-    (create-paginated-response base-query tx size page)))
+   (let [{:keys [page size]} (fetch-pagination-params request)
+         tx (:tx request)]
+     (create-paginated-response base-query tx size page)))
 
   ([request base-query fn]
-  (let [{:keys [page size]} (fetch-pagination-params request)
-        tx (:tx request)]
-    (create-paginated-response base-query tx size page fn)))
-
-
-
-  )
-
-
-
+   (let [{:keys [page size]} (fetch-pagination-params request)
+         tx (:tx request)]
+     (create-paginated-response base-query tx size page fn))))
 
 (defn get-models-handler
   ([request]

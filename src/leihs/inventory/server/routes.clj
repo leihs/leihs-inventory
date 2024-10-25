@@ -1,21 +1,21 @@
 (ns leihs.inventory.server.routes
   (:refer-clojure :exclude
-   [keyword replace])
+                  [keyword replace])
   (:require
    [cheshire.core :as json]
-   [clojure.string :as str]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
    [leihs.core.auth.session :refer [wrap-authenticate]]
-   [leihs.core.constants :as constants]
    [leihs.core.constants]
+   [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
 
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
 
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-   
+
    [leihs.inventory.server.constants :as consts]
 
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
@@ -51,8 +51,7 @@
 ;(def   WHITELIST-URIS-FOR-API ["/sign-in"])
 
 (defn root-handler [request]
-  (let [accept-header (get-in request [:headers "accept"])
-        ]
+  (let [accept-header (get-in request [:headers "accept"])]
     (cond
       (clojure.string/includes? accept-header "text/html")
       {:status 200
@@ -61,7 +60,7 @@
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-               (slurp (io/resource "md/info.html")) "</div></body></html>")}
+                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
 
       (clojure.string/includes? accept-header "application/json")
       {:status 200
@@ -81,16 +80,13 @@
       :else {:status 404
              :body "File not found"})))
 
-
 (defn convert-params [request]
   (if-let [form-params (:form-params request)]
     (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) form-params))]
       (-> request
-        (assoc :form-params converted-form-params)
-        (assoc :form-params-raw converted-form-params)))
+          (assoc :form-params converted-form-params)
+          (assoc :form-params-raw converted-form-params)))
     request))
-
-
 
 (defn- incl-other-routes []
   ["" (get-model-route)
@@ -113,8 +109,7 @@
    (token-routes)])
 
 (defn convert-to-map [dict]
-  (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict))
-  )
+  (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
@@ -123,10 +118,10 @@
         ;; Construct params, including CSRF token if activated
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
                     :flashMessages []}
-                 (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                     {:name "csrf-token" :value mtoken}))
-                 (cond-> (not (nil? (:message query)))
-                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
+                                       {:name "csrf-token" :value mtoken}))
+                   (cond-> (not (nil? (:message query)))
+                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
 
         ;; Generate the original HTML and add CSRF tags
         html (as-> (sign-in-view params) $
@@ -137,47 +132,44 @@
      :headers {"Content-Type" "text/html; charset=utf-8"}
      :body html}))
 
-
-
 (defn post-sign-in [request]
   ;(defn handler [request]
-    (let [request-method (:request-method request)
-          uri (:uri request)
+  (let [request-method (:request-method request)
+        uri (:uri request)
 
           ;; Initialize settings for the request
-          request (assoc request :settings {})
+        request (assoc request :settings {})
 
           ;; Extract form data
-          form-data (get request :form-params)
-          username (:user form-data)
-          password (:password form-data)
+        form-data (get request :form-params)
+        username (:user form-data)
+        password (:password form-data)
 
           ;; Validate form data
-          resp (if (or (str/blank? username) (str/blank? password))
-                 (be/create-error-response username request)
+        resp (if (or (str/blank? username) (str/blank? password))
+               (be/create-error-response username request)
 
-                 (let [;; Overrule redirect in dev mode if activated
-                       request (if consts/ACTIVATE-DEV-MODE-REDIRECT
-                                 (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
-                                 request)
+               (let [;; Overrule redirect in dev mode if activated
+                     request (if consts/ACTIVATE-DEV-MODE-REDIRECT
+                               (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                               request)
 
                        ;; Process the sign-in request
-                       resp (be/routes (convert-params request))
+                     resp (be/routes (convert-params request))
 
                        ;; Assign created session to the request
-                       created-session (get-in resp [:cookies "leihs-user-session" :value])
-                       request (-> request
+                     created-session (get-in resp [:cookies "leihs-user-session" :value])
+                     request (-> request
                                  (assoc :sessions created-session)
                                  (assoc-in [:cookies "leihs-user-session" :value] created-session))]
 
-                   resp))]
+                 resp))]
 
       ;; Log response for debugging
-      (println ">o> Response:" resp)
-      resp))
+    (println ">o> Response:" resp)
+    resp))
 
-
-  (defn get-sign-out [request]
+(defn get-sign-out [request]
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
         params {:authFlow {:returnTo "/inventory/models"}
                 :csrfToken (when consts/ACTIVATE-SET-CSRF
@@ -187,13 +179,11 @@
         html (as-> "public/dev-logout.html" $
                (io/resource $)
                (slurp $)
-              (add-csrf-tags $ params))
-        ]
+               (add-csrf-tags $ params))]
 
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body html}))
-
 
 (defn post-sign-out [request]
   (let [resp (so/routes (convert-params request))]
@@ -204,15 +194,9 @@
 
     resp))
 
-
-
 (defn basic-routes []
 
-  [
-
-   "/" [
-
-        [;["/" {:no-doc false :get {:handler root-handler}}
+  ["/" [[;["/" {:no-doc false :get {:handler root-handler}}
 
          ""
 
@@ -221,42 +205,25 @@
 
            ;; TODO: how to fetch params from request?
 
-           :post {
-                  :accept "text/html"
+           :post {:accept "text/html"
                   :swagger {:produces ["application/multipart-form-data"]}
-                  :handler post-sign-in
-                  }
+                  :handler post-sign-in}
 
-           :get {
-                 :summary "Get sign-in page"
+           :get {:summary "Get sign-in page"
                  :accept "text/html"
                  :swagger {:produces ["text/html"]}
 
-                 :handler get-sign-in
-                 }
-
-           }
-
-          ]
+                 :handler get-sign-in}}]
 
          ["sign-out"
           {:no-doc false
 
-           :post {
-                  :accept "text/html"
+           :post {:accept "text/html"
                   :middleware [wrap-authenticate]
-                  :handler post-sign-out
-                  }
+                  :handler post-sign-out}
 
-           :get {
-                 :accept "text/html"
-                  :handler get-sign-out
-                 }
-
-           }]
-
-         ]
-
+           :get {:accept "text/html"
+                 :handler get-sign-out}}]]
 
         ["inventory"
 
@@ -326,11 +293,7 @@
          ["/debug"
           {:tags ["Debug"]}]
 
-         (incl-other-routes)]
-
-        ]
-
-   ])
+         (incl-other-routes)]]])
 
 ;#### debug ###################################################################
 ; (debug/debug-ns 'cider-ci.utils.shutdown)

@@ -57,7 +57,7 @@
 
 (defn get-cookie-value [request]
   (-> request keywordize-keys :cookies
-    LEIHS_SESSION_COOKIE_NAME :value))
+      LEIHS_SESSION_COOKIE_NAME :value))
 
 (defn find-user-by-id [tx user-id]
   (jdbc/execute-one! tx ["SELECT * FROM users WHERE id = ?" user-id]))
@@ -77,11 +77,11 @@
               user (assoc user :type "User")]
 
           (handler
-            (assoc request
-              :authenticated-entity user
-              :is_admin (is-admin user-id tx)
-              :authentication-method "Session"
-              :session-expires-at expires-at)))
+           (assoc request
+                  :authenticated-entity user
+                  :is_admin (is-admin user-id tx)
+                  :authentication-method "Session"
+                  :session-expires-at expires-at)))
         {:status 401 :body {:message "The session is invalid or expired!"}}))
     (handler request)))
 

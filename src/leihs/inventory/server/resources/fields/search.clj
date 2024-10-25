@@ -12,16 +12,15 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
-(defn base-pool-query [query pool-id ]
+(defn base-pool-query [query pool-id]
   (-> query
-    (sql/from [:models :m])
-    (cond->
-      pool-id (sql/join [:model_links :ml] [:= :m.id :ml.model_id])
-      pool-id (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
-      pool-id (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-      pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
-      pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
+      (sql/from [:models :m])
+      (cond->
+       pool-id (sql/join [:model_links :ml] [:= :m.id :ml.model_id])
+       pool-id (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
+       pool-id (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
+       pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
+       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
 
 (defn get-form-fields
   ([request]
@@ -35,30 +34,25 @@
            {:keys [page size]} (fetch-pagination-params request)
            user-id (:id (:authenticated-entity request))
 
-
            base-query (-> (sql/select :m.*)
 
-                        ((fn [query] (base-pool-query query pool_id )))
+                          ((fn [query] (base-pool-query query pool_id)))
 
-                        (cond-> type (sql/where [:= :m.type type]))
-                        (sql/where [:= :ipmg.inventory_pool_id pool_id])
-
-                        )
-
+                          (cond-> type (sql/where [:= :m.type type]))
+                          (sql/where [:= :ipmg.inventory_pool_id pool_id]))
 
            cus-fnc (fn [result] (map #(hash-map "model" %) result))
 
-
-           ;wrapped-results (map #(hash-map "model" %) res)
+;wrapped-results (map #(hash-map "model" %) res)
            ]
 
        ;(condion? (pagination-response request base-query)
        ;          :else (jdbc/query tx (-> base-query sql-format))))
 
-     (cond
-       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query cus-fnc)
-       with-pagination? (pagination-response request base-query cus-fnc)
-       :else (jdbc/query tx (-> base-query sql-format))))
+       (cond
+         (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query cus-fnc)
+         with-pagination? (pagination-response request base-query cus-fnc)
+         :else (jdbc/query tx (-> base-query sql-format))))
 
      (catch Exception e
        (error "Failed to get supplier(s)" e)

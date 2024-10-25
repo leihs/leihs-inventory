@@ -59,15 +59,15 @@
                                         [:is :subquery.role nil]]))
 
                           (cond-> (and (some? owner) (not (= "customer" role)))
-                        (sql/where [:= :subquery.owner owner]))
+                            (sql/where [:= :subquery.owner owner]))
                           ;
                           ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
                           ;  with-paginat (sql/where [:= :subquery.owner owner]))
 
-                        (cond-> (= "customer" role)
-                          (sql/where [:or
-                                      [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
-                                      [:is :subquery.role nil]])))]
+                          (cond-> (= "customer" role)
+                            (sql/where [:or
+                                        [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
+                                        [:is :subquery.role nil]])))]
 
        (cond
          (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)

@@ -17,8 +17,7 @@
                                                          get-form-fields-with-pagination-handler
                                                          get-form-fields-handler]]
 
-   [leihs.inventory.server.resources.fields.search :refer [ get-search-with-pagination-handler
-                                                         ]]
+   [leihs.inventory.server.resources.fields.search :refer [get-search-with-pagination-handler]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -70,7 +69,6 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-
    ["/:pool_id/search"
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
@@ -82,10 +80,8 @@
                :middleware [accept-json-middleware ab/wrap]
                :swagger {:produces ["application/json"]}
 
-               :parameters {
-                            :path {:pool_id s/Uuid}
-                            :query {
-                                    ;(s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+               :parameters {:path {:pool_id s/Uuid}
+                            :query {;(s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
                                     ;(s/optional-key :owner) s/Bool
 
                                     ;(s/optional-key :owner) s/Bool
@@ -93,17 +89,11 @@
                                     (s/optional-key :type) (s/enum "Software" "Model")
 
                                     (s/optional-key :page) s/Int
-                                    (s/optional-key :size) s/Int
-                                    }}
+                                    (s/optional-key :size) s/Int}}
 
                :handler get-search-with-pagination-handler
                ;:handler get-form-fields-handler
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-    ]
-
-
-
-   ])
+                           500 {:description "Internal Server Error"}}}}]]])

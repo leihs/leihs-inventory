@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.utils.middleware
   (:require [clojure.string :as str]
 
-   [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
+            [leihs.inventory.server.utils.response_helper :as rh]
 
-            [leihs.inventory.server.utils.response_helper :as rh]))
+            [leihs.inventory.server.utils.response_helper :refer [index-html-response]]))
 
 (defn accept-json-middleware [handler]
   (fn [request]
@@ -11,8 +11,7 @@
       (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
         (handler request)
         ;rh/INDEX-HTML-RESPONSE-OK
-        (index-html-response request 200)
-        ))))
+        (index-html-response request 200)))))
 
 (defn accept-json-image-middleware [handler]
   (fn [request]
@@ -21,4 +20,4 @@
         (handler request)
         (index-html-response request 200)
         ;rh/INDEX-HTML-RESPONSE-OK)
-      ))))
+        ))))

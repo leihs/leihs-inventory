@@ -6,11 +6,11 @@
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
+            [leihs.core.sign-in.back :as be]
+            [leihs.core.sign-in.simple-login :refer [sign-in-view]]
+
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
-
-            [leihs.core.sign-in.simple-login :refer [sign-in-view]]
-            [leihs.core.sign-in.back :as be]
 
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
@@ -135,4 +135,4 @@
       (response/redirect "/sign-in?return-to=%2Finventory")
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
       (rh/index-html-response request 200)
-      :else (rh/index-html-response  request 404))))
+      :else (rh/index-html-response request 404))))
