@@ -225,6 +225,62 @@
      :body html-with-csrf}))
 
 
+(defn post-sign-in [request]
+  ;(defn handler [request]
+    (let [request-method (:request-method request)
+          uri (:uri request)
+
+          ;; Initialize settings for the request
+          request (assoc request :settings {})
+
+          ;; Extract form data
+          form-data (get request :form-params)
+          username (:user form-data)
+          password (:password form-data)
+
+          ;; Validate form data
+          resp (if (or (str/blank? username) (str/blank? password))
+                 (be/create-error-response username request)
+
+                 (let [;; Overrule redirect in dev mode if activated
+                       request (if consts/ACTIVATE-DEV-MODE-REDIRECT
+                                 (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                                 request)
+
+                       ;; Process the sign-in request
+                       resp (be/routes (convert-params request))
+
+                       ;; Assign created session to the request
+                       created-session (get-in resp [:cookies "leihs-user-session" :value])
+                       request (-> request
+                                 (assoc :sessions created-session)
+                                 (assoc-in [:cookies "leihs-user-session" :value] created-session))]
+
+                   resp))]
+
+      ;; Log response for debugging
+      (println ">o> Response:" resp)
+      resp))
+
+
+  (defn get-sign-out [request]
+  (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+        params {:authFlow {:returnTo "/inventory/models"}
+                :csrfToken (when consts/ACTIVATE-SET-CSRF
+                             {:name "csrf-token" :value uuid})}
+
+        ;; Load the HTML template and inject CSRF tokens if required
+        html (as-> "public/dev-logout.html" $
+               (io/resource $)
+               (slurp $)
+              (add-csrf-tags $ params))
+        ]
+
+    {:status 200
+     :headers {"Content-Type" "text/html"}
+     :body html}))
+
+
 
 ;(defn get-sign-in [request]
 ;           (let [
@@ -278,117 +334,122 @@
                   :accept "text/html"
 
                   :swagger {:produces ["application/multipart-form-data"]}
-                  :handler (fn [request]
 
-                             ;; TODO: add validation
+                  :handler post-sign-in
 
+                  ;:handler (fn [request]
+                  ;
+                  ;           ;; TODO: add validation
+                  ;
+                  ;
+                  ;
+                  ;
+                  ;
+                  ;           (let [request-method (:request-method request)
+                  ;                 uri (:uri request)
+                  ;
+                  ;                 request (assoc request :settings {})
+                  ;
+                  ;
+                  ;                 ;; ----------------------------
+                  ;
+                  ;                 p (println ">o> >> FORM-DATA??" (get request :form-params))
+                  ;
+                  ;
+                  ;                 form-data (get request :form-params)
+                  ;                 username (:user form-data)
+                  ;                 pw (:password form-data)
+                  ;
+                  ;                 ;; process form-validation
+                  ;                 resp (if (or (str/blank? username) (str/blank? pw))
+                  ;                   (be/create-error-response username request )
+                  ;                   (let [
+                  ;                         ;; TODO
+                  ;                         ;consts/ACTIVATE-DEV-MODE-REDIRECT true
+                  ;                         ;consts/ACTIVATE-DEV-MODE-REDIRECT false
+                  ;
+                  ;                         p (println ">o> 2RETURN-TO AFTER.0")
+                  ;                         p (println ">o> 2RETURN-TO AFTER.a" (get-in request [:form-params :return-to]))
+                  ;                         p (println ">o> 2RETURN-TO AFTER.b" (get-in request [:form-params]))
+                  ;                         ; FYI: otherwise shared-clj/src/leihs/core/redirects.clj will set
+                  ;                         ;resp (when consts/ACTIVATE-DEV-MODE-REDIRECT     (assoc-in response [:headers "Location"] "/new-location/"))
+                  ;
+                  ;                         ;; to overrule a redirect, we need to set the return-to value
+                  ;                         request (if consts/ACTIVATE-DEV-MODE-REDIRECT (try (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                  ;                                                   (catch Exception e (println "ERROR @ 2RETURN-TO AFTER") request))
+                  ;                                              request)
+                  ;
+                  ;                         p (println ">o> 2RETURN-TO AFTER" (get-in request [:form-params :return-to]))
+                  ;
+                  ;                         ;:return-to} :form-params
+                  ;                         ;; ----------------------------
+                  ;
+                  ;
+                  ;                         p (println ">o> !!! sign-in POST")
+                  ;                         resp (be/routes (convert-params request))
+                  ;
+                  ;                         p (println ">o> abc11" (keys request))
+                  ;                         p (println ">o> abc12" (:user-session request))
+                  ;                         p (println ">o> abc13" (:sessions request))
+                  ;                         p (println ">o> abc14" (:token (:query-params-raw request)))
+                  ;                         p (println ">o> abc13" (:authenticated-entity request))
+                  ;
+                  ;
+                  ;
+                  ;
+                  ;
+                  ;                         created-session (get-in resp [:cookies "leihs-user-session" :value])
+                  ;
+                  ;                         ;p (println ">o> abc14.resp.generated" created-session)
+                  ;                         ;request (assoc request (:sessions created-session))
+                  ;                         ;
+                  ;                         ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+                  ;                         ;
+                  ;                         ;request (assoc-in request [:cookies "leihs-user-session" :value])
+                  ;                         ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
+                  ;                         ; Assign session to request under :sessions
+                  ;                         request (assoc request :sessions created-session)
+                  ;
+                  ;                         ; Print out the session for verification
+                  ;                         p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
+                  ;
+                  ;                         ; Set the :value key for the "leihs-user-session" cookie
+                  ;                         request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
+                  ;
+                  ;                         ; Print out the cookie value for verification
+                  ;                         p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
+                  ;
+                  ;
+                  ;                         ;:return-to
+                  ;
+                  ;
+                  ;
+                  ;                         p (println ">o> 1RETURN-TO BEFORE" (get-in request [:form-params :return-to]))
+                  ;
+                  ;                         ]resp)
+                  ;                   )
+                  ;
+                  ;
+                  ;
+                  ;                 p (println ">o> !!!!!!! RESP" resp)
+                  ;
+                  ;
+                  ;
+                  ;
+                  ;                 ]
+                  ;
+                  ;             ;;; Logging request method and URI for debugging
+                  ;             ;(println ">o> Request Method:" request-method)
+                  ;             ;(println ">o> URI:" uri)
+                  ;
+                  ;
+                  ;             (println ">o> ---------- CHECK ----------------")
+                  ;             (println ">o> !!! Response:" resp)
+                  ;             (println ">o> ---------- CHECK ----------------")
+                  ;
+                  ;             resp))
 
-
-
-
-                             (let [request-method (:request-method request)
-                                   uri (:uri request)
-
-                                   request (assoc request :settings {})
-
-
-                                   ;; ----------------------------
-
-                                   p (println ">o> >> FORM-DATA??" (get request :form-params))
-
-
-                                   form-data (get request :form-params)
-                                   username (:user form-data)
-                                   pw (:password form-data)
-
-                                   ;; process form-validation
-                                   resp (if (or (str/blank? username) (str/blank? pw))
-                                     (be/create-error-response username request )
-                                     (let [
-                                           ;; TODO
-                                           ;consts/ACTIVATE-DEV-MODE-REDIRECT true
-                                           ;consts/ACTIVATE-DEV-MODE-REDIRECT false
-
-                                           p (println ">o> 2RETURN-TO AFTER.0")
-                                           p (println ">o> 2RETURN-TO AFTER.a" (get-in request [:form-params :return-to]))
-                                           p (println ">o> 2RETURN-TO AFTER.b" (get-in request [:form-params]))
-                                           ; FYI: otherwise shared-clj/src/leihs/core/redirects.clj will set
-                                           ;resp (when consts/ACTIVATE-DEV-MODE-REDIRECT     (assoc-in response [:headers "Location"] "/new-location/"))
-
-                                           ;; to overrule a redirect, we need to set the return-to value
-                                           request (if consts/ACTIVATE-DEV-MODE-REDIRECT (try (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
-                                                                     (catch Exception e (println "ERROR @ 2RETURN-TO AFTER") request))
-                                                                request)
-
-                                           p (println ">o> 2RETURN-TO AFTER" (get-in request [:form-params :return-to]))
-
-                                           ;:return-to} :form-params
-                                           ;; ----------------------------
-
-
-                                           p (println ">o> !!! sign-in POST")
-                                           resp (be/routes (convert-params request))
-
-                                           p (println ">o> abc11" (keys request))
-                                           p (println ">o> abc12" (:user-session request))
-                                           p (println ">o> abc13" (:sessions request))
-                                           p (println ">o> abc14" (:token (:query-params-raw request)))
-                                           p (println ">o> abc13" (:authenticated-entity request))
-
-
-
-
-
-                                           created-session (get-in resp [:cookies "leihs-user-session" :value])
-
-                                           ;p (println ">o> abc14.resp.generated" created-session)
-                                           ;request (assoc request (:sessions created-session))
-                                           ;
-                                           ;p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-                                           ;
-                                           ;request (assoc-in request [:cookies "leihs-user-session" :value])
-                                           ;p (println ">o> abc >> toCHECK!!!" (get-in request [:cookies "leihs-user-session" :value]))
-                                           ; Assign session to request under :sessions
-                                           request (assoc request :sessions created-session)
-
-                                           ; Print out the session for verification
-                                           p (println ">o> abc >> toCHECK!!! :sessions" (get-in request [:sessions]))
-
-                                           ; Set the :value key for the "leihs-user-session" cookie
-                                           request (assoc-in request [:cookies "leihs-user-session" :value] created-session)
-
-                                           ; Print out the cookie value for verification
-                                           p (println ">o> abc >> toCHECK!!! :cookies" (get-in request [:cookies "leihs-user-session" :value]))
-
-
-                                           ;:return-to
-
-
-
-                                           p (println ">o> 1RETURN-TO BEFORE" (get-in request [:form-params :return-to]))
-
-                                           ]resp)
-                                     )
-
-
-
-                                   p (println ">o> !!!!!!! RESP" resp)
-
-
-
-
-                                   ]
-
-                               ;;; Logging request method and URI for debugging
-                               ;(println ">o> Request Method:" request-method)
-                               ;(println ">o> URI:" uri)
-
-
-                               (println ">o> ---------- CHECK ----------------")
-                               (println ">o> !!! Response:" resp)
-                               (println ">o> ---------- CHECK ----------------")
-
-                               resp))}
+                  }
 
            :get {
                  :summary "Get sign-in page"
@@ -446,6 +507,8 @@
                   ;:middleware [ab/wrap]
                   :middleware [wrap-authenticate]
 
+                  ;:handler get-sign-out
+
                   :handler
                   (fn [request]
                     (let [
@@ -461,57 +524,63 @@
                       (println ">o> URI:" uri)
                       ;(println ">o> Response:" resp)
 
-                      resp))}
+                      resp))
+                  }
 
            :get {
                  :accept "text/html"
 
-                 :handler (fn [request]
-                            ;{:status 200
-                            ; :headers {"Content-Type" "text/html"}
-                            ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
-                            ; }
+                  :handler get-sign-out
+
+                 ;:handler (fn [request]
+                 ;           ;{:status 200
+                 ;           ; :headers {"Content-Type" "text/html"}
+                 ;           ; :body (sign-in-view {:authFlow {:returnTo "/inventory/models"}})
+                 ;           ; }
+                 ;
+                 ;
+                 ;           (let [
+                 ;
+                 ;                 uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                 ;                 p (println ">o> logout.uuid" uuid)
+                 ;
+                 ;                 ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
+                 ;                 params {
+                 ;                         :authFlow {:returnTo "/inventory/models???/"}
+                 ;                         ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
+                 ;                         :csrfToken {:name "csrf-token"
+                 ;                                     :value uuid}} ;; Parameters including CSRF token
+                 ;                 ;html (sign-in-view params) ;; Generate the original HTML using the params
+                 ;
+                 ;                 params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
+                 ;                          :else params
+                 ;                          )
+                 ;
+                 ;                 html (slurp (io/resource "public/dev-logout.html"))
+                 ;
+                 ;                 ;; Debugging the original HTML
+                 ;                 _ (println ">o> html.before" html (type html))
+                 ;
+                 ;                 ;; Add CSRF tokens to the HTML and debug the result
+                 ;
+                 ;                 ;; TODO: does this work?
+                 ;                 html-with-csrf (add-csrf-tags html params)
+                 ;                 ;html-with-csrf (add-csrf-tags2 html params)
+                 ;
+                 ;                 _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
+                 ;                 html html-with-csrf
+                 ;                 ]
+                 ;
+                 ;             {:status 200
+                 ;              :headers {"Content-Type" "text/html"}
+                 ;              ;:body (sign-out-view {})}
+                 ;              :body html}
+                 ;             )
+                 ;
+                 ;           )
 
 
-                            (let [
-
-                                  uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
-                                  p (println ">o> logout.uuid" uuid)
-
-                                  ;uuid (str (UUID/randomUUID)) ;; Generate UUID for CSRF token
-                                  params {
-                                          :authFlow {:returnTo "/inventory/models???/"}
-                                          ;:csrfToken {:name "x-csrf-token" ;; should be csrf-token => back
-                                          :csrfToken {:name "csrf-token"
-                                                      :value uuid}} ;; Parameters including CSRF token
-                                  ;html (sign-in-view params) ;; Generate the original HTML using the params
-
-                                  params (cond (not consts/ACTIVATE-SET-CSRF) (dissoc params :csrfToken)
-                                           :else params
-                                           )
-
-                                  html (slurp (io/resource "public/dev-logout.html"))
-
-                                  ;; Debugging the original HTML
-                                  _ (println ">o> html.before" html (type html))
-
-                                  ;; Add CSRF tokens to the HTML and debug the result
-
-                                  ;; TODO: does this work?
-                                  html-with-csrf (add-csrf-tags html params)
-                                  ;html-with-csrf (add-csrf-tags2 html params)
-
-                                  _ (println ">o> html.after" html-with-csrf (type html-with-csrf))
-                                  html html-with-csrf
-                                  ]
-
-                              {:status 200
-                               :headers {"Content-Type" "text/html"}
-                               ;:body (sign-out-view {})}
-                               :body html}
-                              )
-
-                            )}
+                 }
 
            }]
 

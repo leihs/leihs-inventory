@@ -122,12 +122,19 @@
             ;               (add-return-field return-field)
             ;               (add-form-if-missing csrf-name csrf-value))
 
-            updated-tree (-> hickory-tree
-                                 (add-meta-tag  csrf-name csrf-value)
-                                 (update-csrf-input  csrf-value)
+            updated-tree (as-> hickory-tree $
+                                 (add-meta-tag $ csrf-name csrf-value)
+                                 (update-csrf-input $  csrf-value)
                                  ;(add-return-field hickory-tree return-field)
-                                 (add-form-if-missing  csrf-name csrf-value)
+                                 (add-form-if-missing $ csrf-name csrf-value)
                            )
+
+          ;updated-tree (-> hickory-tree
+          ;                       (->> (add-meta-tag  csrf-name csrf-value))
+          ;                       (->> (update-csrf-input  csrf-value))
+          ;                       ;(add-return-field hickory-tree return-field)
+          ;                      (->> (add-form-if-missing  csrf-name csrf-value))
+          ;                 )
 
             raw-html (render/hickory-to-html updated-tree)
             ;raw-html (pprint-html raw-html)
