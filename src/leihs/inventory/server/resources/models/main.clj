@@ -5,8 +5,10 @@
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
@@ -23,7 +25,7 @@
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
                          (cond-> model_id (sql/where [:= :m.id model_id])))]
       (if model_id
-        (response (jdbc/query tx (-> base-query sql-format))))
+        (response (jdbc/execute! tx (-> base-query sql-format))))
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))
     (catch Exception e
@@ -32,7 +34,7 @@
 
 (defn get-models-handler [request]
   (let [tx (:tx request)
-        model_id (-> request path-params :id)
+        model_id (-> request path-params :model_id)
         query-params (query-params request)
         {:keys [page size]} (fetch-pagination-params request)
         sort-by (case (:sort_by query-params)
@@ -52,7 +54,7 @@
                        (cond-> model_id (sql/where [:= :m.id model_id]))
                        (sql/order-by sort-by))]
     (if model_id
-      (response (jdbc/query tx (-> base-query sql-format)))
+      (response (jdbc/execute! tx (-> base-query sql-format)))
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))))
 
@@ -64,7 +66,11 @@
                      :created_at created_ts
                      :updated_at created_ts)]
     (try
-      (let [res (jdbc/insert! tx :models model)]
+      (let [res (jdbc/execute! tx (-> (sql/insert-into :models)
+                                      (sql/values [model])
+                                      (sql/returning :*)
+                                      sql-format))
+            model-id (:id res)]
         (if res
           (response res)
           (bad-request {:error "Failed to create model"})))
@@ -78,9 +84,13 @@
         tx (:tx request)
         model body-params]
     (try
-      (let [res (jdbc/update! tx :models model ["id = ?::uuid" model-id])]
-        (if (= 1 (:next.jdbc/update-count res))
-          (response {:message "Model updated" :id model-id})
+      (let [res (jdbc/execute! tx (-> (sql/update :models)
+                                      (sql/set (convert-map-if-exist body-params))
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
+        (if (= 1 (count res))
+          (response res)
           (bad-request {:error "Failed to update model" :details "Model not found"})))
       (catch Exception e
         (error "Failed to update model" e)
@@ -90,9 +100,12 @@
   (let [tx (:tx request)
         model-id (get-in request [:path-params :model_id])]
     (try
-      (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
-        (if (= 1 (:next.jdbc/update-count res))
-          (response {:message "Model deleted" :id model-id})
+      (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
+        (if (= 1 (count res))
+          (response res)
           (bad-request {:error "Failed to delete model" :details "Model not found"})))
       (catch Exception e
         (error "Failed to delete model" e)

@@ -23,6 +23,7 @@
   hickory/hickory {:mvn/version "0.7.1"}
   clj-yaml/clj-yaml {:mvn/version "0.4.0"}
   cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
+  pghstore-clj/pghstore-clj {:mvn/version "0.1.0"}
   buddy/buddy-auth {:mvn/version "2.2.0"}
   digest/digest {:mvn/version "1.4.10"}
   cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}

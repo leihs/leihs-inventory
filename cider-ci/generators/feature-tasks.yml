@@ -208,6 +208,36 @@
   environment_variables:
     FEATURE_NAME: "Call inventory-pool endpoints Retrieving models from an inventory pool Creating and retrieving a new model 02"
     FEATURE: './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:3:2]'
+'./spec/features/api/models/audit/models_audit_spec.rb[1:1:1:1]':
+  name: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 01"
+    FEATURE: './spec/features/api/models/audit/models_audit_spec.rb[1:1:1:1]'
+'./spec/features/api/models/audit/models_audit_spec.rb[1:1:1:2]':
+  name: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 02"
+    FEATURE: './spec/features/api/models/audit/models_audit_spec.rb[1:1:1:2]'
+'./spec/features/api/models/audit/models_audit_spec.rb[1:1:1:3]':
+  name: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 03"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models with audits when managing models within an inventory pool CRUD operations for model management 03"
+    FEATURE: './spec/features/api/models/audit/models_audit_spec.rb[1:1:1:3]'
+'./spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:1]':
+  name: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 01"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 01"
+    FEATURE: './spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:1]'
+'./spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:2]':
+  name: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 02"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 02"
+    FEATURE: './spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:2]'
+'./spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:3]':
+  name: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 03"
+  environment_variables:
+    FEATURE_NAME: "Swagger Inventory Endpoints - Models of pool with audits when managing models within an inventory pool CRUD operations for model management 03"
+    FEATURE: './spec/features/api/models/audit/models_pool_audit_spec.rb[1:1:1:3]'
 './spec/features/api/models/models_accessories_spec.rb[1:1:1:1]':
   name: "Inventory API Endpoints - Accessories when fetching accessories for models in an inventory pool GET /inventory/models/:id/accessories for a model with accessories 01"
   environment_variables:

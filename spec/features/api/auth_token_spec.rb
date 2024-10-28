@@ -84,7 +84,7 @@ feature "Call swagger-endpoints" do
       token = resp.body["token"]
       expect(token).to be
 
-      resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url)
+      resp = json_client_get(@protected_url, token: token)
       expect(resp.status).to eq(200)
     end
 
@@ -106,7 +106,7 @@ feature "Call swagger-endpoints" do
       token = resp.body["token"]
       expect(token).to be
 
-      resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url)
+      resp = json_client_get(@protected_url, token: token)
       expect(resp.status).to eq(200)
       expect(resp.body["token"]["scopes"].values).to all(eq(false))
     end
@@ -132,7 +132,7 @@ feature "Call swagger-endpoints" do
       token = resp.body["token"]
       expect(token).to be
 
-      resp = wtoken_header_plain_faraday_json_client_get(token, @protected_url, headers: {"Accept" => "text/html"})
+      resp = json_client_get(@protected_url, headers: {"Accept" => "text/html"}, token: token)
       expect(resp.status).to eq(302)
       expect(resp.headers["location"]).to eq "/sign-in?return-to=%2Finventory"
     end

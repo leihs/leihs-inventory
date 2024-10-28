@@ -23,8 +23,6 @@ feature "Swagger Inventory Endpoints - Models" do
     let(:client) { plain_faraday_json_client }
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:path) { "/#{inventory_pool_id}/" }
-
-    # ["/", "/#{@inventory_pool.id}"].each do |path|
     let(:url) { "/inventory#{path}models" }
 
     context "GET /inventory/models" do
@@ -62,10 +60,11 @@ feature "Swagger Inventory Endpoints - Models" do
     context "POST and GET /inventory/:pool_id/models when creating new models" do
       before :each do
         category = FactoryBot.create(:category)
-        resp = create_model(client, inventory_pool_id, "Example Model", [category.id])
+        resp = create_model(client, inventory_pool_id, Faker::Lorem.word, [category.id])
 
         expect(resp.status).to eq(200)
-        @model_id = resp.body["id"]
+        expect(resp.body.count).to eq(1)
+        @model_id = resp.body[0]["id"]
       end
 
       it "returns one model after creation and returns status 200" do
@@ -77,10 +76,10 @@ feature "Swagger Inventory Endpoints - Models" do
       context "when adding another model" do
         before :each do
           category = FactoryBot.create(:category)
-          resp = create_model(client, inventory_pool_id, "Example Model2", [category.id])
+          resp = create_model(client, inventory_pool_id, Faker::Lorem.word, [category.id])
 
           expect(resp.status).to eq(200)
-          @model_id = resp.body["id"]
+          expect(resp.body.count).to eq(1)
         end
 
         it "returns both models and returns status 200" do

@@ -117,7 +117,10 @@
       :post {:summary "Create model."
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             :parameters {:body schema-min}
+             :parameters {:body {:product s/Str
+                                 :version s/Str
+                                 (s/optional-key :type) (s/enum "Software" "Model")
+                                 (s/optional-key :is_package) s/Bool}}
              :middleware [accept-json-middleware]
              :handler create-model-handler
              :responses {200 {:description "Returns the created model."

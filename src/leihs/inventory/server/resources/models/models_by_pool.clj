@@ -9,8 +9,9 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
@@ -87,26 +88,38 @@
         categories (:category_ids model)
         model (dissoc model :category_ids)]
     (try
-      (let [res (jdbc/insert! tx :models model)
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+                                          (sql/values [model])
+                                          (sql/returning :*)
+                                          sql-format))
             model-id (:id res)]
         (doseq [category-id categories]
-          (jdbc/insert! tx :model_links {:model_id model-id :model_group_id (to-uuid category-id)})
-          (jdbc/insert! tx :inventory_pools_model_groups {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
+          (jdbc/execute! tx (-> (sql/insert-into :model_links)
+                                (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
+                                sql-format))
+          (jdbc/execute! tx (-> (sql/insert-into :inventory_pools_model_groups)
+                                (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
+                                sql-format)))
         (if res
-          (response res)
+          (response [res])
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
         (error "Failed to create model" e)
         (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
 (defn update-model-handler-by-pool [request]
-  (let [model-id (get-in request [:path-params :id])
+  (let [model-id (get-in request [:path-params :model_id])
         body-params (:body-params request)
         tx (:tx request)]
     (try
-      (let [res (jdbc/update! tx :models body-params ["id = ?::uuid" model-id])]
-        (if (= 1 (:next.jdbc/update-count res))
-          (response {:message "Model updated" :id model-id})
+      (let [res (jdbc/execute! tx (-> (sql/update :models)
+                                      (sql/set (convert-map-if-exist body-params))
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
+        (if (= 1 (count res))
+          (response res)
+
           (bad-request {:error "Failed to update model" :details "Model not found"})))
       (catch Exception e
         (error "Failed to update model" e)
@@ -114,11 +127,14 @@
 
 (defn delete-model-handler-by-pool [request]
   (let [tx (:tx request)
-        model-id (get-in request [:path-params :id])]
+        model-id (get-in request [:path-params :model_id])]
     (try
-      (let [res (jdbc/delete! tx :models ["id = ?::uuid" model-id])]
-        (if (= 1 (:next.jdbc/update-count res))
-          (response {:message "Model deleted" :id model-id})
+      (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
+        (if (= 1 (count res))
+          (response res)
           (bad-request {:error "Failed to delete model" :details "Model not found"})))
       (catch Exception e
         (error "Failed to delete model" e)

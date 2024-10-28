@@ -78,25 +78,25 @@ def wtoken_header_plain_faraday_json_client(token)
   end
 end
 
-def wtoken_header_plain_faraday_json_client_get(token, url, headers: {})
-  token_header_plain_faraday_json_client(:get, url, token, headers: headers)
+def json_client_get(url, headers: {}, token: nil)
+  common_plain_faraday_json_client(:get, url, token: token, headers: headers)
 end
 
-def wtoken_header_plain_faraday_json_client_post(token, url, body: nil)
-  token_header_plain_faraday_json_client(:post, url, token, body: body)
+def json_client_post(url, body: nil, token: nil)
+  common_plain_faraday_json_client(:post, url, token: token, body: body)
 end
 
-def wtoken_header_plain_faraday_json_client_delete(token, url)
-  token_header_plain_faraday_json_client(:delete, url, token)
+def json_client_delete(url, token: nil)
+  common_plain_faraday_json_client(:delete, url, token: token)
 end
 
-def wtoken_header_plain_faraday_json_client_put(token, url)
-  token_header_plain_faraday_json_client(:put, url, token)
+def json_client_put(url, body: nil, token: nil)
+  common_plain_faraday_json_client(:put, url, token: token, body: body)
 end
 
-def token_header_plain_faraday_json_client(method, url, token, body: nil, headers: {})
+def common_plain_faraday_json_client(method, url, token: nil, body: nil, headers: {})
   Faraday.new(url: api_base_url) do |conn|
-    conn.headers["Authorization"] = "Token #{token}"
+    conn.headers["Authorization"] = "Token #{token}" if token
     conn.headers["Content-Type"] = "application/json"
     conn.headers["Accept"] = "application/json"
     conn.headers.update(headers)
