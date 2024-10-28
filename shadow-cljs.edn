@@ -2,11 +2,10 @@
  :builds
  {:frontend
   {:output-dir "src/leihs/inventory/client/.shadow"
-   :target :esm
-   ;; :compiler-options {:warnings-as-errors true}
-   :js-options {:js-provider :import}
-                ;; :external-index "src/leihs/inventory/client/.shadow/imports.js"
-                ;; :external-index-format :esm}
+   :target :browser
+   :js-options {:js-provider :external
+                :external-index "src/leihs/inventory/client/.shadow/external.js"
+                :external-index-format :esm}
 
    :modules {:main {:init-fn leihs.inventory.client.main/init}}
-   :devtools {:preloads [leihs.inventory.client.preload]}}}}
+   :devtools {:enalbed false}}}}

@@ -5,8 +5,12 @@
    ["react-router-dom" :refer [RouterProvider]]
 
    [leihs.inventory.client.routes :refer [routes]]
+   ;; [shadow.cljs.devtools.client.hud :as hud]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
+
+(defn ^:dev/after-load start []
+  (js/console.log "start"))
 
 (defonce query-client (new QueryClient))
 

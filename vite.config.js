@@ -4,6 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import { handleI18NextRequest } from "vite-plugin-i18next-save-missing"
 import { createFilter } from "vite"
+import puppeteer from "puppeteer"
 
 const i18nSaveMissingConfig = {
   locales: ["de", "en", "fr", "es"],
@@ -11,27 +12,6 @@ const i18nSaveMissingConfig = {
   namespace: "translation",
   translate: true,
   translateFrom: "de",
-}
-
-function consoleWatcher() {
-  return {
-    name: "console-watcher",
-    configureServer(server) {
-      // Intercept the console.log method
-      const originalLog = console.log
-      console.log = function(...args) {
-        // Call the original log method
-        originalLog.apply(console, args)
-
-        // Parse the messages
-        const message = args.join(" ")
-        if (message.includes("------ WARNING")) {
-          // Handle the warning message (e.g., log to a file, alert, etc.)
-          console.warn("Parsed Warning:", message)
-        }
-      }
-    },
-  }
 }
 
 const proxyAPIRequests = () => ({
@@ -56,6 +36,59 @@ const proxyAPIRequests = () => ({
   },
 })
 
+// function myPlugin() {
+//   return {
+//     name: "my-plugin", // required, will show up in warnings and errors
+//     configureServer(server) {
+//       server.httpServer?.once("listening", () => {
+//         console.log("Vite development server is ready!")
+//         // Add your custom logic here
+//       })
+//     },
+//   }
+// }
+
+async function myPlugin() {
+  return {
+    name: "my-plugin", // required, will show up in warnings and errors
+    handleHotUpdate({ file, server }) {
+      // const browser = await puppeteer.launch({ headless: false })
+      // const page = await browser.newPage()
+      //
+      // // Navigate to the desired URL
+      // await page.goto("http://localhost:9630/build/frontend/")
+      //
+      // // Evaluate JavaScript within the page context
+      // const result = await page.evaluate(() => {
+      //   // Example: Get the title of the page
+      //   // Find the element containing the text "Warnings"
+      //   const el = document.querySelector(
+      //     ".shadow_cljs_ui_components_build_status__L89_C28",
+      //   )
+      //   // const element = Array.from(document.querySelectorAll("div")).find(
+      //   //   (div) => div.textContent.includes("Warnings"),
+      //   // )
+      //   //
+      //   // console.debug("ELEMENT #####", element)
+      //   //
+      //   // // Return the outer HTML of the parent div
+      //   // return element ? element.outerHTML : null
+      //   return el
+      // })
+      //
+      // console.log('Parent div containing "Warnings":', result)
+      //
+      // // Close the browser
+      // await browser.close()
+      // The browser will remain open
+      // console.log(`File updated: ${file}`)
+      // fetch("http://localhost:9630/build/frontend/").then((data) =>
+      //   console.debug(data),
+      // )
+    },
+  }
+}
+
 /** @type {import('vite').UserConfig} */
 export default defineConfig({
   plugins: [
@@ -63,7 +96,7 @@ export default defineConfig({
     tsconfigPaths(),
     proxyAPIRequests(),
     handleI18NextRequest(i18nSaveMissingConfig),
-    consoleWatcher(),
+    myPlugin(),
   ],
   publicDir: "../../../../resources/public/inventory/static",
   root: "src/leihs/inventory/client",
@@ -78,7 +111,7 @@ export default defineConfig({
     watch: {
       // Exclude .cljs files
       // so changes dont trigger multiple reloads
-      // ignored: "**/*.cljs",
+      ignored: [],
     },
   },
 })
