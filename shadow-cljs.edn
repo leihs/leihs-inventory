@@ -3,9 +3,10 @@
  {:frontend
   {:output-dir "src/leihs/inventory/client/.shadow"
    :target :browser
+   :optimization :none
    :js-options {:js-provider :external
                 :external-index "src/leihs/inventory/client/.shadow/external.js"
                 :external-index-format :esm}
 
    :modules {:main {:init-fn leihs.inventory.client.main/init}}
-   :devtools {:enalbed false}}}}
+   :devtools {:enabled false}}}}

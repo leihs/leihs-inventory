@@ -3,11 +3,11 @@
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
+   ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
    ["lucide-react" :refer [CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet useParams
                                           useResolvedPath]]
-   ["src/leihs/inventory/client/components/ui/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))

@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.main
   (:require
-   ["@/i18n.js"]
+   ;; ["./i18n.js" :as i18n]
    ["@tanstack/react-query" :refer [QueryClient QueryClientProvider]]
    ["react-router-dom" :refer [RouterProvider]]
 

@@ -111,7 +111,7 @@ export default defineConfig({
     watch: {
       // Exclude .cljs files
       // so changes dont trigger multiple reloads
-      ignored: [],
+      ignored: ["*.cljs", "**/.shadow/**"],
     },
   },
 })
