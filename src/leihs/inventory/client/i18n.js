@@ -21,7 +21,7 @@ i18n
     lng: "de",
     fallbackLng: ["de", "en", "fr", "es"],
     supportedLngs: ["de", "en", "fr", "es"],
-    preload: import.meta.env.DEV ? ["en", "de", "fr", "es"] : [],
+    // preload: import.meta.env.DEV ? ["en", "de", "fr", "es"] : [],
     load: "languageOnly",
     debug: true,
     saveMissing: true,

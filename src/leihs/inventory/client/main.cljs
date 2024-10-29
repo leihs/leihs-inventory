@@ -22,6 +22,7 @@
 (defonce root
   (uix.dom/create-root (js/document.getElementById "app")))
 
+adsf
 (defn render []
   (uix.dom/render-root ($ app) root))
 

@@ -1,18 +1,26 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "shadow-cljs watch frontend & vite",
-    "build": "npm run clean && shadow-cljs release frontend && vite build",
+    "dev": "concurrently \"shadow-cljs -A:frontend watch frontend\" \"yarn tailwind\"",
+    "release": "shadow-cljs -A:frontend release frontend && yarn styles-release",
+    "tailwind": "postcss src/leihs/inventory/client/main.css -o resources/public/inventory/css/style.css --verbose -w",
+    "start:libs": "mkdir -p target/gen && touch target/gen/libs.js && node watch.mjs",
+    "build:libs": "node build.mjs",
     "clean": "rm -rf ./src/leihs/inventory/client/.shadow & rm -rf ./resources/public/inventory/assets/",
-    "preview": "vite preview",
     "format": "prettier --write ./src/leihs/inventory/client",
     "format:check": "prettier --check ./src/leihs/inventory/client",
     "test": "DB_NAME=leihs_test LEIHS_INVENTORY_HTTP_PORT=5173 bin/rspec ./spec/features/"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-prettier": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@types/node": "^22.5.4",
     "autoprefixer": "^10.4.14",
+    "concurrently": "^9.0.1",
+    "esbuild": "0.20.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
@@ -22,16 +30,14 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.34.1",
     "globals": "^15.3.0",
-    "http-proxy-middleware": "^3.0.0",
     "i18next-locales-sync": "^2.1.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.47",
+    "postcss-cli": "^11.0.0",
+    "postcss-import": "^16.1.0",
     "prettier": "3.2.5",
-    "puppeteer": "^23.6.0",
     "react-refresh": "^0.14.2",
-    "shadow-cljs": "2.22.10",
-    "tailwindcss": "^3.3.1",
-    "vite": "^5.1.3",
-    "vite-tsconfig-paths": "^5.0.1"
+    "shadow-cljs": "2.26.3",
+    "tailwindcss": "^3.3.1"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -47,7 +53,6 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tabs": "^1.0.4",
     "@tanstack/react-query": "^5.21.7",
-    "@vitejs/plugin-react": "^4.2.1",
     "body-parser": "^1.20.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -69,7 +74,6 @@
     "translate": "^3.0.0",
     "translation-check": "^1.1.0",
     "truncate": "^3.0.0",
-    "vite-plugin-i18next-save-missing": "github:belafonte/vite-plugin-i18next-save-missing",
     "zod": "^3.23.8"
   }
 }
