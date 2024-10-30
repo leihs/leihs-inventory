@@ -3,10 +3,9 @@
   "scripts": {
     "dev": "concurrently \"shadow-cljs -A:frontend watch frontend\" \"yarn tailwind\"",
     "release": "shadow-cljs -A:frontend release frontend && yarn styles-release",
-    "tailwind": "postcss src/leihs/inventory/client/main.css -o resources/public/inventory/css/style.css --verbose -w",
-    "start:libs": "mkdir -p target/gen && touch target/gen/libs.js && node watch.mjs",
+    "tailwind": "postcss src/leihs/inventory/client/main.css -o resources/public/inventory/assets/css/style.css --verbose -w",
+    "start:libs": "mkdir -p dev/gen && touch dev/gen/libs.js && node watch.mjs",
     "build:libs": "node build.mjs",
-    "clean": "rm -rf ./src/leihs/inventory/client/.shadow & rm -rf ./resources/public/inventory/assets/",
     "format": "prettier --write ./src/leihs/inventory/client",
     "format:check": "prettier --check ./src/leihs/inventory/client",
     "test": "DB_NAME=leihs_test LEIHS_INVENTORY_HTTP_PORT=5173 bin/rspec ./spec/features/"

@@ -18,7 +18,7 @@
 (def routes
   (createBrowserRouter
    (cj
-    [{:path "/"
+    [{:path "/inventory"
       :element
       ($ root-layout)
       :errorElement

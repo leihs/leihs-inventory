@@ -7,13 +7,13 @@
  :builds
  {:frontend
 
-  {:output-dir "resources/public/inventory/js/"
+  {:output-dir "resources/public/inventory/assets/js/"
    :target :browser
    :modules {:main {:entries [leihs.inventory.client.main]
                     :init-fn leihs.inventory.client.main/init}}
    :devtools {:preloads [preload devtools.preload]}
    :js-options {:js-provider :external
-                :external-index "target/gen/libs.js"
+                :external-index "dev/gen/libs.js"
                 :external-index-format :esm}
    :release {:build-hooks [;; Esbuild must run after shadow-cljs flush so no way to optimize.
                                    ;; You can replace yarn with npm.

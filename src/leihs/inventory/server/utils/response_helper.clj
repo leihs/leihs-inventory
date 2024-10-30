@@ -2,14 +2,18 @@
   (:require
    [clojure.java.io :as io]
    [clojure.set]
-   [ring.middleware.accept]))
+   [leihs.core.anti-csrf.back :refer [anti-csrf-token]]
+   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
+   [ring.middleware.accept]
+   [ring.util.response :as response]))
 
-(defn index-html-response [status]
+(defn index-html-response [request status]
   (let [index (io/resource "public/inventory/index.html")
-        default (io/resource "public/index-fallback.html")]
-    {:status status
-     :headers {"Content-Type" "text/html"}
-     :body (slurp (if (nil? index) default index))}))
-
-(def ^:export INDEX-HTML-RESPONSE-OK (index-html-response 200))
-(def ^:export INDEX-HTML-RESPONSE-NOT-FOUND (index-html-response 404))
+        html (slurp index)
+        uuid (anti-csrf-token request)
+        params {:authFlow {:returnTo "/inventory/models"}
+                :csrfToken {:name "csrf-token" :value uuid}}
+        html-with-csrf (add-csrf-tags html params)]
+    (-> (response/response html-with-csrf)
+        (response/status status)
+        (response/content-type "text/html; charset=utf-8"))))
