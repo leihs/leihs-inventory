@@ -13,14 +13,12 @@
            (java.util UUID)
            [java.util.jar JarFile]))
 
-(defn index-html-response [request status]
-  (let [index (io/resource "public/index.html")
-        default (io/resource "public/index-fallback.html")
-        html (slurp (or index default))
-        uuid (anti-csrf-token request)
-        params {:authFlow {:returnTo "/inventory/models"}
-                :csrfToken {:name "csrf-token" :value uuid}}
-        html-with-csrf (add-csrf-tags html params)]
-    (-> (response/response html-with-csrf)
-        (response/status status)
-        (response/content-type "text/html; charset=utf-8"))))
+(defn index-html-response [status]
+  (let [index (io/resource "public/inventory/index.html")
+        default (io/resource "public/index-fallback.html")]
+    {:status status
+     :headers {"Content-Type" "text/html"}
+     :body (slurp (if (nil? index) default index))}))
+
+(def ^:export INDEX-HTML-RESPONSE-OK (index-html-response 200))
+(def ^:export INDEX-HTML-RESPONSE-NOT-FOUND (index-html-response 404))

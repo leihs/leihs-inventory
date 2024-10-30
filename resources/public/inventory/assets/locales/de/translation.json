@@ -1,0 +1,29 @@
+{
+  "header": {
+    "links": {
+      "lending14_one": "Apfel",
+      "lending14_other": "Äpfel",
+      "inventory": "Inventar",
+      "lending": "Ausleihe"
+    }
+  },
+  "models": {
+    "title": "Inventarliste - Ausleihe Toni Areal Localized",
+    "tabs": {
+      "entitlement-groups": "Anspruchsgruppen"
+    }
+  },
+  "debug": {
+    "welcome": "Willkommen",
+    "welcome-text": "Willkommen auf der Debug Seite. Hier gibt es ein paar nützliche Funktionalität"
+  },
+  "translate-check": {
+    "open": "Open Translation Check"
+  },
+  "root": {
+    "welcome": "Welcome to Leihs Inventory!"
+  },
+  "notfound": {
+    "back-to-home": "Zurück zur Startseite"
+  }
+}

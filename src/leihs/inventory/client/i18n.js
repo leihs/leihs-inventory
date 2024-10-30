@@ -24,10 +24,10 @@ i18n
     // preload: import.meta.env.DEV ? ["en", "de", "fr", "es"] : [],
     load: "languageOnly",
     debug: true,
-    saveMissing: true,
-    saveMissingPlurals: true,
+    saveMissing: false,
+    saveMissingPlurals: false,
     backend: {
-      loadPath: "/inventory/locales/{{lng}}/{{ns}}.json",
+      loadPath: "/assets/locales/{{lng}}/{{ns}}.json",
     },
   })
 

@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import React from "react"
 import { useInView } from "react-intersection-observer"
 import { useScrollspy, ScrollspyProvider } from "./context"
 import { Button } from "@@/button"
@@ -20,11 +20,11 @@ export function ScrollspyItem({ children, className, name, id }) {
   })
   const { setCurrent, addItem } = useScrollspy()
 
-  useEffect(() => {
+  React.useEffect(() => {
     addItem({ name: name, id: id })
   }, [])
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (inView) {
       setCurrent({ name: name, id: id })
     }

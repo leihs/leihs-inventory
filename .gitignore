@@ -12,7 +12,7 @@ pom.xml
 node_modules/
 node_modules/.package-lock.json
 resources/public/inventory/js/
-resources/public/inventory/assets/
+# resources/public/inventory/assets/
 resources/public/index.html
 src/leihs/inventory/client/.shadow
 resources/built-info.yml

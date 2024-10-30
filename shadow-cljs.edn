@@ -1,5 +1,9 @@
-{:deps {:aliases [:frontend]}
- :dev-http {8080 "resources/public/inventory"}
+{:deps
+ {:aliases [:frontend]}
+ :dev-http {8080
+            {:root "resources/public/inventory"
+             :proxy-url "http://localhost:3260"}}
+
  :builds
  {:frontend
 
