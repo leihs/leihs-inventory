@@ -240,9 +240,6 @@
                               :version "3.0.0"}}
              :handler (openapi/create-openapi-handler)}}]
 
-     ["/debug"
-      {:tags ["Debug"]}]
-
      (incl-other-routes)]]])
 
 ;#### debug ###################################################################

@@ -14,6 +14,6 @@
        ($ :ul {:class-name "mt-6"}
           ($ :li ($ Link {:class-name "underline" :to "debug"} "Debug"))
           ($ :li ($ Link {:class-name "underline"
-                          :to "inventory/8bd16d45-056d-5590-bc7f-12849f034351/models"}
+                          :to "./8bd16d45-056d-5590-bc7f-12849f034351/models"}
                     "Ausleihe Toni - 8bd16d45-056d-5590-bc7f-12849f034351"))))))
 
