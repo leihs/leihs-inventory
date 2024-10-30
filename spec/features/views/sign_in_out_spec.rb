@@ -40,15 +40,43 @@ feature "Request" do
           fill_in "password", with: @user.password
           click_button "Continue"
 
+          # test accessible endpoints
           expect(page).to have_content("Inventarliste - Ausleihe Toni Areal Localized")
-          click_link "Inventar"
 
+          click_link "Erweiterte Suche"
+          expect(page).to have_content("hello advanced search")
+
+          click_link "Statistik"
+          expect(page).to have_content("hello statistics")
+
+          click_link "Anspruchsgruppen"
+          expect(page).to have_content("hello entitlement-groups")
+
+          visit "/inventory/#{@inventory_pool.id}/models/create"
+          expect(page).to have_content("Inventarliste - Ausleihe Toni Areal")
+
+          visit "/inventory/#{@inventory_pool.id}/models/edit"
+          expect(page).to have_content("Inventarliste - Ausleihe Toni Areal")
+
+          visit "/debug"
+          expect(page).to have_content("Open Translation Check")
+
+          visit "/inventory"
+          expect(page).to have_content("Welcome to Leihs Inventory!")
+
+          click_link "Inventar"
+          expect(page).to have_content("User Name")
+
+          # process sign-out
           visit "/sign-out"
           expect(page).to have_content("Sign out")
           click_button "Sign out"
 
           # test redirect to sign-in page after logout
           visit "/inventory/models"
+          expect(page).to have_content("Leihs Simple Login")
+
+          visit "/inventory"
           expect(page).to have_content("Leihs Simple Login")
 
           visit "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models"

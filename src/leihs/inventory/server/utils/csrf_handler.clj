@@ -103,7 +103,7 @@
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-                (response/status 402)
+                (response/status 404)
                 (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]

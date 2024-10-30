@@ -31,6 +31,9 @@
         {:path "debug"
          :element ($ debug-page)}
 
+        {:path "inventory"
+         :element ($ home-page)}
+
         {:path "inventory/:pool-id"
          :children
          (cj [{:path "models/create"

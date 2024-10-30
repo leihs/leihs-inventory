@@ -10,6 +10,7 @@
             [leihs.core.sign-in.simple-login :refer [sign-in-view]]
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
+            [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
             [muuntaja.core :as m]
@@ -92,7 +93,10 @@
   (some #(str/includes? s %) substrings))
 
 (defn custom-not-found-handler [request]
-  (let [uri (:uri request)
+  (let [request ((db/wrap-tx (fn [request] request)) request)
+        request ((csrf/extract-header (fn [request] request)) request)
+        request ((session/wrap-authenticate (fn [request] request)) request)
+        uri (:uri request)
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
     (cond
@@ -113,8 +117,6 @@
       {:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
-
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response request 200)
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset
