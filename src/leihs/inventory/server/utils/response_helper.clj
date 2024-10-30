@@ -2,16 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.set]
-   [leihs.core.anti-csrf.back :refer [anti-csrf-token anti-csrf-props]]
-   [leihs.core.constants :as constants]
-   [leihs.core.core :refer [keyword str presence]]
-   [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
-   [ring.middleware.accept]
-   [ring.util.request :as request]
-   [ring.util.response :as response])
-  (:import [java.net URL JarURLConnection]
-           (java.util UUID)
-           [java.util.jar JarFile]))
+   [ring.middleware.accept]))
 
 (defn index-html-response [status]
   (let [index (io/resource "public/inventory/index.html")
