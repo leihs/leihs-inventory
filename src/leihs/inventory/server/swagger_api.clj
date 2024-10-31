@@ -39,44 +39,16 @@
             [ring.util.response :as response]))
 
 (defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
-
-     (let [
-           ;accept-header (when (nil? accept-header) "")
-           accept-header (if (nil? accept-header) "" accept-header)
-
-           p (println ">o> abc1.a" accept-header (nil? accept-header))
-           p (println ">o> abc1" accept-header)
-           _ (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
-
-           p (println ">o> abc2")
-           _ (some #(= % uri) whitelist-uris-for-api)
-
-           p (println ">o> abc3")
-
-           valid? (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
-             (some #(= % uri) whitelist-uris-for-api))
-
-
-
-              ]
-
-       valid?
-       )
-
-
-
-  )
+  (let [accept-header (if (nil? accept-header) "" accept-header)
+        valid? (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
+                   (some #(= % uri) whitelist-uris-for-api))]
+    valid?))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
-    (let [
-          accept-header (get-in request [:headers "accept"])
+    (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out"]]
-
-      ;(if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
-      ;        (some #(= % uri) whitelist-uris-for-api))
-
       (if (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
         (handler request)
         (custom-not-found-handler request)))))

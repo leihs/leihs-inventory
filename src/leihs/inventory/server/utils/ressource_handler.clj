@@ -40,8 +40,7 @@
                            ".jpg" "image/jpeg"
                            ".jpeg" "image/jpeg"
                            ".gif" "image/gif"})
-(def ALLOWED_RESOURCE_PATHS [
-                             "public/inventory/assets/css"
+(def ALLOWED_RESOURCE_PATHS ["public/inventory/assets/css"
                              "public/inventory/assets/js"
                              "public/inventory/assets"])
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
@@ -103,7 +102,7 @@
       (= uri "/") (create-root-page)
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-        (contains-one-of? uri SUPPORTED_LOCALES))
+           (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")]
         {:status 200
          :headers {"Content-Type" "application/json"}
