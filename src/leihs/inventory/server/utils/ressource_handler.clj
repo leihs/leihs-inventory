@@ -10,6 +10,7 @@
             [leihs.core.sign-in.simple-login :refer [sign-in-view]]
             [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
             [leihs.inventory.server.routes :as routes]
+            [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
             [muuntaja.core :as m]
@@ -39,9 +40,11 @@
                            ".jpg" "image/jpeg"
                            ".jpeg" "image/jpeg"
                            ".gif" "image/gif"})
-(def ALLOWED_RESOURCE_PATHS ["public/inventory/assets"
+(def ALLOWED_RESOURCE_PATHS [
                              "public/inventory/assets/css"
-                             "public/inventory/assets/js"])
+                             "public/inventory/assets/js"
+                             "public/inventory/assets"
+                             ])
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
 (def RESOURCE_FILES (apply concat (map list-files-in-dir ALLOWED_RESOURCE_PATHS)))
 (def SUPPORTED_LOCALES ["/en/" "/de/" "/es/" "/fr/"])
@@ -53,47 +56,96 @@
 (defn- create-root-page []
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
        </head><div class='max-width'>
-       <img src=\"/inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <img src=\"../../inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
-    (some (fn [[key value]]
-            (if (or (clojure.string/includes? (str key) uri)
-                    (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
+    (let [
+
+      res (some (fn [[key value]]
+
+            ;(println ">o> fetch-file-entry1.key" key)
+            ;(println ">o> fetch-file-entry2.value" value)
+            ;(println ">o> fetch-file-entry3.uri" uri)
+
+            ;(if (or (clojure.string/includes? (str key) uri)
+            ;        (clojure.string/includes? (str key) (clojure.string/replace-first uri "/inventory" "")))
+
+              (if (or (.endsWith (str key) uri)
+                    (.endsWith (str key) (clojure.string/replace-first uri "/inventory" "")))
               value))
           assets)
+
+
+          _  (println ">o> fetch-file-entry.res-correct???? " uri res)
+
+          ]
+      res
+      )
     nil))
 
 (defn get-assets []
   (into {}
         (for [file RESOURCE_FILES]
-          (let [file2 (clojure.java.io/file file)
+          (let [
+                p (println ">o> uri???.file" file)
+                file2 (clojure.java.io/file file)
                 filename (.getName file2)
+                p (println ">o> uri???.filename" filename)
+
                 full-path file
                 uri (some (fn [[dir-path uri-prefix]]
+                            (println ">o> incl??.check" full-path dir-path filename)
+                            ;(when (and (str/includes? full-path dir-path) (.endsWith (.getName full-path) filename))
                             (when (str/includes? full-path dir-path)
                               (str uri-prefix "/" filename)))
                           RESOURCE_DIR_URI_MAP)
+
+
+                p (println ">o> uri???" uri)
+                p (println ">o> uri???" RESOURCE_DIR_URI_MAP)
+
                 mime-type (or (some (fn [[ext mime]]
                                       (when (str/ends-with? filename ext)
                                         mime))
                                     SUPPORTED_MIME_TYPES)
-                              "application/octet-stream")]
-            {uri {:file (str "public" uri)
+                              "application/octet-stream")
+           res  {uri {:file (str "public" uri)
                   :file-path full-path
-                  :content-type mime-type}}))))
+                  :content-type mime-type}}
+
+                p (println ">o> -----------------------")
+                p (println ">o> uri" uri)
+                p (println ">o> res" res)
+                ]
+            res
+
+            ))))
 
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
 (defn custom-not-found-handler [request]
-  (let [uri (:uri request)
+  (let [request ((db/wrap-tx (fn [request] request)) request)
+        request ((csrf/extract-header (fn [request] request)) request)
+        request ((session/wrap-authenticate (fn [request] request)) request)
+
+
+        uri (:uri request)
+
+
         assets (get-assets)
-        asset (fetch-file-entry uri assets)]
+        asset (fetch-file-entry uri assets)
+
+        p (println ">o> uri" uri)
+        ;p (println ">o> assets" assets)
+        ;p (println ">o> asset" asset)
+
+        ]
     (cond
       (= uri "/") (create-root-page)
 
@@ -112,8 +164,6 @@
       {:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
        :body ""}
-
-      (and (nil? asset) (= uri "/inventory")) (rh/index-html-response request 200)
 
       (not (nil? asset)) (if asset
                            (let [{:keys [file content-type]} asset

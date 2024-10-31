@@ -16,3 +16,5 @@ resources/public/inventory/assets/css/style.css
 resources/built-info.yml
 dev/gen/
 tmp/
+target
+**/.shadow/**
