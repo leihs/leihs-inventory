@@ -27,7 +27,7 @@ i18n
     saveMissing: false,
     saveMissingPlurals: false,
     backend: {
-      loadPath: "/assets/locales/{{lng}}/{{ns}}.json",
+      loadPath: "/inventory/assets/locales/{{lng}}/{{ns}}.json",
     },
   })
 
