@@ -40,9 +40,8 @@
                            ".jpeg" "image/jpeg"
                            ".gif" "image/gif"})
 (def ALLOWED_RESOURCE_PATHS ["public/inventory/assets"
-                             "public/inventory/css"
-                             "public/inventory/static"
-                             "public/inventory/js"])
+                             "public/inventory/assets/css"
+                             "public/inventory/assets/js"])
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
 (def RESOURCE_FILES (apply concat (map list-files-in-dir ALLOWED_RESOURCE_PATHS)))
 (def SUPPORTED_LOCALES ["/en/" "/de/" "/es/" "/fr/"])
@@ -54,7 +53,7 @@
 (defn- create-root-page []
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
        </head><div class='max-width'>
        <img src=\"/inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"

@@ -48,7 +48,7 @@
       (clojure.string/includes? accept-header "text/html")
       {:status 200
        :headers {"Content-Type" "text/html"}
-       :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/css/additional.css\">
+       :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
        </head><div class='max-width'>
        <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
