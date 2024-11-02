@@ -13,6 +13,11 @@
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
+
+   [ring.util.response :as response]
+
+   [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
+
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
@@ -91,6 +96,8 @@
    (get-items-routes)
    (get-supplier-routes)
    (get-fields-routes)
+
+   (get-export-routes)
    ;(get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)
