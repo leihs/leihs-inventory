@@ -25,6 +25,8 @@
   ;clj-csv/clj-csv {:mvn/version "3.13.0"}
   org.clojure/data.csv {:mvn/version "1.1.0"}
   ;org.clojure/data.csv {:mvn/version "1.0.0"}
+  dk.ative/docjure {:mvn/version "1.15.0"}
+
 
 
 
