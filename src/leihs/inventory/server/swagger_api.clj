@@ -40,7 +40,7 @@
 
 (defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
   (let [accept-header (if (nil? accept-header) "" accept-header)
-        valid? (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
+        valid? (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
                    (some #(= % uri) whitelist-uris-for-api))]
     valid?))
 
