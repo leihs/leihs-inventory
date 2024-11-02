@@ -33,39 +33,9 @@
 
 
 
-
-
-
-(defn write-csv [filename maps]
-  (let [header (keys (first maps))
-        rows (map vals maps)]
-    (with-open [writer (io/writer filename)]
-      (csv/write-csv writer (cons header rows)))))
-
-;(defn write-xls [filename maps]
-;  (let [header (keys (first maps))
-;        rows (map vals maps)
-;        workbook (spreadsheet/create-workbook "Sheet1" (cons header rows))]
-;    (spreadsheet/save-workbook! filename workbook)))
-
 ;; Example usage
 (def data [{:name "Alice" :age 30} {:name "Bob" :age 25}])
 
-(write-csv "output.csv" data)
-;(write-xls "output.xlsx" data)
-
-
-(defn data-to-csv-string [data]
-  (let [writer (java.io.StringWriter.)]
-    (csv/write-csv writer data)
-    (.toString writer)))
-
-
-;; Function to convert maps to CSV rows
-(defn maps-to-csv [maps]
-  (let [headers (keys (first maps))
-        rows (map vals maps)]
-    (cons headers rows)))
 
 (defn keyword-to-title [k]
   (-> k
@@ -89,34 +59,22 @@
     ["" {:post {:conflicting true
                :description (str "(DEV) |"
                                  "- Exports csv/xls")
-               ;:accept "application/json"
                :accept "text/csv"
                :coercion reitit.coercion.schema/coercion
-               ;:middleware [accept-json-middleware
-               ;             ;session/wrap
-               ;             ]
                :swagger {:produces [
                                     ;"application/json"
                                     "text/csv"
+                                    "text/xls"
                                     ]}
 
                :parameters {:body
                             {
                              :data [s/Any]
-                                    ;(s/optional-key :size) s/Int
                              }
                             }
 
 
-
                 :handler (fn [request]
-                           ;(let [output-stream (java.io.ByteArrayOutputStream.)]
-                           ;  (with-open [writer (io/writer output-stream)]
-                           ;    ;(csv/write-csv writer (data-to-csv-string data))
-                           ;    (csv/write-csv writer  data)
-                           ;
-                           ;    )
-
                              (let [output-stream (java.io.ByteArrayOutputStream.)
                                    csv-data (maps-to-csv data)]
                                (with-open [writer (io/writer output-stream)]
@@ -126,43 +84,6 @@
                               :headers {"Content-Type" "text/csv"
                                         "Content-Disposition" "attachment; filename=\"output.csv\""}
                               :body (java.io.ByteArrayInputStream. (.toByteArray output-stream))}))
-
-
-
-                ;:handler (fn [request]
-                ;
-                ;             {:status 200
-                ;                                ;:headers {"Content-Type" "application/json"}
-                ;                                :headers {"Content-Type" "text/csv"
-                ;                                          "Content-Disposition" "attachment; filename=\"output.csv\""
-                ;
-                ;                                          }
-                ;                                :body
-                ;                                ;(write-csv "output.csv" data)
-                ;              ;(data-to-csv-string data)
-                ;
-                ;
-                ;              (io/piped-output-stream
-                ;                      (fn [output-stream]
-                ;                        (with-open [writer (io/writer output-stream)]
-                ;
-                ;                          (csv/write-csv writer data)
-                ;
-                ;                          ;(data-to-csv-string data)
-                ;                          )))
-                ;
-                ;
-                ;                                })
-
-
-
-
-
-
-
-
-
-
 
 
                :responses {200 {:description "OK"
