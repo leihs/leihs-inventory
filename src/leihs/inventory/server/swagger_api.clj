@@ -42,8 +42,8 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
-      (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/export" "/inventory/excel"]]
+      (if (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
               (some #(= % uri) whitelist-uris-for-api))
         (handler request)
         (custom-not-found-handler request)))))

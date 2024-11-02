@@ -20,6 +20,7 @@
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
@@ -39,6 +40,7 @@
    [reitit.swagger :as swagger]
    [ring.middleware.accept]
    [ring.middleware.accept]
+   [ring.util.response :as response]
    [ring.util.response :refer [bad-request redirect response status]]
    [schema.core :as s]))
 
@@ -91,6 +93,7 @@
    (get-items-routes)
    (get-supplier-routes)
    (get-fields-routes)
+   (get-export-routes)
    ;(get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)
