@@ -4,7 +4,7 @@
 
    [ring.util.response :as response]
 
-
+   [clojure.string :as str]
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    ;[dk.ative.docjure.spreadsheet :as spreadsheet]
@@ -60,6 +60,26 @@
     (csv/write-csv writer data)
     (.toString writer)))
 
+
+;; Function to convert maps to CSV rows
+(defn maps-to-csv [maps]
+  (let [headers (keys (first maps))
+        rows (map vals maps)]
+    (cons headers rows)))
+
+(defn keyword-to-title [k]
+  (-> k
+    name                            ; Convert keyword to string
+    (str/replace "-" " ")           ; Replace hyphens with spaces
+    (str/replace "_" " ")           ; Replace underscores with spaces (if applicable)
+    (str/capitalize)))              ; Capitalize the first letter of each word
+
+;; Function to convert maps to CSV rows with readable headers
+(defn maps-to-csv [maps]
+  (let [headers (map keyword-to-title (keys (first maps))) ; Convert keys to more readable header names
+        rows (map vals maps)]
+    (cons headers rows)))
+
 (defn get-export-routes []
   [""
    ["/export"
@@ -90,9 +110,18 @@
 
 
                 :handler (fn [request]
-                           (let [output-stream (java.io.ByteArrayOutputStream.)]
-                             (with-open [writer (io/writer output-stream)]
-                               (csv/write-csv writer data))
+                           ;(let [output-stream (java.io.ByteArrayOutputStream.)]
+                           ;  (with-open [writer (io/writer output-stream)]
+                           ;    ;(csv/write-csv writer (data-to-csv-string data))
+                           ;    (csv/write-csv writer  data)
+                           ;
+                           ;    )
+
+                             (let [output-stream (java.io.ByteArrayOutputStream.)
+                                   csv-data (maps-to-csv data)]
+                               (with-open [writer (io/writer output-stream)]
+                                 (csv/write-csv writer csv-data))
+
                              {:status 200
                               :headers {"Content-Type" "text/csv"
                                         "Content-Disposition" "attachment; filename=\"output.csv\""}
