@@ -141,6 +141,12 @@
                           ]
                       request
                       )
+                    ;request
+                    ;(-> request
+                    ;          ;(assoc :form-params body-form)
+                    ;          add-cookies-to-request
+                    ;          convert-params
+                    ;          )
                     request
                     )
 

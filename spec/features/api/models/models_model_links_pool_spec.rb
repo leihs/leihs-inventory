@@ -26,6 +26,7 @@ feature "Inventory API Endpoints - model-links" do
 
         it "retrieves paginated model-link results and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
+          binding.pry
           expect(resp.status).to eq(200)
           expect(resp.body["pagination"]["total_records"]).to eq(1)
         end
@@ -43,6 +44,8 @@ feature "Inventory API Endpoints - model-links" do
         it "returns no results for an invalid model-link ID and status 200" do
           invalid_id = SecureRandom.uuid
           resp = client.get "#{url}/#{invalid_id}"
+          binding.pry
+
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(2)  # FIXME
         end

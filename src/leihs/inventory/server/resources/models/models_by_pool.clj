@@ -84,6 +84,9 @@
         pool-id (get-in request [:path-params :pool_id])
         body-params (:body-params request)
         tx (:tx request)
+
+        p (println ">o> create-model-handler-by-pool.body-params" body-params)
+
         model (assoc body-params :created_at created_ts :updated_at created_ts)
         categories (:category_ids model)
         model (dissoc model :category_ids)]
@@ -104,7 +107,8 @@
           (response [res])
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-        (error "Failed to create model" e)
+        (error "Failed to create model" (.getMessage e))
+        (error "Failed to create model" (.getMessage e))
         (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
 (defn update-model-handler-by-pool [request]
