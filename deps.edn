@@ -12,7 +12,6 @@
   fi.metosin/reitit-openapi {:mvn/version "0.7.1"}
   leihs-core/leihs-core {:local/root "./shared-clj"}
   metosin/reitit {:mvn/version "0.7.1"}
-  metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
   org.clojure/data.generators {:mvn/version "1.1.0"}
   org.clojure/spec.alpha {:mvn/version "0.5.238"}
   org.threeten/threeten-extra {:mvn/version "1.8.0"}
@@ -27,6 +26,10 @@
   cider-ci/open-session {:mvn/version "2.0.0-beta.1"} ; upgrade will break
   pghstore-clj/pghstore-clj {:mvn/version "0.1.0"}
   buddy/buddy-auth {:mvn/version "2.2.0"}
+  metosin/spec-tools {:mvn/version "0.10.7"}
+  metosin/ring-swagger-ui {:mvn/version "4.19.1"}
+  com.novemberain/pantomime {:mvn/version "2.11.0"}
+  metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
   digest/digest {:mvn/version "1.4.10"}
   cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
   org.clojure/clojurescript {:mvn/version "1.11.60"}
@@ -43,6 +46,12 @@
                         {:git/tag "0.12.0"
                          :sha "434408f6909924f524c8027b37422d32bb49622d"}}
            :main-opts ["-m" "cljfmt.main"]}
+
+  :test {:extra-paths ["test"]
+         :extra-deps {io.github.cognitect-labs/test-runner
+                      {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+         :main-opts ["-m" "cognitect.test-runner"]
+         :exec-fn cognitect.test-runner.api/test}
 
   :cljc-paths ["src" "shared-clj/src"]
 
