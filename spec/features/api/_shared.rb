@@ -1,5 +1,6 @@
 require "spec_helper"
 require "pry"
+require "faker"
 
 def create_accessory(inventory_pool_id, model)
   database[:accessories_inventory_pools].insert(
@@ -109,6 +110,24 @@ shared_context :setup_models_api do
   end
 
   include_context :setup_accessory_entitlements
+end
+
+shared_context :setup_models_api_model do
+  include_context :setup_models_api
+
+  before :each do
+    @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model1)
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model2)
+
+    @form_compatible_models = [compatible_model1, compatible_model2]
+  end
 end
 
 def create_and_add_group_permission(inventory_pool, group, role)

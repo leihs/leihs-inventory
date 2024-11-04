@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Model</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .dynamic-list { margin-top: 10px; }
+        .dynamic-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        .remove-btn { background-color: #dc3545; }
+        .file-list { margin-top: 10px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        body.save-success {
+            border: 1em solid #b8f4b8;
+            transition: border 0.3s ease-in-out;
+        }
+        body.save-failed {
+            border: 1em solid red;
+            transition: border 0.3s ease-in-out;
+        }
+        #addAccessory, #addProperty { background-color: #dedede; color: black;        }
+        .image-group {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%; /* Adjust as needed */
+        }
+
+        .image-container img {
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .image-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<script>
+    document.IMAGE_UUID = '0062c982-bd38-4fd4-840d-9f142023744e'
+
+</script>
+<h3>'Fetch image' Test</h3>
+
+<div id="cache"></div>
+
+<div class="image-group">
+    <div class="image-container">
+        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
+        <p class="image-footer">Thumbnail Image by img-Tag</p>
+    </div>
+    <div class="image-container">
+        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
+        <p class="image-footer">Image by img-Tag</p>
+    </div>
+    <div class="image-container">
+        <img id="testImage" alt="Lights">
+        <p class="image-footer">Image  by ajax-Request</p>
+    </div>
+</div>
+
+<br/><br/><br/><br/>
+
+<h3>Options</h3>
+
+<div class="form-group">
+    <label for="poolId">Pool ID</label>
+    <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
+</div>
+<div class="form-group">
+    <label for="fetchModelId">Model-ID</label>
+    <input type="text" id="fetchModelId" name="fetchModelId" value="50575b41-dd6b-4abd-b794-bef674cc37bd"/>
+    <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" />
+</div>
+
+<br/><br/><br/><br/>
+
+<h1 id="formTitle">Create New Model</h1>
+
+<form id="modelForm">
+    <div class="form-group">
+        <label for="product">Product *</label>
+        <input type="text" id="product" name="product" required>
+    </div>
+    <div class="form-group">
+        <label for="version">Version</label>
+        <input type="text" id="version" name="version">
+    </div>
+    <div class="form-group">
+        <label for="manufacturer">Manufacturer</label>
+        <select id="manufacturer" name="manufacturer"></select>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="technicalDetails">Technical Details</label>
+        <textarea id="technicalDetails" name="technicalDetails"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="internalDescription">Internal Description</label>
+        <textarea id="internalDescription" name="internalDescription"></textarea>
+    </div>
+    <div class="form-group">
+        <label>Eigenschaften</label>
+        <div id="propertiesList" class="dynamic-list"></div>
+        <button type="button" id="addProperty">Add Property</button>
+    </div>
+    <div class="form-group">
+        <b><label for="images">Bilder</label></b>
+        <input type="file" id="images" name="images" multiple accept="image/*">
+        <input type="hidden" id="images-to-delete" name="images-to-delete" />
+        <div id="imagesList" class="file-list"></div>
+    </div>
+    <div class="form-group">
+        <b><label for="attachments">Anhänge</label></b>
+        <input type="file" id="attachments" name="attachments" multiple>
+        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
+        <div id="attachmentsList" class="file-list"></div>
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="isPackage" name="isPackage">
+            This is a package
+        </label>
+    </div>
+
+
+
+<!--    <div class="form-group">-->
+<!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
+<!--        <select id="entitlements" name="entitlements" multiple></select>-->
+<!--    </div>-->
+
+    <div class="form-group row">
+        <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
+        <div class="col-sm-9">
+            <select id="entitlements" name="entitlements" class="form-control" multiple></select>
+            <div id="selected-entitlements" class="mt-2"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="categories">Kategorien ( /model-groups )</label>
+        <select id="categories" name="categories" multiple></select>
+    </div>
+    <div class="form-group">
+        <label for="compatibles">Ergänzende Modelle (Compatibles)</label>
+        <select id="compatibles" name="compatibles" multiple></select>
+    </div>
+    <div class="form-group">
+        <label>Zubehör</label>
+        <div id="accessoriesList" class="dynamic-list"></div>
+        <button type="button" id="addAccessory">Add Zubehör / Accessory</button>
+    </div>
+    <div class="form-group">
+        <button type="submit">Save Model</button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+
+        var CONST_IS_CREATE_FORM = true;
+
+        var FNC_CONFIG = (poolId, modelId) => {
+
+            // create
+            if(CONST_IS_CREATE_FORM) {
+                return  {
+                        url: 'http://localhost:3260/inventory/' + poolId + '/model',
+                        method: 'POST'
+                    }
+                }
+
+            // update
+            return  {
+                    url:  'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                    method: 'PUT'
+                }
+        };
+
+        function initSelect2(selectId, type) {
+            $(`#${selectId}`).select2({
+                width: "100%",
+                placeholder: "Select an option",
+                allowClear: true
+            });
+        }
+
+
+        function updateSelectedEntitlements() {
+            const selectedContainer = $('#selected-entitlements');
+            selectedContainer.empty();
+
+            $('#entitlements option:selected').each(function() {
+                const entitlement = $(this).data('entitlement_group');
+
+                if(entitlement== undefined){
+                    return;
+                }
+
+                const data = $('#entitlements').data('entitlement-groups')
+                let matchingEntry;
+                if(data ==undefined){
+                    matchingEntry = {quantity: 1}
+                }    else {
+                        matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
+                }
+
+
+                const entitlementElement = $('<div class="selected-item mb-2">')
+                    .text(entitlement.name)
+                    .append(
+                        $('<input>', {
+                            type: 'number',
+                            class: 'form-control form-control-sm d-inline-block ml-2',
+                            style: 'width: 60px;',
+                            uuid: entitlement.id
+                        // }).val(1)
+                        }).val(matchingEntry.quantity)
+                    )
+                    .append(
+                        $('<button class="btn btn-sm btn-danger ml-2">Remove</button>')
+                            .on('click', function() {
+                                $(this).parent().remove();
+                                $('#entitlements option[value="' + entitlement.id + '"]').prop('selected', false);
+                                $('#entitlements').trigger('change');
+                            })
+                    );
+                selectedContainer.append(entitlementElement);
+            });
+        }
+
+        // Handle selection of entitlements
+        $('#entitlements').on('change', function() {
+            updateSelectedEntitlements();
+        });
+
+
+        // let previousSelection = [];
+        function fetchOptions(url, selectId) {
+            fetch(url, { headers: { 'Accept': 'application/json' } })
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById(selectId);
+                    select.innerHTML = '<option value="">Select an option</option>';
+
+                    // Adjust data for `compatibles`
+                    if (selectId === 'compatibles') {
+                        data = data.data;
+                    }
+
+                    data.forEach(item => {
+                        var option = document.createElement('option');
+
+                        // Handle `manufacturer`
+                        if (selectId === 'manufacturer') {
+                            option.value = item;
+                            option.textContent = item;
+                            $(option).data('manufacturer', item);
+                            select.appendChild(option);
+                            return;
+                        }
+
+                        // Handle `compatibles`
+                        if (selectId === 'compatibles') {
+                            option.value = item.model_id;
+                            option.textContent = item.product;
+                            $(option).data('compatible', item);
+                            select.appendChild(option);
+
+
+
+                            return;
+                        }
+
+                        // Handle `entitlements`
+                        if (selectId === 'entitlements') {
+                            option.value = item.id;
+                            option.textContent = item.name;
+                            $(option).data('entitlement_group', item);
+                            select.appendChild(option);
+
+
+                            return;
+                        }
+
+                        // Default case for other `selectId`
+                        option.value = item.id;
+                        option.textContent = item.name;
+
+                        if(selectId === 'categories'){
+                            $(option).data('categories', item);
+                        }
+
+                        select.appendChild(option);
+
+                        console.log('>>> category-option / ' + selectId, option);
+
+
+                    });
+
+                    console.log(">>> INIT SELECT2 / " + selectId)
+                    initSelect2(selectId);
+
+                    if(selectId === 'entitlements'){
+                        $("#cache").data(`prev-${selectId}`,  $('#entitlements').val());
+                    }
+
+                    if(selectId === 'compatibles'){
+                        $("#cache").data(`prev-${selectId}`,  $('#compatibles').val());
+                    }
+
+                    if(selectId === 'categories'){
+                        $("#cache").data(`prev-${selectId}`,  $('#categories').val());
+                    }
+
+
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function renameKeys(obj, keyMap) {
+            return Object.fromEntries(
+                Object.entries(obj).map(([key, value]) => [
+                    keyMap[key] || key, // Use the new key if specified in keyMap; otherwise, keep the original key
+                    value,
+                ])
+            );
+        }
+
+        function updateDropdowns(poolId) {
+            fetchOptions(`http://localhost:3260/inventory/manufacturers`, 'manufacturer');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'entitlements');
+            fetchOptions(`http://localhost:3260/inventory/models-compatibles`, 'compatibles');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
+        }
+
+        // Initialize dropdowns on page load
+        var initialPoolId = $('#poolId').val();
+        updateDropdowns(initialPoolId);
+
+        // Update dropdowns when pool ID changes
+        // $('#poolId').change(function() {
+        //     var newPoolId = $(this).val();
+        //     updateDropdowns(newPoolId);
+        // });
+
+        $('#fetchModelBtn').click(function() {
+            var modelId = $('#fetchModelId').val();
+            var poolId = $('#poolId').val();
+
+            // Send request to API
+            $.ajax({
+                url: 'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    console.log('Model fetched successfully!');
+                    console.log(response);
+
+                    $("#cache").removeData();
+
+
+                    response= response[0];
+
+                    // Fill form with response data
+                    $('#product').val(response.product);
+                    $('#version').val(response.version);
+                    $('#manufacturer').val(response.manufacturer).trigger('change');
+                    $('#description').val(response.description);
+                    $('#technicalDetails').val(response.technical_detail);
+                    $('#internalDescription').val(response.internal_description);
+                    // $('#isPackage').prop('checked', response.type === 'Package');
+                    // formData.delete('isPackage');
+                    $('#isPackage').prop('checked', response.is_package);
+
+                    // Set CONST_IS_CREATE_FORM to false and update the title
+                    CONST_IS_CREATE_FORM = false;
+                    $('#formTitle').text('Update Model');
+
+                    // Populate properties
+                    $('#propertiesList').empty();
+                        response.properties.forEach(function(prop) {
+                            var ab = $('#propertiesList').append(`
+                            <div class="dynamic-item">
+                                <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
+                                <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
+                                <button type="button"  ftype="properties" class="remove-btn">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    // Populate accessories
+                    $('#accessoriesList').empty();
+                    response.accessories.forEach(function(acc) {
+                        $('#accessoriesList').append(`
+                            <div class="dynamic-item">
+                                <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
+                                <label>
+                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.has_inventory_pool === true ? 'checked' : ''}>
+                                    In inventory
+                                </label>
+                                <button type="button" ftype="accessories" class="remove-btn">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    function cacheDeletedProperties(type, obj) {
+                        var data = $("#cache").data(`deleted-${type}`) || []
+                        const key = obj.siblings('input[name="propertyKey[]"]').val();
+                        const val = obj.siblings('input[name="propertyValue[]"]').val();
+
+                        data.push({
+                            id: $(this).prev().attr("id"),
+                            delete: true,
+                            key: key,
+                            value: val
+                        })
+                        return data
+                    }
+
+                    function cacheDeletedAccessories(type, obj) {
+                        const data = $("#cache").data(`deleted-${type}`) || []
+                        data.push({
+                            id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
+                            delete: true,
+                            name: obj.siblings('input[name="accessoryName[]"]').val(),
+                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
+                        })
+                        return data
+                    }
+
+
+
+                    // Add event listener for remove button to delete only the clicked item
+                    $(document).on('click', '.remove-btn', function() {
+                        const type = $(this).attr("ftype")
+                        var data=[];
+                        console.log(">o> remove-btn > !!!!", type)
+                        if (type === 'properties') {
+                            data = cacheDeletedProperties(type, $(this))
+                        } else if (type === 'accessories') {
+                            data = cacheDeletedAccessories(type, $(this))
+                        } else  {
+                            console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
+                        }
+
+                        console.log(">o> remove-btn > ", type,  data)
+                        $("#cache").data(`deleted-${type}`, data)
+
+                        $(this).closest('.dynamic-item').remove();
+                    });
+
+
+                    // Populate entitlements (entitlement groups)
+                    $('#entitlements').data('entitlement-groups', response.entitlement_groups)
+                    $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
+                    $('#entitlements').find('option:selected').each(function(index, option, a, b) {
+                        const groupId = $(option).val();
+                        const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
+                        if (entitlementData) {
+                            $(option).data('entitlement', entitlementData);
+                            console.log('Updated option data:', $(option).data('entitlement'));
+                        }
+                    });
+                    $('#entitlements').on('change', function() {
+                        const currentSelection = $(this).val() || [];
+                        const previousSelection = $("#cache").data("prev-entitlements") || [];
+                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+
+                        var deleted_data = $("#cache").data("deleted-entitlements") || []
+                        removedOptions.forEach(id => {
+                            const removedOption = $(this).find(`option[value="${id}"]`);
+                            var removedEntitlementData = removedOption.data('entitlement')
+                            if(removedEntitlementData == undefined){
+                                return;
+                            }
+
+                            removedEntitlementData.delete = true;
+
+                            console.log('Removed option data:', removedEntitlementData);
+                            var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
+                            removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
+                            deleted_data.push(removedEntitlementData)
+                        });
+
+                        $("#cache").data("deleted-entitlements",  deleted_data);
+                        // $("#cache").data("deleted-categories",  deleted_data);
+
+                        $("#cache").data("prev-entitlements",  currentSelection);
+                    });
+
+
+
+
+
+
+                    // Populate categories (assuming it's part of the response)
+                    if (response.categories) {
+                        $('#categories').val(response.categories.map(c => c.id)).trigger('change');
+                        $('#categories').find('option:selected').each(function(index, option, a, b) {
+                            const categoryId = $(option).val();
+                            const entitlementData = response.categories.find(eg => eg.id === categoryId);
+                            if (entitlementData) {
+                                $(option).data('categories', entitlementData);
+                                console.log('Updated option data:', $(option).data('categories'));
+                            }
+                        });
+                        $("#cache").data("prev-categories",  $('#categories').val())
+
+                        $('#categories').on('change', function() {
+                            const currentSelection = $(this).val() || [];
+                            const previousSelection = $("#cache").data("prev-categories") || [];
+                            const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+
+                            var deleted_data = $("#cache").data("deleted-categories") || []
+                            removedOptions.forEach(id => {
+                                const removedOption = $(this).find(`option[value="${id}"]`);
+                                var removedEntitlementData = removedOption.data('categories')
+                                if(removedEntitlementData == undefined){
+                                    return;
+                                }
+
+                                removedEntitlementData.delete = true;
+                                deleted_data.push(removedEntitlementData)
+                            });
+
+                            $("#cache").data("deleted-categories",  deleted_data);
+                            $("#cache").data("prev-categories",  currentSelection);
+                        });
+                    }
+
+
+
+
+
+
+
+                    if (response.compatibles) {
+
+                    // Populate compatibles
+                    $('#compatibles').val(response.compatibles
+                        .filter(c => c && c.id != null)
+                        .map(c => c.id)).trigger('change');
+
+                    $('#compatibles').find('option:selected').each(function(index, option, a, b) {
+                        const categoryId = $(option).val();
+                        var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
+                        if (entitlementData) {
+                            $(option).data('compatible', entitlementData);
+                            console.log('Updated option data:', $(option).data('compatible'));
+                        }
+                    });
+                    $("#cache").data("prev-compatibles",  $('#compatibles').val())
+
+                    $('#compatibles').on('change', function() {
+                        const currentSelection = $(this).val() || [];
+                        const previousSelection = $("#cache").data("prev-compatibles") || [];
+                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+
+                        var deleted_data = $("#cache").data("deleted-compatibles") || []
+                        removedOptions.forEach(id => {
+                            const removedOption = $(this).find(`option[value="${id}"]`);
+                            var removedEntitlementData = removedOption.data('compatible')
+                            if(removedEntitlementData == undefined){
+                                return;
+                            }
+
+                            removedEntitlementData.delete = true;
+                            deleted_data.push(removedEntitlementData)
+                        });
+
+                        $("#cache").data("deleted-compatibles",  deleted_data);
+                        $("#cache").data("prev-compatibles",  currentSelection);
+                    });
+                    };
+
+
+
+
+
+
+
+
+
+
+
+
+                    // Populate existing images
+                    $('#imagesList').empty();
+                    response.images.forEach(function(image, index) {
+                        $('#imagesList').append(`
+                            <div class="file-item">
+                                <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
+                                <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
+                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}"  data-file-index="${index}">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    // Populate existing attachments
+                    $('#attachmentsList').empty();
+                    response.attachments.forEach(function(attachment, index) {
+                        $('#attachmentsList').append(`
+                            <div class="file-item">
+                                <span>${attachment.filename}</span>
+                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}" data-file-index="${index}">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    $('body').addClass('save-success');
+                    setTimeout(function() {
+                        $('body').removeClass('save-success');
+                    }, 3000);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching model: ' + error);
+                    $('body').addClass('save-failed');
+                    setTimeout(function() {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+
+
+
+
+        });
+
+
+        $('#testImage').ready(function() {
+            // alert('fetchModelBtn');
+
+            var modelId = $('#fetchModelId').val();
+            var poolId = $('#poolId').val();
+
+            fetch("http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
+                headers: {
+                    "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("create blob()")
+                        return response.blob(); // Convert the response to a blob
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(blob => {
+                        console.log("todo: imgUrl create")
+                    const imgUrl = URL.createObjectURL(blob);
+                    document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
+                        console.log("imgUrl created")
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+
+        });
+
+
+        // Add Property
+        $('#addProperty').click(function() {
+            $('#propertiesList').append(`
+                <div class="dynamic-item">
+                    <input type="text" name="propertyKey[]" placeholder="Key" required>
+                    <input type="text" name="propertyValue[]" placeholder="Value" required>
+                    <button type="button" class="remove-btn">Remove</button>
+                </div>
+            `);
+
+
+        });
+
+        // Add Accessory
+        $('#addAccessory').click(function() {
+            $('#accessoriesList').append(`
+                <div class="dynamic-item">
+                    <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
+                    <label>
+                        <input type="checkbox" name="accessoryInventory[]">
+                        In inventory
+                    </label>
+                    <button type="button" class="remove-btn">Remove</button>
+                </div>
+            `);
+        });
+
+        // Remove dynamic item
+        $(document).on('click', '.remove-btn', function() {
+            $(this).parent().remove();
+        });
+
+        // Handle file selection for images
+        $('#images').change(function() {
+            updateFileList(this, '#imagesList', 'images');
+        });
+
+        // Handle file selection for attachments
+        $('#attachments').change(function() {
+            updateFileList(this, '#attachmentsList', 'attachments');
+        });
+
+        // Update file list
+        function updateFileList(input, listSelector, inputId) {
+            var fileList = $(listSelector);
+            fileList.empty();
+
+            console.log(">> updateFileList1 > ", input.files);
+            console.log(">> updateFileList2 > ", listSelector);
+
+            if (input.files && input.files.length > 0) {
+                for (var i = 0; i < input.files.length; i++) {
+                    var fileName = input.files[i].name;
+                    fileList.append(`
+                        <div class="file-item">
+                            <span>${fileName}</span>
+                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        </div>
+                    `);
+                }
+            }
+        }
+
+        // // jQuery to add a click event to the remove button
+        // $('#removeFileButton').click(function() {
+        //     // Clear the file input
+        //     $('#images').val('');
+        //
+        //     // Optionally, log a message or perform additional actions
+        //     console.log("File input cleared.");
+        // });
+
+        // Remove file from list
+        $(document).on('click', '.remove-file-btn', function() {
+            var fileId = $(this).data('fileId')
+            var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
+
+            var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
+            toDelte.push(fileId)
+            $(`#${inputId}-to-delete`).data('to-delete', toDelte)
+
+            $(this).parent().remove();
+
+        });
+
+        // Remove file from input
+        function removeFile(inputId, index) {
+            var input = document.getElementById(inputId);
+            var files = Array.from(input.files);
+            files.splice(index, 1);
+
+            // Create a new FileList object
+            var dataTransfer = new DataTransfer();
+            files.forEach(file => { dataTransfer.items.add(file); });
+            input.files = dataTransfer.files;
+
+            // Update the file list display
+            updateFileList(input, `#${inputId}List`, inputId);
+        }
+
+
+        // Clear form fields
+        function clearForm() {
+            $('#modelForm')[0].reset();
+            $('#propertiesList').empty();
+            $('#accessoriesList').empty();
+            $('#imagesList').empty();
+            $('#attachmentsList').empty();
+            $('#images-to-delete').empty();
+            $('#attachments-to-delete').empty();
+            $('select').val(null).trigger('change');
+        }
+
+
+        // Form submission
+        $('#modelForm').submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            // Prepare properties
+            var properties = [];
+            $('input[name="propertyKey[]"]').each(function(index) {
+                properties.push({
+                    key: $(this).val(),
+                    value: $('input[name="propertyValue[]"]').eq(index).val(),
+                    id: $('input[name="propertyValue[]"]').eq(index).attr('id')
+                });
+            });
+            var deleted_data = $("#cache").data("deleted-properties") || []
+            var mergedProperties = properties.concat(deleted_data);
+            formData.append('properties', JSON.stringify(mergedProperties));
+
+
+            // Prepare accessories
+            var accessories = [];
+            $('input[name="accessoryName[]"]').each(function(index, option) {
+
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
+                accessories.push({
+                    name: $(this).val(),
+                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
+                    id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
+                });
+            });
+            deleted_data = $("#cache").data("deleted-accessories") || []
+            mergedProperties = accessories.concat(deleted_data);
+            console.log(">o> accessories > ", mergedProperties)
+            formData.append('accessories', JSON.stringify(mergedProperties));
+
+
+
+            // Prepare entitlements
+            const entitlements = [];
+            $('#entitlements').find('option:selected').each(function(index, option) {
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
+                const entitlementData = $(option).data()
+                const entitlement = entitlementData.entitlement
+                const entitlement_group = entitlementData.entitlement_group
+
+                const entitlement_group_id = entitlementData.entitlement_group.id
+
+
+
+                var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
+                if(isNaN(quantity)){
+                    console.error("Quantity is not a number, setting to 1")
+                    quantity = 1
+                }
+
+                if (entitlementData) {
+                    entitlements.push({
+                        entitlement_group_id: entitlement_group.id,
+                        entitlement_id: entitlement == undefined ? null : entitlement.id,
+                        // quantity: entitlement == undefined ? 1 : (quantity || 1)
+                        quantity: (quantity || 1)
+                    });
+                }
+            });
+            formData.delete('entitlements');
+            deleted_data = $("#cache").data("deleted-entitlements") || []
+            mergedProperties = entitlements.concat(deleted_data);
+            console.log(">o> entitlements > ", mergedProperties)
+            formData.append('entitlements', JSON.stringify(mergedProperties));
+
+
+
+            // Prepare categories
+            const categories = [];
+            $('#categories').find('option:selected').each(function(index, option) {
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
+                const categoriesData = $(option).data().categories
+                // const entitlement = categoriesData.entitlement
+                // const entitlement_group = categoriesData.entitlement_group
+                // id name type
+                if (categoriesData) {
+                    categories.push(categoriesData)
+                    // categories.push({
+                    //     entitlement_group_id: entitlement_group.id,
+                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
+                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
+                    // });
+                }
+            });
+            formData.delete('categories');
+            deleted_data = $("#cache").data("deleted-categories") || []
+            mergedProperties = categories.concat(deleted_data);
+            console.log(">o> categories > ", mergedProperties)
+            formData.append('categories', JSON.stringify(mergedProperties));
+
+
+
+
+            // Prepare compatibles
+            const compatibles = [];
+            $('#compatibles').find('option:selected').each(function(index, option) {
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
+                const categoriesData = $(option).data().compatible
+                if (categoriesData) {
+                    compatibles.push(categoriesData)
+                }
+            });
+            formData.delete('compatibles');
+            deleted_data = $("#cache").data("deleted-compatibles") || []
+            mergedProperties = compatibles.concat(deleted_data);
+
+            console.log(">o> compatibles 1> ", mergedProperties)
+
+            var keyMapa = { model_id: "id" };
+            mergedProperties.forEach(function(item, index) {
+                mergedProperties[index] = renameKeys(item, keyMapa);
+            } );
+
+            console.log(">o> compatibles 2> ", mergedProperties)
+            formData.append('compatibles', JSON.stringify(mergedProperties));
+
+
+
+            formData.delete('images-to-delete');
+            var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
+            formData.append('images-to-delete', JSON.stringify(imagesToDelete));
+
+            formData.delete('attachments-to-delete');
+            var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
+            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+
+
+
+            formData.delete('isPackage');
+            // $('#isPackage').prop('checked', false);
+            // $('#isPackageFlag').val($('#isPackage').is(':checked'))
+            const isPackage = $('#isPackage').is(':checked')
+            formData.append('isPackage', isPackage);
+
+            formData.delete('accessoryName[]');
+            formData.delete('propertyKey[]');
+            formData.delete('propertyValue[]');
+            formData.delete('accessoryInventory[]');
+
+            // Get the poolId value
+            var poolId = $('#poolId').val();
+            var modelId = $('#fetchModelId').val();
+
+            var config = FNC_CONFIG(poolId, modelId);
+
+            // Send form data to API
+            $.ajax({
+                url: config.url,
+                method: config.method,
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    console.log('Model created successfully!');
+                    clearForm(); // Clear the form after successful save
+                    $("#cache").removeData();
+
+                    if( !CONST_IS_CREATE_FORM) {
+                        // $('#fetchModelId').val(response.model_id);
+                        $('#fetchModelBtn').click()
+                    }
+
+
+                    $('body').addClass('save-success');
+                    setTimeout(function() {
+                        $('body').removeClass('save-success');
+                    }, 3000);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error creating model: ' + error);
+                    $('body').addClass('save-failed');
+                    setTimeout(function() {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+        });
+
+
+    });
+</script>
+</body>
+</html>

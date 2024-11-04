@@ -42,6 +42,19 @@ jobs:
       include:
         - cider-ci/specs_job-context.yml
 
+  clojure-tests:
+    name: Run clojure-tests
+    depends_on: &SPEC_DEPENDS
+      uberjar passed:
+        type: job
+        job_key: inventory-build-uberjar
+        states: [passed]
+    run_when: *SPEC_DEPENDS
+    context:
+      task_defaults: *INVENTORY_TASK_DEFAULTS
+      include:
+        - cider-ci/task-components/clojure-tests.yml
+
   lint:
     name: "Linting"
     description: |

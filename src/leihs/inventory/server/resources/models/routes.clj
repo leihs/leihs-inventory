@@ -1,14 +1,21 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
+   [cheshire.core :as json]
    [clojure.set]
+   [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
+                                                         get-manufacturer-handler
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
+                                                                   get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
@@ -16,9 +23,12 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
-   [reitit.coercion.spec]
+   [reitit.coercion.spec :as spec]
+   [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.util.response :as response]
+   [schema.core :as s]
+   [spec-tools.core :as st]))
 
 (def schema
   {:id s/Uuid
@@ -62,6 +72,19 @@
    {:swagger {:conflicting true
               :tags ["Models"]
               :security []}}
+
+   ["manufacturers"
+    {:get {:conflicting true
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :handler get-manufacturer-handler
+           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")}}
+           :responses {200 {:description "OK"
+                            :body [s/Any]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
 
    ["models-compatibles"
     {:get {:conflicting true
@@ -348,11 +371,153 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]]]])
 
+(sa/def ::file multipart/temp-file-part)
+(sa/def ::name (sa/nilable string?))
+(sa/def ::product (sa/nilable string?))
+(sa/def ::version (sa/nilable string?))
+(sa/def ::manufacturer (sa/nilable string?))
+(sa/def ::isPackage (sa/nilable string?))
+(sa/def ::description (sa/nilable string?))
+(sa/def ::technicalDetails (sa/nilable string?))
+(sa/def ::internalDescription (sa/nilable string?))
+(sa/def ::importantNotes (sa/nilable string?))
+(sa/def ::allocations (sa/nilable string?))
+
+(sa/def ::compatible_ids (sa/or
+                          :multiple (sa/or :coll (sa/coll-of uuid?)
+                                           :str string?)
+                          :single uuid?
+                          :none nil?))
+
+;; TODO: initial validation-error
+(sa/def ::category_ids (sa/or
+                        :multiple (sa/or :coll (sa/coll-of uuid?)
+                                         :str string?)
+                        :single uuid?
+                        :none nil?))
+
+(sa/def ::name string?)
+(sa/def ::delete boolean?)
+(sa/def ::position int?)
+(sa/def ::id uuid?)
+(sa/def ::id-or-nil (sa/nilable uuid?))
+(sa/def ::name string?)
+(sa/def ::created_at string?)
+(sa/def ::updated_at string?)
+
+(sa/def ::type
+  (sa/and string? #{"Category"}))
+
+(sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
+                            :req-un [::id ::type ::name]))
+(sa/def ::categories (sa/or
+                      :single (sa/or :coll (sa/coll-of ::category)
+                                     :str string?)
+                      :none nil?))
+
+(sa/def ::compatible (sa/keys :opt-un [::delete]
+                              :req-un [::id ::product]))
+(sa/def ::compatibles (sa/or
+                       :single (sa/or :coll (sa/coll-of ::compatible)
+                                      :str string?)
+                       :none nil?))
+(sa/def ::images-to-delete string?)
+(sa/def ::attachments-to-delete string?)
+
+(sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
+                        :single ::file))
+(sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
+                             :single ::file))
+(sa/def ::entitlement_group_id uuid?)
+(sa/def ::entitlement_id uuid?)
+(sa/def ::quantity int?)
+(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
+                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+(sa/def ::entitlements (sa/or
+                        :single (sa/or :coll (sa/coll-of ::entitlement)
+                                       :str string?)
+                        :none nil?))
+(sa/def ::inventory_bool boolean?)
+(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::inventory_bool]))
+(sa/def ::accessories (sa/or
+                       :single (sa/or :coll (sa/coll-of ::accessory)
+                                      :str string?)
+                       :none nil?))
+(sa/def ::key string?)
+(sa/def ::value string?)
+(sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
+(sa/def ::properties (sa/or
+                      :single (sa/or :coll (sa/coll-of ::property)
+                                     :str string?)
+                      :none nil?))
+
+(sa/def ::multipart (sa/keys :req-un [::product]
+                             :opt-un [::version
+                                      ::manufacturer
+                                      ::isPackage
+                                      ::description
+                                      ::technicalDetails
+                                      ::internalDescription
+                                      ::importantNotes
+                                      ::categories
+                                      ::attachments-to-delete
+                                      ::images-to-delete
+                                      ::compatibles
+                                      ::images
+                                      ::attachments
+                                      ::entitlements
+                                      ::properties
+                                      ::accessories]))
+
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
+
+   ["/model"
+    [""
+     {:post {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE???"
+             :description (str
+                           " - Upload images and attachments \n"
+                           " - Save data \n"
+                           " - images: additional handling needed to process no/one/multiple files \n"
+                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?}
+                          :multipart ::multipart}
+             :handler create-model-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]
+
+    ["/:model_id"
+     [""
+      {:get {:accept "application/json"
+             :summary "(DEV) | Form-Handler: Fetch form data"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}}
+             :handler create-model-handler-by-pool-form-fetch
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+       :put {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          :multipart ::multipart}
+             :handler update-model-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
 
    ["/models"
     [""

@@ -83,6 +83,11 @@
     (cond
       (= uri "/") (create-root-page)
 
+      ;; TODO: DEV-ENDPOINT
+      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
+                                                                           :headers {"Content-Type" "text/html"}
+                                                                           :body (slurp (io/resource "public/dev/create-model.html"))}
+
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")]

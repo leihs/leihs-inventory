@@ -55,17 +55,11 @@
           image_id (-> request path-params :id)
           is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
 
-          ;; FIXME
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
                     (sql/where [:= :i.thumbnail is-thumbnail?])
                     (cond-> image_id
-                      (sql/where [:= :i.target_id
-                                  (-> (sql/select :i.target_id)
-                                      (sql/from [:images :i])
-                                      (sql/where [:= :i.id image_id]))]))
-                  ; TODO: limit
-                    (sql/limit 2)
+                      (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
                     sql-format)
           result (jdbc/query tx query)]
 

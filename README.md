@@ -115,3 +115,9 @@ scp leihs-inventory.jar <user>@<server>:/leihs/inventory/leihs-inventory.jar
 
 systemctl restart leihs-inventory.service
 ```
+
+### Clojure tests
+```bash
+# additional clojure-tests can be triggered by:
+clojure -X:test   
+```

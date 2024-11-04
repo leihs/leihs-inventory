@@ -83,35 +83,41 @@ def wtoken_header_plain_faraday_json_client(token)
   end
 end
 
-def json_client_get(url, headers: {}, token: nil)
-  common_plain_faraday_json_client(:get, url, token: token, headers: headers)
-end
-
-def json_client_post(url, body: nil, token: nil)
-  common_plain_faraday_json_client(:post, url, token: token, body: body)
-end
-
-def json_client_delete(url, token: nil)
-  common_plain_faraday_json_client(:delete, url, token: token)
-end
-
-def json_client_put(url, body: nil, token: nil)
-  common_plain_faraday_json_client(:put, url, token: token, body: body)
-end
-
-def common_plain_faraday_json_client(method, url, token: nil, body: nil, headers: {})
+def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {}, multipart: false)
   Faraday.new(url: api_base_url) do |conn|
     conn.headers["Authorization"] = "Token #{token}" if token
-    conn.headers["Content-Type"] = "application/json"
     conn.headers["Accept"] = "application/json"
     conn.headers.update(headers)
+    conn.headers["Content-Type"] = "application/json" unless multipart
+    conn.request :multipart if multipart
+    conn.request :url_encoded
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
 
     yield(conn) if block_given?
   end.public_send(method, url) do |req|
-    req.body = body.to_json if body
+    if multipart && body
+      req.body = body
+    elsif body
+      req.body = body.to_json
+    end
   end
+end
+
+def json_client_get(url, headers: {}, token: nil)
+  common_plain_faraday_client(:get, url, token: token, headers: headers)
+end
+
+def json_client_post(url, body: nil, token: nil)
+  common_plain_faraday_client(:post, url, token: token, body: body)
+end
+
+def json_client_delete(url, token: nil)
+  common_plain_faraday_client(:delete, url, token: token)
+end
+
+def json_client_put(url, body: nil, token: nil)
+  common_plain_faraday_client(:put, url, token: token, body: body)
 end
 
 def session_auth_plain_faraday_json_client(cookie_string)
@@ -123,6 +129,37 @@ def session_auth_plain_faraday_json_client(cookie_string)
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
   end
+end
+
+ResponseResult = Struct.new(:status, :body)
+
+def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "application/json"}, token: nil)
+  uri = URI.parse(api_base_url + url)
+  http = Net::HTTP.new(uri.host, uri.port)
+
+  request_class = case method
+  when :post then Net::HTTP::Post
+  when :put then Net::HTTP::Put
+  when :patch then Net::HTTP::Patch
+  else
+    raise ArgumentError, "Unsupported HTTP method: #{method}"
+  end
+
+  request = request_class.new(uri)
+  headers["Authorization"] = "Token #{token}" if token
+  headers.each { |key, value| request[key] = value }
+  prepared_form_data = form_data.flat_map do |key, value|
+    if value.is_a?(Array)
+      value.map { |v| [key.to_s, v] }
+    else
+      [[key.to_s, value]]
+    end
+  end
+
+  request.set_form(prepared_form_data, "multipart/form-data")
+  response = http.request(request)
+
+  ResponseResult.new(response.code.to_i, JSON.parse(response.body))
 end
 
 #### parse cookie fnc ####################################################

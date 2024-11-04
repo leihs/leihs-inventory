@@ -15,15 +15,36 @@
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
 
+(defn extract-manufacturers [data]
+  (mapv :manufacturer data))
+
+(defn get-manufacturer-handler [request]
+  (try
+    (let [tx (:tx request)
+          query-params (query-params request)
+          type (:type query-params)
+          base-query (-> (sql/select-distinct :m.manufacturer)
+                         (sql/from [:models :m])
+                         (sql/where [:is-not-null :m.manufacturer])
+                         (cond-> type
+                           (sql/where [:ilike :m.type type]))
+                         ;(sql/where [:not-like :m.manufacturer " %"])
+                         (sql/order-by [:m.manufacturer :asc]))]
+      (response (extract-manufacturers (jdbc/execute! tx (-> base-query sql-format)))))
+    (catch Exception e
+      (error "Failed to get models/manufacturer" e)
+      (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))
+
 (defn get-models-compatible-handler [request]
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
-          base-query (-> (sql/select [:m.id :model_id] :m2.*)
+          base-query (-> (sql/select-distinct [:m.id :model_id] :m.product)
                          (sql/from [:models_compatibles :mc])
                          (sql/join [:models :m] [:= :mc.model_id :m.id])
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                         (cond-> model_id (sql/where [:= :m.id model_id])))]
+                         (cond-> model_id (sql/where [:= :m.id model_id]))
+                         (sql/order-by [:m.product :asc]))]
       (if model_id
         (response (jdbc/execute! tx (-> base-query sql-format))))
       (let [{:keys [page size]} (fetch-pagination-params request)]

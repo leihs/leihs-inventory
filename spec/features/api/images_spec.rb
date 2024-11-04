@@ -24,7 +24,6 @@ feature "Inventory API Endpoints - Image Handling" do
       end
     end
 
-    # FIXME
     context "Fetch image data as JSON" do
       it "retrieves image details by ID and returns status 200" do
         resp = client.get "#{url}#{image_id}"
@@ -37,13 +36,13 @@ feature "Inventory API Endpoints - Image Handling" do
       end
     end
 
-    # FIXME
     context "Fetch image data as an image" do
       it "returns error when fetching image by ID as a raw image format" do
         resp = plain_faraday_resource_client.get "#{url}#{image_id}"
-        expect(resp.status).to eq(400)
+        expect(resp.status).to eq(200)
       end
 
+      # FIXME: thumb not created by include_context :setup_access_rights
       it "returns error when fetching image thumbnail as a raw image format" do
         resp = plain_faraday_resource_client.get "#{url}#{image_id}/thumbnail"
         expect(resp.status).to eq(400)
