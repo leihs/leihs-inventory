@@ -449,12 +449,20 @@
 
                         ;(response/response {:foo "bar" })
 
-                        (let [params (get-in request [:parameters :multipart])
+                        (let [
+                              p (println ">o> abc3a")
+                              params (get-in request [:parameters :multipart])
                               product (get-in request [:parameters :multipart :product])
+                              p (println ">o> abc3b")
                               file (-> request :parameters :multipart :file)
+                              p (println ">o> abc3c")
                               file-data {:filename (:filename file)
                                          :content-type (:content-type file)
-                                         :size (:size file)}]
+                                         :size (:size file)}
+
+
+                              p (println ">o> abc3d")
+                              ]
 
                           (response/response {:images (process-attachments request :images)
                                               :attachments (process-attachments request :attachments)

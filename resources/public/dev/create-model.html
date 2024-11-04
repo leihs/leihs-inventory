@@ -134,11 +134,15 @@
         <label for="importantNotes">Important notes for hand over</label>
         <textarea id="importantNotes" name="importantNotes"></textarea>
 
-        <label>Images</label>
-        <input type="file" id="imageInput" name="images[]" multiple>
 
-        <label>Attachments</label>
-        <input type="file" id="attachmentInput" name="attachments[]" multiple>
+
+<!--        <label>Images</label>-->
+<!--        <input type="file" id="imageInput" name="images[]" multiple>-->
+<!--        -->
+<!--        <label>Attachments</label>-->
+<!--        <input type="file" id="attachmentInput" name="attachments[]" multiple>-->
+
+
 
         <label>Accessories</label>
         <div id="accessoriesList"></div>
@@ -271,24 +275,30 @@
     document.getElementById('modelForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-        const imageInput = document.getElementById('imageInput');
-        if (imageInput && imageInput.files.length > 0) {
-            for (let i = 0; i < imageInput.files.length; i++) {
-                formData.append('images[]', imageInput.files[i]);
-            }
-        }
-
-        const attachmentInput = document.getElementById('attachmentInput');
-        if (attachmentInput && attachmentInput.files.length > 0) {
-            for (let i = 0; i < attachmentInput.files.length; i++) {
-                formData.append('attachments[]', attachmentInput.files[i]);
-            }
-        }
+        // const imageInput = document.getElementById('imageInput');
+        // if (imageInput && imageInput.files.length > 0) {
+        //     for (let i = 0; i < imageInput.files.length; i++) {
+        //         formData.append('images[]', imageInput.files[i]);
+        //     }
+        // }
+        //
+        // const attachmentInput = document.getElementById('attachmentInput');
+        // if (attachmentInput && attachmentInput.files.length > 0) {
+        //     for (let i = 0; i < attachmentInput.files.length; i++) {
+        //         formData.append('attachments[]', attachmentInput.files[i]);
+        //     }
+        // }
 
         var poolId = formData.get('poolId');
         fetch(`/inventory/${poolId}/model`, {
             method: 'POST',
-            headers: {'Accept': 'application/json', 'Content-Type': 'multipart/form-data'},
+            // headers: {'Accept': 'application/json', 'Content-Type': 'multipart/form-data'},
+
+            headers: {
+                'Accept': 'application/json'
+                // Do not manually set 'Content-Type' here
+            },
+
             body: formData
         })
             .then(response => {

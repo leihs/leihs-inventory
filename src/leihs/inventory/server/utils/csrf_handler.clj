@@ -34,6 +34,7 @@
    (fn [request]
      (wrap-dispatch-content-type handler request)))
   ([handler request]
+    (println ">o> cccc4")
    (cond
      (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (handler request)
      (= (-> request :accept :mime) :json) (or (handler request)
@@ -62,7 +63,9 @@
   "Adds parsed cookies to the :cookies key in the request map."
   [request]
   (let [cookie-header (get-in request [:headers "cookie"])
-        parsed-cookies (when cookie-header (parse-cookies cookie-header))]
+        parsed-cookies (when cookie-header (parse-cookies cookie-header))
+        p (println ">o> abc7b")
+        ]
     (assoc request :cookies parsed-cookies)))
 
 (alter-var-root #'constants/ANTI_CSRF_TOKEN_COOKIE_NAME (constantly (keyword "leihs-anti-csrf-token")))
@@ -73,7 +76,10 @@
   (alter-var-root #'constants/HTTP_SAVE_METHODS (constantly #{:get :head :options :trace :delete :patch :post :put})))
 
 (defn convert-params [request]
-  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))]
+  (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
+        p (println ">o> abc8")
+
+        ]
     (-> request
         (assoc :form-params converted-form-params)
         (assoc :form-params-raw converted-form-params))))
@@ -111,6 +117,9 @@
 
           request (if (= content-type "application/x-www-form-urlencoded")
                     (let [
+
+                          p (println ">o> abc5")
+
                       form-params (:form-params request)
                       p (println ">o> ?? form-params" form-params)
                       form-params (:form-params-raw request)
@@ -127,7 +136,7 @@
                       body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
                       p (println ">o> ?? body-form2" body-form)
 
-
+                          p (println ">o> abc5b")
 
                       csrf-token (get body-form :x-csrf-token)
 
@@ -138,6 +147,10 @@
                                   (assoc :form-params body-form)
                                   add-cookies-to-request
                                   convert-params)
+
+
+                          p (println ">o> abc5c")
+
                           ]
                       request
 
@@ -158,11 +171,14 @@
                     ;request
 
 
-                    (-> request
+                (do
+                  p (println ">o> abc6")
+
+                  (-> request
                               ;(assoc :form-params body-form)
                               add-cookies-to-request
                               convert-params
-                              )
+                              ))
                     ;(handler request)
                     )
 
@@ -192,6 +208,7 @@
 
 (defn wrap-csrf [handler]
   (fn [request]
+    (println ">o> cccc2")
     (let [referer (get-in request [:headers "referer"])
           api-request? (and referer (str/includes? referer "/api-docs/"))]
       (if api-request?
