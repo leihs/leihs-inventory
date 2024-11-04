@@ -366,19 +366,41 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]]]])
 
+;(sa/def ::file multipart/temp-file-part)
+;(sa/def ::name (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::product (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::version (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::manufacturer (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::isPackage (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::description (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::technicalDetails (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::internalDescription (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::importantNotes (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::compatibles (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::allocations (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::categories (sa/and string? #(not (clojure.string/blank? %))))
+
+;(require '[clojure.spec.alpha :as s])
+
+
+;(require '[clojure.spec.alpha :as s])
+
 (sa/def ::file multipart/temp-file-part)
-(sa/def ::name (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::product (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::version (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::manufacturer (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::isPackage (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::description (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::technicalDetails (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::internalDescription (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::importantNotes (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::compatibles (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::allocations (sa/and string? #(not (clojure.string/blank? %))))
-(sa/def ::categories (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::name (sa/nilable string?))
+(sa/def ::product (sa/nilable string?))
+(sa/def ::version (sa/nilable string?))
+(sa/def ::manufacturer (sa/nilable string?))
+(sa/def ::isPackage (sa/nilable string?))
+(sa/def ::description (sa/nilable string?))
+(sa/def ::technicalDetails (sa/nilable string?))
+(sa/def ::internalDescription (sa/nilable string?))
+(sa/def ::importantNotes (sa/nilable string?))
+(sa/def ::compatibles (sa/nilable string?))
+(sa/def ::allocations (sa/nilable string?))
+(sa/def ::categories (sa/nilable string?))
+
+
+
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
