@@ -447,20 +447,20 @@
                           }
              :handler (fn [request]
 
-                        (response/response {:foo "bar" })
+                        ;(response/response {:foo "bar" })
 
-                        ;(let [params (get-in request [:parameters :multipart])
-                        ;      product (get-in request [:parameters :multipart :product])
-                        ;      file (-> request :parameters :multipart :file)
-                        ;      file-data {:filename (:filename file)
-                        ;                 :content-type (:content-type file)
-                        ;                 :size (:size file)}]
-                        ;
-                        ;  (response/response {:images (process-attachments request :images)
-                        ;                      :attachments (process-attachments request :attachments)
-                        ;                      :product product
-                        ;                      :data (-> request :parameters :multipart)
-                        ;                      :params-keys (keys params)}))
+                        (let [params (get-in request [:parameters :multipart])
+                              product (get-in request [:parameters :multipart :product])
+                              file (-> request :parameters :multipart :file)
+                              file-data {:filename (:filename file)
+                                         :content-type (:content-type file)
+                                         :size (:size file)}]
+
+                          (response/response {:images (process-attachments request :images)
+                                              :attachments (process-attachments request :attachments)
+                                              :product product
+                                              :data (-> request :parameters :multipart)
+                                              :params-keys (keys params)}))
   )
 
              :responses {200 {:description "OK" }
