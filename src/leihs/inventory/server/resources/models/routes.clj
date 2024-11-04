@@ -1,14 +1,17 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.set]
+   [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
+                                                         get-manufacturer-handler
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
+                                                                   get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
@@ -16,9 +19,12 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
-   [reitit.coercion.spec]
+   [reitit.coercion.spec :as spec]
+   [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.util.response :as response]
+   [schema.core :as s]
+   [spec-tools.core :as st]))
 
 (def schema
   {:id s/Uuid
@@ -62,6 +68,18 @@
    {:swagger {:conflicting true
               :tags ["Models"]
               :security []}}
+
+   ["manufacturers"
+    {:get {:conflicting true
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :handler get-manufacturer-handler
+           :responses {200 {:description "OK"
+                            :body [s/Any]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
 
    ["models-compatibles"
     {:get {:conflicting true
@@ -348,11 +366,106 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]]]])
 
+(sa/def ::file multipart/temp-file-part)
+(sa/def ::name (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::product (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::version (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::manufacturer (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::isPackage (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::description (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::technicalDetails (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::internalDescription (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::importantNotes (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::compatibles (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::allocations (sa/and string? #(not (clojure.string/blank? %))))
+(sa/def ::categories (sa/and string? #(not (clojure.string/blank? %))))
+
+(sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
+                        :single ::file))
+(sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
+                             :single ::file))
+
+(sa/def ::multipart (sa/keys :req-un [::product]
+                         :opt-un [::version
+                                  ::manufacturer
+                                  ::isPackage
+                                  ::description
+                                  ::technicalDetails
+                                  ::internalDescription
+                                  ::importantNotes
+                                  ::compatibles
+                                  ::allocations
+                                  ::categories
+                                  ::images
+                                  ::attachments]))
+
+(defn- process-attachments
+  [request key]
+  (let [files (get-in request [:parameters :multipart key])]
+    (cond
+      (nil? files) []
+      (= files {}) []
+      (= files [{}]) []
+
+      (map? files)
+      [{:filename (:filename files)
+        :content-type (:content-type files)
+        :size (:size files)}]
+
+      (coll? files)
+      (mapv (fn [file]
+              {:filename (:filename file)
+               :content-type (:content-type file)
+               :size (:size file)})
+        files)
+      :else [])))
+
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
+
+   ["/model"
+    [""
+     {:post {
+             ;:accept "multipart/form-data"
+             :accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form'"
+             :description (str
+                           " - Upload images and attachments \n"
+                           " - Save data \n"
+                           " - images: additional handling needed to process no/one/multiple files \n"
+                           " - Browser creates thumbnails and attaches them as '*_thumb' \n")
+             :coercion spec/coercion
+             :parameters {
+                          :path {:pool_id uuid?}
+                          :multipart ::multipart
+                          ;:multipart ::model
+                          }
+             :handler (fn [request]
+
+                        (response/response {:foo "bar" })
+
+                        ;(let [params (get-in request [:parameters :multipart])
+                        ;      product (get-in request [:parameters :multipart :product])
+                        ;      file (-> request :parameters :multipart :file)
+                        ;      file-data {:filename (:filename file)
+                        ;                 :content-type (:content-type file)
+                        ;                 :size (:size file)}]
+                        ;
+                        ;  (response/response {:images (process-attachments request :images)
+                        ;                      :attachments (process-attachments request :attachments)
+                        ;                      :product product
+                        ;                      :data (-> request :parameters :multipart)
+                        ;                      :params-keys (keys params)}))
+  )
+
+             :responses {200 {:description "OK" }
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]
 
    ["/models"
     [""

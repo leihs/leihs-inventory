@@ -78,35 +78,41 @@ def wtoken_header_plain_faraday_json_client(token)
   end
 end
 
-def json_client_get(url, headers: {}, token: nil)
-  common_plain_faraday_json_client(:get, url, token: token, headers: headers)
-end
-
-def json_client_post(url, body: nil, token: nil)
-  common_plain_faraday_json_client(:post, url, token: token, body: body)
-end
-
-def json_client_delete(url, token: nil)
-  common_plain_faraday_json_client(:delete, url, token: token)
-end
-
-def json_client_put(url, body: nil, token: nil)
-  common_plain_faraday_json_client(:put, url, token: token, body: body)
-end
-
-def common_plain_faraday_json_client(method, url, token: nil, body: nil, headers: {})
+def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {}, multipart: false)
   Faraday.new(url: api_base_url) do |conn|
     conn.headers["Authorization"] = "Token #{token}" if token
-    conn.headers["Content-Type"] = "application/json"
     conn.headers["Accept"] = "application/json"
     conn.headers.update(headers)
+    conn.headers["Content-Type"] = "application/json" unless multipart
+    conn.request :multipart if multipart
+    conn.request :url_encoded
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
 
     yield(conn) if block_given?
   end.public_send(method, url) do |req|
-    req.body = body.to_json if body
+    if multipart && body
+      req.body = body
+    elsif body
+      req.body = body.to_json
+    end
   end
+end
+
+def json_client_get(url, headers: {}, token: nil)
+  common_plain_faraday_client(:get, url, token: token, headers: headers)
+end
+
+def json_client_post(url, body: nil, token: nil)
+  common_plain_faraday_client(:post, url, token: token, body: body)
+end
+
+def json_client_delete(url, token: nil)
+  common_plain_faraday_client(:delete, url, token: token)
+end
+
+def json_client_put(url, body: nil, token: nil)
+  common_plain_faraday_client(:put, url, token: token, body: body)
 end
 
 def session_auth_plain_faraday_json_client(cookie_string)
