@@ -40,7 +40,13 @@
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])
+    (let [
+          accept-header (get-in request [:headers "accept"])
+          p (println ">o> accept-header" accept-header)
+
+          ctype (get-in request [:headers "content-type"])
+          p (println ">o> content-type" ctype)
+
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out"]]
       (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
@@ -65,13 +71,14 @@
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token
 
+                                     wrap-params
+                                     wrap-content-type
+
                                      csrf/extract-header
                                      session/wrap-authenticate
                                      wrap-cookies
                                      csrf/wrap-csrf
 
-                                     wrap-params
-                                     wrap-content-type
                                       ;locale/wrap
                                       ;settings/wrap
                                       ;datasource/wrap-tx

@@ -139,7 +139,21 @@
                                   add-cookies-to-request
                                   convert-params)
                           ]
-                      request
+                      ;request
+
+                      (try
+                        (handler request)
+                        (catch Exception e
+                          (println ">o> extract-header.error" (.getMessage e))
+
+                          (if (str/includes? (:uri request) "/sign-in")
+                            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+                            (-> (response/response {:status "failure"
+                                                    :message "CSRF-Token/Session not valid"
+                                                    :detail (.getMessage e)})
+                              (response/status 404)
+                              (response/content-type "application/json")))))
+
                       )
                     ;request
                     ;(-> request
@@ -147,7 +161,7 @@
                     ;          add-cookies-to-request
                     ;          convert-params
                     ;          )
-                    request
+                    (handler request)
                     )
 
 
@@ -156,18 +170,23 @@
 
 
            ]
-      (try
-        (handler request)
-        (catch Exception e
-          (println ">o> extract-header.error" (.getMessage e))
 
-          (if (str/includes? (:uri request) "/sign-in")
-            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
-            (-> (response/response {:status "failure"
-                                    :message "CSRF-Token/Session not valid"
-                                    :detail (.getMessage e)})
-                (response/status 404)
-                (response/content-type "application/json"))))))))
+      request
+
+      ;(try
+      ;  (handler request)
+      ;  (catch Exception e
+      ;    (println ">o> extract-header.error" (.getMessage e))
+      ;
+      ;    (if (str/includes? (:uri request) "/sign-in")
+      ;      (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+      ;      (-> (response/response {:status "failure"
+      ;                              :message "CSRF-Token/Session not valid"
+      ;                              :detail (.getMessage e)})
+      ;          (response/status 404)
+      ;          (response/content-type "application/json")))))
+
+      )))
 
 (defn wrap-csrf [handler]
   (fn [request]

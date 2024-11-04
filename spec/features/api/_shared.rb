@@ -99,7 +99,7 @@ end
 
 shared_context :setup_models_api do
   before :each do
-    @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
+    @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
     FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
@@ -122,7 +122,7 @@ end
 
 shared_context :setup_models_api2 do
   before :each do
-    @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
+    @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
     create_and_add_user_permission(@inventory_pool, @user, "customer")
@@ -132,7 +132,7 @@ end
 
 shared_context :setup_access_rights do
   before :each do
-    @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
+    @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
     FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
@@ -152,8 +152,7 @@ shared_context :setup_access_rights do
     @category = FactoryBot.create(:category, direct_models: [@models.first])
 
     @manager = FactoryBot.create :user
-    @group = FactoryBot.create(:group)
-    # @group = FactoryBot.create(:group, name: "#{Faker::Lorem.word} Group")
+    @group = FactoryBot.create(:group, name: "Group 1")
     FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
     FactoryBot.create :group_access_right, group_id: @group.id,
       inventory_pool_id: @inventory_pool.id, role: "customer"
@@ -183,7 +182,7 @@ end
 
 shared_context :setup_models_api_base do
   before :each do
-    @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
+    @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
   end
 end
