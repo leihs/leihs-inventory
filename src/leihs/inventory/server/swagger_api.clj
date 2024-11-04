@@ -38,6 +38,10 @@
             [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
+(defn valid-image-or-thumbnail-uri? [uri]
+  (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
+    (boolean (re-matches pattern uri))))
+
 (defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
   (let [accept-header (if (nil? accept-header) "" accept-header)
         valid? (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
@@ -48,10 +52,25 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
-      (if (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
+          whitelist-uris-for-api ["/sign-in" "/sign-out"]
+          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
+      (if (or ;(some #(str/includes? accept-header %) ["json" "image/jpeg"])
+              (some #(= % uri) whitelist-uris-for-api)
+              image-or-thumbnail-request?
+              (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
+
         (handler request)
         (custom-not-found-handler request)))))
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)
+          updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
+                                   (valid-image-or-thumbnail-uri? uri))
+                            (assoc-in request [:headers "accept"] "image/jpeg")
+                            request)]
+      ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -66,6 +85,7 @@
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
+                                     wrap-accept-with-image-rewrite
 
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token
