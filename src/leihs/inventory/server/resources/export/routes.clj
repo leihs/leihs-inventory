@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.export.routes
   (:require
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.export.main :refer [csv-handler excel-handler]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]))
 
 (defn get-export-routes []
@@ -14,7 +14,7 @@
                   :accept "text/csv"
                   :coercion reitit.coercion.schema/coercion
                   :swagger {:produces ["text/csv"]}
-                  :handler csv-handler                  }}]
+                  :handler csv-handler}}]
 
    ["/excel" {:get {:summary "Export Excel ( test-dummy )"
                     :accept "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

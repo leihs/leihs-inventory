@@ -40,12 +40,12 @@ feature "Inventory API Endpoints - Image Handling" do
     # FIXME
     context "Fetch image data as an image" do
       it "returns error when fetching image by ID as a raw image format" do
-        resp = plain_faraday_image_client.get "#{url}#{image_id}"
+        resp = plain_faraday_resource_client.get "#{url}#{image_id}"
         expect(resp.status).to eq(400)
       end
 
       it "returns error when fetching image thumbnail as a raw image format" do
-        resp = plain_faraday_image_client.get "#{url}#{image_id}/thumbnail"
+        resp = plain_faraday_resource_client.get "#{url}#{image_id}/thumbnail"
         expect(resp.status).to eq(400)
       end
     end

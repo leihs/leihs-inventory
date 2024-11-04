@@ -1,25 +1,24 @@
 (ns leihs.inventory.server.resources.export.main
   (:require
-   [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [taoensso.timbre :as log]
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
+   [clojure.set]
    [clojure.string :as str]
    [dk.ative.docjure.spreadsheet :as ss]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
+   [taoensso.timbre :as log]
    [taoensso.timbre :refer [error]]))
-
 
 (defn keyword-to-title [k]
   (-> k
-    name
-    (str/replace "-" " ")
-    (str/replace "_" " ")
-    (str/capitalize)))
+      name
+      (str/replace "-" " ")
+      (str/replace "_" " ")
+      (str/capitalize)))
 
 (defn maps-to-csv [maps]
   (let [headers (map keyword-to-title (keys (first maps)))
