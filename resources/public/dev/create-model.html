@@ -288,7 +288,7 @@
         var poolId = formData.get('poolId');
         fetch(`/inventory/${poolId}/model`, {
             method: 'POST',
-            headers: {'Accept': 'multipart/form-data'},
+            headers: {'Accept': 'application/json', 'Content-Type': 'multipart/form-data'},
             body: formData
         })
             .then(response => {
