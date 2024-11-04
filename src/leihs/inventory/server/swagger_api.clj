@@ -71,9 +71,6 @@
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token
 
-                                     wrap-params
-                                     wrap-content-type
-
                                      csrf/extract-header
                                      session/wrap-authenticate
                                      wrap-cookies
@@ -87,6 +84,8 @@
                                       ;wrap-empty
                                       ;wrap-form-params
 
+                                     wrap-params
+                                     wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
                                      dispatch-content-type/wrap-accept

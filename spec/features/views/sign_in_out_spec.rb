@@ -23,6 +23,7 @@ feature "Request" do
           fill_in "password", with: "password123"
           click_button "Continue"
 
+          binding.pry
           expect(page).to have_content("error: sign_in_wrong_password_flash_message")
           expect(page).to have_selector("form.ui-form-signin")
         end
