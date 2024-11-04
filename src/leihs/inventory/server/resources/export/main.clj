@@ -64,7 +64,7 @@
        :body "Internal Server Error."})))
 
 (defn csv-handler [request]
-
+  "Handler that generates an CSV file from a given map."
   (let [data [{:name "Alice" :age 30}
               {:name "Bob" :age 25}]
         output-stream (java.io.ByteArrayOutputStream.)
