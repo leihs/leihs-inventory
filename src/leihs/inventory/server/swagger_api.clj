@@ -70,6 +70,8 @@
                                      wrap-cookies
                                      csrf/wrap-csrf
 
+                                     wrap-params
+                                     wrap-content-type
                                       ;locale/wrap
                                       ;settings/wrap
                                       ;datasource/wrap-tx
@@ -78,8 +80,6 @@
                                       ;wrap-empty
                                       ;wrap-form-params
 
-                                     wrap-params
-                                     wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
                                      dispatch-content-type/wrap-accept

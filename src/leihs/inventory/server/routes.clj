@@ -160,7 +160,14 @@
    [[""
      ["sign-in"
       {:no-doc false
-       :post {:accept "text/html"
+       :post {
+              :accept "text/html"
+              ;
+              ;:parameters {:multipart {
+              ;                         :user s/Str
+              ;                         :password s/Str
+              ;                         }}
+
               :swagger {:produces ["application/multipart-form-data"]}
               :handler post-sign-in}
        :get {:summary "Get sign-in page"

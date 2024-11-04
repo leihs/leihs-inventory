@@ -80,24 +80,81 @@
 
 (defn extract-form-params [stream]
   (try
-    (let [body-str (bs/to-string stream)
+    (let [
+          p (println ">o>a-d stream" stream)
+
+          body-str (bs/to-string stream)
+          p (println ">o>b body-str" body-str)
+
           params (codec/form-decode body-str)
-          keyword-params (keywordize-keys params)]
+          p (println ">o>c params" params)
+
+          keyword-params (keywordize-keys params)
+          p (println ">o>d keyword-params" keyword-params)
+          ]
       keyword-params)
-    (catch Exception e nil)))
+    (catch Exception e
+
+       (println ">o> extract-form-params.error" e)
+      nil)))
+
+
+(defn webkit-form-boundary? [s]
+  (boolean (re-matches #"^------WebKitFormBoundary[0-9A-Za-z]+--$" s)))
+
 
 (defn extract-header [handler]
   (fn [request]
-    (let [form-params (:form-params request)
-          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
-          csrf-token (get body-form :x-csrf-token)
-          request (-> request
-                      (assoc :form-params body-form)
-                      add-cookies-to-request
-                      convert-params)]
+    (let [
+          content-type (get-in request [:headers "content-type"])
+          p (println ">o> ?? content-type" content-type)
+
+          request (if (= content-type "application/x-www-form-urlencoded")
+                    (let [
+                      form-params (:form-params request)
+                      p (println ">o> ?? form-params" form-params)
+                      form-params (:form-params-raw request)
+                      p (println ">o> ?? :form-params-raw" form-params)
+
+                      p (println ">o> 1(:body request)" (:body request)  (type (:body request)))
+                      ;p (println ">o> 2(:body request)" (extract-form-params (:body request)))
+                      ;p (println ">o> 2(:body request)" (extract-form-params (:body request)))
+
+                      ;body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
+                      ;
+                      ;p (println ">o> ?? body-form1" body-form)
+
+                      body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
+                      p (println ">o> ?? body-form2" body-form)
+
+
+
+                      csrf-token (get body-form :x-csrf-token)
+
+                      p (println ">o> csrf-token" csrf-token)
+                      p (println ">o> body-form" body-form)
+
+                      request (-> request
+                                  (assoc :form-params body-form)
+                                  add-cookies-to-request
+                                  convert-params)
+                          ]
+                      request
+                      )
+                    request
+                    )
+
+
+
+
+
+
+           ]
       (try
         (handler request)
         (catch Exception e
+          (println ">o> extract-header.error" (.getMessage e))
+
           (if (str/includes? (:uri request) "/sign-in")
             (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
             (-> (response/response {:status "failure"
