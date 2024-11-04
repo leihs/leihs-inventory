@@ -60,13 +60,17 @@
                     (sql/from [:images :i])
                     (sql/where [:= :i.thumbnail is-thumbnail?])
                     (cond-> image_id
-                      (sql/where [:= :i.target_id
-                                  (-> (sql/select :i.target_id)
-                                      (sql/from [:images :i])
-                                      (sql/where [:= :i.id image_id]))]))
+                      (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
+                    ;(cond-> image_id
+                    ;  (sql/where [:= :i.target_id
+                    ;              (-> (sql/select :i.target_id)
+                    ;                  (sql/from [:images :i])
+                    ;                  (sql/where [:= :i.id image_id]))]))
                   ; TODO: limit
-                    (sql/limit 2)
+                  ;  (sql/limit 1)
                     sql-format)
+          p (println ">o> ??? get-image-thumbnail-handler.image_id" image_id)
+          p (println ">o> ??? get-image-thumbnail-handler" query)
           result (jdbc/query tx query)]
 
       (cond

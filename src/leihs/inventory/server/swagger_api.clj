@@ -4,6 +4,7 @@
             [clojure.java.io :as io]
             [clojure.string]
             [clojure.string :as str]
+            [clojure.string :as str]
             [clojure.uuid :as uuid]
             [clojure.walk :refer [keywordize-keys]]
             [leihs.core.anti-csrf.back :as anti-csrf]
@@ -38,15 +39,41 @@
             [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc)
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str)
+  fnc)
+
+(defn valid-image-or-thumbnail-uri? [uri]
+  (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
+    (boolean (re-matches pattern uri))))
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
-      (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
-              (some #(= % uri) whitelist-uris-for-api))
-        (handler request)
-        (custom-not-found-handler request)))))
+          whitelist-uris-for-api ["/sign-in" "/sign-out"]
+          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
+
+      (if (or (some #(str/includes? accept-header %) ["json" "image/jpeg"])
+              (some #(= % uri) whitelist-uris-for-api)
+              image-or-thumbnail-request?)
+        (pr2 ">> to api" (handler request))
+        (pr2 ">> not-found-handler" (custom-not-found-handler request))))))
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)
+          updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
+                                   (valid-image-or-thumbnail-uri? uri))
+                            (assoc-in request [:headers "accept"] "image/jpeg")
+                            request)]
+      ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -61,6 +88,7 @@
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
+                                     wrap-accept-with-image-rewrite
 
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token
@@ -68,7 +96,7 @@
                                      csrf/extract-header
                                      session/wrap-authenticate
                                      wrap-cookies
-                                     csrf/wrap-csrf
+                                     ;csrf/wrap-csrf
 
                                       ;locale/wrap
                                       ;settings/wrap
@@ -82,7 +110,8 @@
                                      wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
-                                     dispatch-content-type/wrap-accept
+                                     ;dispatch-content-type/wrap-accept
+
                                       ;ring-exception/wrap
 
                                      default-handler-fetch-resource ;; provide resources
@@ -92,12 +121,14 @@
                                      parameters/parameters-middleware
                                      muuntaja/format-negotiate-middleware
                                      muuntaja/format-response-middleware
+
                                      exception/exception-middleware
                                      muuntaja/format-request-middleware
                                      coercion/coerce-response-middleware
                                      coercion/coerce-request-middleware
-                                     multipart/multipart-middleware]}})]
 
+                                     multipart/multipart-middleware ;; FIXME: this causes issues with http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model
+                                     ]}})]
     (-> (ring/ring-handler
          router
          (ring/routes
