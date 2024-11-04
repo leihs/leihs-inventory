@@ -48,7 +48,7 @@
           p (println ">o> content-type" ctype)
 
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model"]]
       (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
               (some #(= % uri) whitelist-uris-for-api))
         (handler request)
