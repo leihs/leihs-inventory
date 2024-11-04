@@ -13,14 +13,11 @@
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-
    [leihs.inventory.server.constants :as consts]
-
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
                                                               token-routes]]
-
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]

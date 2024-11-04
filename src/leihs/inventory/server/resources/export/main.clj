@@ -3,44 +3,76 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.pagination :refer [pagination-response]]
+   [taoensso.timbre :as log]
+   [clojure.data.csv :as csv]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [dk.ative.docjure.spreadsheet :as ss]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-suppliers
-  ([request]
-   (get-suppliers request false))
 
-  ([request with-pagination?]
-   (try
-     (let [tx (:tx request)
-           pool_id (-> request path-params :pool_id)
-           group_id (-> request path-params :supplier_id)
-           {:keys [page size]} (fetch-pagination-params request)
+(defn keyword-to-title [k]
+  (-> k
+    name
+    (str/replace "-" " ")
+    (str/replace "_" " ")
+    (str/capitalize)))
 
-           base-query (-> (sql/select :s.id :s.name :s.note)
-                          (sql/from [:suppliers :s])
-                          (cond-> group_id (sql/where [:= :s.id group_id]))
-                          (sql/order-by :s.name))]
+(defn maps-to-csv [maps]
+  (let [headers (map keyword-to-title (keys (first maps)))
+        rows (map vals maps)]
+    (cons headers rows)))
 
-       (cond
-         (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
-         with-pagination? (pagination-response request base-query)
-         :else (jdbc/query tx (-> base-query sql-format))))
+(defn generate-excel-from-map [data-map]
+  "Generates an Excel file from a map and returns a Java File object."
+  (try
+    (when (empty? data-map)
+      (throw (IllegalArgumentException. "Data map cannot be empty")))
+    (let [workbook (ss/create-workbook "Sheet1" [(map name (keys (first data-map)))])
+          sheet (ss/select-sheet "Sheet1" workbook)]
+      (doseq [row data-map]
+        (let [row-values (map #(if (or (string? %) (number? %)) % (str %)) (vals row))]
+          (ss/add-row! sheet row-values)))
+      (let [temp-file (doto (java.io.File/createTempFile "export" ".xlsx") (.deleteOnExit))]
+        (with-open [output-stream (io/output-stream temp-file)]
+          (ss/save-workbook! output-stream workbook))
+        temp-file))
+    (catch Exception e
+      (log/error e "Failed to generate Excel from map")
+      (throw e))))
 
-     (catch Exception e
-       (error "Failed to get supplier(s)" e)
-       (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
+(defn excel-handler [request]
+  "Handler that generates an Excel file from a given map."
+  (try
+    (let [data [{:name "Alice" :age 30 :city "New York"}
+                {:name "Bob" :age 25 :city "San Francisco"}
+                {:name "Charlie" :age 35 :city "Boston"}]
+          excel-file (generate-excel-from-map data)]
+      {:status 200
+       :headers {"Content-Type" "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                 "Content-Disposition" "attachment; filename=export.xlsx"}
+       :body (io/input-stream excel-file)})
+    (catch IllegalArgumentException e
+      (log/error e "Invalid input to Excel handler")
+      {:status 400
+       :body "Invalid input to generate Excel file."})
+    (catch Exception e
+      (log/error e "Internal Server Error in Excel handler")
+      {:status 500
+       :body "Internal Server Error."})))
 
-(defn get-suppliers-auto-pagination-handler [request]
-  (response (get-suppliers request nil)))
+(defn csv-handler [request]
 
-(defn get-suppliers-handler [request]
-  (let [result (get-suppliers request)]
-    (response result)))
+  (let [data [{:name "Alice" :age 30}
+              {:name "Bob" :age 25}]
+        output-stream (java.io.ByteArrayOutputStream.)
+        csv-data (maps-to-csv data)]
+    (with-open [writer (io/writer output-stream)]
+      (csv/write-csv writer csv-data))
+    {:status 200
+     :headers {"Content-Type" "text/csv"
+               "Content-Disposition" "attachment; filename=output.csv"}
+     :body (java.io.ByteArrayInputStream. (.toByteArray output-stream))}))
