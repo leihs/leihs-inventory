@@ -206,20 +206,18 @@
 
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
-          ;(throw (ex-info "Model already exists" {:status 409}))
-          ;(response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)
           (-> (response {:status "failure"
-                                  ;:message (str "Model already exists: product=" (:product prepared-model-data))
                                   :message "Model already exists"
-                                  ;:detail (.getMessage e)
-                                  :detail {:product (:product prepared-model-data)}
-                         })
+                                  :detail {:product (:product prepared-model-data)}                         })
             (status 409))
 
+          (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
+          (-> (response {:status "failure"
+                                  :message "Modification of models_compatibles failed"
+                                  :detail {:product (:product prepared-model-data)}                         })
+            (status 409))
 
-          :else         (bad-request {:error "Failed to create model" :details (.getMessage e)})
-          )
-
+          :else         (bad-request {:error "Failed to create model" :details (.getMessage e)})          )
         ))))
 
 
