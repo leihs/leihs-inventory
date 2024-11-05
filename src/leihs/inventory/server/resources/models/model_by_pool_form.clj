@@ -442,53 +442,79 @@
             ;; Ensure each group has exactly one main image and one thumbnail
                     (println ">o> (count entries)" (count entries) (= 2 (count entries)))
             ;(when (or (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 2 (count entries)))
-            (when  (= 2 (count entries))
+            (cond  (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+                   (let [
+                          p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
+
+                          ;; Separate main image and thumbnail based on filename
+                          [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb.jpeg")
+                                               [(second entries) (first entries)]
+                                               [(first entries) (second entries)])
+
+                          ;; Generate a unique `target_id` for both the image and thumbnail
+                          ;target-id (str (UUID/randomUUID))
+                          target-id (UUID/randomUUID)
+                          ;; Prepare main image data
+                          main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
+                                            (dissoc :tempfile)
+                                            (assoc :content (slurp (io/input-stream (:tempfile main-image)))
+                                              :target_id target-id
+                                              :target_type "Model"
+                                              :thumbnail false))
+
+                          ;; Insert main image and retrieve its ID
+                          main-image-res (-> (sql/insert-into :images)
+                                           (sql/values [main-image-data])
+                                           (sql/returning :*)
+                                           sql-format)
+                          main-image-result (first (jdbc/execute! tx main-image-res))
+
+                          ;; Prepare thumbnail data with reference to the main image ID
+                          thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
+                                           (dissoc :tempfile)
+                                           (assoc :content (slurp (io/input-stream (:tempfile thumb)))
+                                             :target_id target-id
+                                             :target_type "Model"
+                                             :thumbnail true
+                                             :parent_id (:id main-image-result)))
+
+                          ;; Insert thumbnail
+                          _ (jdbc/execute! tx (-> (sql/insert-into :images)
+                                                (sql/values [thumbnail-data])
+                                                (sql/returning :*)
+                                                sql-format))
+
+                          ;; Debugging output
+                          _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
+                              " and parent_id for thumbnail:" (:id main-image-result))])
 
 
-              (let [
-                    p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
+              (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
+              (let [entry (first entries)
+                    ;; Determine if the single file is a thumbnail based on the filename
+                    ;is-thumbnail (.endsWith (:filename entry) "_thumb.jpeg")
 
-                    ;; Separate main image and thumbnail based on filename
-                    [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb.jpeg")
-                                         [(second entries) (first entries)]
-                                         [(first entries) (second entries)])
+                    is-thumbnail (.contains (:filename entry) "_thumb")
 
-                    ;; Generate a unique `target_id` for both the image and thumbnail
-                    ;target-id (str (UUID/randomUUID))
+                    ;; Generate a unique `target_id`
                     target-id (UUID/randomUUID)
-                    ;; Prepare main image data
-                    main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                      (dissoc :tempfile)
-                                      (assoc :content (slurp (io/input-stream (:tempfile main-image)))
-                                        :target_id target-id
-                                        :target_type "Model"
-                                        :thumbnail false))
+                    ;; Prepare data for the single file, marking as thumbnail if needed
+                    single-file-data (-> (set/rename-keys entry {:content-type :content_type})
+                                       (dissoc :tempfile)
+                                       (assoc :content (slurp (io/input-stream (:tempfile entry)))
+                                         :target_id target-id
+                                         :target_type "Model"
+                                         :thumbnail is-thumbnail))]
+                ;; Insert single file (either as main image or as standalone thumbnail)
+                (jdbc/execute! tx (-> (sql/insert-into :images)
+                                    (sql/values [single-file-data])
+                                    (sql/returning :*)
+                                    sql-format))
+                ;; Debugging output
+                (println ">o> >>> Single file inserted with target_id:" target-id
+                  " as " (if is-thumbnail "thumbnail" "main image")))
 
-                    ;; Insert main image and retrieve its ID
-                    main-image-res (-> (sql/insert-into :images)
-                                     (sql/values [main-image-data])
-                                     (sql/returning :*)
-                                     sql-format)
-                    main-image-result (first (jdbc/execute! tx main-image-res))
-
-                    ;; Prepare thumbnail data with reference to the main image ID
-                    thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                     (dissoc :tempfile)
-                                     (assoc :content (slurp (io/input-stream (:tempfile thumb)))
-                                       :target_id target-id
-                                       :target_type "Model"
-                                       :thumbnail true
-                                       :parent_id (:id main-image-result)))
-
-                    ;; Insert thumbnail
-                    _ (jdbc/execute! tx (-> (sql/insert-into :images)
-                                          (sql/values [thumbnail-data])
-                                          (sql/returning :*)
-                                          sql-format))
-
-                    ;; Debugging output
-                    _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
-                        " and parent_id for thumbnail:" (:id main-image-result))]))
+              )
 
 
             ))
