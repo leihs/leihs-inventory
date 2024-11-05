@@ -14,6 +14,8 @@
    [next.jdbc :as jdbc]
    [clojure.string :as str]
 
+   [clojure.data.json :as json]
+
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
@@ -104,6 +106,16 @@
 
 
 
+;(require '[clojure.data.json :as json])
+
+(defn parse-json-array
+  [request key]
+  (let [json-array-string (get-in request [:parameters :multipart key])]
+    (if (and json-array-string (string? json-array-string))
+      (json/read-str (str "[" json-array-string "]") :key-fn keyword)
+      []))) ;; Return an empty vector if the value is nil or not a string
+
+
 (defn create-model-handler-by-pool-form [request]
   (let [
         created_ts (LocalDateTime/now)
@@ -111,7 +123,7 @@
 
 
 
-        pool-id (get-in request [:path-params :pool_id])
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
         p (println ">o> pool-id" pool-id)
 
         multipart (get-in request [:parameters :multipart])
@@ -148,9 +160,13 @@
         p (println ">o> ??? categories" categories)
 
 
+        accessories (get-in request [:parameters :multipart :accessories])
+        p (println ">o> accessories ???1" accessories (type accessories))
 
+        accessories (parse-json-array request :accessories)
+        p (println ">o> accessories ???2" accessories (type (parse-json-array request :accessories)))
 
-        categories []
+        ;categories []
 
 
         ]
@@ -166,6 +182,41 @@
 
             res true
             ]
+
+
+        ; Example usage: accessories
+        (doseq [entry accessories]
+          (let [
+                 _  (println ">o> accessories.e" entry)
+
+                 accessory (create-or-use-existing tx
+                    :accessories
+                    [:and
+                     [:= :model_id model-id]
+                     [:= :name  (:name entry)]]
+                    {:model_id model-id :name  (:name entry)})
+
+                p (println ">o> accessory1" accessory)
+
+                accessory-id (:id accessory)
+                p (println ">o> accessory1.accessory-id" accessory-id)
+                p (println ">o> accessory1.pool-id" pool-id)
+                p (println ">o> accessory1.inventory_bool" (:inventory_bool entry))
+
+                inv-pool-entry (if (:inventory_bool entry)
+                    (create-or-use-existing tx
+                      :accessories_inventory_pools
+                      [:and
+                       [:= :accessory_id accessory-id]
+                       [:= :inventory_pool_id  pool-id]]
+                      {:accessory_id accessory-id :inventory_pool_id pool-id})
+                    nil
+                    )
+
+                p (println ">o> inv-pool-entry2" inv-pool-entry)
+                ])
+         )
+
 
 
         ; Example usage: compatibles
