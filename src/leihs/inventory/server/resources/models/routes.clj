@@ -469,6 +469,16 @@
                           :none nil?
                           ))
 
+(sa/def ::name string?)
+(sa/def ::inventory_bool boolean?)
+(sa/def ::accessory (sa/keys :req-un [::name ::inventory_bool]))
+(sa/def ::accessories  (sa/or
+                          :multiple (sa/or :coll (sa/coll-of ::accessory)
+                                      :str string?)
+                          :single ::accessory
+                          :none nil?
+                          ))
+
 
 
 (sa/def ::key string?)
@@ -528,6 +538,7 @@
                                   ;::partitions-attributes
                                   ::entitlements
                                   ::properties
+                                  ::accessories
                                   ]))
 
 

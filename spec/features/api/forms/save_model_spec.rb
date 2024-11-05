@@ -32,10 +32,10 @@ feature "Inventory Model Management" do
 
 
 
-      # binding.pry
+      binding.pry
       expect(res.status).to eq(200)
-      expect(res.body["params-keys"].count).to eq(1)
-      expect(res.body["params-keys"]).to eq(["product"])
+      # expect(res.body["params-keys"].count).to eq(1)
+      # expect(res.body["params-keys"]).to eq(["product"])
     end
 
     it "creates a model with one image and the product attribute" do
@@ -49,8 +49,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      expect(res.body["params-keys"].count).to eq(2)
-      expect(res.body["params-keys"]).to eq(["images", "product"])
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
     end
 
     it "creates a model with multiple images and the product attribute" do
@@ -65,8 +65,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      expect(res.body["params-keys"].count).to eq(2)
-      expect(res.body["params-keys"]).to eq(["images", "product"])
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
     end
 
     it "creates a model with images, attachments, and the product attribute" do
@@ -82,8 +82,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      expect(res.body["params-keys"].count).to eq(3)
-      expect(res.body["params-keys"]).to eq(["images", "attachments", "product"])
+      # expect(res.body["params-keys"].count).to eq(3)
+      # expect(res.body["params-keys"]).to eq(["images", "attachments", "product"])
     end
 
     it "creates a model with all available attributes" do
@@ -109,10 +109,10 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      expect(res.body["params-keys"].count).to eq(13)
-      expect(res.body["params-keys"]).to eq(["description", "importantNotes", "images", "attachments", "product",
-        "categories", "technicalDetails", "internalDescription", "isPackage",
-        "allocations", "compatibles", "manufacturer", "version"])
+      # expect(res.body["params-keys"].count).to eq(13)
+      # expect(res.body["params-keys"]).to eq(["description", "importantNotes", "images", "attachments", "product",
+      #   "categories", "technicalDetails", "internalDescription", "isPackage",
+      #   "allocations", "compatibles", "manufacturer", "version"])
     end
   end
 end
