@@ -71,38 +71,17 @@
   (println ">oo> " str fnc)
   fnc
   )
-
 (defn parse-uuid-values
   [key request]
-  (try
+  (let [raw-value (get-in request [:parameters :multipart key])]
+    (cond
+      (instance? UUID raw-value) [raw-value]
+      (and (instance? String raw-value) (not (str/includes? raw-value ","))) [(UUID/fromString raw-value)]
+      (and (instance? String raw-value) (str/includes? raw-value ","))
+      (mapv #(UUID/fromString %) (str/split raw-value #",\s*"))
+      :else [])))
 
-  (let [raw-value (get-in request [:parameters :multipart key])
-        p (println ">o> raw-value (" key ")" raw-value)]
-    ;(if (and raw-value (not (str/blank? raw-value)))
-      (let [
-            res (cond
-                  (instance? UUID raw-value) raw-value
-                  (and (instance? String raw-value) (not (str/includes? raw-value ","))) (UUID/fromString raw-value)
-                  (and (instance? String raw-value) (str/includes? raw-value ","))
-                   (let [
-                              p (pr ">0" raw-value)
-                              sp (pr ">1" (str/split raw-value #",\s*"))
-                              p (pr ">2" sp)
 
-                              res (mapv #(UUID/fromString %) sp)
-                              p (pr ">3" res)
-                            ]
-                          res)
-                  :else []
-
-                  )
-            ]res)
-      ;[])
-  )
-
-    (catch Exception e (println ">o> parse-uuid-values" e)))
-
-  )
 
 (defn create-model-handler-by-pool-form [request]
   (let [
