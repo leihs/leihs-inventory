@@ -16,6 +16,7 @@
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
+   [leihs.inventory.server.resources.models.model-by-pool-form :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -395,10 +396,57 @@
 (sa/def ::technicalDetails (sa/nilable string?))
 (sa/def ::internalDescription (sa/nilable string?))
 (sa/def ::importantNotes (sa/nilable string?))
-(sa/def ::compatibles (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
-(sa/def ::categories (sa/nilable string?))
+;(sa/def ::compatibles (sa/nilable string?))
 
+
+(sa/def ::compatibles  (sa/or
+                        :multiple (sa/or :coll (sa/coll-of uuid?)
+                                    :str string?)
+                        :single uuid?
+                        :none nil?
+                        ))
+
+;(sa/def ::categories (sa/nilable string?))
+
+;(sa/def ::compatibles (sa/nilable (sa/or
+;                                  :multiple (sa/coll-of uuid? :kind vector?)
+;                                    :single uuid?
+;                                    )))
+;(sa/def ::categories (sa/nilable (sa/or :single uuid?
+;                                  :multiple (sa/coll-of uuid? :kind vector?))))
+
+;(sa/def ::categories (sa/nilable (sa/or
+;                                  :multiple (sa/coll-of uuid? :kind vector?)
+;                                   :single uuid?
+;                                   )))
+
+;;; TODO: initial validation-error
+;(sa/def ::categories (sa/nilable (sa/or
+;                                  :multiple (sa/coll-of uuid? :kind vector?)
+;                                   :single uuid?
+;                                   )))
+;
+;;; TODO: initial validation-error
+;(sa/def ::categories  (sa/or
+;                                  :multiple (sa/coll-of uuid? :kind vector?)
+;                                   :single uuid?
+;                                   :none nil?
+;                                   ))
+
+(defn comma-separated-uuids? [s]
+  (and (string? s)
+    (every? uuid? (map #(try (java.util.UUID/fromString %) (catch Exception _ nil))
+                    (clojure.string/split s #",")))))
+
+;; TODO: initial validation-error
+(sa/def ::categories  (sa/or
+                        :multiple (sa/or :coll (sa/coll-of uuid?)
+                                    :str string?)
+                                    ;:str comma-separated-uuids?)
+                                   :single uuid?
+                                   :none nil?
+                                   ))
 
 
 
@@ -415,9 +463,9 @@
                                   ::technicalDetails
                                   ::internalDescription
                                   ::importantNotes
-                                  ::compatibles
                                   ::allocations
                                   ::categories
+                                  ::compatibles
                                   ::images
                                   ::attachments]))
 
@@ -467,31 +515,42 @@
                           :multipart ::multipart
                           ;:multipart ::model
                           }
-             :handler (fn [request]
+             ;:handler (fn [request]
+             ;
+             ;           ;(response/response {:foo "bar" })
+             ;
+             ;           (let [
+             ;                 p (println ">o> abc3a")
+             ;                 params (get-in request [:parameters :multipart])
+             ;                 product (get-in request [:parameters :multipart :product])
+             ;                 p (println ">o> abc3b")
+             ;                 file (-> request :parameters :multipart :file)
+             ;                 p (println ">o> abc3c")
+             ;                 file-data {:filename (:filename file)
+             ;                            :content-type (:content-type file)
+             ;                            :size (:size file)}
+             ;
+             ;
+             ;                 p (println ">o> abc3d")
+             ;                 ]
+             ;
+             ;             (response/response {:images (process-attachments request :images)
+             ;                                 :attachments (process-attachments request :attachments)
+             ;                                 :product product
+             ;                                 :data (-> request :parameters :multipart)
+             ;                                 :params-keys (keys params)}))
+             ;           )
 
-                        ;(response/response {:foo "bar" })
+             ;:parameters {:path {:pool_id s/Uuid}
+             ;             :body {:product s/Str
+             ;                    :category_ids [s/Uuid]
+             ;                    :version s/Str
+             ;                    (s/optional-key :type) (s/enum "Software" "Model")
+             ;                    ;;default: Model
+             ;                    (s/optional-key :is_package) s/Bool}}
 
-                        (let [
-                              p (println ">o> abc3a")
-                              params (get-in request [:parameters :multipart])
-                              product (get-in request [:parameters :multipart :product])
-                              p (println ">o> abc3b")
-                              file (-> request :parameters :multipart :file)
-                              p (println ">o> abc3c")
-                              file-data {:filename (:filename file)
-                                         :content-type (:content-type file)
-                                         :size (:size file)}
+             :handler create-model-handler-by-pool-form
 
-
-                              p (println ">o> abc3d")
-                              ]
-
-                          (response/response {:images (process-attachments request :images)
-                                              :attachments (process-attachments request :attachments)
-                                              :product product
-                                              :data (-> request :parameters :multipart)
-                                              :params-keys (keys params)}))
-  )
 
              :responses {200 {:description "OK" }
                          404 {:description "Not Found"}
