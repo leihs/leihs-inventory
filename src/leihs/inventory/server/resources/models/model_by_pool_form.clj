@@ -124,6 +124,15 @@
   [file-map]
   (set/rename-keys file-map {:content-type :content_type}))
 
+
+(defn normalize-files
+  [request key]
+  (let [attachments (get-in request [:parameters :multipart key])]
+    (if (map? attachments)
+      [attachments]
+      attachments)))
+
+
 (defn create-model-handler-by-pool-form [request]
   (let [
         created_ts (LocalDateTime/now)
@@ -168,12 +177,14 @@
         p (println ">o> ??? categories" categories)
 
 
-        attachments (get-in request [:parameters :multipart :attachments])
+        ;attachments (get-in request [:parameters :multipart :attachments])
+        ;attachments (if (= (type attachments) clojure.lang.PersistentArrayMap)
+        ;               (vector attachments)
+        ;               attachments
+        ;               )
 
-        attachments (if (= (type attachments) clojure.lang.PersistentArrayMap)
-                       (vector attachments)
-                       attachments
-                       )
+        attachments (normalize-files request :attachments)
+        images (normalize-files request :images)
 
 
         p (println ">o> attachments ???1" attachments (type attachments))
@@ -245,6 +256,55 @@
 
                   ;; Insert metadata into the `attachments` table
                   res (-> (sql/insert-into :attachments)
+                        (sql/values [data])
+                        (sql/returning :*)
+                        sql-format)
+
+                  res (jdbc/execute! tx res)
+
+                  ;; Debugging output
+                  _ (println ">o> >>> !!!!!!! DONE !!!!!!!! attachments.res" res)
+                  ;_ (println ">o> >>> file metadata" data)
+                  ;_ (println ">o> >>> file content (first 100 chars):" (subs file-content 0 (min 100 (count file-content))))
+
+                  ]
+
+              ;; Process `res` and `file-content` as needed
+              ))
+
+        ; Example usage: images
+        ; - validate image if thumbnail is present
+        ; - generate uuid for target_id
+
+        ; 1. insert image, thumbnail==false
+        ; 2. insert thumbnail and set parent_id==image.id, thumbnail==false
+        (doseq [entry images]
+            (let [;; Rename `:content-type` to `:content_type`
+
+                  p (println ">o> abc.before" entry)
+                  data (set/rename-keys entry {:content-type :content_type})
+                  p (println ">o> abc.after" data)
+
+                  ;; Extract the file reference
+                  file (:tempfile data)
+
+
+                  ;; Fetch the content from the file
+                  file-content (when file (slurp (io/input-stream file)))
+
+                  ;; Remove `:tempfile` from `data` to store metadata only
+                  data (dissoc data :tempfile)
+
+                  p (println ">o> abc.2before" data)
+                  ;data (assoc data :content file-content :model_id model-id :target_type "Model")
+                  data (assoc data :content file-content :target_type "Model")
+                  p (println ">o> abc.2after" data)
+
+
+                  p (println ">o> !!!!!!!! data" (keys data))
+
+                  ;; Insert metadata into the `attachments` table
+                  res (-> (sql/insert-into :images)
                         (sql/values [data])
                         (sql/returning :*)
                         sql-format)
