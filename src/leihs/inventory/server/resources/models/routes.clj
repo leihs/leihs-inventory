@@ -20,6 +20,9 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
+
+   [cheshire.core :as json]
+
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
@@ -455,6 +458,59 @@
 (sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
                              :single ::file))
 
+
+(sa/def ::group_id uuid?)
+(sa/def ::count int?)
+(sa/def ::entitlement (sa/keys :req-un [::group_id ::count]))
+(sa/def ::entitlements  (sa/or
+                          :multiple (sa/or :coll (sa/coll-of ::entitlement)
+                                      :str string?)
+                          :single ::entitlement
+                          :none nil?
+                          ))
+
+
+
+(sa/def ::key string?)
+(sa/def ::value string?)
+(sa/def ::property (sa/keys :req-un [::key ::value]))
+(sa/def ::properties  (sa/or
+                          :multiple (sa/or :coll (sa/coll-of ::property)
+                                      :str string?)
+                          :single ::property
+                          :none nil?
+                          ))
+
+
+
+
+
+
+
+;;; Spec for a single UUID string or UUID object
+;(sa/def ::uuid (sa/or :uuid-instance uuid? :uuid-string #(re-matches #"[0-9a-fA-F\-]{36}" %)))
+;
+;;; Spec for a single partition entry
+;(sa/def ::partition-entry
+;  (sa/keys :req-un [::id ::group_id ::quantity]))
+;
+;;; Spec for `id`, `group_id`, and `quantity` fields in each partition entry
+;(sa/def ::id ::uuid)
+;(sa/def ::group_id ::uuid)
+;(sa/def ::quantity pos-int?)
+;
+;;; Spec for the entire structure of `partitions_attributes`
+;;(sa/def ::partitions-attributes
+;;  (sa/map-of ::uuid ::partition-entry))
+;
+;(sa/def ::partitions-attributes
+;  (sa/nilable (sa/map-of ::uuid ::partition-entry)))
+
+
+
+
+
+
 (sa/def ::multipart (sa/keys :req-un [::product]
                          :opt-un [::version
                                   ::manufacturer
@@ -467,7 +523,15 @@
                                   ::category_ids
                                   ::compatible_ids
                                   ::images
-                                  ::attachments]))
+                                  ::attachments
+
+                                  ;::partitions-attributes
+                                  ::entitlements
+                                  ::properties
+                                  ]))
+
+
+
 
 (defn- process-attachments
   [request key]
@@ -490,6 +554,29 @@
         files)
       :else [])))
 
+;(defn parse-json-string [v]
+;  (if (string? v)
+;    (try
+;      (json/parse-string v true)
+;      (catch Exception _
+;        v))
+;    v))
+;
+;(defn json-string-transformer [schema]
+;  (fn [value]
+;    (println ">o> json-string-transformer.v" value)
+;    (if (map? value)
+;      (reduce-kv (fn [m k v]
+;                   (assoc m k (parse-json-string v)))
+;        {}
+;        value)
+;      (parse-json-string value))))
+;
+;(def custom-coercion
+;  (spec/create
+;    {:transformers
+;     {:body {:default json-string-transformer}}}))
+
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
@@ -499,7 +586,6 @@
    ["/model"
     [""
      {:post {
-             ;:accept "multipart/form-data"
              :accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
@@ -510,44 +596,14 @@
                            " - images: additional handling needed to process no/one/multiple files \n"
                            " - Browser creates thumbnails and attaches them as '*_thumb' \n")
              :coercion spec/coercion
+             ;:coercion custom-coercion  ; Use the custom coercion here
+
+
              :parameters {
                           :path {:pool_id uuid?}
                           :multipart ::multipart
                           ;:multipart ::model
                           }
-             ;:handler (fn [request]
-             ;
-             ;           ;(response/response {:foo "bar" })
-             ;
-             ;           (let [
-             ;                 p (println ">o> abc3a")
-             ;                 params (get-in request [:parameters :multipart])
-             ;                 product (get-in request [:parameters :multipart :product])
-             ;                 p (println ">o> abc3b")
-             ;                 file (-> request :parameters :multipart :file)
-             ;                 p (println ">o> abc3c")
-             ;                 file-data {:filename (:filename file)
-             ;                            :content-type (:content-type file)
-             ;                            :size (:size file)}
-             ;
-             ;
-             ;                 p (println ">o> abc3d")
-             ;                 ]
-             ;
-             ;             (response/response {:images (process-attachments request :images)
-             ;                                 :attachments (process-attachments request :attachments)
-             ;                                 :product product
-             ;                                 :data (-> request :parameters :multipart)
-             ;                                 :params-keys (keys params)}))
-             ;           )
-
-             ;:parameters {:path {:pool_id s/Uuid}
-             ;             :body {:product s/Str
-             ;                    :category_ids [s/Uuid]
-             ;                    :version s/Str
-             ;                    (s/optional-key :type) (s/enum "Software" "Model")
-             ;                    ;;default: Model
-             ;                    (s/optional-key :is_package) s/Bool}}
 
              :handler create-model-handler-by-pool-form
 

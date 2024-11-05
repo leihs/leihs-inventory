@@ -168,7 +168,7 @@
             ]
 
 
-        ; Example usage:
+        ; Example usage: compatibles
         (doseq [category-id compatibles]
           ;; Insert into model_links if not exists
           (create-or-use-existing tx
@@ -178,7 +178,7 @@
              [:= :compatible_id  category-id]]
             {:model_id model-id :compatible_id  category-id}))
 
-        ;; Example usage:
+        ;; Example usage: categories
         (doseq [category-id categories]
           ;; Insert into model_links if not exists
           (create-or-use-existing tx
