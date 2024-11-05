@@ -160,11 +160,22 @@
         p (println ">o> ??? categories" categories)
 
 
-        accessories (get-in request [:parameters :multipart :accessories])
-        p (println ">o> accessories ???1" accessories (type accessories))
+        ;accessories (get-in request [:parameters :multipart :accessories])
+        ;p (println ">o> ??? accessories" accessories (type accessories))
+        ;>o> accessories ???2b [{:key string, :value string}] clojure.lang.PersistentVector
+        properties (parse-json-array request :properties)
+        p (println ">o> properties ???1" properties (type properties))
 
+        ; [{:name string1, :inventory_bool true} {:name string2, :inventory_bool false}]
         accessories (parse-json-array request :accessories)
-        p (println ">o> accessories ???2" accessories (type (parse-json-array request :accessories)))
+        p (println ">o> accessories ???1" accessories (type accessories))
+        ;p (println ">o> accessories ???2a" accessories )
+        ;p (println ">o> accessories ???2b" accessories (type accessories))
+
+
+        entitlements (parse-json-array request :entitlements)
+        p (println ">o> entitlements ???1" entitlements (type entitlements))
+
 
         ;categories []
 
@@ -184,6 +195,40 @@
             ]
 
 
+        ; Example usage: entitlements
+        (doseq [entry entitlements]
+
+          (let [
+                ;; Insert into model_links if not exists
+                res (create-or-use-existing tx
+                      :entitlements
+                      [:and
+                       [:= :model_id model-id]
+                       [:= :entitlement_group_id  (to-uuid (:entitlement_group_id entry))]]
+                      {:model_id model-id :entitlement_group_id  (to-uuid (:entitlement_group_id entry)) :quantity  (:quantity entry)})
+                p (println ">o> >>> entitlements.res" res)
+
+                ])
+          )
+
+
+        ; Example usage: properties
+        (doseq [entry properties]
+
+             (let [
+          ;; Insert into model_links if not exists
+          res (create-or-use-existing tx
+            :properties
+            [:and
+             [:= :model_id model-id]
+             [:= :key  (:key entry)]]
+            {:model_id model-id :key  (:key entry) :value  (:value entry)})
+          p (println ">o> >>> properties.res" res)
+
+                      ])
+          )
+
+
         ; Example usage: accessories
         (doseq [entry accessories]
           (let [
@@ -196,7 +241,7 @@
                      [:= :name  (:name entry)]]
                     {:model_id model-id :name  (:name entry)})
 
-                p (println ">o> accessory1" accessory)
+                p (println ">o> >>> accessory1" accessory)
 
                 accessory-id (:id accessory)
                 p (println ">o> accessory1.accessory-id" accessory-id)
@@ -213,7 +258,7 @@
                     nil
                     )
 
-                p (println ">o> inv-pool-entry2" inv-pool-entry)
+                p (println ">o> >>> inv-pool-entry2" inv-pool-entry)
                 ])
          )
 
