@@ -377,9 +377,9 @@
 ;(sa/def ::technicalDetails (sa/and string? #(not (clojure.string/blank? %))))
 ;(sa/def ::internalDescription (sa/and string? #(not (clojure.string/blank? %))))
 ;(sa/def ::importantNotes (sa/and string? #(not (clojure.string/blank? %))))
-;(sa/def ::compatibles (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::compatible_ids (sa/and string? #(not (clojure.string/blank? %))))
 ;(sa/def ::allocations (sa/and string? #(not (clojure.string/blank? %))))
-;(sa/def ::categories (sa/and string? #(not (clojure.string/blank? %))))
+;(sa/def ::category_ids (sa/and string? #(not (clojure.string/blank? %))))
 
 ;(require '[clojure.spec.alpha :as s])
 
@@ -397,38 +397,38 @@
 (sa/def ::internalDescription (sa/nilable string?))
 (sa/def ::importantNotes (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
-;(sa/def ::compatibles (sa/nilable string?))
+;(sa/def ::compatible_ids (sa/nilable string?))
 
 
-(sa/def ::compatibles  (sa/or
+(sa/def ::compatible_ids  (sa/or
                         :multiple (sa/or :coll (sa/coll-of uuid?)
                                     :str string?)
                         :single uuid?
                         :none nil?
                         ))
 
-;(sa/def ::categories (sa/nilable string?))
+;(sa/def ::category_ids (sa/nilable string?))
 
-;(sa/def ::compatibles (sa/nilable (sa/or
+;(sa/def ::compatible_ids (sa/nilable (sa/or
 ;                                  :multiple (sa/coll-of uuid? :kind vector?)
 ;                                    :single uuid?
 ;                                    )))
-;(sa/def ::categories (sa/nilable (sa/or :single uuid?
+;(sa/def ::category_ids (sa/nilable (sa/or :single uuid?
 ;                                  :multiple (sa/coll-of uuid? :kind vector?))))
 
-;(sa/def ::categories (sa/nilable (sa/or
+;(sa/def ::category_ids (sa/nilable (sa/or
 ;                                  :multiple (sa/coll-of uuid? :kind vector?)
 ;                                   :single uuid?
 ;                                   )))
 
 ;;; TODO: initial validation-error
-;(sa/def ::categories (sa/nilable (sa/or
+;(sa/def ::category_ids (sa/nilable (sa/or
 ;                                  :multiple (sa/coll-of uuid? :kind vector?)
 ;                                   :single uuid?
 ;                                   )))
 ;
 ;;; TODO: initial validation-error
-;(sa/def ::categories  (sa/or
+;(sa/def ::category_ids  (sa/or
 ;                                  :multiple (sa/coll-of uuid? :kind vector?)
 ;                                   :single uuid?
 ;                                   :none nil?
@@ -440,7 +440,7 @@
                     (clojure.string/split s #",")))))
 
 ;; TODO: initial validation-error
-(sa/def ::categories  (sa/or
+(sa/def ::category_ids  (sa/or
                         :multiple (sa/or :coll (sa/coll-of uuid?)
                                     :str string?)
                                     ;:str comma-separated-uuids?)
@@ -464,8 +464,8 @@
                                   ::internalDescription
                                   ::importantNotes
                                   ::allocations
-                                  ::categories
-                                  ::compatibles
+                                  ::category_ids
+                                  ::compatible_ids
                                   ::images
                                   ::attachments]))
 

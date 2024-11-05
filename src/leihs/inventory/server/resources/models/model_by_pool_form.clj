@@ -12,11 +12,15 @@
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
+   [clojure.string :as str]
+
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
-           [java.util.jar JarFile]))
+           [java.util.jar JarFile]
+   [java.util UUID]
+   ))
 
 
 (defn prepare-model-data
@@ -54,6 +58,52 @@
                           (sql/values [insert-values])
                           sql-format)))))
 
+;(defn parse-uuid-values
+;[key request]
+;(let [raw-value (get-in request [:parameters :multipart key])]
+;  (if (and raw-value (not (clojure.string/blank? raw-value)))
+;    (mapv uuid (str/split raw-value #",\s*"))
+;    [])))
+
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+(defn parse-uuid-values
+  [key request]
+  (try
+
+  (let [raw-value (get-in request [:parameters :multipart key])
+        p (println ">o> raw-value (" key ")" raw-value)]
+    ;(if (and raw-value (not (str/blank? raw-value)))
+      (let [
+            res (cond
+                  (instance? UUID raw-value) raw-value
+                  (and (instance? String raw-value) (not (str/includes? raw-value ","))) (UUID/fromString raw-value)
+                  (and (instance? String raw-value) (str/includes? raw-value ","))
+                   (let [
+                              p (pr ">0" raw-value)
+                              sp (pr ">1" (str/split raw-value #",\s*"))
+                              p (pr ">2" sp)
+
+                              res (mapv #(UUID/fromString %) sp)
+                              p (pr ">3" res)
+                            ]
+                          res)
+                  :else []
+
+                  )
+            ]res)
+      ;[])
+  )
+
+    (catch Exception e (println ">o> parse-uuid-values" e)))
+
+  )
+
 (defn create-model-handler-by-pool-form [request]
   (let [
         created_ts (LocalDateTime/now)
@@ -81,9 +131,24 @@
         created_ts (LocalDateTime/now)
         data {:type "Model"  :created_at created_ts :updated_at created_ts}
 
+        ;; --------------
+
 
         prepared-model-data (prepare-model-data multipart)
         p (println ">o> rename-keys-to-db-names" prepared-model-data)
+
+
+        ;key (key "compatibles")
+        ;multipart (get-in request [:parameters :multipart key])
+
+        compatibles (parse-uuid-values :compatible_ids request)
+        p (println ">o> ??? compatibles" compatibles)
+
+        categories (parse-uuid-values :category_ids request)
+        p (println ">o> ??? categories" categories)
+
+
+
 
         categories []
 
