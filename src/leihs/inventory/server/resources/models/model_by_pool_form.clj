@@ -168,33 +168,33 @@
             ]
 
 
+        ; Example usage:
+        (doseq [category-id compatibles]
+          ;; Insert into model_links if not exists
+          (create-or-use-existing tx
+            :models_compatibles
+            [:and
+             [:= :model_id model-id]
+             [:= :compatible_id  category-id]]
+            {:model_id model-id :compatible_id  category-id}))
+
         ;; Example usage:
-        ;(doseq [category-id compatibles]
-        ;  ;; Insert into model_links if not exists
-        ;  (create-or-use-existing tx
-        ;    :models_compatibles
-        ;    [:and
-        ;     [:= :model_id model-id]
-        ;     [:= :compatible_id  category-id]]
-        ;    {:model_id model-id :compatible_id  category-id}))
-        ;
-        ;;; Example usage:
-        ;(doseq [category-id categories]
-        ;  ;; Insert into model_links if not exists
-        ;  (create-or-use-existing tx
-        ;    :model_links
-        ;    [:and
-        ;     [:= :model_id model-id]
-        ;     [:= :model_group_id (to-uuid category-id)]]
-        ;    {:model_id model-id :model_group_id (to-uuid category-id)})
-        ;
-        ;  ;; Insert into inventory_pools_model_groups if not exists
-        ;  (create-or-use-existing tx
-        ;    :inventory_pools_model_groups
-        ;    [:and
-        ;     [:= :inventory_pool_id (to-uuid pool-id)]
-        ;     [:= :model_group_id (to-uuid category-id)]]
-        ;    {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
+        (doseq [category-id categories]
+          ;; Insert into model_links if not exists
+          (create-or-use-existing tx
+            :model_links
+            [:and
+             [:= :model_id model-id]
+             [:= :model_group_id (to-uuid category-id)]]
+            {:model_id model-id :model_group_id (to-uuid category-id)})
+
+          ;; Insert into inventory_pools_model_groups if not exists
+          (create-or-use-existing tx
+            :inventory_pools_model_groups
+            [:and
+             [:= :inventory_pool_id (to-uuid pool-id)]
+             [:= :model_group_id (to-uuid category-id)]]
+            {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
 
         (if res
@@ -203,7 +203,24 @@
       (catch Exception e
         (error "Failed to create model" (.getMessage e))
         (error "Failed to create model" (.getMessage e))
-        (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
+
+        (cond
+          (str/includes? (.getMessage e) "unique_model_name_idx")
+          ;(throw (ex-info "Model already exists" {:status 409}))
+          ;(response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)
+          (-> (response {:status "failure"
+                                  ;:message (str "Model already exists: product=" (:product prepared-model-data))
+                                  :message "Model already exists"
+                                  ;:detail (.getMessage e)
+                                  :detail {:product (:product prepared-model-data)}
+                         })
+            (status 409))
+
+
+          :else         (bad-request {:error "Failed to create model" :details (.getMessage e)})
+          )
+
+        ))))
 
 
 ;
