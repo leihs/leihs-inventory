@@ -529,7 +529,7 @@
                                   ::technicalDetails
                                   ::internalDescription
                                   ::importantNotes
-                                  ::allocations
+                                  ;::allocations
                                   ::category_ids
                                   ::compatible_ids
                                   ::images
@@ -605,7 +605,10 @@
                            " - Upload images and attachments \n"
                            " - Save data \n"
                            " - images: additional handling needed to process no/one/multiple files \n"
-                           " - Browser creates thumbnails and attaches them as '*_thumb' \n")
+                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only"
+
+                            )
              :coercion spec/coercion
              ;:coercion custom-coercion  ; Use the custom coercion here
 
