@@ -21,13 +21,13 @@ i18n
     lng: "de",
     fallbackLng: ["de", "en", "fr", "es"],
     supportedLngs: ["de", "en", "fr", "es"],
-    preload: import.meta.env.DEV ? ["en", "de", "fr", "es"] : [],
+    // preload: import.meta.env.DEV ? ["en", "de", "fr", "es"] : [],
     load: "languageOnly",
     debug: true,
-    saveMissing: true,
-    saveMissingPlurals: true,
+    saveMissing: false,
+    saveMissingPlurals: false,
     backend: {
-      loadPath: "/inventory/locales/{{lng}}/{{ns}}.json",
+      loadPath: "/inventory/assets/locales/{{lng}}/{{ns}}.json",
     },
   })
 

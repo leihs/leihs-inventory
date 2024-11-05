@@ -1,12 +1,15 @@
 (ns leihs.inventory.client.main
   (:require
-   ["@/i18n.js"]
+   ;; ["./i18n.js" :as i18n]
    ["@tanstack/react-query" :refer [QueryClient QueryClientProvider]]
    ["react-router-dom" :refer [RouterProvider]]
 
    [leihs.inventory.client.routes :refer [routes]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
+
+(defn ^:dev/after-load start []
+  (js/console.log "start"))
 
 (defonce query-client (new QueryClient))
 

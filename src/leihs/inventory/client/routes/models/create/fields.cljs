@@ -42,7 +42,7 @@
 
                               ($ FormMessage))})
 
-    comment "default case - this renders a component from the component map"
+    ;; "default case - this renders a component from the component map"
     :else
     (let [comp (get fields-map (:input block))]
       (when comp

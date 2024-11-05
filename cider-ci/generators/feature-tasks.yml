@@ -693,11 +693,6 @@
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints revoking the token 09"
     FEATURE: './spec/features/api/resources_spec.rb[1:1:9]'
-'./spec/features/api/resources_spec.rb[1:1:10]':
-  name: "Call swagger-endpoints revoking the token 10"
-  environment_variables:
-    FEATURE_NAME: "Call swagger-endpoints revoking the token 10"
-    FEATURE: './spec/features/api/resources_spec.rb[1:1:10]'
 './spec/features/api/supplier_spec.rb[1:1:1:1]':
   name: "Inventory API Endpoints - Supplier when fetching suppliers for a specific inventory pool GET /inventory/supplier 01"
   environment_variables:
