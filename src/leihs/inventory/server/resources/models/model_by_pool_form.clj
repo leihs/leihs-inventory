@@ -25,7 +25,10 @@
 
 (defn prepare-model-data
   [data]
-  (let [created-ts (:created_at data)
+  (let [
+        ;created-ts (:created_at data)
+        created-ts (LocalDateTime/now)
+
         key-map {:type                 :type
                  :manufacturer         :manufacturer
                  :product              :product
@@ -58,6 +61,22 @@
                           (sql/values [insert-values])
                           sql-format)))))
 
+(defn create-or-use-existing
+  [tx table where-values insert-values]
+  (let [select-query (-> (sql/select :*)
+                       (sql/from table)
+                       (sql/where where-values)
+                       sql-format)
+        existing-entry (first (jdbc/execute! tx select-query))]
+    (if existing-entry
+      existing-entry
+      (let [insert-query (-> (sql/insert-into table)
+                           (sql/values [insert-values])
+                           (sql/returning :*)
+                           sql-format)
+            new-entry (first (jdbc/execute! tx insert-query))]
+        new-entry))))
+
 ;(defn parse-uuid-values
 ;[key request]
 ;(let [raw-value (get-in request [:parameters :multipart key])]
@@ -71,6 +90,8 @@
   (println ">oo> " str fnc)
   fnc
   )
+
+
 (defn parse-uuid-values
   [key request]
   (let [raw-value (get-in request [:parameters :multipart key])]
@@ -107,8 +128,8 @@
         ;model (dissoc model :category_ids)
 
 
-        created_ts (LocalDateTime/now)
-        data {:type "Model"  :created_at created_ts :updated_at created_ts}
+        ;created_ts (LocalDateTime/now)
+        ;data {:type "Model"  :created_at created_ts :updated_at created_ts}
 
         ;; --------------
 
@@ -136,11 +157,11 @@
     (try
       (let [
 
-            ;res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-            ;                              (sql/values [model])
-            ;                              (sql/returning :*)
-            ;                              sql-format))
-            ;model-id (:id res)
+            res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+                                          (sql/values [prepared-model-data])
+                                          (sql/returning :*)
+                                          sql-format))
+            model-id (:id res)
             ;
 
             res true
@@ -148,22 +169,32 @@
 
 
         ;; Example usage:
-        (doseq [category-id categories]
-          ;; Insert into model_links if not exists
-          (create-or-use-existing tx
-            :model_links
-            [:and
-             [:= :model_id model-id]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:model_id model-id :model_group_id (to-uuid category-id)})
-
-          ;; Insert into inventory_pools_model_groups if not exists
-          (create-or-use-existing tx
-            :inventory_pools_model_groups
-            [:and
-             [:= :inventory_pool_id (to-uuid pool-id)]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
+        ;(doseq [category-id compatibles]
+        ;  ;; Insert into model_links if not exists
+        ;  (create-or-use-existing tx
+        ;    :models_compatibles
+        ;    [:and
+        ;     [:= :model_id model-id]
+        ;     [:= :compatible_id  category-id]]
+        ;    {:model_id model-id :compatible_id  category-id}))
+        ;
+        ;;; Example usage:
+        ;(doseq [category-id categories]
+        ;  ;; Insert into model_links if not exists
+        ;  (create-or-use-existing tx
+        ;    :model_links
+        ;    [:and
+        ;     [:= :model_id model-id]
+        ;     [:= :model_group_id (to-uuid category-id)]]
+        ;    {:model_id model-id :model_group_id (to-uuid category-id)})
+        ;
+        ;  ;; Insert into inventory_pools_model_groups if not exists
+        ;  (create-or-use-existing tx
+        ;    :inventory_pools_model_groups
+        ;    [:and
+        ;     [:= :inventory_pool_id (to-uuid pool-id)]
+        ;     [:= :model_group_id (to-uuid category-id)]]
+        ;    {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
 
         (if res
