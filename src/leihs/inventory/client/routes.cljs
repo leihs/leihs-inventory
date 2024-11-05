@@ -26,11 +26,10 @@
 
       :children
       (cj
-       [{:path "inventory"
-         :index true
+       [{:index true
          :element ($ home-page)}
 
-        {:path "inventory/debug"
+        {:path "debug"
          :element ($ debug-page)}
 
         {:path ":pool-id"
