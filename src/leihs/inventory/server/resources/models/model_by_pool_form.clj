@@ -14,6 +14,10 @@
    [next.jdbc :as jdbc]
    [clojure.string :as str]
 
+   [clojure.java.io :as io]
+
+   [clojure.set :as set]
+
    [clojure.data.json :as json]
 
    [ring.util.response :refer [bad-request response status]]
@@ -116,6 +120,10 @@
       []))) ;; Return an empty vector if the value is nil or not a string
 
 
+(defn rename-content-type
+  [file-map]
+  (set/rename-keys file-map {:content-type :content_type}))
+
 (defn create-model-handler-by-pool-form [request]
   (let [
         created_ts (LocalDateTime/now)
@@ -160,6 +168,21 @@
         p (println ">o> ??? categories" categories)
 
 
+        attachments (get-in request [:parameters :multipart :attachments])
+
+        attachments (if (= (type attachments) clojure.lang.PersistentArrayMap)
+                       (vector attachments)
+                       attachments
+                       )
+
+
+        p (println ">o> attachments ???1" attachments (type attachments))
+
+
+
+
+
+
         ;accessories (get-in request [:parameters :multipart :accessories])
         ;p (println ">o> ??? accessories" accessories (type accessories))
         ;>o> accessories ???2b [{:key string, :value string}] clojure.lang.PersistentVector
@@ -191,9 +214,52 @@
             model-id (:id res)
             ;
 
-            res true
+            res model-id
             ]
 
+
+        ; Example usage: attachments
+        (doseq [entry attachments]
+            (let [;; Rename `:content-type` to `:content_type`
+
+                  p (println ">o> abc.before" entry)
+                  data (set/rename-keys entry {:content-type :content_type})
+                  p (println ">o> abc.after" data)
+
+                  ;; Extract the file reference
+                  file (:tempfile data)
+
+
+                  ;; Fetch the content from the file
+                  file-content (when file (slurp (io/input-stream file)))
+
+                  ;; Remove `:tempfile` from `data` to store metadata only
+                  data (dissoc data :tempfile)
+
+                  p (println ">o> abc.2before" data)
+                  data (assoc data :content file-content :model_id model-id)
+                  p (println ">o> abc.2after" data)
+
+
+                  p (println ">o> !!!!!!!! data" (keys data))
+
+                  ;; Insert metadata into the `attachments` table
+                  res (-> (sql/insert-into :attachments)
+                        (sql/values [data])
+                        (sql/returning :*)
+                        sql-format)
+
+                  res (jdbc/execute! tx res)
+
+                  ;; Debugging output
+                  _ (println ">o> >>> !!!!!!! DONE !!!!!!!! attachments.res" res)
+                  ;_ (println ">o> >>> file metadata" data)
+                  ;_ (println ">o> >>> file content (first 100 chars):" (subs file-content 0 (min 100 (count file-content))))
+
+                  ]
+
+              ;; Process `res` and `file-content` as needed
+              ))
 
         ; Example usage: entitlements
         (doseq [entry entitlements]
