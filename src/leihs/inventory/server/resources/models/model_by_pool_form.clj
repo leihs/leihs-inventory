@@ -42,7 +42,7 @@
                  :version :version
                  :hand_over_note :importantNotes ;;ok
                  :description :description
-                 :internal_description :internal_description
+                 :internal_description :internalDescription
                  :technical_detail :technicalDetails}
         renamed-data (->> key-map
                           (reduce (fn [acc [db-key original-key]]
@@ -272,7 +272,7 @@
 
                           ;; Generate a unique `target_id` for both the image and thumbnail
                           ;target-id (str (UUID/randomUUID))
-                        target-id (UUID/randomUUID)
+                        target-id model-id
                           ;; Prepare main image data
                         main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
                                             (dissoc :tempfile)

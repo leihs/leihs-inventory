@@ -9,7 +9,8 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.models.model-by-pool-form :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -592,42 +593,49 @@
 
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]
+                         500 {:description "Internal Server Error"}}}}
+
+     ]
 
 
-   ["/model/:model_id"
-    [""
+    ["/:model_id"
+     [""
 
 
-     {:get {:accept "application/json"
-            ;:swagger {:consumes ["multipart/form-data"]
-            ;          :produces "application/json"}
-            :summary "(DEV) | Form-Handler: Fetch form data"
-            ;:description (str
-            ;              " - Upload images and attachments \n"
-            ;              " - Save data \n"
-            ;              " - images: additional handling needed to process no/one/multiple files \n"
-            ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-            ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+      {:get {:accept "application/json"
+             ;:swagger {:consumes ["multipart/form-data"]
+             ;          :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Fetch form data"
+             ;:description (str
+             ;              " - Upload images and attachments \n"
+             ;              " - Save data \n"
+             ;              " - images: additional handling needed to process no/one/multiple files \n"
+             ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+             ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
 
-            :coercion spec/coercion
-            ;:coercion custom-coercion  ; Use the custom coercion here
+             :coercion spec/coercion
+             ;:coercion custom-coercion  ; Use the custom coercion here
 
-            :parameters {:path {
-                                :pool_id uuid?
-                                :model_id uuid?
-                                }
-                         ;:multipart ::multipart
-                         ;:multipart ::model
-                         }
+             :parameters {:path {
+                                 :pool_id uuid?
+                                 :model_id uuid?
+                                 }
+                          ;:multipart ::multipart
+                          ;:multipart ::model
+                          }
 
-            :handler create-model-handler-by-pool-form
+             :handler create-model-handler-by-pool-form-fetch
 
-            :responses {200 {:description "OK"}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}
 
-     ]]
+      ]]
+
+    ]
+
+
+
 
    ["/models"
     [""
