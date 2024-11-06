@@ -56,16 +56,6 @@
       :updated_at created-ts)))
 
 
-(defn create-or-use-existing
-  [tx table where-values insert-values]
-  (let [query (-> (sql/select 1)
-                (sql/from table)
-                (sql/where where-values)
-                sql-format)]
-    (when (empty? (jdbc/execute! tx query))
-      (jdbc/execute! tx (-> (sql/insert-into table)
-                          (sql/values [insert-values])
-                          sql-format)))))
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
@@ -82,14 +72,6 @@
                            sql-format)
             new-entry (first (jdbc/execute! tx insert-query))]
         new-entry))))
-
-;(defn parse-uuid-values
-;[key request]
-;(let [raw-value (get-in request [:parameters :multipart key])]
-;  (if (and raw-value (not (clojure.string/blank? raw-value)))
-;    (mapv uuid (str/split raw-value #",\s*"))
-;    [])))
-
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
@@ -109,30 +91,6 @@
       :else [])))
 
 (defn base-filename
-  "Removes `_thumb` suffix from filename to get the base filename for pairing."
-  [filename]
-  (if (.endsWith filename "_thumb")
-    (subs filename 0 (- (count filename) 6))
-    filename))
-
-
-(defn base-filename
-  "Removes `_thumb` suffix from filename to get the base filename for pairing."
-  [filename]
-  (if (.endsWith filename "_thumb.jpeg")
-    (subs filename 0 (- (count filename) 10))  ;; Remove `_thumb.jpeg` suffix
-    filename))
-
-
-
-(defn base-filename
-  "Removes `_thumb` suffix (before the extension) from filename to get the base filename for pairing."
-  [filename]
-  (if-let [thumb-index (re-find #"_thumb\.[^.]+$" filename)]
-    (subs filename 0 (.indexOf filename "_thumb"))
-    filename))
-
-(defn base-filename
   "Removes `_thumb` suffix from filename to get the base filename for pairing, preserving the file extension."
   [filename]
   (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]
@@ -141,9 +99,6 @@
 
 
 
-
-;(require '[clojure.data.json :as json])
-
 (defn parse-json-array
   [request key]
   (let [json-array-string (get-in request [:parameters :multipart key])]
@@ -151,10 +106,6 @@
       (json/read-str (str "[" json-array-string "]") :key-fn keyword)
       []))) ;; Return an empty vector if the value is nil or not a string
 
-
-(defn rename-content-type
-  [file-map]
-  (set/rename-keys file-map {:content-type :content_type}))
 
 
 (defn normalize-files
@@ -169,8 +120,6 @@
   (let [
         created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
-
-
 
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         p (println ">o> pool-id" pool-id)
@@ -243,9 +192,6 @@
         p (println ">o> entitlements ???1" entitlements (type entitlements))
 
 
-        ;categories []
-
-
         ]
     (try
       (let [
@@ -303,126 +249,6 @@
 
               ;; Process `res` and `file-content` as needed
               ))
-
-        ;; Example usage: images
-        ;; - validate image if thumbnail is present
-        ;; - generate uuid for target_id
-        ;
-        ;; 1. insert image, thumbnail==false
-        ;; 2. insert thumbnail and set parent_id==image.id, thumbnail==false
-        ;(doseq [entry images]
-        ;    (let [;; Rename `:content-type` to `:content_type`
-        ;
-        ;          p (println ">o> abc.before" entry)
-        ;          data (set/rename-keys entry {:content-type :content_type})
-        ;          p (println ">o> abc.after" data)
-        ;
-        ;          ;; Extract the file reference
-        ;          file (:tempfile data)
-        ;
-        ;
-        ;          ;; Fetch the content from the file
-        ;          file-content (when file (slurp (io/input-stream file)))
-        ;
-        ;          ;; Remove `:tempfile` from `data` to store metadata only
-        ;          data (dissoc data :tempfile)
-        ;
-        ;          p (println ">o> abc.2before" data)
-        ;          ;data (assoc data :content file-content :model_id model-id :target_type "Model")
-        ;          data (assoc data :content file-content :target_type "Model")
-        ;          p (println ">o> abc.2after" data)
-        ;
-        ;
-        ;          p (println ">o> !!!!!!!! data" (keys data))
-        ;
-        ;          ;; Insert metadata into the `attachments` table
-        ;          res (-> (sql/insert-into :images)
-        ;                (sql/values [data])
-        ;                (sql/returning :*)
-        ;                sql-format)
-        ;
-        ;          res (jdbc/execute! tx res)
-        ;
-        ;          ;; Debugging output
-        ;          _ (println ">o> >>> !!!!!!! DONE !!!!!!!! attachments.res" res)
-        ;          ;_ (println ">o> >>> file metadata" data)
-        ;          ;_ (println ">o> >>> file content (first 100 chars):" (subs file-content 0 (min 100 (count file-content))))
-        ;
-        ;          ]
-        ;
-        ;      ;; Process `res` and `file-content` as needed
-        ;      ))
-
-
-        ;(require '[clojure.java.io :as io])
-        ;(require '[clojure.set :as set])
-        ;(require '[java.util UUID])
-
-
-
-        ;;(defn insert-images-and-thumbnails
-        ;;  [tx images]
-        ;  (let [;; Group images and thumbnails by base filename
-        ;        p (println ">o> images" images)
-        ;        image-groups (group-by #(base-filename (:filename %)) images)
-        ;
-        ;        p (println ">o> image-groups" image-groups)
-        ;        ]
-        ;
-        ;    (doseq [[_ entries] image-groups]
-        ;      ;; Ensure each group has exactly one main image and one thumbnail
-        ;
-        ;      p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
-        ;
-        ;      (when (= 2 (count entries))
-        ;        (let [;; Separate main image and thumbnail based on filename
-        ;              [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb")
-        ;                                   [(second entries) (first entries)]
-        ;                                   [(first entries) (second entries)])
-        ;
-        ;
-        ;              p (println ">o> [main-image thumb]" [main-image thumb])
-        ;
-        ;              ;; Generate a unique `target_id` for both the image and thumbnail
-        ;              target-id (str (UUID/randomUUID))
-        ;
-        ;              ;; Prepare main image data
-        ;              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-        ;                                (dissoc :tempfile)
-        ;                                (assoc :content (slurp (io/input-stream (:tempfile main-image)))
-        ;                                  :target_id target-id
-        ;                                  :target_type "Model"
-        ;                                  :thumbnail false))
-        ;
-        ;              ;; Insert main image and retrieve its ID
-        ;              main-image-res (-> (sql/insert-into :images)
-        ;                               (sql/values [main-image-data])
-        ;                               (sql/returning :*)
-        ;                               sql-format)
-        ;              main-image-result (first (jdbc/execute! tx main-image-res))
-        ;              p (println ">o> !!!! image !!!! " main-image-result)
-        ;
-        ;              ;; Prepare thumbnail data with reference to the main image ID
-        ;              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-        ;                               (dissoc :tempfile)
-        ;                               (assoc :content (slurp (io/input-stream (:tempfile thumb)))
-        ;                                 :target_id target-id
-        ;                                 :target_type "Model"
-        ;                                 :thumbnail true
-        ;                                 :parent_id (:id main-image-result)))
-        ;
-        ;              ;; Insert thumbnail
-        ;              _ (jdbc/execute! tx (-> (sql/insert-into :images)
-        ;                                    (sql/values [thumbnail-data])
-        ;                                    (sql/returning :*)
-        ;                                    sql-format))
-        ;              p (println ">o> !!!! thumbnail !!!! " thumbnail-data)
-        ;
-        ;              ;; Debugging output
-        ;              _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
-        ;                  " and parent_id for thumbnail:" (:id main-image-result))]))))
-
-
 
 
         (let [;; Group images and thumbnails by base filename
@@ -515,16 +341,7 @@
                   " as " (if is-thumbnail "thumbnail" "main image")))
 
               )
-
-
             ))
-
-
-
-
-
-
-
 
 
 
@@ -650,37 +467,3 @@
           :else         (bad-request {:error "Failed to create model" :details (.getMessage e)})          )
         ))))
 
-
-;
-;(defn update-model-handler-by-pool [request]
-;  (let [model-id (get-in request [:path-params :model_id])
-;        body-params (:body-params request)
-;        tx (:tx request)]
-;    (try
-;      (let [res (jdbc/execute! tx (-> (sql/update :models)
-;                                      (sql/set (convert-map-if-exist body-params))
-;                                      (sql/where [:= :id (to-uuid model-id)])
-;                                      (sql/returning :*)
-;                                      sql-format))]
-;        (if (= 1 (count res))
-;          (response res)
-;
-;          (bad-request {:error "Failed to update model" :details "Model not found"})))
-;      (catch Exception e
-;        (error "Failed to update model" e)
-;        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
-;
-;(defn delete-model-handler-by-pool [request]
-;  (let [tx (:tx request)
-;        model-id (get-in request [:path-params :model_id])]
-;    (try
-;      (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
-;                                      (sql/where [:= :id (to-uuid model-id)])
-;                                      (sql/returning :*)
-;                                      sql-format))]
-;        (if (= 1 (count res))
-;          (response res)
-;          (bad-request {:error "Failed to delete model" :details "Model not found"})))
-;      (catch Exception e
-;        (error "Failed to delete model" e)
-;        (status (bad-request {:error "Failed to delete model" :details (.getMessage e)}) 409)))))

@@ -10,14 +10,17 @@ feature "Inventory Model Management" do
 
     let(:file_path) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
     let(:file_path2) { File.expand_path("spec/files/lock.png", Dir.pwd) }
+    let(:file_path3) { File.expand_path("spec/files/lock.png", Dir.pwd) }
 
     before do
       raise "File not found: #{file_path}" unless File.exist?(file_path)
       raise "File not found: #{file_path2}" unless File.exist?(file_path2)
+      raise "File not found: #{file_path3}" unless File.exist?(file_path2)
     end
 
     let(:file_io) { Faraday::UploadIO.new(file_path, "image/png") }
     let(:file_io2) { Faraday::UploadIO.new(file_path2, "image/png") }
+    let(:file_io3) { Faraday::UploadIO.new(file_path3, "image/png") }
 
     it "creates a model with only the required product attribute" do
       res = common_plain_faraday_client(
@@ -30,9 +33,6 @@ feature "Inventory Model Management" do
         }
       )
 
-
-
-      binding.pry
       expect(res.status).to eq(200)
       # expect(res.body["params-keys"].count).to eq(1)
       # expect(res.body["params-keys"]).to eq(["product"])
@@ -44,7 +44,37 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => file_io
+          "images" => [file_io]
+        }
+      )
+
+      expect(res.status).to eq(200)
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
+    end
+
+    it "creates a model with one attachment and the product attribute" do
+      res = common_plain_faraday_client(
+        :post, "/inventory/#{pool_id}/model",
+        multipart: true,
+        body: {
+          "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
+          "attachments" => [file_io]
+        }
+      )
+
+      expect(res.status).to eq(200)
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
+    end
+
+    it "creates a model with one attachment and the product attribute" do
+      res = common_plain_faraday_client(
+        :post, "/inventory/#{pool_id}/model",
+        multipart: true,
+        body: {
+          "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
+          "attachments" => [file_io, file_io2]
         }
       )
 
@@ -59,8 +89,8 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => file_io,
-          "images" => file_io2
+          "images" => [file_io,file_io2]
+          # "images" => file_io2
         }
       )
 
@@ -75,9 +105,8 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => file_io,
-          "images" => file_io2,
-          "attachments" => file_io
+          "images" => [file_io,file_io2],
+          "attachments" => [file_io3]
         }
       )
 
@@ -92,9 +121,8 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => file_io,
-          "images" => file_io2,
-          "attachments" => file_io,
+          "images" => [file_io, file_io2],
+          "attachments" => [file_io3],
           "version" => Faraday::ParamPart.new("v1.0", "text/plain"),
           "manufacturer" => Faraday::ParamPart.new("Example Corp", "text/plain"),
           "isPackage" => Faraday::ParamPart.new("true", "text/plain"),
