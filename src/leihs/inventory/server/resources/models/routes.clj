@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
+   [cheshire.core :as json]
    [clojure.set]
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
@@ -8,6 +9,7 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
+   [leihs.inventory.server.resources.models.model-by-pool-form :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -16,12 +18,10 @@
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
-   [leihs.inventory.server.resources.models.model-by-pool-form :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
-   [reitit.coercion.schema]
 
-   [cheshire.core :as json]
+   [reitit.coercion.schema]
 
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
@@ -386,7 +386,6 @@
 
 ;(require '[clojure.spec.alpha :as s])
 
-
 ;(require '[clojure.spec.alpha :as s])
 
 (sa/def ::file multipart/temp-file-part)
@@ -402,13 +401,11 @@
 (sa/def ::allocations (sa/nilable string?))
 ;(sa/def ::compatible_ids (sa/nilable string?))
 
-
-(sa/def ::compatible_ids  (sa/or
-                        :multiple (sa/or :coll (sa/coll-of uuid?)
-                                    :str string?)
-                        :single uuid?
-                        :none nil?
-                        ))
+(sa/def ::compatible_ids (sa/or
+                          :multiple (sa/or :coll (sa/coll-of uuid?)
+                                           :str string?)
+                          :single uuid?
+                          :none nil?))
 
 ;(sa/def ::category_ids (sa/nilable string?))
 
@@ -439,63 +436,48 @@
 
 (defn comma-separated-uuids? [s]
   (and (string? s)
-    (every? uuid? (map #(try (java.util.UUID/fromString %) (catch Exception _ nil))
-                    (clojure.string/split s #",")))))
+       (every? uuid? (map #(try (java.util.UUID/fromString %) (catch Exception _ nil))
+                          (clojure.string/split s #",")))))
 
 ;; TODO: initial validation-error
-(sa/def ::category_ids  (sa/or
+(sa/def ::category_ids (sa/or
                         :multiple (sa/or :coll (sa/coll-of uuid?)
-                                    :str string?)
+                                         :str string?)
                                     ;:str comma-separated-uuids?)
-                                   :single uuid?
-                                   :none nil?
-                                   ))
-
-
+                        :single uuid?
+                        :none nil?))
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
 (sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
                              :single ::file))
 
-
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::quantity int?)
 (sa/def ::entitlement (sa/keys :req-un [::entitlement_group_id ::quantity]))
-(sa/def ::entitlements  (sa/or
-                          :multiple (sa/or :coll (sa/coll-of ::entitlement)
-                                      :str string?)
-                          :single ::entitlement
-                          :none nil?
-                          ))
+(sa/def ::entitlements (sa/or
+                        :multiple (sa/or :coll (sa/coll-of ::entitlement)
+                                         :str string?)
+                        :single ::entitlement
+                        :none nil?))
 
 (sa/def ::name string?)
 (sa/def ::inventory_bool boolean?)
 (sa/def ::accessory (sa/keys :req-un [::name ::inventory_bool]))
-(sa/def ::accessories  (sa/or
-                          :multiple (sa/or :coll (sa/coll-of ::accessory)
-                                      :str string?)
-                          :single ::accessory
-                          :none nil?
-                          ))
-
-
+(sa/def ::accessories (sa/or
+                       :multiple (sa/or :coll (sa/coll-of ::accessory)
+                                        :str string?)
+                       :single ::accessory
+                       :none nil?))
 
 (sa/def ::key string?)
 (sa/def ::value string?)
 (sa/def ::property (sa/keys :req-un [::key ::value]))
-(sa/def ::properties  (sa/or
-                          :multiple (sa/or :coll (sa/coll-of ::property)
-                                      :str string?)
-                          :single ::property
-                          :none nil?
-                          ))
-
-
-
-
-
-
+(sa/def ::properties (sa/or
+                      :multiple (sa/or :coll (sa/coll-of ::property)
+                                       :str string?)
+                      :single ::property
+                      :none nil?))
 
 ;;; Spec for a single UUID string or UUID object
 ;(sa/def ::uuid (sa/or :uuid-instance uuid? :uuid-string #(re-matches #"[0-9a-fA-F\-]{36}" %)))
@@ -516,33 +498,24 @@
 ;(sa/def ::partitions-attributes
 ;  (sa/nilable (sa/map-of ::uuid ::partition-entry)))
 
-
-
-
-
-
 (sa/def ::multipart (sa/keys :req-un [::product]
-                         :opt-un [::version
-                                  ::manufacturer
-                                  ::isPackage
-                                  ::description
-                                  ::technicalDetails
-                                  ::internalDescription
-                                  ::importantNotes
+                             :opt-un [::version
+                                      ::manufacturer
+                                      ::isPackage
+                                      ::description
+                                      ::technicalDetails
+                                      ::internalDescription
+                                      ::importantNotes
                                   ;::allocations
-                                  ::category_ids
-                                  ::compatible_ids
-                                  ::images
-                                  ::attachments
+                                      ::category_ids
+                                      ::compatible_ids
+                                      ::images
+                                      ::attachments
 
                                   ;::partitions-attributes
-                                  ::entitlements
-                                  ::properties
-                                  ::accessories
-                                  ]))
-
-
-
+                                      ::entitlements
+                                      ::properties
+                                      ::accessories]))
 
 (defn- process-attachments
   [request key]
@@ -562,7 +535,7 @@
               {:filename (:filename file)
                :content-type (:content-type file)
                :size (:size file)})
-        files)
+            files)
       :else [])))
 
 ;(defn parse-json-string [v]
@@ -596,8 +569,7 @@
 
    ["/model"
     [""
-     {:post {
-             :accept "application/json"
+     {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :summary "(DEV) | Form-Handler: Save data of 'Create model by form'"
@@ -606,23 +578,19 @@
                            " - Save data \n"
                            " - images: additional handling needed to process no/one/multiple files \n"
                            " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only"
+                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
 
-                            )
              :coercion spec/coercion
              ;:coercion custom-coercion  ; Use the custom coercion here
 
-
-             :parameters {
-                          :path {:pool_id uuid?}
+             :parameters {:path {:pool_id uuid?}
                           :multipart ::multipart
                           ;:multipart ::model
                           }
 
              :handler create-model-handler-by-pool-form
 
-
-             :responses {200 {:description "OK" }
+             :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]
 

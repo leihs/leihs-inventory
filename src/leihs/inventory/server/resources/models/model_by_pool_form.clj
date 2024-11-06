@@ -1,84 +1,78 @@
 (ns leihs.inventory.server.resources.models.model-by-pool-form
   (:require
+   [clojure.data.codec.base64 :as b64]
+   [clojure.data.json :as json]
+   [clojure.java.io :as io]
+   [clojure.java.io :as io]
    [clojure.set]
+   [clojure.set :as set]
+   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
-   [clojure.string :as str]
-
-   [clojure.java.io :as io]
-
-   [clojure.set :as set]
-
-   [clojure.data.json :as json]
 
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
-           [java.util.jar JarFile]
-   [java.util UUID]
-   ))
-
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 (defn prepare-model-data
   [data]
-  (let [
-        ;created-ts (:created_at data)
+  (let [;created-ts (:created_at data)
         created-ts (LocalDateTime/now)
 
-        key-map {:type                 :type
-                 :manufacturer         :manufacturer
-                 :product              :product
-                 :version              :version
-                 :hand_over_note       :importantNotes      ;;ok
-                 :description          :description
+        key-map {:type :type
+                 :manufacturer :manufacturer
+                 :product :product
+                 :version :version
+                 :hand_over_note :importantNotes ;;ok
+                 :description :description
                  :internal_description :internal_description
-                 :technical_detail     :technicalDetails}
+                 :technical_detail :technicalDetails}
         renamed-data (->> key-map
-                       (reduce (fn [acc [db-key original-key]]
-                                 (if-let [val (get data original-key)]
-                                   (assoc acc db-key val)
-                                   acc))
-                         {}))]
+                          (reduce (fn [acc [db-key original-key]]
+                                    (if-let [val (get data original-key)]
+                                      (assoc acc db-key val)
+                                      acc))
+                                  {}))]
     ;; Add default values or timestamps if needed
     (assoc renamed-data
-      :type "Model"
-      :created_at created-ts
-      :updated_at created-ts)))
-
-
+           :type "Model"
+           :created_at created-ts
+           :updated_at created-ts)))
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
   (let [select-query (-> (sql/select :*)
-                       (sql/from table)
-                       (sql/where where-values)
-                       sql-format)
+                         (sql/from table)
+                         (sql/where where-values)
+                         sql-format)
         existing-entry (first (jdbc/execute! tx select-query))]
     (if existing-entry
       existing-entry
       (let [insert-query (-> (sql/insert-into table)
-                           (sql/values [insert-values])
-                           (sql/returning :*)
-                           sql-format)
+                             (sql/values [insert-values])
+                             (sql/returning :*)
+                             sql-format)
             new-entry (first (jdbc/execute! tx insert-query))]
         new-entry))))
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
-
+  fnc)
 
 (defn parse-uuid-values
   [key request]
@@ -97,16 +91,12 @@
     (str base extension)
     filename))
 
-
-
 (defn parse-json-array
   [request key]
   (let [json-array-string (get-in request [:parameters :multipart key])]
     (if (and json-array-string (string? json-array-string))
       (json/read-str (str "[" json-array-string "]") :key-fn keyword)
       []))) ;; Return an empty vector if the value is nil or not a string
-
-
 
 (defn normalize-files
   [request key]
@@ -115,17 +105,26 @@
       [attachments]
       attachments)))
 
+(defn base64-to-bytes [encoded-content]
+  (b64/decode (.getBytes encoded-content)))
+
+(defn file-to-base64 [file]
+  (when file
+    (let [bytes (with-open [in (io/input-stream file)
+                            out (java.io.ByteArrayOutputStream.)]
+                  (io/copy in out)
+                  (.toByteArray out))]
+      (String. (b64/encode bytes)))))
 
 (defn create-model-handler-by-pool-form [request]
-  (let [
-        created_ts (LocalDateTime/now)
+  (let [created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
 
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         p (println ">o> pool-id" pool-id)
 
         multipart (get-in request [:parameters :multipart])
-        p (println ">o> multipart" multipart)               ;; this
+        p (println ">o> multipart" multipart) ;; this
 
         body-params (:body-params request)
         p (println ">o> body-params" body-params)
@@ -137,18 +136,15 @@
         ;categories (:category_ids model)
         ;model (dissoc model :category_ids)
 
-
-        ;created_ts (LocalDateTime/now)
+;created_ts (LocalDateTime/now)
         ;data {:type "Model"  :created_at created_ts :updated_at created_ts}
 
         ;; --------------
 
-
         prepared-model-data (prepare-model-data multipart)
         p (println ">o> rename-keys-to-db-names" prepared-model-data)
 
-
-        ;key (key "compatibles")
+;key (key "compatibles")
         ;multipart (get-in request [:parameters :multipart key])
 
         compatibles (parse-uuid-values :compatible_ids request)
@@ -157,8 +153,7 @@
         categories (parse-uuid-values :category_ids request)
         p (println ">o> ??? categories" categories)
 
-
-        ;attachments (get-in request [:parameters :multipart :attachments])
+;attachments (get-in request [:parameters :multipart :attachments])
         ;attachments (if (= (type attachments) clojure.lang.PersistentArrayMap)
         ;               (vector attachments)
         ;               attachments
@@ -167,15 +162,11 @@
         attachments (normalize-files request :attachments)
         images (normalize-files request :images)
 
+        p (println ">o> !!!! attachment/image count" (count attachments) (count images))
 
         p (println ">o> attachments ???1" attachments (type attachments))
 
-
-
-
-
-
-        ;accessories (get-in request [:parameters :multipart :accessories])
+;accessories (get-in request [:parameters :multipart :accessories])
         ;p (println ">o> ??? accessories" accessories (type accessories))
         ;>o> accessories ???2b [{:key string, :value string}] clojure.lang.PersistentVector
         properties (parse-json-array request :properties)
@@ -187,210 +178,181 @@
         ;p (println ">o> accessories ???2a" accessories )
         ;p (println ">o> accessories ???2b" accessories (type accessories))
 
-
         entitlements (parse-json-array request :entitlements)
-        p (println ">o> entitlements ???1" entitlements (type entitlements))
+        p (println ">o> entitlements ???1" entitlements (type entitlements))]
 
-
-        ]
     (try
-      (let [
-
-            res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
             model-id (:id res)
             ;
 
-            res model-id
-            ]
+            res model-id]
 
-
-        ; Example usage: attachments
+; Example usage: attachments
         (doseq [entry attachments]
-            (let [;; Rename `:content-type` to `:content_type`
+          (let [;; Rename `:content-type` to `:content_type`
 
-                  p (println ">o> abc.before" entry)
-                  data (set/rename-keys entry {:content-type :content_type})
-                  p (println ">o> abc.after" data)
+                p (println ">o> abc.before" entry)
+                data (set/rename-keys entry {:content-type :content_type})
+                p (println ">o> abc.after" data)
 
                   ;; Extract the file reference
-                  file (:tempfile data)
+                file (:tempfile data)
 
+;; NOT SURE IF THIS IS NEEDED, SAME ISSUE FOR IMAGES
+                  ;; TODO: Fetch the content from the file, this fails
+                file-content-old (when file (slurp (io/input-stream file)))
 
-                  ;; Fetch the content from the file
-                  file-content (when file (slurp (io/input-stream file)))
+                  ;; TODO: alternative way
+                  ; Failed to create model ERROR: invalid byte sequence for encoding "UTF8": 0x00
+                file-content (file-to-base64 file)
 
-                  ;; Remove `:tempfile` from `data` to store metadata only
-                  data (dissoc data :tempfile)
+                p (println ">o> !!!!  1file-content-old" file-content-old)
+                p (println ">o> !!!!  2file-content" file-content)
 
-                  p (println ">o> abc.2before" data)
-                  data (assoc data :content file-content :model_id model-id)
-                  p (println ">o> abc.2after" data)
+;; Remove `:tempfile` from `data` to store metadata only
+                data (dissoc data :tempfile)
 
+                p (println ">o> abc.2before" data)
+                data (assoc data :content file-content :model_id model-id)
+                p (println ">o> abc.2after" data)
 
-                  p (println ">o> !!!!!!!! data" (keys data))
+                p (println ">o> !!!!!!!! data" (keys data))
 
                   ;; Insert metadata into the `attachments` table
-                  res (-> (sql/insert-into :attachments)
+                res (-> (sql/insert-into :attachments)
                         (sql/values [data])
                         (sql/returning :*)
                         sql-format)
 
-                  res (jdbc/execute! tx res)
+                res (jdbc/execute! tx res)
 
                   ;; Debugging output
-                  _ (println ">o> >>> !!!!!!! DONE !!!!!!!! attachments.res" res)
+                _ (println ">o> >>> !!!!!!! DONE !!!!!!!! attachments.res" res)
                   ;_ (println ">o> >>> file metadata" data)
                   ;_ (println ">o> >>> file content (first 100 chars):" (subs file-content 0 (min 100 (count file-content))))
-
-                  ]
-
-              ;; Process `res` and `file-content` as needed
-              ))
-
-
+                ]
+;; Process `res` and `file-content` as needed
+            ))
         (let [;; Group images and thumbnails by base filename
-                      p (println ">o> images" images)
+              p (println ">o> images" images)
               image-groups (group-by #(base-filename (:filename %)) images)
 
+              p (println ">o> image-groups" image-groups)
 
-
-                      p (println ">o> image-groups" image-groups)
-
-
-              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY false
-
-              ]
+              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY false]
 
           (doseq [[_ entries] image-groups]
             ;; Ensure each group has exactly one main image and one thumbnail
-                    (println ">o> (count entries)" (count entries) (= 2 (count entries)))
+            (println ">o> (count entries)" (count entries) (= 2 (count entries)))
             ;(when (or (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 2 (count entries)))
-            (cond  (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
-                   (let [
-                          p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
+            (cond (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+                  (let [p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
 
                           ;; Separate main image and thumbnail based on filename
-                          [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb.jpeg")
-                                               [(second entries) (first entries)]
-                                               [(first entries) (second entries)])
+                        [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb.jpeg")
+                                             [(second entries) (first entries)]
+                                             [(first entries) (second entries)])
 
                           ;; Generate a unique `target_id` for both the image and thumbnail
                           ;target-id (str (UUID/randomUUID))
-                          target-id (UUID/randomUUID)
+                        target-id (UUID/randomUUID)
                           ;; Prepare main image data
-                          main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
+                        main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
                                             (dissoc :tempfile)
                                             (assoc :content (slurp (io/input-stream (:tempfile main-image)))
-                                              :target_id target-id
-                                              :target_type "Model"
-                                              :thumbnail false))
+                                                   :target_id target-id
+                                                   :target_type "Model"
+                                                   :thumbnail false))
 
                           ;; Insert main image and retrieve its ID
-                          main-image-res (-> (sql/insert-into :images)
+                        main-image-res (-> (sql/insert-into :images)
                                            (sql/values [main-image-data])
                                            (sql/returning :*)
                                            sql-format)
-                          main-image-result (first (jdbc/execute! tx main-image-res))
+                        main-image-result (first (jdbc/execute! tx main-image-res))
 
                           ;; Prepare thumbnail data with reference to the main image ID
-                          thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
+                        thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
                                            (dissoc :tempfile)
                                            (assoc :content (slurp (io/input-stream (:tempfile thumb)))
-                                             :target_id target-id
-                                             :target_type "Model"
-                                             :thumbnail true
-                                             :parent_id (:id main-image-result)))
+                                                  :target_id target-id
+                                                  :target_type "Model"
+                                                  :thumbnail true
+                                                  :parent_id (:id main-image-result)))
 
                           ;; Insert thumbnail
-                          _ (jdbc/execute! tx (-> (sql/insert-into :images)
+                        _ (jdbc/execute! tx (-> (sql/insert-into :images)
                                                 (sql/values [thumbnail-data])
                                                 (sql/returning :*)
                                                 sql-format))
 
                           ;; Debugging output
-                          _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
-                              " and parent_id for thumbnail:" (:id main-image-result))])
+                        _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
+                                   " and parent_id for thumbnail:" (:id main-image-result))])
 
-
-              (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
-              (let [entry (first entries)
+                  (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
+                  (let [entry (first entries)
                     ;; Determine if the single file is a thumbnail based on the filename
                     ;is-thumbnail (.endsWith (:filename entry) "_thumb.jpeg")
 
-                    is-thumbnail (.contains (:filename entry) "_thumb")
+                        is-thumbnail (.contains (:filename entry) "_thumb")
 
                     ;; Generate a unique `target_id`
-                    target-id (UUID/randomUUID)
+                        target-id (UUID/randomUUID)
                     ;; Prepare data for the single file, marking as thumbnail if needed
-                    single-file-data (-> (set/rename-keys entry {:content-type :content_type})
-                                       (dissoc :tempfile)
-                                       (assoc :content (slurp (io/input-stream (:tempfile entry)))
-                                         :target_id target-id
-                                         :target_type "Model"
-                                         :thumbnail is-thumbnail))]
+                        single-file-data (-> (set/rename-keys entry {:content-type :content_type})
+                                             (dissoc :tempfile)
+                                             (assoc :content (slurp (io/input-stream (:tempfile entry)))
+                                                    :target_id target-id
+                                                    :target_type "Model"
+                                                    :thumbnail is-thumbnail))]
                 ;; Insert single file (either as main image or as standalone thumbnail)
-                (jdbc/execute! tx (-> (sql/insert-into :images)
-                                    (sql/values [single-file-data])
-                                    (sql/returning :*)
-                                    sql-format))
+                    (jdbc/execute! tx (-> (sql/insert-into :images)
+                                          (sql/values [single-file-data])
+                                          (sql/returning :*)
+                                          sql-format))
                 ;; Debugging output
-                (println ">o> >>> Single file inserted with target_id:" target-id
-                  " as " (if is-thumbnail "thumbnail" "main image")))
+                    (println ">o> >>> Single file inserted with target_id:" target-id
+                             " as " (if is-thumbnail "thumbnail" "main image"))))))
 
-              )
-            ))
-
-
-
-
-          ; Example usage: entitlements
+; Example usage: entitlements
         (doseq [entry entitlements]
 
-          (let [
-                ;; Insert into model_links if not exists
+          (let [;; Insert into model_links if not exists
                 res (create-or-use-existing tx
-                      :entitlements
-                      [:and
-                       [:= :model_id model-id]
-                       [:= :entitlement_group_id  (to-uuid (:entitlement_group_id entry))]]
-                      {:model_id model-id :entitlement_group_id  (to-uuid (:entitlement_group_id entry)) :quantity  (:quantity entry)})
-                p (println ">o> >>> entitlements.res" res)
+                                            :entitlements
+                                            [:and
+                                             [:= :model_id model-id]
+                                             [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
+                                            {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)})
+                p (println ">o> >>> entitlements.res" res)]))
 
-                ])
-          )
-
-
-        ; Example usage: properties
+; Example usage: properties
         (doseq [entry properties]
 
-             (let [
-          ;; Insert into model_links if not exists
-          res (create-or-use-existing tx
-            :properties
-            [:and
-             [:= :model_id model-id]
-             [:= :key  (:key entry)]]
-            {:model_id model-id :key  (:key entry) :value  (:value entry)})
-          p (println ">o> >>> properties.res" res)
+          (let [;; Insert into model_links if not exists
+                res (create-or-use-existing tx
+                                            :properties
+                                            [:and
+                                             [:= :model_id model-id]
+                                             [:= :key (:key entry)]]
+                                            {:model_id model-id :key (:key entry) :value (:value entry)})
+                p (println ">o> >>> properties.res" res)]))
 
-                      ])
-          )
-
-
-        ; Example usage: accessories
+; Example usage: accessories
         (doseq [entry accessories]
-          (let [
-                 _  (println ">o> accessories.e" entry)
+          (let [_ (println ">o> accessories.e" entry)
 
-                 accessory (create-or-use-existing tx
-                    :accessories
-                    [:and
-                     [:= :model_id model-id]
-                     [:= :name  (:name entry)]]
-                    {:model_id model-id :name  (:name entry)})
+                accessory (create-or-use-existing tx
+                                                  :accessories
+                                                  [:and
+                                                   [:= :model_id model-id]
+                                                   [:= :name (:name entry)]]
+                                                  {:model_id model-id :name (:name entry)})
 
                 p (println ">o> >>> accessory1" accessory)
 
@@ -400,49 +362,43 @@
                 p (println ">o> accessory1.inventory_bool" (:inventory_bool entry))
 
                 inv-pool-entry (if (:inventory_bool entry)
-                    (create-or-use-existing tx
-                      :accessories_inventory_pools
-                      [:and
-                       [:= :accessory_id accessory-id]
-                       [:= :inventory_pool_id  pool-id]]
-                      {:accessory_id accessory-id :inventory_pool_id pool-id})
-                    nil
-                    )
+                                 (create-or-use-existing tx
+                                                         :accessories_inventory_pools
+                                                         [:and
+                                                          [:= :accessory_id accessory-id]
+                                                          [:= :inventory_pool_id pool-id]]
+                                                         {:accessory_id accessory-id :inventory_pool_id pool-id})
+                                 nil)
 
-                p (println ">o> >>> inv-pool-entry2" inv-pool-entry)
-                ])
-         )
+                p (println ">o> >>> inv-pool-entry2" inv-pool-entry)]))
 
-
-
-        ; Example usage: compatibles
+; Example usage: compatibles
         (doseq [category-id compatibles]
           ;; Insert into model_links if not exists
           (create-or-use-existing tx
-            :models_compatibles
-            [:and
-             [:= :model_id model-id]
-             [:= :compatible_id  category-id]]
-            {:model_id model-id :compatible_id  category-id}))
+                                  :models_compatibles
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :compatible_id category-id]]
+                                  {:model_id model-id :compatible_id category-id}))
 
         ;; Example usage: categories
         (doseq [category-id categories]
           ;; Insert into model_links if not exists
           (create-or-use-existing tx
-            :model_links
-            [:and
-             [:= :model_id model-id]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:model_id model-id :model_group_id (to-uuid category-id)})
+                                  :model_links
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :model_group_id (to-uuid category-id)]]
+                                  {:model_id model-id :model_group_id (to-uuid category-id)})
 
           ;; Insert into inventory_pools_model_groups if not exists
           (create-or-use-existing tx
-            :inventory_pools_model_groups
-            [:and
-             [:= :inventory_pool_id (to-uuid pool-id)]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
-
+                                  :inventory_pools_model_groups
+                                  [:and
+                                   [:= :inventory_pool_id (to-uuid pool-id)]
+                                   [:= :model_group_id (to-uuid category-id)]]
+                                  {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
         (if res
           (response [res])
@@ -454,16 +410,15 @@
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
-                                  :message "Model already exists"
-                                  :detail {:product (:product prepared-model-data)}                         })
-            (status 409))
+                         :message "Model already exists"
+                         :detail {:product (:product prepared-model-data)}})
+              (status 409))
 
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
-                                  :message "Modification of models_compatibles failed"
-                                  :detail {:product (:product prepared-model-data)}                         })
-            (status 409))
+                         :message "Modification of models_compatibles failed"
+                         :detail {:product (:product prepared-model-data)}})
+              (status 409))
 
-          :else         (bad-request {:error "Failed to create model" :details (.getMessage e)})          )
-        ))))
+          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 

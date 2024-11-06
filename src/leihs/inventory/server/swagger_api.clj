@@ -38,17 +38,13 @@
             [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
-
-
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 (defn default-handler-fetch-resource [handler]
   (fn [request]
-    (let [
-          p (println ">o> cccc3")
+    (let [p (println ">o> cccc3")
           accept-header (get-in request [:headers "accept"])
           p (println ">o> accept-header" accept-header)
 
@@ -57,10 +53,9 @@
 
           uri (:uri request)
           ;whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model"]]
-          whitelist-uris-for-api ["/sign-in" "/sign-out" ]
+          whitelist-uris-for-api ["/sign-in" "/sign-out"]
 
-          p (println ">o> abc1")
-          ]
+          p (println ">o> abc1")]
       (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
               (some #(= % uri) whitelist-uris-for-api))
         (pr ">1" (handler request))
@@ -117,9 +112,7 @@
                                      coercion/coerce-request-middleware
 
                                      multipart/multipart-middleware ;; FIXME: this causes issues with http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model
-
                                      ]}})]
-
     (-> (ring/ring-handler
          router
          (ring/routes

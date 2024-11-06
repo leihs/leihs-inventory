@@ -74,13 +74,11 @@
 
 (defn convert-params [request]
   (if-let [form-params (:form-params request)]
-    (let [
-          _ (println ">o> convert-params.before" form-params)
+    (let [_ (println ">o> convert-params.before" form-params)
           converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) form-params))
           _ (println ">o> convert-params.after" form-params)
-          _ (println ">o> convert-params.after" converted-form-params)
+          _ (println ">o> convert-params.after" converted-form-params)]
 
-          ]
       (-> request
           (assoc :form-params converted-form-params)
           (assoc :form-params-raw converted-form-params)))
@@ -139,8 +137,7 @@
 
         resp (if (or (str/blank? username) (str/blank? password))
                (be/create-error-response username request)
-               (let [
-                     p (println ">o> _> validate user" )
+               (let [p (println ">o> _> validate user")
                      request (if consts/ACTIVATE-DEV-MODE-REDIRECT
                                (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
                                request)
@@ -148,9 +145,7 @@
                      created-session (get-in resp [:cookies "leihs-user-session" :value])
                      request (-> request
                                  (assoc :sessions created-session)
-                                 (assoc-in [:cookies "leihs-user-session" :value] created-session))
-
-                     ]
+                                 (assoc-in [:cookies "leihs-user-session" :value] created-session))]
 
                  resp))]
     resp))

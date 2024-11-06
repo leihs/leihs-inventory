@@ -93,24 +93,21 @@
   (some #(str/includes? s %) substrings))
 
 (defn custom-not-found-handler [request]
-  (let [
-        p (println ">o> custom-not-found-handler1" )
+  (let [p (println ">o> custom-not-found-handler1")
 
         request ((db/wrap-tx (fn [request] request)) request)
-        p (println ">o> custom-not-found-handler2" )
+        p (println ">o> custom-not-found-handler2")
         request ((csrf/extract-header (fn [request] request)) request)
-        p (println ">o> custom-not-found-handler3" )
+        p (println ">o> custom-not-found-handler3")
         request ((session/wrap-authenticate (fn [request] request)) request)
 
-        p (println ">o> custom-not-found-handler4" )
+        p (println ">o> custom-not-found-handler4")
 
         uri (:uri request)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
 
-
-        p (println ">o> custom-not-found-handler5" uri )
-        ]
+        p (println ">o> custom-not-found-handler5" uri)]
     (cond
       (= uri "/") (create-root-page)
 

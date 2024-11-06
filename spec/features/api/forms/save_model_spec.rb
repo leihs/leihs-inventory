@@ -68,6 +68,38 @@ feature "Inventory Model Management" do
       # expect(res.body["params-keys"]).to eq(["images", "product"])
     end
 
+    it "creates a model with one attachment and the product attribute by encoding" do
+      res = common_plain_faraday_client(
+        :post, "/inventory/#{pool_id}/model",
+        multipart: true,
+        body: {
+          "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
+          "attachments" => file_io
+        }
+      )
+
+      expect(res.status).to eq(200)
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
+    end
+
+    # TODO: alternative way
+    # Failed to create model ERROR: invalid byte sequence for encoding "UTF8": 0x00
+    it "fails to creates a model with one attachment and the product attribute because of missing encoding (FIXME)" do
+      res = common_plain_faraday_client(
+        :post, "/inventory/#{pool_id}/model",
+        multipart: true,
+        body: {
+          "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
+          "images" => file_io
+        }
+      )
+
+      expect(res.status).to eq(400)
+      # expect(res.body["params-keys"].count).to eq(2)
+      # expect(res.body["params-keys"]).to eq(["images", "product"])
+    end
+
     it "creates a model with one attachment and the product attribute" do
       res = common_plain_faraday_client(
         :post, "/inventory/#{pool_id}/model",
@@ -89,7 +121,7 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => [file_io,file_io2]
+          "images" => [file_io, file_io2]
           # "images" => file_io2
         }
       )
@@ -105,7 +137,7 @@ feature "Inventory Model Management" do
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => [file_io,file_io2],
+          "images" => [file_io, file_io2],
           "attachments" => [file_io3]
         }
       )

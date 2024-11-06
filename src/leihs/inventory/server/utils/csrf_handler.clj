@@ -34,7 +34,7 @@
    (fn [request]
      (wrap-dispatch-content-type handler request)))
   ([handler request]
-    (println ">o> cccc4")
+   (println ">o> cccc4")
    (cond
      (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (handler request)
      (= (-> request :accept :mime) :json) (or (handler request)
@@ -64,8 +64,7 @@
   [request]
   (let [cookie-header (get-in request [:headers "cookie"])
         parsed-cookies (when cookie-header (parse-cookies cookie-header))
-        p (println ">o> abc7b")
-        ]
+        p (println ">o> abc7b")]
     (assoc request :cookies parsed-cookies)))
 
 (alter-var-root #'constants/ANTI_CSRF_TOKEN_COOKIE_NAME (constantly (keyword "leihs-anti-csrf-token")))
@@ -77,17 +76,15 @@
 
 (defn convert-params [request]
   (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
-        p (println ">o> abc8")
+        p (println ">o> abc8")]
 
-        ]
     (-> request
         (assoc :form-params converted-form-params)
         (assoc :form-params-raw converted-form-params))))
 
 (defn extract-form-params [stream]
   (try
-    (let [
-          p (println ">o>a-d stream" stream)
+    (let [p (println ">o>a-d stream" stream)
 
           body-str (bs/to-string stream)
           p (println ">o>b body-str" body-str)
@@ -96,36 +93,30 @@
           p (println ">o>c params" params)
 
           keyword-params (keywordize-keys params)
-          p (println ">o>d keyword-params" keyword-params)
-          ]
+          p (println ">o>d keyword-params" keyword-params)]
       keyword-params)
     (catch Exception e
 
-       (println ">o> extract-form-params.error" e)
+      (println ">o> extract-form-params.error" e)
       nil)))
-
 
 (defn webkit-form-boundary? [s]
   (boolean (re-matches #"^------WebKitFormBoundary[0-9A-Za-z]+--$" s)))
 
-
 (defn extract-header [handler]
   (fn [request]
-    (let [
-          content-type (get-in request [:headers "content-type"])
+    (let [content-type (get-in request [:headers "content-type"])
           p (println ">o> ?? content-type" content-type)
 
           request (if (= content-type "application/x-www-form-urlencoded")
-                    (let [
+                    (let [p (println ">o> abc5")
 
-                          p (println ">o> abc5")
+                          form-params (:form-params request)
+                          p (println ">o> ?? form-params" form-params)
+                          form-params (:form-params-raw request)
+                          p (println ">o> ?? :form-params-raw" form-params)
 
-                      form-params (:form-params request)
-                      p (println ">o> ?? form-params" form-params)
-                      form-params (:form-params-raw request)
-                      p (println ">o> ?? :form-params-raw" form-params)
-
-                      p (println ">o> 1(:body request)" (:body request)  (type (:body request)))
+                          p (println ">o> 1(:body request)" (:body request) (type (:body request)))
                       ;p (println ">o> 2(:body request)" (extract-form-params (:body request)))
                       ;p (println ">o> 2(:body request)" (extract-form-params (:body request)))
 
@@ -133,25 +124,23 @@
                       ;
                       ;p (println ">o> ?? body-form1" body-form)
 
-                      body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
-                      p (println ">o> ?? body-form2" body-form)
+                          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
+                          p (println ">o> ?? body-form2" body-form)
 
                           p (println ">o> abc5b")
 
-                      csrf-token (get body-form :x-csrf-token)
+                          csrf-token (get body-form :x-csrf-token)
 
-                      p (println ">o> csrf-token" csrf-token)
-                      p (println ">o> body-form" body-form)
+                          p (println ">o> csrf-token" csrf-token)
+                          p (println ">o> body-form" body-form)
 
-                      request (-> request
-                                  (assoc :form-params body-form)
-                                  add-cookies-to-request
-                                  convert-params)
+                          request (-> request
+                                      (assoc :form-params body-form)
+                                      add-cookies-to-request
+                                      convert-params)
 
+                          p (println ">o> abc5c")]
 
-                          p (println ">o> abc5c")
-
-                          ]
                       request
 
                       ;(try
@@ -166,30 +155,19 @@
                       ;                              :detail (.getMessage e)})
                       ;        (response/status 404)
                       ;        (response/content-type "application/json")))))
-
                       )
-                    ;request
+;request
 
+                    (do
+                      p (println ">o> abc6")
 
-                (do
-                  p (println ">o> abc6")
-
-                  (-> request
+                      (-> request
                               ;(assoc :form-params body-form)
-                              add-cookies-to-request
-                              convert-params
-                              ))
+                          add-cookies-to-request
+                          convert-params))
                     ;(handler request)
-                    )
-
-
-
-
-
-
-           ]
-
-      ;request
+                    )]
+;request
 
       (try
         (handler request)
@@ -202,9 +180,7 @@
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
                 (response/status 404)
-                (response/content-type "application/json")))))
-
-      )))
+                (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
