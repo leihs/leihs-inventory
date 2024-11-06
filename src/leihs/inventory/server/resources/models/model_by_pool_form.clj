@@ -4,6 +4,7 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.java.io :as io]
+   [clojure.pprint :refer [pprint]]
    [clojure.set]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -12,14 +13,16 @@
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
+
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
 
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
+   [pantomime.extract :as extract]
 
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -116,6 +119,10 @@
                   (.toByteArray out))]
       (String. (b64/encode bytes)))))
 
+(defn extract-metadata [file-path]
+  (let [metadata (extract/parse file-path)]
+    (pprint metadata)))
+
 (defn create-model-handler-by-pool-form [request]
   (let [created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
@@ -202,6 +209,12 @@
                   ;; Extract the file reference
                 file (:tempfile data)
 
+                p (println ">o> !!! extract-metadata.before")
+                meta-data (extract-metadata file)
+                p (println ">o> !!! extract-metadata.after")
+
+                  ;; Extract the file content
+
 ;; NOT SURE IF THIS IS NEEDED, SAME ISSUE FOR IMAGES
                   ;; TODO: Fetch the content from the file, this fails
                 file-content-old (when file (slurp (io/input-stream file)))
@@ -217,7 +230,7 @@
                 data (dissoc data :tempfile)
 
                 p (println ">o> abc.2before" data)
-                data (assoc data :content file-content :model_id model-id)
+                data (assoc data :content file-content :model_id model-id :metadata meta-data)
                 p (println ">o> abc.2after" data)
 
                 p (println ">o> !!!!!!!! data" (keys data))

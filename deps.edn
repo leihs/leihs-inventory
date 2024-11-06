@@ -26,6 +26,7 @@
   buddy/buddy-auth {:mvn/version "2.2.0"}
   metosin/spec-tools {:mvn/version "0.10.7"}
   metosin/ring-swagger-ui {:mvn/version "4.19.1"}
+  com.novemberain/pantomime {:mvn/version "2.11.0"}
   metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
   digest/digest {:mvn/version "1.4.10"}
   cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
