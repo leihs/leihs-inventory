@@ -19,12 +19,6 @@
 </head>
 <body>
 <h1>Create New Model</h1>
-
-<div class="form-group">
-    <label for="pool_id">Pool ID *</label>
-    <input type="text" id="pool_id" value="8bd16d45-056d-5590-bc7f-12849f034351" name="pool_id" required pattern="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}">
-</div>
-
 <form id="modelForm">
     <div class="form-group">
         <label for="product">Product *</label>
@@ -69,7 +63,6 @@
             This is a package
         </label>
     </div>
-
     <div class="form-group">
         <label>Accessories</label>
         <div id="accessoriesList" class="dynamic-list"></div>
@@ -137,11 +130,26 @@
             });
             formData.append('accessories', JSON.stringify(accessories));
 
+            // Only add images if files are selected
+            var imagesInput = $('#images')[0];
+            if (imagesInput.files.length > 0) {
+                for (var i = 0; i < imagesInput.files.length; i++) {
+                    formData.append('images', imagesInput.files[i]);
+                }
+            }
+
+            // Only add attachments if files are selected
+            var attachmentsInput = $('#attachments')[0];
+            if (attachmentsInput.files.length > 0) {
+                for (var i = 0; i < attachmentsInput.files.length; i++) {
+                    formData.append('attachments', attachmentsInput.files[i]);
+                }
+            }
+
             // Send form data to API
             $.ajax({
                 url: 'http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model', // Replace with your API endpoint
                 method: 'POST',
-
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -149,11 +157,11 @@
                     'Accept': 'application/json'
                 },
                 success: function(response) {
-                    alert('Model created successfully!');
+                    console.log('Model created successfully!');
                     // Handle success (e.g., redirect or clear form)
                 },
                 error: function(xhr, status, error) {
-                    alert('Error creating model: ' + error);
+                    console.error('Error creating model: ' + error);
                     // Handle error
                 }
             });

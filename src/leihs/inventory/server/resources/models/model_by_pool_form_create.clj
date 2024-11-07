@@ -96,17 +96,36 @@
 
 (defn parse-json-array
   [request key]
-  (let [json-array-string (get-in request [:parameters :multipart key])]
-    (if (and json-array-string (string? json-array-string))
-      (json/read-str (str "[" json-array-string "]") :key-fn keyword)
-      []))) ;; Return an empty vector if the value is nil or not a string
+  (let [json-array-string (get-in request [:parameters :multipart key])
+
+        p (println ">o> json-array-string??" json-array-string (type json-array-string) (string? json-array-string))
+        ]
+    (cond
+      (not json-array-string) []
+      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]"])) []
+      :else (json/read-str (str "[" json-array-string "]") :key-fn keyword))
+    ))
 
 (defn normalize-files
   [request key]
-  (let [attachments (get-in request [:parameters :multipart key])]
-    (if (map? attachments)
-      [attachments]
-      attachments)))
+  (let [attachments (get-in request [:parameters :multipart key])
+        normalized (if (map? attachments)
+                     [attachments]
+                     ;(vector attachments)
+                     attachments)
+
+    _ (println ">o> before normalize-files" normalized (type normalized))
+        ;; Filter out entries with :size 0
+        filtered  (vec (filter #(pos? (:size % 0)) normalized))
+
+        ]
+
+    ;; Print the filtered files for debugging
+    (println ">o> normalize-files" filtered (type filtered))
+
+    ;; Return the filtered files
+    filtered))
+
 
 (defn base64-to-bytes [encoded-content]
   (b64/decode (.getBytes encoded-content)))
@@ -346,7 +365,9 @@
                 p (println ">o> >>> entitlements.res" res)]))
 
 ; Example usage: properties
+           (println ">o> properties" properties)
         (doseq [entry properties]
+
 
           (let [;; Insert into model_links if not exists
                 res (create-or-use-existing tx
