@@ -103,7 +103,8 @@
     (cond
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]"])) []
-      :else (json/read-str (str "[" json-array-string "]") :key-fn keyword))
+      ;:else (json/read-str (str "[" json-array-string "]") :key-fn keyword))
+      :else (json/read-str  json-array-string :key-fn keyword))
     ))
 
 (defn normalize-files
