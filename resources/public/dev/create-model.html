@@ -29,6 +29,12 @@
 </head>
 <body>
 <h1>Create New Model</h1>
+
+<div class="form-group">
+    <label for="poolId">Pool ID</label>
+    <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
+</div>
+
 <form id="modelForm">
     <div class="form-group">
         <label for="product">Product *</label>
@@ -40,7 +46,7 @@
     </div>
     <div class="form-group">
         <label for="manufacturer">Manufacturer</label>
-        <input type="text" id="manufacturer" name="manufacturer">
+        <select id="manufacturer" name="manufacturer"></select>
     </div>
     <div class="form-group">
         <label for="description">Description</label>
@@ -76,6 +82,18 @@
         </label>
     </div>
     <div class="form-group">
+        <label for="allocations">Allocations</label>
+        <select id="allocations" name="allocations" multiple></select>
+    </div>
+    <div class="form-group">
+        <label for="categories">Categories</label>
+        <select id="categories" name="categories" multiple></select>
+    </div>
+    <div class="form-group">
+        <label for="compatibles">Compatible Models</label>
+        <select id="compatibles" name="compatibles" multiple></select>
+    </div>
+    <div class="form-group">
         <label>Accessories</label>
         <div id="accessoriesList" class="dynamic-list"></div>
         <button type="button" id="addAccessory">Add Accessory</button>
@@ -87,6 +105,59 @@
 
 <script>
     $(document).ready(function() {
+        function fetchOptions(url, selectId) {
+            fetch(url, {headers: {'Accept': 'application/json'}})
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById(selectId);
+                    select.innerHTML = '<option value="">Select an option</option>';
+
+                    if (selectId === 'compatibles') {
+                        data = data.data;
+                    }
+
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+
+                        if (selectId === 'manufacturer') {
+                            option.value = item;
+                            option.textContent = item;
+                            select.appendChild(option);
+                            return;
+                        }
+
+                        if (selectId === 'compatibles') {
+                            option.value = item.model_id;
+                            option.textContent = item.product;
+                            select.appendChild(option);
+                            return;
+                        }
+
+                        option.value = item.id;
+                        option.textContent = item.name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function updateDropdowns(poolId) {
+            fetchOptions(`http://localhost:3260/inventory/manufacturers`, 'manufacturer');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'allocations');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
+            fetchOptions(`http://localhost:3260/inventory/models-compatibles`, 'compatibles');
+        }
+
+        // Initialize dropdowns on page load
+        var initialPoolId = $('#poolId').val();
+        updateDropdowns(initialPoolId);
+
+        // Update dropdowns when pool ID changes
+        $('#poolId').change(function() {
+            var newPoolId = $(this).val();
+            updateDropdowns(newPoolId);
+        });
+
         // Add Property
         $('#addProperty').click(function() {
             $('#propertiesList').append(`
@@ -200,9 +271,12 @@
             });
             formData.append('accessories', JSON.stringify(accessories));
 
+            // Get the poolId value
+            var poolId = $('#poolId').val();
+
             // Send form data to API
             $.ajax({
-                url: 'http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model', // Replace with your API endpoint
+                url: 'http://localhost:3260/inventory/' + poolId + '/model',
                 method: 'POST',
                 data: formData,
                 processData: false,
@@ -212,7 +286,6 @@
                 },
                 success: function(response) {
                     console.log('Model created successfully!');
-                    // alert('Model created successfully!');
                     clearForm(); // Clear the form after successful save
                     $('body').addClass('save-success');
                     setTimeout(function() {
@@ -221,7 +294,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error creating model: ' + error);
-                    // alert('Error creating model: ' + error);
+                    $('body').addClass('save-failed');
                     setTimeout(function() {
                         $('body').removeClass('save-failed');
                     }, 3000);
