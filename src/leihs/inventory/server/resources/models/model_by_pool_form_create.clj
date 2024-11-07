@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.model-by-pool-form
+(ns leihs.inventory.server.resources.models.model-by-pool-form-create
   (:require
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
@@ -333,6 +333,7 @@
                              " as " (if is-thumbnail "thumbnail" "main image"))))))
 
 ; Example usage: entitlements
+        ; FIX ISSUE?*
         (doseq [entry entitlements]
 
           (let [;; Insert into model_links if not exists

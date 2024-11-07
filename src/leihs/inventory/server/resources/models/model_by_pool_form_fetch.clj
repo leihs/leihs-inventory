@@ -184,24 +184,32 @@
             res3 (select-entries tx :accessories [:*] [:= :model_id model-id])
             p (println ">o> res3" res3)
 
-            res4 (select-entries tx :models_compatibles [:*] [:= :model_id model-id])
-            p (println ">o> res3" res4)
+            res4 (-> (sql/select :mm.id :mm.product)
+                (sql/from [:models_compatibles :mc])
+                (sql/left-join [:models :m] [:= :mc.model_id :m.id])
+                (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
+                (sql/where [:= :mc.model_id model-id])
+                ;(sql/returning :*)
+                sql-format)
+            res4 (jdbc/execute! tx res4)
+
 
 
             res5 (select-entries tx :properties [:*] [:= :model_id model-id])
             p (println ">o> res3" res4)
 
 
-            res6 (select-entries tx :entitlements [:*] [:= :model_id model-id])
-            p (println ">o> res3" res6)
+            ;res6 (select-entries tx :entitlements [:*] [:= :model_id model-id])
+            ;p (println ">o> res3" res6)
 
 
-            res7 (-> (sql/select :e.* :eg.name :eg.inventory_pool_id)
+            ;res7 (-> (sql/select :e.* :eg.name :eg.inventory_pool_id)
+            res7 (-> (sql/select :e.id :e.quantity :e.position :eg.name [:eg.id :eg_id] )
                 (sql/from [:entitlements :e])
                 (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
 
-                (sql/where [:= :e.id model-id])
-                (sql/where [:= :eg.inventory_pool_id pool-id])
+                (sql/where [:= :e.model_id model-id])
+                ;(sql/where [:= :eg.inventory_pool_id pool-id])
                 ;(sql/returning :*)
                 sql-format)
             res7 (jdbc/execute! tx res7)
@@ -210,7 +218,8 @@
 
 
             res (assoc res :attachments res2 :accessories res3 :compatibles res4 :properties res5
-                      :entitlements res6 :entitlement_groups res7)
+                      ;:entitlements res6
+                  :entitlement_groups res7)
 
             ]
 

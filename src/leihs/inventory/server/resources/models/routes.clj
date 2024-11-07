@@ -10,7 +10,7 @@
                                                          get-models-handler
                                                          update-model-handler]]
    [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.model-by-pool-form :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
