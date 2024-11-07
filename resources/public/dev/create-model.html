@@ -4,311 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Model</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-
-        input[type="text"], select, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="checkbox"] {
-            margin-top: 10px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #accessoriesList, #propertiesList {
-            margin-top: 10px;
-        }
-
-        .accessory-item, .property-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            background-color: #f0f0f0;
-            padding: 5px;
-            border-radius: 4px;
-        }
-
-        .accessory-item span {
-            margin-left: 5px;
-            margin-right: auto;
-        }
-
-        .property-item input {
-            flex: 1;
-            margin-right: 5px;
-        }
-
-        .remove-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .remove-btn:hover {
-            background-color: #d32f2f;
-        }
-
-        #newAccessory {
-            width: calc(100% - 40px);
-            margin-right: 5px;
-        }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .dynamic-list { margin-top: 10px; }
+        .dynamic-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        .remove-btn { background-color: #dc3545; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Create new model</h1>
-    <p>Insert all required information</p>
+<h1>Create New Model</h1>
 
-    <form id="modelForm">
-        <label for="poolId">Pool ID</label>
-        <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
-
-        <label for="product">Product *</label>
-        <input type="text" id="product" name="product" required>
-
-        <input type="hidden" id="isPackageHidden" name="isPackage" value="false">
-        <input type="checkbox" id="isPackage" value="dsa">
-        <label for="isPackage">This is a package</label>
-
-        <label for="version">Version</label>
-        <input type="text" id="version" name="version">
-
-        <label for="manufacturer">Manufacturer</label>
-        <select id="manufacturer" name="manufacturer"></select>
-
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
-
-        <label for="technicalDetails">Technical Details</label>
-        <textarea id="technicalDetails" name="technicalDetails"></textarea>
-
-        <label for="internalDescription">Internal Description</label>
-        <textarea id="internalDescription" name="internalDescription"></textarea>
-
-        <label for="importantNotes">Important notes for hand over</label>
-        <textarea id="importantNotes" name="importantNotes"></textarea>
-
-
-
-<!--        <label>Images</label>-->
-<!--        <input type="file" id="imageInput" name="images[]" multiple>-->
-<!--        -->
-<!--        <label>Attachments</label>-->
-<!--        <input type="file" id="attachmentInput" name="attachments[]" multiple>-->
-
-
-
-        <label>Accessories</label>
-        <div id="accessoriesList"></div>
-        <div>
-            <input type="text" id="newAccessory" placeholder="Name">
-            <button type="button" onclick="addAccessory()">+</button>
-        </div>
-
-        <label>Properties</label>
-        <div id="propertiesList"></div>
-        <button type="button" onclick="addProperty()">Add Property</button>
-
-        <label for="compatibles">Compatibles</label>
-        <select id="compatibles" name="compatibles"></select>
-
-        <label for="allocations">Allocations</label>
-        <select id="allocations" name="allocations"></select>
-
-        <label for="categories">Categories</label>
-        <select id="categories" name="categories"></select>
-
-        <button type="submit">Save Model</button>
-        <button type="button" onclick="cancelForm()">Cancel</button>
-    </form>
+<div class="form-group">
+    <label for="pool_id">Pool ID *</label>
+    <input type="text" id="pool_id" value="8bd16d45-056d-5590-bc7f-12849f034351" name="pool_id" required pattern="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}">
 </div>
 
+<form id="modelForm">
+    <div class="form-group">
+        <label for="product">Product *</label>
+        <input type="text" id="product" name="product" required>
+    </div>
+    <div class="form-group">
+        <label for="version">Version</label>
+        <input type="text" id="version" name="version">
+    </div>
+    <div class="form-group">
+        <label for="manufacturer">Manufacturer</label>
+        <input type="text" id="manufacturer" name="manufacturer">
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="technicalDetails">Technical Details</label>
+        <textarea id="technicalDetails" name="technicalDetails"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="internalDescription">Internal Description</label>
+        <textarea id="internalDescription" name="internalDescription"></textarea>
+    </div>
+    <div class="form-group">
+        <label>Properties</label>
+        <div id="propertiesList" class="dynamic-list"></div>
+        <button type="button" id="addProperty">Add Property</button>
+    </div>
+    <div class="form-group">
+        <label for="images">Images</label>
+        <input type="file" id="images" name="images" multiple accept="image/*">
+    </div>
+    <div class="form-group">
+        <label for="attachments">Attachments</label>
+        <input type="file" id="attachments" name="attachments" multiple>
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="isPackage" name="isPackage">
+            This is a package
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label>Accessories</label>
+        <div id="accessoriesList" class="dynamic-list"></div>
+        <button type="button" id="addAccessory">Add Accessory</button>
+    </div>
+    <div class="form-group">
+        <button type="submit">Save Model</button>
+    </div>
+</form>
+
 <script>
-    const checkbox = document.getElementById('isPackage');
-    const hiddenInput = document.getElementById('isPackageHidden');
-
-    checkbox.addEventListener('change', () => {
-        hiddenInput.value = checkbox.checked ? "dsa" : "false";
-    });
-
-    const poolIdInput = document.getElementById('poolId');
-
-    function fetchOptions(url, selectId) {
-        fetch(url, {headers: {'Accept': 'application/json'}})
-            .then(response => response.json())
-            .then(data => {
-                const select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">Select an option</option>';
-
-                if (selectId === 'compatibles') {
-                    data = data.data;
-                }
-
-                data.forEach(item => {
-                    const option = document.createElement('option');
-
-                    if (selectId === 'manufacturer') {
-                        option.value = item;
-                        option.textContent = item;
-                        select.appendChild(option);
-                        return;
-                    }
-
-                    if (selectId === 'compatibles') {
-                        option.value = item.model_id;
-                        option.textContent = item.product;
-                        select.appendChild(option);
-                        return;
-                    }
-
-                    option.value = item.id;
-                    option.textContent = item.name;
-                    select.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    function updateDropdowns(poolId) {
-        fetchOptions(`/inventory/manufacturers`, 'manufacturer');
-        fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'allocations');
-        fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
-        fetchOptions(`/inventory/models-compatibles`, 'compatibles');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const defaultPoolId = '8bd16d45-056d-5590-bc7f-12849f034351';
-        updateDropdowns(defaultPoolId);
-
-        poolIdInput.addEventListener('change', function () {
-            updateDropdowns(this.value);
+    $(document).ready(function() {
+        // Add Property
+        $('#addProperty').click(function() {
+            $('#propertiesList').append(`
+                    <div class="dynamic-item">
+                        <input type="text" name="propertyKey[]" placeholder="Key" required>
+                        <input type="text" name="propertyValue[]" placeholder="Value" required>
+                        <button type="button" class="remove-btn">Remove</button>
+                    </div>
+                `);
         });
-    });
 
-    function addAccessory() {
-        const accessoriesList = document.getElementById('accessoriesList');
-        const newAccessoryInput = document.getElementById('newAccessory');
-        const accessoryName = newAccessoryInput.value.trim();
-        if (accessoryName) {
-            const accessoryDiv = document.createElement('div');
-            accessoryDiv.className = 'accessory-item';
-            accessoryDiv.innerHTML = `
-                <input type="checkbox" name="accessories[]" value="${accessoryName}" checked>
-                <span>${accessoryName}</span>
-                <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
-            `;
-            accessoriesList.appendChild(accessoryDiv);
-            newAccessoryInput.value = '';
-        }
-    }
+        // Add Accessory
+        $('#addAccessory').click(function() {
+            $('#accessoriesList').append(`
+                    <div class="dynamic-item">
+                        <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
+                        <label>
+                            <input type="checkbox" name="accessoryInventory[]">
+                            In inventory
+                        </label>
+                        <button type="button" class="remove-btn">Remove</button>
+                    </div>
+                `);
+        });
 
-    function addProperty() {
-        const propertiesList = document.getElementById('propertiesList');
-        const propertyDiv = document.createElement('div');
-        propertyDiv.className = 'property-item';
-        propertyDiv.innerHTML = `
-            <input type="text" name="propertyKeys[]" placeholder="Key">
-            <input type="text" name="propertyValues[]" placeholder="Value">
-            <button type="button" class="remove-btn" onclick="removeItem(this)">Remove</button>
-        `;
-        propertiesList.appendChild(propertyDiv);
-    }
+        // Remove dynamic item
+        $(document).on('click', '.remove-btn', function() {
+            $(this).parent().remove();
+        });
 
-    function removeItem(button) {
-        button.parentElement.remove();
-    }
+        // Form submission
+        $('#modelForm').submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
 
-    function cancelForm() {
-        if (confirm('Are you sure you want to cancel? All entered data will be lost.')) {
-            document.getElementById('modelForm').reset();
-            document.getElementById('accessoriesList').innerHTML = '';
-            document.getElementById('propertiesList').innerHTML = '';
-        }
-    }
+            // Prepare properties
+            var properties = [];
+            $('input[name="propertyKey[]"]').each(function(index) {
+                properties.push({
+                    key: $(this).val(),
+                    value: $('input[name="propertyValue[]"]').eq(index).val()
+                });
+            });
+            formData.append('properties', JSON.stringify(properties));
 
-    document.getElementById('modelForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        // const imageInput = document.getElementById('imageInput');
-        // if (imageInput && imageInput.files.length > 0) {
-        //     for (let i = 0; i < imageInput.files.length; i++) {
-        //         formData.append('images[]', imageInput.files[i]);
-        //     }
-        // }
-        //
-        // const attachmentInput = document.getElementById('attachmentInput');
-        // if (attachmentInput && attachmentInput.files.length > 0) {
-        //     for (let i = 0; i < attachmentInput.files.length; i++) {
-        //         formData.append('attachments[]', attachmentInput.files[i]);
-        //     }
-        // }
+            // Prepare accessories
+            var accessories = [];
+            $('input[name="accessoryName[]"]').each(function(index) {
+                accessories.push({
+                    name: $(this).val(),
+                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked')
+                });
+            });
+            formData.append('accessories', JSON.stringify(accessories));
 
-        var poolId = formData.get('poolId');
-        fetch(`/inventory/${poolId}/model`, {
-            method: 'POST',
-            // headers: {'Accept': 'application/json', 'Content-Type': 'multipart/form-data'},
+            // Send form data to API
+            $.ajax({
+                url: 'http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model', // Replace with your API endpoint
+                method: 'POST',
 
-            headers: {
-                'Accept': 'application/json'
-                // Do not manually set 'Content-Type' here
-            },
-
-            body: formData
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    alert('Model created successfully!');
+                    // Handle success (e.g., redirect or clear form)
+                },
+                error: function(xhr, status, error) {
+                    alert('Error creating model: ' + error);
+                    // Handle error
                 }
-                return response.json();
-            })
-            .then(data => console.log('Response:', data))
-            .catch(error => console.error('Error:', error));
+            });
+        });
     });
 </script>
 </body>

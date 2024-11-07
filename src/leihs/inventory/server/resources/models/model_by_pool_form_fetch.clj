@@ -181,6 +181,9 @@
             res2 (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
             p (println ">o> res2" res2)
 
+            res6 (select-entries tx :images [:id :filename :content_type] [:and [:= :target_id model-id][:= :thumbnail false]])
+            p (println ">o> res6" res6)
+
             res3 (select-entries tx :accessories [:*] [:= :model_id model-id])
             p (println ">o> res3" res3)
 
@@ -195,7 +198,7 @@
 
 
 
-            res5 (select-entries tx :properties [:*] [:= :model_id model-id])
+            res5 (select-entries tx :properties [:id :key :value] [:= :model_id model-id])
             p (println ">o> res3" res4)
 
 
@@ -218,7 +221,7 @@
 
 
             res (assoc res :attachments res2 :accessories res3 :compatibles res4 :properties res5
-                      ;:entitlements res6
+                      :images res6
                   :entitlement_groups res7)
 
             ]

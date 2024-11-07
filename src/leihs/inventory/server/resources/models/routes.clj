@@ -394,7 +394,11 @@
 (sa/def ::product (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
-(sa/def ::isPackage (sa/nilable boolean?))
+
+;(sa/def ::isPackage (sa/nilable boolean?))                  ;; this causes errors OR blocks init-request in api
+(sa/def ::isPackage (sa/nilable string?))
+
+
 (sa/def ::description (sa/nilable string?))
 (sa/def ::technicalDetails (sa/nilable string?))
 (sa/def ::internalDescription (sa/nilable string?))
