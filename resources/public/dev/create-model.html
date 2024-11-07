@@ -15,6 +15,16 @@
         .dynamic-list { margin-top: 10px; }
         .dynamic-item { display: flex; gap: 10px; margin-bottom: 10px; }
         .remove-btn { background-color: #dc3545; }
+        .file-list { margin-top: 10px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        body.save-success {
+            border: 1em solid #b8f4b8;
+            transition: border 0.3s ease-in-out;
+        }
+        body.save-failed {
+            border: 1em solid red;
+            transition: border 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -52,10 +62,12 @@
     <div class="form-group">
         <label for="images">Images</label>
         <input type="file" id="images" name="images" multiple accept="image/*">
+        <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
         <label for="attachments">Attachments</label>
         <input type="file" id="attachments" name="attachments" multiple>
+        <div id="attachmentsList" class="file-list"></div>
     </div>
     <div class="form-group">
         <label>
@@ -78,32 +90,90 @@
         // Add Property
         $('#addProperty').click(function() {
             $('#propertiesList').append(`
-                    <div class="dynamic-item">
-                        <input type="text" name="propertyKey[]" placeholder="Key" required>
-                        <input type="text" name="propertyValue[]" placeholder="Value" required>
-                        <button type="button" class="remove-btn">Remove</button>
-                    </div>
-                `);
+                <div class="dynamic-item">
+                    <input type="text" name="propertyKey[]" placeholder="Key" required>
+                    <input type="text" name="propertyValue[]" placeholder="Value" required>
+                    <button type="button" class="remove-btn">Remove</button>
+                </div>
+            `);
         });
 
         // Add Accessory
         $('#addAccessory').click(function() {
             $('#accessoriesList').append(`
-                    <div class="dynamic-item">
-                        <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
-                        <label>
-                            <input type="checkbox" name="accessoryInventory[]">
-                            In inventory
-                        </label>
-                        <button type="button" class="remove-btn">Remove</button>
-                    </div>
-                `);
+                <div class="dynamic-item">
+                    <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
+                    <label>
+                        <input type="checkbox" name="accessoryInventory[]">
+                        In inventory
+                    </label>
+                    <button type="button" class="remove-btn">Remove</button>
+                </div>
+            `);
         });
 
         // Remove dynamic item
         $(document).on('click', '.remove-btn', function() {
             $(this).parent().remove();
         });
+
+        // Handle file selection for images
+        $('#images').change(function() {
+            updateFileList(this, '#imagesList');
+        });
+
+        // Handle file selection for attachments
+        $('#attachments').change(function() {
+            updateFileList(this, '#attachmentsList');
+        });
+
+        // Update file list
+        function updateFileList(input, listSelector) {
+            var fileList = $(listSelector);
+            fileList.empty();
+            if (input.files && input.files.length > 0) {
+                for (var i = 0; i < input.files.length; i++) {
+                    var fileName = input.files[i].name;
+                    fileList.append(`
+                        <div class="file-item">
+                            <span>${fileName}</span>
+                            <button type="button" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        </div>
+                    `);
+                }
+            }
+        }
+
+        // Remove file from list
+        $(document).on('click', '.remove-file-btn', function() {
+            var fileIndex = $(this).data('file-index');
+            var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
+            removeFile(inputId, fileIndex);
+        });
+
+        // Remove file from input
+        function removeFile(inputId, index) {
+            var input = document.getElementById(inputId);
+            var files = Array.from(input.files);
+            files.splice(index, 1);
+
+            // Create a new FileList object
+            var dataTransfer = new DataTransfer();
+            files.forEach(file => { dataTransfer.items.add(file); });
+            input.files = dataTransfer.files;
+
+            // Update the file list display
+            updateFileList(input, `#${inputId}List`);
+        }
+
+        // Clear form fields
+        function clearForm() {
+            $('#modelForm')[0].reset();
+            $('#propertiesList').empty();
+            $('#accessoriesList').empty();
+            $('#imagesList').empty();
+            $('#attachmentsList').empty();
+        }
 
         // Form submission
         $('#modelForm').submit(function(e) {
@@ -130,22 +200,6 @@
             });
             formData.append('accessories', JSON.stringify(accessories));
 
-            // Only add images if files are selected
-            var imagesInput = $('#images')[0];
-            if (imagesInput.files.length > 0) {
-                for (var i = 0; i < imagesInput.files.length; i++) {
-                    formData.append('images', imagesInput.files[i]);
-                }
-            }
-
-            // Only add attachments if files are selected
-            var attachmentsInput = $('#attachments')[0];
-            if (attachmentsInput.files.length > 0) {
-                for (var i = 0; i < attachmentsInput.files.length; i++) {
-                    formData.append('attachments', attachmentsInput.files[i]);
-                }
-            }
-
             // Send form data to API
             $.ajax({
                 url: 'http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model', // Replace with your API endpoint
@@ -158,11 +212,19 @@
                 },
                 success: function(response) {
                     console.log('Model created successfully!');
-                    // Handle success (e.g., redirect or clear form)
+                    // alert('Model created successfully!');
+                    clearForm(); // Clear the form after successful save
+                    $('body').addClass('save-success');
+                    setTimeout(function() {
+                        $('body').removeClass('save-success');
+                    }, 3000);
                 },
                 error: function(xhr, status, error) {
                     console.error('Error creating model: ' + error);
-                    // Handle error
+                    // alert('Error creating model: ' + error);
+                    setTimeout(function() {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
                 }
             });
         });

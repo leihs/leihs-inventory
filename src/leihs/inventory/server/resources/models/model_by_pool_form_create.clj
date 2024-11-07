@@ -234,16 +234,10 @@
 
                   ;; Extract the file content
 
-;; NOT SURE IF THIS IS NEEDED, SAME ISSUE FOR IMAGES
-                  ;; TODO: Fetch the content from the file, this fails
-                file-content-old (when file (slurp (io/input-stream file)))
-
                   ;; TODO: alternative way
                   ; Failed to create model ERROR: invalid byte sequence for encoding "UTF8": 0x00
                 file-content (file-to-base64 file)
 
-                p (println ">o> !!!!  1file-content-old" file-content-old)
-                p (println ">o> !!!!  2file-content" file-content)
 
 ;; Remove `:tempfile` from `data` to store metadata only
                 data (dissoc data :tempfile)
@@ -293,9 +287,14 @@
                           ;target-id (str (UUID/randomUUID))
                         target-id model-id
                           ;; Prepare main image data
+
+                        file (:tempfile main-image)
+                        file-content (file-to-base64 main-image)
+
                         main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
                                             (dissoc :tempfile)
-                                            (assoc :content (slurp (io/input-stream (:tempfile main-image)))
+                                            ;(assoc :content (slurp (io/input-stream (:tempfile main-image)))
+                                            (assoc :content file-content
                                                    :target_id target-id
                                                    :target_type "Model"
                                                    :thumbnail false))
@@ -308,10 +307,15 @@
                         main-image-result (first (jdbc/execute! tx main-image-res))
 
                           ;; Prepare thumbnail data with reference to the main image ID
+                        file (:tempfile thumb)
+                        file-content (file-to-base64 file)
+
                         thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
                                            (dissoc :tempfile)
-                                           (assoc :content (slurp (io/input-stream (:tempfile thumb)))
-                                                  :target_id target-id
+                                           ;(assoc :content (slurp (io/input-stream (:tempfile thumb)))
+                                             (assoc :content file-content
+
+                                                    :target_id target-id
                                                   :target_type "Model"
                                                   :thumbnail true
                                                   :parent_id (:id main-image-result)))
@@ -328,17 +332,22 @@
 
                   (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
                   (let [entry (first entries)
+                  ;(let [entry entries
                     ;; Determine if the single file is a thumbnail based on the filename
                     ;is-thumbnail (.endsWith (:filename entry) "_thumb.jpeg")
 
                         is-thumbnail (.contains (:filename entry) "_thumb")
+
+                        file (:tempfile entry)
+                        file-content (file-to-base64 file)
 
                     ;; Generate a unique `target_id`
                         target-id (UUID/randomUUID)
                     ;; Prepare data for the single file, marking as thumbnail if needed
                         single-file-data (-> (set/rename-keys entry {:content-type :content_type})
                                              (dissoc :tempfile)
-                                             (assoc :content (slurp (io/input-stream (:tempfile entry)))
+                                           (assoc :content file-content
+                                             ;(assoc :content (slurp (io/input-stream (:tempfile entry)))
                                                     :target_id target-id
                                                     :target_type "Model"
                                                     :thumbnail is-thumbnail))]
@@ -349,7 +358,17 @@
                                           sql-format))
                 ;; Debugging output
                     (println ">o> >>> Single file inserted with target_id:" target-id
-                             " as " (if is-thumbnail "thumbnail" "main image"))))))
+                             " as " (if is-thumbnail "thumbnail" "main image")))
+
+
+
+
+              ))
+
+
+
+
+          )
 
 ; Example usage: entitlements
         ; FIX ISSUE?*
