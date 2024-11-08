@@ -27,11 +27,55 @@
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
-        #addAccessory, #addProperty { background-color: #dedede; color: black;
+        #addAccessory, #addProperty { background-color: #dedede; color: black;        }
+        .image-group {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
         }
+
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30%; /* Adjust as needed */
+        }
+
+        .image-container img {
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .image-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
     </style>
 </head>
 <body>
+
+<h3>'Fetch image' Test</h3>
+
+<div class="image-group">
+    <div class="image-container">
+        <img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail" alt="Lights">
+        <p class="image-footer">Thumbnail Image by img-Tag</p>
+    </div>
+    <div class="image-container">
+        <img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10" alt="Lights">
+        <p class="image-footer">Image by img-Tag</p>
+    </div>
+    <div class="image-container">
+        <img id="testImage" alt="Lights">
+        <p class="image-footer">Image  by ajax-Request</p>
+    </div>
+</div>
+
+<br/><br/><br/><br/>
+
 <h3>Options</h3>
 
 <div class="form-group">
@@ -43,12 +87,6 @@
     <input type="text" id="fetchModelId" name="fetchModelId" value="5f5872b7-e40b-49b8-b6fa-a7eea0d3bbef"/>
     <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" onclick="fetchModel()"/>
 </div>
-
-
-<img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail" alt="Lights" style="width:100%">
-
-<img id="testImage" alt="Lights" style="width:100%">
-
 
 <br/><br/><br/><br/>
 
