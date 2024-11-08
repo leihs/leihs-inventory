@@ -10,6 +10,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [honey.sql :as sq]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
@@ -181,8 +182,40 @@
             res2 (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
             p (println ">o> res2" res2)
 
-            res6 (select-entries tx :images [:id :filename :content_type] [:and [:= :target_id model-id][:= :thumbnail false]])
-            p (println ">o> res6" res6)
+            ;res6 (select-entries tx :images [:id :filename :content_type] [:and [:= :target_id model-id][:= :thumbnail false]])
+
+            ;res6 (-> (sql/select :m.cover_image_id :i.id :i.filename :i.content_type [(sq/call :case
+            ;                                                                                              [(= :i.id :m.cover_image_id) true]
+            ;                                                                                              false)
+            ;                                                                                            :is_cover_image])
+
+            res6 (-> (sql/select :m.cover_image_id :i.id :i.filename :i.content_type )
+                   (sql/from [:models :m])
+                   (sql/right-join [:images :i] [:= :i.target_id :m.id])
+                   (sql/where [:= :m.id model-id])
+                   sql-format)
+
+            res6 (jdbc/execute! tx res6)
+
+            p (println ">o> res6a" res6)
+
+            ;res6 (doseq [row res6]
+            ;       (let [
+            ;             ;filename (get row :filename)
+            ;             ;content-type (get row :content_type)
+            ;             url (str "/inventory/images/" (str model-id)  )
+            ;             thumbnail-url (str "/inventory/images/" (str model-id) "/thumbnail")
+            ;             ]
+            ;         (assoc row :url url :thumbnail-url thumbnail-url)
+            ;       ))
+
+            res6 (map (fn [row]
+                             (let [url (str "/inventory/images/" (:id row))
+                                   thumbnail-url (str "/inventory/images/" (:id row) "/thumbnail")]
+                               (assoc row :url url :thumbnail-url thumbnail-url)))
+                        res6)
+
+            p (println ">o> res6b" res6)
 
             res3 (select-entries tx :accessories [:*] [:= :model_id model-id])
             p (println ">o> res3" res3)
@@ -192,7 +225,6 @@
                 (sql/left-join [:models :m] [:= :mc.model_id :m.id])
                 (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
                 (sql/where [:= :mc.model_id model-id])
-                ;(sql/returning :*)
                 sql-format)
             res4 (jdbc/execute! tx res4)
 

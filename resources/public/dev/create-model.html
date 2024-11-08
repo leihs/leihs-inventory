@@ -223,38 +223,105 @@
         // });
 
         $('#fetchModelBtn').click(function() {
-            // alert('fetchModelBtn');
-
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
-            // Send form data to API
+            // Send request to API
             $.ajax({
                 url: 'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
                 method: 'GET',
-                // data: formData,
-                processData: false,
-                contentType: false,
                 headers: {
                     'Accept': 'application/json'
                 },
                 success: function(response) {
-                    console.log('Model created successfully!');
-                    clearForm(); // Clear the form after successful save
+                    console.log('Model fetched successfully!');
+                    console.log(response);
+
+                    response= response[0];
+
+                    // Fill form with response data
+                    $('#product').val(response.product);
+                    $('#version').val(response.version);
+                    $('#manufacturer').val(response.manufacturer).trigger('change');
+                    $('#description').val(response.description);
+                    $('#technicalDetails').val(response.technical_detail);
+                    $('#internalDescription').val(response.internal_description);
+                    $('#isPackage').prop('checked', response.type === 'Package');
+
+                    // Populate properties
+                    $('#propertiesList').empty();
+                    response.properties.forEach(function(prop) {
+                        $('#propertiesList').append(`
+                            <div class="dynamic-item">
+                                <input type="text" name="propertyKey[]" value="${prop.key}" required>
+                                <input type="text" name="propertyValue[]" value="${prop.value}" required>
+                                <button type="button" class="remove-btn">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    // Populate accessories
+                    $('#accessoriesList').empty();
+                    response.accessories.forEach(function(acc) {
+                        $('#accessoriesList').append(`
+                            <div class="dynamic-item">
+                                <input type="text" name="accessoryName[]" value="${acc.name}" required>
+                                <label>
+                                    <input type="checkbox" name="accessoryInventory[]" ${acc.quantity !== null ? 'checked' : ''}>
+                                    In inventory
+                                </label>
+                                <button type="button" class="remove-btn">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    // Populate allocations (entitlement groups)
+                    $('#allocations').val(response.entitlement_groups.map(eg => eg.eg_id)).trigger('change');
+
+                    // Populate categories (assuming it's part of the response)
+                    if (response.categories) {
+                        $('#categories').val(response.categories.map(c => c.id)).trigger('change');
+                    }
+
+                    // Populate compatibles
+                    $('#compatibles').val(response.compatibles.map(c => c.id)).trigger('change');
+
+                    // Populate existing images
+                    $('#imagesList').empty();
+                    response.images.forEach(function(image) {
+                        $('#imagesList').append(`
+                            <div class="file-item">
+                                <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
+                                <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
+                                <button type="button" class="remove-file-btn" data-file-id="${image.id}">Remove</button>
+                            </div>
+                        `);
+                    });
+
+                    // Populate existing attachments
+                    $('#attachmentsList').empty();
+                    response.attachments.forEach(function(attachment) {
+                        $('#attachmentsList').append(`
+                            <div class="file-item">
+                                <span>${attachment.filename}</span>
+                                <button type="button" class="remove-file-btn" data-file-id="${attachment.id}">Remove</button>
+                            </div>
+                        `);
+                    });
+
                     $('body').addClass('save-success');
                     setTimeout(function() {
                         $('body').removeClass('save-success');
                     }, 3000);
                 },
                 error: function(xhr, status, error) {
-                    console.error('Error creating model: ' + error);
+                    console.error('Error fetching model: ' + error);
                     $('body').addClass('save-failed');
                     setTimeout(function() {
                         $('body').removeClass('save-failed');
                     }, 3000);
                 }
             });
-
         });
 
 
