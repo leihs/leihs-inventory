@@ -11,6 +11,7 @@
                                                          update-model-handler]]
    [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -599,6 +600,8 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}
 
+
+
      ]
 
 
@@ -629,6 +632,35 @@
                           }
 
              :handler create-model-handler-by-pool-form-fetch
+
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+
+      :put {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             ;:summary "(DEV) | Form-Handler: Save data of 'Create model by form'"
+             ;:description (str
+             ;              " - Upload images and attachments \n"
+             ;              " - Save data \n"
+             ;              " - images: additional handling needed to process no/one/multiple files \n"
+             ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+             ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+
+             :coercion spec/coercion
+             ;:coercion custom-coercion  ; Use the custom coercion here
+
+             :parameters {:path {
+                                 :pool_id uuid?
+                                 :model_id uuid?
+                                 }
+                          :multipart ::multipart
+                          ;:multipart ::model
+                          }
+
+             :handler update-model-handler-by-pool-form
 
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}

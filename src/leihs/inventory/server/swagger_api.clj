@@ -101,7 +101,7 @@
                                      csrf/extract-header
                                      session/wrap-authenticate
                                      wrap-cookies
-                                     csrf/wrap-csrf
+                                     ;csrf/wrap-csrf
 
                                       ;locale/wrap
                                       ;settings/wrap

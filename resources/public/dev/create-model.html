@@ -90,7 +90,7 @@
 
 <br/><br/><br/><br/>
 
-<h1>Create New Model</h1>
+<h1 id="formTitle">Create New Model</h1>
 
 <form id="modelForm">
     <div class="form-group">
@@ -162,6 +162,36 @@
 
 <script>
     $(document).ready(function() {
+
+        var CONST_IS_CREATE_FORM = true;
+
+        var FNC_CONFIG = (poolId, modelId) => {
+
+            // create
+            if(CONST_IS_CREATE_FORM) {
+                return  {
+                        url: 'http://localhost:3260/inventory/' + poolId + '/model',
+                        method: 'POST'
+                    }
+                }
+
+            // update
+            return  {
+                    url:  'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                    method: 'PUT'
+                }
+        };
+
+        // var CONST_CONFIG = {
+        //     create: {
+        //         url: function(poolId) { return 'http://localhost:3260/inventory/' + poolId + '/model'; },
+        //         method: 'POST'
+        //     },
+        //     update: {
+        //         url: function(poolId, modelId) { return 'http://localhost:3260/inventory/' + poolId + '/model/' + modelId; },
+        //         method: 'PUT'
+        //     }
+        // };
         function fetchOptions(url, selectId) {
             fetch(url, {headers: {'Accept': 'application/json'}})
                 .then(response => response.json())
@@ -247,6 +277,10 @@
                     $('#technicalDetails').val(response.technical_detail);
                     $('#internalDescription').val(response.internal_description);
                     $('#isPackage').prop('checked', response.type === 'Package');
+
+                    // Set CONST_IS_CREATE_FORM to false and update the title
+                    CONST_IS_CREATE_FORM = false;
+                    $('#formTitle').text('Update Model');
 
                     // Populate properties
                     $('#propertiesList').empty();
@@ -475,11 +509,14 @@
 
             // Get the poolId value
             var poolId = $('#poolId').val();
+            var modelId = $('#fetchModelId').val();
+
+            var config = FNC_CONFIG(poolId, modelId);
 
             // Send form data to API
             $.ajax({
-                url: 'http://localhost:3260/inventory/' + poolId + '/model',
-                method: 'POST',
+                url: config.url,
+                method: config.method,
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -489,6 +526,13 @@
                 success: function(response) {
                     console.log('Model created successfully!');
                     clearForm(); // Clear the form after successful save
+
+                    if( !CONST_IS_CREATE_FORM) {
+                        // $('#fetchModelId').val(response.model_id);
+                        $('#fetchModelBtn').click()
+                    }
+
+
                     $('body').addClass('save-success');
                     setTimeout(function() {
                         $('body').removeClass('save-success');
