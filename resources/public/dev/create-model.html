@@ -282,19 +282,19 @@
                     CONST_IS_CREATE_FORM = false;
                     $('#formTitle').text('Update Model');
 
-                    // Populate properties
+// Populate properties
                     $('#propertiesList').empty();
                     response.properties.forEach(function(prop) {
                         $('#propertiesList').append(`
-                            <div class="dynamic-item">
-                                <input type="text" name="propertyKey[]" value="${prop.key}" required>
-                                <input type="text" name="propertyValue[]" value="${prop.value}" required>
-                                <button type="button" class="remove-btn">Remove</button>
-                            </div>
-                        `);
+                        <div class="dynamic-item">
+                            <input type="text" name="propertyKey[]" value="${prop.key}" required>
+                            <input type="text" name="propertyValue[]" value="${prop.value}" required>
+                            <button type="button" class="remove-btn">Remove</button>
+                        </div>
+                    `);
                     });
 
-                    // Populate accessories
+// Populate accessories
                     $('#accessoriesList').empty();
                     response.accessories.forEach(function(acc) {
                         $('#accessoriesList').append(`
@@ -307,6 +307,11 @@
                                 <button type="button" class="remove-btn">Remove</button>
                             </div>
                         `);
+                    });
+
+                    // Add event listener for remove button to delete only the clicked item
+                    $(document).on('click', '.remove-btn', function() {
+                        $(this).closest('.dynamic-item').remove();
                     });
 
                     // Populate allocations (entitlement groups)
