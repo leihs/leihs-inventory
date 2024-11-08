@@ -249,12 +249,29 @@
                 sql-format)
             res7 (jdbc/execute! tx res7)
 
+            type "Category"
+            res8 (-> (sql/select :mg.id :mg.type :mg.name)
+                    (sql/from [:model_groups :mg]) ;; TODO: add hierarchy?
+                   (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
+                    ;(sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
+                    ;(sql/join [:inventory_pools :ip] [:= :ipmg.inventory_pool_id :ip.id])
+                    ;(sql/where [:= :ip.id pool_id])
+                    ;(sql/where [:= :mg.type type])    ;;TODO: Category | Template
+                    (sql/where [:ilike :mg.type (str type)])
+                   (sql/where [:= :ml.model_id model-id])
+                    (sql/order-by :mg.name)
+                   sql-format)
+
+            res8 (jdbc/execute! tx res8)
 
 
 
             res (assoc res :attachments res2 :accessories res3 :compatibles res4 :properties res5
                       :images res6
-                  :entitlement_groups res7)
+                  :entitlement_groups res7
+                  :categories res8
+
+                  )
 
             ]
 
