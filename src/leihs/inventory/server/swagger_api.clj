@@ -22,6 +22,7 @@
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
+   [clojure.string :as str]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
@@ -42,24 +43,86 @@
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
   fnc)
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str)
+  fnc)
+
+
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [p (println ">o> cccc3")
           accept-header (get-in request [:headers "accept"])
-          p (println ">o> accept-header" accept-header)
+          p (println ">o> accept-header.old" accept-header)
+          p (println ">o> accept-header.uri" (:uri request))
+          p (println ">o> accept-header.uri" (:accept request))
 
           ctype (get-in request [:headers "content-type"])
-          p (println ">o> content-type" ctype)
+
 
           uri (:uri request)
           ;whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model"]]
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail"]
+
+
+          ;; fixme
+          ;request (if (and (str/includes? accept-header "text/html") (str/includes? uri "/thumbnail"))
+          ;          ;(assoc request :body (get-in request [:headers "content-type"]) "image/jpeg")
+          ;          (pr2 "rewrite to image/jpeg" (assoc-in request [:headers "accept"] "image/jpeg"))
+          ;
+          ;          request)
+          ;accept-header (get-in request [:headers "accept"])
+          p (println ">o> accept-header.new" accept-header)
+
+
 
           p (println ">o> abc1")]
       (if (or (some #(clojure.string/includes? accept-header %) ["json" "image/jpeg"])
               (some #(= % uri) whitelist-uris-for-api))
-        (pr ">1" (handler request))
-        (pr ">2" (custom-not-found-handler request))))))
+        (pr2 ">1" (handler request))
+        (pr2 ">2" (custom-not-found-handler request))))))
+
+
+(defn valid-inventory-image-uri? [uri]
+  (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
+    (boolean (re-matches pattern uri))))
+
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)]
+
+      ;; Log the initial values for debugging
+      (println ">o> Initial Accept header:" accept-header)
+      (println ">o> URI:" uri)
+
+      ;; Conditionally rewrite the Accept header to "image/jpeg" if the URI is valid and Accept includes "text/html"
+      (let [updated-request (if (and (str/includes? accept-header "text/html")
+                                  (valid-inventory-image-uri? uri))
+                              (do
+                                (println ">o> Rewriting Accept header to image/jpeg")
+                                (assoc-in request [:headers "accept"] "image/jpeg"))
+                              request)]
+
+        ;; Log the Accept header after potential rewrite for debugging
+        (println ">o> Updated Accept header:" (get-in updated-request [:headers "accept"]))
+
+        ;; Pass the (possibly modified) request to the wrapped handler
+        ((dispatch-content-type/wrap-accept handler) updated-request)))))
+
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)
+          updated-request (if (and (str/includes? accept-header "text/html")
+                                (valid-inventory-image-uri? uri))
+                            (assoc-in request [:headers "accept"] "image/jpeg")
+                            request)]
+      ((dispatch-content-type/wrap-accept handler) updated-request))))
+
 
 (defn create-app [options]
   (let [router (ring/router
@@ -74,6 +137,39 @@
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
+
+                                     ;;; rename to: wrap-accept-with-image-rewrite
+                                     ;(fn [handler]
+                                     ;  (fn [request]
+                                     ;    (let [
+                                     ;          accept-header (get-in request [:headers "accept"])
+                                     ;
+                                     ;          uri (:uri request)
+                                     ;
+                                     ;          p (println ">o> ?? accept1 ??" (:accept request))
+                                     ;          p (println ">o> ?? accept2 ??" (get-in request [:headers "accept"]))
+                                     ;          p (println ">o> ?? uri ??" uri)
+                                     ;
+                                     ;          request (if (and (str/includes? accept-header "text/html") (valid-inventory-image-uri? uri))
+                                     ;                    ;(assoc request :body (get-in request [:headers "content-type"]) "image/jpeg")
+                                     ;                    (pr2 ">o> ??? rewrite to image/jpeg" (assoc-in request [:headers "accept"] "image/jpeg"))
+                                     ;
+                                     ;                    request)
+                                     ;
+                                     ;          p (println ">o> ?? accept1 ??" (:accept request))
+                                     ;          p (println ">o> ?? accept2 ??" (get-in request [:headers "accept"]))
+                                     ;
+                                     ;          res ((dispatch-content-type/wrap-accept handler) request)
+                                     ;          ]
+                                     ;
+                                     ;
+                                     ;      res
+                                     ;
+                                     ;
+                                     ;      )))
+
+
+                                     wrap-accept-with-image-rewrite
 
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token
@@ -95,11 +191,14 @@
                                      wrap-content-type
 
                                       ;(core-routing/wrap-resolve-handler html/html-handler)
-                                     dispatch-content-type/wrap-accept
+                                     ;dispatch-content-type/wrap-accept
+
                                       ;ring-exception/wrap
 
                                      default-handler-fetch-resource ;; provide resources
                                      csrf/wrap-dispatch-content-type
+
+
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware

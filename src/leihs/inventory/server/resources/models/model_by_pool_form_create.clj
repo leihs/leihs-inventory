@@ -467,13 +467,13 @@
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product prepared-model-data)}})
-              (status 409))
+              (status 408))
 
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
-              (status 409))
+              (status 410))
 
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 

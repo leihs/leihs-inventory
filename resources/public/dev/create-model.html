@@ -32,12 +32,27 @@
     </style>
 </head>
 <body>
-<h1>Create New Model</h1>
+<h3>Options</h3>
 
 <div class="form-group">
     <label for="poolId">Pool ID</label>
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
+<div class="form-group">
+    <label for="fetchModelId">Model-ID</label>
+    <input type="text" id="fetchModelId" name="fetchModelId" value="5f5872b7-e40b-49b8-b6fa-a7eea0d3bbef"/>
+    <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" onclick="fetchModel()"/>
+</div>
+
+
+<img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail" alt="Lights" style="width:100%">
+
+<img id="testImage" alt="Lights" style="width:100%">
+
+
+<br/><br/><br/><br/>
+
+<h1>Create New Model</h1>
 
 <form id="modelForm">
     <div class="form-group">
@@ -164,10 +179,77 @@
         updateDropdowns(initialPoolId);
 
         // Update dropdowns when pool ID changes
-        $('#poolId').change(function() {
-            var newPoolId = $(this).val();
-            updateDropdowns(newPoolId);
+        // $('#poolId').change(function() {
+        //     var newPoolId = $(this).val();
+        //     updateDropdowns(newPoolId);
+        // });
+
+        $('#fetchModelBtn').click(function() {
+            // alert('fetchModelBtn');
+
+            var modelId = $('#fetchModelId').val();
+            var poolId = $('#poolId').val();
+
+            // Send form data to API
+            $.ajax({
+                url: 'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                method: 'GET',
+                // data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    console.log('Model created successfully!');
+                    clearForm(); // Clear the form after successful save
+                    $('body').addClass('save-success');
+                    setTimeout(function() {
+                        $('body').removeClass('save-success');
+                    }, 3000);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error creating model: ' + error);
+                    $('body').addClass('save-failed');
+                    setTimeout(function() {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+
         });
+
+
+        $('#testImage').ready(function() {
+            // alert('fetchModelBtn');
+
+            var modelId = $('#fetchModelId').val();
+            var poolId = $('#poolId').val();
+
+            fetch("http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail", {
+                headers: {
+                    "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("create blob()")
+                        return response.blob(); // Convert the response to a blob
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(blob => {
+                        console.log("todo: imgUrl create")
+                    const imgUrl = URL.createObjectURL(blob);
+                    document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
+                        console.log("imgUrl created")
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
+
+        });
+
 
         // Add Property
         $('#addProperty').click(function() {

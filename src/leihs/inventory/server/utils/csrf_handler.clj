@@ -42,7 +42,7 @@
                                                               {:status 407})))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 409)
+          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 405)
      :else (let [response (handler request)]
              (if (and (nil? response)
                       (not (#{:post :put :patch :delete} (:request-method request)))

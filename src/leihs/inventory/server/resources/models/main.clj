@@ -127,4 +127,4 @@
       (catch Exception e
         (error "Failed to delete model" e)
         (status (bad-request {:error "Failed to delete model"
-                              :details (.getMessage e)}) 409)))))
+                              :details (.getMessage e)}) 407)))))
