@@ -139,10 +139,10 @@
   (-> query
     (sql/from [:models :m])
     (cond->
-      pool-id (sql/join [:model_links :ml] [:= :m.id :ml.model_id])
-      pool-id (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
-      pool-id (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-      pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
+      pool-id (sql/left-join [:model_links :ml] [:= :m.id :ml.model_id])
+      pool-id (sql/left-join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
+      pool-id (sql/left-join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
+      pool-id (sql/left-join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
 
 (defn create-model-handler-by-pool-form-fetch [request]
@@ -165,18 +165,25 @@
     (try
       (let [
 
-            res (jdbc/execute-one! tx (->
+            ;res (jdbc/execute-one! tx (->
             ;(sql/select :m.*)
-            (sql/select :m.id :m.product :m.manufacturer :m.version :m.type :m.hand_over_note :m.description
+            query (sql/select :m.id :m.product :m.manufacturer :m.version :m.type :m.hand_over_note :m.description
               :m.internal_description :m.technical_detail)
-            ((fn [query] (base-pool-query query pool-id)))
-                                        ;(sql/select :*)
-                                        ;(sql/from :models)
+            ;((fn [query] (base-pool-query query pool-id)))
+            ;query (-> (base-pool-query query pool-id)
+            query (->
+                    ;(base-pool-query query pool-id)
+                    (sql/select :m.id :m.product :m.manufacturer :m.version :m.type :m.hand_over_note :m.description
+                      :m.internal_description :m.technical_detail)
+                                        (sql/from [:models :m])
                                           ;(sql/values [prepared-model-data])
                                           ;(sql/returning :*)
                                         (sql/where [:= :m.id model-id])
-                                          sql-format))
+                                          sql-format)
 
+            p (println ">o> res.query" query)
+
+            res (jdbc/execute-one! tx query)
             p (println ">o> res" res)
 
             res2 (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
