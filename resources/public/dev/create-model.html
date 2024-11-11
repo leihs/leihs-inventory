@@ -212,7 +212,7 @@
                         data = data.data;
                     }
 
-                    data = data.slice(0, 20)
+                    // data = data.slice(0, 20)
                     // debugger
 
                     data.forEach(item => {
@@ -249,13 +249,14 @@
                         option.value = item.id;
                         option.textContent = item.name;
 
-                        $(option).data('data', item);
+                        $(option).data('categories', item);
 
 
 
                         select.appendChild(option);
 
                         console.log('>>> category-option / ' + selectId, option);
+
 
                     });
 
@@ -264,15 +265,15 @@
                     console.log(">>> INIT SELECT2 / " + selectId)
                     initSelect2(selectId);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => console.error('Error:', error));debugger;
         }
 
 
         function updateDropdowns(poolId) {
             fetchOptions(`http://localhost:3260/inventory/manufacturers`, 'manufacturer');
             fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'entitlements');
-            fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
             fetchOptions(`http://localhost:3260/inventory/models-compatibles`, 'compatibles');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
         }
 
         // Initialize dropdowns on page load
