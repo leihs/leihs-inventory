@@ -265,7 +265,7 @@
                     console.log(">>> INIT SELECT2 / " + selectId)
                     initSelect2(selectId);
                 })
-                .catch(error => console.error('Error:', error));debugger;
+                .catch(error => console.error('Error:', error));
         }
 
 
@@ -319,13 +319,16 @@
 // Populate properties
                     $('#propertiesList').empty();
                     response.properties.forEach(function(prop) {
-                        $('#propertiesList').append(`
+                        var ab = $('#propertiesList').append(`
                         <div class="dynamic-item">
-                            <input type="text" name="propertyKey[]" value="${prop.key}" required>
-                            <input type="text" name="propertyValue[]" value="${prop.value}" required>
+                            <input type="text" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
+                            <input type="text" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
                             <button type="button" class="remove-btn">Remove</button>
                         </div>
                     `);
+
+                        debugger
+
                     });
 
 // Populate accessories
@@ -333,9 +336,9 @@
                     response.accessories.forEach(function(acc) {
                         $('#accessoriesList').append(`
                             <div class="dynamic-item">
-                                <input type="text" name="accessoryName[]" value="${acc.name}" required>
+                                <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
                                 <label>
-                                    <input type="checkbox" name="accessoryInventory[]" ${acc.quantity !== null ? 'checked' : ''}>
+                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.quantity !== null ? 'checked' : ''}>
                                     In inventory
                                 </label>
                                 <button type="button" class="remove-btn">Remove</button>
@@ -351,6 +354,7 @@
                     // Populate entitlements (entitlement groups)
                     $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
                     $('#entitlements').find('option:selected').each(function(index, option, a, b) {
+                        const groupId = $(option).val();
                         const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
                         if (entitlementData) {
                             $(option).data('entitlement', entitlementData); // Attach the entire entitlement data object
@@ -447,6 +451,8 @@
                     <button type="button" class="remove-btn">Remove</button>
                 </div>
             `);
+
+
         });
 
         // Add Accessory
@@ -541,7 +547,8 @@
             $('input[name="propertyKey[]"]').each(function(index) {
                 properties.push({
                     key: $(this).val(),
-                    value: $('input[name="propertyValue[]"]').eq(index).val()
+                    value: $('input[name="propertyValue[]"]').eq(index).val(),
+                    id: $('input[name="propertyValue[]"]').eq(index).attr('id')
                 });
             });
             formData.append('properties', JSON.stringify(properties));
@@ -551,7 +558,8 @@
             $('input[name="accessoryName[]"]').each(function(index) {
                 accessories.push({
                     name: $(this).val(),
-                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked')
+                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
+                    id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
                 });
             });
 
