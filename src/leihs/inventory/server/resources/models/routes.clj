@@ -459,8 +459,9 @@
                              :single ::file))
 
 (sa/def ::entitlement_group_id uuid?)
+(sa/def ::entitlement_id uuid?)
 (sa/def ::quantity int?)
-(sa/def ::entitlement (sa/keys :req-un [::entitlement_group_id ::quantity]))
+(sa/def ::entitlement (sa/keys :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
 (sa/def ::entitlements (sa/or
                         :multiple (sa/or :coll (sa/coll-of ::entitlement)
                                          :str string?)

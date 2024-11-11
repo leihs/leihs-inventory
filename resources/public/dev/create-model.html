@@ -139,8 +139,8 @@
         </label>
     </div>
     <div class="form-group">
-        <label for="allocations">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
-        <select id="allocations" name="allocations" multiple></select>
+        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
+        <select id="entitlements" name="entitlements" multiple></select>
     </div>
     <div class="form-group">
         <label for="categories">Kategorien</label>
@@ -208,20 +208,40 @@
 
                         if (selectId === 'manufacturer') {
                             option.value = item;
+                            option.data = item
                             option.textContent = item;
+                            // console.log("> 1manufacturer > o:", option, item)
                             select.appendChild(option);
                             return;
                         }
 
                         if (selectId === 'compatibles') {
                             option.value = item.model_id;
+                            option.data = item
                             option.textContent = item.product;
+                            // console.log("> 2compatibles > o:", option, item)
+                            select.appendChild(option);
+                            return;
+                        }
+
+                        if (selectId === 'entitlements') {
+                            option.value = item.id;
+                            // option.data = item
+
+                            $(option).data('entitlement_group', item); // Attach the entire entitlement data object
+                            $(option).data('entitlement_group_val',  item.id); // Attach the entire entitlement data object
+                            $(option).data('entitlement_group_name',  item.name); // Attach the entire entitlement data object
+
+                            option.textContent = item.name;
+                            console.log("> 3entitlements > o:", option, item)
                             select.appendChild(option);
                             return;
                         }
 
                         option.value = item.id;
+                        option.data = item
                         option.textContent = item.name;
+                            // console.log("> 3others > o:", option, item)
                         select.appendChild(option);
                     });
 
@@ -237,7 +257,7 @@
 
         function updateDropdowns(poolId) {
             fetchOptions(`http://localhost:3260/inventory/manufacturers`, 'manufacturer');
-            fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'allocations');
+            fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'entitlements');
             fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
             fetchOptions(`http://localhost:3260/inventory/models-compatibles`, 'compatibles');
         }
@@ -314,8 +334,65 @@
                         $(this).closest('.dynamic-item').remove();
                     });
 
-                    // Populate allocations (entitlement groups)
-                    $('#allocations').val(response.entitlement_groups.map(eg => eg.eg_id)).trigger('change');
+                    // Populate entitlements (entitlement groups)
+
+
+                    $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
+                    const ent_vals = $('#entitlements').val()
+
+                    // TODO: revise fnc to get the correct entitlements and update data of concerning option-entry.data
+                    // response.entitlement_groups=
+                    // "entitlement_groups": [
+                    //     {
+                    //         "id": "061ce510-c3e0-4043-9790-d3616816c65f",
+                    //         "quantity": 33,
+                    //         "position": 0,
+                    //         "name": "Level 9",
+                    //         "group_id": "2a496ffb-ce73-565d-9ad3-41f1518457bb"
+                    //     },
+                    //     {
+                    //         "id": "7e453f91-341f-41c2-966c-f560c4840a81",
+                    //         "quantity": 2,
+                    //         "position": 0,
+                    //         "name": "DDE - CAST",
+                    //         "group_id": "8c3a0fdd-9dc1-5d3b-ae22-29ca3d9bced5"
+                    //     }
+                    // ],
+                    $('#entitlements').find('option:selected').each(function(index, option, a, b) {
+                    // debugger
+                        // FIXME: cant get access to response.entitlement_groups? to update the data of the concerning option
+
+                        // $(option).val()
+                        // '2a496ffb-ce73-565d-9ad3-41f1518457bb'
+                        // option.data
+                        // {id: '2a496ffb-ce73-565d-9ad3-41f1518457bb', name: 'Level 9', inventory_pool_id: '0caa4a0b-fa66-5636-9fda-6c2c33eeb026', is_verification_required: false, created_at: '2010-09-20T18:09:45Z', …}
+
+                        const groupId = $(option).val(); // Get the group_id from the option's value
+
+                        // Find the matching entitlement group by group_id
+                        const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
+// debugger
+                        // If matching entitlement data is found, update the option's data attributes
+                        if (entitlementData) {
+                            $(option).data('entitlement', entitlementData); // Attach the entire entitlement data object
+                            // $(option).data('quantity', entitlementData.quantity); // Attach specific fields as needed
+
+                            // Debugging output to confirm correct data attachment
+                            console.log('Updated option data:', $(option).data('entitlement'));
+                        }
+
+                    });
+
+
+
+
+
+
+
+
+
+
+
 
                     // Populate categories (assuming it's part of the response)
                     if (response.categories) {
@@ -439,6 +516,10 @@
         function updateFileList(input, listSelector) {
             var fileList = $(listSelector);
             fileList.empty();
+
+            console.log(">> updateFileList1 > ", input.files);
+            console.log(">> updateFileList2 > ", listSelector);
+
             if (input.files && input.files.length > 0) {
                 for (var i = 0; i < input.files.length; i++) {
                     var fileName = input.files[i].name;
@@ -507,6 +588,31 @@
                     inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked')
                 });
             });
+
+            // Prepare entitlements
+            const entitlementsArray = [];
+            $('#entitlements').find('option:selected').each(function(index, option) {
+                // const entitlementData = $(this).data('entitlement'); // Retrieve the attached dictionary
+                // const entitlementData = option.data
+                // const randomCount = Math.floor(Math.random() * 30) + 1;
+
+                const entitlementData = $(option).data()
+
+                // debugger
+                // Check that entitlementData exists before trying to access its properties
+                if (entitlementData) {
+                    entitlementsArray.push({
+                        entitlement_group_id: entitlementData.entitlement_group.id,
+                        entitlement_id: entitlementData.entitlement.id,
+                        quantity: entitlementData.entitlement.quantity
+                    });
+                }
+            });
+            formData.delete('entitlements');
+            formData.append('entitlements', JSON.stringify(entitlementsArray));
+
+
+
             formData.append('accessories', JSON.stringify(accessories));
             formData.delete('accessoryName[]');
             formData.delete('propertyKey[]');
@@ -552,6 +658,8 @@
                 }
             });
         });
+
+
     });
 </script>
 </body>

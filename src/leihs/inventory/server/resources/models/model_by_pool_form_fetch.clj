@@ -246,7 +246,7 @@
 
 
             ;res7 (-> (sql/select :e.* :eg.name :eg.inventory_pool_id)
-            res7 (-> (sql/select :e.id :e.quantity :e.position :eg.name [:eg.id :eg_id] )
+            res7 (-> (sql/select :e.id :e.quantity :e.position :eg.name [:eg.id :group_id] )
                 (sql/from [:entitlements :e])
                 (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
 
