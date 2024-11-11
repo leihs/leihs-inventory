@@ -224,7 +224,22 @@
 
             p (println ">o> res6b" res6)
 
-            res3 (select-entries tx :accessories [:*] [:= :model_id model-id])
+            ;res3 (select-entries tx :accessories [:*] [:= :model_id model-id])
+            ;res3 (select-entries tx :accessories [:id :name] [:= :model_id model-id])
+            res3 (-> (sql/select :id :a.name :aip.inventory_pool_id
+                       ;[[:not nil :aip.inventory_pool_id] :has_inventory_pool ]
+                       [(sq/call :not= :aip.inventory_pool_id nil) :has_inventory_pool])
+
+                   ;)
+                    (sql/from [:accessories :a])
+                    (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
+                    (sql/where [:= :a.model_id model-id])
+                    sql-format)
+            p (println ">o> res3" res3)
+            res3 (jdbc/execute! tx res3)
+
+
+
             p (println ">o> res3" res3)
 
             res4 (-> (sql/select :mm.id :mm.product)

@@ -316,22 +316,19 @@
                     CONST_IS_CREATE_FORM = false;
                     $('#formTitle').text('Update Model');
 
-// Populate properties
+                    // Populate properties
                     $('#propertiesList').empty();
-                    response.properties.forEach(function(prop) {
-                        var ab = $('#propertiesList').append(`
-                        <div class="dynamic-item">
-                            <input type="text" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
-                            <input type="text" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
-                            <button type="button" class="remove-btn">Remove</button>
-                        </div>
-                    `);
-
-                        debugger
-
+                        response.properties.forEach(function(prop) {
+                            var ab = $('#propertiesList').append(`
+                            <div class="dynamic-item">
+                                <input type="text" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
+                                <input type="text" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
+                                <button type="button" class="remove-btn">Remove</button>
+                            </div>
+                        `);
                     });
 
-// Populate accessories
+                    // Populate accessories
                     $('#accessoriesList').empty();
                     response.accessories.forEach(function(acc) {
                         $('#accessoriesList').append(`
@@ -527,6 +524,7 @@
             updateFileList(input, `#${inputId}List`);
         }
 
+
         // Clear form fields
         function clearForm() {
             $('#modelForm')[0].reset();
@@ -536,6 +534,7 @@
             $('#attachmentsList').empty();
             $('select').val(null).trigger('change');
         }
+
 
         // Form submission
         $('#modelForm').submit(function(e) {
@@ -553,9 +552,15 @@
             });
             formData.append('properties', JSON.stringify(properties));
 
+
             // Prepare accessories
             var accessories = [];
-            $('input[name="accessoryName[]"]').each(function(index) {
+            $('input[name="accessoryName[]"]').each(function(index, option) {
+
+                if(option.textContent !== 'Select an option'){
+                    return;
+                }
+
                 accessories.push({
                     name: $(this).val(),
                     inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
@@ -563,15 +568,21 @@
                 });
             });
 
+
             // Prepare entitlements
             const entitlementsArray = [];
             $('#entitlements').find('option:selected').each(function(index, option) {
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
                 const entitlementData = $(option).data()
+                const entitlement = entitlementData.entitlement
                 if (entitlementData) {
                     entitlementsArray.push({
                         entitlement_group_id: entitlementData.entitlement_group.id,
-                        entitlement_id: entitlementData.entitlement.id,
-                        quantity: entitlementData.entitlement.quantity
+                        entitlement_id: entitlementData.entitlement == undefined ? null : entitlementData.entitlement.id,
+                        quantity: entitlementData.entitlement == undefined ? 1 : entitlementData.entitlement.quantity
                     });
                 }
             });
@@ -579,11 +590,22 @@
             formData.append('entitlements', JSON.stringify(entitlementsArray));
 
 
+            // Prepare entitlements
+            const accessoriesArray = [];
+            $('input[name="accessoryName[]"]').each(function(index) {
+                accessoriesArray.push({
+                    name: $(this).val(),
+                    is_inventory: $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
+                });
+            });
+            formData.delete('accessories');
+            formData.append('accessories', JSON.stringify(accessoriesArray));
 
-            formData.append('accessories', JSON.stringify(accessories));
+
             formData.delete('accessoryName[]');
             formData.delete('propertyKey[]');
             formData.delete('propertyValue[]');
+            formData.delete('accessoryInventory[]');
 
             // Get the poolId value
             var poolId = $('#poolId').val();

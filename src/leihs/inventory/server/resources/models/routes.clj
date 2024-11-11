@@ -469,8 +469,10 @@
                         :none nil?))
 
 (sa/def ::name string?)
+(sa/def ::id uuid?)
+(sa/def ::id-or-nil (sa/nilable uuid? ))
 (sa/def ::inventory_bool boolean?)
-(sa/def ::accessory (sa/keys :req-un [::name ::inventory_bool]))
+(sa/def ::accessory (sa/keys :req-opt [::id-or-nil] :req-un [::name ::inventory_bool]))
 (sa/def ::accessories (sa/or
                        :multiple (sa/or :coll (sa/coll-of ::accessory)
                                         :str string?)
@@ -479,7 +481,7 @@
 
 (sa/def ::key string?)
 (sa/def ::value string?)
-(sa/def ::property (sa/keys :req-un [::key ::value]))
+(sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
 (sa/def ::properties (sa/or
                       :multiple (sa/or :coll (sa/coll-of ::property)
                                        :str string?)
