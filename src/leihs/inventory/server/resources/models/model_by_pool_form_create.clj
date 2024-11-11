@@ -139,6 +139,64 @@
                   (.toByteArray out))]
       (String. (b64/encode bytes)))))
 
+(defn file-to-base64 [file]
+  (when file
+    (println "Debug: Reading file:" file)  ; Print the file input
+    (let [bytes (with-open [in (io/input-stream file)
+                            out (java.io.ByteArrayOutputStream.)]
+                  (io/copy in out)
+                  (.toByteArray out))]
+      (println "Debug: File bytes:" bytes)  ; Print the raw byte array
+
+      (let [encoded-str (String. (b64/encode bytes))]
+        (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
+        encoded-str))))
+
+
+(defn file-to-base64 [file]
+  (when file
+    (println "Debug: Received file metadata:" file)  ; Print the file metadata
+
+    ;; Extract the :tempfile, which is the actual file that can be read
+    (let [temp-file (:tempfile file)]  ; Get the actual file object
+      (println "Debug: Using tempfile:" temp-file)
+
+      (when temp-file
+        (let [bytes (with-open [in (io/input-stream temp-file)
+                                out (java.io.ByteArrayOutputStream.)]
+                      (io/copy in out)
+                      (.toByteArray out))]
+          (println "Debug: File bytes:" bytes)  ; Print the raw byte array
+
+          (let [encoded-str (String. (b64/encode bytes))]
+            (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
+            encoded-str))))))
+
+
+(defn file-to-base64 [file]
+  (let [actual-file (if (instance? java.io.File file)
+                      file                     ; If `file` is already a java.io.File, use it directly
+                      (:tempfile file))]       ; Otherwise, extract :tempfile from the map
+
+    (if actual-file
+      (do
+        (println "Debug: Using file object:" actual-file)  ; Print the actual file object
+
+        ;; Read the file as bytes and encode to Base64
+        (let [bytes (with-open [in (io/input-stream actual-file)
+                                out (java.io.ByteArrayOutputStream.)]
+                      (io/copy in out)
+                      (.toByteArray out))]
+          (println "Debug: File bytes:" bytes)  ; Print the raw byte array
+
+          (let [encoded-str (String. (b64/encode bytes))]
+            (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
+            encoded-str)))
+      (do
+        (println "Error: No valid file or tempfile found")
+        nil))))
+
+
 (defn extract-metadata [file-path]
   (let [metadata (extract/parse file-path)]
     (pprint metadata)))
@@ -222,29 +280,39 @@
         (doseq [entry attachments]
           (let [;; Rename `:content-type` to `:content_type`
 
-                p (println ">o> abc.before" entry)
-                data (set/rename-keys entry {:content-type :content_type})
-                p (println ">o> abc.after" data)
+                p (println ">o> >>> abc.before" entry)
+                ;data (set/rename-keys entry {:content-type :content_type})
+                ;p (println ">o> abc.after" data)
+
+                data entry
 
                   ;; Extract the file reference
-                file (:tempfile data)
+                file (:tempfile entry)
 
-                p (println ">o> !!! extract-metadata.before")
-                meta-data (extract-metadata file)
-                p (println ">o> !!! extract-metadata.after")
+                ;p (println ">o> !!! extract-metadata.before")
+                ;meta-data (extract-metadata file)
+                ;p (println ">o> !!! extract-metadata.after")
 
                   ;; Extract the file content
 
                   ;; TODO: alternative way
                   ; Failed to create model ERROR: invalid byte sequence for encoding "UTF8": 0x00
+
+                p (println ">o> file1 >>> " file)
+                p (println ">o> file2 >>> " (get entry [:tempfile]))
+
                 file-content (file-to-base64 file)
+
+                p (println ">o> ??? file-content" (subs file-content 0 100))
 
 
 ;; Remove `:tempfile` from `data` to store metadata only
                 data (dissoc data :tempfile)
 
                 p (println ">o> abc.2before" data)
-                data (assoc data :content file-content :model_id model-id :metadata meta-data)
+                meta-data {:foo "bar"}
+                ;data (assoc data :content file-content :model_id model-id :metadata meta-data)
+                data (assoc data :content file-content :model_id model-id )
                 p (println ">o> abc.2after" data)
 
                 p (println ">o> !!!!!!!! data" (keys data))
@@ -270,7 +338,7 @@
 
               p (println ">o> image-groups" image-groups)
 
-              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY false]
+              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
 
           (doseq [[_ entries] image-groups]
             ;; Ensure each group has exactly one main image and one thumbnail
@@ -280,7 +348,8 @@
                   (let [p (println ">o> (count entries)" (count entries) (= 2 (count entries)))
 
                           ;; Separate main image and thumbnail based on filename
-                        [main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb.jpeg")
+                        ;[main-image thumb] (if (.endsWith (:filename (first entries)) "_thumb")
+                        [main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
                                              [(second entries) (first entries)]
                                              [(first entries) (second entries)])
 
@@ -331,45 +400,41 @@
                         _ (println ">o> >>> DONE! Image and Thumbnail inserted with target_id:" target-id
                                    " and parent_id for thumbnail:" (:id main-image-result))])
 
-                  (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
-                  (let [entry (first entries)
-                  ;(let [entry entries
-                    ;; Determine if the single file is a thumbnail based on the filename
-                    ;is-thumbnail (.endsWith (:filename entry) "_thumb.jpeg")
-
-                        is-thumbnail (.contains (:filename entry) "_thumb")
-
-                        file (:tempfile entry)
-                        file-content (file-to-base64 file)
-
-                    ;; Generate a unique `target_id`
-                        target-id (UUID/randomUUID)
-                    ;; Prepare data for the single file, marking as thumbnail if needed
-                        single-file-data (-> (set/rename-keys entry {:content-type :content_type})
-                                             (dissoc :tempfile)
-                                           (assoc :content file-content
-                                             ;(assoc :content (slurp (io/input-stream (:tempfile entry)))
-                                                    :target_id target-id
-                                                    :target_type "Model"
-                                                    :thumbnail is-thumbnail))]
-                ;; Insert single file (either as main image or as standalone thumbnail)
-                    (jdbc/execute! tx (-> (sql/insert-into :images)
-                                          (sql/values [single-file-data])
-                                          (sql/returning :*)
-                                          sql-format))
-                ;; Debugging output
-                    (println ">o> >>> Single file inserted with target_id:" target-id
-                             " as " (if is-thumbnail "thumbnail" "main image")))
-
-
-
+                ;  (and (not CONST_ALLOW_IMAGE_WITH_THUMB_ONLY) (= 1 (count entries)))
+                ;  (let [entry (first entries)
+                ;  ;(let [entry entries
+                ;    ;; Determine if the single file is a thumbnail based on the filename
+                ;    ;is-thumbnail (.endsWith (:filename entry) "_thumb.jpeg")
+                ;
+                ;        is-thumbnail (.contains (:filename entry) "_thumb")
+                ;
+                ;        file (:tempfile entry)
+                ;        file-content (file-to-base64 file)
+                ;
+                ;    ;; Generate a unique `target_id`
+                ;        target-id (UUID/randomUUID)
+                ;    ;; Prepare data for the single file, marking as thumbnail if needed
+                ;        single-file-data (-> (set/rename-keys entry {:content-type :content_type})
+                ;                             (dissoc :tempfile)
+                ;                           (assoc :content file-content
+                ;                             ;(assoc :content (slurp (io/input-stream (:tempfile entry)))
+                ;                                    :target_id target-id
+                ;                                    :target_type "Model"
+                ;                                    :thumbnail is-thumbnail))]
+                ;
+                ;;; Insert single file (either as main image or as standalone thumbnail)
+                ;    (jdbc/execute! tx (-> (sql/insert-into :images)
+                ;                          (sql/values [single-file-data])
+                ;                          (sql/returning :*)
+                ;                          sql-format))
+                ;;; Debugging output
+                ;    (println ">o> >>> Single file inserted with target_id:" target-id
+                ;             " as " (if is-thumbnail "thumbnail" "main image")))
 
               ))
-
-
-
-
           )
+
+
 
 ; Example usage: entitlements
         ; FIX ISSUE?*
