@@ -54,6 +54,14 @@
                        {} key-map)]
     (assoc renamed-data :updated_at created-ts)))
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  ;(println ">oo> " str fnc)
+  (println ">oo> " str)
+  fnc
+  )
+
 (defn update-or-insert
   [tx table where-values update-values]
   (let [select-query (-> (sql/select :*)
@@ -67,12 +75,47 @@
                            (sql/where where-values)
                            (sql/returning :*)
                            sql-format)]
-        (jdbc/execute-one! tx update-query))
+        (pr "update" (jdbc/execute-one! tx update-query)))
       (let [insert-query (-> (sql/insert-into table)
                            (sql/values [update-values])
                            (sql/returning :*)
                            sql-format)]
-        (jdbc/execute-one! tx insert-query)))))
+        (pr "insert" (jdbc/execute-one! tx insert-query))))))
+
+(defn update-insert-or-delete
+  [tx table where-values update-values entry]
+
+  (println ">o> ??? update-insert-or-delete" update-values)
+
+  (if (:delete entry)
+    ;; Perform delete operation if :delete key is present and true
+    (let [delete-query (-> (sql/delete-from table)
+                         (sql/where where-values)
+                         sql-format)]
+      (pr "delete" (jdbc/execute-one! tx delete-query)))
+
+    ;; Otherwise, perform update-or-insert as usual
+    (let [select-query (-> (sql/select :*)
+                         (sql/from table)
+                         (sql/where where-values)
+                         sql-format)
+          existing-entry (first (jdbc/execute! tx select-query))]
+      (if existing-entry
+        ;; Update if entry exists
+        (let [update-query (-> (sql/update table)
+                             (sql/set update-values)
+                             (sql/where where-values)
+                             (sql/returning :*)
+                             sql-format)]
+          (pr "update" (jdbc/execute-one! tx update-query)))
+        ;; Insert if entry does not exist
+        (let [insert-query (-> (sql/insert-into table)
+                             (sql/values [update-values])
+                             (sql/returning :*)
+                             sql-format)]
+          (pr "insert" (jdbc/execute-one! tx insert-query)))))))
+
+
 
 (defn normalize-files
   [request key]
@@ -108,7 +151,10 @@
     ))
 
 (defn update-model-handler-by-pool-form [request]
-  (let [model-id (to-uuid(get-in request [:path-params :model_id]))
+  (let [
+        p (println ">o> update-model-handler-by-pool-form !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        model-id (to-uuid(get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
 
         p (println ">o> abc" model-id (type model-id) pool-id (type pool-id))
@@ -130,6 +176,10 @@
               attachments (normalize-files request :attachments)
               images (normalize-files request :images)
               properties (parse-json-array request :properties)
+
+
+              p (println ">o> properties ??" properties)
+
               accessories (parse-json-array request :accessories)
               entitlements (parse-json-array request :entitlements)]
 
@@ -144,12 +194,34 @@
               {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)}))
 
            (println ">o> abX.2" )
+
+
+
           ;; Update properties
           (doseq [entry properties]
-            (update-or-insert tx
+
+            p (println ">o> ??? entry" entry)
+          (let [
+                id (to-uuid(:id entry))
+                where-clause (if (nil? id)
+                               [:and [:= :model_id model-id] [:= :key (:key entry)]]
+                               [:and [:= :id id] [:= :model_id model-id]]
+                        )
+                ]
+
+
+            (update-insert-or-delete tx
               :properties
-              [:and [:= :model_id model-id] [:= :key (:key entry)]]
-              {:model_id model-id :key (:key entry) :value (:value entry)}))
+              where-clause
+              {:model_id model-id :key (:key entry) :value (:value entry)} entry))
+            )
+
+
+
+
+
+
+
 
            (println ">o> abX.3" )
           ;; Update accessories

@@ -59,6 +59,8 @@
 
 <h3>'Fetch image' Test</h3>
 
+<div id="cache"></div>
+
 <div class="image-group">
     <div class="image-container">
         <img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail" alt="Lights">
@@ -321,9 +323,9 @@
                         response.properties.forEach(function(prop) {
                             var ab = $('#propertiesList').append(`
                             <div class="dynamic-item">
-                                <input type="text" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
-                                <input type="text" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
-                                <button type="button" class="remove-btn">Remove</button>
+                                <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
+                                <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
+                                <button type="button"  ftype="properties" class="remove-btn">Remove</button>
                             </div>
                         `);
                     });
@@ -338,13 +340,28 @@
                                     <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.quantity !== null ? 'checked' : ''}>
                                     In inventory
                                 </label>
-                                <button type="button" class="remove-btn">Remove</button>
+                                <button type="button" ftype="accessories" class="remove-btn">Remove</button>
                             </div>
                         `);
                     });
 
                     // Add event listener for remove button to delete only the clicked item
                     $(document).on('click', '.remove-btn', function() {
+
+                        const type = $(this).attr("ftype")
+                        const data = $("#cache").data(`deleted-${type}`) || []
+                        const key = $(this).siblings('input[name="propertyKey[]"]').val();
+                        const val = $(this).siblings('input[name="propertyValue[]"]').val();
+
+                        data.push({
+                            id: $(this).prev().attr("id"),
+                            delete: true,
+                            key: key,
+                            value: val
+                        })
+                        console.log(">o> remove-btn > ", type,  data)
+                        $("#cache").data(`deleted-${type}`, data)
+
                         $(this).closest('.dynamic-item').remove();
                     });
 
@@ -550,7 +567,9 @@
                     id: $('input[name="propertyValue[]"]').eq(index).attr('id')
                 });
             });
-            formData.append('properties', JSON.stringify(properties));
+            const deleted_data = $("#cache").data("deleted-properties")
+            const mergedProperties = properties.concat(deleted_data);
+            formData.append('properties', JSON.stringify(mergedProperties));
 
 
             // Prepare accessories
