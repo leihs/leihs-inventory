@@ -302,11 +302,26 @@
 
 
             (let [                                          ;; UPDATE/INSERT
+                  accessory-id (to-uuid(:id entry))
+
+                  where-clause (if (nil? accessory-id)
+                                 [:and [:= :model_id model-id] [:= :name (:name entry)]]
+                                 [:= :id accessory-id]
+                                 )
+
+                  ;accessory (jdbc/execute! tx (-> (sql/select :*)
+                  ;                       (sql/from :accessories)
+                  ;                       ;(sql/where [:and [:= :model_id model-id] [:= :name (:name entry)]])
+                  ;                       (sql/where  [:= :id accessory-id] )
+                  ;                       sql-format)
+
                   accessory (update-or-insert tx
                               :accessories
-                              [:and [:= :model_id model-id] [:= :name (:name entry)]]
+                              ;[:and [:= :model_id model-id] [:= :name (:name entry)]]
+                              where-clause
                               {:model_id model-id :name (:name entry)})
-                  accessory-id (:id accessory)]
+                  accessory-id (:id accessory)
+                  ]
               (when (:inventory_bool entry)
                 (update-or-insert tx
                   :accessories_inventory_pools
