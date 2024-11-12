@@ -453,6 +453,9 @@
                         :single uuid?
                         :none nil?))
 
+;(sa/def ::categories map?)
+(sa/def ::categories string?)
+
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
 (sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
@@ -516,7 +519,10 @@
                                       ::internalDescription
                                       ::importantNotes
                                   ;::allocations
-                                      ::category_ids
+
+                                      ;::category_ids
+                                      ::categories
+
                                       ::compatible_ids
                                       ::images
                                       ::attachments

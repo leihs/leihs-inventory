@@ -146,17 +146,28 @@
       (sql/where where-clause)
       sql-format)))
 
+
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str )
+  fnc
+  )
+
 (defn parse-json-array
   [request key]
   (let [json-array-string (get-in request [:parameters :multipart key])
 
-        p (println ">o> json-array-string??" json-array-string (type json-array-string) (string? json-array-string))
+        p (println ">o> parse-json-array0" key)
+        p (println ">o> parse-json-array1" (type json-array-string))
+
+        p (println ">o> parse-json-array2" json-array-string (type json-array-string) (string? json-array-string))
         ]
     (cond
-      (not json-array-string) []
-      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]"])) []
+      (not json-array-string) (pr2 "1"[])
+      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]"])) (pr2 "2"[])
       ;:else (json/read-str (str "[" json-array-string "]") :key-fn keyword))
-      :else (json/read-str  json-array-string :key-fn keyword))
+      :else (pr2 "3" (json/read-str  json-array-string :key-fn keyword))
+      )
     ))
 
 
@@ -168,21 +179,42 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
 
         p (println ">o> abc" model-id (type model-id) pool-id (type pool-id))
+        p (println ">o> abc1")
 
         multipart (get-in request [:parameters :multipart])
+        p (println ">o> abc2")
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+        p (println ">o> abc3")
+        prepared-model-data (prepare-model-data multipart)
+        p (println ">o> abc4")
+
+
+        ]
     (try
       (let [update-model-query (-> (sql/update :models)
                                  (sql/set prepared-model-data)
                                  (sql/where [:= :id model-id])
                                  (sql/returning :*)
                                  sql-format)
-            updated-model (jdbc/execute-one! tx update-model-query)]
+            updated-model (jdbc/execute-one! tx update-model-query)
+
+        p (println ">o> abc4")
+            ]
 
         ;; Update associated tables with parsed values
-        (let [compatibles (parse-uuid-values :compatible_ids request)
-              categories (parse-uuid-values :category_ids request)
+        (let [
+
+              compatibles (parse-uuid-values :compatible_ids request)
+              ;compatibles (parse-json-array request :compatibles )
+
+              ;categories (parse-uuid-values :category_ids request)
+              categories (parse-json-array request :categories )
+              p (println ">o> abc.categories" categories)   ;;fails
+              ;p (println ">o> abc.categories2" (:categories multipart) (type (:categories multipart))) ;;ok
+              ;p (println ">o> abc.categories3" (keys multipart))
+              ;categories (:categories multipart)
+
+
               attachments (normalize-files request :attachments)
               images (normalize-files request :images)
               properties (parse-json-array request :properties)
@@ -298,9 +330,31 @@
               [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
               {:model_id model-id :compatible_id compatible-id}))
 
+
+
            (println ">o> abX.5" )
-          ;; Update model categories
-          (doseq [category-id categories]
+          ;; Update model categories, insert only??
+          (doseq [category categories]
+
+             (let [
+                      p (println ">o> category ????" category)
+                      p (println ">o> category ???? del?" (:delete category))
+
+                   category-id (to-uuid (:id category))
+
+                      ]
+
+               (if (:delete category)
+                 (let [
+                   res (jdbc/execute! tx (-> (sql/delete-from :model_links)
+                                         (sql/where [:= :model_id model-id] [:= :model_group_id category-id])
+                                         sql-format))
+
+                       p (println ">o> delete.category.res" res)
+
+                       ]
+                   (println ">o> DELETE CATEGORY" ))
+                 (do
             (update-or-insert tx
               :model_links
               [:and [:= :model_id model-id] [:= :model_group_id category-id]]
@@ -309,6 +363,15 @@
               :inventory_pools_model_groups
               [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
               {:inventory_pool_id pool-id :model_group_id category-id}))
+
+
+                   )
+
+                 )
+               )
+
+
+
 
            (println ">o> abX.6" )
           ;; Additional file handling for attachments and images (similar to existing logic)
