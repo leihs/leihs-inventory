@@ -345,13 +345,10 @@
                         `);
                     });
 
-                    // Add event listener for remove button to delete only the clicked item
-                    $(document).on('click', '.remove-btn', function() {
-
-                        const type = $(this).attr("ftype")
-                        const data = $("#cache").data(`deleted-${type}`) || []
-                        const key = $(this).siblings('input[name="propertyKey[]"]').val();
-                        const val = $(this).siblings('input[name="propertyValue[]"]').val();
+                    function cacheDeletedProperties(type, obj) {
+                        var data = $("#cache").data(`deleted-${type}`) || []
+                        const key = obj.siblings('input[name="propertyKey[]"]').val();
+                        const val = obj.siblings('input[name="propertyValue[]"]').val();
 
                         data.push({
                             id: $(this).prev().attr("id"),
@@ -359,6 +356,62 @@
                             key: key,
                             value: val
                         })
+                        return data
+                    }
+
+                    function cacheDeletedAccessories(type, obj) {
+                        const data = $("#cache").data(`deleted-${type}`) || []
+                        // const key = $(this).siblings('input[name="accessoryName[]"]').val();
+                        // const val = $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
+
+                        // if(data.length ==0)
+                        //     return data;
+
+                        // $('input[name="accessoryName[]"]').each(function(index) {
+                        //     accessoriesArray.push({
+                        //         name: $(this).val(),
+                        //         is_inventory: $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
+                        //     });
+                        // });
+debugger
+                        data.push({
+                            id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
+                            delete: true,
+                            name: obj.siblings('input[name="accessoryName[]"]').val(),
+                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
+                        })
+                        return data
+                    }
+
+
+                    // Add event listener for remove button to delete only the clicked item
+                    $(document).on('click', '.remove-btn', function() {
+
+                        const type = $(this).attr("ftype")
+                        // const data = $("#cache").data(`deleted-${type}`) || []
+
+                        var data=[];
+
+
+                        console.log(">o> remove-btn > !!!!", type)
+                        if (type === 'properties') {
+                            data = cacheDeletedProperties(type, $(this))
+                        } else if (type === 'accessories') {
+                            debugger
+                            data = cacheDeletedAccessories(type, $(this))
+                        }
+
+
+
+                        // const key = $(this).siblings('input[name="propertyKey[]"]').val();
+                        // const val = $(this).siblings('input[name="propertyValue[]"]').val();
+                        //
+                        // data.push({
+                        //     id: $(this).prev().attr("id"),
+                        //     delete: true,
+                        //     key: key,
+                        //     value: val
+                        // })
                         console.log(">o> remove-btn > ", type,  data)
                         $("#cache").data(`deleted-${type}`, data)
 
@@ -393,7 +446,7 @@
                             <div class="file-item">
                                 <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
                                 <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
-                                <button type="button" class="remove-file-btn" data-file-id="${image.id}">Remove</button>
+                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}">Remove</button>
                             </div>
                         `);
                     });
@@ -404,7 +457,7 @@
                         $('#attachmentsList').append(`
                             <div class="file-item">
                                 <span>${attachment.filename}</span>
-                                <button type="button" class="remove-file-btn" data-file-id="${attachment.id}">Remove</button>
+                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}">Remove</button>
                             </div>
                         `);
                     });
@@ -567,8 +620,8 @@
                     id: $('input[name="propertyValue[]"]').eq(index).attr('id')
                 });
             });
-            const deleted_data = $("#cache").data("deleted-properties")
-            const mergedProperties = properties.concat(deleted_data);
+            var deleted_data = $("#cache").data("deleted-properties") || []
+            var mergedProperties = properties.concat(deleted_data);
             formData.append('properties', JSON.stringify(mergedProperties));
 
 
@@ -576,7 +629,7 @@
             var accessories = [];
             $('input[name="accessoryName[]"]').each(function(index, option) {
 
-                if(option.textContent !== 'Select an option'){
+                if(option.textContent === 'Select an option'){
                     return;
                 }
 
@@ -586,6 +639,11 @@
                     id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
                 });
             });
+            debugger
+            deleted_data = $("#cache").data("deleted-accessories") || []
+            mergedProperties = accessories.concat(deleted_data);
+            console.log(">o> accessories > ", mergedProperties)
+            formData.append('accessories', JSON.stringify(mergedProperties));
 
 
             // Prepare entitlements
@@ -610,15 +668,15 @@
 
 
             // Prepare entitlements
-            const accessoriesArray = [];
-            $('input[name="accessoryName[]"]').each(function(index) {
-                accessoriesArray.push({
-                    name: $(this).val(),
-                    is_inventory: $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
-                });
-            });
-            formData.delete('accessories');
-            formData.append('accessories', JSON.stringify(accessoriesArray));
+            // const accessoriesArray = [];
+            // $('input[name="accessoryName[]"]').each(function(index) {
+            //     accessoriesArray.push({
+            //         name: $(this).val(),
+            //         is_inventory: $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
+            //     });
+            // });
+            // formData.delete('accessories');
+            // formData.append('accessories', JSON.stringify(accessoriesArray));
 
 
             formData.delete('accessoryName[]');

@@ -137,6 +137,15 @@
     ;; Return the filtered files
     filtered))
 
+
+(defn select-entries
+  [tx table columns where-clause]
+  (jdbc/execute! tx
+    (-> (apply sql/select columns)
+      (sql/from table)
+      (sql/where where-clause)
+      sql-format)))
+
 (defn parse-json-array
   [request key]
   (let [json-array-string (get-in request [:parameters :multipart key])
@@ -149,6 +158,7 @@
       ;:else (json/read-str (str "[" json-array-string "]") :key-fn keyword))
       :else (json/read-str  json-array-string :key-fn keyword))
     ))
+
 
 (defn update-model-handler-by-pool-form [request]
   (let [
@@ -220,13 +230,34 @@
 
 
 
-
-
-
            (println ">o> abX.3" )
           ;; Update accessories
           (doseq [entry accessories]
-            (let [accessory (update-or-insert tx
+
+                    (println ">o> DELETE!!!" entry)
+            (if (:delete entry)
+              (let [                                        ;; DELETE
+
+                    p (println ">o> DELETE!!!" (:delete entry))
+
+                    id (to-uuid(:id entry))
+                    query (-> (sql/delete-from :accessories_inventory_pools)
+                               (sql/where [:= :accessory_id id] [:= :inventory_pool_id pool-id])
+                               sql-format)
+                    res (try (jdbc/execute! tx query) (catch Exception e (error "Failed to delete :accessories_inventory_pools" (.getMessage e))))
+                    p (println ">o> del1.res" res)
+
+                    query (-> (sql/delete-from :accessories)
+                               (sql/where [:= :id id])
+                               sql-format)
+                    ;res (jdbc/execute! tx query)
+                    res (try (jdbc/execute! tx query) (catch Exception e (error "Failed to delete :accessories" (.getMessage e))))
+                    p (println ">o> del2.res" res)                                                  ])
+
+
+
+            (let [                                          ;; UPDATE/INSERT
+                  accessory (update-or-insert tx
                               :accessories
                               [:and [:= :model_id model-id] [:= :name (:name entry)]]
                               {:model_id model-id :name (:name entry)})
@@ -235,7 +266,16 @@
                 (update-or-insert tx
                   :accessories_inventory_pools
                   [:and [:= :accessory_id accessory-id] [:= :inventory_pool_id pool-id]]
-                  {:accessory_id accessory-id :inventory_pool_id pool-id}))))
+                  {:accessory_id accessory-id :inventory_pool_id pool-id})))
+
+
+            )
+            )
+
+
+
+
+
 
            (println ">o> abX.4" )
           ;; Update compatible models
