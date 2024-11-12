@@ -455,6 +455,7 @@
 
 ;(sa/def ::categories map?)
 (sa/def ::categories string?)
+(sa/def ::compatibles string?)
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
@@ -523,7 +524,8 @@
                                       ;::category_ids
                                       ::categories
 
-                                      ::compatible_ids
+                                      ;::compatible_ids
+                                      ::compatibles
                                       ::images
                                       ::attachments
 

@@ -226,6 +226,9 @@
                             option.textContent = item.product;
                             $(option).data('compatible', item);
                             select.appendChild(option);
+
+
+
                             return;
                         }
 
@@ -265,6 +268,16 @@
                     if(selectId === 'entitlements'){
                     // debugger
                         $("#cache").data(`prev-${selectId}`,  $('#entitlements').val());
+                    }
+
+                    if(selectId === 'compatibles'){
+                    // debugger
+                        $("#cache").data(`prev-${selectId}`,  $('#compatibles').val());
+                    }
+
+                    if(selectId === 'categories'){
+                    // debugger
+                        $("#cache").data(`prev-${selectId}`,  $('#categories').val());
                     }
 
 
@@ -383,16 +396,6 @@
                         return data
                     }
 
-                    function cacheDeletedCategories(type, obj) {
-                        const data = $("#cache").data(`deleted-${type}`) || []
-                        data.push({
-                            id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
-                            delete: true,
-                            name: obj.siblings('input[name="accessoryName[]"]').val(),
-                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
-                        })
-                        return data
-                    }
 
 
                     // Add event listener for remove button to delete only the clicked item
@@ -404,13 +407,11 @@
                             data = cacheDeletedProperties(type, $(this))
                         } else if (type === 'accessories') {
                             data = cacheDeletedAccessories(type, $(this))
-
-                        // } else if (type === 'categories') {
-                        //     data = cacheDeletedCategories(type, $(this))
                         } else  {
                             console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
                         }
 
+                        // debugger
                         console.log(">o> remove-btn > ", type,  data)
                         $("#cache").data(`deleted-${type}`, data)
 
@@ -510,10 +511,68 @@
 
 
 
-
+// debugger
+                    if (response.compatibles) {
 
                     // Populate compatibles
                     $('#compatibles').val(response.compatibles.map(c => c.id)).trigger('change');
+                    $('#compatibles').find('option:selected').each(function(index, option, a, b) {
+                        const categoryId = $(option).val();
+                        // debugger
+                        var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
+                        if (entitlementData) {
+
+                            // console.log('Removed option data:', removedEntitlementData);
+                            // var keyMapa = { model_id: "id" };
+                            // entitlementData = renameKeys(entitlementData, keyMapa);
+
+// debugger
+                            $(option).data('compatible', entitlementData);
+                            console.log('Updated option data:', $(option).data('compatible'));
+                        }
+                    });
+                    $("#cache").data("prev-compatibles",  $('#compatibles').val())
+
+                    $('#compatibles').on('change', function() {
+                        const currentSelection = $(this).val() || [];
+                        const previousSelection = $("#cache").data("prev-compatibles") || [];
+                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+// debugger
+                        var deleted_data = $("#cache").data("deleted-compatibles") || []
+                        removedOptions.forEach(id => {
+                            const removedOption = $(this).find(`option[value="${id}"]`);
+                            var removedEntitlementData = removedOption.data('compatible')
+                            if(removedEntitlementData == undefined){
+                                return;
+                            }
+
+                            removedEntitlementData.delete = true;
+
+                            // console.log('Removed option data:', removedEntitlementData);
+                            // var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
+                            // removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
+
+                            // debugger
+                            deleted_data.push(removedEntitlementData)
+                        });
+
+                        $("#cache").data("deleted-compatibles",  deleted_data);
+                        // $("#cache").data("deleted-categories",  deleted_data);
+
+                        $("#cache").data("prev-compatibles",  currentSelection);
+                    });
+                    };
+
+
+
+
+
+
+
+
+
+
+
 
                     // Populate existing images
                     $('#imagesList').empty();
@@ -726,6 +785,7 @@
             formData.append('accessories', JSON.stringify(mergedProperties));
 
 
+
             // Prepare entitlements
             const entitlements = [];
             $('#entitlements').find('option:selected').each(function(index, option) {
@@ -750,6 +810,8 @@
             console.log(">o> entitlements > ", mergedProperties)
             formData.append('entitlements', JSON.stringify(mergedProperties));
 
+
+
             // Prepare categories
             const categories = [];
             $('#categories').find('option:selected').each(function(index, option) {
@@ -758,7 +820,7 @@
                 }
 
                 const categoriesData = $(option).data().categories
-                debugger
+                // debugger
                 // const entitlement = categoriesData.entitlement
                 // const entitlement_group = categoriesData.entitlement_group
                 // id name type
@@ -771,12 +833,62 @@
                     // });
                 }
             });
-            debugger
+            // debugger
             formData.delete('categories');
             deleted_data = $("#cache").data("deleted-categories") || []
             mergedProperties = categories.concat(deleted_data);
             console.log(">o> categories > ", mergedProperties)
             formData.append('categories', JSON.stringify(mergedProperties));
+
+
+
+
+            // Prepare compatibles
+            const compatibles = [];
+            $('#compatibles').find('option:selected').each(function(index, option) {
+                if(option.textContent === 'Select an option'){
+                    return;
+                }
+
+                const categoriesData = $(option).data().compatible
+                // debugger
+                // const entitlement = categoriesData.entitlement
+                // const entitlement_group = categoriesData.entitlement_group
+                // id name type
+                if (categoriesData) {
+                    compatibles.push(categoriesData)
+                    // categories.push({
+                    //     entitlement_group_id: entitlement_group.id,
+                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
+                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
+                    // });
+                }
+            });
+            // debugger
+            formData.delete('compatibles');
+            deleted_data = $("#cache").data("deleted-compatibles") || []
+            mergedProperties = compatibles.concat(deleted_data);
+
+
+            console.log(">o> compatibles 1> ", mergedProperties)
+            // // console.log('Removed option data:', removedEntitlementData);
+
+            debugger
+
+
+            var keyMapa = { model_id: "id" };
+            mergedProperties.forEach(function(item, index) {
+                mergedProperties[index] = renameKeys(item, keyMapa);
+            } );
+
+
+
+            console.log(">o> compatibles 2> ", mergedProperties)
+
+
+
+            formData.append('compatibles', JSON.stringify(mergedProperties));
+
 
 
             // Prepare entitlements

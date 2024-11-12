@@ -204,8 +204,8 @@
         ;; Update associated tables with parsed values
         (let [
 
-              compatibles (parse-uuid-values :compatible_ids request)
-              ;compatibles (parse-json-array request :compatibles )
+              ;compatibles (parse-uuid-values :compatible_ids request)
+              compatibles (parse-json-array request :compatibles )
 
               ;categories (parse-uuid-values :category_ids request)
               categories (parse-json-array request :categories )
@@ -324,11 +324,31 @@
 
            (println ">o> abX.4" )
           ;; Update compatible models
-          (doseq [compatible-id compatibles]
-            (update-or-insert tx
+          (doseq [compatible compatibles]
+
+
+            (let [
+                  ;compatible-id (to-uuid (:model_id compatible))
+                  compatible-id (to-uuid (:id compatible))
+                  p (println ">o> ???? compatible-id" compatible-id model-id)
+                  p (println ">o> ???? compatible-id.compatible" compatible)
+                  ;where-clause (if (nil? compatible-id)
+                  ;               [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
+                  ;               [:and [:= :id compatible-id] [:= :model_id model-id]]
+                  ;               )
+
+                  where-clause [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
+                  ]
+
+
+            (update-insert-or-delete tx
               :models_compatibles
-              [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
-              {:model_id model-id :compatible_id compatible-id}))
+              ;[:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
+              where-clause
+              {:model_id model-id :compatible_id compatible-id}
+              compatible
+              ))
+              )
 
 
 
