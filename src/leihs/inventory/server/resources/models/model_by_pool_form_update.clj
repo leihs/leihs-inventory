@@ -198,10 +198,23 @@
 
           ;; Update entitlements
           (doseq [entry entitlements]
-            (update-or-insert tx
+
+            (let [
+                  id (to-uuid(:entitlement_id entry))
+                  where-clause (if (nil? id)
+                                 [:and [:= :model_id model-id] [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
+                                 [:and [:= :id id] [:= :model_id model-id]]
+                                 )
+
+
+                  p (println ">o> entitlements ?? " id (:delete entry))
+                  ]
+
+            (update-insert-or-delete tx
               :entitlements
-              [:and [:= :model_id model-id] [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
-              {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)}))
+              ;[:and [:= :model_id model-id] [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
+              where-clause
+              {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)} entry)))
 
            (println ">o> abX.2" )
 
