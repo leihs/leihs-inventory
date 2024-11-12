@@ -82,6 +82,24 @@
                            sql-format)]
         (pr "insert" (jdbc/execute-one! tx insert-query))))))
 
+
+(defn insert-if-not-exists
+  [tx table where-values insert-values]
+  (let [select-query (-> (sql/select :*)
+                       (sql/from table)
+                       (sql/where where-values)
+                       sql-format)
+        existing-entry (first (jdbc/execute! tx select-query))]
+    (if (nil? existing-entry)
+      (let [insert-query (-> (sql/insert-into table)
+                           (sql/values [insert-values])
+                           (sql/returning :*)
+                           sql-format)]
+        (pr "insert" (jdbc/execute-one! tx insert-query)))
+      (println "Entry already exists, skipping insert"))))
+
+
+
 (defn update-insert-or-delete
   [tx table where-values update-values entry]
 
