@@ -511,14 +511,17 @@
 
 
 
-// debugger
+debugger
                     if (response.compatibles) {
 
                     // Populate compatibles
-                    $('#compatibles').val(response.compatibles.map(c => c.id)).trigger('change');
+                    $('#compatibles').val(response.compatibles
+                        .filter(c => c && c.id != null)
+                        .map(c => c.id)).trigger('change');
+
                     $('#compatibles').find('option:selected').each(function(index, option, a, b) {
                         const categoryId = $(option).val();
-                        // debugger
+                        debugger
                         var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
                         if (entitlementData) {
 
