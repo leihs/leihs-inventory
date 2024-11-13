@@ -22,16 +22,6 @@
    (java.time LocalDateTime)
    [java.util UUID]))
 
-(defn parse-uuid-values
-  [key request]
-  (let [raw-value (get-in request [:parameters :multipart key])]
-    (cond
-      (instance? UUID raw-value) [raw-value]
-      (and (instance? String raw-value) (not (str/includes? raw-value ","))) [(UUID/fromString raw-value)]
-      (and (instance? String raw-value) (str/includes? raw-value ","))
-      (mapv #(UUID/fromString %) (str/split raw-value #",\s*"))
-      :else [])))
-
 (defn prepare-model-data
   [data]
   (let [key-map {:type :type
@@ -70,19 +60,6 @@
                            sql-format)]
         (jdbc/execute-one! tx insert-query)))))
 
-(defn insert-if-not-exists
-  [tx table where-values insert-values]
-  (let [select-query (-> (sql/select :*)
-                       (sql/from table)
-                       (sql/where where-values)
-                       sql-format)
-        existing-entry (first (jdbc/execute! tx select-query))]
-    (when (nil? existing-entry)
-      (let [insert-query (-> (sql/insert-into table)
-                           (sql/values [insert-values])
-                           (sql/returning :*)
-                           sql-format)]
-        (jdbc/execute-one! tx insert-query)))))
 
 (defn update-insert-or-delete
   [tx table where-values update-values entry]
@@ -109,15 +86,6 @@
                              sql-format)]
           (jdbc/execute-one! tx insert-query))))))
 
-(defn normalize-files
-  [request key]
-  (let [attachments (get-in request [:parameters :multipart key])
-        normalized (if (map? attachments)
-                     [attachments]
-                     attachments)
-        filtered  (vec (filter #(pos? (:size % 0)) normalized))]
-    filtered))
-
 (defn parse-json-array
   [request key]
   (let [json-array-string (get-in request [:parameters :multipart key])]
@@ -125,6 +93,16 @@
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]"])) []
       :else (json/read-str json-array-string :key-fn keyword))))
+
+(defn normalize-files
+  [request key]
+  (let [attachments (get-in request [:parameters :multipart key])
+        normalized (if (map? attachments)
+                     [attachments]
+                     attachments)
+        filtered (vec (filter #(pos? (:size % 0)) normalized))]
+    filtered))
+
 
 (defn update-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))

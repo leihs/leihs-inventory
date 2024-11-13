@@ -95,51 +95,6 @@
         filtered (vec (filter #(pos? (:size % 0)) normalized))]
     filtered))
 
-(defn base64-to-bytes [encoded-content]
-  (b64/decode (.getBytes encoded-content)))
-
-(defn file-to-base64 [file]
-  (when file
-    (let [bytes (with-open [in (io/input-stream file)
-                            out (java.io.ByteArrayOutputStream.)]
-                  (io/copy in out)
-                  (.toByteArray out))]
-      (String. (b64/encode bytes)))))
-
-(defn file-to-base64 [file]
-  (when file
-    (println "Debug: Reading file:" file)  ; Print the file input
-    (let [bytes (with-open [in (io/input-stream file)
-                            out (java.io.ByteArrayOutputStream.)]
-                  (io/copy in out)
-                  (.toByteArray out))]
-      (println "Debug: File bytes:" bytes)  ; Print the raw byte array
-
-      (let [encoded-str (String. (b64/encode bytes))]
-        (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
-        encoded-str))))
-
-
-(defn file-to-base64 [file]
-  (when file
-    (println "Debug: Received file metadata:" file)  ; Print the file metadata
-
-    ;; Extract the :tempfile, which is the actual file that can be read
-    (let [temp-file (:tempfile file)]  ; Get the actual file object
-      (println "Debug: Using tempfile:" temp-file)
-
-      (when temp-file
-        (let [bytes (with-open [in (io/input-stream temp-file)
-                                out (java.io.ByteArrayOutputStream.)]
-                      (io/copy in out)
-                      (.toByteArray out))]
-          (println "Debug: File bytes:" bytes)  ; Print the raw byte array
-
-          (let [encoded-str (String. (b64/encode bytes))]
-            (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
-            encoded-str))))))
-
-
 (defn file-to-base64 [file]
   (let [actual-file (if (instance? java.io.File file)
                       file                     ; If `file` is already a java.io.File, use it directly
@@ -164,10 +119,6 @@
         nil))))
 
 
-
-
-(defn extract-metadata [file-path]
-  (extract/parse file-path))
 
 (defn create-model-handler-by-pool-form [request]
   (let [created_ts (LocalDateTime/now)
