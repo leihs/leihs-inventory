@@ -102,17 +102,17 @@
 
     (if actual-file
       (do
-        (println "Debug: Using file object:" actual-file)  ; Print the actual file object
+        ;(println "Debug: Using file object:" actual-file)  ; Print the actual file object
 
         ;; Read the file as bytes and encode to Base64
         (let [bytes (with-open [in (io/input-stream actual-file)
                                 out (java.io.ByteArrayOutputStream.)]
                       (io/copy in out)
                       (.toByteArray out))]
-          (println "Debug: File bytes:" bytes)  ; Print the raw byte array
+          ;(println "Debug: File bytes:" bytes)  ; Print the raw byte array
 
           (let [encoded-str (String. (b64/encode bytes))]
-            (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
+            ;(println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
             encoded-str)))
       (do
         (println "Error: No valid file or tempfile found")
