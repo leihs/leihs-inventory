@@ -127,11 +127,13 @@
     <div class="form-group">
         <label for="images">Bilder</label>
         <input type="file" id="images" name="images" multiple accept="image/*">
+        <input type="input" id="images-to-delete" name="images-to-delete" />
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
         <label for="attachments">Anhänge</label>
         <input type="file" id="attachments" name="attachments" multiple>
+        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
         <div id="attachmentsList" class="file-list"></div>
     </div>
     <div class="form-group">
@@ -579,23 +581,23 @@ debugger
 
                     // Populate existing images
                     $('#imagesList').empty();
-                    response.images.forEach(function(image) {
+                    response.images.forEach(function(image, index) {
                         $('#imagesList').append(`
                             <div class="file-item">
                                 <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
                                 <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
-                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}">Remove</button>
+                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}"  data-file-index="${index}">Remove</button>
                             </div>
                         `);
                     });
 
                     // Populate existing attachments
                     $('#attachmentsList').empty();
-                    response.attachments.forEach(function(attachment) {
+                    response.attachments.forEach(function(attachment, index) {
                         $('#attachmentsList').append(`
                             <div class="file-item">
                                 <span>${attachment.filename}</span>
-                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}">Remove</button>
+                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}" data-file-index="${index}">Remove</button>
                             </div>
                         `);
                     });
@@ -685,16 +687,16 @@ debugger
 
         // Handle file selection for images
         $('#images').change(function() {
-            updateFileList(this, '#imagesList');
+            updateFileList(this, '#imagesList', 'images');
         });
 
         // Handle file selection for attachments
         $('#attachments').change(function() {
-            updateFileList(this, '#attachmentsList');
+            updateFileList(this, '#attachmentsList', 'attachments');
         });
 
         // Update file list
-        function updateFileList(input, listSelector) {
+        function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
             fileList.empty();
 
@@ -707,22 +709,49 @@ debugger
                     fileList.append(`
                         <div class="file-item">
                             <span>${fileName}</span>
-                            <button type="button" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
                         </div>
                     `);
                 }
             }
         }
 
+        // // jQuery to add a click event to the remove button
+        // $('#removeFileButton').click(function() {
+        //     // Clear the file input
+        //     $('#images').val('');
+        //
+        //     // Optionally, log a message or perform additional actions
+        //     console.log("File input cleared.");
+        // });
+
         // Remove file from list
         $(document).on('click', '.remove-file-btn', function() {
-            var fileIndex = $(this).data('file-index');
+            // var fileIndex = $(this).data('file-index');
+            var fileIndex = $(this).attr('data-file-index');
+            var fileId = $(this).data('fileId')
             var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
-            removeFile(inputId, fileIndex);
+
+
+            debugger
+            // removeFile(inputId, fileIndex);
+
+            $(`#${inputId}List`).children().eq(fileIndex).remove();
+
+
+
+            var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
+            toDelte.push(fileId)
+            $(`#${inputId}-to-delete`).data('to-delete', toDelte)
+
+
         });
 
         // Remove file from input
         function removeFile(inputId, index) {
+
+            debugger
+
             var input = document.getElementById(inputId);
             var files = Array.from(input.files);
             files.splice(index, 1);
@@ -733,7 +762,7 @@ debugger
             input.files = dataTransfer.files;
 
             // Update the file list display
-            updateFileList(input, `#${inputId}List`);
+            updateFileList(input, `#${inputId}List`, inputId);
         }
 
 
@@ -904,6 +933,14 @@ debugger
             // });
             // formData.delete('accessories');
             // formData.append('accessories', JSON.stringify(accessoriesArray));
+
+            formData.delete('images-to-delete');
+            var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
+            formData.append('images-to-delete', JSON.stringify(imagesToDelete));
+
+            formData.delete('attachments-to-delete');
+            var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
+            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
 
 
             formData.delete('accessoryName[]');
