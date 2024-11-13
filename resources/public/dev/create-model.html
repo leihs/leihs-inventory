@@ -56,18 +56,21 @@
     </style>
 </head>
 <body>
+<script>
+    document.IMAGE_UUID = '0062c982-bd38-4fd4-840d-9f142023744e'
 
+</script>
 <h3>'Fetch image' Test</h3>
 
 <div id="cache"></div>
 
 <div class="image-group">
     <div class="image-container">
-        <img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail" alt="Lights">
+        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
         <p class="image-footer">Thumbnail Image by img-Tag</p>
     </div>
     <div class="image-container">
-        <img src="http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10" alt="Lights">
+        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
         <p class="image-footer">Image by img-Tag</p>
     </div>
     <div class="image-container">
@@ -628,7 +631,7 @@ debugger
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
-            fetch("http://localhost:3260/inventory/images/fe8e42a0-1d31-4449-8c91-24c17ddd5d10/thumbnail", {
+            fetch("http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
                 headers: {
                     "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
                 }
@@ -727,23 +730,14 @@ debugger
 
         // Remove file from list
         $(document).on('click', '.remove-file-btn', function() {
-            // var fileIndex = $(this).data('file-index');
-            var fileIndex = $(this).attr('data-file-index');
             var fileId = $(this).data('fileId')
             var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
-
-
-            debugger
-            // removeFile(inputId, fileIndex);
-
-            $(`#${inputId}List`).children().eq(fileIndex).remove();
-
-
 
             var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
             toDelte.push(fileId)
             $(`#${inputId}-to-delete`).data('to-delete', toDelte)
 
+            $(this).parent().remove();
 
         });
 
@@ -773,6 +767,8 @@ debugger
             $('#accessoriesList').empty();
             $('#imagesList').empty();
             $('#attachmentsList').empty();
+            $('#images-to-delete').empty();
+            $('#attachments-to-delete').empty();
             $('select').val(null).trigger('change');
         }
 

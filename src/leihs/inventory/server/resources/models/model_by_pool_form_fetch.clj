@@ -54,7 +54,7 @@
             res6 (-> (sql/select :m.cover_image_id :i.id :i.filename :i.content_type)
                    (sql/from [:models :m])
                    (sql/right-join [:images :i] [:= :i.target_id :m.id])
-                   (sql/where [:= :m.id model-id])
+                   (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
                    sql-format)
 
             res6 (jdbc/execute! tx res6)

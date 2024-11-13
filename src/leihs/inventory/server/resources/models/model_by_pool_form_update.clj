@@ -104,6 +104,35 @@
     filtered))
 
 
+(defn base-filename
+  [filename]
+  (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]
+    (str base extension)
+    filename))
+
+(defn file-to-base64 [file]
+  (let [actual-file (if (instance? java.io.File file)
+                      file                     ; If `file` is already a java.io.File, use it directly
+                      (:tempfile file))]       ; Otherwise, extract :tempfile from the map
+
+    (if actual-file
+      (do
+        (println "Debug: Using file object:" actual-file)  ; Print the actual file object
+
+        ;; Read the file as bytes and encode to Base64
+        (let [bytes (with-open [in (io/input-stream actual-file)
+                                out (java.io.ByteArrayOutputStream.)]
+                      (io/copy in out)
+                      (.toByteArray out))]
+          (println "Debug: File bytes:" bytes)  ; Print the raw byte array
+
+          (let [encoded-str (String. (b64/encode bytes))]
+            (println "Debug: Base64 encoded string:" encoded-str)  ; Print the Base64 string result
+            encoded-str)))
+      (do
+        (println "Error: No valid file or tempfile found")
+        nil))))
+
 (defn update-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -120,11 +149,135 @@
 
         (let [compatibles (parse-json-array request :compatibles)
               categories (parse-json-array request :categories)
+
               attachments (normalize-files request :attachments)
+              attachments-to-delete (parse-json-array request :attachments-to-delete)
               images (normalize-files request :images)
+              images-to-delete (parse-json-array request :images-to-delete)
+
+ _             (println ">o> attachments-to-delete" attachments-to-delete)
+
+_          (println ">o> images-to-delete" images-to-delete)
+
+
               properties (parse-json-array request :properties)
               accessories (parse-json-array request :accessories)
               entitlements (parse-json-array request :entitlements)]
+
+
+
+
+
+
+          (doseq [entry attachments]
+            (let [file (:tempfile entry)
+                  file-content (file-to-base64 file)
+                  data (dissoc entry :tempfile)
+                  data (assoc data :content file-content :model_id model-id)]
+              (jdbc/execute! tx (-> (sql/insert-into :attachments)
+                                  (sql/values [data])
+                                  (sql/returning :*)
+                                  sql-format))))
+
+          (doseq [id attachments-to-delete]
+            (println ">o> attachments-to-delete" attachments-to-delete)
+            (jdbc/execute! tx
+              (-> (sql/delete-from :attachments)
+                (sql/where [:= :id (to-uuid id)])
+                sql-format)))
+
+
+
+
+        (doseq [id images-to-delete]
+            (println ">o> images-to-delete" id)
+
+          (let [
+                id (to-uuid id)
+
+                row (jdbc/execute-one! tx
+                  (-> (sql/select :*)
+                    (sql/from :models)
+                    (sql/where [:= :id model-id])
+                    sql-format))
+
+                _ (when (= (:cover_image_id row) id)
+                    (jdbc/execute! tx
+                      (-> (sql/update :models)
+                        (sql/set {:cover_image_id nil})
+                        (sql/where [:= :id model-id])
+                        sql-format))
+
+                    )
+                ]
+
+
+            (jdbc/execute! tx
+              (sql-format
+                {:with [[ :ordered_images
+                         {:select [:id]
+                          :from [:images]
+                          :where [:or
+                                  [:= :parent_id id]
+                                  [:= :id  id]]
+                          :order-by [[:parent_id :asc]]}]]
+                 :delete-from :images
+                 :where [:in :id {:select [:id] :from [:ordered_images]}]})
+              )
+            )
+
+
+
+          )
+
+
+          (let [image-groups (group-by #(base-filename (:filename %)) images)
+                CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
+            (doseq [[_ entries] image-groups]
+              (when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+                (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
+                                           [(second entries) (first entries)]
+                                           [(first entries) (second entries)])
+                      target-id model-id
+                      file (:tempfile main-image)
+                      file-content (file-to-base64 main-image)
+                      main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
+                                        (dissoc :tempfile)
+                                        (assoc :content file-content
+                                          :target_id target-id
+                                          :target_type "Model"
+                                          :thumbnail false))
+                      main-image-res (-> (sql/insert-into :images)
+                                       (sql/values [main-image-data])
+                                       (sql/returning :*)
+                                       sql-format)
+                      main-image-result (first (jdbc/execute! tx main-image-res))
+                      file (:tempfile thumb)
+                      file-content (file-to-base64 file)
+                      thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
+                                       (dissoc :tempfile)
+                                       (assoc :content file-content
+                                         :target_id target-id
+                                         :target_type "Model"
+                                         :thumbnail true
+                                         :parent_id (:id main-image-result)))]
+                  (jdbc/execute! tx (-> (sql/insert-into :images)
+                                      (sql/values [thumbnail-data])
+                                      (sql/returning :*)
+                                      sql-format))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
           (doseq [entry entitlements]
             (let [id (to-uuid (:entitlement_id entry))

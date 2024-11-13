@@ -456,6 +456,8 @@
 ;(sa/def ::categories map?)
 (sa/def ::categories string?)
 (sa/def ::compatibles string?)
+(sa/def ::images-to-delete string?)
+(sa/def ::attachments-to-delete string?)
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
@@ -523,6 +525,9 @@
 
                                       ;::category_ids
                                       ::categories
+
+                                      ::attachments-to-delete
+                                      ::images-to-delete
 
                                       ;::compatible_ids
                                       ::compatibles
