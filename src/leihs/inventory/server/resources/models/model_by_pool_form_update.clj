@@ -280,14 +280,21 @@ _          (println ">o> images-to-delete" images-to-delete)
 
 
           (doseq [entry entitlements]
+
+            (println ">o> entitlements.entry >> " entry)
             (let [id (to-uuid (:entitlement_id entry))
                   where-clause (if (nil? id)
                                  [:and [:= :model_id model-id] [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
-                                 [:and [:= :id id] [:= :model_id model-id]])]
+                                 [:and [:= :id id] [:= :model_id model-id]])
+                  ;quantity pa(:quantity entry)
+                  ]
               (update-insert-or-delete tx
                 :entitlements
                 where-clause
                 {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)} entry)))
+
+
+
 
           (doseq [entry properties]
             (let [id (to-uuid (:id entry))

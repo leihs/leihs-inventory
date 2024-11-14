@@ -145,10 +145,21 @@
             This is a package
         </label>
     </div>
-    <div class="form-group">
-        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
-        <select id="entitlements" name="entitlements" multiple></select>
+
+
+<!--    <div class="form-group">-->
+<!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
+<!--        <select id="entitlements" name="entitlements" multiple></select>-->
+<!--    </div>-->
+
+    <div class="form-group row">
+        <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
+        <div class="col-sm-9">
+            <select id="entitlements" name="entitlements" class="form-control" multiple></select>
+            <div id="selected-entitlements" class="mt-2"></div>
+        </div>
     </div>
+
     <div class="form-group">
         <label for="categories">Kategorien ( /model-groups )</label>
         <select id="categories" name="categories" multiple></select>
@@ -196,6 +207,50 @@
                 allowClear: true
             });
         }
+
+
+        function updateSelectedEntitlements() {
+            const selectedContainer = $('#selected-entitlements');
+            selectedContainer.empty();
+
+            $('#entitlements option:selected').each(function() {
+                const entitlement = $(this).data('entitlement_group');
+
+                if(entitlement== undefined){
+                    return;
+                }
+
+                const data = $('#entitlements').data('entitlement-groups')
+                const matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
+debugger
+                const entitlementElement = $('<div class="selected-item mb-2">')
+                    .text(entitlement.name)
+                    .append(
+                        $('<input>', {
+                            type: 'number',
+                            class: 'form-control form-control-sm d-inline-block ml-2',
+                            style: 'width: 60px;',
+                            uuid: entitlement.id
+                        // }).val(1)
+                        }).val(matchingEntry.quantity)
+                    )
+                    .append(
+                        $('<button class="btn btn-sm btn-danger ml-2">Remove</button>')
+                            .on('click', function() {
+                                $(this).parent().remove();
+                                $('#entitlements option[value="' + entitlement.id + '"]').prop('selected', false);
+                                $('#entitlements').trigger('change');
+                            })
+                    );
+                selectedContainer.append(entitlementElement);
+            });
+        }
+
+        // Handle selection of entitlements
+        $('#entitlements').on('change', function() {
+            updateSelectedEntitlements();
+        });
+
 
         // let previousSelection = [];
         function fetchOptions(url, selectId) {
@@ -423,7 +478,9 @@
                         $(this).closest('.dynamic-item').remove();
                     });
 
+
                     // Populate entitlements (entitlement groups)
+                    $('#entitlements').data('entitlement-groups', response.entitlement_groups)
                     $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
                     $('#entitlements').find('option:selected').each(function(index, option, a, b) {
                         const groupId = $(option).val();
@@ -516,7 +573,7 @@
 
 
 
-debugger
+// debugger
                     if (response.compatibles) {
 
                     // Populate compatibles
@@ -744,7 +801,7 @@ debugger
         // Remove file from input
         function removeFile(inputId, index) {
 
-            debugger
+            // debugger
 
             var input = document.getElementById(inputId);
             var files = Array.from(input.files);
@@ -824,11 +881,23 @@ debugger
                 const entitlementData = $(option).data()
                 const entitlement = entitlementData.entitlement
                 const entitlement_group = entitlementData.entitlement_group
+
+                const entitlement_group_id = entitlementData.entitlement_group.id
+
+
+
+                var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
+                if(isNaN(quantity)){
+                    console.error("Quantity is not a number, setting to 1")
+                    quantity = 1
+                }
+                debugger
+
                 if (entitlementData) {
                     entitlements.push({
                         entitlement_group_id: entitlement_group.id,
                         entitlement_id: entitlement == undefined ? null : entitlement.id,
-                        quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
+                        quantity: entitlement == undefined ? 1 : (quantity || 1)
                     });
                 }
             });
@@ -879,17 +948,8 @@ debugger
                 }
 
                 const categoriesData = $(option).data().compatible
-                // debugger
-                // const entitlement = categoriesData.entitlement
-                // const entitlement_group = categoriesData.entitlement_group
-                // id name type
                 if (categoriesData) {
                     compatibles.push(categoriesData)
-                    // categories.push({
-                    //     entitlement_group_id: entitlement_group.id,
-                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
-                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
-                    // });
                 }
             });
             // debugger
@@ -897,38 +957,17 @@ debugger
             deleted_data = $("#cache").data("deleted-compatibles") || []
             mergedProperties = compatibles.concat(deleted_data);
 
-
             console.log(">o> compatibles 1> ", mergedProperties)
-            // // console.log('Removed option data:', removedEntitlementData);
-
-            debugger
-
 
             var keyMapa = { model_id: "id" };
             mergedProperties.forEach(function(item, index) {
                 mergedProperties[index] = renameKeys(item, keyMapa);
             } );
 
-
-
             console.log(">o> compatibles 2> ", mergedProperties)
-
-
-
             formData.append('compatibles', JSON.stringify(mergedProperties));
 
 
-
-            // Prepare entitlements
-            // const accessoriesArray = [];
-            // $('input[name="accessoryName[]"]').each(function(index) {
-            //     accessoriesArray.push({
-            //         name: $(this).val(),
-            //         is_inventory: $('input[name="accessoryInventory[]"]').eq(index).prop("checked")
-            //     });
-            // });
-            // formData.delete('accessories');
-            // formData.append('accessories', JSON.stringify(accessoriesArray));
 
             formData.delete('images-to-delete');
             var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
