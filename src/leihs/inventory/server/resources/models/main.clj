@@ -21,10 +21,14 @@
 (defn get-manufacturer-handler [request]
   (try
     (let [tx (:tx request)
+          query-params (query-params request)
+          type (:type query-params)
           base-query (-> (sql/select-distinct :m.manufacturer)
                          (sql/from [:models :m])
                          (sql/where [:is-not-null :m.manufacturer])
-                         (sql/where [:not-like :m.manufacturer " %"])
+                       (cond-> type
+                         (sql/where [:ilike :m.type type]))
+                         ;(sql/where [:not-like :m.manufacturer " %"])
                          (sql/order-by [:m.manufacturer :asc]))]
       (response (extract-manufacturers (jdbc/execute! tx (-> base-query sql-format)))))
     (catch Exception e

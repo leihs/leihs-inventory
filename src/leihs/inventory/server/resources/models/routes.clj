@@ -82,6 +82,10 @@
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
            :handler get-manufacturer-handler
+
+           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+                                }}
+
            :responses {200 {:description "OK"
                             :body [s/Any]}
                        404 {:description "Not Found"}
