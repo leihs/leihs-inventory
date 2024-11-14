@@ -76,7 +76,11 @@
 
 (defn convert-params [request]
   (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))
-        p (println ">o> abc8")]
+        p (println ">o> abc8" converted-form-params)
+
+        p (println ">o> abc8a" (:form-params request))
+        p (println ">o> abcba" (:form-params-raw request))
+        ]
 
     (-> request
         (assoc :form-params converted-form-params)

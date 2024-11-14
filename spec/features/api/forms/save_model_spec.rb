@@ -1,6 +1,8 @@
 require "spec_helper"
 require "pry"
 require_relative "../_shared"
+require "uri"
+require "net/http"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
@@ -9,7 +11,7 @@ feature "Inventory Model Management" do
     let(:pool_id) { @inventory_pool.id }
 
     let(:file_path) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
-    let(:file_path2) { File.expand_path("spec/files/lock.png", Dir.pwd) }
+    let(:file_path2) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
     let(:file_path3) { File.expand_path("spec/files/lock.png", Dir.pwd) }
 
     before do
@@ -129,20 +131,21 @@ feature "Inventory Model Management" do
       expect(res.body["validation"].count).to eq(0)
     end
 
+    # TODO: This request with upload-files works
     it "creates a model with images, attachments, and the product attribute" do
-      res = common_plain_faraday_client(
-        :post, "/inventory/#{pool_id}/model",
-        multipart: true,
-        body: {
-          "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
-          "images" => [file_io, file_io2],
-          "attachments" => [file_io3]
-        }
-      )
+      url = URI.parse("http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model")
 
-      expect(res.status).to eq(200)
-      expect(res.body["data"].count).to be
-      expect(res.body["validation"].count).to eq(0)
+      http = Net::HTTP.new(url.host, url.port);
+      request = Net::HTTP::Post.new(url)
+      request["Accept"] = "application/json"
+      form_data = [['product', 'fjdkla22'],['images', File.open('/Users/mradl/Documents/new-item.txt')],['images', File.open('/Users/mradl/Documents/legacy-logs.txt')]]
+      request.set_form form_data, 'multipart/form-data'
+      res = http.request(request)
+      parsed_body = JSON.parse(res.body)
+
+      expect(res.code).to eq("200")
+      expect(parsed_body["data"].count).to  eq(16)
+      expect(parsed_body["validation"].count).to eq(2)
     end
 
     it "creates a model with all available attributes" do

@@ -176,9 +176,11 @@
                                 (sql/returning :*)
                                 sql-format))))
 
+
+        (println ">o> images >>>" (count images) images)
         (let [image-groups (group-by #(base-filename (:filename %)) images)
               CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true
-              ;validation-result []
+              p (println ">o> ??? image-groups >>>" image-groups)
               ]
           (doseq [[_ entries] image-groups]
             ;(when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
@@ -284,14 +286,17 @@
       (catch Exception e
         (error "Failed to create model" (.getMessage e))
         (cond
+
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product prepared-model-data)}})
             (status 409))
+
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
             (status 409))
+
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
