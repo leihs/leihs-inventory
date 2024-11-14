@@ -70,7 +70,8 @@ feature "Inventory Model Management" do
 
     it "creates a model with one attachment and the product attribute by encoding" do
       res = common_plain_faraday_client(
-        :post, "/inventory/#{pool_id}/model",
+        :post,
+        "/inventory/#{pool_id}/model",
         multipart: true,
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
@@ -95,7 +96,7 @@ feature "Inventory Model Management" do
         }
       )
 
-      expect(res.status).to eq(400)
+      expect(res.status).to eq(200)
       # expect(res.body["params-keys"].count).to eq(2)
       # expect(res.body["params-keys"]).to eq(["images", "product"])
     end

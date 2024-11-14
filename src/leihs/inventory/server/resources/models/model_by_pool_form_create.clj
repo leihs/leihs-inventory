@@ -130,7 +130,9 @@
         (println "Error: No valid file or tempfile found")
         nil))))
 
-
+(defn create-validation-response [data validation]
+  {:data data
+   :validation validation})
 
 (defn create-model-handler-by-pool-form [request]
   (let [created_ts (LocalDateTime/now)
@@ -144,6 +146,9 @@
 
         prepared-model-data (prepare-model-data multipart)
         prepared-model-data (assoc prepared-model-data :is_package (str-to-bool (:is_package prepared-model-data)))
+
+
+        validation-result (atom []) ;; Use an atom to store validation results
 
 
         compatibles (parse-uuid-values :compatible_ids request)
@@ -172,9 +177,12 @@
                                 sql-format))))
 
         (let [image-groups (group-by #(base-filename (:filename %)) images)
-              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
+              CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true
+              ;validation-result []
+              ]
           (doseq [[_ entries] image-groups]
-            (when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+            ;(when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+            (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
               (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
                                          [(second entries) (first entries)]
                                          [(first entries) (second entries)])
@@ -204,7 +212,13 @@
                 (jdbc/execute! tx (-> (sql/insert-into :images)
                                     (sql/values [thumbnail-data])
                                     (sql/returning :*)
-                                    sql-format))))))
+                                    sql-format)))
+
+              (swap! validation-result conj {:error "Either image or thumbnail is missing"
+                                             :uploaded-file (:filename (first entries))
+                                             })
+
+              )))
 
         (doseq [entry entitlements]
           (create-or-use-existing tx
@@ -261,8 +275,11 @@
              [:= :model_group_id (to-uuid category-id)]]
             {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
+        (println ">o> >>> @validation-result" @validation-result)
+
         (if res
-          (response [res])
+          ;(response [res])
+          (response (create-validation-response res @validation-result))
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
         (error "Failed to create model" (.getMessage e))
@@ -271,10 +288,10 @@
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product prepared-model-data)}})
-            (status 408))
+            (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
-            (status 410))
+            (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
