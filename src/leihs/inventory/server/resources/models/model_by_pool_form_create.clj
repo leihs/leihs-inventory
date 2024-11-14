@@ -32,6 +32,7 @@
                  :product :product
                  :version :version
                  :hand_over_note :importantNotes
+                 :is_package :isPackage
                  :description :description
                  :internal_description :internalDescription
                  :technical_detail :technicalDetails}
@@ -45,6 +46,17 @@
       :type "Model"
       :created_at created-ts
       :updated_at created-ts)))
+
+(defn str-to-bool
+  [s]
+  (cond
+    (string? s) (case (.toLowerCase s)
+                  "true" true
+                  "false" false
+                  nil)   ; returns nil for any other string
+    :else (boolean s)))  ; for non-string inputs, just cast to boolean
+
+
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
@@ -128,7 +140,12 @@
         body-params (:body-params request)
         tx (:tx request)
         model (assoc body-params :created_at created_ts :updated_at created_ts)
+
+
         prepared-model-data (prepare-model-data multipart)
+        prepared-model-data (assoc prepared-model-data :is_package (str-to-bool (:is_package prepared-model-data)))
+
+
         compatibles (parse-uuid-values :compatible_ids request)
         categories (parse-uuid-values :category_ids request)
         attachments (normalize-files request :attachments)

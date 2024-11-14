@@ -29,6 +29,7 @@
                  :product :product
                  :version :version
                  :hand_over_note :importantNotes
+                 :is_package :isPackage
                  :description :description
                  :internal_description :internalDescription
                  :technical_detail :technicalDetails}
@@ -39,6 +40,91 @@
                                  acc))
                        {} key-map)]
     (assoc renamed-data :updated_at created-ts)))
+
+(defn prepare-model-data
+  [data]
+  (let [
+        p (println ">o> prepare-model-data.before" data)
+        key-map {:type :type
+                 :manufacturer :manufacturer
+                 :product :product
+                 :version :version
+                 :hand_over_note :importantNotes
+                 :is_package :isPackage
+                 :description :description
+                 :internal_description :internalDescription
+                 :technical_detail :technicalDetails}
+        now-ts (LocalDateTime/now)
+        renamed-data (reduce (fn [acc [db-key original-key]]
+                               (if-let [val (get data original-key)]
+                                 (assoc acc db-key
+                                   (if (= db-key :is_package)
+                                     (boolean val)  ;; Convert to boolean if key is :is_package
+                                     val))
+                                 acc))
+                       {} key-map)]
+    (assoc renamed-data :updated_at now-ts)))
+
+(defn str-to-int [s]
+  (try
+    (Integer/parseInt s)
+    (catch NumberFormatException e ;; catches invalid integer format
+       (println ">o> str-to-int" e)
+      nil)))
+
+(defn str-to-bool
+  [s]
+  (cond
+    (string? s) (case (.toLowerCase s)
+                  "true" true
+                  "false" false
+                  nil)   ; returns nil for any other string
+    :else (boolean s)))  ; for non-string inputs, just cast to boolean
+
+(defn prepare-model-data
+  [data]
+  (let [
+        p (println ">o> prepare-model-data.before" data)
+
+        key-map {:type :type
+                 :manufacturer :manufacturer
+                 :product :product
+                 :version :version
+                 :hand_over_note :importantNotes
+                 :is_package :isPackage
+                 :description :description
+                 :internal_description :internalDescription
+                 :technical_detail :technicalDetails}
+        created-ts (LocalDateTime/now)
+        renamed-data (reduce (fn [acc [db-key original-key]]
+                               ;(if-let [val (get data original-key)]
+                               ;  (assoc acc db-key
+                               ;    (if (= db-key :is_package)
+                               ;      (boolean (some? val)) ;; Ensure it's true if value is truthy, else false
+                               ;      val))
+
+                                 (if-let [val (get data original-key)]
+                                   (assoc acc db-key val)
+                                   acc))
+
+
+                                 ;acc))
+                       {} key-map)
+
+        res (assoc renamed-data :updated_at created-ts)
+        p (println ">o> prepare-model-data.after" res)
+        p (println ">o> prepare-model-data.after2" (:is_package res) (type (:is_package res)))
+
+        res (assoc res :is_package (str-to-bool (:is_package res)))
+
+
+        p (println ">o> prepare-model-data.after2" res)
+
+
+
+        ]
+    res))
+
 
 (defn update-or-insert
   [tx table where-values update-values]
@@ -138,7 +224,13 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+
+        is-package (get-in request [:parameters :multipart :isPackage])
+        p (println ">o> is-package.single" is-package)
+
+        prepared-model-data (prepare-model-data multipart)
+        p (println ">o> prepared-model-data" prepared-model-data)
+        ]
     (try
       (let [update-model-query (-> (sql/update :models)
                                  (sql/set prepared-model-data)

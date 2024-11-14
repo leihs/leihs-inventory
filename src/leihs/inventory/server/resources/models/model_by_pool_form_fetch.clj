@@ -42,7 +42,7 @@
     (try
       (let [query (->
                     (sql/select :m.id :m.product :m.manufacturer :m.version :m.type :m.hand_over_note :m.description
-                      :m.internal_description :m.technical_detail)
+                      :m.internal_description :m.technical_detail :m.is_package)
                     (sql/from [:models :m])
                     (sql/where [:= :m.id model-id])
                     sql-format)

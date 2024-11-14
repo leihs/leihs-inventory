@@ -147,6 +147,7 @@
     </div>
 
 
+
 <!--    <div class="form-group">-->
 <!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
 <!--        <select id="entitlements" name="entitlements" multiple></select>-->
@@ -222,7 +223,7 @@
 
                 const data = $('#entitlements').data('entitlement-groups')
                 const matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
-debugger
+
                 const entitlementElement = $('<div class="selected-item mb-2">')
                     .text(entitlement.name)
                     .append(
@@ -264,9 +265,6 @@ debugger
                     if (selectId === 'compatibles') {
                         data = data.data;
                     }
-
-                    // data = data.slice(0, 20)
-                    // debugger
 
                     data.forEach(item => {
                         var option = document.createElement('option');
@@ -318,25 +316,18 @@ debugger
 
                     });
 
-                    // Initialize Select2 once after all options are appended
-                    // $('#cache').data("prev-entitlements",  $('#entitlements').val() || []);
-                    //         console.log('>>> previousSelection!!!!!!!!!', previousSelection)
-
                     console.log(">>> INIT SELECT2 / " + selectId)
                     initSelect2(selectId);
 
                     if(selectId === 'entitlements'){
-                    // debugger
                         $("#cache").data(`prev-${selectId}`,  $('#entitlements').val());
                     }
 
                     if(selectId === 'compatibles'){
-                    // debugger
                         $("#cache").data(`prev-${selectId}`,  $('#compatibles').val());
                     }
 
                     if(selectId === 'categories'){
-                    // debugger
                         $("#cache").data(`prev-${selectId}`,  $('#categories').val());
                     }
 
@@ -398,7 +389,9 @@ debugger
                     $('#description').val(response.description);
                     $('#technicalDetails').val(response.technical_detail);
                     $('#internalDescription').val(response.internal_description);
-                    $('#isPackage').prop('checked', response.type === 'Package');
+                    // $('#isPackage').prop('checked', response.type === 'Package');
+                    // formData.delete('isPackage');
+                    $('#isPackage').prop('checked', response.is_package);
 
                     // Set CONST_IS_CREATE_FORM to false and update the title
                     CONST_IS_CREATE_FORM = false;
@@ -471,7 +464,6 @@ debugger
                             console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
                         }
 
-                        // debugger
                         console.log(">o> remove-btn > ", type,  data)
                         $("#cache").data(`deleted-${type}`, data)
 
@@ -523,12 +515,10 @@ debugger
 
 
                     // Populate categories (assuming it's part of the response)
-                    // debugger
                     if (response.categories) {
                         $('#categories').val(response.categories.map(c => c.id)).trigger('change');
                         $('#categories').find('option:selected').each(function(index, option, a, b) {
                             const categoryId = $(option).val();
-                            // debugger
                             const entitlementData = response.categories.find(eg => eg.id === categoryId);
                             if (entitlementData) {
                                 $(option).data('categories', entitlementData);
@@ -537,12 +527,11 @@ debugger
                         });
                         $("#cache").data("prev-categories",  $('#categories').val())
 
-
                         $('#categories').on('change', function() {
                             const currentSelection = $(this).val() || [];
                             const previousSelection = $("#cache").data("prev-categories") || [];
                             const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-// debugger
+
                             var deleted_data = $("#cache").data("deleted-categories") || []
                             removedOptions.forEach(id => {
                                 const removedOption = $(this).find(`option[value="${id}"]`);
@@ -552,17 +541,10 @@ debugger
                                 }
 
                                 removedEntitlementData.delete = true;
-
-                                // console.log('Removed option data:', removedEntitlementData);
-                                // var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
-                                // removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
-
                                 deleted_data.push(removedEntitlementData)
                             });
 
                             $("#cache").data("deleted-categories",  deleted_data);
-                            // $("#cache").data("deleted-categories",  deleted_data);
-
                             $("#cache").data("prev-categories",  currentSelection);
                         });
                     }
@@ -573,7 +555,6 @@ debugger
 
 
 
-// debugger
                     if (response.compatibles) {
 
                     // Populate compatibles
@@ -583,15 +564,8 @@ debugger
 
                     $('#compatibles').find('option:selected').each(function(index, option, a, b) {
                         const categoryId = $(option).val();
-                        debugger
                         var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
                         if (entitlementData) {
-
-                            // console.log('Removed option data:', removedEntitlementData);
-                            // var keyMapa = { model_id: "id" };
-                            // entitlementData = renameKeys(entitlementData, keyMapa);
-
-// debugger
                             $(option).data('compatible', entitlementData);
                             console.log('Updated option data:', $(option).data('compatible'));
                         }
@@ -602,7 +576,7 @@ debugger
                         const currentSelection = $(this).val() || [];
                         const previousSelection = $("#cache").data("prev-compatibles") || [];
                         const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-// debugger
+
                         var deleted_data = $("#cache").data("deleted-compatibles") || []
                         removedOptions.forEach(id => {
                             const removedOption = $(this).find(`option[value="${id}"]`);
@@ -612,18 +586,10 @@ debugger
                             }
 
                             removedEntitlementData.delete = true;
-
-                            // console.log('Removed option data:', removedEntitlementData);
-                            // var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
-                            // removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
-
-                            // debugger
                             deleted_data.push(removedEntitlementData)
                         });
 
                         $("#cache").data("deleted-compatibles",  deleted_data);
-                        // $("#cache").data("deleted-categories",  deleted_data);
-
                         $("#cache").data("prev-compatibles",  currentSelection);
                     });
                     };
@@ -800,9 +766,6 @@ debugger
 
         // Remove file from input
         function removeFile(inputId, index) {
-
-            // debugger
-
             var input = document.getElementById(inputId);
             var files = Array.from(input.files);
             files.splice(index, 1);
@@ -863,7 +826,6 @@ debugger
                     id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
                 });
             });
-            // debugger
             deleted_data = $("#cache").data("deleted-accessories") || []
             mergedProperties = accessories.concat(deleted_data);
             console.log(">o> accessories > ", mergedProperties)
@@ -891,7 +853,6 @@ debugger
                     console.error("Quantity is not a number, setting to 1")
                     quantity = 1
                 }
-                debugger
 
                 if (entitlementData) {
                     entitlements.push({
@@ -917,7 +878,6 @@ debugger
                 }
 
                 const categoriesData = $(option).data().categories
-                // debugger
                 // const entitlement = categoriesData.entitlement
                 // const entitlement_group = categoriesData.entitlement_group
                 // id name type
@@ -930,7 +890,6 @@ debugger
                     // });
                 }
             });
-            // debugger
             formData.delete('categories');
             deleted_data = $("#cache").data("deleted-categories") || []
             mergedProperties = categories.concat(deleted_data);
@@ -952,7 +911,6 @@ debugger
                     compatibles.push(categoriesData)
                 }
             });
-            // debugger
             formData.delete('compatibles');
             deleted_data = $("#cache").data("deleted-compatibles") || []
             mergedProperties = compatibles.concat(deleted_data);
@@ -976,6 +934,16 @@ debugger
             formData.delete('attachments-to-delete');
             var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
             formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+
+
+
+            formData.delete('isPackage');
+            // $('#isPackage').prop('checked', false);
+            // $('#isPackageFlag').val($('#isPackage').is(':checked'))
+            const isPackage = $('#isPackage').is(':checked')
+            formData.append('isPackage', isPackage);
+
+            debugger
 
 
             formData.delete('accessoryName[]');
