@@ -34,8 +34,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(1)
-      # expect(res.body["params-keys"]).to eq(["product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with one image and the product attribute" do
@@ -49,8 +49,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with one attachment and the product attribute" do
@@ -64,8 +64,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with one attachment and the product attribute by encoding" do
@@ -80,12 +80,10 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
-    # TODO: alternative way
-    # Failed to create model ERROR: invalid byte sequence for encoding "UTF8": 0x00
     it "fails to creates a model with one attachment and the product attribute because of missing encoding (FIXME)" do
       res = common_plain_faraday_client(
         :post, "/inventory/#{pool_id}/model",
@@ -97,8 +95,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(1)
     end
 
     it "creates a model with one attachment and the product attribute" do
@@ -112,8 +110,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with multiple images and the product attribute" do
@@ -123,13 +121,12 @@ feature "Inventory Model Management" do
         body: {
           "product" => Faraday::ParamPart.new("New-Product", "text/plain"),
           "images" => [file_io, file_io2]
-          # "images" => file_io2
         }
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(2)
-      # expect(res.body["params-keys"]).to eq(["images", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with images, attachments, and the product attribute" do
@@ -144,8 +141,8 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(3)
-      # expect(res.body["params-keys"]).to eq(["images", "attachments", "product"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
     end
 
     it "creates a model with all available attributes" do
@@ -170,10 +167,14 @@ feature "Inventory Model Management" do
       )
 
       expect(res.status).to eq(200)
-      # expect(res.body["params-keys"].count).to eq(13)
-      # expect(res.body["params-keys"]).to eq(["description", "importantNotes", "images", "attachments", "product",
-      #   "categories", "technicalDetails", "internalDescription", "isPackage",
-      #   "allocations", "compatibles", "manufacturer", "version"])
+      expect(res.body["data"].count).to be
+      expect(res.body["validation"].count).to eq(0)
+      expect(res.body["data"].keys.count).to eq(16)
+      
+      expect(res.body["data"].keys).to eq( ["description", "is_package", "maintenance_period", "type", "rental_price",
+                                            "cover_image_id", "hand_over_note", "updated_at", "internal_description",
+                                            "product", "info_url", "id", "manufacturer", "version", "created_at",
+                                            "technical_detail"])
     end
   end
 end
