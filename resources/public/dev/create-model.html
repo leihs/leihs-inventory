@@ -222,7 +222,13 @@
                 }
 
                 const data = $('#entitlements').data('entitlement-groups')
-                const matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
+                let matchingEntry;
+                if(data ==undefined){
+                    matchingEntry = {quantity: 1}
+                }    else {
+                        matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
+                }
+
 
                 const entitlementElement = $('<div class="selected-item mb-2">')
                     .text(entitlement.name)
