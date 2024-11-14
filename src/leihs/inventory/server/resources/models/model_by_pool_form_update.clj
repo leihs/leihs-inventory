@@ -317,11 +317,18 @@ _          (println ">o> images-to-delete" images-to-delete)
                                 where-clause
                                 {:model_id model-id :name (:name entry)})
                     accessory-id (:id accessory)]
-                (when (:inventory_bool entry)
+                (if (:inventory_bool entry)
+
                   (update-or-insert tx
                     :accessories_inventory_pools
                     [:and [:= :accessory_id accessory-id] [:= :inventory_pool_id pool-id]]
-                    {:accessory_id accessory-id :inventory_pool_id pool-id})))))
+                    {:accessory_id accessory-id :inventory_pool_id pool-id})
+
+                  (jdbc/execute! tx (-> (sql/delete-from :accessories_inventory_pools)
+                                    (sql/where [:= :accessory_id accessory-id] [:= :inventory_pool_id pool-id])
+                                    sql-format)))
+
+                  )))
 
           (doseq [compatible compatibles]
             (let [compatible-id (to-uuid (:id compatible))

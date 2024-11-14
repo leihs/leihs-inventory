@@ -65,11 +65,12 @@
                           (assoc row :url url :thumbnail-url thumbnail-url)))
                    res6)
 
-            res3 (-> (sql/select :id :a.name :aip.inventory_pool_id
+            res3 (-> (sql/select :id :a.name [:aip.inventory_pool_id :has_inventory_pool]
                        [(sq/call :not= :aip.inventory_pool_id nil) :has_inventory_pool])
                    (sql/from [:accessories :a])
                    (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
                    (sql/where [:= :a.model_id model-id])
+                   (sql/order-by :a.name)
                    sql-format)
             res3 (jdbc/execute! tx res3)
 

@@ -368,7 +368,7 @@
                             <div class="dynamic-item">
                                 <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
                                 <label>
-                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.quantity !== null ? 'checked' : ''}>
+                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.has_inventory_pool === true ? 'checked' : ''}>
                                     In inventory
                                 </label>
                                 <button type="button" ftype="accessories" class="remove-btn">Remove</button>
