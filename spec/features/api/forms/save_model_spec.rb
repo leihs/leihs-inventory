@@ -138,7 +138,7 @@ feature "Inventory Model Management" do
       http = Net::HTTP.new(url.host, url.port);
       request = Net::HTTP::Post.new(url)
       request["Accept"] = "application/json"
-      form_data = [['product', 'fjdkla22'],['images', File.open('/Users/mradl/Documents/new-item.txt')],['images', File.open('/Users/mradl/Documents/legacy-logs.txt')]]
+      form_data = [['product', 'fjdkla22'],['images', File.open(file_path)],['images', File.open(file_path2)]]
       request.set_form form_data, 'multipart/form-data'
       res = http.request(request)
       parsed_body = JSON.parse(res.body)
