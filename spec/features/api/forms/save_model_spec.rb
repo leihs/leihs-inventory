@@ -47,6 +47,9 @@ feature "Inventory Model Management" do
       expect(result.body["data"].count).to be
       expect(result.body["validation"].count).to eq(1)
       expect(result.body["validation"][0]["error"]).to eq("Either image or thumbnail is missing")
+
+      model_id = result.body["data"]["id"]
+      expect(Image.where(target_id: model_id).count).to eq(0)
     end
 
     it "creates a model with one attachment and the product attribute" do
@@ -63,6 +66,9 @@ feature "Inventory Model Management" do
       expect(result.status).to eq(200)
       expect(result.body["data"].count).to be
       expect(result.body["validation"].count).to eq(0)
+
+      model_id = result.body["data"]["id"]
+      expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
 
     it "creates a model with one attachment and the product attribute" do
@@ -79,12 +85,14 @@ feature "Inventory Model Management" do
       expect(result.status).to eq(200)
       expect(result.body["data"].count).to be
       expect(result.body["validation"].count).to eq(0)
+
+      model_id = result.body["data"]["id"]
+      expect(Attachment.where(model_id: model_id).count).to eq(2)
     end
 
     it "creates a model with one attachment and the product attribute" do
       form_data = {
         "product" => "New-Product",
-        # "images" => [File.open(path_test_pdf, "rb"), File.open(path_test_txt, "rb")]
         "images" => [File.open(path_test_pdf, "rb"), File.open(path_arrow_thumb, "rb")]
       }
 
@@ -135,6 +143,9 @@ feature "Inventory Model Management" do
       expect(result.status).to eq(200)
       expect(result.body["data"].count).to eq(16)
       expect(result.body["validation"].count).to eq(0)
+
+      model_id = result.body["data"]["id"]
+      expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
 
     it "creates a model with a single image and the product attribute, missing a thumbnail" do
