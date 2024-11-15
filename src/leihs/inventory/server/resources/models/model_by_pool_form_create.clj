@@ -134,6 +134,14 @@
   {:data data
    :validation validation})
 
+(defn valid-filetype?
+  "Checks if all file entries have valid extensions.
+   Allowed types are: jpg, jpeg, png."
+  [entries]
+  (let [allowed-types #{"jpg" "jpeg" "png"}]
+    (every? #(allowed-types (clojure.string/lower-case (last (clojure.string/split % #"\.")))) entries)))
+
+
 (defn create-model-handler-by-pool-form [request]
   (let [created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
@@ -184,6 +192,9 @@
               ]
           (doseq [[_ entries] image-groups]
             ;(when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+
+            (println ">o> entries >> " entries)
+
             (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
               (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
                                          [(second entries) (first entries)]
