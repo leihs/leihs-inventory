@@ -162,7 +162,7 @@
 ;request
 
                     (do
-                      p (println ">o> abc6")
+                      ;p (println ">o> abc6")
 
                       (-> request
                               ;(assoc :form-params body-form)
@@ -187,7 +187,7 @@
 
 (defn wrap-csrf [handler]
   (fn [request]
-    (println ">o> cccc2")
+    ;(println ">o> cccc2")
     (let [referer (get-in request [:headers "referer"])
           api-request? (and referer (str/includes? referer "/api-docs/"))]
       (if api-request?

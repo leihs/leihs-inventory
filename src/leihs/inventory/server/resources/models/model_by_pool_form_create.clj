@@ -74,7 +74,9 @@
 
 (defn parse-uuid-values
   [key request]
-  (let [raw-value (get-in request [:parameters :multipart key])]
+  (let [raw-value (get-in request [:parameters :multipart key])
+        p (println ">o> !!! raw-value " raw-value)
+        ]
     (cond
       (instance? UUID raw-value) [raw-value]
       (and (instance? String raw-value) (not (str/includes? raw-value ","))) [(UUID/fromString raw-value)]
@@ -153,8 +155,19 @@
 
         validation-result (atom []) ;; Use an atom to store validation results
 
-        compatibles (parse-uuid-values :compatible_ids request)
-        categories (parse-uuid-values :category_ids request)
+        ;compatibles (parse-uuid-values :compatible_ids request)
+        ;categories (parse-uuid-values :category_ids request)
+
+        p (println ">o>  (keys multipart) >> " (keys multipart))
+
+        compatibles (parse-json-array request :compatibles)
+        p (println ">o> !!! compatibles " compatibles)
+
+        categories (parse-json-array request :categories)
+        p (println ">o> !!! categories " categories)
+
+
+
         attachments (normalize-files request :attachments)
         images (normalize-files request :images)
         properties (parse-json-array request :properties)
@@ -255,27 +268,58 @@
                                                          {:accessory_id accessory-id :inventory_pool_id pool-id})
                                  nil)]))
 
-        (doseq [category-id compatibles]
-          (create-or-use-existing tx
-                                  :models_compatibles
-                                  [:and
-                                   [:= :model_id model-id]
-                                   [:= :compatible_id category-id]]
-                                  {:model_id model-id :compatible_id category-id}))
+        ;(doseq [category-id compatibles]
+        ;  (create-or-use-existing tx
+        ;                          :models_compatibles
+        ;                          [:and
+        ;                           [:= :model_id model-id]
+        ;                           [:= :compatible_id category-id]]
+        ;                          {:model_id model-id :compatible_id category-id}))
+        ;
+        ;(doseq [category-id categories]
+        ;  (create-or-use-existing tx
+        ;                          :model_links
+        ;                          [:and
+        ;                           [:= :model_id model-id]
+        ;                           [:= :model_group_id (to-uuid category-id)]]
+        ;                          {:model_id model-id :model_group_id (to-uuid category-id)})
+        ;  (create-or-use-existing tx
+        ;                          :inventory_pools_model_groups
+        ;                          [:and
+        ;                           [:= :inventory_pool_id (to-uuid pool-id)]
+        ;                           [:= :model_group_id (to-uuid category-id)]]
+        ;                          {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
-        (doseq [category-id categories]
-          (create-or-use-existing tx
-                                  :model_links
-                                  [:and
-                                   [:= :model_id model-id]
-                                   [:= :model_group_id (to-uuid category-id)]]
-                                  {:model_id model-id :model_group_id (to-uuid category-id)})
-          (create-or-use-existing tx
-                                  :inventory_pools_model_groups
-                                  [:and
-                                   [:= :inventory_pool_id (to-uuid pool-id)]
-                                   [:= :model_group_id (to-uuid category-id)]]
-                                  {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
+
+          (println ">o> compatibles" compatibles)
+        (doseq [compatible compatibles]
+          (let [compatible-id (to-uuid (:id compatible))
+                where-clause [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]]
+            (create-or-use-existing tx
+              :models_compatibles
+              where-clause
+              {:model_id model-id :compatible_id compatible-id}
+              )))
+
+         (println ">o> categories" categories)
+        (doseq [category categories]
+          (let [category-id (to-uuid (:id category))]
+            ;(if (:delete category)
+            ;  (jdbc/execute! tx (-> (sql/delete-from :model_links)
+            ;                      (sql/where [:= :model_id model-id] [:= :model_group_id category-id])
+            ;                      sql-format))
+              (do
+                (create-or-use-existing tx
+                  :model_links
+                  [:and [:= :model_id model-id] [:= :model_group_id category-id]]
+                  {:model_id model-id :model_group_id category-id})
+                (create-or-use-existing tx
+                  :inventory_pools_model_groups
+                  [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
+                  {:inventory_pool_id pool-id :model_group_id category-id}))))
+
+        ;)
+
 
         (println ">o> >>> @validation-result" @validation-result)
 

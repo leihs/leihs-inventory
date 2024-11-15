@@ -845,7 +845,7 @@
                 if(option.textContent === 'Select an option'){
                     return;
                 }
-
+debugger
                 const entitlementData = $(option).data()
                 const entitlement = entitlementData.entitlement
                 const entitlement_group = entitlementData.entitlement_group
@@ -864,7 +864,8 @@
                     entitlements.push({
                         entitlement_group_id: entitlement_group.id,
                         entitlement_id: entitlement == undefined ? null : entitlement.id,
-                        quantity: entitlement == undefined ? 1 : (quantity || 1)
+                        // quantity: entitlement == undefined ? 1 : (quantity || 1)
+                        quantity: (quantity || 1)
                     });
                 }
             });
