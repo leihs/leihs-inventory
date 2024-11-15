@@ -67,6 +67,11 @@ feature "Inventory Model Management" do
     # ;; FIXME
     context "create model" do
       it "creates a model with all available attributes" do
+
+        compatibles=@form_models_compatibles
+        compatibles.first["id"] = compatibles.first.delete("model_id")
+
+
         form_data = {
           "product" => Faker::Commerce.product_name,
           "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
@@ -78,35 +83,39 @@ feature "Inventory Model Management" do
           "technicalDetails" => "Specs go here",
           "internalDescription" => "Internal notes",
           "importantNotes" => "Important usage notes",
-        # ,
-          # "compatibles" => @form_models_compatibles.map { |m| m["code"] }.join(","),
-          # "entitlements" => [{entitle @form_entitlement_groups.first["id"] }],
-          # "categories" => [{id: @form_model_groups.first["id"], type: "Category", name: "New-Product"}],
-
-          # "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 1}].to_s,
-           "categories" => [@form_model_groups.first].to_s
-          # "compatibles" => [{id:  @form_models_compatibles.first["model_id"], product: "New-Product"}].to_json
+          "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
+          "compatibles" => [compatibles.first].to_json,
+           "categories" => [@form_model_groups.first].to_json
         }
 
-
-
-        # binding.pry
         result = http_multipart_client(
           "/inventory/#{pool_id}/model",
           form_data
         )
-        binding.pry
 
-        puts "Result: #{ result.body["data"]["id"]}"
+        puts "Result.model_id: #{ result.body["data"]["id"]}"
+        puts "Resul.pool_id: #{ pool_id}"
+        puts "Resul.pool_id: #{ result.body}"
+
+        expect(result.status).to eq(200)
+
+
+
+
+        # http://localhost:3260/inventory/7e7128d7-ad13-4811-ad68-94e794a8ab6d/model/79b69270-5e56-4c49-b89b-84f7f555212e
+
+        model_id = result.body["data"]["id"]
+        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
 
         expect(result.status).to eq(200)
-        # expect(result.body["data"].count).to be
-        # expect(result.body["validation"].count).to eq(0)
-        # expect(result.body["data"].keys.count).to eq(16)
+
+        binding.pry
+        # @form_entitlement_groups = resp.body
         #
-        # model_id = result.body["data"]["id"]
-        # expect(Image.where(target_id: model_id).count).to eq(2)
+        # raise "Failed to fetch entitlement groups" unless resp.status == 200
+
+
       end
     end
   end

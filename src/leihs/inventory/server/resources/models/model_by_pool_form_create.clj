@@ -158,13 +158,18 @@
         ;compatibles (parse-uuid-values :compatible_ids request)
         ;categories (parse-uuid-values :category_ids request)
 
+        p (println ">o> multipart" multipart)
+        p (println ">o> multipart2" (:categories multipart)(type (:categories multipart)))
+
+
+        categories (parse-json-array request :categories)
+        p (println ">o> !!! categories " categories (type categories))
+
         p (println ">o>  (keys multipart) >> " (keys multipart))
 
         compatibles (parse-json-array request :compatibles)
         p (println ">o> !!! compatibles " compatibles)
 
-        categories (parse-json-array request :categories)
-        p (println ">o> !!! categories " categories)
 
 
 
@@ -179,7 +184,10 @@
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
-            model-id (:id res)]
+            model-id (:id res)
+
+            p (println ">o> ??? model_id" model-id)
+            ]
 
         (doseq [entry attachments]
           (let [file (:tempfile entry)
@@ -191,14 +199,15 @@
                                   (sql/returning :*)
                                   sql-format))))
 
-        (println ">o> images >>>" (count images) images)
+        ;(println ">o> images >>>" (count images) images)
         (let [image-groups (group-by #(base-filename (:filename %)) images)
               CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true
-              p (println ">o> ??? image-groups >>>" image-groups)]
+              ;p (println ">o> ??? image-groups >>>" image-groups)
+              ]
           (doseq [[_ entries] image-groups]
             ;(when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
 
-            (println ">o> entries >> " entries)
+            ;(println ">o> entries >> " entries)
 
             (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
               (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
@@ -309,10 +318,15 @@
             ;                      (sql/where [:= :model_id model-id] [:= :model_group_id category-id])
             ;                      sql-format))
               (do
+                (println ">o> cat.category-id" category-id)
+                (println ">o> cat.model-id" model-id)
+                (println ">o> cat.pool-id" pool-id)
+
                 (create-or-use-existing tx
                   :model_links
                   [:and [:= :model_id model-id] [:= :model_group_id category-id]]
                   {:model_id model-id :model_group_id category-id})
+
                 (create-or-use-existing tx
                   :inventory_pools_model_groups
                   [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
