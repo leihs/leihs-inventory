@@ -126,6 +126,198 @@ def session_auth_plain_faraday_json_client(cookie_string)
   end
 end
 
+
+# def multipart_faraday_client(form_data, url, method: :post, token: nil)
+#   url = URI.parse(api_base_url + url)
+#
+#   # Prepare the multipart body
+#   multipart_body = []
+#   form_data.each do |key, value|
+#     if value.is_a?(Array)
+#       value.each do |v|
+#         multipart_body << [key, v.is_a?(File) ? Faraday::Multipart::FilePart.new(v.path, 'application/octet-stream') : v]
+#       end
+#     else
+#       multipart_body << [key, value.is_a?(File) ? Faraday::Multipart::FilePart.new(value.path, 'application/octet-stream') : value]
+#     end
+#   end
+#
+#   puts "Multipart body: #{multipart_body.inspect}"
+#
+#
+#   # Make the request using Faraday
+#   Faraday.new do |conn|
+#     conn.headers["Authorization"] = "Token #{token}" if token
+#     conn.headers["Accept"] = "application/json"
+#     conn.request :multipart
+#     conn.request :url_encoded
+#     conn.response :json, content_type: /\bjson$/
+#     conn.adapter Faraday.default_adapter
+#   end.public_send(method, url) do |req|
+#     req.body = multipart_body
+#   end
+# end
+
+# def multipart_faraday_client(form_data, url, method: :post, token: nil)
+#   url = URI.parse(api_base_url + url)
+#
+#   # Prepare the multipart body
+#   multipart_body = []
+#   form_data.each do |key, value|
+#     if value.is_a?(Array)
+#       # Add each file or value as a separate part with the same key
+#       value.each do |v|
+#         multipart_body << [key, v.is_a?(File) ? Faraday::Multipart::FilePart.new(v.path, 'application/octet-stream') : v]
+#       end
+#     else
+#       # Add single value
+#       multipart_body << [key, value.is_a?(File) ? Faraday::Multipart::FilePart.new(value.path, 'application/octet-stream') : value]
+#     end
+#   end
+#
+#   # Make the request using Faraday
+#   Faraday.new do |conn|
+#     conn.headers["Authorization"] = "Token #{token}" if token
+#     conn.headers["Accept"] = "application/json"
+#     conn.request :multipart
+#     conn.request :url_encoded
+#     conn.response :json, content_type: /\bjson$/
+#     conn.adapter Faraday.default_adapter
+#   end.public_send(method, url) do |req|
+#     req.body = multipart_body
+#   end
+# end
+
+
+
+def multipart_faraday_client(form_data, url, method: :post, token: nil)
+  url = URI.parse(api_base_url + url)
+
+  # Prepare the multipart body
+  multipart_body = []
+  form_data.each do |key, value|
+    if value.is_a?(Array)
+      # Add each file or value as a separate part with the same key
+      value.each do |v|
+        multipart_body << [key, v.is_a?(File) ? Faraday::Multipart::FilePart.new(v.path, 'image/png') : v]
+      end
+    else
+      # Add single value or empty string for optional fields
+      multipart_body << [key, value.is_a?(File) ? Faraday::Multipart::FilePart.new(value.path, 'image/png') : (value || "")]
+    end
+  end
+
+  # Make the request using Faraday
+  Faraday.new do |conn|
+    conn.headers["Authorization"] = "Token #{token}" if token
+    conn.headers["Accept"] = "application/json"
+    conn.request :multipart
+    conn.request :url_encoded
+    conn.response :json, content_type: /\bjson$/
+    conn.adapter Faraday.default_adapter
+  end.public_send(method, url) do |req|
+    req.body = multipart_body
+  end
+end
+
+# works
+# def upload_files_with_http(url, form_data, headers: { "Accept" => "application/json" })
+#   uri = URI.parse(url)
+#   http = Net::HTTP.new(uri.host, uri.port)
+#
+#   # Prepare the request
+#   request = Net::HTTP::Post.new(uri)
+#   headers.each { |key, value| request[key] = value }
+#
+#   # Set form data as multipart
+#   request.set_form(form_data, 'multipart/form-data')
+#
+#   # Send the request
+#   response = http.request(request)
+#
+#   # Parse the response
+#   {
+#     status: response.code.to_i,
+#     body: JSON.parse(response.body)
+#   }
+# end
+
+def upload_files_with_http(url, form_data, method: :post, headers: { "Accept" => "application/json" })
+  uri = URI.parse(url)
+  http = Net::HTTP.new(uri.host, uri.port)
+
+  # Prepare the request
+  request_class = case method
+                  when :post then Net::HTTP::Post
+                  when :put then Net::HTTP::Put
+                  when :patch then Net::HTTP::Patch
+                  else
+                    raise ArgumentError, "Unsupported HTTP method: #{method}"
+                  end
+
+  request = request_class.new(uri)
+  headers.each { |key, value| request[key] = value }
+
+  # Set form data as multipart
+  request.set_form(form_data, 'multipart/form-data')
+
+  # Send the request
+  response = http.request(request)
+
+  # Parse the response
+  {
+    status: response.code.to_i,
+    body: JSON.parse(response.body)
+  }
+end
+
+
+
+
+# require 'net/http'
+# require 'json'
+
+def upload_files_with_http2(url, form_data, method: :post, headers: { "Accept" => "application/json" })
+  uri = URI.parse(api_base_url + url)
+  http = Net::HTTP.new(uri.host, uri.port)
+
+  # Prepare the request
+  request_class = case method
+                  when :post then Net::HTTP::Post
+                  when :put then Net::HTTP::Put
+                  when :patch then Net::HTTP::Patch
+                  else
+                    raise ArgumentError, "Unsupported HTTP method: #{method}"
+                  end
+
+  request = request_class.new(uri)
+  headers.each { |key, value| request[key] = value }
+
+  # Prepare the form data for multipart
+  prepared_form_data = form_data.map do |key, value|
+    if value.is_a?(Array)
+      # Handle arrays, such as multiple files
+      value.map { |v| [key.to_s, v] }
+    else
+      # Single value
+      [[key.to_s, value]]
+    end
+  end.flatten(1)
+
+  # Set form data as multipart
+  request.set_form(prepared_form_data, 'multipart/form-data')
+
+  # Send the request
+  response = http.request(request)
+
+  # Parse the response
+  {
+    status: response.code.to_i,
+    body: JSON.parse(response.body)
+  }
+end
+
+
 #### parse cookie fnc ####################################################
 
 def parse_leihs_session(session_string)

@@ -165,6 +165,148 @@ feature "Inventory Model Management" do
       expect(parsed_body["validation"][0]["error"]).to eq("Either image or thumbnail is missing")
     end
 
+    # it "creates a model with images, attachments, and the product attribute" do
+    #   form_data = {
+    #     "product" => "fjdkla22",
+    #     "images" => [File.open(file_path), File.open(file_path2)]
+    #   }
+    #   res = multipart_faraday_client(
+    #     form_data,
+    #     "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+    #   )
+    #   parsed_body = JSON.parse(res.body)
+    #
+    #   expect(res.status).to eq(200)
+    #   expect(parsed_body["data"].count).to eq(16)
+    #   expect(parsed_body["validation"].count).to eq(0)
+    # end
+    #
+    # it "creates a model with a single image and the product attribute" do
+    #   form_data = {
+    #     "product" => "fjdkla22",
+    #     # "images" => [File.open(file_path)]
+    #     # "images" => File.open(file_path)
+    #     #   "images" => [File.open(file_path, "rb"), File.open(file_path2, "rb")]
+    #     #   "images" => [File.open(file_path, "rb")]
+    #       "images" => File.open(file_path, "rb")
+    #   }
+    #   res = multipart_faraday_client(
+    #     form_data,
+    #     "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+    #   )
+    #   binding.pry
+    #   parsed_body = JSON.parse(res.body)
+    #
+    #   expect(res.status).to eq(200)
+    #   expect(parsed_body["data"].count).to eq(16)
+    #   expect(parsed_body["validation"].count).to eq(1)
+    #   expect(parsed_body["validation"][0]["error"]).to eq("Either image or thumbnail is missing")
+    # end
+    #
+    #
+
+
+
+
+
+
+    it "creates a model with images, attachments, and the product attribute" do
+      form_data = [
+        ['product', 'fjdkla22'],
+        ['images', File.open(file_path, "rb")],
+        ['images', File.open(file_path2, "rb")]
+      ]
+
+      result = upload_files_with_http(
+        "http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model",
+        form_data
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:body]["data"].count).to eq(16)
+      expect(result[:body]["validation"].count).to eq(0)
+    end
+
+    it "creates a model with images, attachments, and the product attribute, missing a thumbnail" do
+      form_data = [
+        ['product', 'fjdkla22'],
+        ['images', File.open(file_path, "rb")]
+      ]
+
+      result = upload_files_with_http(
+        "http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model",
+        form_data
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:body]["data"].count).to eq(16)
+      expect(result[:body]["validation"].count).to eq(1)
+      expect(result[:body]["validation"][0]["error"]).to eq("Either image or thumbnail is missing")
+    end
+
+
+
+
+
+
+
+
+
+    it "creates a model with images and the product attribute" do
+      form_data = {
+        "product" => "fjdkla22",
+        "images" => [File.open(file_path, "rb"), File.open(file_path2, "rb")]
+      }
+
+      result = upload_files_with_http2(
+        "/inventory/#{pool_id}/model",
+        form_data
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:body]["data"].count).to eq(16)
+      expect(result[:body]["validation"].count).to eq(0)
+    end
+
+    it "creates a model with a single image and the product attribute" do
+      form_data = {
+        "product" => "fjdkla22",
+        "images" => [File.open(file_path, "rb")]
+      }
+
+      result = upload_files_with_http2(
+        "/inventory/#{pool_id}/model",
+        form_data
+      )
+
+      expect(result[:status]).to eq(200)
+      expect(result[:body]["data"].count).to eq(16)
+      expect(result[:body]["validation"].count).to eq(1)
+      expect(result[:body]["validation"][0]["error"]).to eq("Either image or thumbnail is missing")
+    end
+
+    # it "updates a model with PUT method" do
+    #   form_data = {
+    #     "product" => "updated-product",
+    #     "images" => [File.open(file_path, "rb")]
+    #   }
+    #
+    #   result = upload_files_with_http2(
+    #     "http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model",
+    #     form_data,
+    #     method: :put
+    #   )
+    #
+    #   expect(result[:status]).to eq(200)
+    #   expect(result[:body]["data"]["product"]).to eq("updated-product")
+    # end
+
+
+
+
+
+
+
     # it "creates a model with all available attributes" do
     #   res = common_plain_faraday_client(
     #     :post, "/inventory/#{pool_id}/model",
