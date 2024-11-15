@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
 require_relative "../_shared"
-require 'faker'
+require "faker"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
@@ -67,8 +67,7 @@ feature "Inventory Model Management" do
     # ;; FIXME
     context "create model" do
       it "creates a model with all available attributes" do
-
-        compatibles=@form_models_compatibles
+        compatibles = @form_models_compatibles
         compatibles.first["id"] = compatibles.first.delete("model_id")
 
         # create model request
@@ -85,7 +84,7 @@ feature "Inventory Model Management" do
           "importantNotes" => "Important usage notes",
           "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
           "compatibles" => [compatibles.first].to_json,
-           "categories" => [@form_model_groups.first].to_json
+          "categories" => [@form_model_groups.first].to_json
         }
 
         result = http_multipart_client(
@@ -93,27 +92,25 @@ feature "Inventory Model Management" do
           form_data
         )
 
-        puts "Result.model_id: #{ result.body["data"]["id"]}"
-        puts "Resul.pool_id: #{ pool_id}"
-        puts "Resul.pool_id: #{ result.body}"
+        puts "Result.model_id: #{result.body["data"]["id"]}"
+        puts "Resul.pool_id: #{pool_id}"
+        puts "Resul.pool_id: #{result.body}"
 
         expect(result.status).to eq(200)
-
 
         # fetch created model
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-        expect( resp.body[0]["images"].count).to eq(1)
-        expect( resp.body[0]["attachments"].count).to eq(1)
+        expect(resp.body[0]["images"].count).to eq(1)
+        expect(resp.body[0]["attachments"].count).to eq(1)
 
-        expect( resp.body[0]["entitlement_groups"].count).to eq(1)
-        expect( resp.body[0]["compatibles"].count).to eq(1)
-        expect( resp.body[0]["categories"].count).to eq(1)
+        expect(resp.body[0]["entitlement_groups"].count).to eq(1)
+        expect(resp.body[0]["compatibles"].count).to eq(1)
+        expect(resp.body[0]["categories"].count).to eq(1)
         expect(result.status).to eq(200)
 
         expect(Image.where(target_id: model_id).count).to eq(2)
-
 
         # update model request
         form_data = {
@@ -121,7 +118,6 @@ feature "Inventory Model Management" do
           "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
           "attachments" => [File.open(path_test_pdf, "rb")],
           "version" => "updated v1.0",
-          "manufacturer" => @form_manufacturer.first,
           "manufacturer" => "updated manufacturer",
           "isPackage" => "true",
           "description" => "updated description",
@@ -141,17 +137,15 @@ feature "Inventory Model Management" do
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
 
-
-
         # fetch updated model
         resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-        expect( resp.body[0]["images"].count).to eq(2)
-        expect( resp.body[0]["attachments"].count).to eq(2)
-        expect( resp.body[0]["entitlement_groups"].count).to eq(1)
-        expect( resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-        expect( resp.body[0]["compatibles"].count).to eq(2)
-        expect( resp.body[0]["categories"].count).to eq(2)
+        expect(resp.body[0]["images"].count).to eq(2)
+        expect(resp.body[0]["attachments"].count).to eq(2)
+        expect(resp.body[0]["entitlement_groups"].count).to eq(1)
+        expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
+        expect(resp.body[0]["compatibles"].count).to eq(2)
+        expect(resp.body[0]["categories"].count).to eq(2)
         expect(result.status).to eq(200)
       end
     end
