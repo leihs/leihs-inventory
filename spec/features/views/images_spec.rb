@@ -4,7 +4,6 @@ require_relative "../../features/api/_shared"
 
 feature "Request" do
   context "with accept=text/html" do
-
     # # FIXME
     # context "sign-in with invalid credentials" do
     #   scenario "user can fill out and submit the login form successfully" do
@@ -24,7 +23,5 @@ feature "Request" do
     #     expect(page).to have_selector("form.ui-form-signin")
     #   end
     # end
-
   end
 end
-

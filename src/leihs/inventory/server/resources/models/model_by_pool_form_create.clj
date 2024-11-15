@@ -20,9 +20,9 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util UUID]
-   [java.util.jar JarFile]))
+           (java.time LocalDateTime)
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 (defn prepare-model-data
   [data]
@@ -37,15 +37,15 @@
                  :internal_description :internalDescription
                  :technical_detail :technicalDetails}
         renamed-data (->> key-map
-                       (reduce (fn [acc [db-key original-key]]
-                                 (if-let [val (get data original-key)]
-                                   (assoc acc db-key val)
-                                   acc))
-                         {}))]
+                          (reduce (fn [acc [db-key original-key]]
+                                    (if-let [val (get data original-key)]
+                                      (assoc acc db-key val)
+                                      acc))
+                                  {}))]
     (assoc renamed-data
-      :type "Model"
-      :created_at created-ts
-      :updated_at created-ts)))
+           :type "Model"
+           :created_at created-ts
+           :updated_at created-ts)))
 
 (defn str-to-bool
   [s]
@@ -53,24 +53,22 @@
     (string? s) (case (.toLowerCase s)
                   "true" true
                   "false" false
-                  nil)   ; returns nil for any other string
-    :else (boolean s)))  ; for non-string inputs, just cast to boolean
-
-
+                  nil) ; returns nil for any other string
+    :else (boolean s))) ; for non-string inputs, just cast to boolean
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
   (let [select-query (-> (sql/select :*)
-                       (sql/from table)
-                       (sql/where where-values)
-                       sql-format)
+                         (sql/from table)
+                         (sql/where where-values)
+                         sql-format)
         existing-entry (first (jdbc/execute! tx select-query))]
     (if existing-entry
       existing-entry
       (let [insert-query (-> (sql/insert-into table)
-                           (sql/values [insert-values])
-                           (sql/returning :*)
-                           sql-format)
+                             (sql/values [insert-values])
+                             (sql/returning :*)
+                             sql-format)
             new-entry (first (jdbc/execute! tx insert-query))]
         new-entry))))
 
@@ -109,8 +107,8 @@
 
 (defn file-to-base64 [file]
   (let [actual-file (if (instance? java.io.File file)
-                      file                     ; If `file` is already a java.io.File, use it directly
-                      (:tempfile file))]       ; Otherwise, extract :tempfile from the map
+                      file ; If `file` is already a java.io.File, use it directly
+                      (:tempfile file))] ; Otherwise, extract :tempfile from the map
 
     (if actual-file
       (do
@@ -141,7 +139,6 @@
   (let [allowed-types #{"jpg" "jpeg" "png"}]
     (every? #(allowed-types (clojure.string/lower-case (last (clojure.string/split % #"\.")))) entries)))
 
-
 (defn create-model-handler-by-pool-form [request]
   (let [created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
@@ -151,13 +148,10 @@
         tx (:tx request)
         model (assoc body-params :created_at created_ts :updated_at created_ts)
 
-
         prepared-model-data (prepare-model-data multipart)
         prepared-model-data (assoc prepared-model-data :is_package (str-to-bool (:is_package prepared-model-data)))
 
-
         validation-result (atom []) ;; Use an atom to store validation results
-
 
         compatibles (parse-uuid-values :compatible_ids request)
         categories (parse-uuid-values :category_ids request)
@@ -169,9 +163,9 @@
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                        (sql/values [prepared-model-data])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [prepared-model-data])
+                                          (sql/returning :*)
+                                          sql-format))
             model-id (:id res)]
 
         (doseq [entry attachments]
@@ -180,16 +174,14 @@
                 data (dissoc entry :tempfile)
                 data (assoc data :content file-content :model_id model-id)]
             (jdbc/execute! tx (-> (sql/insert-into :attachments)
-                                (sql/values [data])
-                                (sql/returning :*)
-                                sql-format))))
-
+                                  (sql/values [data])
+                                  (sql/returning :*)
+                                  sql-format))))
 
         (println ">o> images >>>" (count images) images)
         (let [image-groups (group-by #(base-filename (:filename %)) images)
               CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true
-              p (println ">o> ??? image-groups >>>" image-groups)
-              ]
+              p (println ">o> ??? image-groups >>>" image-groups)]
           (doseq [[_ entries] image-groups]
             ;(when (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
 
@@ -203,90 +195,87 @@
                     file (:tempfile main-image)
                     file-content (file-to-base64 main-image)
                     main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                      (dissoc :tempfile)
-                                      (assoc :content file-content
-                                        :target_id target-id
-                                        :target_type "Model"
-                                        :thumbnail false))
+                                        (dissoc :tempfile)
+                                        (assoc :content file-content
+                                               :target_id target-id
+                                               :target_type "Model"
+                                               :thumbnail false))
                     main-image-res (-> (sql/insert-into :images)
-                                     (sql/values [main-image-data])
-                                     (sql/returning :*)
-                                     sql-format)
+                                       (sql/values [main-image-data])
+                                       (sql/returning :*)
+                                       sql-format)
                     main-image-result (first (jdbc/execute! tx main-image-res))
                     file (:tempfile thumb)
                     file-content (file-to-base64 file)
                     thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                     (dissoc :tempfile)
-                                     (assoc :content file-content
-                                       :target_id target-id
-                                       :target_type "Model"
-                                       :thumbnail true
-                                       :parent_id (:id main-image-result)))]
+                                       (dissoc :tempfile)
+                                       (assoc :content file-content
+                                              :target_id target-id
+                                              :target_type "Model"
+                                              :thumbnail true
+                                              :parent_id (:id main-image-result)))]
                 (jdbc/execute! tx (-> (sql/insert-into :images)
-                                    (sql/values [thumbnail-data])
-                                    (sql/returning :*)
-                                    sql-format)))
+                                      (sql/values [thumbnail-data])
+                                      (sql/returning :*)
+                                      sql-format)))
 
               (swap! validation-result conj {:error "Either image or thumbnail is missing"
-                                             :uploaded-file (:filename (first entries))
-                                             })
-
-              )))
+                                             :uploaded-file (:filename (first entries))}))))
 
         (doseq [entry entitlements]
           (create-or-use-existing tx
-            :entitlements
-            [:and
-             [:= :model_id model-id]
-             [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
-            {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)}))
+                                  :entitlements
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
+                                  {:model_id model-id :entitlement_group_id (to-uuid (:entitlement_group_id entry)) :quantity (:quantity entry)}))
 
         (doseq [entry properties]
           (create-or-use-existing tx
-            :properties
-            [:and
-             [:= :model_id model-id]
-             [:= :key (:key entry)]]
-            {:model_id model-id :key (:key entry) :value (:value entry)}))
+                                  :properties
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :key (:key entry)]]
+                                  {:model_id model-id :key (:key entry) :value (:value entry)}))
 
         (doseq [entry accessories]
           (let [accessory (create-or-use-existing tx
-                            :accessories
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :name (:name entry)]]
-                            {:model_id model-id :name (:name entry)})
+                                                  :accessories
+                                                  [:and
+                                                   [:= :model_id model-id]
+                                                   [:= :name (:name entry)]]
+                                                  {:model_id model-id :name (:name entry)})
                 accessory-id (:id accessory)
                 inv-pool-entry (if (:inventory_bool entry)
                                  (create-or-use-existing tx
-                                   :accessories_inventory_pools
-                                   [:and
-                                    [:= :accessory_id accessory-id]
-                                    [:= :inventory_pool_id pool-id]]
-                                   {:accessory_id accessory-id :inventory_pool_id pool-id})
+                                                         :accessories_inventory_pools
+                                                         [:and
+                                                          [:= :accessory_id accessory-id]
+                                                          [:= :inventory_pool_id pool-id]]
+                                                         {:accessory_id accessory-id :inventory_pool_id pool-id})
                                  nil)]))
 
         (doseq [category-id compatibles]
           (create-or-use-existing tx
-            :models_compatibles
-            [:and
-             [:= :model_id model-id]
-             [:= :compatible_id category-id]]
-            {:model_id model-id :compatible_id category-id}))
+                                  :models_compatibles
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :compatible_id category-id]]
+                                  {:model_id model-id :compatible_id category-id}))
 
         (doseq [category-id categories]
           (create-or-use-existing tx
-            :model_links
-            [:and
-             [:= :model_id model-id]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:model_id model-id :model_group_id (to-uuid category-id)})
+                                  :model_links
+                                  [:and
+                                   [:= :model_id model-id]
+                                   [:= :model_group_id (to-uuid category-id)]]
+                                  {:model_id model-id :model_group_id (to-uuid category-id)})
           (create-or-use-existing tx
-            :inventory_pools_model_groups
-            [:and
-             [:= :inventory_pool_id (to-uuid pool-id)]
-             [:= :model_group_id (to-uuid category-id)]]
-            {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
+                                  :inventory_pools_model_groups
+                                  [:and
+                                   [:= :inventory_pool_id (to-uuid pool-id)]
+                                   [:= :model_group_id (to-uuid category-id)]]
+                                  {:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}))
 
         (println ">o> >>> @validation-result" @validation-result)
 
@@ -302,12 +291,12 @@
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product prepared-model-data)}})
-            (status 409))
+              (status 409))
 
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
-            (status 409))
+              (status 409))
 
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))

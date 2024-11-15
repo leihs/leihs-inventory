@@ -20,7 +20,7 @@ feature "Inventory Model Management" do
     end
 
     it "creates a model with only the required product attribute" do
-      form_data = { "product" => "New-Product" }
+      form_data = {"product" => "New-Product"}
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
@@ -85,7 +85,7 @@ feature "Inventory Model Management" do
       form_data = {
         "product" => "New-Product",
         # "images" => [File.open(path_test_pdf, "rb"), File.open(path_test_txt, "rb")]
-        "images" => [File.open(path_test_pdf, "rb"),  File.open(path_arrow_thumb, "rb")]
+        "images" => [File.open(path_test_pdf, "rb"), File.open(path_arrow_thumb, "rb")]
       }
 
       result = http_multipart_client(
@@ -118,7 +118,6 @@ feature "Inventory Model Management" do
 
       model_id = result.body["data"]["id"]
       expect(Image.where(target_id: model_id).count).to eq(2)
-
     end
 
     it "creates a model with images and attachments and the product attribute" do
@@ -156,7 +155,6 @@ feature "Inventory Model Management" do
 
       model_id = result.body["data"]["id"]
       expect(Image.where(target_id: model_id).count).to eq(0)
-
     end
 
     it "creates a model with all available attributes" do

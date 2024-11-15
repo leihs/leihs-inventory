@@ -9,8 +9,8 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
@@ -83,8 +83,7 @@
            :swagger {:produces ["application/json"]}
            :handler get-manufacturer-handler
 
-           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
-                                }}
+           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")}}
 
            :responses {200 {:description "OK"
                             :body [s/Any]}
@@ -403,7 +402,6 @@
 ;(sa/def ::isPackage (sa/nilable boolean?))                  ;; this causes errors OR blocks init-request in api
 (sa/def ::isPackage (sa/nilable string?))
 
-
 (sa/def ::description (sa/nilable string?))
 (sa/def ::technicalDetails (sa/nilable string?))
 (sa/def ::internalDescription (sa/nilable string?))
@@ -480,7 +478,7 @@
 
 (sa/def ::name string?)
 (sa/def ::id uuid?)
-(sa/def ::id-or-nil (sa/nilable uuid? ))
+(sa/def ::id-or-nil (sa/nilable uuid?))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::accessory (sa/keys :req-opt [::id-or-nil] :req-un [::name ::inventory_bool]))
 (sa/def ::accessories (sa/or
@@ -618,16 +616,10 @@
 
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}
-
-
-
-     ]
-
+                         500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
      [""
-
 
       {:get {:accept "application/json"
              ;:swagger {:consumes ["multipart/form-data"]
@@ -643,10 +635,8 @@
              :coercion spec/coercion
              ;:coercion custom-coercion  ; Use the custom coercion here
 
-             :parameters {:path {
-                                 :pool_id uuid?
-                                 :model_id uuid?
-                                 }
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
                           ;:multipart ::multipart
                           ;:multipart ::model
                           }
@@ -657,8 +647,7 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
-
-      :put {:accept "application/json"
+       :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              ;:summary "(DEV) | Form-Handler: Save data of 'Create model by form'"
@@ -672,10 +661,8 @@
              :coercion spec/coercion
              ;:coercion custom-coercion  ; Use the custom coercion here
 
-             :parameters {:path {
-                                 :pool_id uuid?
-                                 :model_id uuid?
-                                 }
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
                           :multipart ::multipart
                           ;:multipart ::model
                           }
@@ -684,14 +671,7 @@
 
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}
-
-      ]]
-
-    ]
-
-
-
+                         500 {:description "Internal Server Error"}}}}]]]
 
    ["/models"
     [""

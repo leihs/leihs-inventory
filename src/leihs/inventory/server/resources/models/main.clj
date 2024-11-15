@@ -26,8 +26,8 @@
           base-query (-> (sql/select-distinct :m.manufacturer)
                          (sql/from [:models :m])
                          (sql/where [:is-not-null :m.manufacturer])
-                       (cond-> type
-                         (sql/where [:ilike :m.type type]))
+                         (cond-> type
+                           (sql/where [:ilike :m.type type]))
                          ;(sql/where [:not-like :m.manufacturer " %"])
                          (sql/order-by [:m.manufacturer :asc]))]
       (response (extract-manufacturers (jdbc/execute! tx (-> base-query sql-format)))))

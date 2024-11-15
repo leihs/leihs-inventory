@@ -4,6 +4,7 @@
             [clojure.java.io :as io]
             [clojure.string]
             [clojure.string :as str]
+            [clojure.string :as str]
             [clojure.uuid :as uuid]
             [clojure.walk :refer [keywordize-keys]]
             [leihs.core.anti-csrf.back :as anti-csrf]
@@ -22,7 +23,6 @@
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
-   [clojure.string :as str]
             [reitit.coercion.spec]
             [reitit.dev.pretty :as pretty]
             [reitit.ring :as ring]
@@ -48,8 +48,6 @@
   (println ">oo> " str)
   fnc)
 
-
-
 (defn valid-image-or-thumbnail-uri? [uri]
   (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
     (boolean (re-matches pattern uri))))
@@ -62,23 +60,20 @@
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
 
       (if (or (some #(str/includes? accept-header %) ["json" "image/jpeg"])
-            (some #(= % uri) whitelist-uris-for-api)
-            image-or-thumbnail-request?)
+              (some #(= % uri) whitelist-uris-for-api)
+              image-or-thumbnail-request?)
         (pr2 ">> to api" (handler request))
         (pr2 ">> not-found-handler" (custom-not-found-handler request))))))
-
-
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          updated-request (if (and (or (str/includes? accept-header "text/html")(str/includes? accept-header "image/*"))
-                                (valid-image-or-thumbnail-uri? uri))
+          updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
+                                   (valid-image-or-thumbnail-uri? uri))
                             (assoc-in request [:headers "accept"] "image/jpeg")
                             request)]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
-
 
 (defn create-app [options]
   (let [router (ring/router
@@ -121,8 +116,6 @@
 
                                      default-handler-fetch-resource ;; provide resources
                                      csrf/wrap-dispatch-content-type
-
-
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware
