@@ -274,10 +274,9 @@ end
 
 
 
-# require 'net/http'
-# require 'json'
+ResponseResult = Struct.new(:status, :body)
 
-def upload_files_with_http2(url, form_data, method: :post, headers: { "Accept" => "application/json" })
+def http_multipart_client(url, form_data, method: :post, headers: { "Accept" => "application/json" }, token: nil)
   uri = URI.parse(api_base_url + url)
   http = Net::HTTP.new(uri.host, uri.port)
 
@@ -291,6 +290,9 @@ def upload_files_with_http2(url, form_data, method: :post, headers: { "Accept" =
                   end
 
   request = request_class.new(uri)
+
+  # Add token to headers if provided
+  headers["Authorization"] = "Token #{token}" if token
   headers.each { |key, value| request[key] = value }
 
   # Prepare the form data for multipart
@@ -310,12 +312,11 @@ def upload_files_with_http2(url, form_data, method: :post, headers: { "Accept" =
   # Send the request
   response = http.request(request)
 
-  # Parse the response
-  {
-    status: response.code.to_i,
-    body: JSON.parse(response.body)
-  }
+  # Wrap response in custom object
+  ResponseResult.new(response.code.to_i, JSON.parse(response.body))
 end
+
+
 
 
 #### parse cookie fnc ####################################################
