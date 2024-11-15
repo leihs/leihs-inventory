@@ -71,7 +71,7 @@ feature "Inventory Model Management" do
         compatibles=@form_models_compatibles
         compatibles.first["id"] = compatibles.first.delete("model_id")
 
-
+        # create model request
         form_data = {
           "product" => Faker::Commerce.product_name,
           "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
@@ -100,22 +100,59 @@ feature "Inventory Model Management" do
         expect(result.status).to eq(200)
 
 
-
-
-        # http://localhost:3260/inventory/7e7128d7-ad13-4811-ad68-94e794a8ab6d/model/79b69270-5e56-4c49-b89b-84f7f555212e
-
+        # fetch created model
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
+        expect( resp.body[0]["images"].count).to eq(1)
+        expect( resp.body[0]["attachments"].count).to eq(1)
 
+        expect( resp.body[0]["entitlement_groups"].count).to eq(1)
+        expect( resp.body[0]["compatibles"].count).to eq(1)
+        expect( resp.body[0]["categories"].count).to eq(1)
         expect(result.status).to eq(200)
 
-        binding.pry
-        # @form_entitlement_groups = resp.body
-        #
-        # raise "Failed to fetch entitlement groups" unless resp.status == 200
+        expect(Image.where(target_id: model_id).count).to eq(2)
 
 
+        # update model request
+        form_data = {
+          "product" => "updated product",
+          "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+          "attachments" => [File.open(path_test_pdf, "rb")],
+          "version" => "updated v1.0",
+          "manufacturer" => @form_manufacturer.first,
+          "manufacturer" => "updated manufacturer",
+          "isPackage" => "true",
+          "description" => "updated description",
+          "technicalDetails" => "updated techDetail",
+          "internalDescription" => "updated internalDesc",
+          "importantNotes" => "updated notes",
+          "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
+          "compatibles" => [compatibles.first, compatibles.second].to_json,
+          "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+        }
+
+        result = http_multipart_client(
+          "/inventory/#{pool_id}/model/#{model_id}",
+          form_data,
+          method: :put
+        )
+        expect(result.status).to eq(200)
+        expect(result.body[0]["id"]).to eq(model_id)
+
+
+
+        # fetch updated model
+        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+
+        expect( resp.body[0]["images"].count).to eq(2)
+        expect( resp.body[0]["attachments"].count).to eq(2)
+        expect( resp.body[0]["entitlement_groups"].count).to eq(1)
+        expect( resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
+        expect( resp.body[0]["compatibles"].count).to eq(2)
+        expect( resp.body[0]["categories"].count).to eq(2)
+        expect(result.status).to eq(200)
       end
     end
   end

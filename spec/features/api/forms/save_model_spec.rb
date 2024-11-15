@@ -180,9 +180,9 @@ feature "Inventory Model Management" do
         "technicalDetails" => "Specs go here",
         "internalDescription" => "Internal notes",
         "importantNotes" => "Important usage notes",
-        "compatibles" => "compatible item codes",
-        "allocations" => "allocation details",
-        "categories" => "category1,category2"
+        "entitlements" => [],
+        "compatibles" => [],
+        "categories" => []
       }
 
       result = http_multipart_client(
