@@ -42,8 +42,9 @@
   (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
     (boolean (re-matches pattern uri))))
 
-(defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
+(defn- valid-type-or-whitelisted? [accept-header uri]
   (let [accept-header (if (nil? accept-header) "" accept-header)
+        whitelist-uris-for-api ["/sign-in" "/sign-out"]
         valid? (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
                    (some #(= % uri) whitelist-uris-for-api))]
     valid?))
@@ -51,14 +52,9 @@
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
-          uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]
-          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
-      (if (or ;(some #(str/includes? accept-header %) ["json" "image/jpeg"])
-              (some #(= % uri) whitelist-uris-for-api)
-              image-or-thumbnail-request?
-              (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
-
+          uri (:uri request)]
+      (if (or (valid-image-or-thumbnail-uri? uri)
+              (valid-type-or-whitelisted? accept-header uri))
         (handler request)
         (custom-not-found-handler request)))))
 
