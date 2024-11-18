@@ -83,20 +83,27 @@
     (cond
       (= uri "/") (create-root-page)
 
-      (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-           (contains-one-of? uri SUPPORTED_LOCALES))
-      (let [src (str/replace-first uri "/inventory" "public/inventory")
+      ;(and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
+      ;     (contains-one-of? uri SUPPORTED_LOCALES))
+      ;(let [src (str/replace-first uri "/inventory" "public/inventory")
 
       ;; TODO: DEV-ENDPOINT
       (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
                                                                            :headers {"Content-Type" "text/html"}
                                                                            :body (slurp (io/resource "public/dev/create-model.html"))}
 
-      (and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
-      (let [src (str/replace-first uri "/inventory" "public/inventory/static")]
+      (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
+           (contains-one-of? uri SUPPORTED_LOCALES))
+      (let [src (str/replace-first uri "/inventory" "public/inventory")]
         {:status 200
          :headers {"Content-Type" "application/json"}
          :body (slurp (io/resource src))})
+
+      ;(and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
+      ;(let [src (str/replace-first uri "/inventory" "public/inventory/static")]
+      ;  {:status 200
+      ;   :headers {"Content-Type" "application/json"}
+      ;   :body (slurp (io/resource src))})
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302
