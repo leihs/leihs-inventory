@@ -373,7 +373,7 @@
 
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
-(sa/def ::product (sa/nilable string?))
+(sa/def :a/product (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
 (sa/def ::isPackage (sa/nilable string?))
@@ -396,6 +396,7 @@
                         :single uuid?
                         :none nil?))
 
+(sa/def :b/product string?)
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::position int?)
@@ -416,7 +417,7 @@
                       :none nil?))
 
 (sa/def ::compatible (sa/keys :opt-un [::delete]
-                              :req-un [::id ::product]))
+                              :req-un [::id :a/product]))
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
@@ -451,7 +452,7 @@
                                      :str string?)
                       :none nil?))
 
-(sa/def ::multipart (sa/keys :req-un [::product]
+(sa/def ::multipart (sa/keys :req-un [:b/product]
                              :opt-un [::version
                                       ::manufacturer
                                       ::isPackage
