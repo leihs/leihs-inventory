@@ -78,45 +78,24 @@
                               sql-format))
     (update-or-insert tx table where-values update-values)))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-
-;; TODO: add clojure-test
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
   [request key]
-  (let [json-array-string (get-in request [:parameters :multipart key])
-        p (println "\n\n>o> json-array-string" json-array-string)]
+  (let [json-array-string (get-in request [:parameters :multipart key])]
     (cond
-      ;; Case 1: No input or empty input
-      (not json-array-string) (pr "" [])
-      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) (pr "" [])
-
-      ;; Parse the JSON string
+      (not json-array-string) []
+      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
       :else (try
               (let [normalized-json-array-string
-                    ;; Case 2: Check if it starts with `{` but not `[`, treat as single or multiple maps
                     (if (and (.startsWith json-array-string "{")
                              (not (.startsWith json-array-string "[")))
-                      ;; Wrap it in brackets
                       (str "[" json-array-string "]")
-                      ;; Else, assume it's valid JSON as-is
                       json-array-string)
 
-                    ;; Parse the normalized JSON string
                     parsed (cjson/parse-string normalized-json-array-string true)
 
-                    ;; Ensure the result is always a vector
                     parsed-vector (vec parsed)]
-
-                ;(println ">o> Normalized JSON array string:" normalized-json-array-string)
-                (println ">o> Parsed JSON vector:" parsed-vector)
-
-                ;; Return the vector of maps
                 parsed-vector)
-
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
 
@@ -152,14 +131,12 @@
                             sql-format)))))
 
 (defn process-deletions [tx ids table key]
-  (println ">o> process-deletions" table)
   (doseq [id ids]
     (jdbc/execute! tx (-> (sql/delete-from table)
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
 
 (defn process-image-deletions [tx images-to-delete model-id]
-  (println ">o> process-image-deletions")
   (doseq [id images-to-delete]
     (let [id (to-uuid id)
           row (jdbc/execute-one! tx (-> (sql/select :*)
@@ -178,10 +155,7 @@
                                               :order-by [[:parent_id :asc]]}]]
                                      :delete-from :images
                                      :where [:in :id {:select [:id] :from [:ordered_images]}]})))))
-    ;)
-
 (defn process-images [tx images model-id]
-  (println ">o> process-images" images)
   (let [image-groups (group-by #(base-filename (:filename %)) images)]
     (doseq [[_ entries] image-groups]
       (when (= 2 (count entries))
@@ -224,12 +198,8 @@
                                 :quantity (:quantity entry)} entry))))
 
 (defn process-properties [tx properties model-id]
-  (println ">o> properties" properties)
   (doseq [entry properties]
-    (println ">o> entry" entry)
     (let [id (to-uuid (:id entry))
-          p (println ">o> id" id)
-          p (println ">o> model-id" model-id)
           where-clause (if id
                          [:and [:= :id id] [:= :model_id model-id]]
                          [:and [:= :model_id model-id] [:= :key (:key entry)]])]
@@ -290,8 +260,6 @@
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
-        p (println ">o> properties" (:properties multipart) (type (:properties multipart)))
-
         tx (:tx request)
         prepared-model-data (prepare-model-data multipart)]
 
@@ -308,17 +276,13 @@
             attachments-to-delete (parse-json-array request :attachments-to-delete)
             images (normalize-files request :images)
             images-to-delete (parse-json-array request :images-to-delete)
-            p (println ">o> properties" (:properties multipart) (type (:properties multipart)))
             properties (parse-json-array request :properties)
-            p (println ">o> properties2" properties (type properties))
-
             accessories (parse-json-array request :accessories)
             entitlements (parse-json-array request :entitlements)]
 
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)
         (process-images tx images model-id)
-        ;(process-deletions tx images-to-delete :images :id)
         (process-image-deletions tx images-to-delete model-id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)

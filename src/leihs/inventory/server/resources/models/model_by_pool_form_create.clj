@@ -83,33 +83,19 @@
   (let [json-array-string (get-in request [:parameters :multipart key])
         p (println ">o> json-array-string" json-array-string (type json-array-string))]
     (cond
-      ;; Case 1: No input or empty input
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
 
-      ;; Parse the JSON string
       :else (try
               (let [normalized-json-array-string
-                    ;; Case 2: Check if it starts with `{` but not `[`, treat as single or multiple maps
                     (if (and (.startsWith json-array-string "{")
                              (not (.startsWith json-array-string "[")))
-                      ;; Wrap it in brackets
                       (str "[" json-array-string "]")
-                      ;; Else, assume it's valid JSON as-is
                       json-array-string)
 
-                    ;; Parse the normalized JSON string
                     parsed (cjson/parse-string normalized-json-array-string true)
-
-                    ;; Ensure the result is always a vector
                     parsed-vector (vec parsed)]
-
-                (println ">o> Normalized JSON array string:" normalized-json-array-string)
-                (println ">o> Parsed JSON vector:" parsed-vector)
-
-                ;; Return the vector of maps
                 parsed-vector)
-
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
 

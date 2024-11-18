@@ -1,13 +1,7 @@
 (ns leihs.inventory.server.resources.models.model-by-pool-form-update-test
   (:require [cheshire.core :as cjson]
-
             [clojure.test :refer :all])
   (:require [leihs.inventory.server.resources.models.model-by-pool-form-update :refer :all]))
-
-;(ns your-namespace.parse-json-array-test
-;  (:require [clojure.test :refer :all]
-;   [cheshire.core :as cjson]
-;   [your-namespace :refer [parse-json-array]]))
 
 (deftest parse-json-array-tests
   (testing "Empty input"
@@ -24,16 +18,21 @@
            [{:key "string"}])))
 
   (testing "Multiple map string"
-    (is (= (parse-json-array {:parameters {:multipart {:properties "{\"key\": \"string\", \"value\": \"string\"}"}}} :properties)
+    (is (= (parse-json-array {:parameters {:multipart
+                                           {:properties "{\"key\": \"string\", \"value\": \"string\"}"}}} :properties)
            [{:key "string", :value "string"}])))
 
   (testing "Multiple maps without brackets"
-    (is (= (parse-json-array {:parameters {:multipart {:properties "{\"key\": \"string\", \"value\": \"string\"},{\"key\": \"string2\", \"value\": \"string\"}"}}} :properties)
+    (is (= (parse-json-array {:parameters {:multipart
+                                           {:properties "{\"key\": \"string\", \"value\": \"string\"},
+                                           {\"key\": \"string2\", \"value\": \"string\"}"}}} :properties)
            [{:key "string", :value "string"}
             {:key "string2", :value "string"}])))
 
   (testing "Multiple maps with brackets"
-    (is (= (parse-json-array {:parameters {:multipart {:properties "[{\"key\": \"string\", \"value\": \"string\"}, {\"key\": \"string2\", \"value\": \"string\"}]"}}} :properties)
+    (is (= (parse-json-array {:parameters {:multipart
+                                           {:properties "[{\"key\": \"string\", \"value\": \"string\"},
+                                           {\"key\": \"string2\", \"value\": \"string\"}]"}}} :properties)
            [{:key "string", :value "string"}
             {:key "string2", :value "string"}])))
 
