@@ -238,10 +238,6 @@
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
-
-        p (println ">o> properties" (:properties multipart) (type (:properties multipart)))
-        p (println ">o> properties2" (parse-json-array request :properties))
-
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
         categories (parse-json-array request :categories)

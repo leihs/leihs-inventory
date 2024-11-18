@@ -104,7 +104,7 @@
           (response [res])
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-        (error "Failed to create model" (.getMessage e))
+        (error "Failed to create model" e)
         (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
 (defn update-model-handler-by-pool [request]

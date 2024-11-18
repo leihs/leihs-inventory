@@ -44,12 +44,10 @@
                          :sha "434408f6909924f524c8027b37422d32bb49622d"}}
            :main-opts ["-m" "cljfmt.main"]}
 
-  :test {:extra-paths ["test"] ; Ensure test folder is included in classpath
-         ;:extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-         ;                                        :sha "b5d2d86"}}
+  :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
                       {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
-         :main-opts ["-m" "cognitect.test-runner"] ; Use test-runner
+         :main-opts ["-m" "cognitect.test-runner"]
          :exec-fn cognitect.test-runner.api/test}
 
   :cljc-paths ["src" "shared-clj/src"]
