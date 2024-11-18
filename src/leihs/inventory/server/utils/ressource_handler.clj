@@ -6,6 +6,7 @@
    [leihs.core.db :as db]
    [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
+   [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [reitit.coercion.schema]
@@ -38,15 +39,14 @@
    :headers {"Content-Type" "text/html"}
    :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
        </head><div class='max-width'>
-       <img src=\"../../inventory/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn fetch-file-entry [uri assets]
-  (if (and (file-request? uri) (not (clojure.string/includes? uri "/static/")))
+  (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (or (.endsWith (str key) uri)
-                    (.endsWith (str key) (clojure.string/replace-first uri "/inventory" "")))
+            (if (.endsWith (str key) uri)
               value))
           assets)
     nil))
@@ -115,5 +115,7 @@
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
       (rh/index-html-response request 200)
+
+      (and (nil? asset) (accept-header-html? request)) (rh/index-html-response request 200)
 
       :else (rh/index-html-response request 404))))

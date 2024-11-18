@@ -44,28 +44,6 @@
    [ring.util.response :refer [bad-request redirect response status]]
    [schema.core :as s]))
 
-(defn root-handler [request]
-  (let [accept-header (get-in request [:headers "accept"])]
-    (cond
-      (clojure.string/includes? accept-header "text/html")
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
-       </head><div class='max-width'>
-       <img src=\"/inventory/static/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
-       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-                  (slurp (io/resource "md/info.html")) "</div></body></html>")}
-
-      (clojure.string/includes? accept-header "application/json")
-      {:status 200
-       :headers {"Content-Type" "application/json"}
-       :body (json/generate-string {:message "Welcome to Inventory-API"})}
-
-      :else
-      {:status 406
-       :headers {"Content-Type" "text/plain"}
-       :body "Not Acceptable"})))
-
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
