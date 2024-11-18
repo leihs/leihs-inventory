@@ -1,10 +1,8 @@
 (ns leihs.inventory.server.resources.models.model-by-pool-form-update-test
-  (:require [clojure.test :refer :all]
+  (:require [cheshire.core :as cjson]
 
-   [cheshire.core :as cjson]
-   )
+            [clojure.test :refer :all])
   (:require [leihs.inventory.server.resources.models.model-by-pool-form-update :refer :all]))
-
 
 ;(ns your-namespace.parse-json-array-test
 ;  (:require [clojure.test :refer :all]
@@ -19,28 +17,28 @@
 
   (testing "Single map string"
     (is (= (parse-json-array {:parameters {:multipart {:properties "{}"}}} :properties)
-          [])))
+           [])))
 
   (testing "Single map string"
     (is (= (parse-json-array {:parameters {:multipart {:properties "{\"key\": \"string\"}"}}} :properties)
-          [{:key "string"}])))
+           [{:key "string"}])))
 
   (testing "Multiple map string"
     (is (= (parse-json-array {:parameters {:multipart {:properties "{\"key\": \"string\", \"value\": \"string\"}"}}} :properties)
-          [{:key "string", :value "string"}])))
+           [{:key "string", :value "string"}])))
 
   (testing "Multiple maps without brackets"
     (is (= (parse-json-array {:parameters {:multipart {:properties "{\"key\": \"string\", \"value\": \"string\"},{\"key\": \"string2\", \"value\": \"string\"}"}}} :properties)
-          [{:key "string", :value "string"}
-           {:key "string2", :value "string"}])))
+           [{:key "string", :value "string"}
+            {:key "string2", :value "string"}])))
 
   (testing "Multiple maps with brackets"
     (is (= (parse-json-array {:parameters {:multipart {:properties "[{\"key\": \"string\", \"value\": \"string\"}, {\"key\": \"string2\", \"value\": \"string\"}]"}}} :properties)
-          [{:key "string", :value "string"}
-           {:key "string2", :value "string"}])))
+           [{:key "string", :value "string"}
+            {:key "string2", :value "string"}])))
 
   (testing "Invalid JSON input"
     (is (thrown-with-msg?
-          clojure.lang.ExceptionInfo
-          #"Invalid JSON Array Format"
-          (parse-json-array {:parameters {:multipart {:properties "Invalid JSON"}}} :properties)))))
+         clojure.lang.ExceptionInfo
+         #"Invalid JSON Array Format"
+         (parse-json-array {:parameters {:multipart {:properties "Invalid JSON"}}} :properties)))))

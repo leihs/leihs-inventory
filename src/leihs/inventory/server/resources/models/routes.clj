@@ -455,7 +455,6 @@
                         :single uuid?
                         :none nil?))
 
-
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::position int?)
@@ -476,23 +475,22 @@
   (sa/and string? #{"Category"}))
 ;(sa/def ::type string?)
 
-(sa/def ::category (sa/keys :opt-un [::delete  ::created_at ::updated_at]
-                       :req-un [::id ::type ::name]))
+(sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
+                            :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
-                        :single (sa/or :coll (sa/coll-of ::category)
-                                  :str string?)
+                      :single (sa/or :coll (sa/coll-of ::category)
+                                     :str string?)
                         ;:single ::entitlement
-                        :none nil?))
-
+                      :none nil?))
 
 ;(sa/def ::compatibles string?)
 (sa/def ::compatible (sa/keys :opt-un [::delete]
-                        :req-un [::id ::product]))
+                              :req-un [::id ::product]))
 (sa/def ::compatibles (sa/or
-                         :single (sa/or :coll (sa/coll-of ::compatible)
-                                   :str string?)
+                       :single (sa/or :coll (sa/coll-of ::compatible)
+                                      :str string?)
                          ;:single ::entitlement
-                         :none nil?))
+                       :none nil?))
 (sa/def ::images-to-delete string?)
 (sa/def ::attachments-to-delete string?)
 
@@ -505,13 +503,12 @@
 (sa/def ::entitlement_id uuid?)
 (sa/def ::quantity int?)
 (sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
-                        :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of ::entitlement)
-                                         :str string?)
+                                       :str string?)
                         ;:single ::entitlement
                         :none nil?))
-
 
 (sa/def ::inventory_bool boolean?)
 (sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::inventory_bool]))
@@ -519,8 +516,8 @@
                        ;:multiple (sa/or :coll (sa/coll-of ::accessory)
                        ;                 :str string?)
                        ;:single ::accessory
-                        :single (sa/or :coll (sa/coll-of ::accessory)
-                                  :str string?)
+                       :single (sa/or :coll (sa/coll-of ::accessory)
+                                      :str string?)
                        :none nil?))
 
 (sa/def ::key string?)
@@ -529,7 +526,7 @@
 (sa/def ::properties (sa/or
                       ;:single ::property
                       :single (sa/or :coll (sa/coll-of ::property)
-                                       :str string?)
+                                     :str string?)
                       :none nil?))
 
 ;;; Spec for a single UUID string or UUID object
