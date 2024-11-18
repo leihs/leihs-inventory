@@ -41,7 +41,7 @@
                                                               {:status 407})))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 409)
+          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 405)
      :else (let [response (handler request)]
              (if (and (nil? response)
                       (not (#{:post :put :patch :delete} (:request-method request)))
@@ -75,8 +75,8 @@
 (defn convert-params [request]
   (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))]
     (-> request
-        (assoc :form-params converted-form-params)
-        (assoc :form-params-raw converted-form-params))))
+      (assoc :form-params converted-form-params)
+      (assoc :form-params-raw converted-form-params))))
 
 (defn extract-form-params [stream]
   (try
@@ -84,17 +84,41 @@
           params (codec/form-decode body-str)
           keyword-params (keywordize-keys params)]
       keyword-params)
-    (catch Exception e nil)))
+    (catch Exception _ nil)))
+
+;(defn extract-header [handler]
+;  (fn [request]
+;    (let [form-params (:form-params request)
+;          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
+;          csrf-token (get body-form :x-csrf-token)
+;          request (-> request
+;                      (assoc :form-params body-form)
+;                      add-cookies-to-request
+;                      convert-params)]
+;      (try
+;        (handler request)
+;        (catch Exception e
+;          (if (str/includes? (:uri request) "/sign-in")
+;            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+;            (-> (response/response {:status "failure"
+;                                    :message "CSRF-Token/Session not valid"
+;                                    :detail (.getMessage e)})
+;              (response/status 404)
+;              (response/content-type "application/json"))))))))
+
 
 (defn extract-header [handler]
   (fn [request]
-    (let [form-params (:form-params request)
-          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
-          csrf-token (get body-form :x-csrf-token)
-          request (-> request
-                      (assoc :form-params body-form)
+    (let [content-type (get-in request [:headers "content-type"])
+          request (if (= content-type "application/x-www-form-urlencoded")
+                    (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
+                      (-> request
+                        (assoc :form-params body-form)
+                        add-cookies-to-request
+                        convert-params))
+                    (-> request
                       add-cookies-to-request
-                      convert-params)]
+                      convert-params))]
       (try
         (handler request)
         (catch Exception e
@@ -103,8 +127,8 @@
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-                (response/status 404)
-                (response/content-type "application/json"))))))))
+              (response/status 404)
+              (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
