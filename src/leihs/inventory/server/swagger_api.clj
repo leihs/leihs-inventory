@@ -50,7 +50,9 @@
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
       (if (or (some #(str/includes? accept-header %) ["json" "image/jpeg"])
               (some #(= % uri) whitelist-uris-for-api)
-              image-or-thumbnail-request?)))))
+              image-or-thumbnail-request?)
+        (handler request)
+        (custom-not-found-handler request)))))
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]

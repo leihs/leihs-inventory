@@ -8,6 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
+                                                           file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
@@ -27,35 +29,12 @@
 
 (defn prepare-model-data
   [data]
-  (let [created-ts (LocalDateTime/now)
-        key-map {:type :type
-                 :manufacturer :manufacturer
-                 :product :product
-                 :version :version
-                 :hand_over_note :importantNotes
-                 :is_package :isPackage
-                 :description :description
-                 :internal_description :internalDescription
-                 :technical_detail :technicalDetails}
-        renamed-data (reduce (fn [acc [db-key original-key]]
-                               (if-let [val (get data original-key)]
-                                 (assoc acc db-key val)
-                                 acc))
-                             {}
-                             key-map)]
-    (assoc renamed-data
+  (let [normalize-data (normalize-model-data data)
+        created-ts (LocalDateTime/now)]
+    (assoc normalize-data
            :type "Model"
            :created_at created-ts
            :updated_at created-ts)))
-
-(defn str-to-bool
-  [s]
-  (cond
-    (string? s) (case (.toLowerCase s)
-                  "true" true
-                  "false" false
-                  nil)
-    :else (boolean s)))
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
@@ -71,65 +50,63 @@
                                 (sql/returning :*)
                                 sql-format)))))
 
-(defn base-filename
-  [filename]
-  (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]
-    (str base extension)
-    filename))
+;(defn base-filename
+;  [filename]
+;  (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]
+;    (str base extension)
+;    filename))
 
-(defn parse-json-array
-  "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  [request key]
-  (let [json-array-string (get-in request [:parameters :multipart key])
-        p (println ">o> json-array-string" json-array-string (type json-array-string))]
-    (cond
-      (not json-array-string) []
-      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
+;(defn parse-json-array
+;  "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
+;  [request key]
+;  (let [json-array-string (get-in request [:parameters :multipart key])]
+;    (cond
+;      (not json-array-string) []
+;      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
+;      :else (try
+;              (let [normalized-json-array-string
+;                    (if (and (.startsWith json-array-string "{")
+;                             (not (.startsWith json-array-string "[")))
+;                      (str "[" json-array-string "]")
+;                      json-array-string)
+;
+;                    parsed (cjson/parse-string normalized-json-array-string true)
+;                    parsed-vector (vec parsed)]
+;                parsed-vector)
+;              (catch Exception e
+;                (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
 
-      :else (try
-              (let [normalized-json-array-string
-                    (if (and (.startsWith json-array-string "{")
-                             (not (.startsWith json-array-string "[")))
-                      (str "[" json-array-string "]")
-                      json-array-string)
+;(defn normalize-files
+;  [request key]
+;  (let [attachments (get-in request [:parameters :multipart key])
+;        normalized (if (map? attachments)
+;                     [attachments]
+;                     attachments)]
+;    (vec (filter #(pos? (:size % 0)) normalized))))
 
-                    parsed (cjson/parse-string normalized-json-array-string true)
-                    parsed-vector (vec parsed)]
-                parsed-vector)
-              (catch Exception e
-                (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
-
-(defn normalize-files
-  [request key]
-  (let [attachments (get-in request [:parameters :multipart key])
-        normalized (if (map? attachments)
-                     [attachments]
-                     attachments)]
-    (vec (filter #(pos? (:size % 0)) normalized))))
-
-(defn file-to-base64 [file]
-  (let [actual-file (if (instance? java.io.File file)
-                      file
-                      (:tempfile file))]
-    (when actual-file
-      (let [bytes (with-open [in (io/input-stream actual-file)
-                              out (java.io.ByteArrayOutputStream.)]
-                    (io/copy in out)
-                    (.toByteArray out))]
-        (String. (b64/encode bytes))))))
+;(defn file-to-base64 [file]
+;  (let [actual-file (if (instance? java.io.File file)
+;                      file
+;                      (:tempfile file))]
+;    (when actual-file
+;      (let [bytes (with-open [in (io/input-stream actual-file)
+;                              out (java.io.ByteArrayOutputStream.)]
+;                    (io/copy in out)
+;                    (.toByteArray out))]
+;        (String. (b64/encode bytes))))))
 
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
 
-(defn process-attachments [tx attachments model-id]
-  (doseq [entry attachments]
-    (let [file-content (file-to-base64 (:tempfile entry))
-          data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
-      (jdbc/execute! tx (-> (sql/insert-into :attachments)
-                            (sql/values [data])
-                            (sql/returning :*)
-                            sql-format)))))
+;(defn process-attachments [tx attachments model-id]
+;  (doseq [entry attachments]
+;    (let [file-content (file-to-base64 (:tempfile entry))
+;          data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
+;      (jdbc/execute! tx (-> (sql/insert-into :attachments)
+;                            (sql/values [data])
+;                            (sql/returning :*)
+;                            sql-format)))))
 
 (defn process-images [tx images model-id validation-result]
   (let [image-groups (group-by #(base-filename (:filename %)) images)
