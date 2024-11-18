@@ -38,15 +38,6 @@
             [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-(defn pr2 [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str)
-  fnc)
-
 (defn valid-image-or-thumbnail-uri? [uri]
   (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
     (boolean (re-matches pattern uri))))
@@ -62,11 +53,10 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)]
-      (if (or
-            (valid-image-or-thumbnail-uri? uri)
+      (if (or (valid-image-or-thumbnail-uri? uri)
             valid-type-or-whitelisted?)
-        (pr2 ">> to api" (handler request))
-        (pr2 ">> not-found-handler" (custom-not-found-handler request))))))
+        (handler request)
+        (custom-not-found-handler request)))))
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]

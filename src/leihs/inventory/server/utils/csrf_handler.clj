@@ -75,8 +75,8 @@
 (defn convert-params [request]
   (let [converted-form-params (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) (:form-params request)))]
     (-> request
-      (assoc :form-params converted-form-params)
-      (assoc :form-params-raw converted-form-params))))
+        (assoc :form-params converted-form-params)
+        (assoc :form-params-raw converted-form-params))))
 
 (defn extract-form-params [stream]
   (try
@@ -127,8 +127,8 @@
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-              (response/status 404)
-              (response/content-type "application/json"))))))))
+                (response/status 404)
+                (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
