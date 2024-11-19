@@ -111,7 +111,6 @@
          :headers {"Content-Type" "application/json"}
          :body (slurp (io/resource src))}))
 
-
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       (pr2 "abc2" {:status 302
        :headers {"Location" "/inventory"}
@@ -132,8 +131,8 @@
                                (rh/index-html-response request 404)))
                            (rh/index-html-response request 404)))
 
-      (pr2 "abc5" (and SESSION_HANDLING_ACTIVATED? (pr "exp. false => " (not (file-request? uri))) (pr "exp2. false => " (not (session-valid? request)))))
-      (response/redirect "/sign-in?return-to=%2Finventory")
+      (and SESSION_HANDLING_ACTIVATED? (pr "exp. false => " (not (file-request? uri))) (pr "exp2. false => " (not (session-valid? request))))
+      (pr2 "abc5" (response/redirect "/sign-in?return-to=%2Finventory"))
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
       (pr2 "abc6"(rh/index-html-response request 200))

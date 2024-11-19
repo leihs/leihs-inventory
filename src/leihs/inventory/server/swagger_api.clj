@@ -49,14 +49,47 @@
                    (some #(= % uri) whitelist-uris-for-api))]
     valid?))
 
+
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str)
+  fnc
+  )
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)]
       (if (or (valid-image-or-thumbnail-uri? uri)
               valid-type-or-whitelisted?)
-        (handler request)
-        (custom-not-found-handler request)))))
+        (pr2 "abc1" (handler request))
+        (pr2 "abc2.not-found" (custom-not-found-handler request))))))
+
+
+;;============ OLD
+
+(defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
+  (let [accept-header (if (nil? accept-header) "" accept-header)
+        valid? (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
+                 (some #(= % uri) whitelist-uris-for-api))]
+    valid?))
+
+(defn default-handler-fetch-resource [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          uri (:uri request)
+          whitelist-uris-for-api ["/sign-in" "/sign-out"]]
+      (if (valid-type-or-whitelisted? accept-header uri whitelist-uris-for-api)
+        (pr2 "abc1" (handler request))
+        (pr2 "abc2.not-found" (custom-not-found-handler request))))))
+
+;;============
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
