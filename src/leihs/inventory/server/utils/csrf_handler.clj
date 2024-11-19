@@ -29,26 +29,41 @@
   (boolean (or (= (-> request :accept :mime) :javascript)
                (re-find #".+\.js$" (or (-> request :uri presence) "")))))
 
+
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str)
+  fnc
+  )
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn wrap-dispatch-content-type
   ([handler]
    (fn [request]
      (wrap-dispatch-content-type handler request)))
   ([handler request]
    (cond
-     (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (handler request)
-     (= (-> request :accept :mime) :json) (or (handler request)
+     (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (pr2 "csrf1" (handler request))
+     (= (-> request :accept :mime) :json) (pr2 "csrf2"(or (handler request)
                                               (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 407})))
+                                                              {:status 407}))))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 405)
+          (not (browser-request-matches-javascript? request))) (pr2 "csrf3"(rh/index-html-response request 405))
      :else (let [response (handler request)]
              (if (and (nil? response)
                       (not (#{:post :put :patch :delete} (:request-method request)))
                       (= (-> request :accept :mime) :html)
                       (not (browser-request-matches-javascript? request)))
-               (rh/index-html-response request 408)
-               response)))))
+               (pr2 "csrf4a"(rh/index-html-response request 408))
+                 (pr2 "csrf4b"response)
+
+               )))))
 
 (defn parse-cookies
   "Parses cookies from the 'cookie' header string into a nested map."
@@ -86,38 +101,15 @@
       keyword-params)
     (catch Exception _ nil)))
 
-;(defn extract-header [handler]
-;  (fn [request]
-;    (let [form-params (:form-params request)
-;          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
-;          csrf-token (get body-form :x-csrf-token)
-;          request (-> request
-;                      (assoc :form-params body-form)
-;                      add-cookies-to-request
-;                      convert-params)]
-;      (try
-;        (handler request)
-;        (catch Exception e
-;          (if (str/includes? (:uri request) "/sign-in")
-;            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
-;            (-> (response/response {:status "failure"
-;                                    :message "CSRF-Token/Session not valid"
-;                                    :detail (.getMessage e)})
-;              (response/status 404)
-;              (response/content-type "application/json"))))))))
-
 (defn extract-header [handler]
   (fn [request]
-    (let [content-type (get-in request [:headers "content-type"])
-          request (if (= content-type "application/x-www-form-urlencoded")
-                    (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
-                      (-> request
-                          (assoc :form-params body-form)
-                          add-cookies-to-request
-                          convert-params))
-                    (-> request
-                        add-cookies-to-request
-                        convert-params))]
+    (let [form-params (:form-params request)
+          body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))
+          csrf-token (get body-form :x-csrf-token)
+          request (-> request
+                      (assoc :form-params body-form)
+                      add-cookies-to-request
+                      convert-params)]
       (try
         (handler request)
         (catch Exception e
@@ -128,6 +120,29 @@
                                     :detail (.getMessage e)})
                 (response/status 404)
                 (response/content-type "application/json"))))))))
+
+;(defn extract-header [handler]
+;  (fn [request]
+;    (let [content-type (get-in request [:headers "content-type"])
+;          request (if (= content-type "application/x-www-form-urlencoded")
+;                    (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
+;                      (-> request
+;                          (assoc :form-params body-form)
+;                          add-cookies-to-request
+;                          convert-params))
+;                    (-> request
+;                        add-cookies-to-request
+;                        convert-params))]
+;      (try
+;        (handler request)
+;        (catch Exception e
+;          (if (str/includes? (:uri request) "/sign-in")
+;            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+;            (-> (response/response {:status "failure"
+;                                    :message "CSRF-Token/Session not valid"
+;                                    :detail (.getMessage e)})
+;                (response/status 404)
+;                (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]

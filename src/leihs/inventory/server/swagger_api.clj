@@ -60,6 +60,7 @@
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
+    (println ">o> wrap-accept-with-image-rewrite" )
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
@@ -81,7 +82,7 @@
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
-                                     wrap-accept-with-image-rewrite
+                                     ;wrap-accept-with-image-rewrite
 
                                       ; redirect-if-no-session
                                       ; auth/wrap-authenticate ;broken workflow caused by token

@@ -73,11 +73,27 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
+(defn pr2 [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str)
+  fnc
+  )
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn custom-not-found-handler [request]
+  (println ">o> custom-not-found-handler" )
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
         request ((session/wrap-authenticate (fn [request] request)) request)
+
         uri (:uri request)
+        p (println ">o> uri" uri)
+
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
     (cond
@@ -90,28 +106,23 @@
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))
-      (let [src (str/replace-first uri "/inventory" "public/inventory")]
+      (pr2 "abc1"(let [src (str/replace-first uri "/inventory" "public/inventory")]
         {:status 200
          :headers {"Content-Type" "application/json"}
-         :body (slurp (io/resource src))})
+         :body (slurp (io/resource src))}))
 
-      ;(and (str/starts-with? uri "/inventory/locales/") (contains-one-of? uri SUPPORTED_LOCALES))
-      ;(let [src (str/replace-first uri "/inventory" "public/inventory/static")]
-      ;  {:status 200
-      ;   :headers {"Content-Type" "application/json"}
-      ;   :body (slurp (io/resource src))})
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      {:status 302
+      (pr2 "abc2" {:status 302
        :headers {"Location" "/inventory"}
-       :body ""}
+       :body ""})
 
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      {:status 302
+      (pr2 "abc3"{:status 302
        :headers {"Location" "/inventory/api-docs/index.html"}
-       :body ""}
+       :body ""})
 
-      (not (nil? asset)) (if asset
+      (not (nil? asset)) (pr2 "abc4"(if asset
                            (let [{:keys [file content-type]} asset
                                  resource (io/resource file)]
                              (if resource
@@ -119,14 +130,14 @@
                                 :headers {"Content-Type" content-type}
                                 :body (slurp resource)}
                                (rh/index-html-response request 404)))
-                           (rh/index-html-response request 404))
+                           (rh/index-html-response request 404)))
 
-      (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
+      (pr2 "abc5" (and SESSION_HANDLING_ACTIVATED? (pr "exp. false => " (not (file-request? uri))) (pr "exp2. false => " (not (session-valid? request)))))
       (response/redirect "/sign-in?return-to=%2Finventory")
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
-      (rh/index-html-response request 200)
+      (pr2 "abc6"(rh/index-html-response request 200))
 
-      (and (nil? asset) (accept-header-html? request)) (rh/index-html-response request 200)
+      (and (nil? asset) (accept-header-html? request)) (pr2 "abc7"(rh/index-html-response request 200))
 
-      :else (rh/index-html-response request 404))))
+      :else (pr2 "abc8" (rh/index-html-response request 404)))))
