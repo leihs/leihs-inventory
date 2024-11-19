@@ -29,18 +29,15 @@
   (boolean (or (= (-> request :accept :mime) :javascript)
                (re-find #".+\.js$" (or (-> request :uri presence) "")))))
 
-
 (defn pr2 [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str)
-  fnc
-  )
+  fnc)
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn wrap-dispatch-content-type
   ([handler]
@@ -49,21 +46,19 @@
   ([handler request]
    (cond
      (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (pr2 "csrf1" (handler request))
-     (= (-> request :accept :mime) :json) (pr2 "csrf2"(or (handler request)
-                                              (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 407}))))
+     (= (-> request :accept :mime) :json) (pr2 "csrf2" (or (handler request)
+                                                           (throw (ex-info "This resource does not provide a json response."
+                                                                           {:status 407}))))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (pr2 "csrf3"(rh/index-html-response request 405))
+          (not (browser-request-matches-javascript? request))) (pr2 "csrf3" (rh/index-html-response request 405))
      :else (let [response (handler request)]
              (if (and (nil? response)
                       (not (#{:post :put :patch :delete} (:request-method request)))
                       (= (-> request :accept :mime) :html)
                       (not (browser-request-matches-javascript? request)))
-               (pr2 "csrf4a"(rh/index-html-response request 408))
-                 (pr2 "csrf4b"response)
-
-               )))))
+               (pr2 "csrf4a" (rh/index-html-response request 408))
+               (pr2 "csrf4b" response))))))
 
 (defn parse-cookies
   "Parses cookies from the 'cookie' header string into a nested map."

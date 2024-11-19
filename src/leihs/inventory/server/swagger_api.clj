@@ -49,18 +49,15 @@
                    (some #(= % uri) whitelist-uris-for-api))]
     valid?))
 
-
 (defn pr2 [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str)
-  fnc
-  )
+  fnc)
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -71,13 +68,12 @@
         (pr2 "abc1" (handler request))
         (pr2 "abc2.not-found" (custom-not-found-handler request))))))
 
-
 ;;============ OLD
 
 (defn- valid-type-or-whitelisted? [accept-header uri whitelist-uris-for-api]
   (let [accept-header (if (nil? accept-header) "" accept-header)
         valid? (or (some #(clojure.string/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
-                 (some #(= % uri) whitelist-uris-for-api))]
+                   (some #(= % uri) whitelist-uris-for-api))]
     valid?))
 
 (defn default-handler-fetch-resource [handler]
@@ -93,7 +89,7 @@
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
-    (println ">o> wrap-accept-with-image-rewrite" )
+    (println ">o> wrap-accept-with-image-rewrite")
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
