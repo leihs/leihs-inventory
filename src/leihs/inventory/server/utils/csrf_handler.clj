@@ -106,19 +106,18 @@
 ;              (response/status 404)
 ;              (response/content-type "application/json"))))))))
 
-
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
           request (if (= content-type "application/x-www-form-urlencoded")
                     (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
                       (-> request
-                        (assoc :form-params body-form)
-                        add-cookies-to-request
-                        convert-params))
+                          (assoc :form-params body-form)
+                          add-cookies-to-request
+                          convert-params))
                     (-> request
-                      add-cookies-to-request
-                      convert-params))]
+                        add-cookies-to-request
+                        convert-params))]
       (try
         (handler request)
         (catch Exception e

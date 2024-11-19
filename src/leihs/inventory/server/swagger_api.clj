@@ -54,7 +54,7 @@
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)]
       (if (or (valid-image-or-thumbnail-uri? uri)
-            valid-type-or-whitelisted?)
+              valid-type-or-whitelisted?)
         (handler request)
         (custom-not-found-handler request)))))
 
