@@ -3,7 +3,8 @@
    [clojure.set]
    [leihs.inventory.server.resources.auth.session :as session]
    [leihs.inventory.server.resources.fields.main :refer [get-form-fields-handler
-                                                         get-form-fields-with-pagination-handler]]
+                                                         get-form-fields-with-pagination-handler
+                                                         get-form-fields-auto-pagination-handler]]
    [leihs.inventory.server.resources.fields.search :refer [get-search-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -30,9 +31,12 @@
                             ;session/wrap
                             ]
                :swagger {:produces ["application/json"]}
-               :parameters {:query {(s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                    (s/optional-key :owner) s/Bool}}
-               :handler get-form-fields-with-pagination-handler
+               :parameters {:query {(s/optional-key :page) s/Int
+                                    (s/optional-key :size) s/Int
+                                    (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                    (s/optional-key :owner) s/Bool
+                                    (s/optional-key :type) (s/enum "license")}}
+               :handler get-form-fields-auto-pagination-handler
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
@@ -41,6 +45,19 @@
     ["/:field_id"
      {:get {:conflicting true
             :accept "application/json"
+            :description (str "<ul>"
+                              "<li>properties_license_type</li>"
+                              "<li>properties_activation_type</li>"
+                              "<li>properties_operating_system</li>"
+                              "<li>properties_installation</li>"
+                              "<li>properties_maintenance_contract</li>"
+                              "<li>properties_maintenance_contract</li>"
+                              "<li>retired</li>"
+                              "<li>retired_reason</li>"
+                              "<li>is_borrowable</li>"
+                              "<li>properties_reference</li>"
+                              "<li>...</li>"
+                              "<ul/>")
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware
                          ;session/wrap

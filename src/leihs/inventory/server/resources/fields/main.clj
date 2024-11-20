@@ -6,8 +6,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.pagination :refer [pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [pagination-response fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
@@ -21,8 +20,29 @@
      (let [tx (:tx request)
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
-           {:keys [role owner]} (-> request query-params)
-           {:keys [page size]} (fetch-pagination-params request)
+
+           license_keys ["inventory_code"
+                         "license_version"
+                         "properties_p4u"
+                         "properties_license_type"
+                         "properties_activation_type"
+                         "properties_operating_system"
+                         "properties_reference"
+                         "properties_installation"
+                         "properties_procured_by"
+                         "note"
+                         "serial_number"
+                         "supplier_id"
+                         "invoice_date"
+                         "properties_maintenance_contract"
+                         "retired"
+                         "retired_reason"
+                         "is_borrowable"
+                         "properties_reference"]
+
+           {:keys [role owner type]} (-> request query-params)
+           ;{:keys [page size]} (fetch-pagination-params request)
+           {:keys [page size]} (fetch-pagination-params-raw request)
            user-id (:id (:authenticated-entity request))
            inventory-access-base-query (-> (sql/from :inventory_pools)
                                            (sql/where [:= :inventory_pools.is_active true]))
@@ -48,6 +68,8 @@
                                                                (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
                                                                :boolean) :owner])
                                          (sql/from [:fields :f])
+                                         (cond-> (and (some? type) (= "license" type))
+                                           (sql/where [:in :f.id license_keys]))
                                          (sql/where [:= :f.active true])) :subquery])
 
                           (cond-> group_id (sql/where [:= :subquery.id group_id]))
@@ -68,6 +90,7 @@
                                         [:is :subquery.role nil]])))]
 
        (cond
+         (and (nil? with-pagination?) (nil? page) (nil? size)) (jdbc/query tx (-> base-query sql-format))
          (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
          with-pagination? (pagination-response request base-query)
          :else (jdbc/query tx (-> base-query sql-format))))
@@ -78,6 +101,9 @@
 
 (defn get-form-fields-with-pagination-handler [request]
   (response (get-form-fields request true)))
+
+(defn get-form-fields-auto-pagination-handler [request]
+  (response (get-form-fields request nil)))
 
 (defn get-form-fields-handler [request]
   (let [result (get-form-fields request)]

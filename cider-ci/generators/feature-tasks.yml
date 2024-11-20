@@ -149,10 +149,20 @@
     FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields without specifying a role 01"
     FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:5:1]'
 './spec/features/api/forms/fields_spec.rb[1:1:6:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields without specifying a role 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields without specifying a role 02"
+    FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:6:1]'
+'./spec/features/api/forms/fields_spec.rb[1:1:7:1]':
   name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields and retrieve specific field details 01"
   environment_variables:
     FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields and retrieve specific field details 01"
-    FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:6:1]'
+    FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:7:1]'
+'./spec/features/api/forms/fields_spec.rb[1:1:7:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields and retrieve specific field details 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields and retrieve specific field details 02"
+    FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:7:2]'
 './spec/features/api/forms/save_model_spec.rb[1:1:1]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 01"
   environment_variables:

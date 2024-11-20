@@ -103,17 +103,18 @@
             properties (fetch-properties tx model-id)
             entitlements (fetch-entitlements tx model-id)
             categories (fetch-categories tx model-id)
-
-            result (assoc model-result
-                          :attachments attachments
-                          :accessories accessories
-                          :compatibles compatibles
-                          :properties properties
-                          :images images
-                          :entitlement_groups entitlements
-                          :categories categories)]
+            result (if model-result
+                     [(assoc model-result
+                             :attachments attachments
+                             :accessories accessories
+                             :compatibles compatibles
+                             :properties properties
+                             :images images
+                             :entitlement_groups entitlements
+                             :categories categories)]
+                     [])]
         (if result
-          (response [result])
+          (response result)
           (bad-request {:error "Failed to fetch model"})))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))

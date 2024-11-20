@@ -58,6 +58,13 @@
     {:page page
      :size size}))
 
+(defn fetch-pagination-params-raw [request]
+  (let [query-params (query-params request)
+        page (:page query-params)
+        size (:size query-params)]
+    {:page page
+     :size size}))
+
 (defn pagination-response
   ([request base-query]
    (pagination-response request base-query nil))
