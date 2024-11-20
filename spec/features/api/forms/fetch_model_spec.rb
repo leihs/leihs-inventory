@@ -24,7 +24,7 @@ feature "Inventory Model Management" do
       end
 
       # Fetch shared data and set global instance variables
-      resp = client.get "/inventory/manufacturers"
+      resp = client.get "/inventory/manufacturers?type=Model"
       @form_manufacturer = resp.body
       raise "Failed to fetch manufacturers" unless resp.status == 200
 
@@ -54,7 +54,7 @@ feature "Inventory Model Management" do
 
       it "ensures models compatible data is fetched" do
         expect(@form_models_compatibles).not_to be_nil
-        expect(@form_models_compatibles.count).to eq(2)
+        expect(@form_models_compatibles.count).to eq(3)
       end
 
       it "ensures model groups data is fetched" do

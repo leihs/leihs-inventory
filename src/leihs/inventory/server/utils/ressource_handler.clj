@@ -88,6 +88,14 @@
                                                                            :headers {"Content-Type" "text/html"}
                                                                            :body (slurp (io/resource "public/dev/create-model.html"))}
 
+      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software") {:status 200
+                                                                              :headers {"Content-Type" "text/html"}
+                                                                              :body (slurp (io/resource "public/dev/create-software.html"))}
+
+      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license") {:status 200
+                                                                             :headers {"Content-Type" "text/html"}
+                                                                             :body (slurp (io/resource "public/dev/create-license.html"))}
+
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")]

@@ -18,8 +18,7 @@
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-image-middleware]
-           :swagger {:produces ["application/json" "image/jpeg"]}
+           :swagger {:produces ["application/json" "application/octet-stream"]}
            :parameters {:path {:id s/Uuid}}
            :handler get-attachments-handler
            :responses {200 {:description "OK"}

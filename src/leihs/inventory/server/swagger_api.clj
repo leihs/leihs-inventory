@@ -2,19 +2,15 @@
   (:require [byte-streams :as bs]
             [cheshire.core :as json]
             [clojure.java.io :as io]
-            [clojure.string]
             [clojure.string :as str]
-            [clojure.uuid :as uuid]
             [clojure.walk :refer [keywordize-keys]]
             [leihs.core.anti-csrf.back :as anti-csrf]
             [leihs.core.auth.core :as auth]
             [leihs.core.auth.session :as session]
-            [leihs.core.constants :as constants]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.back :as core-routing]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-            [leihs.core.sign-in.back :as be]
             [leihs.inventory.server.constants :as consts]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.csrf-handler :as csrf]
@@ -35,23 +31,26 @@
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
 (defn valid-image-or-thumbnail-uri? [uri]
-  (let [pattern #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$"]
-    (boolean (re-matches pattern uri))))
+  (boolean (re-matches #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$" uri)))
+
+(defn valid-attachment-uri? [uri]
+  (boolean (re-matches #"^/inventory/attachments/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" uri)))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out"]
-          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)]
+          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
+          attachment-request? (valid-attachment-uri? uri)]
 
-      (if (or (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"])
+      (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"]))
               (some #(= % uri) whitelist-uris-for-api)
-              image-or-thumbnail-request?)
+              image-or-thumbnail-request?
+              attachment-request?)
         (handler request)
         (custom-not-found-handler request)))))
 
@@ -59,10 +58,16 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          updated-request (if (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
-                                   (valid-image-or-thumbnail-uri? uri))
+          updated-request (cond
+                            (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
+                                 (valid-image-or-thumbnail-uri? uri))
                             (assoc-in request [:headers "accept"] "image/jpeg")
-                            request)]
+
+                            (and (str/includes? accept-header "text/html")
+                                 (valid-attachment-uri? uri))
+                            (assoc-in request [:headers "accept"] "application/octet-stream")
+
+                            :else request)]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn create-app [options]

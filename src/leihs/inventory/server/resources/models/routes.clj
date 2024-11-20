@@ -3,15 +3,21 @@
    [cheshire.core :as json]
    [clojure.set]
    [clojure.spec.alpha :as sa]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
+
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -519,6 +525,43 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
+   ["/software"
+    [""
+     {:post {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?}
+                          :multipart ::multipart}
+             :handler create-software-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]
+
+    ["/:model_id"
+     [""
+      {:get {:accept "application/json"
+             :summary "(DEV) | Form-Handler: Fetch form data"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}}
+             :handler create-software-handler-by-pool-form-fetch
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+       :put {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          :multipart ::multipart}
+             :handler update-software-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
+
    ["/models"
     [""
      {:get {:accept "application/json"
@@ -601,11 +644,11 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid
-                                 ;:item_id s/Uuid
+                                     ;:item_id s/Uuid
                                      }}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                              ;:body (s/->Either [s/Any schema])}
+                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
 
                              404 {:description "Not Found"}

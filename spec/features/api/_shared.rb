@@ -126,7 +126,11 @@ shared_context :setup_models_api_model do
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model2)
 
-    @form_compatible_models = [compatible_model1, compatible_model2]
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
+    compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model3)
+
+    @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end
 end
 

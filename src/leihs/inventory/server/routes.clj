@@ -14,6 +14,7 @@
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
@@ -72,7 +73,7 @@
    (get-supplier-routes)
    (get-fields-routes)
    (get-export-routes)
-   ;(get-attachments-routes)
+   (get-attachments-routes)
    ;(get-accessories-routes)
    ;(get-entitlements-routes)
    ;(get-model-links-routes)

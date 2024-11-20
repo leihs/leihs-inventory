@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.model-by-pool-form-update
+(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-update
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
@@ -8,9 +8,9 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
-   [leihs.inventory.server.resources.models.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]

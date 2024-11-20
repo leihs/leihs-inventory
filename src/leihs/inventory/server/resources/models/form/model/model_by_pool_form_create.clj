@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.model-by-pool-form-create
+(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-create
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
