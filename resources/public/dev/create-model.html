@@ -66,11 +66,11 @@
 
 <div class="image-group">
     <div class="image-container">
-        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
+        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
         <p class="image-footer">Thumbnail Image by img-Tag</p>
     </div>
     <div class="image-container">
-        <img src="http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
+        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
         <p class="image-footer">Image by img-Tag</p>
     </div>
     <div class="image-container">
@@ -189,14 +189,14 @@
             // create
             if(CONST_IS_CREATE_FORM) {
                 return  {
-                        url: 'http://localhost:3260/inventory/' + poolId + '/model',
+                        url: '/inventory/' + poolId + '/model',
                         method: 'POST'
                     }
                 }
 
             // update
             return  {
-                    url:  'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                    url:  '/inventory/' + poolId + '/model/' + modelId,
                     method: 'PUT'
                 }
         };
@@ -352,10 +352,10 @@
         }
 
         function updateDropdowns(poolId) {
-            fetchOptions(`http://localhost:3260/inventory/manufacturers`, 'manufacturer');
-            fetchOptions(`http://localhost:3260/inventory/${poolId}/entitlement-groups`, 'entitlements');
-            fetchOptions(`http://localhost:3260/inventory/models-compatibles`, 'compatibles');
-            fetchOptions(`http://localhost:3260/inventory/${poolId}/model-groups`, 'categories');
+            fetchOptions(`/inventory/manufacturers`, 'manufacturer');
+            fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
+            fetchOptions(`/inventory/models-compatibles`, 'compatibles');
+            fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
         }
 
         // Initialize dropdowns on page load
@@ -374,7 +374,7 @@
 
             // Send request to API
             $.ajax({
-                url: 'http://localhost:3260/inventory/' + poolId + '/model/' + modelId,
+                url: '/inventory/' + poolId + '/model/' + modelId,
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -660,7 +660,7 @@
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
-            fetch("http://localhost:3260/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
+            fetch("/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
                 headers: {
                     "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
                 }
