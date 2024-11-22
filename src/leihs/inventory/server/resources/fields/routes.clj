@@ -42,7 +42,6 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]]
 
-
    ["/fields-license"
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
@@ -50,8 +49,8 @@
     ["" {:get {:conflicting true
                :summary "Used by license form"
                :description (str "<ul>"
-                              "<li>TODO: role & owner should be fetched from session</li>"
-                              "<ul/>")
+                                 "<li>TODO: role & owner should be fetched from session</li>"
+                                 "<ul/>")
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware
@@ -69,8 +68,7 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]]
 
-
-    ["/fields"
+   ["/fields"
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
 

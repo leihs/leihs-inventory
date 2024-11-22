@@ -1,51 +1,20 @@
 (ns leihs.inventory.server.resources.models.form.license.queries
   (:require
-   [honey.sql.helpers :as sql]
- ))
-
-
-;-- inventoryManager 30 - ok
-(ns leihs.inventory.server.resources.models.form.license.queries)
-
-(def fields-query-inventory-manager "
-  SELECT *
-  FROM (
-    SELECT f.id,
-           f.data ->> 'label' AS label,
-           f.active,
-           f.position,
-           f.data ->> 'group' AS group,
-           f.data -> 'target_type' AS target,
-           COALESCE(f.data -> 'permissions' -> 'role', '\"\"') AS role,
-           f.data -> 'permissions' -> 'owner' AS owner
-    FROM fields f
-    WHERE f.active = true
-  ) AS ff
-  WHERE (ff.target = '\"license\"' OR ff.target IS NULL)
-    AND (
-      ff.role IN ('\"inventory_manager\"', '\"\"')
-      OR (ff.target IS NULL OR owner IS NULL)
-    )
-  ORDER BY ff.group, ff.position;
-")
+   [honey.sql.helpers :as sql]))
 
 (defn model-query [item-id]
-
-  (->  (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-                                                       :m.hand_over_note :m.description :m.internal_description
-                                                       :m.technical_detail :m.is_package :i.* [:s.id :supplier_id][:s.name :supplier_name])
-  (sql/from [:models :m])
-  (sql/join [:items :i] [:= :m.id :i.model_id])
-  (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
-  (sql/where [:= :i.id item-id])))
-
-
-
+  (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
+                  :m.hand_over_note :m.description :m.internal_description
+                  :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name])
+      (sql/from [:models :m])
+      (sql/join [:items :i] [:= :m.id :i.model_id])
+      (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
+      (sql/where [:= :i.id item-id])))
 
 (defn license-base-query [query]
   (-> query
-  (sql/from [[:raw
-              "(SELECT
+      (sql/from [[:raw
+                  "(SELECT
                   f.id,
                   f.active,
                   f.position,
@@ -64,13 +33,11 @@
                   jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
 
                FROM fields f
-               WHERE f.active = true) ff"]])
-    ))
+               WHERE f.active = true) ff"]])))
 
-
-  (defn inventory-manager-license-subquery [query]
+(defn inventory-manager-license-subquery [query]
   (-> query
-    (sql/where [:and
+      (sql/where [:and
                   [:in :ff.target_default ["license" "\"\""]]
                   [:or
                    [:in :ff.role_default ["inventory_manager" "\"\""]]
@@ -78,23 +45,19 @@
                     [:is :ff.target nil]
                     [:is :owner nil]]]])))
 
-
 (defn lending-manager-license-subquery [query]
 ;; 12 results for lending-manager, TODO: determine owner_id
-(-> query
-  (sql/where
-      [:not-in :ff.id ["license_version"]]
-      [:or
-       [:and
-        [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
-        [:in :ff.target_default ["license" "\"\""]]
-        [:in :ff.role_default ["lending_manager" "\"\""]]
-        ]
-       [:and
-        [:= :ff.group_default "\"none\""]
-        [:<> :ff.target_default "item"]]
-       ])))
-
+  (-> query
+      (sql/where
+       [:not-in :ff.id ["license_version"]]
+       [:or
+        [:and
+         [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
+         [:in :ff.target_default ["license" "\"\""]]
+         [:in :ff.role_default ["lending_manager" "\"\""]]]
+        [:and
+         [:= :ff.group_default "\"none\""]
+         [:<> :ff.target_default "item"]]])))
 
 (defn inventory-manager-item-subquery [query] query
 ;-- item -- inventory-manager -- ok 29
@@ -119,8 +82,6 @@
 ;
 ;                                     order by ff.group, ff.position;
   )
-
-
 (defn lending-manager-item-subquery [query]
   query
   ; -- item -- lending-manager -- ok 21, quantity?

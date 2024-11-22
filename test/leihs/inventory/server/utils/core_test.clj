@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.utils.core-test
   (:require [clojure.test :refer :all]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]))
+            [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]))
 
 (deftest single-entity-get-request-tests
   (testing "GET request with UUID in the URI"
@@ -41,4 +41,4 @@
   (testing "GET request with empty URI"
     (let [request {:request-method :get
                    :uri ""}]
-      (is (false? (single-entity-get-request? request))))) )
+      (is (false? (single-entity-get-request? request))))))

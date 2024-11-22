@@ -60,7 +60,7 @@ feature "Fetching Fields" do
 
         resp = client.get "#{url}/#{id}"
         expect(resp.status).to eq(200)
-        expect(resp.body[0]["id"]).to eq(id)
+        expect(resp.body["data"][0]["id"]).to eq(id)
       end
 
       it "compare counts of keys concerning filter with status 200" do
@@ -68,6 +68,7 @@ feature "Fetching Fields" do
         expect(resp.body.size).to eq(46)
         expect(resp.status).to eq(200)
 
+        # TODO: filter should be removed ? test should use different endpoint
         resp = client.get "#{url}?type=license"
         expect(resp.body.size).to eq(16)
         expect(resp.status).to eq(200)

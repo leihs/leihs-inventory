@@ -13,7 +13,7 @@ feature "Inventory API Endpoints - Departments and Owners" do
         it "retrieves all records and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(4)
+          expect(resp.body.count).to eq(4)
         end
 
         it "retrieves paginated results and returns status 200" do

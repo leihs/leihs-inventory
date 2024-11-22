@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.models.form.license.model-by-pool-form-update
   (:require
    [cheshire.core :as cjson]
+   [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
-   [cheshire.core :as jsonc]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -25,92 +25,53 @@
            (java.time LocalDateTime)
            [java.util UUID]))
 
-
-
 (defn process-deletions [tx ids table key]
-  (println ">o> process-deletions" table key )
   (doseq [id ids]
-    (println ">o> process-deletions.id" id)
     (jdbc/execute! tx (-> (sql/delete-from table)
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
+(defn generate-license-data [multipart properties pool-id]
+  (let [now-ts (LocalDateTime/now)
+        merged-data (merge
+                     (dissoc multipart :attachments :properties :retired :invoice_date :price :attachments-to-delete)
+                     {:updated_at now-ts
+                      :properties [:cast (jsonc/generate-string properties) :jsonb]
+                      :inventory_pool_id pool-id
 
+                       ;; FIXME: default room/owner
+                      :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
+                      :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")})]
+    merged-data))
 
 (defn update-license-handler-by-pool-form [request]
-  (let [
-        now-ts (LocalDateTime/now)
-
-        item-id (to-uuid (get-in request [:path-params :item_id]))
+  (let [item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-
-        multipart (get-in request [:parameters :multipart])
         tx (:tx request)
 
-        p (println ">o> ??? model-id" model-id)
-        p (println ">o> ??? item-id" item-id)
-
-
-        multipart (get-in request [:parameters :multipart])
-        p (println ">o> multipart1" multipart)
-
-
         properties (first (parse-json-array request :properties))
-        p (println ">o> properties" properties)
-
-
-        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price :attachments-to-delete)
-        multipart2b {
-                     :updated_at now-ts
-
-                     :properties [:cast (jsonc/generate-string properties) :jsonb]
-
-                     :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
-                     :inventory_pool_id pool-id
-
-                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
-                     }
-
-        multipart2 (merge multipart2 multipart2b)
-
-        p (println ">o> ??? multipart2" multipart2)
-
-
-        ]
+        multipart (get-in request [:parameters :multipart])
+        update-data (generate-license-data multipart properties pool-id)]
     (try
       (let [update-model-query (-> (sql/update :items)
-                                   ;(sql/set prepared-model-data)
-                                   (sql/set multipart2)
+                                   (sql/set update-data)
                                    (sql/where [:= :id item-id])
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
 
-
-            p (println ">o> >> updated-model1" (:id updated-model))
-            p (println ">o> >> updated-model2" updated-model)
-
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
-            p (println ">o> >>>>>>>>>>>>>>>>>> attachments-to-delete" attachments-to-delete)
-
             _ (do
-              (process-attachments tx attachments "item_id" (:id updated-model))
-                    (process-deletions tx attachments-to-delete :attachments :id))
+                (process-attachments tx attachments "item_id" (:id updated-model))
+                (process-deletions tx attachments-to-delete :attachments :id))
 
-
-
-            p (println ">o> !!!!!!!!!!! 2 abc.item_id" item-id)
-            res (jdbc/execute! tx  (-> (sql/select :id :filename :content_type :size)
-                                     (sql/from :attachments)
-                                     (sql/where [:= :item_id item-id])
-                                     sql-format)
-                  )
-            ;p (println ">o> ????abc1" res)
-            updated-model (assoc updated-model :attachments res)
-
-         ]
+            res (jdbc/execute! tx (-> (sql/select :id :filename :content_type :size)
+                                      (sql/from :attachments)
+                                      (sql/where [:= :item_id item-id])
+                                      sql-format))
+            updated-model (assoc updated-model :attachments res)]
         (if updated-model
           (response [updated-model])
           (bad-request {:error "Failed to update model"})))

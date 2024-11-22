@@ -1,12 +1,12 @@
 (ns leihs.inventory.server.resources.models.form.license.model-by-pool-form-create
   (:require
    [cheshire.core :as cjson]
+   [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
-   [cheshire.core :as jsonc]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files normalize-license-data
@@ -37,32 +37,35 @@
            :created_at created-ts
            :updated_at created-ts)))
 
-
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
-
-
-(defn extract-properties [multipart]
-  (let [properties-entries (filter (fn [[k _]]
-                                     (and (keyword? k) ; Check if key is a keyword
-                                       (.startsWith (name k) "properties,"))) ; Check if key name starts with "properties,"
-                             multipart)
-        properties-map (into {} (map (fn [[k v]]
-                                       [(keyword (subs (name k) (count "properties,"))) v]) ; Extract the part after "properties,"
-                                  properties-entries))]
-    {:properties properties-map}))
 
 (defn remove-empty-or-nil
   "Removes all entries from the map where the value is either nil or an empty string."
   [m]
   (into {}
-    (filter (fn [[_ v]] (not (or (nil? v) (= v ""))))
-      m)))
+        (filter (fn [[_ v]] (not (or (nil? v) (= v ""))))
+                m)))
+
+(defn generate-license-data [multipart properties pool-id model-id]
+  (let [now-ts (LocalDateTime/now)
+        multipart2 (dissoc multipart :attachments :retired)
+        multipart2b {:created_at now-ts
+                     :updated_at now-ts
+                     :retired (if (= (:retired multipart) false)
+                                nil
+                                (.toLocalDate now-ts))
+                     :properties [:cast (jsonc/generate-string properties) :jsonb]
+                     :inventory_pool_id pool-id
+                     :model_id model-id
+                     ;; FIXME
+                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")}
+        merged-data (merge multipart2 multipart2b)]
+    (remove-empty-or-nil merged-data)))
 
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])
-        now-ts (LocalDateTime/now)
         tx (:tx request)
 
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -71,59 +74,18 @@
         multipart (get-in request [:parameters :multipart])
         attachments (normalize-files request :attachments)
         properties (first (parse-json-array request :properties))
-
-        ;; TODO:
-        ;; 1. set attachments
-        ;; 2. default-room
-
-        multipart2 (dissoc multipart :attachments :retired )
-        multipart2b {
-                     :created_at now-ts
-                     :updated_at now-ts
-
-                     :retired (if (= (:retired multipart) false)
-                                nil
-                                (.toLocalDate now-ts)
-                                )
-
-                     :properties [:cast (jsonc/generate-string properties) :jsonb]
-
-                     ;:owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
-                     :inventory_pool_id pool-id
-
-                     :model_id model-id
-
-                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
-                     }
-
-        multipart2 (merge multipart2 multipart2b)
-
-        multipart2 (remove-empty-or-nil multipart2)
-        p (println ">o> multipart2.multipart2 ???" multipart2)
-
-        extracted-properties (extract-properties multipart)
-        p (println ">o> multipart2.extract-properties" extracted-properties)
-        p (println ">o> pool-id" pool-id)
-
+        license-data (generate-license-data multipart properties pool-id model-id)
         model-data (-> (prepare-model-data multipart)
-                                (assoc :is_package (str-to-bool (:is_package multipart))))
-        p (println ">o> !!! abc2.model-data" model-data)
-        attachments (normalize-files request :attachments)
-        p (println ">o> abc3.attachments" attachments)
-
-        properties (first (parse-json-array request :properties))   ]
+                       (assoc :is_package (str-to-bool (:is_package multipart))))]
 
     (try
-      (let [
-            ;; FIXME: This is a hack to get the model data
-            res (jdbc/execute-one! tx (-> (sql/insert-into :items)
-                                          ;(sql/values [model-data])
-                                          (sql/values [multipart2])
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
+                                          (sql/values [license-data])
                                           (sql/returning :*)
                                           sql-format))
             item-id (:id res)
             all_attachments (process-attachments tx attachments "item_id" item-id)
-            res (assoc res :item_id item-id :attachments all_attachments)   ]
+            res (assoc res :item_id item-id :attachments all_attachments)]
 
         (if res
           (response (create-validation-response res @validation-result))

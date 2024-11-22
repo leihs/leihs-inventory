@@ -56,10 +56,49 @@
             color: #666;
             margin-top: 5px;
         }
-
     </style>
+
+    <style>
+    ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
+    </style>
+
 </head>
 <body>
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License</a></li>
+</ul>
+
 <script>
     document.IMAGE_UUID = '0062c982-bd38-4fd4-840d-9f142023744e'
 
@@ -83,7 +122,9 @@
     </div>
 </div>
 
-<br/><br/><br/><br/>
+<br/><br/>
+
+<br/><br/>
 
 <h3>Options</h3>
 
@@ -92,8 +133,8 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchModelId">Model-ID</label>
-    <input type="text" id="fetchModelId" name="fetchModelId" value="50575b41-dd6b-4abd-b794-bef674cc37bd"/>
+    <label for="fetchModelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Model-ID (API)</a></label>
+    <input type="text" id="fetchModelId" name="fetchModelId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
     <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" />
 </div>
 

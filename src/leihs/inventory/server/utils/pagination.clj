@@ -74,8 +74,18 @@
          tx (:tx request)]
      (create-paginated-response base-query tx size page post-data-fnc))))
 
-(defn create-pagination-response [request base-query with-pagination?]
-  (cond
-    (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
-    with-pagination? (pagination-response request base-query)
-    :else (jdbc/query (:tx request) (-> base-query sql-format))))
+(defn create-pagination-response
+  "To receive a paginated response, the request must contain the query parameters `page` and `size`."
+  [request base-query with-pagination?]
+
+  (let [{:keys [page size]} (fetch-pagination-params-raw request)
+        tx (:tx request)]
+    (cond
+      (and (or (nil? with-pagination?) (= with-pagination? false)) (single-entity-get-request? request))
+      (jdbc/query (:tx request) (-> base-query sql-format))
+
+      (and (or (nil? with-pagination?) with-pagination?) (or (some? page) (some? size)))
+      (pagination-response request base-query)
+
+      (and with-pagination?) (pagination-response request base-query)
+      :else (jdbc/query (:tx request) (-> base-query sql-format)))))
