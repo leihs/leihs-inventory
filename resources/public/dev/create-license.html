@@ -72,9 +72,7 @@
             "note": "note",
             "retired_reason": "retired_reason",
             "price": "price",
-
-            "invoice_date": "properties_warranty_expiration",
-
+            "invoice_date": "invoice_date",
             "inventory_code": "inventory_code",
             "properties.total_quantity": "properties_total_quantity",
             "properties.activation_type": "properties_activation_type",
@@ -145,6 +143,13 @@
             });
         }
 
+        function formatDateForInput(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return null; // Invalid date
+            return date.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        }
+
         function populateFieldValues(data, mapping) {
             Object.entries(mapping).forEach(([key, fieldId]) => {
                 const keys = key.split(".");
@@ -163,8 +168,11 @@
                     const inputField = $(`#${fieldId}`);
 
                     if (inputField.length) {
-                        if (inputField.is("select") || inputField.is("input") || inputField.is("textarea")) {
+                        if (inputField.is("select") || inputField.is("input[type='text']") || inputField.is("textarea")) {
                             inputField.val(value);
+                        } else if (inputField.is("input[type='date']")) {
+                            // Format the date for date inputs
+                            inputField.val(formatDateForInput(value));
                         } else if (inputField.is(":checkbox")) {
                             inputField.prop("checked", !!value);
                         } else if (inputField.is(":radio")) {
@@ -189,14 +197,8 @@
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
-
-                    if (response && response.fields) {
-                        // if (response && response.data) {
+                    if (response && response.data) {
                         const data = response.data;
-                        const fields = response.fields;
-
-                        // Generate fields dynamically
-                        // generateFormFields(fields, "#softwareForm");
 
                         // Populate field values
                         populateFieldValues(data, fieldMapping);
