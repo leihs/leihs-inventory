@@ -50,9 +50,81 @@
 
 <form id="softwareForm">
     <!-- Dynamically generated form fields will be inserted here -->
+    <button type="submit" id="saveButton">Save License</button>
 </form>
 
 <script>
+    function generateFormFields(config, formId) {
+        const form = $(formId);
+        form.empty(); // Clear previous fields if any
+
+        config.forEach((fieldConfig) => {
+            const data = fieldConfig.data;
+            const group = data.group || "General";
+            let groupContainer = form.find(`.form-group[data-group="${group}"]`);
+
+            if (groupContainer.length === 0) {
+                groupContainer = $(`
+                <div class="form-group" data-group="${group}">
+                    <h3>${group}</h3>
+                </div>
+            `);
+                form.append(groupContainer);
+            }
+
+            let field;
+            const fieldId = fieldConfig.id;
+
+            switch (data.type) {
+                case 'text':
+                case 'date':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                    </div>
+                `);
+                    break;
+
+                case 'textarea':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
+                    </div>
+                `);
+                    break;
+
+                case 'select':
+                    // Check if `data.values` is an array before using `map`
+                    const options = Array.isArray(data.values)
+                        ? data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")
+                        : ""; // Default to empty string if values are not valid
+
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                            ${options}
+                        </select>
+                    </div>
+                `);
+
+                    if (!Array.isArray(data.values)) {
+                        console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+                    }
+                    break;
+
+                default:
+                    console.warn(`Unsupported field type: ${data.type} ${fieldId}; ${data.label} ${data.attribute}`);
+            }
+
+            if (field) {
+                groupContainer.append(field);
+            }
+        });
+    }
+
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
 
@@ -81,76 +153,7 @@
             "properties.procured_by": "properties_procured_by"
         };
 
-        function generateFormFields(config, formId) {
-            const form = $(formId);
-            form.empty(); // Clear previous fields if any
 
-            config.forEach((fieldConfig) => {
-                const data = fieldConfig.data;
-                const group = data.group || "General";
-                let groupContainer = form.find(`.form-group[data-group="${group}"]`);
-
-                if (groupContainer.length === 0) {
-                    groupContainer = $(`
-                <div class="form-group" data-group="${group}">
-                    <h3>${group}</h3>
-                </div>
-            `);
-                    form.append(groupContainer);
-                }
-
-                let field;
-                const fieldId = fieldConfig.id;
-
-                switch (data.type) {
-                    case 'text':
-                    case 'date':
-                        field = $(`
-                    <div class="form-item">
-                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                    </div>
-                `);
-                        break;
-
-                    case 'textarea':
-                        field = $(`
-                    <div class="form-item">
-                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
-                    </div>
-                `);
-                        break;
-
-                    case 'select':
-                        // Check if `data.values` is an array before using `map`
-                        const options = Array.isArray(data.values)
-                            ? data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")
-                            : ""; // Default to empty string if values are not valid
-
-                        field = $(`
-                    <div class="form-item">
-                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                            ${options}
-                        </select>
-                    </div>
-                `);
-
-                        if (!Array.isArray(data.values)) {
-                            console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
-                        }
-                        break;
-
-                    default:
-                        console.warn(`Unsupported field type: ${data.type} ${fieldId}; ${data.label} ${data.attribute}`);
-                }
-
-                if (field) {
-                    groupContainer.append(field);
-                }
-            });
-        }
 
 
         function formatDateForInput(dateString) {
@@ -215,6 +218,7 @@
 
                         CONST_IS_CREATE_FORM = false;
                         $("#formTitle").text("Update License");
+                        $("#saveButton").show(); // Ensure save button is visible
 
                         console.log("License data fetched successfully!", response);
                         showResultEffect("save-success");
@@ -228,48 +232,49 @@
                 },
             });
         });
+    });
 
-        $("body").ready(function () {
-            const licenseId = $("#fetchSoftwareId").val();
-            const poolId = $("#poolId").val();
+    $("body").ready(function () {
+        const licenseId = $("#fetchSoftwareId").val();
+        const poolId = $("#poolId").val();
 
-            if (!licenseId) {
-                alert("Please enter a license ID.");
-                return;
-            }
+        if (!licenseId) {
+            alert("Please enter a license ID.");
+            return;
+        }
 
-            $.ajax({
-                url: `/inventory/${poolId}/license`,
-                method: "GET",
-                headers: { Accept: "application/json" },
-                success: function (response) {
-                    if (response && response.fields) {
+        $.ajax({
+            url: `/inventory/${poolId}/license`,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function (response) {
+                if (response && response.fields) {
                     // if (response && response.data) {
-                        const data = response.data;
-                        const fields = response.fields;
+                    const data = response.data;
+                    const fields = response.fields;
 
-                        // Generate fields dynamically
-                        generateFormFields(fields, "#softwareForm");
+                    // Generate fields dynamically
+                    generateFormFields(fields, "#softwareForm");
 
-                        // Populate field values
-                        // populateFieldValues(data, fieldMapping);
+                    // Populate field values
+                    // populateFieldValues(data, fieldMapping);
 
-                        // CONST_IS_CREATE_FORM = false;
-                        // $("#formTitle").text("Update License");
+                    // CONST_IS_CREATE_FORM = false;
+                    // $("#formTitle").text("Update License");
 
-                        console.log("License fields fetched successfully!", response);
-                        // showResultEffect("save-success");
-                    } else {
-                        showResultEffect("no-result-success");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error fetching license:", error);
-                    showResultEffect("save-failed");
-                },
-            });
+                    console.log("License fields fetched successfully!", response);
+                    // showResultEffect("save-success");
+                } else {
+                    showResultEffect("no-result-success");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching license:", error);
+                showResultEffect("save-failed");
+            },
         });
     });
+
 </script>
 </body>
 </html>

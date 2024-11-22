@@ -50,9 +50,7 @@
 
 <form id="softwareForm">
     <!-- Dynamically generated form fields will be inserted here -->
-    <div class="form-group">
-        <button type="submit" id="saveButton">Save License</button>
-    </div>
+    <button type="submit" id="saveButton">Save License</button>
 </form>
 
 <script>
@@ -92,6 +90,7 @@
 
                         CONST_IS_CREATE_FORM = false; // Switching to update mode
                         $("#formTitle").text("Update License");
+                        $("#saveButton").hide(); // Hide the save button after fetching data
 
                         console.log("License data fetched successfully!", response);
                         showResultEffect("save-success");
