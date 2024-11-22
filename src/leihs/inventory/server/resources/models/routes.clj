@@ -544,7 +544,8 @@
              ;               " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
-                          :multipart ::multipart}
+                          ;:multipart ::multipart}
+                          :multipart map?}
              :handler create-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -584,8 +585,10 @@
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
-                          :multipart ::multipart}
-             :handler update-license-handler-by-pool-form
+                          ;:multipart ::multipart}
+             :multipart map?}
+
+       :handler update-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]

@@ -50,7 +50,8 @@
 
 <form id="softwareForm">
     <!-- Dynamically generated form fields will be inserted here -->
-    <button type="submit" id="saveButton">Save License</button>
+<!--    <button type="submit" id="saveButton" style="display: none;">Save License</button>-->
+    <!--    <button type="submit" id="saveButton">Save License</button>-->
 </form>
 
 <script>
@@ -122,7 +123,18 @@
             if (field) {
                 groupContainer.append(field);
             }
+
         });
+
+            // After generating form fields, add the save button if not already present
+            if ($("#saveButton").length === 0) {
+                form.append('<button type="submit" id="saveButton">Save License</button>');
+            }
+    }
+
+    function showResultEffect(effectClass) {
+        $('body').addClass(effectClass);
+        setTimeout(() => $('body').removeClass(effectClass), 3000);
     }
 
     $(document).ready(function () {
@@ -134,10 +146,7 @@
                 : { url: `/inventory/${poolId}/license/${licenseId}`, method: 'PUT' };
         };
 
-        function showResultEffect(effectClass) {
-            $('body').addClass(effectClass);
-            setTimeout(() => $('body').removeClass(effectClass), 3000);
-        }
+
 
         const fieldMapping = {
             "serial_number": "serial_number",
@@ -218,7 +227,37 @@
 
                         CONST_IS_CREATE_FORM = false;
                         $("#formTitle").text("Update License");
-                        $("#saveButton").show(); // Ensure save button is visible
+                        // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
+
+
+                        $("#saveButton").text("Update License");
+                        $("#saveButton").off('click').click(function(e) {
+                            e.preventDefault(); // Prevent default form submission
+                            console.log("Update button clicked");
+
+                            const poolId = $("#poolId").val();
+                            const licenseId = $("#fetchSoftwareId").val();
+                            const formData = new FormData($("#softwareForm")[0]);
+
+                            // If it's in update mode, make a PUT request
+                            $.ajax({
+                                url: `/inventory/${poolId}/license/${licenseId}`,
+                                method: "PUT",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                headers: { Accept: "application/json" },
+                                success: function (response) {
+                                    console.log("License updated successfully!", response);
+                                    showResultEffect("save-success");
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Error updating license:", error);
+                                    showResultEffect("save-failed");
+                                },
+                            });
+                        });
+
 
                         console.log("License data fetched successfully!", response);
                         showResultEffect("save-success");
@@ -255,6 +294,35 @@
 
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
+                    $("#saveButton").text("Save License");
+                    $("#saveButton").off('click').click(function(e) {
+                        e.preventDefault(); // Prevent default form submission
+                        console.log("Update button clicked");
+
+                        const poolId = $("#poolId").val();
+                        const licenseId = $("#fetchSoftwareId").val();
+                        const formData = new FormData($("#softwareForm")[0]);
+
+                        // If it's in update mode, make a PUT request
+                        $.ajax({
+                            url: `/inventory/${poolId}/license`,
+                            method: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            headers: { Accept: "application/json" },
+                            success: function (response) {
+                                console.log("License create successfully!", response);
+                                showResultEffect("save-success");
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error updating license:", error);
+                                showResultEffect("save-failed");
+                            },
+                        });
+                    });
+
+
 
                     // Populate field values
                     // populateFieldValues(data, fieldMapping);
