@@ -166,22 +166,22 @@
 <h1 id="formTitle">Create New Model</h1>
 
 <form id="licenseForm">
-    <div class="form-group">
-        <label for="product">Product *</label>
-        <input type="text" id="product" name="product" required>
-    </div>
-    <div class="form-group">
-        <label for="version">Version</label>
-        <input type="text" id="version" name="version">
-    </div>
-    <div class="form-group">
-        <label for="manufacturer">Manufacturer</label>
-        <select id="manufacturer" name="manufacturer"></select>
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
-    </div>
+<!--    <div class="form-group">-->
+<!--        <label for="product">Product *</label>-->
+<!--        <input type="text" id="product" name="product" required>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="version">Version</label>-->
+<!--        <input type="text" id="version" name="version">-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="manufacturer">Manufacturer</label>-->
+<!--        <select id="manufacturer" name="manufacturer"></select>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="description">Description</label>-->
+<!--        <textarea id="description" name="description"></textarea>-->
+<!--    </div>-->
 
     <div class="form-group">
         <b><label for="attachments">Anhänge</label></b>
@@ -295,14 +295,14 @@
             // create
             if(CONST_IS_CREATE_FORM) {
                 return  {
-                        url: '/inventory/' + poolId + '/model',
+                        url: '/inventory/' + poolId + '/license',
                         method: 'POST'
                     }
                 }
 
             // update
             return  {
-                    url:  '/inventory/' + poolId + '/model/' + modelId,
+                    url:  '/inventory/' + poolId + '/license/' + modelId,
                     method: 'PUT'
                 }
         };
@@ -494,7 +494,7 @@
 
             // Send request to API
             $.ajax({
-                url: '/inventory/' + poolId + '/model/' + modelId,
+                url: '/inventory/' + poolId + '/license/' + modelId,
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'

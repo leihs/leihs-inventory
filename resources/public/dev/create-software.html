@@ -110,7 +110,7 @@
         }
 
         const initialPoolId = $("#poolId").val();
-        fetchOptions(`/inventory/manufacturers`, "manufacturer");
+        fetchOptions(`/inventory/manufacturers?type=Software`, "manufacturer");
 
         // Fetch software data logic
         $("#fetchSoftwareBtn").click(function () {

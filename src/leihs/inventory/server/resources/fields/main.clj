@@ -21,17 +21,20 @@
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
 
-           license_keys ["inventory_code"
+           license_keys [
+                         "inventory_code"
+                         ;; software
                          "license_version"
-                         "properties_p4u"
-                         "properties_license_type"
+
+                         "serial_number"
+                         "note"
                          "properties_activation_type"
+                         "properties_license_type"
                          "properties_operating_system"
                          "properties_reference"
                          "properties_installation"
                          "properties_procured_by"
-                         "note"
-                         "serial_number"
+                         "properties_p4u"
                          "supplier_id"
                          "invoice_date"
                          "properties_maintenance_contract"
