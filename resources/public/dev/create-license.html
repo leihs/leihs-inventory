@@ -92,10 +92,10 @@
 
                 if (groupContainer.length === 0) {
                     groupContainer = $(`
-                        <div class="form-group" data-group="${group}">
-                            <h3>${group}</h3>
-                        </div>
-                    `);
+                <div class="form-group" data-group="${group}">
+                    <h3>${group}</h3>
+                </div>
+            `);
                     form.append(groupContainer);
                 }
 
@@ -106,35 +106,44 @@
                     case 'text':
                     case 'date':
                         field = $(`
-                            <div class="form-item">
-                                <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                                <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                            </div>
-                        `);
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                    </div>
+                `);
                         break;
 
                     case 'textarea':
                         field = $(`
-                            <div class="form-item">
-                                <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                                <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
-                            </div>
-                        `);
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
+                    </div>
+                `);
                         break;
 
                     case 'select':
+                        // Check if `data.values` is an array before using `map`
+                        const options = Array.isArray(data.values)
+                            ? data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")
+                            : ""; // Default to empty string if values are not valid
+
                         field = $(`
-                            <div class="form-item">
-                                <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                                <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                                    ${data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")}
-                                </select>
-                            </div>
-                        `);
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                            ${options}
+                        </select>
+                    </div>
+                `);
+
+                        if (!Array.isArray(data.values)) {
+                            console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+                        }
                         break;
 
                     default:
-                        console.warn(`Unsupported field type: ${data.type}`);
+                        console.warn(`Unsupported field type: ${data.type} ${fieldId}; ${data.label} ${data.attribute}`);
                 }
 
                 if (field) {
@@ -142,6 +151,7 @@
                 }
             });
         }
+
 
         function formatDateForInput(dateString) {
             if (!dateString) return null;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Software</title>
+    <title>Create New License</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-<h1 id="formTitle">Create New Software</h1>
+<h1 id="formTitle">Create New License</h1>
 
 <h3>Options</h3>
 <div class="form-group">
@@ -43,37 +43,15 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchSoftwareId">Software ID (model_id)</label>
-    <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="4ba376ff-5c55-4bac-b7af-2b4d6015e3a8">
-    <button id="fetchSoftwareBtn">Fetch Software</button>
+    <label for="fetchSoftwareId">License ID (model_id)</label>
+    <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="011f5de2-9a4b-5c56-981f-e2569d8ec673">
+    <button id="fetchSoftwareBtn">Fetch License</button>
 </div>
 
 <form id="softwareForm">
+    <!-- Dynamically generated form fields will be inserted here -->
     <div class="form-group">
-        <label for="product">Product *</label>
-        <input type="text" id="product" name="product" required>
-    </div>
-    <div class="form-group">
-        <label for="version">Version</label>
-        <input type="text" id="version" name="version">
-    </div>
-    <div class="form-group">
-        <label for="manufacturer">Manufacturer</label>
-        <select id="manufacturer" name="manufacturer"></select>
-    </div>
-    <div class="form-group">
-        <label for="technicalDetails">Software Info</label>
-        <textarea id="technicalDetails" name="technicalDetails"></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="attachments">Attachments</label>
-        <input type="file" id="attachments" name="attachments" multiple>
-        <div id="attachmentsList" class="file-list"></div>
-    </div>
-
-    <div class="form-group">
-        <button type="submit">Save Software</button>
+        <button type="submit" id="saveButton">Save License</button>
     </div>
 </form>
 
@@ -81,10 +59,10 @@
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
 
-        const getApiConfig = (poolId, softwareId) => {
+        const getApiConfig = (poolId, licenseId) => {
             return CONST_IS_CREATE_FORM
-                ? { url: `/inventory/${poolId}/software`, method: 'POST' }
-                : { url: `/inventory/${poolId}/software/${softwareId}`, method: 'PUT' };
+                ? { url: `/inventory/${poolId}/license`, method: 'POST' }
+                : { url: `/inventory/${poolId}/license/${licenseId}`, method: 'PUT' };
         };
 
         function showResultEffect(effectClass) {
@@ -92,105 +70,92 @@
             setTimeout(() => $('body').removeClass(effectClass), 3000);
         }
 
-        function fetchOptions(url, selectId) {
-            fetch(url, { headers: { Accept: "application/json" } })
-                .then((response) => response.json())
-                .then((data) => {
-                    const select = document.getElementById(selectId);
-                    select.innerHTML = '<option value="">Select an option</option>';
-                    data.forEach((item) => {
-                        const option = document.createElement("option");
-                        option.value = item;
-                        option.textContent = item;
-                        select.appendChild(option);
-                    });
-                    initSelect2(selectId);
-                })
-                .catch((error) => console.error("Error:", error));
-        }
-
-        const initialPoolId = $("#poolId").val();
-        fetchOptions(`/inventory/manufacturers?type=Software`, "manufacturer");
-
-        // Fetch software data logic
-        $("#fetchSoftwareBtn").click(function () {
-            const softwareId = $("#fetchSoftwareId").val();
+        function fetchInitialLicenseData() {
             const poolId = $("#poolId").val();
+            const licenseId = $("#fetchSoftwareId").val();
 
-            if (!softwareId) {
-                alert("Please enter a software ID.");
+            if (!poolId || !licenseId) {
+                alert("Please provide valid Pool ID and License ID.");
                 return;
             }
 
             $.ajax({
-                url: `/inventory/${poolId}/software/${softwareId}?type=Software`,
+                url: `/inventory/${poolId}/license/${licenseId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
-                    if (response && response.length > 0) {
-                        const data = response[0];
+                    if (response && response.data) {
+                        const data = response.data;
 
-                        // Populate form fields
-                        $("#product").val(data.product);
-                        $("#version").val(data.version);
-                        $("#manufacturer").val(data.manufacturer).trigger("change");
-                        $("#technicalDetails").val(data.technical_detail);
+                        // Populate form fields based on response data
+                        populateFieldValues(data, fieldMapping);
 
-                        // Populate attachments list
-                        const attachmentsList = $("#attachmentsList");
-                        attachmentsList.empty();
-                        data.attachments.forEach((attachment) => {
-                            const attachmentItem = $(`
-                                <div class="file-item">
-                                    <span>${attachment.filename}</span>
-                                    <a href="/inventory/attachments/${attachment.id}" target="_blank">Download</a>
-                                    <button type="button" class="remove-file-btn" data-attachment-id="${attachment.id}">Remove</button>
-                                </div>
-                            `);
-                            attachmentsList.append(attachmentItem);
-                        });
+                        CONST_IS_CREATE_FORM = false; // Switching to update mode
+                        $("#formTitle").text("Update License");
 
-                        CONST_IS_CREATE_FORM = false;
-                        $("#formTitle").text("Update Software");
-
-                        console.log("Software data fetched successfully!", data);
+                        console.log("License data fetched successfully!", response);
                         showResultEffect("save-success");
                     } else {
                         showResultEffect("no-result-success");
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.error("Error fetching software:", error);
+                    console.error("Error fetching license data:", error);
                     showResultEffect("save-failed");
                 },
             });
-        });
+        }
 
-        // Use event delegation to handle "Remove" button clicks
-        $("#attachmentsList").on("click", ".remove-file-btn", function () {
-            const attachmentId = $(this).data("attachment-id");
+        function populateFieldValues(data, mapping) {
+            Object.entries(mapping).forEach(([key, fieldId]) => {
+                const keys = key.split(".");
+                let value = data;
 
-            // Add the attachment ID to the removed attachments list
-            const removedAttachments = $("#attachments").data("removed-attachments") || [];
-            removedAttachments.push(attachmentId);
-            $("#attachments").data("removed-attachments", removedAttachments);
+                // Drill down into nested objects
+                keys.forEach(k => {
+                    if (value && value[k] !== undefined) {
+                        value = value[k];
+                    } else {
+                        value = null;
+                    }
+                });
 
-            // Remove the file item from the DOM
-            $(this).parent().remove();
-        });
+                if (value !== null && value !== undefined) {
+                    const inputField = $(`#${fieldId}`);
 
-        // Submit form
+                    if (inputField.length) {
+                        if (inputField.is("select") || inputField.is("input[type='text']") || inputField.is("textarea")) {
+                            inputField.val(value);
+                        } else if (inputField.is("input[type='date']")) {
+                            const formattedDate = formatDateForInput(value);
+                            inputField.val(formattedDate);
+                        } else if (inputField.is(":checkbox")) {
+                            inputField.prop("checked", !!value);
+                        } else if (inputField.is(":radio")) {
+                            $(`input[name="${fieldId}"][value="${value}"]`).prop("checked", true);
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatDateForInput(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return null; // Invalid date
+            return date.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        }
+
+        $("#fetchSoftwareBtn").click(fetchInitialLicenseData);
+
         $("#softwareForm").submit(function (e) {
             e.preventDefault();
-            const formData = new FormData(this);
-
-            // Append removed attachments
-            const removedAttachments = $("#attachments").data("removed-attachments") || [];
-            formData.append("attachments-to-delete", JSON.stringify(removedAttachments));
 
             const poolId = $("#poolId").val();
-            const softwareId = $("#fetchSoftwareId").val();
-            const apiConfig = getApiConfig(poolId, softwareId);
+            const licenseId = $("#fetchSoftwareId").val();
+            const formData = new FormData(this);
+
+            const apiConfig = getApiConfig(poolId, licenseId);
 
             $.ajax({
                 url: apiConfig.url,
@@ -200,11 +165,13 @@
                 contentType: false,
                 headers: { Accept: "application/json" },
                 success: function (response) {
-                    console.log("Software saved successfully!", response);
+                    console.log("License saved/updated successfully!", response);
+                    CONST_IS_CREATE_FORM = false; // Switch to update mode if saved as a new item
+                    $("#formTitle").text("Update License");
                     showResultEffect("save-success");
                 },
                 error: function (xhr, status, error) {
-                    console.error("Error saving software:", error);
+                    console.error("Error saving/updating license:", error);
                     showResultEffect("save-failed");
                 },
             });
