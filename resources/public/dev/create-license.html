@@ -67,6 +67,22 @@
             setTimeout(() => $('body').removeClass(effectClass), 3000);
         }
 
+        const fieldMapping = {
+            "serial_number": "serial_number",
+            "note": "note",
+            "retired_reason": "retired_reason",
+            "price": "price",
+
+            "invoice_date": "properties_warranty_expiration",
+
+            "inventory_code": "inventory_code",
+            "properties.total_quantity": "properties_total_quantity",
+            "properties.activation_type": "properties_activation_type",
+            "properties.license_type": "properties_license_type",
+            "properties.maintenance_currency": "properties_maintenance_currency",
+            "properties.procured_by": "properties_procured_by"
+        };
+
         function generateFormFields(config, formId) {
             const form = $(formId);
             form.empty(); // Clear previous fields if any
@@ -129,40 +145,35 @@
             });
         }
 
-        function fetchInitialLicenseData() {
-            const poolId = $("#poolId").val();
+        function populateFieldValues(data, mapping) {
+            Object.entries(mapping).forEach(([key, fieldId]) => {
+                const keys = key.split(".");
+                let value = data;
 
-            if (!poolId) {
-                alert("Please provide a valid Pool ID.");
-                return;
-            }
-
-            const apiUrl = `/inventory/${poolId}/license`;
-            $.ajax({
-                url: apiUrl,
-                method: "GET",
-                headers: { Accept: "application/json" },
-                success: function (response) {
-                    // if (response && response[0] && response[0].fields) {
-                    if (response &&  response.fields) {
-                        const fields = response.fields;
-
-                        // Generate dynamic form fields
-                        generateFormFields(fields, "#softwareForm");
-
-                        console.log("Fields loaded successfully!", fields);
+                // Drill down into nested objects
+                keys.forEach(k => {
+                    if (value && value[k] !== undefined) {
+                        value = value[k];
                     } else {
-                        console.warn("No fields found in the response.");
+                        value = null;
                     }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error fetching license fields:", error);
+                });
+
+                if (value !== null && value !== undefined) {
+                    const inputField = $(`#${fieldId}`);
+
+                    if (inputField.length) {
+                        if (inputField.is("select") || inputField.is("input") || inputField.is("textarea")) {
+                            inputField.val(value);
+                        } else if (inputField.is(":checkbox")) {
+                            inputField.prop("checked", !!value);
+                        } else if (inputField.is(":radio")) {
+                            $(`input[name="${fieldId}"][value="${value}"]`).prop("checked", true);
+                        }
+                    }
                 }
             });
         }
-
-        // Fetch license data on page load
-        fetchInitialLicenseData();
 
         $("#fetchSoftwareBtn").click(function () {
             const licenseId = $("#fetchSoftwareId").val();
@@ -178,54 +189,64 @@
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
-                    // if (response && response[0] && response[0].fields) {
-                    if (response &&  response.fields) {
+
+                    if (response && response.fields) {
+                        // if (response && response.data) {
+                        const data = response.data;
+                        const fields = response.fields;
+
+                        // Generate fields dynamically
+                        // generateFormFields(fields, "#softwareForm");
+
+                        // Populate field values
+                        populateFieldValues(data, fieldMapping);
+
+                        CONST_IS_CREATE_FORM = false;
+                        $("#formTitle").text("Update License");
+
+                        console.log("License data fetched successfully!", response);
+                        showResultEffect("save-success");
+                    } else {
+                        showResultEffect("no-result-success");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching license:", error);
+                    showResultEffect("save-failed");
+                },
+            });
+        });
+
+        $("body").ready(function () {
+            const licenseId = $("#fetchSoftwareId").val();
+            const poolId = $("#poolId").val();
+
+            if (!licenseId) {
+                alert("Please enter a license ID.");
+                return;
+            }
+
+            $.ajax({
+                url: `/inventory/${poolId}/license`,
+                method: "GET",
+                headers: { Accept: "application/json" },
+                success: function (response) {
+                    if (response && response.fields) {
+                    // if (response && response.data) {
+                        const data = response.data;
                         const fields = response.fields;
 
                         // Generate fields dynamically
                         generateFormFields(fields, "#softwareForm");
 
-                        CONST_IS_CREATE_FORM = false;
-                        $("#formTitle").text("Update License");
+                        // Populate field values
+                        // populateFieldValues(data, fieldMapping);
 
-                        // Set values for the fields
-                        fields.forEach((fieldConfig) => {
-                            const fieldId = fieldConfig.id;
-                            const data = fieldConfig.data;
-                            const value = fieldConfig.value; // Assume 'value' contains the field value in the response.
+                        // CONST_IS_CREATE_FORM = false;
+                        // $("#formTitle").text("Update License");
 
-                            if (value !== undefined) {
-                                const inputField = $(`#${fieldId}`);
-
-                                switch (data.type) {
-                                    case 'text':
-                                    case 'date':
-                                    case 'textarea':
-                                    case 'select':
-                                        inputField.val(value);
-                                        break;
-
-                                    case 'radio':
-                                        $(`input[name="${data.attribute}"][value="${value}"]`).prop("checked", true);
-                                        break;
-
-                                    case 'checkbox':
-                                        if (Array.isArray(value)) {
-                                            value.forEach(val => {
-                                                $(`#${fieldId}_${val}`).prop("checked", true);
-                                            });
-                                        }
-                                        break;
-
-                                    default:
-                                        console.warn(`Unsupported field type: ${data.type}`);
-                                }
-                            }
-                        });
-
-
-                        console.log("License data fetched successfully!", response);
-                        showResultEffect("save-success");
+                        console.log("License fields fetched successfully!", response);
+                        // showResultEffect("save-success");
                     } else {
                         showResultEffect("no-result-success");
                     }
