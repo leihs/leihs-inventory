@@ -63,7 +63,7 @@
           res (if (nil? auth-header)
                 (vector nil nil)
                 (let [encoded-credentials (when auth-header
-                                            (second (re-find #"^Basic (.+)$" auth-header)))
+                                            (second (re-find #"(?i)^Basic (.+)$" auth-header)))
                       credentials (when encoded-credentials
                                     (String. (.decode (Base64/getDecoder) encoded-credentials)))
                       [login password] (str/split credentials #":")]

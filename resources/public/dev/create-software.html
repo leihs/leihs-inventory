@@ -32,9 +32,53 @@
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
+        .colored-row{
+            background-color: navajowhite;
+        }
+    </style>
+
+    <style>
+        ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
     </style>
 </head>
 <body>
+
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License</a></li>
+</ul>
+
+
 <h1 id="formTitle">Create New Software</h1>
 
 <h3>Options</h3>
@@ -47,6 +91,7 @@
     <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="4ba376ff-5c55-4bac-b7af-2b4d6015e3a8">
     <button id="fetchSoftwareBtn">Fetch Software</button>
 </div>
+<br/><br/><br/><br/>
 
 <form id="softwareForm">
     <div class="form-group">
@@ -110,7 +155,7 @@
         }
 
         const initialPoolId = $("#poolId").val();
-        fetchOptions(`/inventory/manufacturers`, "manufacturer");
+        fetchOptions(`/inventory/manufacturers?type=Software`, "manufacturer");
 
         // Fetch software data logic
         $("#fetchSoftwareBtn").click(function () {

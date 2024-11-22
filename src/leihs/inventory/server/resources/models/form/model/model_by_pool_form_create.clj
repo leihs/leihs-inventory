@@ -178,7 +178,7 @@
                                           sql-format))
             model-id (:id res)]
 
-        (process-attachments tx attachments model-id)
+        (process-attachments tx attachments "model_id" model-id)
         (process-images tx images model-id validation-result)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)

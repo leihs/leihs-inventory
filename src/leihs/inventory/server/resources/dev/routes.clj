@@ -1,0 +1,35 @@
+(ns leihs.inventory.server.resources.dev.routes
+  (:require
+   [clojure.set]
+   [leihs.core.auth.session :refer [wrap-authenticate]]
+   [leihs.inventory.server.resources.dev.main :refer [update-and-fetch-accounts]]
+   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
+   [reitit.coercion.schema]
+   [reitit.coercion.spec]
+   [ring.middleware.accept]
+   [schema.core :as s]))
+
+(defn get-dev-routes []
+
+  [""
+
+   ["/dev"
+    {:swagger {:conflicting true
+               :tags ["Dev"] :security []}}
+    ["/update-accounts" {:get {:conflicting true
+                               :summary "Overwrite pw for accounts with various roles OR is_admin"
+                               :description "Fetch one account of each variant of:
+- role: inventory_manager, lending_manager, group_manager, customer\n
+- is_admin: true\n
+- is_system_admin: true\n\n
+.. and set password"
+                               :accept "application/json"
+                               :middleware [wrap-check-authenticated-admin]
+                               :coercion reitit.coercion.schema/coercion
+                               :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
+                               :parameters {:query {(s/optional-key :type) (s/enum "min" "all")}}
+                               :handler update-and-fetch-accounts
+                               :responses {200 {:description "OK"
+                                                :body s/Any}
+                                           404 {:description "Not Found"}
+                                           500 {:description "Internal Server Error"}}}}]]])

@@ -9,12 +9,12 @@ feature "Inventory API Endpoints - Supplier" do
     let(:url) { "/inventory/supplier" }
     let(:client) { plain_faraday_json_client }
     let(:resp) { client.get url }
-    let(:supplier_id) { resp.body["data"][0]["id"] }
+    let(:supplier_id) { resp.body[0]["id"] }
 
     context "GET /inventory/supplier" do
       it "retrieves all suppliers and returns status 200" do
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(1)
+        expect(resp.body.count).to eq(1)
       end
 
       it "retrieves paginated supplier results and returns status 200" do
@@ -25,7 +25,6 @@ feature "Inventory API Endpoints - Supplier" do
 
       it "retrieves specific supplier details by ID and returns status 200" do
         resp = client.get "#{url}/#{supplier_id}"
-
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(supplier_id)

@@ -3,12 +3,13 @@
    [cheshire.core :as json]
    [clojure.set]
    [clojure.spec.alpha :as sa]
+   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [create-license-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
@@ -82,11 +83,17 @@
    ["manufacturers"
     {:get {:conflicting true
            :accept "application/json"
+           :description "'search-term' starts working with at least one character, considers:\n
+- manufacturer\n
+- product\n\n
+HINT: 'in-detail'-option works for models with set 'search-term' only\n"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
            :handler get-manufacturer-handler
-           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")}}
+           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+                                (s/optional-key :search-term) s/Str
+                                (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             :body [s/Any]}
                        404 {:description "Not Found"}
@@ -380,6 +387,7 @@
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
 (sa/def ::product (sa/nilable string?))
+(sa/def ::item_version (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
 (sa/def ::isPackage (sa/nilable string?))
@@ -449,13 +457,77 @@
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
                        :none nil?))
+(sa/def ::propeties map?)
+(sa/def ::serial_number string?)
+(sa/def ::note string?)
+
+(sa/def ::owner_id uuid?)
+(sa/def ::software_id uuid?)
+;(sa/def ::supplier_id uuid?)
+;(sa/def ::supplier_id (sa/nilable uuid?))
+(sa/def ::supplier_id (sa/nilable string?))
+(sa/def ::model_id uuid?)
+
+(sa/def ::inventory_code string?)
+(sa/def ::item_version string?)
+(sa/def ::is_borrowable boolean?)
+(sa/def ::retired boolean?)
+(sa/def ::retired_reason string?)
+(sa/def ::price string?)
+(sa/def ::invoice_date string?)
+
+(sa/def ::activation_type string?)
+(sa/def ::dongle_id string?)
+(sa/def ::license_type string?)
+(sa/def ::total_quantity string?)
+(sa/def ::license_expiration string?)
+(sa/def ::p4u string?)
+(sa/def ::reference string?)
+(sa/def ::project_number string?)
+(sa/def ::procured_by string?)
+(sa/def ::maintenance_contract string?)
+(sa/def ::maintenance_expiration string?)
+(sa/def ::maintenance_price string?)
+
 (sa/def ::key string?)
 (sa/def ::value string?)
+(sa/def :simple/properties string?)
 (sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
-(sa/def ::properties (sa/or
-                      :single (sa/or :coll (sa/coll-of ::property)
-                                     :str string?)
-                      :none nil?))
+
+;; deprecated / not in use?
+(sa/def :license/properties (sa/keys :req-opt [::activation_type
+                                               ::dongle_id
+                                               ::license_type
+                                               ::total_quantity
+                                               ::license_expiration
+                                               ::p4u
+                                               ::reference
+                                               ::project_number
+                                               ::procured_by
+                                               ::maintenance_contract
+                                               ::maintenance_expiration
+                                               ::maintenance_price] :req-un []))
+
+(sa/def :license/multipart (sa/keys :opt-un [::model_id
+                                             ::supplier_id
+                                             ::attachments-to-delete
+                                             ::attachments
+                                             ::retired_reason
+                                             :simple/properties
+                                             ::item_version]
+                                    :req-un [::serial_number
+                                             ::owner_id
+                                             ::note
+                                             ::invoice_date
+                                             ::price
+                                             ::retired
+                                             ::is_borrowable
+                                             ::inventory_code]))
+
+(sa/def :software/properties (sa/or
+                              :single (sa/or :coll (sa/coll-of ::property)
+                                             :str string?)
+                              :none nil?))
 
 (sa/def ::multipart (sa/keys :req-un [::product]
                              :opt-un [::version
@@ -472,7 +544,7 @@
                                       ::images
                                       ::attachments
                                       ::entitlements
-                                      ::properties
+                                      :software/properties
                                       ::accessories]))
 
 (defn get-model-by-pool-route []
@@ -482,6 +554,8 @@
               :tags ["Models by pool"] :security []}}
 
    ["/model"
+    {:swagger {:conflicting true
+               :tags ["form / model"] :security []}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
@@ -525,9 +599,65 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-   ["/software"
+   ["/license" ;;old
+    {:swagger {:conflicting true
+               :tags ["form / licenses"] :security []}}
+
     [""
      {:post {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"
+                       :deprecated true}
+             :summary "(DEV) | Dynamic-Form-Handler"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?}
+                          :multipart :license/multipart}
+             :handler create-license-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+      :get {:accept "application/json"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+            :coercion spec/coercion
+            :parameters {:path {:pool_id uuid?}}
+            :handler create-license-handler-by-pool-form-fetch
+            :responses {200 {:description "OK"}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
+
+    ["/:model_id"
+     [""
+      {:get {:accept "application/json"
+             :summary "(DEV) | Form-Handler: Fetch form data"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}}
+             :handler create-license-handler-by-pool-form-fetch
+             :swagger {:deprecated true}
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+       :put {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"
+                       :deprecated true}
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          :multipart ::multipart}
+             :handler update-license-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
+
+   ["/software"
+    {:swagger {:conflicting true
+               :tags ["form / software"] :security []}}
+    [""
+     {:post {:accept "application/json"
+             :summary "(DEV) | Form-Handler: Fetch form data"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -553,6 +683,7 @@
        :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Fetch form data"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
@@ -667,6 +798,52 @@
                                ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
 
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}}]]
+
+     ["/licenses" ;; new
+      {:swagger {:conflicting true
+                 :tags ["form / licenses"] :security []}}
+
+      [""
+       {:post {:accept "application/json"
+               :swagger {:consumes ["multipart/form-data"]
+                         :produces "application/json"}
+               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+               :coercion spec/coercion
+               :parameters {:path {:pool_id uuid?
+                                   :model_id uuid?}
+                            :multipart :license/multipart}
+               :handler create-license-handler-by-pool-form
+               :responses {200 {:description "OK"}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}}]
+
+      ["/:item_id"
+       {:put {:accept "application/json"
+              :swagger {:consumes ["multipart/form-data"]
+                        :produces "application/json"}
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?}
+                           :multipart :license/multipart}
+              :handler update-license-handler-by-pool-form
+              :responses {200 {:description "OK"
+                               :body any?}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}
+
+        :get {:accept "application/json"
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?}}
+              :handler create-license-handler-by-pool-form-fetch
+              :responses {200 {:description "OK"
+                               :body any?}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 

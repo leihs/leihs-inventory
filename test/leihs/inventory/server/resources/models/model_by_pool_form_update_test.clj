@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.models.model-by-pool-form-update-test
   (:require [cheshire.core :as cjson]
             [clojure.test :refer :all]
-            [leihs.inventory.server.resources.models.helper :refer [parse-json-array]])
-  (:require [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer :all]))
+            [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer :all]
+            [leihs.inventory.server.resources.models.helper :refer [parse-json-array]]))
 
 (deftest parse-json-array-tests
   (testing "Empty input"

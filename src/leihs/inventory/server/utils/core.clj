@@ -14,4 +14,4 @@
         uri (:uri request)
         uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
     (and (= method :get)
-         (not (re-find uuid-regex uri)))))
+         (boolean (re-find uuid-regex uri)))))

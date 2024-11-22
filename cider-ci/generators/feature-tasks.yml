@@ -1,52 +1,112 @@
-'./spec/features/api/auth_session_spec.rb[1:1:1]':
+'./spec/features/api/auth_dev_spec.rb[1:1:1]':
   name: "Call swagger-endpoints with accept=text/html 01"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 01"
-    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:1]'
-'./spec/features/api/auth_session_spec.rb[1:1:2]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:1]'
+'./spec/features/api/auth_dev_spec.rb[1:1:2]':
   name: "Call swagger-endpoints with accept=text/html 02"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 02"
-    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:2]'
-'./spec/features/api/auth_session_spec.rb[1:1:3]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:2]'
+'./spec/features/api/auth_dev_spec.rb[1:1:3]':
   name: "Call swagger-endpoints with accept=text/html 03"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 03"
-    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:3]'
-'./spec/features/api/auth_session_spec.rb[1:1:4]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:3]'
+'./spec/features/api/auth_dev_spec.rb[1:1:4]':
   name: "Call swagger-endpoints with accept=text/html 04"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 04"
-    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:4]'
-'./spec/features/api/auth_token_spec.rb[1:1:1]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:4]'
+'./spec/features/api/auth_dev_spec.rb[1:1:5]':
   name: "Call swagger-endpoints with accept=text/html 05"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 05"
-    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:1]'
-'./spec/features/api/auth_token_spec.rb[1:1:2]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:5]'
+'./spec/features/api/auth_dev_spec.rb[1:1:6]':
   name: "Call swagger-endpoints with accept=text/html 06"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 06"
-    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:2]'
-'./spec/features/api/auth_token_spec.rb[1:1:3]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:1:6]'
+'./spec/features/api/auth_dev_spec.rb[1:2:1]':
   name: "Call swagger-endpoints with accept=text/html 07"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 07"
-    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:3]'
-'./spec/features/api/auth_token_spec.rb[1:1:4]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:1]'
+'./spec/features/api/auth_dev_spec.rb[1:2:2]':
   name: "Call swagger-endpoints with accept=text/html 08"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 08"
-    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:4]'
-'./spec/features/api/auth_token_spec.rb[1:1:5]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:2]'
+'./spec/features/api/auth_dev_spec.rb[1:2:3]':
   name: "Call swagger-endpoints with accept=text/html 09"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 09"
-    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:5]'
-'./spec/features/api/auth_token_spec.rb[1:1:6]':
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:3]'
+'./spec/features/api/auth_dev_spec.rb[1:2:4]':
   name: "Call swagger-endpoints with accept=text/html 10"
   environment_variables:
     FEATURE_NAME: "Call swagger-endpoints with accept=text/html 10"
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:4]'
+'./spec/features/api/auth_dev_spec.rb[1:2:5]':
+  name: "Call swagger-endpoints with accept=text/html 11"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 11"
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:5]'
+'./spec/features/api/auth_dev_spec.rb[1:2:6]':
+  name: "Call swagger-endpoints with accept=text/html 12"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 12"
+    FEATURE: './spec/features/api/auth_dev_spec.rb[1:2:6]'
+'./spec/features/api/auth_session_spec.rb[1:1:1]':
+  name: "Call swagger-endpoints with accept=text/html 13"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 13"
+    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:1]'
+'./spec/features/api/auth_session_spec.rb[1:1:2]':
+  name: "Call swagger-endpoints with accept=text/html 14"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 14"
+    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:2]'
+'./spec/features/api/auth_session_spec.rb[1:1:3]':
+  name: "Call swagger-endpoints with accept=text/html 15"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 15"
+    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:3]'
+'./spec/features/api/auth_session_spec.rb[1:1:4]':
+  name: "Call swagger-endpoints with accept=text/html 16"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 16"
+    FEATURE: './spec/features/api/auth_session_spec.rb[1:1:4]'
+'./spec/features/api/auth_token_spec.rb[1:1:1]':
+  name: "Call swagger-endpoints with accept=text/html 17"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 17"
+    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:1]'
+'./spec/features/api/auth_token_spec.rb[1:1:2]':
+  name: "Call swagger-endpoints with accept=text/html 18"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 18"
+    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:2]'
+'./spec/features/api/auth_token_spec.rb[1:1:3]':
+  name: "Call swagger-endpoints with accept=text/html 19"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 19"
+    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:3]'
+'./spec/features/api/auth_token_spec.rb[1:1:4]':
+  name: "Call swagger-endpoints with accept=text/html 20"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 20"
+    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:4]'
+'./spec/features/api/auth_token_spec.rb[1:1:5]':
+  name: "Call swagger-endpoints with accept=text/html 21"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 21"
+    FEATURE: './spec/features/api/auth_token_spec.rb[1:1:5]'
+'./spec/features/api/auth_token_spec.rb[1:1:6]':
+  name: "Call swagger-endpoints with accept=text/html 22"
+  environment_variables:
+    FEATURE_NAME: "Call swagger-endpoints with accept=text/html 22"
     FEATURE: './spec/features/api/auth_token_spec.rb[1:1:6]'
 './spec/features/api/category/model_group_category_spec.rb[1:1:1:1]':
   name: "Inventory API - Model Group Endpoints when retrieving model groups for a specific inventory pool GET /inventory/model-groups 01"
@@ -98,6 +158,46 @@
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints - Model Links when fetching model links for a specific inventory pool GET /inventory/models-compatibles 03"
     FEATURE: './spec/features/api/entitlement_groups_spec.rb[1:1:1:3]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:1]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 01"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:1]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:2]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 02"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:2]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:3]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 03"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:3]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:4]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 04"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 04"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:4]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:5]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 05"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 05"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:5]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:6]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 06"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 06"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:6]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:7]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 07"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 07"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:7]'
+'./spec/features/api/forms/fetch_license_spec.rb[1:1:1:8]':
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 08"
+  environment_variables:
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 08"
+    FEATURE: './spec/features/api/forms/fetch_license_spec.rb[1:1:1:8]'
 './spec/features/api/forms/fetch_model_spec.rb[1:1:1:1]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 01"
   environment_variables:
@@ -119,9 +219,9 @@
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 04"
     FEATURE: './spec/features/api/forms/fetch_model_spec.rb[1:1:1:4]'
 './spec/features/api/forms/fetch_model_spec.rb[1:1:2:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 01"
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 09"
   environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 01"
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 09"
     FEATURE: './spec/features/api/forms/fetch_model_spec.rb[1:1:2:1]'
 './spec/features/api/forms/fetch_software_spec.rb[1:1:1:1]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 05"
@@ -129,9 +229,9 @@
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 05"
     FEATURE: './spec/features/api/forms/fetch_software_spec.rb[1:1:1:1]'
 './spec/features/api/forms/fetch_software_spec.rb[1:1:2:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 02"
+  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 10"
   environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 02"
+    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create model 10"
     FEATURE: './spec/features/api/forms/fetch_software_spec.rb[1:1:2:1]'
 './spec/features/api/forms/fields_spec.rb[1:1:1:1]':
   name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 01"
@@ -173,6 +273,201 @@
   environment_variables:
     FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields and retrieve specific field details 02"
     FEATURE: './spec/features/api/forms/fields_spec.rb[1:1:7:2]'
+'./spec/features/api/forms/form_license_spec.rb[1:1:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool 01"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool 01"
+    FEATURE: './spec/features/api/forms/form_license_spec.rb[1:1:1]'
+'./spec/features/api/forms/form_license_spec.rb[1:1:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool 02"
+    FEATURE: './spec/features/api/forms/form_license_spec.rb[1:1:2]'
+'./spec/features/api/forms/form_license_spec.rb[1:1:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool 03"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool 03"
+    FEATURE: './spec/features/api/forms/form_license_spec.rb[1:1:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 02"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 03"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 03"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 04"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 04"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:1:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 02"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 03"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 03"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 04"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 04"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:2:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 02"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 03"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 03"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 04"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 04"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:3:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 02"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 02"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 03"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 03"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 04"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 04"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:4:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 05"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 05"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 06"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 06"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 07"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 07"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:5:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 05"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 05"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 06"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 06"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 07"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 07"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:6:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 05"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 05"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 06"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 06"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 07"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 07"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:7:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 05"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 05"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 06"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 06"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 07"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 07"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:8:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 08"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 08"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 09"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 09"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 10"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role inventory_manager 10"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:9:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 08"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 08"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 09"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 09"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 10"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role lending_manager 10"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:10:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 08"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 08"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 09"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 09"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 10"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role group_manager 10"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:11:3]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:1]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 08"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 08"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:1]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:2]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 09"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 09"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:2]'
+'./spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:3]':
+  name: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 10"
+  environment_variables:
+    FEATURE_NAME: "Fetching Fields when searching for fields in a specific inventory pool GET /inventory/:pool_id/fields for role customer 10"
+    FEATURE: './spec/features/api/forms/form_manufacturers_spec.rb[1:1:12:3]'
 './spec/features/api/forms/save_model_spec.rb[1:1:1]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 01"
   environment_variables:

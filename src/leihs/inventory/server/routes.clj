@@ -21,6 +21,7 @@
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
@@ -67,6 +68,8 @@
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)
+
+   (get-dev-routes)
 
    (get-owner-department-routes)
    (get-items-routes)

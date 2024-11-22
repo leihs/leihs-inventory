@@ -26,8 +26,10 @@
     {:swagger {:conflicting true
                :tags ["Supplier"] :security []}}
     ["" {:get {:conflicting true
-               :description (str "OK-Legacy |"
-                                 "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
+               :description (str
+                             "- DEFAULT: no pagination\n"
+                             "- OK-Legacy | "
+                             "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest")
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware
@@ -36,7 +38,8 @@
                :swagger {:produces ["application/json"]}
 
                :parameters {:query {(s/optional-key :page) s/Int
-                                    (s/optional-key :size) s/Int}}
+                                    (s/optional-key :size) s/Int
+                                    (s/optional-key :search-term) s/Str}}
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"

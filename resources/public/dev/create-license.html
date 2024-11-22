@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Model</title>
+    <title>Create New License</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -14,11 +14,12 @@
         input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
         button:hover { background-color: #0056b3; }
-        .dynamic-list { margin-top: 10px; }
-        .dynamic-item { display: flex; gap: 10px; margin-bottom: 10px; }
-        .remove-btn { background-color: #dc3545; }
         .file-list { margin-top: 10px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .file-item span { flex-grow: 1; }
+        .remove-file-btn, .remove-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
+        .remove-file-btn:hover, .remove-btn:hover { background-color: #a71d2a; }
+
         body.save-success {
             border: 1em solid #b8f4b8;
             transition: border 0.3s ease-in-out;
@@ -31,823 +32,712 @@
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
-        #addAccessory, #addProperty { background-color: #dedede; color: black;        }
-        .image-group {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-        }
-
-        .image-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 30%; /* Adjust as needed */
-        }
-
-        .image-container img {
-            width: 100%;
-            object-fit: cover;
-        }
-
-        .image-footer {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
+        .colored-row{
+            background-color: navajowhite;
         }
     </style>
 
     <style>
-        /* Radio and Checkbox Container */
-        .radio-item,
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .form-group h3 {
+            margin-bottom: 15px;
+            font-size: 1.25em;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
+        .form-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .form-item input[type="text"],
+        .form-item input[type="date"],
+        .form-item textarea,
+        .form-item select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        .form-item input[type="text"]:focus,
+        .form-item input[type="date"]:focus,
+        .form-item textarea:focus,
+        .form-item select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .form-item .radio-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .form-item input[type="radio"] {
+            margin-right: 10px;
+        }
+        .form-item input[type="radio"]:focus {
+            outline: 2px solid #007bff;
+        }
+        .form-item label[for^="is_borrowable_"] {
+            margin: 0;
+        }
+        .form-item input[type="radio"]:checked + label {
+            color: #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .warning-title {
+            display: flex;
+            align-items: center;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .warning-title i {
+            margin-right: 10px;
+            color: #856404;
+            font-size: 1.5em;
+        }
+    </style>
+
+    <style>
+        /* Styling for form group and items */
+        .form-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .form-group h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
         .checkbox-item {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            position: relative;
+        }
+
+        /* Hide the default checkbox */
+        .checkbox-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
             cursor: pointer;
         }
 
-        /* Radio and Checkbox Input */
-        .radio-item input,
-        .checkbox-item input {
-            display: none; /* Hide the native checkbox/radio button */
-        }
-
-        /* Custom Radio and Checkbox */
-        .radio-item label::before,
-        .checkbox-item label::before {
-            content: "";
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            margin-right: 10px;
-            border: 2px solid #ccc;
-            border-radius: 50%; /* Default to radio button style */
-            background-color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        /* Checkbox Style */
-        .checkbox-item label::before {
-            border-radius: 4px; /* Square shape for checkboxes */
-        }
-
-        /* Checked State for Radio */
-        .radio-item input:checked + label::before {
-            border-color: #007bff;
-            background-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
-        /* Checked State for Checkbox */
-        .checkbox-item input:checked + label::before {
-            border-color: #28a745;
-            background-color: #28a745;
-            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
-        }
-
-        /* Label Text */
-        .radio-item label,
+        /* Custom checkbox styling */
         .checkbox-item label {
-            font-weight: bold;
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1em;
             color: #333;
         }
 
-        /* Hover Effects */
-        .radio-item:hover label::before,
-        .checkbox-item:hover label::before {
-            border-color: #007bff;
-            box-shadow: 0 0 3px rgba(0, 123, 255, 0.3);
+        /* Create a custom checkbox design */
+        .checkbox-item label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 20px;
+            width: 20px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.2s, border-color 0.2s;
         }
 
+        /* Checkbox hover effect */
+        .checkbox-item input[type="checkbox"]:hover + label::before {
+            border-color: #007bff;
+        }
+
+        /* Checked state for the checkbox */
+        .checkbox-item input[type="checkbox"]:checked + label::before {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        /* Custom checkmark */
+        .checkbox-item input[type="checkbox"]:checked + label::after {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transition: transform 0.2s;
+        }
+    </style>
+
+    <style>
+        ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
     </style>
 </head>
 <body>
-<script>
-    document.IMAGE_UUID = '0062c982-bd38-4fd4-840d-9f142023744e'
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License</a></li>
+</ul>
 
-</script>
-<h3>'Fetch image' Test</h3>
-
-<div id="cache"></div>
-
-<div class="image-group">
-    <div class="image-container">
-        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
-        <p class="image-footer">Thumbnail Image by img-Tag</p>
-    </div>
-    <div class="image-container">
-        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
-        <p class="image-footer">Image by img-Tag</p>
-    </div>
-    <div class="image-container">
-        <img id="testImage" alt="Lights">
-        <p class="image-footer">Image  by ajax-Request</p>
-    </div>
-</div>
-
-<br/><br/><br/><br/>
+<h1 id="formTitle">Create New License</h1>
 
 <h3>Options</h3>
-
 <div class="form-group">
     <label for="poolId">Pool ID</label>
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchModelId">Model-ID</label>
-    <input type="text" id="fetchModelId" name="fetchModelId" value="50575b41-dd6b-4abd-b794-bef674cc37bd"/>
-    <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" />
+    <label for="softwareId">Software ID (model_id) [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
+    <input type="text" id="softwareId" name="softwareId" value="a8705e94-bb7c-50c0-9e43-e33197766fa1">
+<!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
+</div>
+
+<div class="form-group">
+    <label for="licenseId">License ID (item_id) [licenseId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
+    <input type="text" id="licenseId" name="licenseId" value="2b542bfc-ba81-4719-a8c9-231ce4849317">
+
+    <button id="fetchLicenseBtn">Fetch License</button>
+</div>
+
+
+<div class="warning-title">
+    <i class="fas fa-exclamation-triangle"></i>
+    Warning: form is generated dynamically based on user-role (inventory_manager, inventory_admin, etc.)
 </div>
 
 <br/><br/><br/><br/>
 
-<h1 id="formTitle">Create New Model</h1>
-
-<form id="licenseForm">
-    <div class="form-group">
-        <label for="product">Product *</label>
-        <input type="text" id="product" name="product" required>
-    </div>
-    <div class="form-group">
-        <label for="version">Version</label>
-        <input type="text" id="version" name="version">
-    </div>
-    <div class="form-group">
-        <label for="manufacturer">Manufacturer</label>
-        <select id="manufacturer" name="manufacturer"></select>
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
-    </div>
-
-    <div class="form-group">
-        <b><label for="attachments">Anhänge</label></b>
-        <input type="file" id="attachments" name="attachments" multiple>
-        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
-        <div id="attachmentsList" class="file-list"></div>
-    </div>
-
-    <div class="form-group">
-        <button type="submit">Save Model</button>
-    </div>
+<form id="softwareForm">
+    <div id="dynamicFields"></div>
 </form>
 
 <script>
-    $(document).ready(function() {
 
-        function generateFormFields(config, formId) {
-            const form = $(formId);
-
-            config.forEach(fieldConfig => {
-                const data = fieldConfig.data;
-                const group = data.group || "General";
-                let groupContainer = form.find(`.form-group[data-group="${group}"]`);
-
-                if (groupContainer.length === 0) {
-                    groupContainer = $(`
-                    <div class="form-group" data-group="${group}">
-                        <h3>${group}</h3>
-                    </div>
-                `);
-                    form.append(groupContainer);
+    const initSoftwareConfig = {
+        placeholder: "Type to search software...",
+        allowClear: true,           // Allow users to clear the selection
+        minimumInputLength: 1,      // Only start searching after typing at least 1 character
+        ajax: {
+            url: function (params) {
+                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+            },
+            data: function () {
+                return {};
+            },
+            transport: function (params, success, failure) {
+                // Abort the previous request if it exists
+                if (currentRequest) {
+                    currentRequest.abort();
                 }
 
-                let field;
-                const fieldId = fieldConfig.id;
+                // Set up the new request
+                currentRequest = $.ajax(params)
+                    .done(success)
+                    .fail(failure);
 
-                switch (data.type) {
-                    case 'text':
-                    case 'date':
-                    case 'autocomplete':
-                        field = $(`
-                        <div class="form-item styled-item">
-                            <label for="${fieldId}"><b>${data.label}${data.required ? " *" : ""}</b></label>
-                            <input type="${data.type}" id="${fieldId}" name="${data.attribute}" class="styled-input" ${data.required ? "required" : ""}>
+                return currentRequest;
+            },
+            dataType: 'json',
+            delay: 250, // Delay in ms to prevent too many requests
+            processResults: function (data) {
+                // Format the results for Select2
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            id: item.id,   // Unique ID (value)
+                            text: item.product  // Display text in the dropdown
+                        };
+                    })
+                };
+            },
+            cache: true // Cache the results to avoid unnecessary network requests
+        }
+    }
+
+    const initSupplierConfig = {
+        placeholder: "Type to search software...",
+        allowClear: true,           // Allow users to clear the selection
+        minimumInputLength: 1,      // Only start searching after typing at least 1 character
+        ajax: {
+            url: function (params) {
+                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+                return `/inventory/supplier?search-term=${searchTerm}`;
+            },
+            data: function () {
+                return {};
+            },
+            transport: function (params, success, failure) {
+                // Abort the previous request if it exists
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                // Set up the new request
+                currentRequest = $.ajax(params)
+                    .done(success)
+                    .fail(failure);
+
+                return currentRequest;
+            },
+            dataType: 'json',
+            delay: 250, // Delay in ms to prevent too many requests
+            processResults: function (data) {
+                // Format the results for Select2
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            id: item.id,   // Unique ID (value)
+                            text: item.name  // Display text in the dropdown
+                        };
+                    })
+                };
+            },
+            cache: true // Cache the results to avoid unnecessary network requests
+        }
+    }
+
+    function addQuantityAllocationElement(quantity = '', room = '') {
+        $('#propertiesList').append(`
+        <div class="dynamic-item" style="display: inline-flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" _name="quantityAllocationQuantity[]" placeholder="Key" value="${quantity}" required>
+            <input type="text" _name="quantityAllocationRoom[]" placeholder="Value" value="${room}" required>
+            <button type="button" class="remove-btn">Remove</button>
+        </div>
+    `);
+    }
+
+    function updateFileList(input, listSelector, inputId) {
+        var fileList = $(listSelector);
+        // fileList.empty();
+
+        console.log(">> updateFileList1 > ", input.files);
+        console.log(">> updateFileList2 > ", listSelector);
+
+        if (input.files && input.files.length > 0) {
+            for (var i = 0; i < input.files.length; i++) {
+                var fileName = input.files[i].name;
+                fileList.append(`
+                        <div class="file-item">
+                            <span>${fileName}</span>
+                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
                         </div>
                     `);
-                        break;
+            }
+        }
+    }
 
-                    case 'textarea':
-                        field = $(`
-                        <div class="form-item styled-item">
-                            <label for="${fieldId}"><b>${data.label}${data.required ? " *" : ""}</b></label>
-                            <textarea id="${fieldId}" name="${data.attribute}" class="styled-input" ${data.required ? "required" : ""}></textarea>
+    function updateFileList(input, listSelector, inputId, attachments = []) {
+        var fileList = $(listSelector);
+        fileList.empty();
+
+        // Handle files from input element
+        if (input.files && input.files.length > 0) {
+            console.log(">> updateFileList1 > Input Files:", input.files);
+            for (var i = 0; i < input.files.length; i++) {
+                var fileName = input.files[i].name;
+                fileList.append(`
+                <div class="file-item">
+                    <span>${fileName}</span>
+                    <button type="button" ftype="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                </div>
+            `);
+            }
+        }
+
+        // Handle files from response.data.attachments
+        if (attachments.length > 0) {
+            console.log(">> updateFileList2 > Attachments:", attachments);
+                    // <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" data-attachment-index="${index}">Remove</button>
+            attachments.forEach((attachment, index) => {
+                fileList.append(`
+                <div class="file-item" id="attachments-to-delete">
+                    <span>${attachment.filename} (${attachment.content_type})</span>
+                    <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" >Remove</button>
+                </div>
+            `);
+            });
+        }
+    }
+
+
+    // Remove file from list
+    $(document).on('click', '.remove-file-btn', function() {
+        var fileId = $(this).data('fileId')
+        var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
+
+        var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
+        toDelte.push(fileId)
+        $(`#${inputId}-to-delete`).data('to-delete', toDelte)
+
+        $(this).parent().remove();
+
+    });
+
+    // Remove file from list
+    $(document).on('click', '.remove-attachment-btn', function() {
+        let attachmentsList = $(this).closest("#attachmentsList")
+        let id = $(this).attr("data-attachment-id")
+
+        if(id != undefined){
+            let data = attachmentsList.data("to-delete") || []
+            data.push(id)
+            attachmentsList.data("to-delete", data )
+        }
+
+        $(this).parent().remove();
+    });
+
+    function deleteParamsFromPutPostFormData(formData){
+        // formData.delete("model_id");
+        formData.delete("inventory_pool_id");
+    }
+
+
+    function checkFormDataOrThrow(formData, modelId){
+        if(formData == undefined){
+            throw new Error("formData is undefined")
+        }
+
+        // if (['null', undefined, null].includes(formData.get("supplier_id"))) {
+        //     // formData.delete("supplier_id");
+        //     throw new Error("Supplier is required");
+        // }
+
+        // for url
+        if (['null', undefined, null].includes(modelId)) {
+            // formData.delete("supplier_id");
+            throw new Error("Software is required");
+        }
+    }
+
+    function renameFormDataKey(formData, oldKey, newKey) {
+        if (formData.has(oldKey)) {
+            // Get the value of the old key
+            const value = formData.get(oldKey);
+
+            // Add the value to the new key
+            formData.append(newKey, value);
+
+            // Delete the old key
+            formData.delete(oldKey);
+        }
+    }
+
+
+    function renameLabel(data) {
+        if (data.label == "Responsible department") {
+            data.label = "ResponsibleDepartment";
+        }
+
+        return data
+    }
+
+    function getQuantityAllocationAsJsonArray() {
+        let propertiesArray = [];
+
+        $('#propertiesList .dynamic-item').each(function() {
+            let quantity = $(this).find('input[_name="quantityAllocationQuantity[]"]').val();
+            let name = $(this).find('input[_name="quantityAllocationRoom[]"]').val();
+
+            // Push the key-value pair into the array as a map
+            propertiesArray.push({
+                quantity: quantity,
+                room: name
+            });
+        });
+
+        return propertiesArray;
+    }
+
+    function generateFormFields(config, formId) {
+        const form = $('#dynamicFields');
+        form.empty(); // Clear previous fields if any
+
+        config.forEach((fieldConfig) => {
+            let data = fieldConfig.data;
+            data = renameLabel(data)
+            const group = data.group || "General";
+            let groupContainer = form.find(`.form-group[data-group="${group}"]`);
+
+            if (groupContainer.length === 0) {
+                groupContainer = $(`
+                <div class="form-group" data-group="${group}">
+                    <h3>${group}</h3>
+                </div>
+            `);
+                form.append(groupContainer);
+            }
+
+            let field;
+            const fieldId = fieldConfig.id;
+
+            switch (data.type) {
+                case 'autocomplete':
+                case 'autocomplete-search':
+
+
+                    oldField=""
+                    if(data.label == "Software"){
+                        oldField = `<input type="hidden" id="myOld${data.label}" name="myOld${data.label}"></input>`
+                    }
+
+                    field = $(`
+                    <div class="form-item">
+                        <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
+                        <label for="my${data.label}">${data.label}</label>
+                        <select id="my${data.label}" name="my${data.label}"></select>
+                        ${oldField}
+                    </div>
+                `);
+                    break;
+
+                case 'text':
+                case 'date':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                    </div>
+                `);
+                    break;
+
+                case 'textarea':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
+                    </div>
+                `);
+                    break;
+
+                case 'composite':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <div id="propertiesList">
+
                         </div>
-                    `);
-                        break;
+                        <button type="button" id="addProperty">Add Property</button>
+                    </div>
+                `);
 
-                    case 'select':
-                        field = $(`
-                        <div class="form-item styled-item">
-                            <label for="${fieldId}"><b>${data.label}${data.required ? " *" : ""}</b></label>
-                            <select id="${fieldId}" name="${data.attribute}" class="styled-select" ${data.required ? "required" : ""}>
-                                ${data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")}
+                    break;
+
+
+                case 'select':
+                    let values = Array.isArray(data.values) ? [...data.values] : []; // Ensure `values` is an array
+
+                    // Check if `data.default` exists and is not in `values`
+                    if (data.default && !values.some(option => option.value === data.default)) {
+                        values.unshift({ value: data.default, label: `Default (${data.default})` }); // Add default as the first option
+                    }
+
+                    const options = values.map(option => `
+                        <option value="${option.value}" ${data.default === option.value ? "selected" : ""}>
+                            ${option.label}
+                        </option>`).join("");
+
+                                    field = $(`
+                        <div class="form-item">
+                            <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                            <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                                ${options}
                             </select>
                         </div>
                     `);
-                        break;
 
-                    case 'radio':
-                        field = $(`
-                        <div class="form-item styled-item">
-                            <label><b>${data.label}${data.required ? " *" : ""}</b></label>
-                            ${data.values.map(option => `
-                                <div class="radio-item">
-                                    <input type="radio" id="${fieldId}_${option.value}" name="${data.attribute}" value="${option.value}" ${data.default === option.value ? "checked" : ""}>
-                                    <label for="${fieldId}_${option.value}">${option.label}</label>
-                                </div>
-                            `).join("")}
-                        </div>
-                    `);
-                        break;
-
-                    case 'checkbox':
-                        field = $(`
-                        <div class="form-item styled-item">
-                            <label><b>${data.label}</b></label>
-                            ${data.values.map(option => `
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="${fieldId}_${option.value}" name="${data.attribute}" value="${option.value}">
-                                    <label for="${fieldId}_${option.value}">${option.label}</label>
-                                </div>
-                            `).join("")}
-                        </div>
-                    `);
-                        break;
-
-                    default:
-                        console.warn(`Unsupported field type: ${data.type}`);
-                }
-
-                if (field) {
-                    groupContainer.append(field);
-                }
-            });
-        }
-
-        var CONST_IS_CREATE_FORM = true;
-
-        var FNC_CONFIG = (poolId, modelId) => {
-
-            // create
-            if(CONST_IS_CREATE_FORM) {
-                return  {
-                        url: '/inventory/' + poolId + '/model',
-                        method: 'POST'
+                    if (!Array.isArray(data.values)) {
+                        console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
                     }
-                }
+                    break;
 
-            // update
-            return  {
-                    url:  '/inventory/' + poolId + '/model/' + modelId,
-                    method: 'PUT'
-                }
-        };
+                case 'radio':
+                    if (Array.isArray(data.values)) {
+                        const radioButtons = data.values.map((option, index) => {
+                            const radioId = `${fieldId}_${index}`;
+                            return `
+                            <div class="radio-item">
+                                <input type="radio" id="${radioId}" name="${data.attribute}" value="${option.value}" ${data.default === option.value ? "checked" : ""}>
+                                <label for="${radioId}">${option.label}</label>
+                            </div>
+                        `;
+                        }).join("");
 
-        function initSelect2(selectId, type) {
-            $(`#${selectId}`).select2({
-                width: "100%",
-                placeholder: "Select an option",
-                allowClear: true
-            });
-        }
+                        field = $(`
+                        <div class="form-item">
+                            <label>${data.label}${data.required ? " *" : ""}</label>
+                            ${radioButtons}
+                        </div>
+                    `);
+                    } else {
+                        console.warn(`Field "${fieldId}" has no valid options to populate the radio buttons.`);
+                    }
+                    break;
 
+                case 'checkbox':
+                    // Add multiple checkboxes if data.values is an array
+                    if (Array.isArray(data.values)) {
+                        const checkboxes = data.values.map((option, index) => {
+                            const checkboxId = `${fieldId}_${index}`;
+                            return `
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="${checkboxId}" name="${data.attribute}" value="${option.value}" ${option.checked ? "checked" : ""}>
+                                <label for="${checkboxId}">${option.label}</label>
+                            </div>
+                        `;
+                        }).join("");
 
-        $.ajax({
-            url: 'http://localhost:3260/inventory/fields?type=license',
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            },
-            success: function(response) {
-                generateFormFields(response, '#licenseForm');
-            },
-            error: function(error) {
-                console.error('Error fetching form configuration:', error);
+                        field = $(`
+                        <div class="form-item">
+                            <label>${data.label}${data.required ? " *" : ""}</label>
+                            ${checkboxes}
+                        </div>
+                    `);
+                    } else {
+                        // Single checkbox (if no values array is provided)
+                        field = $(`
+                        <div class="form-item checkbox-item">
+                            <input type="checkbox" id="${fieldId}" name="${data.attribute}" ${data.default ? "checked" : ""}>
+                            <label for="${fieldId}">${data.label}</label>
+                        </div>
+                    `);
+                    }
+                    break;
+
+                case 'attachment':
+                    // Multiple file upload
+                //     field = $(`
+                //     <div class="form-item">
+                //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                //         <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
+                //     </div>
+                // `);
+
+                    field = $(`
+                    <div class="form-group">
+<!--                        <b><label for="attachments">Anhänge</label></b>-->
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <input type="file" id="attachments" name="attachments" multiple>
+                        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
+                        <div id="attachmentsList" class="file-list"></div>
+                    </div>
+                `);
+                    break;
+
+                default:
+                    console.warn(`Unsupported field type: ${data.type} ${fieldId}; ${data.label} ${data.attribute}`);
+            }
+
+            if (field) {
+                groupContainer.append(field);
             }
         });
 
-        function updateSelectedEntitlements() {
-            const selectedContainer = $('#selected-entitlements');
-            selectedContainer.empty();
-
-            $('#entitlements option:selected').each(function() {
-                const entitlement = $(this).data('entitlement_group');
-
-                if(entitlement== undefined){
-                    return;
-                }
-
-                const data = $('#entitlements').data('entitlement-groups')
-                let matchingEntry;
-                if(data ==undefined){
-                    matchingEntry = {quantity: 1}
-                }    else {
-                        matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
-                }
-
-
-                const entitlementElement = $('<div class="selected-item mb-2">')
-                    .text(entitlement.name)
-                    .append(
-                        $('<input>', {
-                            type: 'number',
-                            class: 'form-control form-control-sm d-inline-block ml-2',
-                            style: 'width: 60px;',
-                            uuid: entitlement.id
-                        // }).val(1)
-                        }).val(matchingEntry.quantity)
-                    )
-                    .append(
-                        $('<button class="btn btn-sm btn-danger ml-2">Remove</button>')
-                            .on('click', function() {
-                                $(this).parent().remove();
-                                $('#entitlements option[value="' + entitlement.id + '"]').prop('selected', false);
-                                $('#entitlements').trigger('change');
-                            })
-                    );
-                selectedContainer.append(entitlementElement);
-            });
+        // After generating form fields, add the save button if not already present
+        if ($("#saveButton").length === 0) {
+            form.append('<button type="submit" id="saveButton">Save License</button>');
         }
 
-        // Handle selection of entitlements
-        $('#entitlements').on('change', function() {
-            updateSelectedEntitlements();
-        });
+        // TODO: define/trigger init
+        $("#mySoftware").select2(initSoftwareConfig)
+        $("#mySupplier").select2(initSupplierConfig)
 
 
-        // let previousSelection = [];
-        function fetchOptions(url, selectId) {
-            fetch(url, { headers: { 'Accept': 'application/json' } })
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById(selectId);
-                    select.innerHTML = '<option value="">Select an option</option>';
-
-                    // Adjust data for `compatibles`
-                    if (selectId === 'compatibles') {
-                        data = data.data;
-                    }
-
-                    data.forEach(item => {
-                        var option = document.createElement('option');
-
-                        // Handle `manufacturer`
-                        if (selectId === 'manufacturer') {
-                            option.value = item;
-                            option.textContent = item;
-                            $(option).data('manufacturer', item);
-                            select.appendChild(option);
-                            return;
-                        }
-
-                        // Handle `compatibles`
-                        if (selectId === 'compatibles') {
-                            option.value = item.model_id;
-                            option.textContent = item.product;
-                            $(option).data('compatible', item);
-                            select.appendChild(option);
-
-
-
-                            return;
-                        }
-
-                        // Handle `entitlements`
-                        if (selectId === 'entitlements') {
-                            option.value = item.id;
-                            option.textContent = item.name;
-                            $(option).data('entitlement_group', item);
-                            select.appendChild(option);
-
-
-                            return;
-                        }
-
-                        // Default case for other `selectId`
-                        option.value = item.id;
-                        option.textContent = item.name;
-
-                        if(selectId === 'categories'){
-                            $(option).data('categories', item);
-                        }
-
-                        select.appendChild(option);
-
-                        console.log('>>> category-option / ' + selectId, option);
-
-
-                    });
-
-                    console.log(">>> INIT SELECT2 / " + selectId)
-                    initSelect2(selectId);
-
-                    if(selectId === 'entitlements'){
-                        $("#cache").data(`prev-${selectId}`,  $('#entitlements').val());
-                    }
-
-                    if(selectId === 'compatibles'){
-                        $("#cache").data(`prev-${selectId}`,  $('#compatibles').val());
-                    }
-
-                    if(selectId === 'categories'){
-                        $("#cache").data(`prev-${selectId}`,  $('#categories').val());
-                    }
-
-
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        function renameKeys(obj, keyMap) {
-            return Object.fromEntries(
-                Object.entries(obj).map(([key, value]) => [
-                    keyMap[key] || key, // Use the new key if specified in keyMap; otherwise, keep the original key
-                    value,
-                ])
-            );
-        }
-
-        function updateDropdowns(poolId) {
-            fetchOptions(`/inventory/manufacturers`, 'manufacturer');
-            fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
-            fetchOptions(`/inventory/models-compatibles`, 'compatibles');
-            fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
-        }
-
-        // Initialize dropdowns on page load
-        var initialPoolId = $('#poolId').val();
-        updateDropdowns(initialPoolId);
-
-        // Update dropdowns when pool ID changes
-        // $('#poolId').change(function() {
-        //     var newPoolId = $(this).val();
-        //     updateDropdowns(newPoolId);
-        // });
-
-        $('#fetchModelBtn').click(function() {
-            var modelId = $('#fetchModelId').val();
-            var poolId = $('#poolId').val();
-
-            // Send request to API
-            $.ajax({
-                url: '/inventory/' + poolId + '/model/' + modelId,
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                success: function(response) {
-                    console.log('Model fetched successfully!');
-                    console.log(response);
-
-                    $("#cache").removeData();
-
-                    response= response[0];
-
-                    if(response == undefined){
-                        $('body').addClass('no-result-success');
-                        setTimeout(function() {
-                            $('body').removeClass('no-result-success');
-                        }, 3000);
-
-                        return
-                    }
-
-                    // Fill form with response data
-                    $('#product').val(response.product);
-                    $('#version').val(response.version);
-                    $('#manufacturer').val(response.manufacturer).trigger('change');
-                    $('#description').val(response.description);
-                    $('#technicalDetails').val(response.technical_detail);
-                    $('#internalDescription').val(response.internal_description);
-                    // $('#isPackage').prop('checked', response.type === 'Package');
-                    // formData.delete('isPackage');
-                    $('#isPackage').prop('checked', response.is_package);
-
-                    // Set CONST_IS_CREATE_FORM to false and update the title
-                    CONST_IS_CREATE_FORM = false;
-                    $('#formTitle').text('Update Model');
-
-                    // Populate properties
-                    $('#propertiesList').empty();
-                        response.properties.forEach(function(prop) {
-                            var ab = $('#propertiesList').append(`
-                            <div class="dynamic-item">
-                                <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
-                                <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
-                                <button type="button"  ftype="properties" class="remove-btn">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    // Populate accessories
-                    $('#accessoriesList').empty();
-                    response.accessories.forEach(function(acc) {
-                        $('#accessoriesList').append(`
-                            <div class="dynamic-item">
-                                <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
-                                <label>
-                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.has_inventory_pool === true ? 'checked' : ''}>
-                                    In inventory
-                                </label>
-                                <button type="button" ftype="accessories" class="remove-btn">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    function cacheDeletedProperties(type, obj) {
-                        var data = $("#cache").data(`deleted-${type}`) || []
-                        const key = obj.siblings('input[name="propertyKey[]"]').val();
-                        const val = obj.siblings('input[name="propertyValue[]"]').val();
-
-                        data.push({
-                            id: $(this).prev().attr("id"),
-                            delete: true,
-                            key: key,
-                            value: val
-                        })
-                        return data
-                    }
-
-                    function cacheDeletedAccessories(type, obj) {
-                        const data = $("#cache").data(`deleted-${type}`) || []
-                        data.push({
-                            id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
-                            delete: true,
-                            name: obj.siblings('input[name="accessoryName[]"]').val(),
-                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
-                        })
-                        return data
-                    }
-
-
-
-                    // Add event listener for remove button to delete only the clicked item
-                    $(document).on('click', '.remove-btn', function() {
-                        const type = $(this).attr("ftype")
-                        var data=[];
-                        console.log(">o> remove-btn > !!!!", type)
-                        if (type === 'properties') {
-                            data = cacheDeletedProperties(type, $(this))
-                        } else if (type === 'accessories') {
-                            data = cacheDeletedAccessories(type, $(this))
-                        } else  {
-                            console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
-                        }
-
-                        console.log(">o> remove-btn > ", type,  data)
-                        $("#cache").data(`deleted-${type}`, data)
-
-                        $(this).closest('.dynamic-item').remove();
-                    });
-
-
-                    // Populate entitlements (entitlement groups)
-                    $('#entitlements').data('entitlement-groups', response.entitlement_groups)
-                    $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
-                    $('#entitlements').find('option:selected').each(function(index, option, a, b) {
-                        const groupId = $(option).val();
-                        const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
-                        if (entitlementData) {
-                            $(option).data('entitlement', entitlementData);
-                            console.log('Updated option data:', $(option).data('entitlement'));
-                        }
-                    });
-                    $('#entitlements').on('change', function() {
-                        const currentSelection = $(this).val() || [];
-                        const previousSelection = $("#cache").data("prev-entitlements") || [];
-                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                        var deleted_data = $("#cache").data("deleted-entitlements") || []
-                        removedOptions.forEach(id => {
-                            const removedOption = $(this).find(`option[value="${id}"]`);
-                            var removedEntitlementData = removedOption.data('entitlement')
-                            if(removedEntitlementData == undefined){
-                                return;
-                            }
-
-                            removedEntitlementData.delete = true;
-
-                            console.log('Removed option data:', removedEntitlementData);
-                            var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
-                            removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
-                            deleted_data.push(removedEntitlementData)
-                        });
-
-                        $("#cache").data("deleted-entitlements",  deleted_data);
-                        // $("#cache").data("deleted-categories",  deleted_data);
-
-                        $("#cache").data("prev-entitlements",  currentSelection);
-                    });
-
-
-
-
-
-
-                    // Populate categories (assuming it's part of the response)
-                    if (response.categories) {
-                        $('#categories').val(response.categories.map(c => c.id)).trigger('change');
-                        $('#categories').find('option:selected').each(function(index, option, a, b) {
-                            const categoryId = $(option).val();
-                            const entitlementData = response.categories.find(eg => eg.id === categoryId);
-                            if (entitlementData) {
-                                $(option).data('categories', entitlementData);
-                                console.log('Updated option data:', $(option).data('categories'));
-                            }
-                        });
-                        $("#cache").data("prev-categories",  $('#categories').val())
-
-                        $('#categories').on('change', function() {
-                            const currentSelection = $(this).val() || [];
-                            const previousSelection = $("#cache").data("prev-categories") || [];
-                            const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                            var deleted_data = $("#cache").data("deleted-categories") || []
-                            removedOptions.forEach(id => {
-                                const removedOption = $(this).find(`option[value="${id}"]`);
-                                var removedEntitlementData = removedOption.data('categories')
-                                if(removedEntitlementData == undefined){
-                                    return;
-                                }
-
-                                removedEntitlementData.delete = true;
-                                deleted_data.push(removedEntitlementData)
-                            });
-
-                            $("#cache").data("deleted-categories",  deleted_data);
-                            $("#cache").data("prev-categories",  currentSelection);
-                        });
-                    }
-
-
-
-
-
-
-
-                    if (response.compatibles) {
-
-                    // Populate compatibles
-                    $('#compatibles').val(response.compatibles
-                        .filter(c => c && c.id != null)
-                        .map(c => c.id)).trigger('change');
-
-                    $('#compatibles').find('option:selected').each(function(index, option, a, b) {
-                        const categoryId = $(option).val();
-                        var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
-                        if (entitlementData) {
-                            $(option).data('compatible', entitlementData);
-                            console.log('Updated option data:', $(option).data('compatible'));
-                        }
-                    });
-                    $("#cache").data("prev-compatibles",  $('#compatibles').val())
-
-                    $('#compatibles').on('change', function() {
-                        const currentSelection = $(this).val() || [];
-                        const previousSelection = $("#cache").data("prev-compatibles") || [];
-                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                        var deleted_data = $("#cache").data("deleted-compatibles") || []
-                        removedOptions.forEach(id => {
-                            const removedOption = $(this).find(`option[value="${id}"]`);
-                            var removedEntitlementData = removedOption.data('compatible')
-                            if(removedEntitlementData == undefined){
-                                return;
-                            }
-
-                            removedEntitlementData.delete = true;
-                            deleted_data.push(removedEntitlementData)
-                        });
-
-                        $("#cache").data("deleted-compatibles",  deleted_data);
-                        $("#cache").data("prev-compatibles",  currentSelection);
-                    });
-                    };
-
-
-
-
-
-
-
-
-
-
-
-
-                    // Populate existing images
-                    $('#imagesList').empty();
-                    response.images.forEach(function(image, index) {
-                        $('#imagesList').append(`
-                            <div class="file-item">
-                                <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
-                                <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
-                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}"  data-file-index="${index}">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    // Populate existing attachments
-                    $('#attachmentsList').empty();
-                    response.attachments.forEach(function(attachment, index) {
-                        $('#attachmentsList').append(`
-                            <div class="file-item">
-                                <span>${attachment.filename}</span>
-                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}" data-file-index="${index}">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    $('body').addClass('save-success');
-                    setTimeout(function() {
-                        $('body').removeClass('save-success');
-                    }, 3000);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching model: ' + error);
-                    $('body').addClass('save-failed');
-                    setTimeout(function() {
-                        $('body').removeClass('save-failed');
-                    }, 3000);
-                }
-            });
-
-
-
-
-        });
-
-
-        $('#testImage').ready(function() {
-            // alert('fetchModelBtn');
-
-            var modelId = $('#fetchModelId').val();
-            var poolId = $('#poolId').val();
-
-            fetch("/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
-                headers: {
-                    "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("create blob()")
-                        return response.blob(); // Convert the response to a blob
-                    }
-                    throw new Error('Network response was not ok.');
-                })
-                .then(blob => {
-                        console.log("todo: imgUrl create")
-                    const imgUrl = URL.createObjectURL(blob);
-                    document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
-                        console.log("imgUrl created")
-                })
-                .catch(error => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-
-        });
-
-
-        // Add Property
+        // Add Property Button Click Event
         $('#addProperty').click(function() {
-            $('#propertiesList').append(`
-                <div class="dynamic-item">
-                    <input type="text" name="propertyKey[]" placeholder="Key" required>
-                    <input type="text" name="propertyValue[]" placeholder="Value" required>
-                    <button type="button" class="remove-btn">Remove</button>
-                </div>
-            `);
-
-
+            addQuantityAllocationElement(); // Add an empty row when the button is clicked
         });
 
-        // Add Accessory
-        $('#addAccessory').click(function() {
-            $('#accessoriesList').append(`
-                <div class="dynamic-item">
-                    <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
-                    <label>
-                        <input type="checkbox" name="accessoryInventory[]">
-                        In inventory
-                    </label>
-                    <button type="button" class="remove-btn">Remove</button>
-                </div>
-            `);
+        // Trigger Click with Parameters
+        $('#triggerAddProperty').click(function() {
+            addQuantityAllocationElement('DefaultKey', 'DefaultValue'); // Pass parameters to pre-fill the fields
         });
 
-        // Remove dynamic item
+
         $(document).on('click', '.remove-btn', function() {
-            $(this).parent().remove();
-        });
-
-        // Handle file selection for images
-        $('#images').change(function() {
-            updateFileList(this, '#imagesList', 'images');
+            $(this).closest('.dynamic-item').remove();
         });
 
         // Handle file selection for attachments
@@ -855,278 +745,653 @@
             updateFileList(this, '#attachmentsList', 'attachments');
         });
 
-        // Update file list
-        function updateFileList(input, listSelector, inputId) {
-            var fileList = $(listSelector);
-            fileList.empty();
+    }
 
-            console.log(">> updateFileList1 > ", input.files);
-            console.log(">> updateFileList2 > ", listSelector);
 
-            if (input.files && input.files.length > 0) {
-                for (var i = 0; i < input.files.length; i++) {
-                    var fileName = input.files[i].name;
-                    fileList.append(`
-                        <div class="file-item">
-                            <span>${fileName}</span>
-                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
-                        </div>
-                    `);
+    function showResultEffect(effectClass) {
+        $('body').addClass(effectClass);
+        setTimeout(() => $('body').removeClass(effectClass), 3000);
+    }
+
+
+    function setupDongleAndRetiredHandler(data){
+        // project handling
+        let reference = $('[name="properties,reference"]:checked').val();
+        $(`[name="properties,reference"][value="${reference}"]`).prop('checked', true);
+        // $('[name="properties,reference"][value="invoice"]').prop('checked', true);
+        // if(reference=="dongle"){
+        //     $("#properties_dongle_id").prop("disabled", false)
+        // }else{
+        //     $("#properties_dongle_id").prop("disabled", true)
+        // }
+
+        function handleReferenceSwitch(){
+            let reference = $('[name="properties,reference"]:checked').val();
+            console.log("reference", reference)
+            if(reference=="invoice"){
+                $("#properties_project_number").prop("disabled", true)
+                $("#properties_project_number").val("")
+            }else{
+                $("#properties_project_number").prop("disabled", false)
+            }
+        }
+        handleReferenceSwitch()
+
+        $('[name="properties,reference"][value="investment"]').off("change").on("change",handleReferenceSwitch)
+        $('[name="properties,reference"][value="invoice"]').off("change").on("change",handleReferenceSwitch)
+
+
+        // dongle handling
+        if($("#properties_activation_type").val()=="dongle"){
+            $("#properties_dongle_id").prop("disabled", false)
+        }else{
+            $("#properties_dongle_id").prop("disabled", true)
+        }
+
+        $("#properties_activation_type").off("change").on("change", function () {
+            if($("#properties_activation_type").val()=="dongle"){
+                $("#properties_dongle_id").prop("disabled", false)
+            }else{
+                $("#properties_dongle_id").prop("disabled", true)
+            }
+        })
+
+        // retired handling
+        if(data != undefined){
+            $("#retired").data("retired", data.retired)
+            $("#retired").val(String(data.retired))
+        }
+        if($("#retired").val()=='false'){
+            $("#retired_reason").prop("disabled", true)
+            $("#retired_reason").val("")
+        }else{
+            $("#retired_reason").prop("disabled", false)
+        }
+
+        $("#retired").off("change").on("change", function () {
+            if($("#retired").val()=='false'){
+                // if($("#retired").val()== undefined){
+                $("#retired_reason").prop("disabled", true)
+                $("#retired_reason").val("")
+            }else{
+                $("#retired_reason").prop("disabled", false)
+            }
+        })
+
+    }
+
+    function appendQuantityAllocationToFormData(formData) {
+        const properties = {}; // Object to hold extracted properties
+        const keysToDelete = []; // To keep track of keys to be deleted
+
+        // Iterate through formData entries
+        for (const [key, value] of formData.entries()) {
+            if (key.startsWith("properties,")) {
+                // Extract the property name after "properties,"
+
+                //     console.log("key???", key, value)
+                // if(key == 'properties,operating_system'){
+                //     console.log("key", key, value)
+                //     debugger
+                // }
+
+                const propertyName = key.split(",")[1];
+                properties[propertyName] = value; // Add to properties object
+
+                if(key == 'properties,operating_system'){
+                    const value = Array.from(
+                        document.querySelectorAll('input[type="checkbox"][name="properties,operating_system"]:checked')
+                    ).map(checkbox => checkbox.value);
+                    properties[propertyName] = value; // Add to properties object
                 }
+
+                if(key == 'properties,installation'){
+                    const value = Array.from(
+                        document.querySelectorAll('input[type="checkbox"][name="properties,installation"]:checked')
+                    ).map(checkbox => checkbox.value);
+                    properties[propertyName] = value; // Add to properties object
+                }
+
+                // Mark the key for deletion
+                keysToDelete.push(key);
             }
         }
 
-        // // jQuery to add a click event to the remove button
-        // $('#removeFileButton').click(function() {
-        //     // Clear the file input
-        //     $('#images').val('');
-        //
-        //     // Optionally, log a message or perform additional actions
-        //     console.log("File input cleared.");
-        // });
 
-        // Remove file from list
-        $(document).on('click', '.remove-file-btn', function() {
-            var fileId = $(this).data('fileId')
-            var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
-
-            var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
-            toDelte.push(fileId)
-            $(`#${inputId}-to-delete`).data('to-delete', toDelte)
-
-            $(this).parent().remove();
-
-        });
-
-        // Remove file from input
-        function removeFile(inputId, index) {
-            var input = document.getElementById(inputId);
-            var files = Array.from(input.files);
-            files.splice(index, 1);
-
-            // Create a new FileList object
-            var dataTransfer = new DataTransfer();
-            files.forEach(file => { dataTransfer.items.add(file); });
-            input.files = dataTransfer.files;
-
-            // Update the file list display
-            updateFileList(input, `#${inputId}List`, inputId);
-        }
+        let quantityAllocation = getQuantityAllocationAsJsonArray()
+        properties["quantity_allocations"] = quantityAllocation
 
 
-        // Clear form fields
-        function clearForm() {
-            $('#licenseForm')[0].reset();
-            $('#propertiesList').empty();
-            $('#accessoriesList').empty();
-            $('#imagesList').empty();
-            $('#attachmentsList').empty();
-            $('#images-to-delete').empty();
-            $('#attachments-to-delete').empty();
-            $('select').val(null).trigger('change');
-        }
+        // Remove all keys marked for deletion
+        keysToDelete.forEach(key => formData.delete(key));
+
+        // Add the JSON stringified properties object back into formData
+        formData.append("properties", JSON.stringify(properties));
+
+        return formData;
+    }
 
 
-        // Form submission
-        $('#licenseForm').submit(function(e) {
-            e.preventDefault();
-            var formData = new FormData(this);
 
-            // Prepare properties
-            var properties = [];
-            $('input[name="propertyKey[]"]').each(function(index) {
-                properties.push({
-                    key: $(this).val(),
-                    value: $('input[name="propertyValue[]"]').eq(index).val(),
-                    id: $('input[name="propertyValue[]"]').eq(index).attr('id')
+    function fetchOptions(url, selectId) {
+        fetch(url, { headers: { Accept: "application/json" } })
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">Select an option</option>';
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    select.appendChild(option);
                 });
-            });
-            var deleted_data = $("#cache").data("deleted-properties") || []
-            var mergedProperties = properties.concat(deleted_data);
-            formData.append('properties', JSON.stringify(mergedProperties));
+                initSelect2(selectId);
+            })
+            .catch((error) => console.error("Error:", error));
+    }
 
+    const initialPoolId = $("#poolId").val();
 
-            // Prepare accessories
-            var accessories = [];
-            $('input[name="accessoryName[]"]').each(function(index, option) {
+    let currentRequest = null;
+    // $("#mySoftware").on("change", function () {
 
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
+    $("#mySoftware").select2(initSoftwareConfig)
 
-                accessories.push({
-                    name: $(this).val(),
-                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
-                    id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
-                });
-            });
-            deleted_data = $("#cache").data("deleted-accessories") || []
-            mergedProperties = accessories.concat(deleted_data);
-            console.log(">o> accessories > ", mergedProperties)
-            formData.append('accessories', JSON.stringify(mergedProperties));
-
-
-
-            // Prepare entitlements
-            const entitlements = [];
-            $('#entitlements').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const entitlementData = $(option).data()
-                const entitlement = entitlementData.entitlement
-                const entitlement_group = entitlementData.entitlement_group
-
-                const entitlement_group_id = entitlementData.entitlement_group.id
-
-
-
-                var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
-                if(isNaN(quantity)){
-                    console.error("Quantity is not a number, setting to 1")
-                    quantity = 1
-                }
-
-                if (entitlementData) {
-                    entitlements.push({
-                        entitlement_group_id: entitlement_group.id,
-                        entitlement_id: entitlement == undefined ? null : entitlement.id,
-                        // quantity: entitlement == undefined ? 1 : (quantity || 1)
-                        quantity: (quantity || 1)
-                    });
-                }
-            });
-            formData.delete('entitlements');
-            deleted_data = $("#cache").data("deleted-entitlements") || []
-            mergedProperties = entitlements.concat(deleted_data);
-            console.log(">o> entitlements > ", mergedProperties)
-            formData.append('entitlements', JSON.stringify(mergedProperties));
-
-
-
-            // Prepare categories
-            const categories = [];
-            $('#categories').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const categoriesData = $(option).data().categories
-                // const entitlement = categoriesData.entitlement
-                // const entitlement_group = categoriesData.entitlement_group
-                // id name type
-                if (categoriesData) {
-                    categories.push(categoriesData)
-                    // categories.push({
-                    //     entitlement_group_id: entitlement_group.id,
-                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
-                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
-                    // });
-                }
-            });
-            formData.delete('categories');
-            deleted_data = $("#cache").data("deleted-categories") || []
-            mergedProperties = categories.concat(deleted_data);
-            console.log(">o> categories > ", mergedProperties)
-            formData.append('categories', JSON.stringify(mergedProperties));
-
-
-
-
-            // Prepare compatibles
-            const compatibles = [];
-            $('#compatibles').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const categoriesData = $(option).data().compatible
-                if (categoriesData) {
-                    compatibles.push(categoriesData)
-                }
-            });
-            formData.delete('compatibles');
-            deleted_data = $("#cache").data("deleted-compatibles") || []
-            mergedProperties = compatibles.concat(deleted_data);
-
-            console.log(">o> compatibles 1> ", mergedProperties)
-
-            var keyMapa = { model_id: "id" };
-            mergedProperties.forEach(function(item, index) {
-                mergedProperties[index] = renameKeys(item, keyMapa);
-            } );
-
-            console.log(">o> compatibles 2> ", mergedProperties)
-            formData.append('compatibles', JSON.stringify(mergedProperties));
-
-
-
-            formData.delete('images-to-delete');
-            var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
-            formData.append('images-to-delete', JSON.stringify(imagesToDelete));
-
-            formData.delete('attachments-to-delete');
-            var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
-            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
-
-
-
-            formData.delete('isPackage');
-            // $('#isPackage').prop('checked', false);
-            // $('#isPackageFlag').val($('#isPackage').is(':checked'))
-            const isPackage = $('#isPackage').is(':checked')
-            formData.append('isPackage', isPackage);
-
-            formData.delete('accessoryName[]');
-            formData.delete('propertyKey[]');
-            formData.delete('propertyValue[]');
-            formData.delete('accessoryInventory[]');
-
-            // Get the poolId value
-            var poolId = $('#poolId').val();
-            var modelId = $('#fetchModelId').val();
-
-            var config = FNC_CONFIG(poolId, modelId);
-
-            // Send form data to API
-            $.ajax({
-                url: config.url,
-                method: config.method,
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    'Accept': 'application/json'
-                },
-                success: function(response) {
-                    console.log('Model created successfully!');
-                    clearForm(); // Clear the form after successful save
-                    $("#cache").removeData();
-
-                    if( !CONST_IS_CREATE_FORM) {
-                        // $('#fetchModelId').val(response.model_id);
-                        $('#fetchModelBtn').click()
-                    }
-
-
-                    $('body').addClass('save-success');
-                    setTimeout(function() {
-                        $('body').removeClass('save-success');
-                    }, 3000);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error creating model: ' + error);
-                    $('body').addClass('save-failed');
-                    setTimeout(function() {
-                        $('body').removeClass('save-failed');
-                    }, 3000);
-                }
-            });
-        });
-
-
+    // Optional: Adding an onchange event listener to log the selected value
+    $("#mySoftware").on("change", function () {
+        const selectedValue = $(this).val();
+        debugger
+        console.log(">o> Selected software:", selectedValue);
     });
+
+
+    function initResponsibleData(init_data){
+        // set responsible department
+        const poolId = $("#poolId").val();
+        const apiUrl = `/inventory/${poolId}/entitlement-groups`;
+
+        // Make the GET request to fetch data
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function(data) {
+                // Assuming `data` is an array of objects with `id` and `name` properties
+                const $select = $("#myResponsibleDepartment");
+                $select.empty(); // Clear any existing options
+
+                // Populate the <select> with options
+                data.forEach(item => {
+                    $select.append($("<option>", {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+
+                $select.val(init_data.responsible_department)
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching data:", error);
+            }
+        });
+    }
+
+    function initOwnersData(init_data){
+        // set responsible department
+        const poolId = $("#poolId").val();
+        const apiUrl = `/inventory/owners`;
+
+        // Make the GET request to fetch data
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function(data) {
+                // Assuming `data` is an array of objects with `id` and `name` properties
+                const $select = $("#myOwner");
+                $select.empty(); // Clear any existing options
+
+                // Populate the <select> with options
+                data.forEach(item => {
+                    $select.append($("<option>", {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+                // debugger
+
+                $select.val(init_data.inventory_pool_id)
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching data:", error);
+            }
+        });
+    }
+
+
+
+
+
+    $(document).ready(function () {
+        let CONST_IS_CREATE_FORM = true;
+
+        // data .. html-field
+        const fieldMapping = {
+            "serial_number": "serial_number",
+            "note": "note",
+            "retired_reason": "retired_reason",
+
+            "maintenance_price": "properties_maintenance_price",
+            "price": "price",
+            "p4u": "properties_p4u",
+
+            "dongle_id": "properties_dongle_id",
+            "project_number": "properties_project_number",
+
+            "invoice_date": "invoice_date",
+            "procured_by": "properties_procured_by",
+            "properties_maintenance_price": "properties_maintenance_price",
+            "inventory_code": "inventory_code",
+            "total_quantity": "properties_total_quantity",
+            "activation_type": "properties_activation_type",
+            "license_type": "properties_license_type",
+            "maintenance_currency": "properties_maintenance_currency",
+            "version": "license_version",
+            "license_expiration": "properties_license_expiration",
+            // "license_expiration": "maintenance_expiration",
+            "maintenance_expiration": "properties_maintenance_expiration",
+
+            // name="properties,operating_system"
+            // "operating_system":
+
+
+            // "procured_by": "properties_procured_by"
+        };
+
+
+
+
+        function formatDateForInput(dateString) {
+            if (!dateString) return null;
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return null; // Invalid date
+            return date.toISOString().split("T")[0]; // Extract YYYY-MM-DD
+        }
+
+        function populateFieldValues(data, mapping) {
+            Object.entries(mapping).forEach(([key, fieldId]) => {
+                const keys = key.split(".");
+                let value = data;
+
+                // Drill down into nested objects
+                keys.forEach(k => {
+                    if (value && value[k] !== undefined) {
+                        value = value[k];
+                    } else {
+                        value = null;
+                    }
+                });
+
+                if (value !== null && value !== undefined) {
+                    const inputField = $(`#${fieldId}`);
+
+                    console.log("inputField", inputField,value, fieldId)
+
+                    if (inputField.length) {
+                        if (inputField.is("select") || inputField.is("input[type='text']") || inputField.is("textarea")) {
+
+                            console.log("inputField2", inputField,value, fieldId)
+
+                            inputField.val(value);
+                        } else if (inputField.is("input[type='date']")) {
+                            // Format the date for date inputs
+                            inputField.val(formatDateForInput(value));
+                        } else if (inputField.is(":checkbox")) {
+                            inputField.prop("checked", !!value);
+                        } else if (inputField.is(":radio")) {
+                            $(`input[name="${fieldId}"][value="${value}"]`).prop("checked", true);
+                        }
+                    }
+                }
+            });
+        }
+
+        $("#fetchLicenseBtn").click(function () {
+            const licenseId = $("#licenseId").val();
+            const modelId = $("#softwareId").val();
+            const poolId = $("#poolId").val();
+
+            if (!licenseId) {
+                alert("Please enter a license ID.");
+                return;
+            }
+
+            // FETCH LICENSE
+            $.ajax({
+                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
+                method: "GET",
+                headers: { Accept: "application/json" },
+                success: function (response) {
+                    if (response && response.data) {
+                        const data = response.data;
+
+                        // flatten
+                        Object.assign(data, data.properties);
+                        delete data.properties;
+
+
+                        // Populate field values
+                        populateFieldValues(data, fieldMapping);
+
+                        CONST_IS_CREATE_FORM = false;
+                        $("#formTitle").text("Update License");
+                        // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
+
+                        // software
+                        var swValue = data.product.name;
+                        var swId = data.product.model_id;
+                        var newOption = new Option(swValue, swId, true, true);
+                        $("#mySoftware").append(newOption).trigger('change');
+                        $("#myOldSoftware").val(swId)
+
+                        // supplier
+                        var supplierName = data.supplier.name;
+                        var supplierId = data.supplier.supplier_id;
+                        var newOption = new Option(supplierName, supplierId, true, true);
+                        $("#mySupplier").append(newOption).trigger('change');
+
+
+                        if(data.is_borrowable){
+                         $("[name=is_borrowable][value=true]").prop("checked", true)
+                        }else{
+                         $("[name=is_borrowable][value=false]").prop("checked", true)
+                        }
+
+
+                        if(data.reference == "invoice"){
+                         $("[name='properties,reference'][value=invoice]").prop("checked", true)
+                        }else{
+                         $("[name='properties,reference'][value=investment]").prop("checked", true)
+                        }
+
+
+
+                        ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
+                            if(data.operating_system != undefined && data.operating_system.includes(os)){
+                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
+                            }else{
+                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
+                            }
+                        })
+
+                        const installationList = data.installation || []; // Default to an empty array
+                        ["citrix", "local", "web"].forEach(os => {
+                            if (installationList.includes(os)) {
+                                $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
+                            } else {
+                                $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
+                            }
+                        });
+
+                        const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
+                        $('#propertiesList').empty()
+                        quantity_allocations.forEach(entry => {
+                            addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
+                        });
+
+                        const attachments = data.attachments || []; // Default to an empty array
+                        $("#attachmentsList").empty();
+                        attachments.forEach(attachment => {
+
+                               let entry= $("#attachmentsList").append(`
+                                    <div class="file-item" withData>
+                                        <span>${attachment.filename} (${attachment.content_type})</span>
+                                        <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
+                                    </div>
+                                `);
+
+                            entry.data("raw", attachment)
+                            });
+
+                        setupDongleAndRetiredHandler(data)
+
+                        $("#saveButton").text("Update License");
+                        $("#saveButton").off('click').click(function (e) {
+
+                            // UPDATE LICENSE
+
+                            e.preventDefault(); // Prevent default form submission
+                            console.log("Update button clicked");
+
+                            const poolId = $("#poolId").val();
+                            const modelId = $("#softwareId").val();
+                            const licenseId = $("#licenseId").val();
+                            let formData = new FormData($("#softwareForm")[0]);
+
+
+                            renameFormDataKey(formData, "mySoftware", "model_id");
+                            renameFormDataKey(formData, "myOldSoftware", "old_model_id");
+                            renameFormDataKey(formData, "mySupplier", "supplier_id");
+                            renameFormDataKey(formData, "myOwner", "owner_id");
+                            renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+
+
+                            console.log(">o> ")
+
+                            // set new model_id if needed
+                            let model_id = formData.get('model_id')
+                            let old_model_id = formData.get('old_model_id')
+                            if(model_id != old_model_id){
+                                console.log("model_id != old_model_id")
+                                formData.delete('old_model_id')
+                                formData.delete('model_id')
+                                formData.append('model_id', model_id)
+                                debugger
+                            }else{
+                                console.log("model_id == old_model_id")
+                                formData.delete('old_model_id')
+                                formData.delete('model_id')
+                            }
+
+
+                            for (let [key, value] of formData.entries()) {
+                                console.log(key, value);
+                            }
+
+
+
+
+                            checkFormDataOrThrow(formData, modelId)
+
+                            // debugger
+                            formData.delete('attachments-to-delete');
+                            var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
+                            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+
+
+                            formData = appendQuantityAllocationToFormData(formData);
+                            deleteParamsFromPutPostFormData(formData);
+
+                            // If it's in update mode, make a PUT request
+                            $.ajax({
+                                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
+                                method: "PUT",
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                headers: {Accept: "application/json"},
+                                success: function (response) {
+                                    console.log("License updated successfully!", response);
+
+                                    $(`#attachmentsList`).data('to-delete', [])
+                                    $('#attachments').val('');
+
+                                    // $('#softwareId').val(response.data.model_id)
+                                    // $('#licenseId').val(response.data.id)
+                                    $('#softwareId').val(response[0].model_id)
+                                    $('#licenseId').val(response[0].id)
+
+                                    $('#fetchLicenseBtn').trigger('click');
+
+                                    showResultEffect("save-success");
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Error updating license:", error);
+                                    showResultEffect("save-failed");
+                                },
+                            });
+                        });
+
+
+                        console.log("License data fetched successfully!", response);
+                        showResultEffect("save-success");
+                    } else {
+                        showResultEffect("no-result-success");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching license:", error);
+                    showResultEffect("save-failed");
+                },
+            });
+        });
+    });
+
+    $("body").ready(function () {
+        const licenseId = $("#softwareId").val();
+        const poolId = $("#poolId").val();
+
+        if (!licenseId) {
+            alert("Please enter a license ID.");
+            return;
+        }
+
+        $.ajax({
+            url: `/inventory/${poolId}/license`,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function (response) {
+                if (response && response.fields) {
+                    // if (response && response.data) {
+                    const data = response.data;
+                    const fields = response.fields;
+
+                    initResponsibleData(data);
+                    initOwnersData(data);
+
+                    // Generate fields dynamically
+                    generateFormFields(fields, "#softwareForm");
+
+
+
+                    // debugger
+                    $('#inventory_code').val(data.inventory_code)
+                    // $('#myOwner').val(data.inventory_pool_id)
+
+                    $("#saveButton").text("Save License");
+                    $("#saveButton").off('click').click(function(e) {
+                        e.preventDefault(); // Prevent default form submission
+                        console.log("Update button clicked");
+
+                        const poolId = $("#poolId").val();
+                        // const modelId = $("#softwareId").val();
+                        let formData = new FormData($("#softwareForm")[0]);
+
+
+                        // renameFormDataKey(formData, "mySoftware", "software_id");
+                        renameFormDataKey(formData, "mySoftware", "model_id");
+                        renameFormDataKey(formData, "mySupplier", "supplier_id");
+                        renameFormDataKey(formData, "myOwner", "owner_id");
+                        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+
+
+                        // for (let [key, value] of formData.entries()) {
+                        //     console.log(key, value);
+                        // }
+                        // debugger
+
+                        formData = appendQuantityAllocationToFormData(formData);
+
+                        let modelId=formData.get("model_id")
+
+                        deleteParamsFromPutPostFormData(formData);
+
+
+
+                        checkFormDataOrThrow(formData, modelId)
+
+                        // debugger
+
+
+                        // // Debugging: log all keys and values in the FormData
+                        // for (let [key, value] of formData.entries()) {
+                        //     console.log(key, value);
+                        // }
+                        // debugger
+
+
+                        // If it's in update mode, make a PUT request
+                        $.ajax({
+                            // url: `/inventory/${poolId}/license`,
+                            url: `/inventory/${poolId}/models/${modelId}/licenses`,
+                            method: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            headers: { Accept: "application/json" },
+                            success: function (response) {
+                                console.log("License create successfully!", response);
+
+
+                                // debugger
+
+                                console.info("UPDATING ITEM-ID")
+                                $('#softwareId').val(response.data.model_id)
+                                $('#licenseId').val(response.data.item_id)
+
+                                $(`#attachmentsList`).data('to-delete', [])
+                                $('#attachments').val('');
+
+
+                                $('#fetchLicenseBtn').trigger('click');
+
+                                showResultEffect("save-success");
+
+
+                                // TODO: fetch data by response id's
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error updating license:", error);
+                                showResultEffect("save-failed");
+                            },
+                        });
+                    });
+
+
+
+                    // Populate field values
+                    // populateFieldValues(data, fieldMapping);
+
+                    // CONST_IS_CREATE_FORM = false;
+                    // $("#formTitle").text("Update License");
+
+                    setupDongleAndRetiredHandler()
+
+                    console.log("License fields fetched successfully!", response);
+                    // showResultEffect("save-success");
+                } else {
+                    showResultEffect("no-result-success");
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching license:", error);
+                showResultEffect("save-failed");
+            },
+        });
+    });
+
 </script>
 </body>
 </html>

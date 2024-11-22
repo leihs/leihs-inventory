@@ -20,7 +20,13 @@
      (let [tx (:tx request)
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
+           {:keys [role owner type]} (-> request query-params)
+           {:keys [page size]} (fetch-pagination-params-raw request)
+           user-id (:id (:authenticated-entity request))
+           inventory-access-base-query (-> (sql/from :inventory_pools)
+                                           (sql/where [:= :inventory_pools.is_active true]))
 
+           ;; TODO: this should not be used; instead use leihs.inventory.server.resources.models.form.license.queries
            license_keys ["inventory_code"
                          "license_version"
                          "properties_p4u"
@@ -40,13 +46,6 @@
                          "is_borrowable"
                          "properties_reference"]
 
-           {:keys [role owner type]} (-> request query-params)
-           ;{:keys [page size]} (fetch-pagination-params request)
-           {:keys [page size]} (fetch-pagination-params-raw request)
-           user-id (:id (:authenticated-entity request))
-           inventory-access-base-query (-> (sql/from :inventory_pools)
-                                           (sql/where [:= :inventory_pools.is_active true]))
-
            ;; TODO: example
            ;query (-> inventory-access-base-query
            ;        (sql/select :1)
@@ -57,6 +56,7 @@
            ;           [:exists (user-group-access-right-subquery user-id CUSTOMER-ROLES)]])
            ;        sql-format)
            ;res (jdbc/query tx query)
+           ;p (println ">o> res" res)
 
            base-query (-> (sql/select :*)
                           (sql/from [(-> (sql/select :f.id
@@ -68,8 +68,11 @@
                                                                (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
                                                                :boolean) :owner])
                                          (sql/from [:fields :f])
+
+                                     ;; TODO: in use? should be removed?
                                          (cond-> (and (some? type) (= "license" type))
                                            (sql/where [:in :f.id license_keys]))
+
                                          (sql/where [:= :f.active true])) :subquery])
 
                           (cond-> group_id (sql/where [:= :subquery.id group_id]))
@@ -81,8 +84,6 @@
 
                           (cond-> (and (some? owner) (not (= "customer" role)))
                             (sql/where [:= :subquery.owner owner]))
-                          ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-                          ;  with-paginat (sql/where [:= :subquery.owner owner]))
 
                           (cond-> (= "customer" role)
                             (sql/where [:or
@@ -93,14 +94,11 @@
          (and (nil? with-pagination?) (nil? page) (nil? size)) (jdbc/query tx (-> base-query sql-format))
          (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
          with-pagination? (pagination-response request base-query)
-         :else (jdbc/query tx (-> base-query sql-format))))
+         :else (pagination-response request base-query)))
 
      (catch Exception e
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
-
-(defn get-form-fields-with-pagination-handler [request]
-  (response (get-form-fields request true)))
 
 (defn get-form-fields-auto-pagination-handler [request]
   (response (get-form-fields request nil)))

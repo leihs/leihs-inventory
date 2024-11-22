@@ -103,7 +103,7 @@ shared_context :setup_models_api do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
-    FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
 
     @models = create_models
     create_and_add_items_to_models(@inventory_pool, [@models.first])
@@ -129,6 +129,50 @@ shared_context :setup_models_api_model do
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model3)
+
+    @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
+  end
+end
+
+shared_context :setup_unknown_building_room_supplier do
+  before :each do
+    @building = FactoryBot.create(:building, name: "Unbekanntes Gebäude")
+    @room = FactoryBot.create(:room, building: @building, name: "nicht bekannt")
+
+    @supplier = FactoryBot.create(:supplier)
+  end
+end
+
+shared_context :setup_models_api_license do
+  include_context :setup_models_api
+
+  before :each do
+    @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model1)
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model2)
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
+    compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_recommend(compatible_model3)
+
+    @software_model = model
+
+    # FIXME: owner_id / inventory_pool_id correct?
+    LeihsModel.where(type: "Software").each do |model|
+      @license_item = FactoryBot.create(:item,
+        inventory_code: "TEST#{SecureRandom.random_number(1000)}",
+        leihs_model: model,
+        inventory_pool_id: @inventory_pool.id,
+        owner_id: @inventory_pool.id,
+        responsible: @inventory_pool,
+        is_borrowable: true)
+    end
 
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end

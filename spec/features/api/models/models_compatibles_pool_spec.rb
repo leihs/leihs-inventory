@@ -7,7 +7,7 @@ feature "Inventory API Endpoints" do
       @user = FactoryBot.create(:user, login: "test", password: "password")
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
-      FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+      @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
 
       @models = 3.times.map do
         FactoryBot.create(:leihs_model, id: SecureRandom.uuid)

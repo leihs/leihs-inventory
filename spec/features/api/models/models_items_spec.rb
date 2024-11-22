@@ -17,7 +17,7 @@ feature "Inventory API Endpoints - Items" do
         it "retrieves all items for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body.count).to eq(1)
         end
 
         it "retrieves paginated item results and returns status 200" do
@@ -45,7 +45,7 @@ feature "Inventory API Endpoints - Items" do
       end
 
       context "GET /inventory/models/:id/items for a model without items" do
-        let(:url) { "/inventory#{path}models/#{model_without_items.id}/items" }
+        let(:url) { "/inventory#{path}models/#{model_without_items.id}/items?page=1&size=50" }
 
         it "retrieves no items for the model and returns status 200" do
           resp = client.get url
