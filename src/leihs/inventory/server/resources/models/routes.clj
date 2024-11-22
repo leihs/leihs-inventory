@@ -548,7 +548,23 @@
              :handler create-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+                         500 {:description "Internal Server Error"}}}
+
+
+      :get {:accept "application/json"
+            :summary "(DEV) | Form-Handler: Fetch form data"
+            :coercion spec/coercion
+            :parameters {:path {:pool_id uuid?
+                                ;:model_id uuid?
+                                 }
+                         }
+            :handler create-license-handler-by-pool-form-fetch
+            :responses {200 {:description "OK"}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}
+
+
+      }]
 
     ["/:model_id"
      [""

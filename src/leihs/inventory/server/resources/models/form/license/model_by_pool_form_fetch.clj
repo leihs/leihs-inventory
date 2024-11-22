@@ -96,14 +96,33 @@
         p (println ">o> params => " pool-id model-id)
         ]
     (try
-      (let [model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-                                        :m.hand_over_note :m.description :m.internal_description
-                                        :m.technical_detail :m.is_package)
-                            (sql/from [:models :m])
-                          (sql/join [:items :i] [:= :m.id :i.model_id])
-                            (sql/where [:= :m.id model-id])
-                            sql-format)
-            model-result (jdbc/execute-one! tx model-query)
+      (let [
+            ;model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
+            ;                            :m.hand_over_note :m.description :m.internal_description
+            ;                            :m.technical_detail :m.is_package)
+            ;                (sql/from [:models :m])
+            ;              (sql/join [:items :i] [:= :m.id :i.model_id])
+            ;                (sql/where [:= :m.id model-id])
+            ;                sql-format)
+            ;model-result (jdbc/execute-one! tx model-query)
+
+
+            model-result (if model-id
+                           (let [
+                                 model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
+                                                   :m.hand_over_note :m.description :m.internal_description
+                                                   :m.technical_detail :m.is_package :i.*)
+                                               (sql/from [:models :m])
+                                               (sql/join [:items :i] [:= :m.id :i.model_id])
+                                               (sql/where [:= :m.id model-id])
+                                               sql-format)
+                                 model-result (jdbc/execute-one! tx model-query)
+                                 ]
+                             model-result
+
+                                        )
+                           {})
+
 
             p (println ">o> model-result" model-result)
 
@@ -210,19 +229,28 @@
             ;categories (fetch-categories tx model-id)
 
             result (if model-result
-                     [(assoc model-result
 
-                              :fields fields
+                     {
+                      :data model-result
+                      :fields fields
+                      }
 
-                             ;:attachments attachments
-                             ;:accessories accessories
-                             ;:compatibles compatibles
-                             ;:properties properties
-                             ;:images images
-                             ;:entitlement_groups entitlements
-                             ;:categories categories
-                        )]
-                     [])]
+                     ;[(assoc model-result
+                     ;
+                     ;   :data
+                     ;         :fields fields
+                     ;
+                     ;        ;:attachments attachments
+                     ;        ;:accessories accessories
+                     ;        ;:compatibles compatibles
+                     ;        ;:properties properties
+                     ;        ;:images images
+                     ;        ;:entitlement_groups entitlements
+                     ;        ;:categories categories
+                     ;   )]
+                     ;[]
+                     {}
+                     )]
         (if result
           (response result)
           (bad-request {:error "Failed to fetch license"})))
