@@ -5,6 +5,7 @@
    [leihs.inventory.server.resources.fields.form-fields :refer [get-form-fields-auto-new-pagination-handler]]
    [leihs.inventory.server.resources.fields.main :refer [get-form-fields-handler
                                                          get-form-fields-auto-pagination-handler]]
+   [leihs.inventory.server.resources.fields.main-new :refer [get-form-fields-auto-new-pagination-handler]]
    [leihs.inventory.server.resources.fields.search :refer [get-search-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
