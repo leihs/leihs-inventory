@@ -148,7 +148,7 @@
 
 ;; TODO: additional exclude of fields
                     ;(cond-> id (sql/where [:not-in :f.id ["is_incomplete" "is_broken"]]))
-                    (sql/where [:not-in :f.id ["is_incomplete" "is_broken" "status_note"]])
+                    (sql/where [:not-in :f.id ["is_incomplete" "is_broken" "status_note" "model_id"]])
 
 
                     (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]

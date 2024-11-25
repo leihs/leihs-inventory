@@ -129,22 +129,54 @@
 </div>
 
 <form id="softwareForm">
-
-    <div class="form-group">
-        <label for="software">Software</label>
-        <select id="software" name="software"></select>
-    </div>
-
-
     <div id="dynamicFields"></div>
-
-
-    <!-- Dynamically generated form fields will be inserted here -->
-<!--    <button type="submit" id="saveButton" style="display: none;">Save License</button>-->
-    <!--    <button type="submit" id="saveButton">Save License</button>-->
 </form>
 
 <script>
+
+    const initSoftwareConfig = {
+        placeholder: "Type to search software...",
+        allowClear: true,           // Allow users to clear the selection
+        minimumInputLength: 1,      // Only start searching after typing at least 1 character
+        ajax: {
+            url: function (params) {
+                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+            },
+            data: function () {
+                return {};
+            },
+            transport: function (params, success, failure) {
+                // Abort the previous request if it exists
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                // Set up the new request
+                currentRequest = $.ajax(params)
+                    .done(success)
+                    .fail(failure);
+
+                return currentRequest;
+            },
+            dataType: 'json',
+            delay: 250, // Delay in ms to prevent too many requests
+            processResults: function (data) {
+                // Format the results for Select2
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            id: item.id,   // Unique ID (value)
+                            text: item.product  // Display text in the dropdown
+                        };
+                    })
+                };
+            },
+            cache: true // Cache the results to avoid unnecessary network requests
+        }
+    }
+
+
     function generateFormFields(config, formId) {
         // const form = $(formId);
         const form = $('#dynamicFields');
@@ -167,14 +199,20 @@
             let field;
             const fieldId = fieldConfig.id;
 
+                    // <div class="form-item">
+                    //     <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
+                    // </div>
             switch (data.type) {
                 case 'autocomplete':
                 case 'autocomplete-search':
                     debugger
                     field = $(`
+
                     <div class="form-item">
-                        <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
+                        <label for="my${data.label}">${data.label}</label>
+                        <select id="my${data.label}" name="my${data.label}"></select>
                     </div>
+
                 `);
                     break;
 
@@ -304,6 +342,11 @@
             if ($("#saveButton").length === 0) {
                 form.append('<button type="submit" id="saveButton">Save License</button>');
             }
+
+
+            // TDOO: define/trigger init
+        $("#mySoftware").select2(initSoftwareConfig)
+
     }
 
     function showResultEffect(effectClass) {
@@ -384,50 +427,53 @@
     // });
 
     let currentRequest = null;
-    $("#software").select2({
-        placeholder: "Type to search software...",
-        allowClear: true,           // Allow users to clear the selection
-        minimumInputLength: 1,      // Only start searching after typing at least 1 character
-        ajax: {
-            url: function (params) {
-                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
-                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
-            },
-            data: function () {
-                return {};
-            },
-            transport: function (params, success, failure) {
-                // Abort the previous request if it exists
-                if (currentRequest) {
-                    currentRequest.abort();
-                }
+    // $("#mySoftware").on("change", function () {
 
-                // Set up the new request
-                currentRequest = $.ajax(params)
-                    .done(success)
-                    .fail(failure);
-
-                return currentRequest;
-            },
-            dataType: 'json',
-            delay: 250, // Delay in ms to prevent too many requests
-            processResults: function (data) {
-                // Format the results for Select2
-                return {
-                    results: data.map(function (item) {
-                        return {
-                            id: item.id,   // Unique ID (value)
-                            text: item.product  // Display text in the dropdown
-                        };
-                    })
-                };
-            },
-            cache: true // Cache the results to avoid unnecessary network requests
-        }
-    });
+    $("#mySoftware").select2(initSoftwareConfig)
+    // $("#mySoftware").select2({
+    //     placeholder: "Type to search software...",
+    //     allowClear: true,           // Allow users to clear the selection
+    //     minimumInputLength: 1,      // Only start searching after typing at least 1 character
+    //     ajax: {
+    //         url: function (params) {
+    //             const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+    //             return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+    //         },
+    //         data: function () {
+    //             return {};
+    //         },
+    //         transport: function (params, success, failure) {
+    //             // Abort the previous request if it exists
+    //             if (currentRequest) {
+    //                 currentRequest.abort();
+    //             }
+    //
+    //             // Set up the new request
+    //             currentRequest = $.ajax(params)
+    //                 .done(success)
+    //                 .fail(failure);
+    //
+    //             return currentRequest;
+    //         },
+    //         dataType: 'json',
+    //         delay: 250, // Delay in ms to prevent too many requests
+    //         processResults: function (data) {
+    //             // Format the results for Select2
+    //             return {
+    //                 results: data.map(function (item) {
+    //                     return {
+    //                         id: item.id,   // Unique ID (value)
+    //                         text: item.product  // Display text in the dropdown
+    //                     };
+    //                 })
+    //             };
+    //         },
+    //         cache: true // Cache the results to avoid unnecessary network requests
+    //     }
+    // });
 
     // Optional: Adding an onchange event listener to log the selected value
-    $("#software").on("change", function () {
+    $("#mySoftware").on("change", function () {
         const selectedValue = $(this).val();
         console.log(">o> Selected software:", selectedValue);
     });
