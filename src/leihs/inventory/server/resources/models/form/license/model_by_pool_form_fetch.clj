@@ -126,56 +126,6 @@
 
             p (println ">o> model-result" model-result)
 
-            ;query   (-> (sql/select :f.id
-            ;               ;[:f.data :>> "label"]
-            ;
-            ;
-            ;              [(sq/call :cast
-            ;                 (sq/call :jsonb_extract_path_text :f.data "label")
-            ;                 :text) :label]
-            ;
-            ;               :f.active
-            ;               :f.position
-            ;               ;[:f.data :>> "group"]
-            ;               ;[:f.data :> "permissions" :> "role"]
-            ;               ;[:f.data :> "permissions" :> "owner"]
-            ;
-            ;
-            ;              [(sq/call :cast
-            ;                 (sq/call :jsonb_extract_path_text :f.data "group")
-            ;                 :text) :group]
-            ;
-            ;              [(sq/call :cast
-            ;                 (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
-            ;                 :text) :owner]
-            ;              [(sq/call :cast
-            ;                 (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
-            ;                 :text) :role]
-            ;
-            ;               :f.data
-            ;               :f.dynamic)
-            ;           (sql/from [:fields :f])
-            ;
-            ;           ;(sql/where [:or
-            ;           ;            [:in [:f.data :> "permissions" :> "role"] ["\"inventory_manager\"" "\"lending_manager\""]]
-            ;           ;            [:is [:f.data :> "permissions" :> "role"] nil]])
-            ;           ;(sql/where [:or [:= :f.active true] [:= :f.active "true"]])
-            ;           (sql/where [:= :f.active true])
-            ;
-            ;           (sql/where [:not-in :f.id
-            ;                       (-> (sql/select :field_id)
-            ;                         (sql/from [:disabled_fields :df])
-            ;                         (sql/where [:= :df.inventory_pool_id pool_id]))])
-            ;
-            ;           ;(sql/where [:or
-            ;           ;          [:in [:f.data :>> "group"] ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
-            ;           ;          [:is [:f.data :>> "group"] nil]]
-            ;           ;  )
-            ;
-            ;           ;(sql/order-by [:f.data :>> "group"] :f.position)
-            ;          sql-format
-            ;           )
-
 
             query (-> (sql/select :f.id
                   :f.active
@@ -194,19 +144,17 @@
                           [:in (sq/call :jsonb_extract_path_text :f.data "group")
                            ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
                           [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
-              (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
+
+
+;; TODO: additional exclude of fields
+                    ;(cond-> id (sql/where [:not-in :f.id ["is_incomplete" "is_broken"]]))
+                    (sql/where [:not-in :f.id ["is_incomplete" "is_broken" "status_note"]])
+
+
+                    (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
                 [:f.position :asc])
                     sql-format
                     )
-
-
-            ;query (-> (sql/select :f.id
-            ;      :f.active
-            ;      ;:f.data
-            ;       )
-            ;  (sql/from [:fields :f])
-            ;  (sql/where [:= :f.active true])
-            ;        sql-format)
 
             p (println ">o> query" query)
 
@@ -215,40 +163,12 @@
             p (println ">o> fields >> " fields-result)
 
             fields fields-result
-            ;fields {:foo "bar"}
-
-
-
-
-            ;attachments (fetch-attachments tx model-id)
-            ;images (fetch-images tx model-id)
-            ;accessories (fetch-accessories tx model-id)
-            ;compatibles (fetch-compatibles tx model-id)
-            ;properties (fetch-properties tx model-id)
-            ;entitlements (fetch-entitlements tx model-id)
-            ;categories (fetch-categories tx model-id)
 
             result (if model-result
-
                      {
                       :data model-result
                       :fields fields
                       }
-
-                     ;[(assoc model-result
-                     ;
-                     ;   :data
-                     ;         :fields fields
-                     ;
-                     ;        ;:attachments attachments
-                     ;        ;:accessories accessories
-                     ;        ;:compatibles compatibles
-                     ;        ;:properties properties
-                     ;        ;:images images
-                     ;        ;:entitlement_groups entitlements
-                     ;        ;:categories categories
-                     ;   )]
-                     ;[]
                      {}
                      )]
         (if result

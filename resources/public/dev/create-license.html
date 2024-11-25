@@ -33,6 +33,86 @@
             transition: border 0.3s ease-in-out;
         }
     </style>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .form-group h3 {
+            margin-bottom: 15px;
+            font-size: 1.25em;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
+        .form-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .form-item input[type="text"],
+        .form-item input[type="date"],
+        .form-item textarea,
+        .form-item select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        .form-item input[type="text"]:focus,
+        .form-item input[type="date"]:focus,
+        .form-item textarea:focus,
+        .form-item select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+        .form-item .radio-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .form-item input[type="radio"] {
+            margin-right: 10px;
+        }
+        .form-item input[type="radio"]:focus {
+            outline: 2px solid #007bff;
+        }
+        .form-item label[for^="is_borrowable_"] {
+            margin: 0;
+        }
+        .form-item input[type="radio"]:checked + label {
+            color: #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
 </head>
 <body>
 <h1 id="formTitle">Create New License</h1>
@@ -88,6 +168,16 @@
             const fieldId = fieldConfig.id;
 
             switch (data.type) {
+                case 'autocomplete':
+                case 'autocomplete-search':
+                    debugger
+                    field = $(`
+                    <div class="form-item">
+                        <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
+                    </div>
+                `);
+                    break;
+
                 case 'text':
                 case 'date':
                     field = $(`
@@ -124,6 +214,79 @@
 
                     if (!Array.isArray(data.values)) {
                         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+                    }
+                    break;
+
+
+    //             case 'select':
+    //                 // Check if `data.values` is an array before using `map`
+    //                 const options = Array.isArray(data.values)
+    //                     ? data.values.map(option => {
+    //                         // If data.default matches the option value, mark it as selected
+    //                         const isSelected = option.value === data.default ? 'selected' : '';
+    //                         return `<option value="${option.value}" ${isSelected}>${option.label}</option>`;
+    //                     }).join("")
+    //                     : ""; // Default to empty string if values are not valid
+    //
+    //                 field = $(`
+    // <div class="form-item">
+    //     <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+    //     <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+    //         ${options}
+    //     </select>
+    // </div>
+    // `);
+    //
+    //                 if (!Array.isArray(data.values)) {
+    //                     console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+    //                 }
+    //                 break;
+
+
+                // case 'select':
+                //     // Assume `data.values` should be an array of options
+                //     const options = Array.isArray(data.values)
+                //         ? data.values.map(option => {
+                //             // If `data.default` matches the option value, mark it as selected
+                //             const isSelected = option.value === data.default ? 'selected' : '';
+                //             return `<option value="${option.value}" ${isSelected}>${option.label}</option>`;
+                //         }).join("")
+                //         : ""; // Default to empty string if values are not valid
+                //
+                //     field = $(`
+                //     <div class="form-item">
+                //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                //         <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                //             ${options}
+                //         </select>
+                //     </div>
+                // `);
+                //
+                //     if (!Array.isArray(data.values)) {
+                //         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+                //     }
+                //     break;
+
+                case 'radio':
+                    if (Array.isArray(data.values)) {
+                        const radioButtons = data.values.map((option, index) => {
+                            const radioId = `${fieldId}_${index}`;
+                            return `
+                            <div class="radio-item">
+                                <input type="radio" id="${radioId}" name="${data.attribute}" value="${option.value}" ${data.default === option.value ? "checked" : ""}>
+                                <label for="${radioId}">${option.label}</label>
+                            </div>
+                        `;
+                        }).join("");
+
+                        field = $(`
+                        <div class="form-item">
+                            <label>${data.label}${data.required ? " *" : ""}</label>
+                            ${radioButtons}
+                        </div>
+                    `);
+                    } else {
+                        console.warn(`Field "${fieldId}" has no valid options to populate the radio buttons.`);
                     }
                     break;
 
@@ -184,7 +347,7 @@
     // }
 
     const initialPoolId = $("#poolId").val();
-    fetchOptions(`/inventory/manufacturers?type=Software&in-detail=true`, "software");
+    // fetchOptions(`/inventory/manufacturers?type=Software&in-detail=true`, "software");
 
 
     // $("#software").change(function () {
