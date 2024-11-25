@@ -166,8 +166,108 @@
             .catch((error) => console.error("Error:", error));
     }
 
+    // function fetchOptionsOnChange(url, selectId) {
+    //     fetch(url, { headers: { Accept: "application/json" } })
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //             const select = document.getElementById(selectId);
+    //             select.innerHTML = '<option value="">Select an option</option>';
+    //             data.forEach((item) => {
+    //                 const option = document.createElement("option");
+    //                 option.value = item;
+    //                 option.textContent = item;
+    //                 select.appendChild(option);
+    //             });
+    //             initSelect2(selectId);
+    //         })
+    //         .catch((error) => console.error("Error:", error));
+    // }
+
     const initialPoolId = $("#poolId").val();
-    fetchOptions(`/inventory/manufacturers?type=Software`, "software");
+    fetchOptions(`/inventory/manufacturers?type=Software&in-detail=true`, "software");
+
+
+    // $("#software").change(function () {
+    //     const selectedValue = $(this).val();
+    //     console.log(">o> Selected software:", selectedValue);
+    //     // Add additional logic to handle the selected value here
+    //
+    //
+    //     const url=`/inventory/manufacturers?type=Software&in-detail=true`
+    //
+    //     $.ajax({
+    //         url: url,
+    //         method: "GET",
+    //         headers: { Accept: "application/json" },
+    //         success: function (data) {
+    //             const $select = $("#" + selectId);
+    //             $select.empty(); // Clear existing options
+    //             $select.append('<option value="">Select an option</option>');
+    //
+    //             data.forEach(function (item) {
+    //                 $select.append($('<option>', {
+    //                     value: item,
+    //                     text: item
+    //                 }));
+    //             });
+    //
+    //             // Assuming you need to initialize Select2
+    //             initSelect2(selectId);
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error("Error:", error);
+    //         }
+    //     });
+    // });
+
+    let currentRequest = null;
+    $("#software").select2({
+        placeholder: "Type to search software...",
+        allowClear: true,           // Allow users to clear the selection
+        minimumInputLength: 1,      // Only start searching after typing at least 1 character
+        ajax: {
+            url: function (params) {
+                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+            },
+            data: function () {
+                return {};
+            },
+            transport: function (params, success, failure) {
+                // Abort the previous request if it exists
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                // Set up the new request
+                currentRequest = $.ajax(params)
+                    .done(success)
+                    .fail(failure);
+
+                return currentRequest;
+            },
+            dataType: 'json',
+            delay: 250, // Delay in ms to prevent too many requests
+            processResults: function (data) {
+                // Format the results for Select2
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            id: item.id,   // Unique ID (value)
+                            text: item.product  // Display text in the dropdown
+                        };
+                    })
+                };
+            },
+            cache: true // Cache the results to avoid unnecessary network requests
+        }
+    });
+
+    // Optional: Adding an onchange event listener to log the selected value
+    $("#software").on("change", function () {
+        const selectedValue = $(this).val();
+        console.log(">o> Selected software:", selectedValue);
+    });
 
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
