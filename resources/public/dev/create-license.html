@@ -199,14 +199,14 @@
             let field;
             const fieldId = fieldConfig.id;
 
-                    // <div class="form-item">
-                    //     <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
-                    // </div>
+                   // <label style="color:orange">${data.type} > '${data.label}' '${data.values || data.data.values}'</label>
             switch (data.type) {
                 case 'autocomplete':
                 case 'autocomplete-search':
                     debugger
                     field = $(`
+
+                   <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
 
                     <div class="form-item">
                         <label for="my${data.label}">${data.label}</label>
@@ -254,56 +254,6 @@
                         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
                     }
                     break;
-
-
-    //             case 'select':
-    //                 // Check if `data.values` is an array before using `map`
-    //                 const options = Array.isArray(data.values)
-    //                     ? data.values.map(option => {
-    //                         // If data.default matches the option value, mark it as selected
-    //                         const isSelected = option.value === data.default ? 'selected' : '';
-    //                         return `<option value="${option.value}" ${isSelected}>${option.label}</option>`;
-    //                     }).join("")
-    //                     : ""; // Default to empty string if values are not valid
-    //
-    //                 field = $(`
-    // <div class="form-item">
-    //     <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-    //     <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-    //         ${options}
-    //     </select>
-    // </div>
-    // `);
-    //
-    //                 if (!Array.isArray(data.values)) {
-    //                     console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
-    //                 }
-    //                 break;
-
-
-                // case 'select':
-                //     // Assume `data.values` should be an array of options
-                //     const options = Array.isArray(data.values)
-                //         ? data.values.map(option => {
-                //             // If `data.default` matches the option value, mark it as selected
-                //             const isSelected = option.value === data.default ? 'selected' : '';
-                //             return `<option value="${option.value}" ${isSelected}>${option.label}</option>`;
-                //         }).join("")
-                //         : ""; // Default to empty string if values are not valid
-                //
-                //     field = $(`
-                //     <div class="form-item">
-                //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                //         <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                //             ${options}
-                //         </select>
-                //     </div>
-                // `);
-                //
-                //     if (!Array.isArray(data.values)) {
-                //         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
-                //     }
-                //     break;
 
                 case 'radio':
                     if (Array.isArray(data.values)) {
