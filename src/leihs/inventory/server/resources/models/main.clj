@@ -4,6 +4,9 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.resources.models.helper :refer [str-to-bool]]
+   [clojure.string :as str]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
@@ -22,15 +25,51 @@
   (try
     (let [tx (:tx request)
           query-params (query-params request)
-          type (:type query-params)
-          base-query (-> (sql/select-distinct :m.manufacturer)
+
+
+          _ (println ">o> query-params" query-params)
+
+          mtype (:type query-params)
+
+          ;; Directly use the value from query-params
+          in-detail (str-to-bool(:in-detail query-params))
+
+          _ (println ">o> in-detail" in-detail)
+          _ (println ">o> in-detail" in-detail (type in-detail))
+          _ (println ">o> mtype" mtype (type mtype))
+
+          search-term (:search-term query-params)
+          p (println ">o> search-term" search-term (type search-term))
+
+          select-stm (if in-detail (sql/select-distinct :m.id :m.manufacturer :m.product :m.version )
+                                   (sql/select-distinct :m.manufacturer))
+
+          ;base-query (-> (sql/select-distinct :m.id :m.manufacturer :m.product :m.version )
+          base-query (-> select-stm
+
                          (sql/from [:models :m])
                          (sql/where [:is-not-null :m.manufacturer])
-                         (cond-> type
-                           (sql/where [:ilike :m.type type]))
-                         ;(sql/where [:not-like :m.manufacturer " %"])
-                         (sql/order-by [:m.manufacturer :asc]))]
-      (response (extract-manufacturers (jdbc/execute! tx (-> base-query sql-format)))))
+
+                       ;(cond-> mtype
+                       ;    (sql/where [:ilike :m.type mtype]))
+
+                         (sql/where [:not-like :m.manufacturer " %"])
+                         (sql/order-by [:m.manufacturer :asc])
+
+                         (cond-> (and in-detail (not (str/blank? search-term)))  (sql/where [:or [:ilike :m.manufacturer (str "%" search-term "%")][:ilike :m.product (str "%" search-term "%")]]))
+                         ;(cond-> (and in-detail (not (str/blank? search-term)))  (sql/where [:ilike :m.product (str "%" search-term "%")]))
+
+                         ;(cond-> in-detail (sql/limit 100))
+                       )
+
+          p (println ">o> ??" in-detail search-term)
+
+          result (if (and in-detail (nil? search-term))
+                   []
+                   (jdbc/execute! tx (-> base-query sql-format)))
+          ]
+      (response (if in-detail result (extract-manufacturers result ))))
+      ;(response (extract-manufacturers (jdbc/execute! tx (-> base-query sql-format)))))
     (catch Exception e
       (error "Failed to get models/manufacturer" e)
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))

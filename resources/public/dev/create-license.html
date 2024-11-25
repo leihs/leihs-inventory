@@ -49,6 +49,16 @@
 </div>
 
 <form id="softwareForm">
+
+    <div class="form-group">
+        <label for="software">Software</label>
+        <select id="software" name="software"></select>
+    </div>
+
+
+    <div id="dynamicFields"></div>
+
+
     <!-- Dynamically generated form fields will be inserted here -->
 <!--    <button type="submit" id="saveButton" style="display: none;">Save License</button>-->
     <!--    <button type="submit" id="saveButton">Save License</button>-->
@@ -56,7 +66,8 @@
 
 <script>
     function generateFormFields(config, formId) {
-        const form = $(formId);
+        // const form = $(formId);
+        const form = $('#dynamicFields');
         form.empty(); // Clear previous fields if any
 
         config.forEach((fieldConfig) => {
@@ -136,6 +147,27 @@
         $('body').addClass(effectClass);
         setTimeout(() => $('body').removeClass(effectClass), 3000);
     }
+
+
+    function fetchOptions(url, selectId) {
+        fetch(url, { headers: { Accept: "application/json" } })
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = '<option value="">Select an option</option>';
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    select.appendChild(option);
+                });
+                initSelect2(selectId);
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+
+    const initialPoolId = $("#poolId").val();
+    fetchOptions(`/inventory/manufacturers?type=Software`, "software");
 
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
