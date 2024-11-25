@@ -48,7 +48,7 @@
                            500 {:description "Internal Server Error"}}}}]]
 
 
-   ["/fields-new"
+   ["/fields-license"
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
 
@@ -61,13 +61,13 @@
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware
                             ;session/wrap
+                            ;; TODO: add session/auth check to determine role
                             ]
                :swagger {:produces ["application/json"]}
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int
                                     (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                    (s/optional-key :owner) s/Bool
-                                    (s/optional-key :type) (s/enum "license")}}
+                                    (s/optional-key :owner) s/Bool}}
                :handler get-form-fields-auto-new-pagination-handler
                :responses {200 {:description "OK"
                                 :body s/Any}

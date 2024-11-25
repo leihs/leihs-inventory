@@ -9,10 +9,8 @@
    [leihs.inventory.server.utils.pagination :refer [pagination-response fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
+   [ring.util.response :refer [bad-request response status header]]
    [taoensso.timbre :refer [error]]))
-
-
 
 
 (defn get-form-fields
@@ -24,27 +22,27 @@
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
 
-           license_keys [
-                         "inventory_code"
-                         ;; software
-                         "license_version"
-
-                         "serial_number"
-                         "note"
-                         "properties_activation_type"
-                         "properties_license_type"
-                         "properties_operating_system"
-                         "properties_reference"
-                         "properties_installation"
-                         "properties_procured_by"
-                         "properties_p4u"
-                         "supplier_id"
-                         "invoice_date"
-                         "properties_maintenance_contract"
-                         "retired"
-                         "retired_reason"
-                         "is_borrowable"
-                         "properties_reference"]
+           ;license_keys [
+           ;              "inventory_code"
+           ;              ;; software
+           ;              "license_version"
+           ;
+           ;              "serial_number"
+           ;              "note"
+           ;              "properties_activation_type"
+           ;              "properties_license_type"
+           ;              "properties_operating_system"
+           ;              "properties_reference"
+           ;              "properties_installation"
+           ;              "properties_procured_by"
+           ;              "properties_p4u"
+           ;              "supplier_id"
+           ;              "invoice_date"
+           ;              "properties_maintenance_contract"
+           ;              "retired"
+           ;              "retired_reason"
+           ;              "is_borrowable"
+           ;              "properties_reference"]
 
            {:keys [role owner type]} (-> request query-params)
            ;{:keys [page size]} (fetch-pagination-params request)
@@ -75,44 +73,44 @@
                                            :f.data
                                            :f.dynamic)
                                        (sql/from [:fields :f])
-                                       ;(sql/where [:or
-                                       ;            [:in (sq/call :jsonb_extract_path_text :f.data "group") ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
-                                       ;            [:= (sq/call :jsonb_extract_path_text :f.data "group") nil]])
-                                       ;(sql/where [:not-in :f.id
-                                       ;                    (-> (sql/select :df.field_id)
-                                       ;                      (sql/from [:disabled_fields :df])
-                                       ;                      (sql/where [:= :df.inventory_pool_id "a02b8163-9a16-5066-b48e-9eb74cf8b791"]))])
+                                       (sql/where [:or
+                                                   [:in (sq/call :jsonb_extract_path_text :f.data "group") ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
+                                                   [:= (sq/call :jsonb_extract_path_text :f.data "group") nil]])
+                                       (sql/where [:not-in :f.id
+                                                           (-> (sql/select :df.field_id)
+                                                             (sql/from [:disabled_fields :df])
+                                                             (sql/where [:= :df.inventory_pool_id pool_id]))])
                                        (sql/where [:= :f.active true])
-                                       ;(sql/where [:or
-                                       ;            [:in (sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "role") :text) ["inventory_manager" "lending_manager"]]
-                                       ;            [:= (sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "role") :text) nil]])
-                                       ;(sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group")] :position)
+                                       (sql/where [:or
+                                                   [:in (sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "role") :text) ["inventory_manager" "lending_manager"]]
+                                                   [:= (sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "role") :text) nil]])
+                                       (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group")] :position)
 
                                        ) :subquery])
 
-                          ;(cond-> group_id (sql/where [:= :subquery.id group_id]))
-                          ;
-                          ;(cond-> (and (some? role) (not (= "customer" role)))
-                          ;  (sql/where [:or
-                          ;              [:= :subquery.role role]
-                          ;              [:is :subquery.role nil]]))
-                          ;
-                          ;(cond-> (and (some? owner) (not (= "customer" role)))
-                          ;  (sql/where [:= :subquery.owner owner]))
-                          ;;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-                          ;;  with-paginat (sql/where [:= :subquery.owner owner]))
-                          ;
-                          ;(cond-> (= "customer" role)
-                          ;  (sql/where [:or
-                          ;              [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
-                          ;              [:is :subquery.role nil]]))
+                          (cond-> group_id (sql/where [:= :subquery.id group_id]))
+
+                          (cond-> (and (some? role) (not (= "customer" role)))
+                            (sql/where [:or
+                                        [:= :subquery.role role]
+                                        [:is :subquery.role nil]]))
+
+                          (cond-> (and (some? owner) (not (= "customer" role)))
+                            (sql/where [:= :subquery.owner owner]))
+                          ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+                          ;  with-paginat (sql/where [:= :subquery.owner owner]))
+
+                          (cond-> (= "customer" role)
+                            (sql/where [:or
+                                        [:not [:in :subquery.role ["inventory_manager" "lending_manager" "group_manager"]]]
+                                        [:is :subquery.role nil]]))
 
                         )
            
            ]
 
        (cond
-         (and (nil? with-pagination?) (nil? page) (nil? size)) (jdbc/query tx (-> base-query sql-format))
+         (and (nil? with-pagination?) (nil? page) (nil? size))  (jdbc/query tx (-> base-query sql-format))
          (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)
          with-pagination? (pagination-response request base-query)
          :else (jdbc/query tx (-> base-query sql-format))))
@@ -125,8 +123,28 @@
   (response (get-form-fields request true)))
 
 (defn get-form-fields-auto-new-pagination-handler [request]
-  (response (get-form-fields request nil)))
+  (let [result (get-form-fields request nil)
+        data (if (map? result) (get result :data) result)
+       ]
+
+  (if (vector? result)
+    (-> (response result)
+      (header "Count" (count data))  )
+    (response result)
+    )
+
+  ))
 
 (defn get-form-fields-new-handler [request]
-  (let [result (get-form-fields request)]
-    (response result)))
+  (let [result (get-form-fields request)
+        data (if (map? result) (get result :data)  result)
+        ]
+
+
+    (if (vector? result)
+      (-> (response result)
+        (header "Count" (count data))  )
+      (response result)
+       )
+
+    ))
