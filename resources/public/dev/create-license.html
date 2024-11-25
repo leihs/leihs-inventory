@@ -176,6 +176,48 @@
         }
     }
 
+    const initSupplierConfig = {
+        placeholder: "Type to search software...",
+        allowClear: true,           // Allow users to clear the selection
+        minimumInputLength: 1,      // Only start searching after typing at least 1 character
+        ajax: {
+            url: function (params) {
+                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
+                return `/inventory/supplier?search-term=${searchTerm}`;
+            },
+            data: function () {
+                return {};
+            },
+            transport: function (params, success, failure) {
+                // Abort the previous request if it exists
+                if (currentRequest) {
+                    currentRequest.abort();
+                }
+
+                // Set up the new request
+                currentRequest = $.ajax(params)
+                    .done(success)
+                    .fail(failure);
+
+                return currentRequest;
+            },
+            dataType: 'json',
+            delay: 250, // Delay in ms to prevent too many requests
+            processResults: function (data) {
+                // Format the results for Select2
+                return {
+                    results: data.map(function (item) {
+                        return {
+                            id: item.id,   // Unique ID (value)
+                            text: item.name  // Display text in the dropdown
+                        };
+                    })
+                };
+            },
+            cache: true // Cache the results to avoid unnecessary network requests
+        }
+    }
+
 
     function generateFormFields(config, formId) {
         // const form = $(formId);
@@ -294,8 +336,9 @@
             }
 
 
-            // TDOO: define/trigger init
+        // TODO: define/trigger init
         $("#mySoftware").select2(initSoftwareConfig)
+        $("#mySupplier").select2(initSupplierConfig)
 
     }
 
@@ -380,47 +423,6 @@
     // $("#mySoftware").on("change", function () {
 
     $("#mySoftware").select2(initSoftwareConfig)
-    // $("#mySoftware").select2({
-    //     placeholder: "Type to search software...",
-    //     allowClear: true,           // Allow users to clear the selection
-    //     minimumInputLength: 1,      // Only start searching after typing at least 1 character
-    //     ajax: {
-    //         url: function (params) {
-    //             const searchTerm = params.term ? encodeURIComponent(params.term) : '';
-    //             return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
-    //         },
-    //         data: function () {
-    //             return {};
-    //         },
-    //         transport: function (params, success, failure) {
-    //             // Abort the previous request if it exists
-    //             if (currentRequest) {
-    //                 currentRequest.abort();
-    //             }
-    //
-    //             // Set up the new request
-    //             currentRequest = $.ajax(params)
-    //                 .done(success)
-    //                 .fail(failure);
-    //
-    //             return currentRequest;
-    //         },
-    //         dataType: 'json',
-    //         delay: 250, // Delay in ms to prevent too many requests
-    //         processResults: function (data) {
-    //             // Format the results for Select2
-    //             return {
-    //                 results: data.map(function (item) {
-    //                     return {
-    //                         id: item.id,   // Unique ID (value)
-    //                         text: item.product  // Display text in the dropdown
-    //                     };
-    //                 })
-    //             };
-    //         },
-    //         cache: true // Cache the results to avoid unnecessary network requests
-    //     }
-    // });
 
     // Optional: Adding an onchange event listener to log the selected value
     $("#mySoftware").on("change", function () {
