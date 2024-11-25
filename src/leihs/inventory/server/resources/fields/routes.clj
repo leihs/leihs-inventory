@@ -2,9 +2,14 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.auth.session :as session]
-   [leihs.inventory.server.resources.fields.main :refer [get-form-fields-handler
+   [leihs.inventory.server.resources.fields.main :refer [
+                                                         get-form-fields-handler
                                                          get-form-fields-with-pagination-handler
-                                                         get-form-fields-auto-pagination-handler]]
+                                                         get-form-fields-auto-pagination-handler
+                                                         ]]
+   [leihs.inventory.server.resources.fields.main-new :refer [get-form-fields-new-handler
+                                                         get-form-fields-with-new-pagination-handler
+                                                         get-form-fields-auto-new-pagination-handler]]
    [leihs.inventory.server.resources.fields.search :refer [get-search-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -42,9 +47,38 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]]
 
+
+   ["/fields-new"
+    {:swagger {:conflicting true
+               :tags ["Form fields"] :security []}}
+
+    ["" {:get {:conflicting true
+               :summary "Used by license form"
+               :description (str "<ul>"
+                              "<li>TODO: role & owner should be fetched from session</li>"
+                              "<ul/>")
+               :accept "application/json"
+               :coercion reitit.coercion.schema/coercion
+               :middleware [accept-json-middleware
+                            ;session/wrap
+                            ]
+               :swagger {:produces ["application/json"]}
+               :parameters {:query {(s/optional-key :page) s/Int
+                                    (s/optional-key :size) s/Int
+                                    (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                    (s/optional-key :owner) s/Bool
+                                    (s/optional-key :type) (s/enum "license")}}
+               :handler get-form-fields-auto-new-pagination-handler
+               :responses {200 {:description "OK"
+                                :body s/Any}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}}]]
+
+
     ["/fields"
     {:swagger {:conflicting true
                :tags ["Form fields"] :security []}}
+
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"
                :description (str "<ul>"
