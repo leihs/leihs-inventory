@@ -86,6 +86,15 @@
                   sql-format)]
     (jdbc/execute! tx query)))
 
+
+;; TODO: Replace this with a real function
+(defn random-5-digit []
+  (+ 10000 (rand-int 90000)))
+
+;; Example usage:
+
+
+
 (defn create-license-handler-by-pool-form-fetch [request]
   (let [current-timestamp (LocalDateTime/now)
         tx (get-in request [:tx])
@@ -122,7 +131,31 @@
                              model-result
 
                                         )
-                           {})
+
+
+                           (let [                           ;; create default-values for new license
+
+                                 ;; FIXME:
+                                 responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
+
+
+                                 model-query (-> (sql/select :ip.*)
+                                                (sql/from [:inventory_pools :ip])
+                                                (sql/where [:= :ip.id pool_id])
+                                                sql-format)
+                                 model-result (jdbc/execute-one! tx model-query)
+
+                                 p (println ">o> model-result" model-result)
+
+                                 inventory_code (str (:shortname model-result) (random-5-digit) )
+                                 ]
+
+                           {:inventory_pool_id pool-id
+                            :inventory_code inventory_code
+                            :responsible_department responsible_department
+                            }
+                           )
+                             )
 
 
             p (println ">o> model-result" model-result)

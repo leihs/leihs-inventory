@@ -614,7 +614,7 @@
     });
 
 
-    function initResponsibleData(){
+    function initResponsibleData(init_data){
         // set responsible department
         const poolId = $("#poolId").val();
         const apiUrl = `/inventory/${poolId}/entitlement-groups`;
@@ -636,7 +636,8 @@
                         text: item.name
                     }));
                 });
-                debugger
+
+                $select.val(init_data.responsible_department)
             },
             error: function(xhr, status, error) {
                 console.error("Error fetching data:", error);
@@ -644,7 +645,7 @@
         });
     }
 
-    function initOwnersData(){
+    function initOwnersData(init_data){
         // set responsible department
         const poolId = $("#poolId").val();
         const apiUrl = `/inventory/owners`;
@@ -666,7 +667,9 @@
                         text: item.name
                     }));
                 });
-                debugger
+                // debugger
+
+                $select.val(init_data.inventory_pool_id)
             },
             error: function(xhr, status, error) {
                 console.error("Error fetching data:", error);
@@ -836,11 +839,16 @@
                     const data = response.data;
                     const fields = response.fields;
 
-                    initResponsibleData();
-                    initOwnersData();
+                    initResponsibleData(data);
+                    initOwnersData(data);
 
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
+
+                    debugger
+                    $('#inventory_code').val(data.inventory_code)
+                    // $('#myOwner').val(data.inventory_pool_id)
+
                     $("#saveButton").text("Save License");
                     $("#saveButton").off('click').click(function(e) {
                         e.preventDefault(); // Prevent default form submission
