@@ -814,7 +814,16 @@
 
                             const poolId = $("#poolId").val();
                             const licenseId = $("#fetchSoftwareId").val();
-                            const formData = new FormData($("#softwareForm")[0]);
+                            let formData = new FormData($("#softwareForm")[0]);
+
+
+                            renameFormDataKey(formData, "mySoftware", "software_id");
+                            renameFormDataKey(formData, "mySupplier", "supplier_id");
+                            renameFormDataKey(formData, "myOwner", "owner_id");
+                            renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+                            formData = processFormData(formData);
+
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
@@ -894,14 +903,22 @@
                         renameFormDataKey(formData, "myOwner", "owner_id");
                         renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
 
+
+
+                        // for (let [key, value] of formData.entries()) {
+                        //     console.log(key, value);
+                        // }
+                        // debugger
+
                         formData = processFormData(formData);
 
+                        // debugger
 
 
-                        // Debugging: log all keys and values in the FormData
-                        for (let [key, value] of formData.entries()) {
-                            console.log(key, value);
-                        }
+                        // // Debugging: log all keys and values in the FormData
+                        // for (let [key, value] of formData.entries()) {
+                        //     console.log(key, value);
+                        // }
                         // debugger
 
 
