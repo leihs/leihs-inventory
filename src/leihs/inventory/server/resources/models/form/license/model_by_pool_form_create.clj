@@ -6,6 +6,7 @@
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
+   [cheshire.core :as jsonc]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files normalize-license-data
@@ -32,7 +33,7 @@
   (let [normalize-data (normalize-license-data data)
         created-ts (LocalDateTime/now)]
     (assoc normalize-data
-           :type "Model"
+           ;:type "Software"
            :created_at created-ts
            :updated_at created-ts)))
 
@@ -186,6 +187,41 @@
         multipart (get-in request [:parameters :multipart])
         p (println ">o> multipart1" multipart)
 
+
+        properties (first (parse-json-array request :properties))
+        p (println ">o> properties" properties)
+
+
+        ;; TODO:
+        ;; 1. set attachments
+        ;; 2. default-room
+
+
+        ;multipart2 (dissoc multipart  :attachments :retired :invoice_date :price)
+        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
+        multipart2b {
+
+                     :created_at created-ts
+                     :updated_at created-ts
+
+                     ;:properties [:cast properties :jsonb]  ;; FIXME
+
+                     :properties [:cast (jsonc/generate-string properties) :jsonb]
+
+  ;"model_id": "25c09512-a854-5325-88f4-77aa43b2a0a4",
+                     :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
+                     :inventory_pool_id pool-id
+                     ;"inventory_pool_id": "8a4fa6e3-2b36-46b9-9508-212d4f5125c6",
+                     ;"created_at": "2024-11-26 13:37:12.000000",
+                     ;"updated_at": "2024-11-26 13:37:19.000000",
+                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
+
+                     }
+
+        multipart2 (merge multipart2 multipart2b)
+
+
+
         extract-properties (extract-properties multipart)
         p (println ">o> multipart2" extract-properties)
 
@@ -194,7 +230,7 @@
 
         model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
-        p (println ">o> abc2.model-data")
+        p (println ">o> !!! abc2.model-data" model-data)
         attachments (normalize-files request :attachments)
         p (println ">o> abc3.attachments" attachments)
 
@@ -204,18 +240,24 @@
 
 
 
-        p (println ">o> abc4.properties" properties)
+        p (println ">o> !!! abc4.properties" properties)
+        p (println ">o> !!! abc4.model-data" model-data)
         ]
 
     (try
       (let [
-            ;res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-            ;                              (sql/values [model-data])
-            ;                              (sql/returning :*)
-            ;                              sql-format))
-            ;model-id (:id res)
 
-            res {:foo "bar"}
+            p (println ">o> multipart2" multipart2)
+
+            ;; FIXME: This is a hack to get the model data
+            res (jdbc/execute-one! tx (-> (sql/insert-into :items)
+                                          ;(sql/values [model-data])
+                                          (sql/values [multipart2])
+                                          (sql/returning :*)
+                                          sql-format))
+            model-id (:id res)
+
+            ;res {:foo "bar"}
             ]
 
         ;(process-attachments tx attachments model-id)

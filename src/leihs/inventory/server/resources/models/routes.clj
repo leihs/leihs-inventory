@@ -469,6 +469,7 @@
 
 (sa/def ::software_id uuid?)
 (sa/def ::supplier_id uuid?)
+(sa/def ::model_id uuid?)
 
 
 (sa/def ::inventory_code string?)
@@ -521,7 +522,8 @@
 ;                      :none nil?))
 
 (sa/def ::multipart (sa/keys                                :opt-un [
-                                                                     ::software_id
+                                                                     ;::software_id
+                                                                     ::model_id
                                                                      ::supplier_id
 
                                                                       ::retired_reason
@@ -594,7 +596,8 @@
              :handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+                         500 {:description "Internal Server Error"}}}}]]
+    ]
 
    ["/license"
     [""
@@ -650,33 +653,34 @@
                        :produces "application/json"}
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          ;:multipart ::multipart}
-             :multipart map?}
+                                 :model_id uuid?
+                                 }
+                          :multipart ::multipart}
+             ;:multipart map?}
 
        :handler update-license-handler-by-pool-form
-             :responses {200 {:description "OK"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+       :responses {200 {:description "OK"}
+                   404 {:description "Not Found"}
+                   500 {:description "Internal Server Error"}}} } ] ] ]
 
-   ["/software"
-    [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?}
-                          :multipart ::multipart}
-             :handler create-software-handler-by-pool-form
-             :responses {200 {:description "OK"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+["/software"
+ [""
+  {:post {:accept "application/json"
+          :swagger {:consumes ["multipart/form-data"]
+                    :produces "application/json"}
+          :coercion spec/coercion
+          :parameters {:path {:pool_id uuid?}
+                       :multipart ::multipart}
+          :handler create-software-handler-by-pool-form
+          :responses {200 {:description "OK"}
+                      404 {:description "Not Found"}
+                      500 {:description "Internal Server Error"}}}}]
 
-    ["/:model_id"
-     [""
-      {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data"
-             :coercion spec/coercion
+ ["/:model_id"
+  [""
+   {:get {:accept "application/json"
+          :summary "(DEV) | Form-Handler: Fetch form data"
+          :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler create-software-handler-by-pool-form-fetch
