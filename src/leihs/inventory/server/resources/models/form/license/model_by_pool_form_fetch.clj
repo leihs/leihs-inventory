@@ -319,7 +319,7 @@
                            {:inventory_pool_id pool-id
                             :inventory_code inventory_code
                             :responsible_department responsible_department
-                            :properties {:maintenance_currency "CHF"}
+                            ;:properties {:maintenance_currency "CHF"}
                             }
                            )
                              )
@@ -327,7 +327,9 @@
 
             p (println ">o> model-result" model-result (count model-result))
 
-            model-result (filter-by-allowed-keys model-result dyn-select ["properties"])
+            model-result (filter-by-allowed-keys model-result dyn-select ["properties"
+                                                                          "inventory_code" "inventory_pool_id"  "responsible_department" ;; init values
+                                                                          ])
             ;model-result (filter-by-allowed-keys model-result dyn-select [])
             ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
             p (println ">o> model-result2" (count model-result))

@@ -376,19 +376,49 @@
                 `);
                     break;
 
+//                 case 'select':
+//                     const options = Array.isArray(data.values)
+//                         ? data.values.map(option => `
+//                             <option value="${option.value}" ${data.default === option.value ? "selected" : ""}>
+//                                 ${option.label}
+//                             </option>`).join("")
+//                                         : ""; // Default to empty string if values are not valid
+//
+//                                     field = $(`
+//                         <div class="form-item">
+//                             <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+//                             <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+//                                 ${options}
+//                             </select>
+//                         </div>
+//                     `);
+// debugger
+//                     if (!Array.isArray(data.values)) {
+//                         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
+//                     }
+//                     break;
+
                 case 'select':
-                    const options = Array.isArray(data.values)
-                        ? data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")
-                        : ""; // Default to empty string if values are not valid
+                    let values = Array.isArray(data.values) ? [...data.values] : []; // Ensure `values` is an array
+
+                    // Check if `data.default` exists and is not in `values`
+                    if (data.default && !values.some(option => option.value === data.default)) {
+                        values.unshift({ value: data.default, label: `Default (${data.default})` }); // Add default as the first option
+                    }
+
+                    const options = values.map(option => `
+        <option value="${option.value}" ${data.default === option.value ? "selected" : ""}>
+            ${option.label}
+        </option>`).join("");
 
                     field = $(`
-                    <div class="form-item">
-                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
-                            ${options}
-                        </select>
-                    </div>
-                `);
+        <div class="form-item">
+            <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+            <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+                ${options}
+            </select>
+        </div>
+    `);
 
                     if (!Array.isArray(data.values)) {
                         console.warn(`Field "${fieldId}" has no valid options to populate the select dropdown.`);
