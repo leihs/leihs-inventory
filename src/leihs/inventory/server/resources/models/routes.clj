@@ -393,7 +393,7 @@
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
 (sa/def ::product (sa/nilable string?))
-(sa/def ::version (sa/nilable string?))
+(sa/def ::item_version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
 (sa/def ::isPackage (sa/nilable string?))
 (sa/def ::description (sa/nilable string?))
@@ -462,31 +462,89 @@
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
                        :none nil?))
+(sa/def ::propeties map?)
+(sa/def ::serial_number string?)
+(sa/def ::note string?)
+
+
+(sa/def ::software_id uuid?)
+(sa/def ::supplier_id uuid?)
+
+
+(sa/def ::inventory_code string?)
+(sa/def ::item_version string?)
+(sa/def ::is_borrowable boolean?)
+(sa/def ::retired boolean?)
+(sa/def ::retired_reason string?)
+(sa/def ::price string?)
+(sa/def ::invoice_date string?)
+;(sa/def ::invoice_date string?)
+
+(sa/def ::activation_type string?)
+(sa/def ::dongle_id string?)
+(sa/def ::license_type string?)
+(sa/def ::total_quantity string?)
+(sa/def ::license_expiration string?)
+(sa/def ::p4u string?)
+(sa/def ::reference string?)
+(sa/def ::project_number string?)
+(sa/def ::procured_by string?)
+(sa/def ::maintenance_contract string?)
+(sa/def ::maintenance_expiration string?)
+(sa/def ::maintenance_price string?)
+
+
 (sa/def ::key string?)
 (sa/def ::value string?)
+(sa/def :simple/properties string?)
 (sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
-(sa/def ::properties (sa/or
-                      :single (sa/or :coll (sa/coll-of ::property)
-                                     :str string?)
-                      :none nil?))
 
-(sa/def ::multipart (sa/keys :req-un [::product]
-                             :opt-un [::version
-                                      ::manufacturer
-                                      ::isPackage
-                                      ::description
-                                      ::technicalDetails
-                                      ::internalDescription
-                                      ::importantNotes
-                                      ::categories
-                                      ::attachments-to-delete
-                                      ::images-to-delete
-                                      ::compatibles
-                                      ::images
-                                      ::attachments
-                                      ::entitlements
-                                      ::properties
-                                      ::accessories]))
+(sa/def ::properties (sa/keys :req-opt [::activation_type
+                                        ::dongle_id
+                                        ::license_type
+                                        ::total_quantity
+                                        ::license_expiration
+
+                                        ::p4u
+                                        ::reference
+                                        ::project_number
+                                        ::procured_by
+                                        ::maintenance_contract
+                                        ::maintenance_expiration
+                                        ::maintenance_price
+
+                                        ] :req-un []))
+
+;(sa/def ::properties (sa/or
+;                      :single (sa/or :coll (sa/coll-of ::property)
+;                                     :str string?)
+;                      :none nil?))
+
+(sa/def ::multipart (sa/keys                                :opt-un [
+                                                                     ::software_id
+                                                                     ::supplier_id
+
+                                                                      ::retired_reason
+                                                                     ]
+                              :req-un [
+
+                                       ::serial_number
+                                       ::note
+                                       ::attachments
+
+                                       ::invoice_date
+                                       ::price
+                                       ::retired
+
+                                       ::is_borrowable
+                                       ::inventory_code
+                                       ::item_version
+
+
+                                       ;::properties
+                                       :simple/properties
+
+                                       ]))
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
@@ -552,8 +610,8 @@
              ;               " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
-                          ;:multipart ::multipart}
-                          :multipart map?}
+                          :multipart ::multipart}
+                          ;:multipart map?}
              :handler create-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}

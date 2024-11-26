@@ -94,12 +94,6 @@
         pool_id pool-id
 
 
-        IDS-TO-EXCLUDE ["is_incomplete" "is_broken" "status_note" "model_id"
-                        "properties_project_number" "invoice_number"
-                        "invoice_number" "is_inventory_relevant"
-                        ]
-
-
         p (println ">o> params => " pool-id model-id)
         ]
     (try
@@ -161,13 +155,8 @@
                           [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
 
 
-;; TODO: additional exclude of fields
-                    ;(cond-> id (sql/where [:not-in :f.id ["is_incomplete" "is_broken"]]))
-                    ;(sql/where [:not-in :f.id IDS-TO-EXCLUDE])
-                    ;(sql/where [:not= (sq/call :jsonb_extract_path_text :f.data "target_type") "item"])
                     (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
                                 [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
-                    ;(sql/where [:not= :target_type "item"])
 
                     (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
                 [:f.position :asc])

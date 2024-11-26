@@ -36,6 +36,31 @@
                                 key-map)]
     normalized-data))
 
+(defn normalize-license-data
+  [data]
+  (let [
+        p (println ">o> data" data)
+
+        key-map {
+                 :model_id :software_id
+                 ;:type :type
+                 ;:manufacturer :manufacturer
+                 ;:product :product
+                 ;:version :version
+                 ;:hand_over_note :importantNotes
+                 ;:is_package :isPackage
+                 ;:description :description
+                 ;:internal_description :internalDescription
+                 ;:technical_detail :technicalDetails
+                 }
+        normalized-data (reduce (fn [acc [db-key original-key]]
+                                  (if-let [val (get data original-key)]
+                                    (assoc acc db-key val)
+                                    acc))
+                                {}
+                                key-map)]
+    normalized-data))
+
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
   [request key]

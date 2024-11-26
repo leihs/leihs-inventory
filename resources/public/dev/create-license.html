@@ -299,12 +299,37 @@
         }
     }
 
+
+
+    function renameFormDataKey(formData, oldKey, newKey) {
+        if (formData.has(oldKey)) {
+            // Get the value of the old key
+            const value = formData.get(oldKey);
+
+            // Add the value to the new key
+            formData.append(newKey, value);
+
+            // Delete the old key
+            formData.delete(oldKey);
+        }
+    }
+
+
+    function renameLabel(data) {
+        if (data.label == "Responsible department") {
+            data.label = "ResponsibleDepartment";
+        }
+
+        return data
+    }
+
     function generateFormFields(config, formId) {
         const form = $('#dynamicFields');
         form.empty(); // Clear previous fields if any
 
         config.forEach((fieldConfig) => {
-            const data = fieldConfig.data;
+            let data = fieldConfig.data;
+            data = renameLabel(data)
             const group = data.group || "General";
             let groupContainer = form.find(`.form-group[data-group="${group}"]`);
 
@@ -458,6 +483,53 @@
         setTimeout(() => $('body').removeClass(effectClass), 3000);
     }
 
+    // function processFormData(formData) {
+    //     const properties = {}; // Object to hold extracted properties
+    //
+    //     // Iterate through formData entries
+    //     for (const [key, value] of formData.entries()) {
+    //         if (key.startsWith("properties,")) {
+    //             // Extract the property name after "properties,"
+    //             const propertyName = key.split(",")[1];
+    //             properties[propertyName] = value; // Add to properties object
+    //
+    //             // Remove the key from formData
+    //             formData.delete(key);
+    //         }
+    //     }
+    //
+    //     // Add the JSON stringified properties object back into formData
+    //     formData.append("properties", JSON.stringify(properties));
+    //
+    //     return formData;
+    // }
+
+    function processFormData(formData) {
+        const properties = {}; // Object to hold extracted properties
+        const keysToDelete = []; // To keep track of keys to be deleted
+
+        // Iterate through formData entries
+        for (const [key, value] of formData.entries()) {
+            if (key.startsWith("properties,")) {
+                // Extract the property name after "properties,"
+                const propertyName = key.split(",")[1];
+                properties[propertyName] = value; // Add to properties object
+
+                // Mark the key for deletion
+                keysToDelete.push(key);
+            }
+        }
+
+        // Remove all keys marked for deletion
+        keysToDelete.forEach(key => formData.delete(key));
+
+        // Add the JSON stringified properties object back into formData
+        formData.append("properties", JSON.stringify(properties));
+
+        return formData;
+    }
+
+
 
     function fetchOptions(url, selectId) {
         fetch(url, { headers: { Accept: "application/json" } })
@@ -540,6 +612,71 @@
         const selectedValue = $(this).val();
         console.log(">o> Selected software:", selectedValue);
     });
+
+
+    function initResponsibleData(){
+        // set responsible department
+        const poolId = $("#poolId").val();
+        const apiUrl = `/inventory/${poolId}/entitlement-groups`;
+
+        // Make the GET request to fetch data
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function(data) {
+                // Assuming `data` is an array of objects with `id` and `name` properties
+                const $select = $("#myResponsibleDepartment");
+                $select.empty(); // Clear any existing options
+
+                // Populate the <select> with options
+                data.forEach(item => {
+                    $select.append($("<option>", {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+                debugger
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching data:", error);
+            }
+        });
+    }
+
+    function initOwnersData(){
+        // set responsible department
+        const poolId = $("#poolId").val();
+        const apiUrl = `/inventory/owners`;
+
+        // Make the GET request to fetch data
+        $.ajax({
+            url: apiUrl,
+            method: "GET",
+            headers: { Accept: "application/json" },
+            success: function(data) {
+                // Assuming `data` is an array of objects with `id` and `name` properties
+                const $select = $("#myOwner");
+                $select.empty(); // Clear any existing options
+
+                // Populate the <select> with options
+                data.forEach(item => {
+                    $select.append($("<option>", {
+                        value: item.id,
+                        text: item.name
+                    }));
+                });
+                debugger
+            },
+            error: function(xhr, status, error) {
+                console.error("Error fetching data:", error);
+            }
+        });
+    }
+
+
+
+
 
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
@@ -634,6 +771,9 @@
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
 
+
+
+
                         $("#saveButton").text("Update License");
                         $("#saveButton").off('click').click(function(e) {
                             e.preventDefault(); // Prevent default form submission
@@ -696,6 +836,9 @@
                     const data = response.data;
                     const fields = response.fields;
 
+                    initResponsibleData();
+                    initOwnersData();
+
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
                     $("#saveButton").text("Save License");
@@ -705,7 +848,24 @@
 
                         const poolId = $("#poolId").val();
                         const licenseId = $("#fetchSoftwareId").val();
-                        const formData = new FormData($("#softwareForm")[0]);
+                        let formData = new FormData($("#softwareForm")[0]);
+
+
+                        renameFormDataKey(formData, "mySoftware", "software_id");
+                        renameFormDataKey(formData, "mySupplier", "supplier_id");
+                        renameFormDataKey(formData, "myOwner", "owner_id");
+                        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+                        formData = processFormData(formData);
+
+
+
+                        // Debugging: log all keys and values in the FormData
+                        for (let [key, value] of formData.entries()) {
+                            console.log(key, value);
+                        }
+                        // debugger
+
 
                         // If it's in update mode, make a PUT request
                         $.ajax({

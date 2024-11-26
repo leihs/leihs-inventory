@@ -8,7 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
+   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files normalize-license-data
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
@@ -29,7 +29,7 @@
 
 (defn prepare-model-data
   [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [normalize-data (normalize-license-data data)
         created-ts (LocalDateTime/now)]
     (assoc normalize-data
            :type "Model"
@@ -155,34 +155,68 @@
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
 
+(defn extract-properties [multipart]
+  (let [properties-entries (filter (fn [[k _]]
+                                     (and (string? k)
+                                       (.startsWith (name k) "properties,")))
+                             multipart)
+        properties-map (into {} (map (fn [[k v]]
+                                       [(keyword (last (clojure.string/split (name k) #","))) v])
+                                  properties-entries))]
+    {:properties properties-map}))
+
+(defn extract-properties [multipart]
+  (let [properties-entries (filter (fn [[k _]]
+                                     (and (keyword? k) ; Check if key is a keyword
+                                       (.startsWith (name k) "properties,"))) ; Check if key name starts with "properties,"
+                             multipart)
+        properties-map (into {} (map (fn [[k v]]
+                                       [(keyword (subs (name k) (count "properties,"))) v]) ; Extract the part after "properties,"
+                                  properties-entries))]
+    {:properties properties-map}))
+
+
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         p (println ">o> abc1")
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
         multipart (get-in request [:parameters :multipart])
+        p (println ">o> multipart1" multipart)
+
+        extract-properties (extract-properties multipart)
+        p (println ">o> multipart2" extract-properties)
+
+
+        p (println ">o> pool-id" pool-id)
+
         model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
-        p (println ">o> abc2")
-        categories (parse-json-array request :categories)
-        compatibles (parse-json-array request :compatibles)
+        p (println ">o> abc2.model-data")
         attachments (normalize-files request :attachments)
-        p (println ">o> abc3")
-        images (normalize-files request :images)
-        properties (parse-json-array request :properties)
-        accessories (parse-json-array request :accessories)
-        entitlements (parse-json-array request :entitlements)
+        p (println ">o> abc3.attachments" attachments)
 
-        p (println ">o> abc4" model-data)
+        properties (first (parse-json-array request :properties))
+
+
+
+
+
+        p (println ">o> abc4.properties" properties)
         ]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [model-data])
-                                          (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
+      (let [
+            ;res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+            ;                              (sql/values [model-data])
+            ;                              (sql/returning :*)
+            ;                              sql-format))
+            ;model-id (:id res)
+
+            res {:foo "bar"}
+            ]
 
         ;(process-attachments tx attachments model-id)
         ;(process-images tx images model-id validation-result)
