@@ -113,6 +113,87 @@
         }
     </style>
 
+    <style>
+        /* Styling for form group and items */
+        .form-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .form-group h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        /* Hide the default checkbox */
+        .checkbox-item input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Custom checkbox styling */
+        .checkbox-item label {
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1em;
+            color: #333;
+        }
+
+        /* Create a custom checkbox design */
+        .checkbox-item label::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 20px;
+            width: 20px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        /* Checkbox hover effect */
+        .checkbox-item input[type="checkbox"]:hover + label::before {
+            border-color: #007bff;
+        }
+
+        /* Checked state for the checkbox */
+        .checkbox-item input[type="checkbox"]:checked + label::before {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        /* Custom checkmark */
+        .checkbox-item input[type="checkbox"]:checked + label::after {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transition: transform 0.2s;
+        }
+    </style>
+
+
 </head>
 <body>
 <h1 id="formTitle">Create New License</h1>
@@ -218,9 +299,7 @@
         }
     }
 
-
     function generateFormFields(config, formId) {
-        // const form = $(formId);
         const form = $('#dynamicFields');
         form.empty(); // Clear previous fields if any
 
@@ -241,20 +320,15 @@
             let field;
             const fieldId = fieldConfig.id;
 
-                   // <label style="color:orange">${data.type} > '${data.label}' '${data.values || data.data.values}'</label>
             switch (data.type) {
                 case 'autocomplete':
                 case 'autocomplete-search':
-                    debugger
                     field = $(`
-
-                   <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
-
                     <div class="form-item">
+                        <label style="color:orange">${data.type} > '${data.label}' '${data.values}'</label>
                         <label for="my${data.label}">${data.label}</label>
                         <select id="my${data.label}" name="my${data.label}"></select>
                     </div>
-
                 `);
                     break;
 
@@ -278,7 +352,6 @@
                     break;
 
                 case 'select':
-                    // Check if `data.values` is an array before using `map`
                     const options = Array.isArray(data.values)
                         ? data.values.map(option => `<option value="${option.value}">${option.label}</option>`).join("")
                         : ""; // Default to empty string if values are not valid
@@ -320,6 +393,46 @@
                     }
                     break;
 
+                case 'checkbox':
+                    // Add multiple checkboxes if data.values is an array
+                    if (Array.isArray(data.values)) {
+                        const checkboxes = data.values.map((option, index) => {
+                            const checkboxId = `${fieldId}_${index}`;
+                            return `
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="${checkboxId}" name="${data.attribute}" value="${option.value}" ${option.checked ? "checked" : ""}>
+                                <label for="${checkboxId}">${option.label}</label>
+                            </div>
+                        `;
+                        }).join("");
+
+                        field = $(`
+                        <div class="form-item">
+                            <label>${data.label}${data.required ? " *" : ""}</label>
+                            ${checkboxes}
+                        </div>
+                    `);
+                    } else {
+                        // Single checkbox (if no values array is provided)
+                        field = $(`
+                        <div class="form-item checkbox-item">
+                            <input type="checkbox" id="${fieldId}" name="${data.attribute}" ${data.default ? "checked" : ""}>
+                            <label for="${fieldId}">${data.label}</label>
+                        </div>
+                    `);
+                    }
+                    break;
+
+                case 'attachment':
+                    // Multiple file upload
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
+                    </div>
+                `);
+                    break;
+
                 default:
                     console.warn(`Unsupported field type: ${data.type} ${fieldId}; ${data.label} ${data.attribute}`);
             }
@@ -327,20 +440,18 @@
             if (field) {
                 groupContainer.append(field);
             }
-
         });
 
-            // After generating form fields, add the save button if not already present
-            if ($("#saveButton").length === 0) {
-                form.append('<button type="submit" id="saveButton">Save License</button>');
-            }
-
+        // After generating form fields, add the save button if not already present
+        if ($("#saveButton").length === 0) {
+            form.append('<button type="submit" id="saveButton">Save License</button>');
+        }
 
         // TODO: define/trigger init
         $("#mySoftware").select2(initSoftwareConfig)
         $("#mySupplier").select2(initSupplierConfig)
-
     }
+
 
     function showResultEffect(effectClass) {
         $('body').addClass(effectClass);

@@ -93,6 +93,13 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         pool_id pool-id
 
+
+        IDS-TO-EXCLUDE ["is_incomplete" "is_broken" "status_note" "model_id"
+                        "properties_project_number" "invoice_number"
+                        "invoice_number" "is_inventory_relevant"
+                        ]
+
+
         p (println ">o> params => " pool-id model-id)
         ]
     (try
@@ -135,9 +142,17 @@
                   [(sq/call :cast
                      (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
                      :text) :owner]
+
                   [(sq/call :cast
                      (sq/call :jsonb_extract_path_text :f.data "group")
-                     :text) :group])
+                     :text) :group]
+
+                  [(sq/call :cast
+                     (sq/call :jsonb_extract_path_text :f.data "target_type")
+                     :text) :target_type]
+
+
+                        )
               (sql/from [:fields :f])
               (sql/where [:= :f.active true])
               (sql/where [:or
@@ -148,8 +163,11 @@
 
 ;; TODO: additional exclude of fields
                     ;(cond-> id (sql/where [:not-in :f.id ["is_incomplete" "is_broken"]]))
-                    (sql/where [:not-in :f.id ["is_incomplete" "is_broken" "status_note" "model_id"]])
-
+                    ;(sql/where [:not-in :f.id IDS-TO-EXCLUDE])
+                    ;(sql/where [:not= (sq/call :jsonb_extract_path_text :f.data "target_type") "item"])
+                    (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
+                                [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
+                    ;(sql/where [:not= :target_type "item"])
 
                     (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
                 [:f.position :asc])
