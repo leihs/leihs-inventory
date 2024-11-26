@@ -20,8 +20,13 @@
 
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
-  (:import [java.time LocalDateTime]
+
+   (:import [java.time LocalDateTime]
+    [java.time.format DateTimeFormatter]
            [java.util UUID]))
+
+
+
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx
@@ -91,12 +96,132 @@
 (defn random-5-digit []
   (+ 10000 (rand-int 90000)))
 
-;; Example usage:
+(defn get-current-timestamp []
+  (let [current-timestamp (LocalDateTime/now)
+        formatter (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss")]
+    (.format current-timestamp formatter)))
+
+(defn build-select [fields]
+  (let [columns (mapv (fn [field]
+                        (keyword (str "i." (:id field)))) ; Add namespace "i" to each id
+                  fields)]
+    (println ">o> build-select columns:" columns) ; Debug output
+    columns)) ; Return the columns as a flat vector
+
+(defn build-select2 [fields]
+  (let [columns (mapv (fn [field]
+                        (:id field)) ; Add namespace "i" to each id
+                        ;(keyword (str "i." (:id field)))) ; Add namespace "i" to each id
+                  fields)]
+    (println ">o> build-select columns:" columns) ; Debug output
+    columns)) ; Return the columns as a flat vector
+
+
+
+(defn filter-by-allowed-keys [data allowed-keys whitelisted-keys]
+  (let [allowed-keywords (set (map keyword allowed-keys)) ; Convert allowed-keys to a set of keywords
+        base-level-filter (fn [m keys]
+                            (reduce-kv
+                              (fn [acc k v]
+                                (if (contains? keys k) ; keys is a set here
+                                  (assoc acc k v)
+                                  acc))
+                              {}
+                              m))
+        deep-filter (fn [props-path props]
+                      (let [filtered-props (base-level-filter props
+                                             (->> allowed-keys
+                                               (filter #(str/starts-with? % (str props-path ".")))
+                                               (map #(keyword (last (str/split % #"\."))))
+                                               set))] ; Ensure keys is a set
+                        (when (seq filtered-props)
+                          filtered-props)))]
+    (reduce-kv
+      (fn [result k v]
+        (cond
+          ;; Handle nested maps for :properties
+          (and (= k :properties) (map? v))
+          (let [filtered-props (deep-filter "properties" v)]
+            (if filtered-props
+              (assoc result k filtered-props)
+              result))
+
+          ;; Include key if it exists in the allowed keys
+          (contains? allowed-keywords k)
+          (assoc result k v)
+
+          ;; Otherwise exclude the key
+          :else
+          result))
+      {}
+      data)))
+
+
+;(ns my-app.core
+;  (:require [clojure.string :as str]))
+
+(defn filter-by-allowed-keys [data allowed-keys whitelisted-keys]
+  (let [allowed-keywords (set (map keyword allowed-keys))          ; Convert allowed keys to keywords
+        whitelisted-keywords (set (map keyword whitelisted-keys))  ; Convert whitelisted keys to keywords
+        all-keys (clojure.set/union allowed-keywords whitelisted-keywords) ; Union of allowed and whitelisted keys
+        base-level-filter (fn [m keys]
+                            (reduce-kv
+                              (fn [acc k v]
+                                (if (contains? keys k)
+                                  (assoc acc k v)
+                                  acc))
+                              {}
+                              m))
+        deep-filter (fn [props-path props]
+                      (let [filtered-props (base-level-filter props
+                                             (->> allowed-keys
+                                               (filter #(str/starts-with? % (str props-path ".")))
+                                               (map #(keyword (last (str/split % #"\."))))
+                                               set))] ; Ensure filtered keys are a set
+                        (when (seq filtered-props)
+                          filtered-props)))]
+    (reduce-kv
+      (fn [result k v]
+        (cond
+          ;; Handle nested maps for :properties
+          (and (= k :properties) (map? v))
+          (let [filtered-props (deep-filter "properties" v)]
+            (if filtered-props
+              (assoc result k filtered-props)
+              result))
+
+          ;; Include key if it exists in all-keys (allowed or whitelisted)
+          (contains? all-keys k)
+          (assoc result k v)
+
+          ;; Otherwise exclude the key
+          :else
+          result))
+      {}
+      data)))
+
+
+(defn filter-by-allowed-keys [data allowed-keys whitelisted-keys]
+  (let [allowed-keywords (set (map keyword allowed-keys))          ; Convert allowed keys to keywords
+        whitelisted-keywords (set (map keyword whitelisted-keys))  ; Convert whitelisted keys to keywords
+        all-keys (clojure.set/union allowed-keywords whitelisted-keywords)] ; Union of allowed and whitelisted keys
+    (reduce-kv
+      (fn [result k v]
+        ;; Include key if it exists in all-keys (allowed or whitelisted)
+        (if (contains? all-keys k)
+          (assoc result k v)
+          result))
+      {}
+      data)))
 
 
 
 (defn create-license-handler-by-pool-form-fetch [request]
-  (let [current-timestamp (LocalDateTime/now)
+  (let [
+        ;current-timestamp (LocalDateTime/now)
+
+        current-timestamp (get-current-timestamp)
+
         tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -107,21 +232,63 @@
         ]
     (try
       (let [
-            ;model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-            ;                            :m.hand_over_note :m.description :m.internal_description
-            ;                            :m.technical_detail :m.is_package)
-            ;                (sql/from [:models :m])
-            ;              (sql/join [:items :i] [:= :m.id :i.model_id])
-            ;                (sql/where [:= :m.id model-id])
-            ;                sql-format)
-            ;model-result (jdbc/execute-one! tx model-query)
+
+            query (-> (sql/select :f.id
+                        :f.active
+                        :f.position
+                        :f.data
+                        :f.dynamic
+                        [(sq/call :cast
+                           (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
+                           :text) :owner]
+
+                        [(sq/call :cast
+                           (sq/call :jsonb_extract_path_text :f.data "group")
+                           :text) :group]
+
+                        [(sq/call :cast
+                           (sq/call :jsonb_extract_path_text :f.data "target_type")
+                           :text) :target_type]
+
+
+                        )
+                    (sql/from [:fields :f])
+                    (sql/where [:= :f.active true])
+                    (sql/where [:or
+                                [:in (sq/call :jsonb_extract_path_text :f.data "group")
+                                 ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
+                                [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
+
+
+                    (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
+                                [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
+
+                    (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
+                      [:f.position :asc])
+                    sql-format
+                    )
+
+            p (println ">o> query" query)
+
+            fields-result (jdbc/execute! tx query)
+
+            p (println ">o> fields >> " fields-result)
+
+            fields fields-result
+
+            ;; -----------------------
+
+            dyn-select (build-select2 fields)
+            p (println ">o> dyn-dyn-select-??" dyn-select)
 
 
             model-result (if model-id
                            (let [
                                  model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                                    :m.hand_over_note :m.description :m.internal_description
+                                                   ;:m.technical_detail :m.is_package)
                                                    :m.technical_detail :m.is_package :i.*)
+                                               ;dyn-select
                                                (sql/from [:models :m])
                                                (sql/join [:items :i] [:= :m.id :i.model_id])
                                                (sql/where [:= :m.id model-id])
@@ -133,8 +300,7 @@
                                         )
 
 
-                           (let [                           ;; create default-values for new license
-
+                           (let [;; create default-values for new license
                                  ;; FIXME:
                                  responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
 
@@ -153,56 +319,19 @@
                            {:inventory_pool_id pool-id
                             :inventory_code inventory_code
                             :responsible_department responsible_department
+                            :properties {:maintenance_currency "CHF"}
                             }
                            )
                              )
 
 
-            p (println ">o> model-result" model-result)
+            p (println ">o> model-result" model-result (count model-result))
 
+            model-result (filter-by-allowed-keys model-result dyn-select ["properties"])
+            ;model-result (filter-by-allowed-keys model-result dyn-select [])
+            ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
+            p (println ">o> model-result2" (count model-result))
 
-            query (-> (sql/select :f.id
-                  :f.active
-                  :f.position
-                  :f.data
-                  :f.dynamic
-                  [(sq/call :cast
-                     (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
-                     :text) :owner]
-
-                  [(sq/call :cast
-                     (sq/call :jsonb_extract_path_text :f.data "group")
-                     :text) :group]
-
-                  [(sq/call :cast
-                     (sq/call :jsonb_extract_path_text :f.data "target_type")
-                     :text) :target_type]
-
-
-                        )
-              (sql/from [:fields :f])
-              (sql/where [:= :f.active true])
-              (sql/where [:or
-                          [:in (sq/call :jsonb_extract_path_text :f.data "group")
-                           ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
-                          [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
-
-
-                    (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
-                                [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
-
-                    (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
-                [:f.position :asc])
-                    sql-format
-                    )
-
-            p (println ">o> query" query)
-
-            fields-result (jdbc/execute! tx query)
-
-            p (println ">o> fields >> " fields-result)
-
-            fields fields-result
 
             result (if model-result
                      {
