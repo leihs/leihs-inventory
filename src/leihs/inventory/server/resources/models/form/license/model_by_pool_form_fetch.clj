@@ -263,6 +263,8 @@
                     (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
                                 [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
 
+                    (sql/where [:not-in :f.id ["properties_project_number"]])
+
                     (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
                       [:f.position :asc])
                     sql-format
@@ -287,10 +289,12 @@
                                  model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                                    :m.hand_over_note :m.description :m.internal_description
                                                    ;:m.technical_detail :m.is_package)
-                                                   :m.technical_detail :m.is_package :i.*)
+                                                   :m.technical_detail :m.is_package :i.* [:s.name :supplier_name])
                                                ;dyn-select
                                                (sql/from [:models :m])
+
                                                (sql/join [:items :i] [:= :m.id :i.model_id])
+                                               (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
                                                (sql/where [:= :m.id model-id])
                                                sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
@@ -329,6 +333,8 @@
 
             model-result (filter-by-allowed-keys model-result dyn-select ["properties"
                                                                           "inventory_code" "inventory_pool_id"  "responsible_department" ;; init values
+
+                                                                         "product" "license_version" "supplier_name"
                                                                           ])
             ;model-result (filter-by-allowed-keys model-result dyn-select [])
             ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
