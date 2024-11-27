@@ -27,7 +27,7 @@
           query-params (query-params request)
 
 
-          _ (println ">o> query-params" query-params)
+          ;_ (println ">o> query-params" query-params)
 
           mtype (:type query-params)
 

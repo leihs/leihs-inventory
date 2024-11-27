@@ -4,7 +4,7 @@
    [clojure.data.codec.base64 :as b64]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]))
 
@@ -36,7 +36,50 @@
                                 key-map)]
     normalized-data))
 
-(defn normalize-license-data
+
+
+(defn extract-shortname-and-number [code]
+  (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
+    (when matches
+      {:shortname (nth matches 1)
+       :number (Integer/parseInt (nth matches 2))})))
+
+(defn fetch-latest-inventory-code [tx owner-id]
+  (let [res (jdbc/execute-one! tx
+              (-> (sql/select
+                    :items.inventory_code
+                    ;[(sq/call :regexp_replace :items.inventory_code "\\d.*$" "") :shortname] ; Extract shortname
+                    ;[(sq/call :cast
+                    ;   (sq/call :regexp_replace :items.inventory_code "\\D" "" "g") :integer) :number]) ; Extract number
+                    )
+                (sql/from :items)
+                ;(sql/where [:is-not :items.inventory_code nil]) ; Ensure inventory_code is not NULL
+                (sql/where [:= :items.owner_id owner-id])
+                (sql/order-by [:created_at :desc])
+                (sql/limit 1)
+                sql-format))
+
+
+
+        _ (println ">o> res1" res)
+
+
+           res   (extract-shortname-and-number (:inventory_code res))
+        _ (println ">o> res2" res)
+
+
+        res (if res
+              (assoc res :next-code (str (:shortname res)(+ (:number res) 1)))
+              {:error "No inventory code found"}) ; Handle case where no result is found
+
+        _ (println ">o> res3" res)]
+    res))
+
+
+
+
+
+  (defn normalize-license-data
   [data]
   (let [
         p (println ">o> data" data)

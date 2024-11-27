@@ -204,8 +204,8 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchSoftwareId">License ID (model_id)</label>
-    <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="011f5de2-9a4b-5c56-981f-e2569d8ec673">
+    <label for="fetchSoftwareId">License ID (model_id) 011f5de2-9a4b-5c56-981f-e2569d8ec673</label>
+    <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="25c09512-a854-5325-88f4-77aa43b2a0a4">
     <button id="fetchSoftwareBtn">Fetch License</button>
 </div>
 
@@ -648,19 +648,34 @@
         };
 
 
-
+        // data .. html-field
         const fieldMapping = {
             "serial_number": "serial_number",
             "note": "note",
             "retired_reason": "retired_reason",
-            "price": "properties_maintenance_price",
+
+            "maintenance_price": "properties_maintenance_price",
+            "price": "price",
+            "p4u": "properties_p4u",
+
             "invoice_date": "invoice_date",
+            "procured_by": "properties_procured_by",
+            "properties_maintenance_price": "properties_maintenance_price",
             "inventory_code": "inventory_code",
-            "properties.total_quantity": "properties_total_quantity",
-            "properties.activation_type": "properties_activation_type",
-            "properties.license_type": "properties_license_type",
-            "properties.maintenance_currency": "properties_maintenance_currency",
-            "properties.procured_by": "properties_procured_by"
+            "total_quantity": "properties_total_quantity",
+            "activation_type": "properties_activation_type",
+            "license_type": "properties_license_type",
+            "maintenance_currency": "properties_maintenance_currency",
+            "version": "license_version",
+            "license_expiration": "properties_license_expiration",
+            // "license_expiration": "maintenance_expiration",
+            "maintenance_expiration": "properties_maintenance_expiration",
+
+            // name="properties,operating_system"
+            // "operating_system":
+
+
+            // "procured_by": "properties_procured_by"
         };
 
 
@@ -726,6 +741,11 @@
                     if (response && response.data) {
                         const data = response.data;
 
+                        // flatten
+                        Object.assign(data, data.properties);
+                        delete data.properties;
+
+
                         // Populate field values
                         populateFieldValues(data, fieldMapping);
 
@@ -750,11 +770,67 @@
                         }
 
 
-                        if(data.properties.reference == "invoice"){
+                        if(data.reference == "invoice"){
                          $("[name='properties,reference'][value=invoice]").prop("checked", true)
                         }else{
                          $("[name='properties,reference'][value=investment]").prop("checked", true)
                         }
+
+
+
+                        ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
+                            if(data.operating_system != undefined && data.operating_system.includes(os)){
+                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
+                            }else{
+                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
+                            }
+                        })
+
+                        const installationList = data.installation || []; // Default to an empty array
+                        ["citrix", "local", "web"].forEach(os => {
+                            if (installationList.includes(os)) {
+                                $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
+                            } else {
+                                $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
+                            }
+                        });
+
+
+
+                        // dongle handling
+                        if($("#properties_activation_type").val()=="dongle"){
+                            $("#properties_dongle_id").prop("disabled", false)
+                        }else{
+                            $("#properties_dongle_id").prop("disabled", true)
+                        }
+
+                        $("#properties_activation_type").off("change").on("change", function () {
+                            if($("#properties_activation_type").val()=="dongle"){
+                                $("#properties_dongle_id").prop("disabled", false)
+                            }else{
+                                $("#properties_dongle_id").prop("disabled", true)
+                            }
+                        })
+
+                        // retired handling
+                        // if($("#retired").val()== undefined){
+                        $("#retired").data("retired", data.retired)
+
+                        debugger
+                        if($("#retired").val()=='false'){
+                            $("#retired_reason").prop("disabled", true)
+                        }else{
+                            $("#retired_reason").prop("disabled", false)
+                        }
+
+                        $("#retired").off("change").on("change", function () {
+                        if($("#retired").val()=='false'){
+                            // if($("#retired").val()== undefined){
+                                $("#retired_reason").prop("disabled", true)
+                            }else{
+                                $("#retired_reason").prop("disabled", false)
+                            }
+                        })
 
 
 

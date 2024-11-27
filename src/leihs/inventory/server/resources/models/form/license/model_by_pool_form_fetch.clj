@@ -5,6 +5,9 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
+
       [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
@@ -215,6 +218,19 @@
       data)))
 
 
+(defn rename-keys
+  "Renames keys in a map based on a provided key mapping.
+   `key-map` is a map where the keys are old keys and the values are new keys."
+  [m key-map]
+  (reduce
+    (fn [acc [old-key new-key]]
+      (if (contains? m old-key)
+        (assoc acc new-key (get m old-key))
+        acc))
+    (apply dissoc m (keys key-map)) ;; Start with the original map minus old keys
+    key-map))
+
+
 
 (defn create-license-handler-by-pool-form-fetch [request]
   (let [
@@ -226,6 +242,8 @@
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         pool_id pool-id
+
+
 
 
         p (println ">o> params => " pool-id model-id)
@@ -270,7 +288,7 @@
                     sql-format
                     )
 
-            p (println ">o> query" query)
+            ;p (println ">o> query" query)
 
             fields-result (jdbc/execute! tx query)
 
@@ -315,14 +333,24 @@
                                                 sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
 
-                                 p (println ">o> model-result" model-result)
+                                 ;p (println ">o> model-result" model-result)
 
-                                 inventory_code (str (:shortname model-result) (random-5-digit) )
+                                 p (println ">o> res1" pool-id)
+
+                                 res (fetch-latest-inventory-code tx pool-id)
+                                 p (println ">o> res2" res)
+
+                                 {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
+                                 p (println ">o> next-code" next-code)
+
+
+                                 ;inventory_code (str (:shortname model-result) (random-5-digit) )
                                  ]
 
                            {:inventory_pool_id pool-id
-                            :inventory_code inventory_code
+                            ;:inventory_code inventory_code
                             :responsible_department responsible_department
+                            :inventory_code next-code
                             ;:properties {:maintenance_currency "CHF"}
                             }
                            )
@@ -335,10 +363,15 @@
                                                                           "inventory_code" "inventory_pool_id"  "responsible_department" ;; init values
 
                                                                          "product" "license_version" "supplier_name"
+                                                                          "item_version"
                                                                           ])
             ;model-result (filter-by-allowed-keys model-result dyn-select [])
             ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
             p (println ">o> model-result2" (count model-result))
+
+
+
+          model-result (rename-keys model-result {:item_version :version})
 
 
             result (if model-result
