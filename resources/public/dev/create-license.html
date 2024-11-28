@@ -492,27 +492,6 @@
         setTimeout(() => $('body').removeClass(effectClass), 3000);
     }
 
-    // function processFormData(formData) {
-    //     const properties = {}; // Object to hold extracted properties
-    //
-    //     // Iterate through formData entries
-    //     for (const [key, value] of formData.entries()) {
-    //         if (key.startsWith("properties,")) {
-    //             // Extract the property name after "properties,"
-    //             const propertyName = key.split(",")[1];
-    //             properties[propertyName] = value; // Add to properties object
-    //
-    //             // Remove the key from formData
-    //             formData.delete(key);
-    //         }
-    //     }
-    //
-    //     // Add the JSON stringified properties object back into formData
-    //     formData.append("properties", JSON.stringify(properties));
-    //
-    //     return formData;
-    // }
-
 
     function setupDongleAndRetiredHandler(data){
         // dongle handling
@@ -791,12 +770,14 @@
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
 
-                        var swValue = data.product;
-                        var newOption = new Option(swValue, swValue, true, true);
+                        var swValue = data.product.name;
+                        var swId = data.product.model_id;
+                        var newOption = new Option(swValue, swId, true, true);
                         $("#mySoftware").append(newOption).trigger('change');
 
-                        var supplierName = data.supplier_name;
-                        var newOption = new Option(supplierName, supplierName, true, true);
+                        var supplierName = data.supplier.name;
+                        var supplierId = data.supplier.supplier_id;
+                        var newOption = new Option(supplierName, supplierId, true, true);
                         $("#mySupplier").append(newOption).trigger('change');
 
 
@@ -835,42 +816,11 @@
 
                         setupDongleAndRetiredHandler(data)
 
-                        // // dongle handling
-                        // if($("#properties_activation_type").val()=="dongle"){
-                        //     $("#properties_dongle_id").prop("disabled", false)
-                        // }else{
-                        //     $("#properties_dongle_id").prop("disabled", true)
-                        // }
-                        //
-                        // $("#properties_activation_type").off("change").on("change", function () {
-                        //     if($("#properties_activation_type").val()=="dongle"){
-                        //         $("#properties_dongle_id").prop("disabled", false)
-                        //     }else{
-                        //         $("#properties_dongle_id").prop("disabled", true)
-                        //     }
-                        // })
-                        //
-                        //
-                        // $("#retired").data("retired", data.retired)
-                        // if($("#retired").val()=='false'){
-                        //     $("#retired_reason").prop("disabled", true)
-                        // }else{
-                        //     $("#retired_reason").prop("disabled", false)
-                        // }
-                        //
-                        // $("#retired").off("change").on("change", function () {
-                        // if($("#retired").val()=='false'){
-                        //     // if($("#retired").val()== undefined){
-                        //         $("#retired_reason").prop("disabled", true)
-                        //     }else{
-                        //         $("#retired_reason").prop("disabled", false)
-                        //     }
-                        // })
-
-
-
                         $("#saveButton").text("Update License");
-                        $("#saveButton").off('click').click(function(e) {
+                        $("#saveButton").off('click').click(function (e) {
+
+                            // UPDATE LICENSE
+
                             e.preventDefault(); // Prevent default form submission
                             console.log("Update button clicked");
 
@@ -894,7 +844,7 @@
                                 data: formData,
                                 processData: false,
                                 contentType: false,
-                                headers: { Accept: "application/json" },
+                                headers: {Accept: "application/json"},
                                 success: function (response) {
                                     console.log("License updated successfully!", response);
                                     showResultEffect("save-success");

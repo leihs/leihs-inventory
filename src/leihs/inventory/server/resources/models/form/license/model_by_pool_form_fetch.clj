@@ -204,13 +204,31 @@
       data)))
 
 
-(defn filter-by-allowed-keys [data allowed-keys whitelisted-keys]
+(defn filter-by-allowed-keys [data allowed-keys whitelisted-keys blacklisted-keys]
   (let [allowed-keywords (set (map keyword allowed-keys))          ; Convert allowed keys to keywords
         whitelisted-keywords (set (map keyword whitelisted-keys))  ; Convert whitelisted keys to keywords
         all-keys (clojure.set/union allowed-keywords whitelisted-keywords)] ; Union of allowed and whitelisted keys
     (reduce-kv
       (fn [result k v]
         ;; Include key if it exists in all-keys (allowed or whitelisted)
+        (if (contains? all-keys k)
+          (assoc result k v)
+          result))
+      {}
+      data)))
+
+
+(defn filter-by-allowed-keys
+  [data allowed-keys whitelisted-keys blacklisted-keys]
+  (let [allowed-keywords (set (map keyword allowed-keys))          ; Convert allowed keys to keywords
+        whitelisted-keywords (set (map keyword whitelisted-keys))  ; Convert whitelisted keys to keywords
+        blacklisted-keywords (set (map keyword blacklisted-keys))  ; Convert blacklisted keys to keywords
+        all-keys (clojure.set/difference
+                   (clojure.set/union allowed-keywords whitelisted-keywords) ; Union of allowed and whitelisted keys
+                   blacklisted-keywords)] ; Remove blacklisted keys
+    (reduce-kv
+      (fn [result k v]
+        ;; Include key if it exists in all-keys (allowed or whitelisted but not blacklisted)
         (if (contains? all-keys k)
           (assoc result k v)
           result))
@@ -342,7 +360,7 @@
                                  model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                                    :m.hand_over_note :m.description :m.internal_description
                                                    ;:m.technical_detail :m.is_package)
-                                                   :m.technical_detail :m.is_package :i.* [:s.name :supplier_name])
+                                                   :m.technical_detail :m.is_package :i.* [:s.id :supplier_id][:s.name :supplier_name])
                                                ;dyn-select
                                                (sql/from [:models :m])
 
@@ -351,6 +369,22 @@
                                                (sql/where [:= :m.id model-id])
                                                sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
+
+
+
+                                 model-result (assoc model-result :product {
+                                                                            :name (:product model-result)
+                                                                            :model_id (:id model-result)
+                                                                            })
+
+                                 model-result (assoc model-result :supplier {
+                                                                            :name (:supplier_name model-result)
+                                                                            :supplier_id (:supplier_id model-result)
+                                                                            })
+
+                                 model-result (rename-keys model-result {:item_version :version})
+
+
                                  ]
                              model-result
 
@@ -362,18 +396,15 @@
                                  responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
 
 
-                                 model-query (-> (sql/select :ip.*)
-                                                (sql/from [:inventory_pools :ip])
-                                                (sql/where [:= :ip.id pool_id])
-                                                sql-format)
-                                 model-result (jdbc/execute-one! tx model-query)
-
-                                 ;p (println ">o> model-result" model-result)
+                                 ;model-query (-> (sql/select :ip.*)
+                                 ;               (sql/from [:inventory_pools :ip])
+                                 ;               (sql/where [:= :ip.id pool_id])
+                                 ;               sql-format)
+                                 ;model-result (jdbc/execute-one! tx model-query)
+                                 ;
+                                 ;;p (println ">o> model-result" model-result)
 
                                  p (println ">o> res1" pool-id)
-
-                                 res (fetch-latest-inventory-code tx pool-id)
-                                 p (println ">o> res2" res)
 
                                  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
                                  p (println ">o> next-code" next-code)
@@ -397,16 +428,19 @@
             model-result (filter-by-allowed-keys model-result dyn-select ["properties"
                                                                           "inventory_code" "inventory_pool_id"  "responsible_department" ;; init values
 
-                                                                         "product" "license_version" "supplier_name"
-                                                                          "item_version"
-                                                                          ])
+                                                                         "product" "license_version"
+
+                                                                          "supplier" ;"supplier_id"
+                                                                          "version"
+                                                                          ]
+                           ["supplier_name" "supplier_id"])
             ;model-result (filter-by-allowed-keys model-result dyn-select [])
             ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
             p (println ">o> model-result2" (count model-result))
 
 
 
-          model-result (rename-keys model-result {:item_version :version})
+          ;model-result (rename-keys model-result {:item_version :version})
 
 
             result (if model-result
