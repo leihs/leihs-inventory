@@ -204,9 +204,15 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchSoftwareId">License ID (model_id) 011f5de2-9a4b-5c56-981f-e2569d8ec673</label>
-    <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="25c09512-a854-5325-88f4-77aa43b2a0a4">
-    <button id="fetchSoftwareBtn">Fetch License</button>
+    <label for="softwareId">Software ID (model_id) [softwareId]</label>
+    <input type="text" id="softwareId" name="softwareId" value="25c09512-a854-5325-88f4-77aa43b2a0a4">
+</div>
+
+<div class="form-group">
+    <label for="licenseId">License ID (item_id) [licenseId]</label>
+    <input type="text" id="licenseId" name="licenseId" value="359f4073-8ad5-4a9e-bd42-9ede33377dad">
+    
+    <button id="fetchLicenseBtn">Fetch License</button>
 </div>
 
 <form id="softwareForm">
@@ -678,13 +684,6 @@
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
 
-        const getApiConfig = (poolId, licenseId) => {
-            return CONST_IS_CREATE_FORM
-                ? { url: `/inventory/${poolId}/license`, method: 'POST' }
-                : { url: `/inventory/${poolId}/license/${licenseId}`, method: 'PUT' };
-        };
-
-
         // data .. html-field
         const fieldMapping = {
             "serial_number": "serial_number",
@@ -760,8 +759,9 @@
             });
         }
 
-        $("#fetchSoftwareBtn").click(function () {
-            const licenseId = $("#fetchSoftwareId").val();
+        $("#fetchLicenseBtn").click(function () {
+            const licenseId = $("#licenseId").val();
+            const modelId = $("#softwareId").val();
             const poolId = $("#poolId").val();
 
             if (!licenseId) {
@@ -771,7 +771,7 @@
 
             // FETCH LICENSE
             $.ajax({
-                url: `/inventory/${poolId}/license/${licenseId}`,
+                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
@@ -846,7 +846,8 @@
                             console.log("Update button clicked");
 
                             const poolId = $("#poolId").val();
-                            const licenseId = $("#fetchSoftwareId").val();
+                            const modelId = $("#softwareId").val();
+                            const licenseId = $("#licenseId").val();
                             let formData = new FormData($("#softwareForm")[0]);
 
 
@@ -867,7 +868,7 @@
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
-                                url: `/inventory/${poolId}/license/${licenseId}`,
+                                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
                                 method: "PUT",
                                 data: formData,
                                 processData: false,
@@ -900,7 +901,7 @@
     });
 
     $("body").ready(function () {
-        const licenseId = $("#fetchSoftwareId").val();
+        const licenseId = $("#softwareId").val();
         const poolId = $("#poolId").val();
 
         if (!licenseId) {
@@ -934,7 +935,7 @@
                         console.log("Update button clicked");
 
                         const poolId = $("#poolId").val();
-                        const licenseId = $("#fetchSoftwareId").val();
+                        const modelId = $("#softwareId").val();
                         let formData = new FormData($("#softwareForm")[0]);
 
 
@@ -965,7 +966,8 @@
 
                         // If it's in update mode, make a PUT request
                         $.ajax({
-                            url: `/inventory/${poolId}/license`,
+                            // url: `/inventory/${poolId}/license`,
+                            url: `/inventory/${poolId}/models/${modelId}/licenses`,
                             method: "POST",
                             data: formData,
                             processData: false,

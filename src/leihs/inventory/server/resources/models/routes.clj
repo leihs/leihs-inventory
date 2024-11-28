@@ -599,12 +599,16 @@
                          500 {:description "Internal Server Error"}}}}]]
     ]
 
-   ["/license"
+   ["/license"                                              ;;old
     [""
-     {:post {:accept "application/json"
+     {
+
+      :post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             ;:summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE???"
+                       :produces "application/json"
+                       :deprecated true
+                       }
+             :summary "(DEV) | Form-Handler"
              ;:description (str
              ;               " - Upload images and attachments \n"
              ;               " - Save data \n"
@@ -622,7 +626,7 @@
 
 
       :get {:accept "application/json"
-            :summary "(DEV) | Form-Handler: Fetch form data"
+            :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 ;:model_id uuid?
@@ -644,13 +648,16 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler create-license-handler-by-pool-form-fetch
+             :swagger { :deprecated true}
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
+                       :produces "application/json"
+                       :deprecated true
+                       }
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?
@@ -807,6 +814,110 @@
 
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
+
+
+     ["/licenses"                                          ;; new
+      ;; Uncommented block below if needed
+       [""
+        {:post {:accept "application/json"
+                :swagger {:consumes ["multipart/form-data"]
+                          :produces "application/json"}
+                :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
+                :coercion spec/coercion
+                :parameters {:path {:pool_id uuid?
+                                    :model_id uuid?}
+                             :multipart ::multipart}
+                :handler create-license-handler-by-pool-form
+                :responses {200 {:description "OK"}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]
+
+      ;["/:item_id" {:get {:accept "application/json"
+      ;                    :summary "(DEV) | Form-Handler: Fetch form data"
+      ;                    :coercion spec/coercion
+      ;                    :parameters {:path {:pool_id uuid?
+      ;                                        :model_id uuid?
+      ;                                        :item_id uuid?}}
+      ;                    :handler create-license-handler-by-pool-form-fetch
+      ;                    :responses {200 {:description "OK"
+      ;                                     :body any?}
+      ;                                404 {:description "Not Found"}
+      ;                                500 {:description "Internal Server Error"}}}}]
+
+
+
+
+
+     ["/:item_id"
+       {:put {:accept "application/json"
+              :swagger {:consumes ["multipart/form-data"]
+                        :produces "application/json"}
+              :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
+
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?
+                                  }
+                           :multipart ::multipart}
+              :handler update-license-handler-by-pool-form
+              :responses {200 {:description "OK"
+                               ;:body (s/->Either [s/Any schema])}
+                               :body any?}
+
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}
+
+        :get {:accept "application/json"
+              :summary "(DEV) | Form-Handler: Fetch form data"
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?}}
+              :handler create-license-handler-by-pool-form-fetch
+              :responses {200 {:description "OK"
+                               :body any?}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}
+
+
+        }]
+
+
+      ]
+
+
+     ;["/:item_id"
+     ; [""
+     ;  {:get {:accept "application/json"
+     ;         :summary "(DEV) | Form-Handler: Fetch form data"
+     ;         :coercion spec/coercion
+     ;         :parameters {:path {:pool_id uuid?
+     ;                             ;:model_id uuid?}}
+     ;                             :item_id uuid?}}
+     ;         :handler create-license-handler-by-pool-form-fetch
+     ;         :responses {200 {:description "OK"}
+     ;                     404 {:description "Not Found"}
+     ;                     500 {:description "Internal Server Error"}}}
+     ;
+     ;   :put {:accept "application/json"
+     ;         :swagger {:consumes ["multipart/form-data"]
+     ;                   :produces "application/json"}
+     ;         :coercion spec/coercion
+     ;         :parameters {:path {:pool_id uuid?
+     ;                             ;:model_id uuid?
+     ;                             :item_id uuid?}
+     ;
+     ;   :multipart ::multipart}
+     ;  ;:multipart map?}
+     ;  ;                    }
+     ;
+     ;  :handler update-license-handler-by-pool-form
+     ;  :responses {200 {:description "OK"}
+     ;              404 {:description "Not Found"}
+     ;              500 {:description "Internal Server Error"}}} } ] ] ]
+
+
 
      ["/properties"
       ["" {:get {:accept "application/json"
