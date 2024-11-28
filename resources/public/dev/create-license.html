@@ -938,7 +938,7 @@ function deletePutPostRequestData(formData){
                         console.log("Update button clicked");
 
                         const poolId = $("#poolId").val();
-                        const modelId = $("#softwareId").val();
+                        // const modelId = $("#softwareId").val();
                         let formData = new FormData($("#softwareForm")[0]);
 
 
@@ -957,6 +957,7 @@ function deletePutPostRequestData(formData){
 
                         formData = processFormData(formData);
 
+                        let modelId=formData.get("model_id")
 
                         deletePutPostRequestData(formData);
 
