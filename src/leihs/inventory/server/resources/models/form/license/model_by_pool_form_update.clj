@@ -3,6 +3,7 @@
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
+   [cheshire.core :as jsonc]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
@@ -185,37 +186,77 @@
                             {:inventory_pool_id pool-id :model_group_id category-id}))))))
 
 (defn update-license-handler-by-pool-form [request]
-  (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+  (let [
+        now-ts (LocalDateTime/now)
+
+        item-id (to-uuid (get-in request [:path-params :item_id]))
+        model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
         multipart (get-in request [:parameters :multipart])
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+        ;prepared-model-data (prepare-model-data multipart)
+
+
+        p (println ">o> ??? model-id" model-id)
+        p (println ">o> ??? item-id" item-id)
+
+
+        multipart (get-in request [:parameters :multipart])
+        p (println ">o> multipart1" multipart)
+
+
+        properties (first (parse-json-array request :properties))
+        p (println ">o> properties" properties)
+
+
+        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
+        multipart2b {
+                     ;:created_at created-ts
+                     :updated_at now-ts
+
+                     :properties [:cast (jsonc/generate-string properties) :jsonb]
+
+                     :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
+                     :inventory_pool_id pool-id
+
+                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
+                     }
+
+        multipart2 (merge multipart2 multipart2b)
+
+        p (println ">o> ??? multipart2" multipart2)
+
+
+        ]
     (try
-      (let [update-model-query (-> (sql/update :models)
-                                   (sql/set prepared-model-data)
-                                   (sql/where [:= :id model-id])
+      (let [update-model-query (-> (sql/update :items)
+                                   ;(sql/set prepared-model-data)
+                                   (sql/set multipart2)
+                                   (sql/where [:= :id item-id])
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
-            compatibles (parse-json-array request :compatibles)
-            categories (parse-json-array request :categories)
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
-            images (normalize-files request :images)
-            images-to-delete (parse-json-array request :images-to-delete)
-            properties (parse-json-array request :properties)
-            accessories (parse-json-array request :accessories)
-            entitlements (parse-json-array request :entitlements)]
-
-        (process-attachments tx attachments model-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
-        (process-images tx images model-id)
-        (process-image-deletions tx images-to-delete model-id)
-        (process-entitlements tx entitlements model-id)
-        (process-properties tx properties model-id)
-        (process-accessories tx accessories model-id pool-id)
-        (process-compatibles tx compatibles model-id)
-        (process-categories tx categories model-id pool-id)
+        ;    compatibles (parse-json-array request :compatibles)
+        ;    categories (parse-json-array request :categories)
+        ;    attachments (normalize-files request :attachments)
+        ;    attachments-to-delete (parse-json-array request :attachments-to-delete)
+        ;    images (normalize-files request :images)
+        ;    images-to-delete (parse-json-array request :images-to-delete)
+        ;    properties (parse-json-array request :properties)
+        ;    accessories (parse-json-array request :accessories)
+        ;    entitlements (parse-json-array request :entitlements)
+         ]
+        ;
+        ;(process-attachments tx attachments model-id)
+        ;(process-deletions tx attachments-to-delete :attachments :id)
+        ;(process-images tx images model-id)
+        ;(process-image-deletions tx images-to-delete model-id)
+        ;(process-entitlements tx entitlements model-id)
+        ;(process-properties tx properties model-id)
+        ;(process-accessories tx accessories model-id pool-id)
+        ;(process-compatibles tx compatibles model-id)
+        ;(process-categories tx categories model-id pool-id)
 
         (if updated-model
           (response [updated-model])

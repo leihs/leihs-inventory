@@ -179,10 +179,11 @@
 
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])
-        created-ts (LocalDateTime/now)
+        now-ts (LocalDateTime/now)
         tx (:tx request)
         p (println ">o> abc1")
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        model-id (to-uuid (get-in request [:path-params :model_id]))
 
         multipart (get-in request [:parameters :multipart])
         p (println ">o> multipart1" multipart)
@@ -200,22 +201,17 @@
         ;multipart2 (dissoc multipart  :attachments :retired :invoice_date :price)
         multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
         multipart2b {
-
-                     :created_at created-ts
-                     :updated_at created-ts
-
-                     ;:properties [:cast properties :jsonb]  ;; FIXME
+                     :created_at now-ts
+                     :updated_at now-ts
 
                      :properties [:cast (jsonc/generate-string properties) :jsonb]
 
-  ;"model_id": "25c09512-a854-5325-88f4-77aa43b2a0a4",
                      :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
                      :inventory_pool_id pool-id
-                     ;"inventory_pool_id": "8a4fa6e3-2b36-46b9-9508-212d4f5125c6",
-                     ;"created_at": "2024-11-26 13:37:12.000000",
-                     ;"updated_at": "2024-11-26 13:37:19.000000",
-                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
 
+                     :model_id model-id
+
+                     :room_id (to-uuid "503870e1-7fe5-44ef-89e7-11f1c40a9e70")
                      }
 
         multipart2 (merge multipart2 multipart2b)
