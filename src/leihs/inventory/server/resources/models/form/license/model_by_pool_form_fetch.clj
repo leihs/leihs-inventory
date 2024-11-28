@@ -230,7 +230,10 @@
     (apply dissoc m (keys key-map)) ;; Start with the original map minus old keys
     key-map))
 
-
+(defn filter-entries
+  "Filters a collection of maps, keeping only the specified keys in each map."
+  [maps keys-to-keep]
+  (map #(select-keys % keys-to-keep) maps))
 
 (defn create-license-handler-by-pool-form-fetch [request]
   (let [
@@ -250,15 +253,25 @@
         ]
     (try
       (let [
-
+            ;; TODO: make a union of
+            ;;   - fields without target_type/permissions
+            ;;   - fields especially for lending/inventory-manager
             query (-> (sql/select :f.id
                         :f.active
                         :f.position
                         :f.data
                         :f.dynamic
                         [(sq/call :cast
+                           (sq/call :jsonb_extract_path_text :f.data "label")
+                           :text) :label]
+
+                        [(sq/call :cast
                            (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
                            :text) :owner]
+
+                        [(sq/call :cast
+                           (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
+                           :text) :role]
 
                         [(sq/call :cast
                            (sq/call :jsonb_extract_path_text :f.data "group")
@@ -281,6 +294,24 @@
                     (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
                                 [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
 
+
+                    ;;; TODO: fetch all license-fields
+                    ;(sql/where [:and
+                    ;            [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
+                    ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "target_type")]]
+                    ;            [:or
+                    ;             ;; TODO:
+                    ;             ;[:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["inventory_manager"]]
+                    ;             [:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["lending_manager"]]
+                    ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "permissions" "role")]
+                    ;
+                    ;             ; whitelist (needed for role: lending-manager)
+                    ;             [:in :f.id ["inventory_code"]]
+                    ;             ]
+                    ;            ]
+
+
+
                     (sql/where [:not-in :f.id ["properties_project_number"]])
 
                     (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
@@ -292,7 +323,11 @@
 
             fields-result (jdbc/execute! tx query)
 
-            p (println ">o> fields >> " fields-result)
+
+            filtered (filter-entries fields-result [:group  :label :role ])
+
+            p (println ">o> filtered >> " filtered)
+            ;p (println ">o> fields >> " fields-result)
 
             fields fields-result
 
