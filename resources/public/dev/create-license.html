@@ -513,6 +513,43 @@
     //     return formData;
     // }
 
+
+    function setupDongleAndRetiredHandler(data){
+        // dongle handling
+        if($("#properties_activation_type").val()=="dongle"){
+            $("#properties_dongle_id").prop("disabled", false)
+        }else{
+            $("#properties_dongle_id").prop("disabled", true)
+        }
+
+        $("#properties_activation_type").off("change").on("change", function () {
+            if($("#properties_activation_type").val()=="dongle"){
+                $("#properties_dongle_id").prop("disabled", false)
+            }else{
+                $("#properties_dongle_id").prop("disabled", true)
+            }
+        })
+
+        if(data != undefined){
+            $("#retired").data("retired", data.retired)
+        }
+        if($("#retired").val()=='false'){
+            $("#retired_reason").prop("disabled", true)
+        }else{
+            $("#retired_reason").prop("disabled", false)
+        }
+
+        $("#retired").off("change").on("change", function () {
+            if($("#retired").val()=='false'){
+                // if($("#retired").val()== undefined){
+                $("#retired_reason").prop("disabled", true)
+            }else{
+                $("#retired_reason").prop("disabled", false)
+            }
+        })
+
+    }
+
     function processFormData(formData) {
         const properties = {}; // Object to hold extracted properties
         const keysToDelete = []; // To keep track of keys to be deleted
@@ -796,41 +833,39 @@
                         });
 
 
+                        setupDongleAndRetiredHandler(data)
 
-                        // dongle handling
-                        if($("#properties_activation_type").val()=="dongle"){
-                            $("#properties_dongle_id").prop("disabled", false)
-                        }else{
-                            $("#properties_dongle_id").prop("disabled", true)
-                        }
-
-                        $("#properties_activation_type").off("change").on("change", function () {
-                            if($("#properties_activation_type").val()=="dongle"){
-                                $("#properties_dongle_id").prop("disabled", false)
-                            }else{
-                                $("#properties_dongle_id").prop("disabled", true)
-                            }
-                        })
-
-                        // retired handling
-                        // if($("#retired").val()== undefined){
-                        $("#retired").data("retired", data.retired)
-
-                        debugger
-                        if($("#retired").val()=='false'){
-                            $("#retired_reason").prop("disabled", true)
-                        }else{
-                            $("#retired_reason").prop("disabled", false)
-                        }
-
-                        $("#retired").off("change").on("change", function () {
-                        if($("#retired").val()=='false'){
-                            // if($("#retired").val()== undefined){
-                                $("#retired_reason").prop("disabled", true)
-                            }else{
-                                $("#retired_reason").prop("disabled", false)
-                            }
-                        })
+                        // // dongle handling
+                        // if($("#properties_activation_type").val()=="dongle"){
+                        //     $("#properties_dongle_id").prop("disabled", false)
+                        // }else{
+                        //     $("#properties_dongle_id").prop("disabled", true)
+                        // }
+                        //
+                        // $("#properties_activation_type").off("change").on("change", function () {
+                        //     if($("#properties_activation_type").val()=="dongle"){
+                        //         $("#properties_dongle_id").prop("disabled", false)
+                        //     }else{
+                        //         $("#properties_dongle_id").prop("disabled", true)
+                        //     }
+                        // })
+                        //
+                        //
+                        // $("#retired").data("retired", data.retired)
+                        // if($("#retired").val()=='false'){
+                        //     $("#retired_reason").prop("disabled", true)
+                        // }else{
+                        //     $("#retired_reason").prop("disabled", false)
+                        // }
+                        //
+                        // $("#retired").off("change").on("change", function () {
+                        // if($("#retired").val()=='false'){
+                        //     // if($("#retired").val()== undefined){
+                        //         $("#retired_reason").prop("disabled", true)
+                        //     }else{
+                        //         $("#retired_reason").prop("disabled", false)
+                        //     }
+                        // })
 
 
 
@@ -976,6 +1011,8 @@
 
                     // CONST_IS_CREATE_FORM = false;
                     // $("#formTitle").text("Update License");
+
+                    setupDongleAndRetiredHandler()
 
                     console.log("License fields fetched successfully!", response);
                     // showResultEffect("save-success");
