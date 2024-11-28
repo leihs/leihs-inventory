@@ -537,8 +537,29 @@
         for (const [key, value] of formData.entries()) {
             if (key.startsWith("properties,")) {
                 // Extract the property name after "properties,"
+
+                //     console.log("key???", key, value)
+                // if(key == 'properties,operating_system'){
+                //     console.log("key", key, value)
+                //     debugger
+                // }
+
                 const propertyName = key.split(",")[1];
                 properties[propertyName] = value; // Add to properties object
+
+                if(key == 'properties,operating_system'){
+                    const value = Array.from(
+                        document.querySelectorAll('input[type="checkbox"][name="properties,operating_system"]:checked')
+                    ).map(checkbox => checkbox.value);
+                    properties[propertyName] = value; // Add to properties object
+                }
+
+                if(key == 'properties,installation'){
+                    const value = Array.from(
+                        document.querySelectorAll('input[type="checkbox"][name="properties,installation"]:checked')
+                    ).map(checkbox => checkbox.value);
+                    properties[propertyName] = value; // Add to properties object
+                }
 
                 // Mark the key for deletion
                 keysToDelete.push(key);
@@ -833,6 +854,13 @@
                             renameFormDataKey(formData, "mySupplier", "supplier_id");
                             renameFormDataKey(formData, "myOwner", "owner_id");
                             renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+
+                            for (let [key, value] of formData.entries()) {
+                                console.log(key, value);
+                            }
+
+                            // debugger
 
                             formData = processFormData(formData);
 
