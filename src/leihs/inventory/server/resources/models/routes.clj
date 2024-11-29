@@ -528,6 +528,13 @@
                                                                      ::supplier_id
                                                                      ::attachments-to-delete
                                                                       ::retired_reason
+
+                                                                     ;::properties
+                                                                     :simple/properties
+
+                                                                     ::item_version
+                                                                     ::owner_id
+
                                                                      ]
                               :req-un [
 
@@ -541,12 +548,9 @@
 
                                        ::is_borrowable
                                        ::inventory_code
-                                       ::item_version
-                                       ::owner_id
 
 
-                                       ;::properties
-                                       :simple/properties
+
 
                                        ]))
 

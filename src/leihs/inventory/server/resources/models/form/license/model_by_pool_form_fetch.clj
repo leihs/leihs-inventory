@@ -331,21 +331,74 @@
                                          [:is :owner nil]]]]))
 
 
-                     ;; 12 results for lending-manager
+                     ;; 12 results for lending-manager, TODO: determine owner_id
                      ;(-> (sql/where
-                     ;[:or
-                     ; ;; First OR condition with nested AND
-                     ; [:and
-                     ;  [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
-                     ;  [:in :ff.target_default ["license" "\"\""]]
-                     ;  [:in :ff.role_default ["lending_manager" "\"\""]]
-                     ;  ]
                      ;
-                     ; ;; Second OR condition
-                     ; [:and
-                     ;  [:= :ff.group_default "\"none\""]
-                     ;  [:<> :ff.target_default "item"]]
-                     ; ]))
+                     ;      ;; blacklist
+                     ;      [:not-in :ff.id ["license_version"]]
+                     ;
+                     ;      [:or
+                     ;       ;; First OR condition with nested AND
+                     ;       [:and
+                     ;        [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
+                     ;        [:in :ff.target_default ["license" "\"\""]]
+                     ;        [:in :ff.role_default ["lending_manager" "\"\""]]
+                     ;        ]
+                     ;
+                     ;       ;; Second OR condition
+                     ;       [:and
+                     ;        [:= :ff.group_default "\"none\""]
+                     ;        [:<> :ff.target_default "item"]]
+                     ;       ]))
+
+
+
+                     ;
+                     ;-- item -- inventory-manager -- ok 29
+                     ;select *
+                     ;from (select f.id,
+                     ;       f.data ->> 'label'                      as label,
+                     ;       f.active,
+                     ;       f.position,
+                     ;
+                     ;       COALESCE(f.data ->> 'group', 'none')    AS group,
+                     ;       COALESCE(f.data -> 'target_type', '""') AS target,
+                     ;
+                     ;                 f.data -> 'permissions' -> 'role'       as role,
+                     ;                 f.data -> 'permissions' -> 'owner'      as owner
+                     ;                 from fields f
+                     ;                 where f.active = true) as ff
+                     ;
+                     ;       where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
+                     ;       and (ff.target in ('"item"', '""'))
+                     ;             --     and (ff.role is null or ff.role = '"lending_manager"')
+                     ;                          --    or (ff.group = 'none' and ff.target != '"license"')
+                     ;
+                     ;                                     order by ff.group, ff.position;
+                     ;
+                     ;
+                     ; -- item -- lending-manager -- ok 21, quantity?
+                     ; select *
+                     ; from (select f.id,
+                     ;        f.data ->> 'label'                      as label,
+                     ;        f.active,
+                     ;        f.position,
+                     ;
+                     ;        COALESCE(f.data ->> 'group', 'none')    AS group,
+                     ;        COALESCE(f.data -> 'target_type', '""') AS target,
+                     ;
+                     ;                  f.data -> 'permissions' -> 'role'       as role,
+                     ;                  f.data -> 'permissions' -> 'owner'      as owner
+                     ;                  from fields f
+                     ;                  where f.active = true) as ff
+                     ;
+                     ;        where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
+                     ;        and (ff.target in ('"item"', '""'))
+                     ;              and (ff.role is null or ff.role = '"lending_manager"')
+                     ;                    --    or (ff.group = 'none' and ff.target != '"license"')
+                     ;                               -- or ff.id like '%qu%'
+                     ;
+                     ;                               order by ff.group, ff.position;
 
 
 
