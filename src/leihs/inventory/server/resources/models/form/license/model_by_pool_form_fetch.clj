@@ -6,6 +6,8 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
 
+   [leihs.inventory.server.resources.models.form.license.queries :refer [fields-query-inventory-manager]]
+
    [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
 
       [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
@@ -253,6 +255,26 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
+(def mquery
+  "SELECT *
+   FROM (
+     SELECT f.id,
+            f.data ->> 'label' AS label,
+            f.active,
+            f.position,
+            f.data ->> 'group' AS group,
+            f.data -> 'target_type' AS target,
+            f.data -> 'permissions' -> 'role' AS role,
+            f.data -> 'permissions' -> 'owner' AS owner
+     FROM fields f
+     WHERE f.active = true
+   ) AS ff
+   WHERE (ff.target = '\"license\"' OR ff.target IS NULL)
+     AND ((ff.role = '\"inventory_manager\"' OR ff.role IS NULL)
+          OR (ff.target IS NULL OR ff.owner IS NULL))
+   ORDER BY ff.group, ff.position;")
+
+
 (defn create-license-handler-by-pool-form-fetch [request]
   (let [
         ;current-timestamp (LocalDateTime/now)
@@ -271,75 +293,131 @@
         ]
     (try
       (let [
-            ;; TODO: make a union of
-            ;;   - fields without target_type/permissions
-            ;;   - fields especially for lending/inventory-manager
-            query (-> (sql/select :f.id
-                        :f.active
-                        :f.position
-                        :f.data
-                        :f.dynamic
-                        [(sq/call :cast
-                           (sq/call :jsonb_extract_path_text :f.data "label")
-                           :text) :label]
+            ;;; TODO: make a union of
+            ;;;   - fields without target_type/permissions
+            ;;;   - fields especially for lending/inventory-manager
+            ;query (-> (sql/select :f.id
+            ;            :f.active
+            ;            :f.position
+            ;            :f.data
+            ;            :f.dynamic
+            ;            [(sq/call :cast
+            ;               (sq/call :jsonb_extract_path_text :f.data "label")
+            ;               :text) :label]
+            ;
+            ;            [(sq/call :cast
+            ;               (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
+            ;               :text) :owner]
+            ;
+            ;            [(sq/call :cast
+            ;               (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
+            ;               :text) :role]
+            ;
+            ;            [(sq/call :cast
+            ;               (sq/call :jsonb_extract_path_text :f.data "group")
+            ;               :text) :group]
+            ;
+            ;            [(sq/call :cast
+            ;               (sq/call :jsonb_extract_path_text :f.data "target_type")
+            ;               :text) :target_type]
+            ;
+            ;
+            ;            )
+            ;        (sql/from [:fields :f])
+            ;        (sql/where [:= :f.active true])
+            ;        (sql/where [:or
+            ;                    [:in (sq/call :jsonb_extract_path_text :f.data "group")
+            ;                     ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
+            ;                    [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
+            ;
+            ;
+            ;        (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
+            ;                    [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
+            ;
+            ;
+            ;        ;;; TODO: fetch all license-fields
+            ;        ;(sql/where [:and
+            ;        ;            [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
+            ;        ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "target_type")]]
+            ;        ;            [:or
+            ;        ;             ;; TODO:
+            ;        ;             ;[:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["inventory_manager"]]
+            ;        ;             [:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["lending_manager"]]
+            ;        ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "permissions" "role")]
+            ;        ;
+            ;        ;             ; whitelist (needed for role: lending-manager)
+            ;        ;             [:in :f.id ["inventory_code"]]
+            ;        ;             ]
+            ;        ;            ]
+            ;
+            ;
+            ;
+            ;        (sql/where [:not-in :f.id ["properties_project_number"]])
+            ;
+            ;        (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
+            ;          [:f.position :asc])
+            ;        sql-format
+            ;        )
+            ;
+            ;;p (println ">o> query" query)
+            ;
+            ;fields-result (jdbc/execute! tx query)
 
-                        [(sq/call :cast
-                           (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
-                           :text) :owner]
 
-                        [(sq/call :cast
-                           (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
-                           :text) :role]
-
-                        [(sq/call :cast
-                           (sq/call :jsonb_extract_path_text :f.data "group")
-                           :text) :group]
-
-                        [(sq/call :cast
-                           (sq/call :jsonb_extract_path_text :f.data "target_type")
-                           :text) :target_type]
+            ;; -------------------------------
 
 
-                        )
-                    (sql/from [:fields :f])
-                    (sql/where [:= :f.active true])
-                    (sql/where [:or
-                                [:in (sq/call :jsonb_extract_path_text :f.data "group")
-                                 ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
-                                [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
+            query2 (-> (sql/select :*)
+                     (sql/from [[:raw
+                                 "(SELECT
+                                     f.id,
+                                     f.active,
+                                     f.position,
+                                     jsonb_extract_path_text(f.data, 'label')  AS label,
+                                     jsonb_extract_path_text(f.data, 'group')  AS group,
 
+                                     COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\\\"\\\"') AS target,
 
-                    (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
-                                [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
+                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\\\"\\\"') AS role,
+                                     jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
 
+                                  FROM fields f
+                                  WHERE f.active = true) ff"]]
 
-                    ;;; TODO: fetch all license-fields
-                    ;(sql/where [:and
-                    ;            [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
-                    ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "target_type")]]
-                    ;            [:or
-                    ;             ;; TODO:
-                    ;             ;[:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["inventory_manager"]]
-                    ;             [:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["lending_manager"]]
-                    ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "permissions" "role")]
-                    ;
-                    ;             ; whitelist (needed for role: lending-manager)
-                    ;             [:in :f.id ["inventory_code"]]
-                    ;             ]
-                    ;            ]
+                       )
+                     (sql/where [:= :ff.active true])
+
+                     ;(sql/where [:or
+                     ;          [:= :ff.target "\"license\""]
+                     ;          [:is :ff.target nil]])
+
+                     (sql/where [:in :ff.target ["\"license\"" "\"\""]])
+                     ;(sql/where [:in= :ff.target ["\"license\"" "\"\""]])
+
+                     (sql/where [:or
+                                 [:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                                 [:or
+                                  [:= :ff.target "\"\""]
+                                  [:is :ff.owner nil]]])
 
 
 
-                    (sql/where [:not-in :f.id ["properties_project_number"]])
+                     (sql/order-by :ff.group :ff.position)
 
-                    (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
-                      [:f.position :asc])
-                    sql-format
-                    )
+                     sql-format)
 
-            ;p (println ">o> query" query)
+            p (println ">o> query2" query2)
 
-            fields-result (jdbc/execute! tx query)
+
+
+            ;new-res (jdbc/execute! tx fields-query-inventory-manager)
+            fields-result (jdbc/execute! tx query2)
+            ;new-res (jdbc/execute! tx [mquery])
+
+            ;p (println ">o> new-res" new-res)
+
+            ;; -------------------------------
+
 
 
             filtered (filter-entries fields-result [:group  :label :role ])
@@ -370,7 +448,181 @@
                                                sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
 
+                                p (println ">o> new-res.before")
+
+                                 ;query2 "SELECT * FROM (SELECT f.id, CAST(jsonb_extract_path_text(f.data, 'label') AS TEXT) AS label, f.active, f.position, CAST(jsonb_extract_path_text(f.data, 'group') AS TEXT) AS group, CAST(jsonb_extract_path_text(f.data, 'target_type') AS JSONB) AS target, COALESCE(CAST(jsonb_extract_path_text(f.data, 'permissions', 'role') AS TEXT), '\"\"') AS role, CAST(jsonb_extract_path_text(f.data, 'permissions', 'owner') AS BOOLEAN) AS owner FROM fields f WHERE f.active = true) AS ff WHERE (ff.target = '\"license\"' OR ff.target IS NULL) AND (ff.role IN ('\"inventory_manager\"', '\"\"') OR ff.target IS NULL OR ff.owner IS NULL) ORDER BY ff.group, ff.position;"
+                                 ;
+                                 ;query2
+                                 ;"SELECT *
+                                 ; FROM (SELECT f.id,
+                                 ;              CAST(jsonb_extract_path_text(f.data, 'label') AS TEXT) AS label,
+                                 ;              f.active,
+                                 ;              f.position,
+                                 ;              CAST(jsonb_extract_path_text(f.data, 'group') AS TEXT) AS group,
+                                 ;              CAST(jsonb_extract_path_text(f.data, 'target_type') AS JSONB) AS target,
+                                 ;              COALESCE(CAST(jsonb_extract_path_text(f.data, 'permissions', 'role') AS TEXT), '\"\"') AS role,
+                                 ;              CAST(jsonb_extract_path_text(f.data, 'permissions', 'owner') AS BOOLEAN) AS owner
+                                 ;       FROM fields f
+                                 ;       WHERE f.active = true) AS ff
+                                 ; WHERE (ff.target = '\"license\"' OR ff.target IS NULL)
+                                 ;   AND (ff.role IN ('\"inventory_manager\"', '\"\"') OR ff.target IS NULL OR ff.owner IS NULL)
+                                 ; ORDER BY ff.group, ff.position;"
+                                 ;
+                                 ;
+                                 ;query2
+                                 ;  "SELECT * FROM (SELECT f.id, " +
+                                 ;  "CAST(jsonb_extract_path_text(f.data, 'label') AS TEXT) AS label, " +
+                                 ;  "f.active, f.position, " +
+                                 ;  "CAST(jsonb_extract_path_text(f.data, 'group') AS TEXT) AS group, " +
+                                 ;  "CAST(jsonb_extract_path_text(f.data, 'target_type') AS JSONB) AS target, " +
+                                 ;  "COALESCE(CAST(jsonb_extract_path_text(f.data, 'permissions', 'role') AS TEXT), '\"\"') AS role, " +
+                                 ;  "CAST(jsonb_extract_path_text(f.data, 'permissions', 'owner') AS BOOLEAN) AS owner " +
+                                 ;  "FROM fields f WHERE f.active = true) AS ff " +
+                                 ;  "WHERE (ff.target = '\"license\"' OR ff.target IS NULL) " +
+                                 ;  "AND (ff.role IN ('\"inventory_manager\"', '\"\"') OR ff.target IS NULL OR ff.owner IS NULL) " +
+                                 ;  "ORDER BY ff.group, ff.position;"
+
+
+                                 ;query2 (-> (sql/select :*)
+                                 ;         (sql/from [(-> (sql/select
+                                 ;                        :f.id
+                                 ;                        [(sq/call :cast (sq/call :jsonb_extract_path_text :f.data "label") :text) :label]
+                                 ;                        :f.active
+                                 ;                        :f.position
+                                 ;                        [(sq/call :cast (sq/call :jsonb_extract_path_text :f.data "group") :text) :group]
+                                 ;                        [(sq/call :cast (sq/call :jsonb_extract_path_text :f.data "target_type") :jsonb) :target]
+                                 ;                        [(sq/call :coalesce
+                                 ;                           (sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "role") :text)
+                                 ;                           "\"\"") :role]
+                                 ;                        [(sq/call :cast (sq/call :jsonb_extract_path_text :f.data "permissions" "owner") :boolean) :owner])
+                                 ;                    (sql/from [:fields :f])
+                                 ;                    (sql/where [:= :f.active true])) :ff])
+                                 ;         (sql/where [:or
+                                 ;                   [:= :ff.target "\"license\""]
+                                 ;                   [:is :ff.target nil]])
+                                 ;         (sql/where [:or
+                                 ;                   [:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                                 ;                   [:or
+                                 ;                    [:is :ff.target nil]
+                                 ;                    [:is :ff.owner nil]]])
+                                 ;         (sql/order-by [:ff.group :ff.position])
+                                 ;         sql-format)
+
+
+                                 ;query2
+                                 ;(-> (sql/select :*)
+                                 ;  (sql/from [[:raw
+                                 ;             "(SELECT
+                                 ;                 f.id,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'label') AS TEXT) AS label,
+                                 ;                 f.active,
+                                 ;                 f.position,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'group') AS TEXT) AS group,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'target_type') AS JSONB) AS target,
+                                 ;                 COALESCE(CAST(jsonb_extract_path_text(f.data, 'permissions', 'role') AS TEXT), '\"\"') AS role,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'permissions', 'owner') AS BOOLEAN) AS owner
+                                 ;              FROM fields f
+                                 ;              WHERE f.active = true) AS 'ff'"]])
+                                 ;  ;(sql/where [:or
+                                 ;  ;          [:= :ff.target "\"license\""]
+                                 ;  ;          [:is :ff.target nil]])
+                                 ;  ;(sql/where [:or
+                                 ;  ;          [:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                                 ;  ;          [:or
+                                 ;  ;           [:is :ff.target nil]
+                                 ;  ;           [:is :ff.owner nil]]])
+                                 ;  ;(sql/order-by [:ff.group :ff.position])
+                                 ;  sql-format)
+
+                                 ;query2
+                                 ;(-> (sql/select :*)
+                                 ;  (sql/from [[:raw
+                                 ;             "(SELECT
+                                 ;                 f.id,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'label') AS TEXT) AS label,
+                                 ;                 f.active,
+                                 ;                 f.position,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'group') AS TEXT) AS group,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'target_type') AS JSONB) AS target,
+                                 ;                 COALESCE(CAST(jsonb_extract_path_text(f.data, 'permissions', 'role') AS TEXT), '\"\"') AS role,
+                                 ;                 CAST(jsonb_extract_path_text(f.data, 'permissions', 'owner') AS BOOLEAN) AS owner
+                                 ;              FROM fields f
+                                 ;              WHERE f.active = true) ff"]])
+                                 ;
+                                 ;  sql-format)
+
+                                 ;jsonb_extract_path_text(f.data, 'target_type')  AS target,
+                                 ;COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\"\"') AS target,
+
+                                ; query2 (-> (sql/select :*)
+                                ;             (sql/from [[:raw
+                                ;                        "(SELECT
+                                ;                            f.id,
+                                ;                            f.active,
+                                ;                            f.position,
+                                ;                            jsonb_extract_path_text(f.data, 'label')  AS label,
+                                ;                            jsonb_extract_path_text(f.data, 'group')  AS group,
+                                ;
+                                ;                            COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\\\"\\\"') AS target,
+                                ;
+                                ;                            COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\\\"\\\"') AS role,
+                                ;                            jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
+                                ;
+                                ;                         FROM fields f
+                                ;                         WHERE f.active = true) ff"]]
+                                ;
+                                ;               )
+                                ;             (sql/where [:= :ff.active true])
+                                ;
+                                ;            ;(sql/where [:or
+                                ;            ;          [:= :ff.target "\"license\""]
+                                ;            ;          [:is :ff.target nil]])
+                                ;
+                                ;          (sql/where [:in :ff.target ["\"license\"" "\"\""]])
+                                ;          ;(sql/where [:in= :ff.target ["\"license\"" "\"\""]])
+                                ;
+                                ;          (sql/where [:or
+                                ;                      [:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                                ;                      [:or
+                                ;                       [:= :ff.target "\"\""]
+                                ;                       [:is :ff.owner nil]]])
+                                ;
+                                ;
+                                ;
+                                ;            (sql/order-by :ff.group :ff.position)
+                                ;
+                                ;   sql-format)
+                                ;
+                                ; p (println ">o> query2" query2)
+                                ;
+                                ;
+                                ;
+                                ;;new-res (jdbc/execute! tx fields-query-inventory-manager)
+                                ;new-res (jdbc/execute! tx query2)
+                                ;;new-res (jdbc/execute! tx [mquery])
+                                ;
+                                ; p (println ">o> new-res" new-res)
+
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
 
                                  model-result (assoc model-result :product {
                                                                             :name (:product model-result)
@@ -395,22 +647,9 @@
                                  ;; FIXME:
                                  responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
 
-
-                                 ;model-query (-> (sql/select :ip.*)
-                                 ;               (sql/from [:inventory_pools :ip])
-                                 ;               (sql/where [:= :ip.id pool_id])
-                                 ;               sql-format)
-                                 ;model-result (jdbc/execute-one! tx model-query)
-                                 ;
-                                 ;;p (println ">o> model-result" model-result)
-
-                                 p (println ">o> res1" pool-id)
-
                                  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
                                  p (println ">o> next-code" next-code)
 
-
-                                 ;inventory_code (str (:shortname model-result) (random-5-digit) )
                                  ]
 
                            {:inventory_pool_id pool-id
