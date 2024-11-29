@@ -17,8 +17,8 @@
         .file-list { margin-top: 10px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .file-item span { flex-grow: 1; }
-        .remove-file-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
-        .remove-file-btn:hover { background-color: #a71d2a; }
+        .remove-file-btn, .remove-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
+        .remove-file-btn:hover, .remove-btn:hover { background-color: #a71d2a; }
 
         body.save-success {
             border: 1em solid #b8f4b8;
@@ -306,7 +306,17 @@
         }
     }
 
-function deletePutPostRequestData(formData){
+    function addQuantityAllocationElement(quantity = '', room = '') {
+        $('#propertiesList').append(`
+        <div class="dynamic-item" style="display: inline-flex; gap: 8px; margin-bottom: 8px;">
+            <input type="text" _name="quantityAllocationQuantity[]" placeholder="Key" value="${quantity}" required>
+            <input type="text" _name="quantityAllocationRoom[]" placeholder="Value" value="${room}" required>
+            <button type="button" class="remove-btn">Remove</button>
+        </div>
+    `);
+    }
+
+function deleteParamsFromPutPostFormData(formData){
     formData.delete("model_id");
     formData.delete("inventory_pool_id");
 }
@@ -332,6 +342,34 @@ function deletePutPostRequestData(formData){
 
         return data
     }
+
+    function getQuantityAllocationAsJsonArray() {
+        let propertiesArray = [];
+
+        $('#propertiesList .dynamic-item').each(function() {
+            let quantity = $(this).find('input[_name="quantityAllocationQuantity[]"]').val();
+            let name = $(this).find('input[_name="quantityAllocationRoom[]"]').val();
+
+            // Push the key-value pair into the array as a map
+            propertiesArray.push({
+                quantity: quantity,
+                room: name
+            });
+        });
+
+        return propertiesArray;
+    }
+
+    // // Add Property
+    // $('#addProperty').click(function() {
+    //     $('#propertiesList').append(`
+    //             <div class="dynamic-item">
+    //                 <input type="text" name="quantityAllocationQuantity[]" placeholder="Key" required>
+    //                 <input type="text" name="quantityAllocationRoom[]" placeholder="Value" required>
+    //                 <button type="button" class="remove-btn">Remove</button>
+    //             </div>
+    //         `);
+    // });
 
     function generateFormFields(config, formId) {
         const form = $('#dynamicFields');
@@ -384,6 +422,19 @@ function deletePutPostRequestData(formData){
                         <textarea id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}></textarea>
                     </div>
                 `);
+                    break;
+
+                case 'composite':
+                    field = $(`
+                    <div class="form-item">
+                        <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                        <div id="propertiesList">
+
+                        </div>
+                        <button type="button" id="addProperty">Add Property</button>
+                    </div>
+                `);
+
                     break;
 
 
@@ -494,6 +545,39 @@ function deletePutPostRequestData(formData){
         // TODO: define/trigger init
         $("#mySoftware").select2(initSoftwareConfig)
         $("#mySupplier").select2(initSupplierConfig)
+
+        // // Add Property
+        // $('#addProperty').click(function() {
+        //     $('#propertiesList').append(`
+        //         <div class="dynamic-item" style="display:inline-flex;">
+        //             <input type="text" name="quantityAllocationQuantity[]" placeholder="Key" required>
+        //             <input type="text" name="quantityAllocationRoom[]" placeholder="Value" required>
+        //             <button type="button" class="remove-btn">Remove</button>
+        //         </div>
+        //     `);
+        // });
+
+
+
+
+
+// Add Property Button Click Event
+        $('#addProperty').click(function() {
+            addQuantityAllocationElement(); // Add an empty row when the button is clicked
+        });
+
+// Trigger Click with Parameters
+        $('#triggerAddProperty').click(function() {
+            addQuantityAllocationElement('DefaultKey', 'DefaultValue'); // Pass parameters to pre-fill the fields
+        });
+
+
+        $(document).on('click', '.remove-btn', function() {
+            $(this).closest('.dynamic-item').remove();
+        });
+
+
+
     }
 
 
@@ -567,7 +651,7 @@ function deletePutPostRequestData(formData){
 
     }
 
-    function processFormData(formData) {
+    function appendQuantityAllocationToFormData(formData) {
         const properties = {}; // Object to hold extracted properties
         const keysToDelete = []; // To keep track of keys to be deleted
 
@@ -603,6 +687,11 @@ function deletePutPostRequestData(formData){
                 keysToDelete.push(key);
             }
         }
+
+
+        let quantityAllocation = getQuantityAllocationAsJsonArray()
+        properties["quantity_allocations"] = quantityAllocation
+
 
         // Remove all keys marked for deletion
         keysToDelete.forEach(key => formData.delete(key));
@@ -866,6 +955,12 @@ function deletePutPostRequestData(formData){
                             }
                         });
 
+                        const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
+                        $('#propertiesList').empty()
+                        quantity_allocations.forEach(entry => {
+                            addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
+                        });
+
 
                         setupDongleAndRetiredHandler(data)
 
@@ -894,8 +989,8 @@ function deletePutPostRequestData(formData){
                             }
 
 
-                            formData = processFormData(formData);
-                            deletePutPostRequestData(formData);
+                            formData = appendQuantityAllocationToFormData(formData);
+                            deleteParamsFromPutPostFormData(formData);
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
@@ -956,6 +1051,7 @@ function deletePutPostRequestData(formData){
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
 
+
                     // debugger
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
@@ -983,11 +1079,13 @@ function deletePutPostRequestData(formData){
                         // }
                         // debugger
 
-                        formData = processFormData(formData);
+                        formData = appendQuantityAllocationToFormData(formData);
 
                         let modelId=formData.get("model_id")
 
-                        deletePutPostRequestData(formData);
+                        deleteParamsFromPutPostFormData(formData);
+
+
 
 
                         // debugger
