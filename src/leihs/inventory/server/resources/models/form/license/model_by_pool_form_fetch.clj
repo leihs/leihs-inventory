@@ -282,6 +282,7 @@
         current-timestamp (get-current-timestamp)
 
         tx (get-in request [:tx])
+        item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         pool_id pool-id
@@ -293,81 +294,7 @@
         ]
     (try
       (let [
-            ;;; TODO: make a union of
-            ;;;   - fields without target_type/permissions
-            ;;;   - fields especially for lending/inventory-manager
-            ;query (-> (sql/select :f.id
-            ;            :f.active
-            ;            :f.position
-            ;            :f.data
-            ;            :f.dynamic
-            ;            [(sq/call :cast
-            ;               (sq/call :jsonb_extract_path_text :f.data "label")
-            ;               :text) :label]
-            ;
-            ;            [(sq/call :cast
-            ;               (sq/call :jsonb_extract_path_text :f.data "permissions" "owner")
-            ;               :text) :owner]
-            ;
-            ;            [(sq/call :cast
-            ;               (sq/call :jsonb_extract_path_text :f.data "permissions" "role")
-            ;               :text) :role]
-            ;
-            ;            [(sq/call :cast
-            ;               (sq/call :jsonb_extract_path_text :f.data "group")
-            ;               :text) :group]
-            ;
-            ;            [(sq/call :cast
-            ;               (sq/call :jsonb_extract_path_text :f.data "target_type")
-            ;               :text) :target_type]
-            ;
-            ;
-            ;            )
-            ;        (sql/from [:fields :f])
-            ;        (sql/where [:= :f.active true])
-            ;        (sql/where [:or
-            ;                    [:in (sq/call :jsonb_extract_path_text :f.data "group")
-            ;                     ["Status" "Invoice Information" "General Information" "Inventory" "Maintenance"]]
-            ;                    [:is (sq/call :jsonb_extract_path_text :f.data "group") nil]])
-            ;
-            ;
-            ;        (sql/where [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
-            ;                    [:is (sq/call :jsonb_extract_path_text :f.data "target_type") nil]])
-            ;
-            ;
-            ;        ;;; TODO: fetch all license-fields
-            ;        ;(sql/where [:and
-            ;        ;            [:or [:ilike (sq/call :jsonb_extract_path_text :f.data "target_type") "%license%"]
-            ;        ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "target_type")]]
-            ;        ;            [:or
-            ;        ;             ;; TODO:
-            ;        ;             ;[:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["inventory_manager"]]
-            ;        ;             [:in (sq/call :jsonb_extract_path_text :f.data "permissions" "role") ["lending_manager"]]
-            ;        ;             [:is-null (sq/call :jsonb_extract_path_text :f.data "permissions" "role")]
-            ;        ;
-            ;        ;             ; whitelist (needed for role: lending-manager)
-            ;        ;             [:in :f.id ["inventory_code"]]
-            ;        ;             ]
-            ;        ;            ]
-            ;
-            ;
-            ;
-            ;        (sql/where [:not-in :f.id ["properties_project_number"]])
-            ;
-            ;        (sql/order-by [(sq/call :jsonb_extract_path_text :f.data "group") :asc]
-            ;          [:f.position :asc])
-            ;        sql-format
-            ;        )
-            ;
-            ;;p (println ">o> query" query)
-            ;
-            ;fields-result (jdbc/execute! tx query)
 
-
-            ;; -------------------------------
-
-            ;jsonb_extract_path_text(f.data, 'target_type')  AS target,
-            ;COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '""') AS target,
 
             query2 (-> (sql/select :*)
                      (sql/from [[:raw
@@ -458,18 +385,18 @@
                            (let [
                                  model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                                    :m.hand_over_note :m.description :m.internal_description
-                                                   ;:m.technical_detail :m.is_package)
                                                    :m.technical_detail :m.is_package :i.* [:s.id :supplier_id][:s.name :supplier_name])
-                                               ;dyn-select
+
                                                (sql/from [:models :m])
 
                                                (sql/join [:items :i] [:= :m.id :i.model_id])
-                                               (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
-                                               (sql/where [:= :m.id model-id])
+                                               (sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
+                                               ;(sql/where [:= :m.id model-id] [:= :i.id item-id])
+                                               (sql/where [:= :i.id item-id])
                                                sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
 
-                                p (println ">o> new-res.before")
+                                p (println ">o> >>>>>>>>>> new-res.before.model-result ????????????" model-result)
 
 
                                  model-result (assoc model-result :product {
@@ -481,6 +408,17 @@
                                                                             :name (:supplier_name model-result)
                                                                             :supplier_id (:supplier_id model-result)
                                                                             })
+
+
+
+                                 res (jdbc/execute! tx  (-> (sql/select :id :filename :content_type :size)
+                                                                  (sql/from :attachments)
+                                                                  (sql/where [:= :item_id item-id])
+                                                                  sql-format)
+                                       )
+                                 ;p (println ">o> ????abc1" res)
+                                 model-result (assoc model-result :attachments res)
+
 
                                  model-result (rename-keys model-result {:item_version :version})
 
@@ -501,10 +439,8 @@
                                  ]
 
                            {:inventory_pool_id pool-id
-                            ;:inventory_code inventory_code
                             :responsible_department responsible_department
                             :inventory_code next-code
-                            ;:properties {:maintenance_currency "CHF"}
                             }
                            )
                              )

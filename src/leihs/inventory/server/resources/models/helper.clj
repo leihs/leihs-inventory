@@ -192,18 +192,13 @@
            data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)
 
 
-           p (println ">o> process-attachments2.data " data )
+           ;p (println ">o> process-attachments2.data " data )
        res (jdbc/execute! tx (-> (sql/insert-into :attachments)
                            (sql/values [data])
                            (sql/returning :*)
                            sql-format))
           p  (println ">o> process-attachments3"  (keyword col_name) id)
-
-       ;res (jdbc/execute! tx (pr ">1" (-> (sql/select :*)
-
            ]
-
-       ;res
        ))
 
    (let [
@@ -226,24 +221,3 @@
    )
 
   )
-
-;(defn process-attachments
-;
-;(  [tx attachments col_name id]
-;  (doseq [entry attachments]
-;    (let [file-content (file-to-base64 (:tempfile entry))
-;          data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) (to-uuid id))]
-;      (jdbc/execute! tx (-> (sql/insert-into :attachments)
-;                            (sql/values [data])
-;                            (sql/returning :*)
-;                            sql-format))
-;
-;      (jdbc/execute! tx (-> (sql/select :*)
-;                            (sql/from :attachments)
-;                            (sql/where (keyword col_name) id)
-;                            ;(sql/returning :*)
-;                            sql-format))
-;      )))
-;
-;
-;  )

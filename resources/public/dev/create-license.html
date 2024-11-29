@@ -318,7 +318,7 @@
 
     function updateFileList(input, listSelector, inputId) {
         var fileList = $(listSelector);
-        fileList.empty();
+        // fileList.empty();
 
         console.log(">> updateFileList1 > ", input.files);
         console.log(">> updateFileList2 > ", listSelector);
@@ -336,6 +336,40 @@
         }
     }
 
+    function updateFileList(input, listSelector, inputId, attachments = []) {
+        var fileList = $(listSelector);
+        fileList.empty();
+
+        // Handle files from input element
+        if (input.files && input.files.length > 0) {
+            console.log(">> updateFileList1 > Input Files:", input.files);
+            for (var i = 0; i < input.files.length; i++) {
+                var fileName = input.files[i].name;
+                fileList.append(`
+                <div class="file-item">
+                    <span>${fileName}</span>
+                    <button type="button" ftype="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                </div>
+            `);
+            }
+        }
+
+        // Handle files from response.data.attachments
+        if (attachments.length > 0) {
+            console.log(">> updateFileList2 > Attachments:", attachments);
+                    // <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" data-attachment-index="${index}">Remove</button>
+            attachments.forEach((attachment, index) => {
+                fileList.append(`
+                <div class="file-item" id="attachments-to-delete">
+                    <span>${attachment.filename} (${attachment.content_type})</span>
+                    <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" >Remove</button>
+                </div>
+            `);
+            });
+        }
+    }
+
+
     // Remove file from list
     $(document).on('click', '.remove-file-btn', function() {
         var fileId = $(this).data('fileId')
@@ -347,6 +381,20 @@
 
         $(this).parent().remove();
 
+    });
+
+    // Remove file from list
+    $(document).on('click', '.remove-attachment-btn', function() {
+        let attachmentsList = $(this).closest("#attachmentsList")
+        let id = $(this).attr("data-attachment-id")
+
+        if(id != undefined){
+            let data = attachmentsList.data("to-delete") || []
+            data.push(id)
+            attachmentsList.data("to-delete", data )
+        }
+
+        $(this).parent().remove();
     });
 
     function deleteParamsFromPutPostFormData(formData){
@@ -392,17 +440,6 @@
 
         return propertiesArray;
     }
-
-    // // Add Property
-    // $('#addProperty').click(function() {
-    //     $('#propertiesList').append(`
-    //             <div class="dynamic-item">
-    //                 <input type="text" name="quantityAllocationQuantity[]" placeholder="Key" required>
-    //                 <input type="text" name="quantityAllocationRoom[]" placeholder="Value" required>
-    //                 <button type="button" class="remove-btn">Remove</button>
-    //             </div>
-    //         `);
-    // });
 
     function generateFormFields(config, formId) {
         const form = $('#dynamicFields');
@@ -589,27 +626,13 @@
         $("#mySoftware").select2(initSoftwareConfig)
         $("#mySupplier").select2(initSupplierConfig)
 
-        // // Add Property
-        // $('#addProperty').click(function() {
-        //     $('#propertiesList').append(`
-        //         <div class="dynamic-item" style="display:inline-flex;">
-        //             <input type="text" name="quantityAllocationQuantity[]" placeholder="Key" required>
-        //             <input type="text" name="quantityAllocationRoom[]" placeholder="Value" required>
-        //             <button type="button" class="remove-btn">Remove</button>
-        //         </div>
-        //     `);
-        // });
 
-
-
-
-
-// Add Property Button Click Event
+        // Add Property Button Click Event
         $('#addProperty').click(function() {
             addQuantityAllocationElement(); // Add an empty row when the button is clicked
         });
 
-// Trigger Click with Parameters
+        // Trigger Click with Parameters
         $('#triggerAddProperty').click(function() {
             addQuantityAllocationElement('DefaultKey', 'DefaultValue'); // Pass parameters to pre-fill the fields
         });
@@ -1007,6 +1030,19 @@
                             addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
                         });
 
+                        const attachments = data.attachments || []; // Default to an empty array
+                        $("#attachmentsList").empty();
+                        attachments.forEach(attachment => {
+
+                               let entry= $("#attachmentsList").append(`
+                                    <div class="file-item" withData>
+                                        <span>${attachment.filename} (${attachment.content_type})</span>
+                                        <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
+                                    </div>
+                                `);
+
+                            entry.data("raw", attachment)
+                            });
 
                         setupDongleAndRetiredHandler(data)
 
@@ -1034,6 +1070,16 @@
                                 console.log(key, value);
                             }
 
+                            // if (formData.get("supplier_id") in ['null', undefined, null]) {
+                            if (['null', undefined, null].includes(formData.get("supplier_id"))) {
+                                formData.delete("supplier_id");
+                            }
+
+                            // debugger
+                            formData.delete('attachments-to-delete');
+                            var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
+                            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+
 
                             formData = appendQuantityAllocationToFormData(formData);
                             deleteParamsFromPutPostFormData(formData);
@@ -1048,6 +1094,9 @@
                                 headers: {Accept: "application/json"},
                                 success: function (response) {
                                     console.log("License updated successfully!", response);
+
+                                    $(`#attachmentsList`).data('to-delete', [])
+
                                     showResultEffect("save-success");
                                 },
                                 error: function (xhr, status, error) {
@@ -1160,8 +1209,8 @@
                                 // debugger
 
                                 console.info("UPDATING ITEM-ID")
-                                let item_id=response.data.id
-                                $('#licenseId').val(item_id)
+                                $('#softwareId').val(response.data.model_id)
+                                $('#licenseId').val(response.data.item_id)
 
 
                                 showResultEffect("save-success");
