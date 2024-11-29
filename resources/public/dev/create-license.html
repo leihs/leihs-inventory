@@ -504,6 +504,31 @@ function deletePutPostRequestData(formData){
 
 
     function setupDongleAndRetiredHandler(data){
+        // project handling
+        let reference = $('[name="properties,reference"]:checked').val();
+        $(`[name="properties,reference"][value="${reference}"]`).prop('checked', true);
+        // $('[name="properties,reference"][value="invoice"]').prop('checked', true);
+        // if(reference=="dongle"){
+        //     $("#properties_dongle_id").prop("disabled", false)
+        // }else{
+        //     $("#properties_dongle_id").prop("disabled", true)
+        // }
+
+        function handleReferenceSwitch(){
+            let reference = $('[name="properties,reference"]:checked').val();
+            console.log("reference", reference)
+            if(reference=="invoice"){
+                $("#properties_project_number").prop("disabled", true)
+                $("#properties_project_number").val("")
+            }else{
+                $("#properties_project_number").prop("disabled", false)
+            }
+        }
+        handleReferenceSwitch()
+
+        $('[name="properties,reference"][value="investment"]').off("change").on("change",handleReferenceSwitch)
+        $('[name="properties,reference"][value="invoice"]').off("change").on("change",handleReferenceSwitch)
+
         // dongle handling
         if($("#properties_activation_type").val()=="dongle"){
             $("#properties_dongle_id").prop("disabled", false)
@@ -519,11 +544,13 @@ function deletePutPostRequestData(formData){
             }
         })
 
+        // retired handling
         if(data != undefined){
             $("#retired").data("retired", data.retired)
         }
         if($("#retired").val()=='false'){
             $("#retired_reason").prop("disabled", true)
+            $("#retired_reason").val("")
         }else{
             $("#retired_reason").prop("disabled", false)
         }
@@ -532,6 +559,7 @@ function deletePutPostRequestData(formData){
             if($("#retired").val()=='false'){
                 // if($("#retired").val()== undefined){
                 $("#retired_reason").prop("disabled", true)
+                $("#retired_reason").val("")
             }else{
                 $("#retired_reason").prop("disabled", false)
             }
