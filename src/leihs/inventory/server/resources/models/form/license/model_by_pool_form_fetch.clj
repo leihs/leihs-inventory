@@ -366,6 +366,8 @@
 
             ;; -------------------------------
 
+            ;jsonb_extract_path_text(f.data, 'target_type')  AS target,
+            ;COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '""') AS target,
 
             query2 (-> (sql/select :*)
                      (sql/from [[:raw
@@ -373,32 +375,45 @@
                                      f.id,
                                      f.active,
                                      f.position,
+                                     f.data,
                                      jsonb_extract_path_text(f.data, 'label')  AS label,
                                      jsonb_extract_path_text(f.data, 'group')  AS group,
 
-                                     COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\\\"\\\"') AS target,
+                                     jsonb_extract_path_text(f.data, 'target_type')  AS target,
 
-                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\\\"\\\"') AS role,
+                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\"\"') AS role,
                                      jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
 
                                   FROM fields f
                                   WHERE f.active = true) ff"]]
 
                        )
-                     (sql/where [:= :ff.active true])
+                     ;(sql/where [:= :ff.active true])
 
+                     ;;(sql/where [:or
+                     ;;          [:= :ff.target "\"license\""]
+                     ;;          [:is :ff.target nil]])
+                     ;
+                     ;(sql/where [:in :ff.target ["\"license\"" "\"\""]])
+                     ;;(sql/where [:in= :ff.target ["\"license\"" "\"\""]])
+                     ;
                      ;(sql/where [:or
-                     ;          [:= :ff.target "\"license\""]
-                     ;          [:is :ff.target nil]])
+                     ;            [:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                     ;            [:or
+                     ;             [:= :ff.target "\"\""]
+                     ;             [:is :ff.owner nil]]])
 
-                     (sql/where [:in :ff.target ["\"license\"" "\"\""]])
-                     ;(sql/where [:in= :ff.target ["\"license\"" "\"\""]])
-
-                     (sql/where [:or
-                                 [:in :ff.role ["\"inventory_manager\"" "\"\""]]
-                                 [:or
-                                  [:= :ff.target "\"\""]
-                                  [:is :ff.owner nil]]])
+                     (-> (sql/where [:and
+                                   [:or
+                                    ;[:= :ff.target "\"license\""]
+                                    [:= :ff.target "license"]
+                                    [:is :ff.target nil]]
+                                   [:or
+                                    ;[:in :ff.role ["\"inventory_manager\"" "\"\""]]
+                                    [:in :ff.role ["inventory_manager" ""]]
+                                    [:or
+                                     [:is :ff.target nil]
+                                     [:is :owner nil]]]]))
 
 
 
@@ -414,7 +429,8 @@
             fields-result (jdbc/execute! tx query2)
             ;new-res (jdbc/execute! tx [mquery])
 
-            ;p (println ">o> new-res" new-res)
+            p (println ">o> >>>>>>>>> 1fields-result (count) ??? " (count fields-result)   )
+            p (println ">o> >>>>>>>>> 2fields-result (count) ??? "  fields-result )
 
             ;; -------------------------------
 
