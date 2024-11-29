@@ -176,7 +176,12 @@
                                   properties-entries))]
     {:properties properties-map}))
 
-
+(defn remove-empty-or-nil
+  "Removes all entries from the map where the value is either nil or an empty string."
+  [m]
+  (into {}
+    (filter (fn [[_ v]] (not (or (nil? v) (= v ""))))
+      m)))
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])
         now-ts (LocalDateTime/now)
@@ -197,16 +202,23 @@
         ;; 1. set attachments
         ;; 2. default-room
 
+        p (println ">o> abc.retired" (:retired multipart) (type (:retired multipart)))
 
         ;multipart2 (dissoc multipart  :attachments :retired :invoice_date :price)
-        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
+        multipart2 (dissoc multipart :attachments :retired )
+        ;multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
         multipart2b {
                      :created_at now-ts
                      :updated_at now-ts
 
+                     :retired (if (= (:retired multipart) false)
+                                nil
+                                (.toLocalDate now-ts)
+                                )
+
                      :properties [:cast (jsonc/generate-string properties) :jsonb]
 
-                     :owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
+                     ;:owner_id (to-uuid "8bd16d45-056d-5590-bc7f-12849f034351")
                      :inventory_pool_id pool-id
 
                      :model_id model-id
@@ -216,10 +228,13 @@
 
         multipart2 (merge multipart2 multipart2b)
 
+        multipart2 (remove-empty-or-nil multipart2)
+        p (println ">o> multipart2.multipart2 ???" multipart2)
 
 
-        extract-properties (extract-properties multipart)
-        p (println ">o> multipart2" extract-properties)
+
+        extracted-properties (extract-properties multipart)
+        p (println ">o> multipart2.extract-properties" extracted-properties)
 
 
         p (println ">o> pool-id" pool-id)

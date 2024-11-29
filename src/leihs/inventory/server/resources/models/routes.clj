@@ -467,6 +467,7 @@
 (sa/def ::note string?)
 
 
+(sa/def ::owner_id uuid?)
 (sa/def ::software_id uuid?)
 (sa/def ::supplier_id uuid?)
 (sa/def ::model_id uuid?)
@@ -541,6 +542,7 @@
                                        ::is_borrowable
                                        ::inventory_code
                                        ::item_version
+                                       ::owner_id
 
 
                                        ;::properties

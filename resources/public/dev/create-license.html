@@ -984,6 +984,9 @@ function deletePutPostRequestData(formData){
                             success: function (response) {
                                 console.log("License create successfully!", response);
                                 showResultEffect("save-success");
+
+
+                                // TODO: fetch data by response id's
                             },
                             error: function (xhr, status, error) {
                                 console.error("Error updating license:", error);
