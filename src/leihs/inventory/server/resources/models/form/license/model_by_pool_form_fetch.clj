@@ -377,43 +377,69 @@
                                      f.position,
                                      f.data,
                                      jsonb_extract_path_text(f.data, 'label')  AS label,
+
                                      jsonb_extract_path_text(f.data, 'group')  AS group,
+                                     COALESCE(jsonb_extract_path_text(f.data, 'group'), '\"none\"') AS group_default,
 
                                      jsonb_extract_path_text(f.data, 'target_type')  AS target,
+                                     COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\"\"') AS target_default,
 
-                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\"\"') AS role,
+                                     jsonb_extract_path_text(f.data, 'permissions', 'role') AS role,
+                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\"\"') AS role_default,
+
                                      jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
 
                                   FROM fields f
                                   WHERE f.active = true) ff"]]
 
                        )
-                     ;(sql/where [:= :ff.active true])
 
-                     ;;(sql/where [:or
-                     ;;          [:= :ff.target "\"license\""]
-                     ;;          [:is :ff.target nil]])
-                     ;
-                     ;(sql/where [:in :ff.target ["\"license\"" "\"\""]])
-                     ;;(sql/where [:in= :ff.target ["\"license\"" "\"\""]])
-                     ;
-                     ;(sql/where [:or
-                     ;            [:in :ff.role ["\"inventory_manager\"" "\"\""]]
-                     ;            [:or
-                     ;             [:= :ff.target "\"\""]
-                     ;             [:is :ff.owner nil]]])
+                     ;; 30 results for inventory-manager
+                     ;(-> (sql/where [:and
+                     ;              [:or
+                     ;               [:= :ff.target_default "license"]
+                     ;               [:is :ff.target_default nil]]
+                     ;              [:or
+                     ;               [:in :ff.role_default ["inventory_manager" ""]]
+                     ;               [:or
+                     ;                [:is :ff.target_default nil]
+                     ;                [:is :owner nil]]]]))
 
-                     (-> (sql/where [:and
-                                   [:or
-                                    ;[:= :ff.target "\"license\""]
-                                    [:= :ff.target "license"]
-                                    [:is :ff.target nil]]
-                                   [:or
-                                    ;[:in :ff.role ["\"inventory_manager\"" "\"\""]]
-                                    [:in :ff.role ["inventory_manager" ""]]
-                                    [:or
-                                     [:is :ff.target nil]
-                                     [:is :owner nil]]]]))
+
+
+                           ;[:or
+                           ;            [:and
+                           ;             [:in :ff.group_default ["General Information" "Invoice Information" "Status" "none"]]
+                           ;             [:in :ff.target_default ["license" ""]]
+                           ;
+                           ;             ;[:or
+                           ;              ;[:is :ff.role nil]
+                           ;              ;[:= :ff.role "lending_manager"]]
+                           ;              ]
+                           ;
+                           ;              [:in :ff.role_default ["inventory_manager" ""]]
+                           ;
+                           ;            [:and
+                           ;             [:= :ff.group_default "none"]
+                           ;             [:<> :ff.target_default "item"]]
+                           ;
+                           ;          ]))
+
+                     ;; 12 results for lending-manager
+                     (-> (sql/where
+                     [:or
+                      ;; First OR condition with nested AND
+                      [:and
+                       [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
+                       [:in :ff.target_default ["license" "\"\""]]
+                       [:in :ff.role_default ["lending_manager" "\"\""]]
+                       ]
+
+                      ;; Second OR condition
+                      [:and
+                       [:= :ff.group_default "\"none\""]
+                       [:<> :ff.target_default "item"]]
+                      ]))
 
 
 
