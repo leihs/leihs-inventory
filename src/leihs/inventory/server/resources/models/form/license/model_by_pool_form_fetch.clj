@@ -390,7 +390,8 @@
                                                (sql/from [:models :m])
 
                                                (sql/join [:items :i] [:= :m.id :i.model_id])
-                                               (sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
+                                               ;(sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
+                                               (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
                                                ;(sql/where [:= :m.id model-id] [:= :i.id item-id])
                                                (sql/where [:= :i.id item-id])
                                                sql-format)
@@ -411,6 +412,7 @@
 
 
 
+                                 p (println ">o> !!!!!!!!!!! 1 abc.item_id" item-id)
                                  res (jdbc/execute! tx  (-> (sql/select :id :filename :content_type :size)
                                                                   (sql/from :attachments)
                                                                   (sql/where [:= :item_id item-id])

@@ -526,7 +526,7 @@
                                                                      ;::software_id
                                                                      ::model_id
                                                                      ::supplier_id
-
+                                                                     ::attachments-to-delete
                                                                       ::retired_reason
                                                                      ]
                               :req-un [

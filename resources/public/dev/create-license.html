@@ -402,6 +402,24 @@
         formData.delete("inventory_pool_id");
     }
 
+
+    function checkFormDataOrThrow(formData, modelId){
+        if(formData == undefined){
+            throw new Error("formData is undefined")
+        }
+
+        if (['null', undefined, null].includes(formData.get("supplier_id"))) {
+            // formData.delete("supplier_id");
+            throw new Error("Supplier is required");
+        }
+
+        // for url
+        if (['null', undefined, null].includes(modelId)) {
+            // formData.delete("supplier_id");
+            throw new Error("Software is required");
+        }
+    }
+
     function renameFormDataKey(formData, oldKey, newKey) {
         if (formData.has(oldKey)) {
             // Get the value of the old key
@@ -1070,10 +1088,7 @@
                                 console.log(key, value);
                             }
 
-                            // if (formData.get("supplier_id") in ['null', undefined, null]) {
-                            if (['null', undefined, null].includes(formData.get("supplier_id"))) {
-                                formData.delete("supplier_id");
-                            }
+                            checkFormDataOrThrow(formData, modelId)
 
                             // debugger
                             formData.delete('attachments-to-delete');
@@ -1096,6 +1111,9 @@
                                     console.log("License updated successfully!", response);
 
                                     $(`#attachmentsList`).data('to-delete', [])
+                                    $('#attachments').val('');
+
+                                    $('#fetchLicenseBtn').trigger('click');
 
                                     showResultEffect("save-success");
                                 },
@@ -1182,6 +1200,7 @@
 
 
 
+                        checkFormDataOrThrow(formData, modelId)
 
                         // debugger
 
@@ -1212,6 +1231,11 @@
                                 $('#softwareId').val(response.data.model_id)
                                 $('#licenseId').val(response.data.item_id)
 
+                                $(`#attachmentsList`).data('to-delete', [])
+                                $('#attachments').val('');
+
+
+                                $('#fetchLicenseBtn').trigger('click');
 
                                 showResultEffect("save-success");
 

@@ -59,7 +59,9 @@
     (update-or-insert tx table where-values update-values)))
 
 (defn process-deletions [tx ids table key]
+  (println ">o> process-deletions" table key )
   (doseq [id ids]
+    (println ">o> process-deletions.id" id)
     (jdbc/execute! tx (-> (sql/delete-from table)
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
@@ -210,7 +212,7 @@
         p (println ">o> properties" properties)
 
 
-        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
+        multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price :attachments-to-delete)
         multipart2b {
                      ;:created_at created-ts
                      :updated_at now-ts
@@ -246,15 +248,31 @@
         ;    categories (parse-json-array request :categories)
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
+
+            p (println ">o> >>>>>>>>>>>>>>>>>> attachments-to-delete" attachments-to-delete)
+
             ;images (normalize-files request :images)
         ;    images-to-delete (parse-json-array request :images-to-delete)
         ;    properties (parse-json-array request :properties)
         ;    accessories (parse-json-array request :accessories)
         ;    entitlements (parse-json-array request :entitlements)
+            _ (do
+              (process-attachments tx attachments "item_id" (:id updated-model))
+                    (process-deletions tx attachments-to-delete :attachments :id))
+
+
+
+            p (println ">o> !!!!!!!!!!! 2 abc.item_id" item-id)
+            res (jdbc/execute! tx  (-> (sql/select :id :filename :content_type :size)
+                                     (sql/from :attachments)
+                                     (sql/where [:= :item_id item-id])
+                                     sql-format)
+                  )
+            ;p (println ">o> ????abc1" res)
+            updated-model (assoc updated-model :attachments res)
+
          ]
         ;
-        (process-attachments tx attachments "item_id" (:id updated-model))
-        (process-deletions tx attachments-to-delete :attachments :id)
         ;(process-images tx images model-id)
         ;(process-image-deletions tx images-to-delete model-id)
         ;(process-entitlements tx entitlements model-id)
