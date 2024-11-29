@@ -395,51 +395,30 @@
                        )
 
                      ;; 30 results for inventory-manager
-                     ;(-> (sql/where [:and
-                     ;              [:or
-                     ;               [:= :ff.target_default "license"]
-                     ;               [:is :ff.target_default nil]]
-                     ;              [:or
-                     ;               [:in :ff.role_default ["inventory_manager" ""]]
-                     ;               [:or
-                     ;                [:is :ff.target_default nil]
-                     ;                [:is :owner nil]]]]))
+                     (-> (sql/where [:and
+                                       [:in :ff.target_default ["license" "\"\""]]
+                                         [:or
+                                        [:in :ff.role_default ["inventory_manager" "\"\""]]
+                                        [:or
+                                         [:is :ff.target nil]
+                                         [:is :owner nil]]]]))
 
-
-
-                           ;[:or
-                           ;            [:and
-                           ;             [:in :ff.group_default ["General Information" "Invoice Information" "Status" "none"]]
-                           ;             [:in :ff.target_default ["license" ""]]
-                           ;
-                           ;             ;[:or
-                           ;              ;[:is :ff.role nil]
-                           ;              ;[:= :ff.role "lending_manager"]]
-                           ;              ]
-                           ;
-                           ;              [:in :ff.role_default ["inventory_manager" ""]]
-                           ;
-                           ;            [:and
-                           ;             [:= :ff.group_default "none"]
-                           ;             [:<> :ff.target_default "item"]]
-                           ;
-                           ;          ]))
 
                      ;; 12 results for lending-manager
-                     (-> (sql/where
-                     [:or
-                      ;; First OR condition with nested AND
-                      [:and
-                       [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
-                       [:in :ff.target_default ["license" "\"\""]]
-                       [:in :ff.role_default ["lending_manager" "\"\""]]
-                       ]
-
-                      ;; Second OR condition
-                      [:and
-                       [:= :ff.group_default "\"none\""]
-                       [:<> :ff.target_default "item"]]
-                      ]))
+                     ;(-> (sql/where
+                     ;[:or
+                     ; ;; First OR condition with nested AND
+                     ; [:and
+                     ;  [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
+                     ;  [:in :ff.target_default ["license" "\"\""]]
+                     ;  [:in :ff.role_default ["lending_manager" "\"\""]]
+                     ;  ]
+                     ;
+                     ; ;; Second OR condition
+                     ; [:and
+                     ;  [:= :ff.group_default "\"none\""]
+                     ;  [:<> :ff.target_default "item"]]
+                     ; ]))
 
 
 
