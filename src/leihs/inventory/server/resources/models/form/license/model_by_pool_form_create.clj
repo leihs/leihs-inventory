@@ -182,6 +182,7 @@
   (into {}
     (filter (fn [[_ v]] (not (or (nil? v) (= v ""))))
       m)))
+
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])
         now-ts (LocalDateTime/now)
@@ -192,6 +193,8 @@
 
         multipart (get-in request [:parameters :multipart])
         p (println ">o> multipart1" multipart)
+
+        attachments (normalize-files request :attachments)
 
 
         properties (first (parse-json-array request :properties))
@@ -258,7 +261,7 @@
     (try
       (let [
 
-            p (println ">o> multipart2" multipart2)
+            ;p (println ">o> multipart2" multipart2)
 
             ;; FIXME: This is a hack to get the model data
             res (jdbc/execute-one! tx (-> (sql/insert-into :items)
@@ -266,12 +269,21 @@
                                           (sql/values [multipart2])
                                           (sql/returning :*)
                                           sql-format))
-            model-id (:id res)
+            item-id (:id res)
+
+
 
             ;res {:foo "bar"}
+
+            p (println ">o> >> item1" item-id)
+            p (println ">o> >> item2" res)
+            ;p (println ">o> >> item3.attachments" attachments)
+            all_attachments (process-attachments tx attachments "item_id" item-id)
+
+            p (println ">o> >> item4.attachments" all_attachments)
+            res (assoc res :item_id item-id :attachments all_attachments)
             ]
 
-        ;(process-attachments tx attachments model-id)
         ;(process-images tx images model-id validation-result)
         ;(process-entitlements tx entitlements model-id)
         ;(process-properties tx properties model-id)

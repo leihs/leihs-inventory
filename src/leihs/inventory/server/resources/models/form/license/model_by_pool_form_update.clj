@@ -237,19 +237,24 @@
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
+
+
+            p (println ">o> >> updated-model1" (:id updated-model))
+            p (println ">o> >> updated-model2" updated-model)
+
         ;    compatibles (parse-json-array request :compatibles)
         ;    categories (parse-json-array request :categories)
-        ;    attachments (normalize-files request :attachments)
-        ;    attachments-to-delete (parse-json-array request :attachments-to-delete)
-        ;    images (normalize-files request :images)
+            attachments (normalize-files request :attachments)
+            attachments-to-delete (parse-json-array request :attachments-to-delete)
+            ;images (normalize-files request :images)
         ;    images-to-delete (parse-json-array request :images-to-delete)
         ;    properties (parse-json-array request :properties)
         ;    accessories (parse-json-array request :accessories)
         ;    entitlements (parse-json-array request :entitlements)
          ]
         ;
-        ;(process-attachments tx attachments model-id)
-        ;(process-deletions tx attachments-to-delete :attachments :id)
+        (process-attachments tx attachments "item_id" (:id updated-model))
+        (process-deletions tx attachments-to-delete :attachments :id)
         ;(process-images tx images model-id)
         ;(process-image-deletions tx images-to-delete model-id)
         ;(process-entitlements tx entitlements model-id)

@@ -316,10 +316,43 @@
     `);
     }
 
-function deleteParamsFromPutPostFormData(formData){
-    formData.delete("model_id");
-    formData.delete("inventory_pool_id");
-}
+    function updateFileList(input, listSelector, inputId) {
+        var fileList = $(listSelector);
+        fileList.empty();
+
+        console.log(">> updateFileList1 > ", input.files);
+        console.log(">> updateFileList2 > ", listSelector);
+
+        if (input.files && input.files.length > 0) {
+            for (var i = 0; i < input.files.length; i++) {
+                var fileName = input.files[i].name;
+                fileList.append(`
+                        <div class="file-item">
+                            <span>${fileName}</span>
+                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        </div>
+                    `);
+            }
+        }
+    }
+
+    // Remove file from list
+    $(document).on('click', '.remove-file-btn', function() {
+        var fileId = $(this).data('fileId')
+        var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
+
+        var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
+        toDelte.push(fileId)
+        $(`#${inputId}-to-delete`).data('to-delete', toDelte)
+
+        $(this).parent().remove();
+
+    });
+
+    function deleteParamsFromPutPostFormData(formData){
+        formData.delete("model_id");
+        formData.delete("inventory_pool_id");
+    }
 
     function renameFormDataKey(formData, oldKey, newKey) {
         if (formData.has(oldKey)) {
@@ -520,10 +553,20 @@ function deleteParamsFromPutPostFormData(formData){
 
                 case 'attachment':
                     // Multiple file upload
+                //     field = $(`
+                //     <div class="form-item">
+                //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                //         <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
+                //     </div>
+                // `);
+
                     field = $(`
-                    <div class="form-item">
+                    <div class="form-group">
+<!--                        <b><label for="attachments">Anhänge</label></b>-->
                         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
+                        <input type="file" id="attachments" name="attachments" multiple>
+                        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
+                        <div id="attachmentsList" class="file-list"></div>
                     </div>
                 `);
                     break;
@@ -576,7 +619,10 @@ function deleteParamsFromPutPostFormData(formData){
             $(this).closest('.dynamic-item').remove();
         });
 
-
+        // Handle file selection for attachments
+        $('#attachments').change(function() {
+            updateFileList(this, '#attachmentsList', 'attachments');
+        });
 
     }
 
@@ -1109,6 +1155,15 @@ function deleteParamsFromPutPostFormData(formData){
                             headers: { Accept: "application/json" },
                             success: function (response) {
                                 console.log("License create successfully!", response);
+
+
+                                // debugger
+
+                                console.info("UPDATING ITEM-ID")
+                                let item_id=response.data.id
+                                $('#licenseId').val(item_id)
+
+
                                 showResultEffect("save-success");
 
 

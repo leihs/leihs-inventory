@@ -6,6 +6,7 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]))
 
 (defn str-to-bool
@@ -43,6 +44,17 @@
     (when matches
       {:shortname (nth matches 1)
        :number (Integer/parseInt (nth matches 2))})))
+
+
+(defn extract-shortname-and-number [code]
+  (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
+    (if matches
+      {:shortname (nth matches 1)
+       :number (Integer/parseInt (nth matches 2))}
+      (do
+        (println "Caution: Code format is invalid! Expected format: UPPERCASE followed by digits, e.g., AUS85941")
+        nil))))
+
 
 (defn fetch-latest-inventory-code [tx owner-id]
   (let [res (jdbc/execute-one! tx
@@ -151,7 +163,16 @@
 
 ;; -------------
 
-(defn process-attachments [tx attachments model-id]
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+(defn process-attachments
+
+(  [tx attachments model-id]
   (doseq [entry attachments]
     (let [file-content (file-to-base64 (:tempfile entry))
           data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
@@ -159,3 +180,70 @@
                             (sql/values [data])
                             (sql/returning :*)
                             sql-format)))))
+
+
+  (  [tx attachments col_name id]
+   (doseq [entry attachments]
+     (let [
+           p (println ">o> process-attachments" )
+
+           id (to-uuid id)
+           file-content (file-to-base64 (:tempfile entry))
+           data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)
+
+
+           p (println ">o> process-attachments2.data " data )
+       res (jdbc/execute! tx (-> (sql/insert-into :attachments)
+                           (sql/values [data])
+                           (sql/returning :*)
+                           sql-format))
+          p  (println ">o> process-attachments3"  (keyword col_name) id)
+
+       ;res (jdbc/execute! tx (pr ">1" (-> (sql/select :*)
+
+           ]
+
+       ;res
+       ))
+
+   (let [
+
+       res (jdbc/execute! tx (pr ">1" (-> (sql/select :id :filename :content_type :size)
+                           (sql/from :attachments)
+                           (sql/where [:= (keyword col_name) id])
+                           ;(sql/returning :*)
+                           sql-format))
+
+             )
+
+          p  (println ">o> process-attachments4" res)
+
+         ]
+     res
+     )
+
+
+   )
+
+  )
+
+;(defn process-attachments
+;
+;(  [tx attachments col_name id]
+;  (doseq [entry attachments]
+;    (let [file-content (file-to-base64 (:tempfile entry))
+;          data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) (to-uuid id))]
+;      (jdbc/execute! tx (-> (sql/insert-into :attachments)
+;                            (sql/values [data])
+;                            (sql/returning :*)
+;                            sql-format))
+;
+;      (jdbc/execute! tx (-> (sql/select :*)
+;                            (sql/from :attachments)
+;                            (sql/where (keyword col_name) id)
+;                            ;(sql/returning :*)
+;                            sql-format))
+;      )))
+;
+;
+;  )
