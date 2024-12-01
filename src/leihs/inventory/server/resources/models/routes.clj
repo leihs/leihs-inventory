@@ -620,7 +620,7 @@
                        :produces "application/json"
                        :deprecated true
                        }
-             :summary "(DEV) | Form-Handler"
+             :summary "(DEV) | Dynamic-Form-Handler"
              ;:description (str
              ;               " - Upload images and attachments \n"
              ;               " - Save data \n"
@@ -638,7 +638,7 @@
 
 
       :get {:accept "application/json"
-            :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 ;:model_id uuid?
@@ -687,6 +687,7 @@
             :tags ["form / software"] :security [] }}
  [""
   {:post {:accept "application/json"
+          :summary "(DEV) | Form-Handler: Fetch form data"
           :swagger {:consumes ["multipart/form-data"]
                     :produces "application/json"}
           :coercion spec/coercion
@@ -712,6 +713,7 @@
        :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Fetch form data"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
@@ -840,7 +842,7 @@
         {:post {:accept "application/json"
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
-                :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
+                :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
                 :coercion spec/coercion
                 :parameters {:path {:pool_id uuid?
                                     :model_id uuid?}
@@ -870,7 +872,7 @@
        {:put {:accept "application/json"
               :swagger {:consumes ["multipart/form-data"]
                         :produces "application/json"}
-              :summary "(DEV) | Form-Handler: Fetch form data | Fetch fields by Role"
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
 
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?
@@ -887,7 +889,7 @@
                           500 {:description "Internal Server Error"}}}
 
         :get {:accept "application/json"
-              :summary "(DEV) | Form-Handler: Fetch form data"
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?
                                   :model_id uuid?
