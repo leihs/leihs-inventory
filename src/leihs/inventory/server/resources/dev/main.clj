@@ -11,7 +11,6 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
 (defn update-and-fetch-accounts [request]
   (try
     (let [tx (:tx request)
@@ -78,12 +77,30 @@
           ;; Collect all distinct user IDs from the results
           all-user-ids (->> query-results
                          (mapcat :user-ids) ; Flatten all user-ids from the results
-                         distinct)] ; Remove duplicates
+                         distinct
+                         vec) ; Ensure all-user-ids is a vector
 
-      ;; Return the final result with all unique user IDs
-      (response {:result query-results :all-user-ids all-user-ids}))
+          ;; Perform the update operation
+          update-result (when (seq all-user-ids) ; Only execute if user IDs exist
+                          (jdbc/execute!
+                            tx
+                            (-> (sql/update :authentication_systems_users)
+                              (sql/set {:data "xxx"})
+                              (sql/where [:and
+                                          [:in :user_id all-user-ids]
+                                          [:= :authentication_system_id "password"]])
+                              sql-format)
+
+                            ))
+          ]
+
+      ;; Return the final result with all unique user IDs and update confirmation
+      (response {:result query-results
+                 :all-user-ids all-user-ids
+                 :update-result update-result}))
 
     (catch Exception e
       (error "Failed to get items" e)
       (bad-request {:error "Failed to get items"
                     :details (.getMessage e)}))))
+
