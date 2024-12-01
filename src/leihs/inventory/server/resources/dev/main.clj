@@ -3,90 +3,63 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [honey.sql :as sq]
+   ;[next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-groups-of-pool-handler [request]
+(defn update-and-fetch-accounts [request]
   (try
     (let [tx (:tx request)
-          pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :group_id)
-          query (-> (sql/select :g.*)
-                    (sql/from [:groups :g])
-                    (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
-                    (sql/where [:= :gar.inventory_pool_id pool_id])
-                    (cond-> group_id (sql/where [:= :g.id group_id]))
-                    (sql/limit 50)
-                    sql-format)
-          result (jdbc/query tx query)]
-      (response result))
-    (catch Exception e
-      (error "Failed to get groups" e)
-      (bad-request {:error "Failed to get groups" :details (.getMessage e)}))))
+          roles ["lending_manager" "inventory_manager" "group_manager" "customer"]
+          is-admin [true false]
+          is-system-admin [true false]
 
-(defn get-entitlement-groups-of-pool-handler [request]
-  (try
-    (let [tx (:tx request)
-          pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :entitlement_group_id)
-          query (-> (sql/select :g.*)
-                    (sql/from [:entitlement_groups :g])
-                    (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                    ;(sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
-                    ;(sql/where [:= :gar.inventory_pool_id pool_id])
-                    (cond-> group_id (sql/where [:= :g.id group_id]))
-                    (sql/limit 50)
-                    sql-format)
-          result (jdbc/query tx query)]
-      (response result))
-    (catch Exception e
-      (error "Failed to get groups" e)
-      (bad-request {:error "Failed to get groups" :details (.getMessage e)}))))
+          ;; Helper function to generate query for a given is-admin and role
+          ;build-query (fn [is-admin role]
+          ;              (-> (sql/select :*)
+          ;                (sql/from [:unified_access_rights :uar])
+          ;                (sql/join [:users :u] [:u.id :uar.user_id])
+          ;                (sql/where [:and [:= :u.is_admin is-admin]
+          ;                          [:= :uar.role role]])
+          ;                (sql/limit 1)
+          ;                sql-format))
 
-;; model_groups / model_group_links == category / category_links
-(defn get-model-groups-of-pool-handler [request]
-  (try
-    (let [tx (:tx request)
-          pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :model_group_id)
-          type "Category"
-          query (-> (sql/select :mg.*)
-                    (sql/from [:model_groups :mg]) ;; TODO: add hierarchy?
-                    ;(sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-                    ;(sql/join [:inventory_pools :ip] [:= :ipmg.inventory_pool_id :ip.id])
-                    ;(sql/where [:= :ip.id pool_id])
-                    ;(sql/where [:= :mg.type type])    ;;TODO: Category | Template
-                    (sql/where [:ilike :mg.type (str type)])
-                    (sql/order-by :mg.name)
+          build-query  (fn [is-system-admin is-admin role]
+              ;(-> (sql/select :*)
+              (-> (sql/select :u.is-system-admin :u.is-admin :uar.inventory_pool_id :uar.role)
+                (sql/from [:unified_access_rights :uar])
+                (sql/join [:users :u] [:= :u.id :uar.user_id])
+                (sql/where [:and [:= :u.is_admin is-admin]
+                            [:= :u.is_system_admin is-system-admin]
+                          [:= :uar.role role]])
+                (sql/limit 1)
+                sql-format))
 
-                    (cond-> group_id (sql/where [:= :mg.id group_id]))
-                    ;(sql/limit 50)
-                    sql-format)
-          result (jdbc/query tx query)]
+
+          ;; Iterate over all combinations of is-admin and roles
+          result (for [sadmin is-system-admin
+                       admin is-admin
+                       role roles]
+                   (let [query (build-query sadmin admin role)
+                         p (println ">o> query" query)
+                         query-result (jdbc/execute! tx query)
+                         p (println ">o> query-result" query-result)
+                         ]
+                     {:query {:is-system-admin sadmin :is-admin admin :role role}
+                      :result query-result}))
+
+          p (println ">o> result" result)
+          ]
+
+      ;; Return the final result
       (response result))
+
     (catch Exception e
       (error "Failed to get items" e)
-      (bad-request {:error "Failed to get items" :details (.getMessage e)}))))
+      (bad-request {:error "Failed to get items"
+                    :details (.getMessage e)}))))
 
-;; TODO: hierarchies resolution
-(defn get-model-group-links-of-pool-handler [request]
-  (try
-    (let [tx (:tx request)
-          pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :category_link_id)
-          query (-> (sql/select :mgl.*)
-                    (sql/from [:model_group_links :mgl])
-                    ;(sql/join [:inventory_pools_model_groups :ipmg] [:= :mgl.id :ipmg.model_group_id])
-                    ;(sql/join [:inventory_pools :ip] [:= :ipmg.inventory_pool_id :ip.id])
-                    ;(sql/where [:= :ip.id pool_id])
-                    (cond-> group_id (sql/where [:= :mgl.id group_id]))
-                    (sql/limit 50)
-                    sql-format)
-          result (jdbc/query tx query)]
-      (response result))
-    (catch Exception e
-      (error "Failed to get items" e)
-      (bad-request {:error "Failed to get items" :details (.getMessage e)}))))
