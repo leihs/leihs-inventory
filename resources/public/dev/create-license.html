@@ -113,6 +113,30 @@
         }
     </style>
 
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .warning-title {
+            display: flex;
+            align-items: center;
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .warning-title i {
+            margin-right: 10px;
+            color: #856404;
+            font-size: 1.5em;
+        }
+    </style>
+
     <style>
         /* Styling for form group and items */
         .form-group {
@@ -209,12 +233,20 @@
 <!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
+
+
 <div class="form-group">
     <label for="licenseId">License ID (item_id) [licenseId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
     <input type="text" id="licenseId" name="licenseId" value="359f4073-8ad5-4a9e-bd42-9ede33377dad">
-    
+
     <button id="fetchLicenseBtn">Fetch License</button>
 </div>
+
+<div class="warning-title">
+    <i class="fas fa-exclamation-triangle"></i>
+    Warning: form is generated dynamically based on user-role (inventory_manager, inventory_admin, etc.)
+</div>
+
 
 <form id="softwareForm">
     <div id="dynamicFields"></div>
