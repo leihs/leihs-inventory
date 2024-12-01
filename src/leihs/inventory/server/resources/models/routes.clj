@@ -561,6 +561,8 @@
               :tags ["Models by pool"] :security []}}
 
    ["/model"
+    {:swagger {:conflicting true
+               :tags ["form / model"] :security []}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
@@ -606,6 +608,10 @@
     ]
 
    ["/license"                                              ;;old
+
+    {:swagger {:conflicting true
+               :tags ["form / licenses"] :security []}}
+
     [""
      {
 
@@ -677,6 +683,8 @@
                    500 {:description "Internal Server Error"}}} } ] ] ]
 
 ["/software"
+ {:swagger {:conflicting true
+            :tags ["form / software"] :security [] }}
  [""
   {:post {:accept "application/json"
           :swagger {:consumes ["multipart/form-data"]
@@ -824,6 +832,10 @@
 
      ["/licenses"                                          ;; new
       ;; Uncommented block below if needed
+
+      {:swagger {:conflicting true
+                 :tags ["form / licenses"] :security []}}
+
        [""
         {:post {:accept "application/json"
                 :swagger {:consumes ["multipart/form-data"]
