@@ -36,9 +36,12 @@
                :tags ["Dev"] :security []}}
     ["/update-accounts" {:get {:conflicting true
                :summary "Overwrite pw for accounts with various roles OR is_admin"
-               :description "Fetch accounts with variants of:\n
-               - role: inventory_manager, lending_manager, group_manager, customer\n
-               - is_admin: true\n"
+               :description "Fetch one account of each variant of:
+- role: inventory_manager, lending_manager, group_manager, customer\n
+- is_admin: true\n
+- is_system_admin: true\n\n
+.. and set password"
+
                :accept "application/json"
                :coercion reitit.coercion.schema/coercion
                ;:middleware [accept-json-middleware]

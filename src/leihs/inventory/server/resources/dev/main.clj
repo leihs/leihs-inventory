@@ -22,6 +22,8 @@
           build-base-query (fn [is-system-admin is-admin role]
                              {:with [[[:user_access_summary]
                                       {:select [:u.is_admin
+                                                :u.login
+                                                :u.email
                                                 :ua.user_id
                                                 :ua.inventory_pool_id
                                                 [:ip.name :pool_name]
@@ -35,13 +37,15 @@
                                                [:= :u.is_admin is-admin]
                                                [:= :u.is_system_admin is-system-admin]
                                                [:= :ua.role role]]
-                                       :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role]}]]})
+                                       :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email]}]]})
 
           ;; Helper function to build a specific query
           build-specific-query (fn [base-query type where-clause]
                                  (merge base-query
                                    {:select [:is_admin
                                              :user_id
+                                             :login
+                                             :email
                                              :inventory_pool_id
                                              :role
                                              :directa
