@@ -37,134 +37,11 @@
            :created_at created-ts
            :updated_at created-ts)))
 
-(defn create-or-use-existing
-  [tx table where-values insert-values]
-  (let [select-query (-> (sql/select :*)
-                         (sql/from table)
-                         (sql/where where-values)
-                         sql-format)
-        existing-entry (first (jdbc/execute! tx select-query))]
-    (if existing-entry
-      existing-entry
-      (jdbc/execute-one! tx (-> (sql/insert-into table)
-                                (sql/values [insert-values])
-                                (sql/returning :*)
-                                sql-format)))))
 
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
 
-(defn process-images [tx images model-id validation-result]
-  (let [image-groups (group-by #(base-filename (:filename %)) images)
-        CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
-    (doseq [[_ entries] image-groups]
-      (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
-        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
-                                   [(second entries) (first entries)]
-                                   [(first entries) (second entries)])
-              file-content-main (file-to-base64 (:tempfile main-image))
-              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                  (dissoc :tempfile)
-                                  (assoc :content file-content-main
-                                         :target_id model-id
-                                         :target_type "Model"
-                                         :thumbnail false))
-              main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                          (sql/values [main-image-data])
-                                                          (sql/returning :*)
-                                                          sql-format))
-              file-content-thumb (file-to-base64 (:tempfile thumb))
-              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                 (dissoc :tempfile)
-                                 (assoc :content file-content-thumb
-                                        :target_id model-id
-                                        :target_type "Model"
-                                        :thumbnail true
-                                        :parent_id (:id main-image-result)))]
-          (jdbc/execute! tx (-> (sql/insert-into :images)
-                                (sql/values [thumbnail-data])
-                                (sql/returning :*)
-                                sql-format)))
-        (swap! validation-result conj {:error "Either image or thumbnail is missing"
-                                       :uploaded-file (:filename (first entries))})))))
-
-(defn process-entitlements [tx entitlements model-id]
-  (doseq [entry entitlements]
-    (create-or-use-existing tx
-                            :entitlements
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
-                            {:model_id model-id
-                             :entitlement_group_id (to-uuid (:entitlement_group_id entry))
-                             :quantity (:quantity entry)})))
-
-(defn process-properties [tx properties model-id]
-  (doseq [entry properties]
-    (create-or-use-existing tx
-                            :properties
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :key (:key entry)]]
-                            {:model_id model-id
-                             :key (:key entry)
-                             :value (:value entry)})))
-
-(defn process-accessories [tx accessories model-id pool-id]
-  (doseq [entry accessories]
-    (let [accessory (create-or-use-existing tx
-                                            :accessories
-                                            [:and
-                                             [:= :model_id model-id]
-                                             [:= :name (:name entry)]]
-                                            {:model_id model-id :name (:name entry)})
-          accessory-id (:id accessory)]
-      (when (:inventory_bool entry)
-        (create-or-use-existing tx
-                                :accessories_inventory_pools
-                                [:and
-                                 [:= :accessory_id accessory-id]
-                                 [:= :inventory_pool_id pool-id]]
-                                {:accessory_id accessory-id
-                                 :inventory_pool_id pool-id})))))
-
-(defn process-compatibles [tx compatibles model-id]
-  (doseq [compatible compatibles]
-    (create-or-use-existing tx
-                            :models_compatibles
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :compatible_id (to-uuid (:id compatible))]]
-                            {:model_id model-id
-                             :compatible_id (to-uuid (:id compatible))})))
-
-(defn process-categories [tx categories model-id pool-id]
-  (doseq [category categories]
-    (create-or-use-existing tx
-                            :model_links
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :model_group_id (to-uuid (:id category))]]
-                            {:model_id model-id
-                             :model_group_id (to-uuid (:id category))})
-    (create-or-use-existing tx
-                            :inventory_pools_model_groups
-                            [:and
-                             [:= :inventory_pool_id pool-id]
-                             [:= :model_group_id (to-uuid (:id category))]]
-                            {:inventory_pool_id pool-id
-                             :model_group_id (to-uuid (:id category))})))
-
-(defn extract-properties [multipart]
-  (let [properties-entries (filter (fn [[k _]]
-                                     (and (string? k)
-                                       (.startsWith (name k) "properties,")))
-                             multipart)
-        properties-map (into {} (map (fn [[k v]]
-                                       [(keyword (last (clojure.string/split (name k) #","))) v])
-                                  properties-entries))]
-    {:properties properties-map}))
 
 (defn extract-properties [multipart]
   (let [properties-entries (filter (fn [[k _]]
@@ -187,29 +64,19 @@
   (let [validation-result (atom [])
         now-ts (LocalDateTime/now)
         tx (:tx request)
-        p (println ">o> abc1")
+
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
 
         multipart (get-in request [:parameters :multipart])
-        p (println ">o> multipart1" multipart)
-
         attachments (normalize-files request :attachments)
-
-
         properties (first (parse-json-array request :properties))
-        p (println ">o> properties" properties)
-
 
         ;; TODO:
         ;; 1. set attachments
         ;; 2. default-room
 
-        p (println ">o> abc.retired" (:retired multipart) (type (:retired multipart)))
-
-        ;multipart2 (dissoc multipart  :attachments :retired :invoice_date :price)
         multipart2 (dissoc multipart :attachments :retired )
-        ;multipart2 (dissoc multipart :attachments :properties :retired :invoice_date :price)
         multipart2b {
                      :created_at now-ts
                      :updated_at now-ts
@@ -234,12 +101,8 @@
         multipart2 (remove-empty-or-nil multipart2)
         p (println ">o> multipart2.multipart2 ???" multipart2)
 
-
-
         extracted-properties (extract-properties multipart)
         p (println ">o> multipart2.extract-properties" extracted-properties)
-
-
         p (println ">o> pool-id" pool-id)
 
         model-data (-> (prepare-model-data multipart)
@@ -248,21 +111,10 @@
         attachments (normalize-files request :attachments)
         p (println ">o> abc3.attachments" attachments)
 
-        properties (first (parse-json-array request :properties))
-
-
-
-
-
-        p (println ">o> !!! abc4.properties" properties)
-        p (println ">o> !!! abc4.model-data" model-data)
-        ]
+        properties (first (parse-json-array request :properties))   ]
 
     (try
       (let [
-
-            ;p (println ">o> multipart2" multipart2)
-
             ;; FIXME: This is a hack to get the model data
             res (jdbc/execute-one! tx (-> (sql/insert-into :items)
                                           ;(sql/values [model-data])
@@ -270,26 +122,8 @@
                                           (sql/returning :*)
                                           sql-format))
             item-id (:id res)
-
-
-
-            ;res {:foo "bar"}
-
-            p (println ">o> >> item1" item-id)
-            p (println ">o> >> item2" res)
-            ;p (println ">o> >> item3.attachments" attachments)
             all_attachments (process-attachments tx attachments "item_id" item-id)
-
-            p (println ">o> >> item4.attachments" all_attachments)
-            res (assoc res :item_id item-id :attachments all_attachments)
-            ]
-
-        ;(process-images tx images model-id validation-result)
-        ;(process-entitlements tx entitlements model-id)
-        ;(process-properties tx properties model-id)
-        ;(process-accessories tx accessories model-id pool-id)
-        ;(process-compatibles tx compatibles model-id)
-        ;(process-categories tx categories model-id pool-id)
+            res (assoc res :item_id item-id :attachments all_attachments)   ]
 
         (if res
           (response (create-validation-response res @validation-result))

@@ -5,7 +5,6 @@
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [honey.sql.helpers :as sql]
    [honey.sql :as sq]
-   ;[next.jdbc.sql :as jdbc]
    [next.jdbc :as jdbc]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [ring.middleware.accept]
@@ -17,20 +16,11 @@
     (let [tx (:tx request)
           query-params (query-params request)
           type (:type query-params)
-
-          p (println ">o> type" type)
-
           type (if (nil? type) "min" type)
-
-
           is-admin (cond
                      (= type "all") [true false]
                      (= type "no") [false]
                      :else [false])
-          ;is-system-admin (if   (= type "all") [true false] [true])
-          is-system-admin [true false]
-
-
           is-system-admin (cond
                      (= type "all") [true false]
                      (= type "no") [false]
@@ -39,7 +29,6 @@
           roles ["lending_manager" "inventory_manager" "group_manager" "customer"]
           pw "$2a$06$1bdwAZln616rr0WaJ4NisOa/YsXykCyi6Zs2q5ZgDW3.ZcfhkSmiy"
 
-          ;; Helper function to build the base query
           build-base-query (fn [is-system-admin is-admin role]
                              {:with [[[:user_access_summary]
                                       {:select [:u.is_admin
@@ -61,7 +50,6 @@
                                                [:= :ua.role role]]
                                        :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email]}]]})
 
-          ;; Helper function to build a specific query
           build-specific-query (fn [base-query type where-clause]
                                  (merge base-query
                                    {:select [:is_admin
@@ -77,7 +65,6 @@
                                     :where where-clause
                                     :limit 1}))
 
-          ;; Execute the three specific queries for a given combination
           execute-queries (fn [is-system-admin is-admin role]
                             (let [base-query (build-base-query is-system-admin is-admin role)
                                   direct-query (build-specific-query base-query "direct_only" [:and [:= :directa 0] [:> :groupa 0]])
@@ -87,27 +74,24 @@
                                :group (jdbc/execute! tx (sql-format group-query))
                                :both (jdbc/execute! tx (sql-format both-query))}))
 
-          ;; Iterate over all combinations of is-admin, is-system-admin, and roles
           query-results (for [sadmin is-system-admin
                               admin is-admin
                               role roles]
                           (let [result (execute-queries sadmin admin role)
                                 user-ids (->> result
-                                           vals ; Get all query results
-                                           (mapcat identity) ; Flatten the individual query results
-                                           (map :user_id))] ; Extract user IDs
+                                           vals
+                                           (mapcat identity)
+                                           (map :user_id))]
                             {:query {:is-system-admin sadmin :is-admin admin :role role}
                              :user-ids user-ids
                              :result result}))
 
-          ;; Collect all distinct user IDs from the results
           all-user-ids (->> query-results
-                         (mapcat :user-ids) ; Flatten all user-ids from the results
+                         (mapcat :user-ids)
                          distinct
-                         vec) ; Ensure all-user-ids is a vector
+                         vec)
 
-          ;; Perform the update operation
-          update-result (when (seq all-user-ids) ; Only execute if user IDs exist
+          update-result (when (seq all-user-ids)
                           (jdbc/execute!
                             tx
                             (-> (sql/update :authentication_systems_users)
@@ -115,12 +99,7 @@
                               (sql/where [:and
                                           [:in :user_id all-user-ids]
                                           [:= :authentication_system_id "password"]])
-                              sql-format)
-
-                            ))
-          ]
-
-      ;; Return the final result with all unique user IDs and update confirmation
+                              sql-format) ))   ]
       (response {:result query-results
                  :all-user-ids all-user-ids
                  :update-result update-result}))

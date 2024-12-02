@@ -24,8 +24,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn create-description [url]
-  (str "- GET " url " Accept: application/json "))
 
 (defn get-dev-routes []
 
@@ -51,11 +49,4 @@
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-
-    ]
-
-
-
-   ])
+                           500 {:description "Internal Server Error"}}}}]  ] ])

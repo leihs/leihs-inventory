@@ -6,7 +6,10 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
 
-   [leihs.inventory.server.resources.models.form.license.queries :refer [fields-query-inventory-manager]]
+   [leihs.inventory.server.resources.models.form.license.queries :refer [fields-query-inventory-manager model-query
+                                                                         inventory-manager-license-subquery
+                                                                         license-base-query
+                                                                         ]]
 
    [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
 
@@ -297,110 +300,35 @@
 
 
             query2 (-> (sql/select :*)
-                     (sql/from [[:raw
-                                 "(SELECT
-                                     f.id,
-                                     f.active,
-                                     f.position,
-                                     f.data,
-                                     jsonb_extract_path_text(f.data, 'label')  AS label,
 
-                                     jsonb_extract_path_text(f.data, 'group')  AS group,
-                                     COALESCE(jsonb_extract_path_text(f.data, 'group'), '\"none\"') AS group_default,
+                     license-base-query
 
-                                     jsonb_extract_path_text(f.data, 'target_type')  AS target,
-                                     COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\"\"') AS target_default,
-
-                                     jsonb_extract_path_text(f.data, 'permissions', 'role') AS role,
-                                     COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\"\"') AS role_default,
-
-                                     jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
-
-                                  FROM fields f
-                                  WHERE f.active = true) ff"]]
-
-                       )
+                     ;(sql/from [[:raw
+                     ;            "(SELECT
+                     ;                f.id,
+                     ;                f.active,
+                     ;                f.position,
+                     ;                f.data,
+                     ;                jsonb_extract_path_text(f.data, 'label')  AS label,
+                     ;
+                     ;                jsonb_extract_path_text(f.data, 'group')  AS group,
+                     ;                COALESCE(jsonb_extract_path_text(f.data, 'group'), '\"none\"') AS group_default,
+                     ;
+                     ;                jsonb_extract_path_text(f.data, 'target_type')  AS target,
+                     ;                COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '\"\"') AS target_default,
+                     ;
+                     ;                jsonb_extract_path_text(f.data, 'permissions', 'role') AS role,
+                     ;                COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '\"\"') AS role_default,
+                     ;
+                     ;                jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
+                     ;
+                     ;             FROM fields f
+                     ;             WHERE f.active = true) ff"]]
+                     ;
+                     ;  )
 
                      ;; 30 results for inventory-manager
-                     (-> (sql/where [:and
-                                       [:in :ff.target_default ["license" "\"\""]]
-                                         [:or
-                                        [:in :ff.role_default ["inventory_manager" "\"\""]]
-                                        [:or
-                                         [:is :ff.target nil]
-                                         [:is :owner nil]]]]))
-
-
-                     ;; 12 results for lending-manager, TODO: determine owner_id
-                     ;(-> (sql/where
-                     ;
-                     ;      ;; blacklist
-                     ;      [:not-in :ff.id ["license_version"]]
-                     ;
-                     ;      [:or
-                     ;       ;; First OR condition with nested AND
-                     ;       [:and
-                     ;        [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
-                     ;        [:in :ff.target_default ["license" "\"\""]]
-                     ;        [:in :ff.role_default ["lending_manager" "\"\""]]
-                     ;        ]
-                     ;
-                     ;       ;; Second OR condition
-                     ;       [:and
-                     ;        [:= :ff.group_default "\"none\""]
-                     ;        [:<> :ff.target_default "item"]]
-                     ;       ]))
-
-
-
-                     ;
-                     ;-- item -- inventory-manager -- ok 29
-                     ;select *
-                     ;from (select f.id,
-                     ;       f.data ->> 'label'                      as label,
-                     ;       f.active,
-                     ;       f.position,
-                     ;
-                     ;       COALESCE(f.data ->> 'group', 'none')    AS group,
-                     ;       COALESCE(f.data -> 'target_type', '""') AS target,
-                     ;
-                     ;                 f.data -> 'permissions' -> 'role'       as role,
-                     ;                 f.data -> 'permissions' -> 'owner'      as owner
-                     ;                 from fields f
-                     ;                 where f.active = true) as ff
-                     ;
-                     ;       where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
-                     ;       and (ff.target in ('"item"', '""'))
-                     ;             --     and (ff.role is null or ff.role = '"lending_manager"')
-                     ;                          --    or (ff.group = 'none' and ff.target != '"license"')
-                     ;
-                     ;                                     order by ff.group, ff.position;
-                     ;
-                     ;
-                     ; -- item -- lending-manager -- ok 21, quantity?
-                     ; select *
-                     ; from (select f.id,
-                     ;        f.data ->> 'label'                      as label,
-                     ;        f.active,
-                     ;        f.position,
-                     ;
-                     ;        COALESCE(f.data ->> 'group', 'none')    AS group,
-                     ;        COALESCE(f.data -> 'target_type', '""') AS target,
-                     ;
-                     ;                  f.data -> 'permissions' -> 'role'       as role,
-                     ;                  f.data -> 'permissions' -> 'owner'      as owner
-                     ;                  from fields f
-                     ;                  where f.active = true) as ff
-                     ;
-                     ;        where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
-                     ;        and (ff.target in ('"item"', '""'))
-                     ;              and (ff.role is null or ff.role = '"lending_manager"')
-                     ;                    --    or (ff.group = 'none' and ff.target != '"license"')
-                     ;                               -- or ff.id like '%qu%'
-                     ;
-                     ;                               order by ff.group, ff.position;
-
-
+                     inventory-manager-license-subquery
 
                      (sql/order-by :ff.group :ff.position)
 
@@ -436,17 +364,15 @@
 
             model-result (if model-id
                            (let [
-                                 model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-                                                   :m.hand_over_note :m.description :m.internal_description
-                                                   :m.technical_detail :m.is_package :i.* [:s.id :supplier_id][:s.name :supplier_name])
-
-                                               (sql/from [:models :m])
-
-                                               (sql/join [:items :i] [:= :m.id :i.model_id])
-                                               ;(sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
-                                               (sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
-                                               ;(sql/where [:= :m.id model-id] [:= :i.id item-id])
-                                               (sql/where [:= :i.id item-id])
+                                 model-query (-> item-id
+                                               model-query
+                                               ;(sql/select :m.id :m.product :m.manufacturer :m.version :m.type
+                                               ;    :m.hand_over_note :m.description :m.internal_description
+                                               ;    :m.technical_detail :m.is_package :i.* [:s.id :supplier_id][:s.name :supplier_name])
+                                               ;(sql/from [:models :m])
+                                               ;(sql/join [:items :i] [:= :m.id :i.model_id])
+                                               ;(sql/join [:suppliers :s] [:= :i.supplier_id :s.id])
+                                               ;(sql/where [:= :i.id item-id])
                                                sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
 
@@ -512,14 +438,8 @@
                                                                           "version"
                                                                           ]
                            ["supplier_name" "supplier_id"])
-            ;model-result (filter-by-allowed-keys model-result dyn-select [])
-            ;model-result (filter-by-allowed-keys model-result dyn-select ["properties" "properties_license_type" "license_type" "total_quantity"])
+
             p (println ">o> model-result2" (count model-result))
-
-
-
-          ;model-result (rename-keys model-result {:item_version :version})
-
 
             result (if model-result
                      {
