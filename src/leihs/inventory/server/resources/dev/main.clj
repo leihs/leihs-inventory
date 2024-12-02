@@ -2,6 +2,7 @@
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
+   [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [honey.sql.helpers :as sql]
    [honey.sql :as sq]
    ;[next.jdbc.sql :as jdbc]
@@ -14,9 +15,19 @@
 (defn update-and-fetch-accounts [request]
   (try
     (let [tx (:tx request)
-          roles ["lending_manager" "inventory_manager" "group_manager" "customer"]
-          is-admin [true false]
+          query-params (query-params request)
+          type (:type query-params)
+
+          p (println ">o> type" type)
+
+          type (if (nil? type) "min" type)
+
+
+          is-admin (if   (= type "all") [true false] [true])
+          ;is-system-admin (if   (= type "all") [true false] [true])
           is-system-admin [true false]
+          roles ["lending_manager" "inventory_manager" "group_manager" "customer"]
+          pw "$2a$06$1bdwAZln616rr0WaJ4NisOa/YsXykCyi6Zs2q5ZgDW3.ZcfhkSmiy"
 
           ;; Helper function to build the base query
           build-base-query (fn [is-system-admin is-admin role]
@@ -48,8 +59,8 @@
                                              :email
                                              :inventory_pool_id
                                              :role
-                                             :directa
-                                             :groupa
+                                             ;:directa
+                                             ;:groupa
                                              [[:inline type] :type]]
                                     :from [:user_access_summary]
                                     :where where-clause
@@ -89,7 +100,7 @@
                           (jdbc/execute!
                             tx
                             (-> (sql/update :authentication_systems_users)
-                              (sql/set {:data "xxx"})
+                              (sql/set {:data pw})
                               (sql/where [:and
                                           [:in :user_id all-user-ids]
                                           [:= :authentication_system_id "password"]])
