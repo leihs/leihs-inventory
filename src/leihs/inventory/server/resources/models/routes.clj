@@ -7,7 +7,6 @@
 
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
@@ -91,11 +90,9 @@
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
            :handler get-manufacturer-handler
-           :parameters {:query {
-                                (s/optional-key :type) (s/enum "Software" "Model")
+           :parameters {:query {                                (s/optional-key :type) (s/enum "Software" "Model")
                                 (s/optional-key :search-term) s/Str
-                                 :in-detail (s/enum "true" "false")
-                            }}
+                                 :in-detail (s/enum "true" "false")  }}
            :responses {200 {:description "OK"
                             :body [s/Any]}
                        404 {:description "Not Found"}
@@ -594,8 +591,7 @@
       :post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"
-                       :deprecated true
-                       }
+                       :deprecated true                       }
              :summary "(DEV) | Dynamic-Form-Handler"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
@@ -615,8 +611,6 @@
                         500 {:description "Internal Server Error"}}}
       }]
 
-
-
     ["/:model_id"
      [""
       {:get {:accept "application/json"
@@ -633,14 +627,12 @@
        :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"
-                       :deprecated true
-                       }
+                       :deprecated true                       }
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?
                                  }
                           :multipart ::multipart}
-
        :handler update-license-handler-by-pool-form
        :responses {200 {:description "OK"}
                    404 {:description "Not Found"}
@@ -795,10 +787,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
-
      ["/licenses"                                          ;; new
-      ;; Uncommented block below if needed
-
       {:swagger {:conflicting true
                  :tags ["form / licenses"] :security []}}
 
@@ -822,7 +811,6 @@
               :swagger {:consumes ["multipart/form-data"]
                         :produces "application/json"}
               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
-
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?
                                   :model_id uuid?
@@ -832,7 +820,6 @@
               :handler update-license-handler-by-pool-form
               :responses {200 {:description "OK"
                                :body any?}
-
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
@@ -847,8 +834,7 @@
                                :body any?}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
-        }]
-      ]
+        }] ]
 
 
      ["/properties"

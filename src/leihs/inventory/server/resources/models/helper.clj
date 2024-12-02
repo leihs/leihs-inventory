@@ -38,14 +38,6 @@
     normalized-data))
 
 
-
-(defn extract-shortname-and-number [code]
-  (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
-    (when matches
-      {:shortname (nth matches 1)
-       :number (Integer/parseInt (nth matches 2))})))
-
-
 (defn extract-shortname-and-number [code]
   (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
     (if matches
@@ -58,56 +50,22 @@
 
 (defn fetch-latest-inventory-code [tx owner-id]
   (let [res (jdbc/execute-one! tx
-              (-> (sql/select
-                    :items.inventory_code
-                    ;[(sq/call :regexp_replace :items.inventory_code "\\d.*$" "") :shortname] ; Extract shortname
-                    ;[(sq/call :cast
-                    ;   (sq/call :regexp_replace :items.inventory_code "\\D" "" "g") :integer) :number]) ; Extract number
-                    )
+              (-> (sql/select :items.inventory_code)
                 (sql/from :items)
-                ;(sql/where [:is-not :items.inventory_code nil]) ; Ensure inventory_code is not NULL
                 (sql/where [:= :items.owner_id owner-id])
                 (sql/order-by [:created_at :desc])
                 (sql/limit 1)
                 sql-format))
-
-
-
-        _ (println ">o> res1" res)
-
-
-           res   (extract-shortname-and-number (:inventory_code res))
-        _ (println ">o> res2" res)
-
-
+        res (extract-shortname-and-number (:inventory_code res))
         res (if res
-              (assoc res :next-code (str (:shortname res)(+ (:number res) 1)))
-              {:error "No inventory code found"}) ; Handle case where no result is found
-
-        _ (println ">o> res3" res)]
+              (assoc res :next-code (str (:shortname res) (+ (:number res) 1)))
+              {:error "No inventory code found"})]
     res))
-
-
-
 
 
   (defn normalize-license-data
   [data]
-  (let [
-        p (println ">o> data" data)
-
-        key-map {
-                 :model_id :software_id
-                 ;:type :type
-                 ;:manufacturer :manufacturer
-                 ;:product :product
-                 ;:version :version
-                 ;:hand_over_note :importantNotes
-                 ;:is_package :isPackage
-                 ;:description :description
-                 ;:internal_description :internalDescription
-                 ;:technical_detail :technicalDetails
-                 }
+  (let [        key-map {                 :model_id :software_id}
         normalized-data (reduce (fn [acc [db-key original-key]]
                                   (if-let [val (get data original-key)]
                                     (assoc acc db-key val)
@@ -163,61 +121,27 @@
 
 ;; -------------
 
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
 (defn process-attachments
-
-(  [tx attachments model-id]
-  (doseq [entry attachments]
-    (let [file-content (file-to-base64 (:tempfile entry))
-          data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
-      (jdbc/execute! tx (-> (sql/insert-into :attachments)
-                            (sql/values [data])
-                            (sql/returning :*)
-                            sql-format)))))
-
-
-  (  [tx attachments col_name id]
+  ([tx attachments model-id]
    (doseq [entry attachments]
-     (let [
-           p (println ">o> process-attachments" )
-
-           id (to-uuid id)
-           file-content (file-to-base64 (:tempfile entry))
-           data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)
-
-
-           ;p (println ">o> process-attachments2.data " data )
-       res (jdbc/execute! tx (-> (sql/insert-into :attachments)
+     (let [file-content (file-to-base64 (:tempfile entry))
+           data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
+       (jdbc/execute! tx (-> (sql/insert-into :attachments)
                            (sql/values [data])
                            (sql/returning :*)
-                           sql-format))
-          p  (println ">o> process-attachments3"  (keyword col_name) id)
-           ]
-       ))
+                           sql-format)))))
 
-   (let [
+  ([tx attachments col_name id]
+   (doseq [entry attachments]
+     (let [id (to-uuid id)
+           file-content (file-to-base64 (:tempfile entry))
+           data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)]
+       (jdbc/execute! tx (-> (sql/insert-into :attachments)
+                           (sql/values [data])
+                           (sql/returning :*)
+                           sql-format))))
 
-       res (jdbc/execute! tx (pr ">1" (-> (sql/select :id :filename :content_type :size)
-                           (sql/from :attachments)
-                           (sql/where [:= (keyword col_name) id])
-                           ;(sql/returning :*)
-                           sql-format))
-
-             )
-
-          p  (println ">o> process-attachments4" res)
-
-         ]
-     res
-     )
-
-
-   )
-
-  )
+   (jdbc/execute! tx (-> (sql/select :id :filename :content_type :size)
+                       (sql/from :attachments)
+                       (sql/where [:= (keyword col_name) (to-uuid id)])
+                       sql-format))))

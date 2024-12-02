@@ -39,8 +39,7 @@
 
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int
-                                    (s/optional-key :search-term) s/Str
-                                    }}
+                                    (s/optional-key :search-term) s/Str }}
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"

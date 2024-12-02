@@ -41,5 +41,4 @@
   (testing "GET request with empty URI"
     (let [request {:request-method :get
                    :uri ""}]
-      (is (false? (single-entity-get-request? request)))))
-  )
+      (is (false? (single-entity-get-request? request))))) )

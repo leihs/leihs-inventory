@@ -1,21 +1,7 @@
 (ns leihs.inventory.server.resources.models.form.license.queries
   (:require
-  ; [honey.sql :refer [format]
-  ;  :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-  ; [leihs.inventory.server.resources.models.helper :refer [str-to-bool]]
-  ; [clojure.string :as str]
-  ; [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-  ; [leihs.inventory.server.utils.converter :refer [to-uuid]]
-  ; [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-  ; [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
-  ; [next.jdbc :as jdbc]
-  ; [ring.util.response :refer [bad-request response status]]
-  ; [taoensso.timbre :refer [error]])
-  ;(:import [java.net URL JarURLConnection]
-  ;         (java.time LocalDateTime)
-  ;         [java.util.jar JarFile])
-  ))
+ ))
 
 
 ;-- inventoryManager 30 - ok
@@ -97,19 +83,13 @@
 ;; 12 results for lending-manager, TODO: determine owner_id
 (-> query
   (sql/where
-
-      ;; blacklist
       [:not-in :ff.id ["license_version"]]
-
       [:or
-       ;; First OR condition with nested AND
        [:and
         [:in :ff.group_default ["General Information" "Invoice Information" "Status" "\"none\""]]
         [:in :ff.target_default ["license" "\"\""]]
         [:in :ff.role_default ["lending_manager" "\"\""]]
         ]
-
-       ;; Second OR condition
        [:and
         [:= :ff.group_default "\"none\""]
         [:<> :ff.target_default "item"]]

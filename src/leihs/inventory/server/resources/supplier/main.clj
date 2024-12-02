@@ -12,23 +12,9 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
-(defn pr2 [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str)
-  fnc
-  )
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
 (defn get-suppliers
   ([request]
    (get-suppliers request nil))
-   ;(get-suppliers request false))
 
   ([request with-pagination?]
    (try
@@ -38,7 +24,6 @@
            {:keys [page size]} (fetch-pagination-params-raw request)
 
            with-pagination? (if (and (nil? page) (nil? size)) false true)
-
            search-term (-> request query-params :search-term)
 
            base-query (-> (sql/select :s.id :s.name :s.note)
