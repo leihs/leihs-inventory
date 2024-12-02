@@ -35,12 +35,9 @@
      (let [tx (:tx request)
            pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :supplier_id)
-
-           ;{:keys [page size]} (fetch-pagination-params request)
            {:keys [page size]} (fetch-pagination-params-raw request)
 
            with-pagination? (if (and (nil? page) (nil? size)) false true)
-
 
            search-term (-> request query-params :search-term)
 
@@ -48,17 +45,7 @@
                           (sql/from [:suppliers :s])
                           (cond-> group_id (sql/where [:= :s.id group_id]))
                           (cond-> search-term (sql/where [:ilike :s.name  (str "%" search-term "%")]))
-                          (sql/order-by :s.name))
-
-           p (println ">o> ??? with-pagination?" with-pagination?)
-           ]
-
-
-       ;(cond
-       ;  (and (nil? with-pagination) (not(single-entity-get-request? request))) (pagination-response request base-query)
-       ;  (and (nil? with-pagination)  (single-entity-get-request? request)) (jdbc/query tx (-> base-query sql-format))
-       ;  with-pagination (pagination-response request base-query)
-       ;  :else (jdbc/query tx (-> base-query sql-format))))
+                          (sql/order-by :s.name))]
 
        (cond
          (and (nil? with-pagination?) (single-entity-get-request? request)) (pagination-response request base-query)

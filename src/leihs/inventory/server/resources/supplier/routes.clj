@@ -39,7 +39,6 @@
 
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int
-
                                     (s/optional-key :search-term) s/Str
                                     }}
 

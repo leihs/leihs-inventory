@@ -94,11 +94,7 @@
            :parameters {:query {
                                 (s/optional-key :type) (s/enum "Software" "Model")
                                 (s/optional-key :search-term) s/Str
-                                 ;:in-detail (s/enum false true)
                                  :in-detail (s/enum "true" "false")
-                                ;:in-detail (s/Bool :default false)
-
-
                             }}
            :responses {200 {:description "OK"
                             :body [s/Any]}
@@ -466,12 +462,10 @@
 (sa/def ::serial_number string?)
 (sa/def ::note string?)
 
-
 (sa/def ::owner_id uuid?)
 (sa/def ::software_id uuid?)
 (sa/def ::supplier_id uuid?)
 (sa/def ::model_id uuid?)
-
 
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
@@ -480,7 +474,6 @@
 (sa/def ::retired_reason string?)
 (sa/def ::price string?)
 (sa/def ::invoice_date string?)
-;(sa/def ::invoice_date string?)
 
 (sa/def ::activation_type string?)
 (sa/def ::dongle_id string?)
@@ -517,41 +510,25 @@
 
                                         ] :req-un []))
 
-;(sa/def ::properties (sa/or
-;                      :single (sa/or :coll (sa/coll-of ::property)
-;                                     :str string?)
-;                      :none nil?))
 
 (sa/def ::multipart (sa/keys                                :opt-un [
-                                                                     ;::software_id
                                                                      ::model_id
                                                                      ::supplier_id
                                                                      ::attachments-to-delete
                                                                       ::retired_reason
-
-                                                                     ;::properties
                                                                      :simple/properties
-
                                                                      ::item_version
-                                                                     ::owner_id
-
                                                                      ]
                               :req-un [
-
                                        ::serial_number
+                                                                     ::owner_id
                                        ::note
                                        ::attachments
-
                                        ::invoice_date
                                        ::price
                                        ::retired
-
                                        ::is_borrowable
                                        ::inventory_code
-
-
-
-
                                        ]))
 
 (defn get-model-by-pool-route []
@@ -607,50 +584,38 @@
                          500 {:description "Internal Server Error"}}}}]]
     ]
 
-   ["/license"                                              ;;old
 
+   ["/license"                                              ;;old
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
 
     [""
      {
-
       :post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"
                        :deprecated true
                        }
              :summary "(DEV) | Dynamic-Form-Handler"
-             ;:description (str
-             ;               " - Upload images and attachments \n"
-             ;               " - Save data \n"
-             ;               " - images: additional handling needed to process no/one/multiple files \n"
-             ;               " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-             ;               " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
                           :multipart ::multipart}
-                          ;:multipart map?}
              :handler create-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
-
       :get {:accept "application/json"
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
             :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                ;:model_id uuid?
-                                 }
-                         }
+            :parameters {:path {:pool_id uuid?}}
             :handler create-license-handler-by-pool-form-fetch
             :responses {200 {:description "OK"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
-
-
       }]
+
+
 
     ["/:model_id"
      [""
@@ -675,7 +640,6 @@
                                  :model_id uuid?
                                  }
                           :multipart ::multipart}
-             ;:multipart map?}
 
        :handler update-license-handler-by-pool-form
        :responses {200 {:description "OK"}
@@ -852,21 +816,6 @@
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
-      ;["/:item_id" {:get {:accept "application/json"
-      ;                    :summary "(DEV) | Form-Handler: Fetch form data"
-      ;                    :coercion spec/coercion
-      ;                    :parameters {:path {:pool_id uuid?
-      ;                                        :model_id uuid?
-      ;                                        :item_id uuid?}}
-      ;                    :handler create-license-handler-by-pool-form-fetch
-      ;                    :responses {200 {:description "OK"
-      ;                                     :body any?}
-      ;                                404 {:description "Not Found"}
-      ;                                500 {:description "Internal Server Error"}}}}]
-
-
-
-
 
      ["/:item_id"
        {:put {:accept "application/json"
@@ -882,7 +831,6 @@
                            :multipart ::multipart}
               :handler update-license-handler-by-pool-form
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body any?}
 
                           404 {:description "Not Found"}
@@ -899,44 +847,8 @@
                                :body any?}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
-
-
         }]
-
-
       ]
-
-
-     ;["/:item_id"
-     ; [""
-     ;  {:get {:accept "application/json"
-     ;         :summary "(DEV) | Form-Handler: Fetch form data"
-     ;         :coercion spec/coercion
-     ;         :parameters {:path {:pool_id uuid?
-     ;                             ;:model_id uuid?}}
-     ;                             :item_id uuid?}}
-     ;         :handler create-license-handler-by-pool-form-fetch
-     ;         :responses {200 {:description "OK"}
-     ;                     404 {:description "Not Found"}
-     ;                     500 {:description "Internal Server Error"}}}
-     ;
-     ;   :put {:accept "application/json"
-     ;         :swagger {:consumes ["multipart/form-data"]
-     ;                   :produces "application/json"}
-     ;         :coercion spec/coercion
-     ;         :parameters {:path {:pool_id uuid?
-     ;                             ;:model_id uuid?
-     ;                             :item_id uuid?}
-     ;
-     ;   :multipart ::multipart}
-     ;  ;:multipart map?}
-     ;  ;                    }
-     ;
-     ;  :handler update-license-handler-by-pool-form
-     ;  :responses {200 {:description "OK"}
-     ;              404 {:description "Not Found"}
-     ;              500 {:description "Internal Server Error"}}} } ] ] ]
-
 
 
      ["/properties"
