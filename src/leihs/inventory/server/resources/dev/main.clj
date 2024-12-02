@@ -23,9 +23,19 @@
           type (if (nil? type) "min" type)
 
 
-          is-admin (if   (= type "all") [true false] [true])
+          is-admin (cond
+                     (= type "all") [true false]
+                     (= type "no") [false]
+                     :else [false])
           ;is-system-admin (if   (= type "all") [true false] [true])
           is-system-admin [true false]
+
+
+          is-system-admin (cond
+                     (= type "all") [true false]
+                     (= type "no") [false]
+                     :else [false])
+
           roles ["lending_manager" "inventory_manager" "group_manager" "customer"]
           pw "$2a$06$1bdwAZln616rr0WaJ4NisOa/YsXykCyi6Zs2q5ZgDW3.ZcfhkSmiy"
 
@@ -46,6 +56,7 @@
                                               [:users :u] [:= :u.id :ua.user_id]]
                                        :where [:and
                                                [:= :u.is_admin is-admin]
+                                               [:is-not :u.login nil]
                                                [:= :u.is_system_admin is-system-admin]
                                                [:= :ua.role role]]
                                        :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email]}]]})
