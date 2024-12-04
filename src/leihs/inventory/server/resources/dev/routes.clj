@@ -1,10 +1,10 @@
 (ns leihs.inventory.server.resources.dev.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.dev.main :refer [update-and-fetch-accounts]]
-   [reitit.coercion.schema]
    [leihs.core.auth.session :refer [wrap-authenticate]]
+   [leihs.inventory.server.resources.dev.main :refer [update-and-fetch-accounts]]
    [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
+   [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -24,8 +24,7 @@
 - is_system_admin: true\n\n
 .. and set password"
                                :accept "application/json"
-                               :middleware [
-                                            ;wrap-authenticate
+                               :middleware [;wrap-authenticate
                                             wrap-check-authenticated-admin]
                                :coercion reitit.coercion.schema/coercion
                                :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
