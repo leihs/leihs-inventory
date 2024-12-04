@@ -3,6 +3,8 @@
    [clojure.set]
    [leihs.inventory.server.resources.dev.main :refer [update-and-fetch-accounts]]
    [reitit.coercion.schema]
+   [leihs.core.auth.session :refer [wrap-authenticate]]
+   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -22,8 +24,11 @@
 - is_system_admin: true\n\n
 .. and set password"
                                :accept "application/json"
+                               :middleware [
+                                            ;wrap-authenticate
+                                            wrap-check-authenticated-admin]
                                :coercion reitit.coercion.schema/coercion
-                               :swagger {:produces ["application/json"]}
+                               :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
                                :parameters {:query {(s/optional-key :type) (s/enum "min" "all")}}
                                :handler update-and-fetch-accounts
                                :responses {200 {:description "OK"
