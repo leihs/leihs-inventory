@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.auth.core
+(ns leihs.inventory.server.utils.auth.auth
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
