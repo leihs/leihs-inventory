@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.utils.auth.core
   (:require
-   [clj-uuid]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]))
