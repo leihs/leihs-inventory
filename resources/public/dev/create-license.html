@@ -268,8 +268,9 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="softwareId">Software ID (model_id) [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
+    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id) [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</a></label>
 
+    <input type="text" id="softwareId" name="softwareId" value="25c09512-a854-5325-88f4-77aa43b2a0a4">
 <!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
@@ -900,7 +901,6 @@
     // Optional: Adding an onchange event listener to log the selected value
     $("#mySoftware").on("change", function () {
         const selectedValue = $(this).val();
-        debugger
         console.log(">o> Selected software:", selectedValue);
     });
 
@@ -958,7 +958,6 @@
                         text: item.name
                     }));
                 });
-                // debugger
 
                 $select.val(init_data.inventory_pool_id)
             },
@@ -1187,7 +1186,6 @@
                                 formData.delete('old_model_id')
                                 formData.delete('model_id')
                                 formData.append('model_id', model_id)
-                                debugger
                             }else{
                                 console.log("model_id == old_model_id")
                                 formData.delete('old_model_id')
@@ -1199,12 +1197,8 @@
                                 console.log(key, value);
                             }
 
-
-
-
                             checkFormDataOrThrow(formData, modelId)
 
-                            // debugger
                             formData.delete('attachments-to-delete');
                             var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
                             formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
@@ -1283,8 +1277,6 @@
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
 
-
-
                     // debugger
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
@@ -1305,32 +1297,20 @@
                         renameFormDataKey(formData, "myOwner", "owner_id");
                         renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
 
-
-
                         // for (let [key, value] of formData.entries()) {
                         //     console.log(key, value);
                         // }
-                        // debugger
 
                         formData = appendQuantityAllocationToFormData(formData);
-
                         let modelId=formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
-
-
-
                         checkFormDataOrThrow(formData, modelId)
-
-                        // debugger
-
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {
                         //     console.log(key, value);
                         // }
-                        // debugger
-
 
                         // If it's in update mode, make a PUT request
                         $.ajax({
@@ -1343,11 +1323,8 @@
                             headers: { Accept: "application/json" },
                             success: function (response) {
                                 console.log("License create successfully!", response);
-
-
-                                // debugger
-
                                 console.info("UPDATING ITEM-ID")
+
                                 $('#softwareId').val(response.data.model_id)
                                 $('#licenseId').val(response.data.item_id)
 
