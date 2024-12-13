@@ -268,15 +268,15 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id) [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</a></label>
+    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
 
-    <input type="text" id="softwareId" name="softwareId" value="25c09512-a854-5325-88f4-77aa43b2a0a4">
+    <input type="text" id="softwareId" name="softwareId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
 <!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
 <div class="form-group">
     <label for="licenseId">License ID (item_id) [licenseId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-
+    <input type="text" id="licenseId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
 
     <button id="fetchLicenseBtn">Fetch License</button>
 </div>
@@ -473,6 +473,7 @@
     function deleteParamsFromPutPostFormData(formData){
         // formData.delete("model_id");
         formData.delete("inventory_pool_id");
+        formData.delete("myOldSoftware");
     }
 
 

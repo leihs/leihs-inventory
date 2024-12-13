@@ -8,7 +8,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.license.common :refer [int-to-numeric int-to-numeric-or-nil double-to-numeric-or-zero double-to-numeric-or-nil
-                                                                        cast-to-nil cast-to-nil-or-uuid fetch-default-room-id remove-empty-or-nil
+                                                                        cast-to-nil cast-to-uuid-or-nil fetch-default-room-id remove-empty-or-nil
                                                                         parse-json-array normalize-files file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
@@ -25,20 +25,43 @@
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
 
+(defn parse-local-date-or-nil
+  "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
+  [value]
+  (if (and value (not (empty? (str value))))
+    (java.time.LocalDate/parse value)
+    nil))
+
 (defn generate-license-data [request multipart properties pool-id]
-  (let [now-ts (LocalDateTime/now)
-        tx (:tx request)
-        invoice-date (java.time.LocalDate/parse (:invoice_date multipart))
-        price (double-to-numeric-or-zero (:price multipart))
-        supplier_id (cast-to-nil-or-uuid (:supplier_id multipart))
-        merged-data (merge (dissoc multipart :attachments :properties :retired :price :supplier_id :invoice_date :attachments-to-delete)
-                           {:updated_at now-ts
-                            :properties [:cast (jsonc/generate-string properties) :jsonb]
-                            :inventory_pool_id pool-id
-                            :owner_id pool-id
-                            :room_id (:room_id (fetch-default-room-id tx))})
-        merged-data (assoc merged-data :invoice_date invoice-date :price price :supplier_id supplier_id)]
-    merged-data))
+  (try
+    (let [now-ts (LocalDateTime/now)
+          tx (:tx request)
+          invoice-date (parse-local-date-or-nil (:invoice_date multipart))
+          price (double-to-numeric-or-nil (:price multipart))
+          supplier-id (cast-to-uuid-or-nil (:supplier_id multipart))
+          merged-data (merge (dissoc multipart :attachments :properties :retired :price :supplier_id :invoice_date :attachments-to-delete)
+                             {:updated_at now-ts
+                              :properties [:cast (jsonc/generate-string properties) :jsonb]
+                              :inventory_pool_id pool-id
+                              :owner_id pool-id
+                              :room_id (:room_id (fetch-default-room-id tx))})
+          merged-data (assoc merged-data :invoice_date invoice-date :price price :supplier_id supplier-id)]
+      merged-data)
+
+    (catch Exception e
+      (println ">o> EXCEPTION-DETAIL: " (str "generate-license-data: An error occurred, " e))
+      (throw (ex-info (str "generate-license-data: An error occurred, " (.getMessage e))
+                      {:function-name 'generate-license-data
+                       :original-exception e})))))
+
+(defn- calculate-retired-value
+  "Determines the retired value based on database and request values."
+  [db-retired request-retired]
+  (let [now-ts (LocalDateTime/now)]
+    (cond
+      (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
+      (and (not (nil? db-retired)) (not request-retired)) nil
+      :else db-retired)))
 
 (defn- update-license-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
   (let [properties (first (parse-json-array request :properties))
@@ -47,10 +70,7 @@
         now-ts (LocalDateTime/now)
         db-retired (:retired item-entry)
         request-retired (:retired multipart)
-        retired-value (cond
-                        (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
-                        (and (not (nil? db-retired)) (not request-retired)) nil
-                        :else db-retired)
+        retired-value (calculate-retired-value db-retired request-retired)
         update-data (if (not= retired-value db-retired)
                       (assoc update-data :retired retired-value)
                       update-data)]

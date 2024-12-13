@@ -19,6 +19,9 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
+(defn- customized-empty? [value]
+  (or (= value "null") (nil? value) (empty? value)))
+
 (defn int-to-numeric [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
        (catch Exception e (println "Error in int-to-numeric" e) (BigDecimal. 0))))
@@ -31,15 +34,23 @@
   (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
     (int-to-numeric parsed-value)))
 
+(defn double-to-numeric-or-zero [int-value]
+  (if (customized-empty? int-value)
+    0
+    (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
+      (int-to-numeric parsed-value))))
+
 (defn double-to-numeric-or-nil [int-value]
-  (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
-    (int-to-numeric-or-nil parsed-value)))
+  (if (customized-empty? int-value)
+    nil
+    (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
+      (int-to-numeric-or-nil parsed-value))))
 
 (defn cast-to-nil [value]
-  (if (or (= value "null") (nil? value) (empty? value)) nil value))
+  (if (customized-empty? value) nil value))
 
-(defn cast-to-nil-or-uuid [value]
-  (if (or (= value "null") (nil? value) (empty? value)) nil (to-uuid value)))
+(defn cast-to-uuid-or-nil [value]
+  (if (customized-empty? value) nil (to-uuid value)))
 
 (defn fetch-default-room-id [tx]
   (let [query (-> (sql/select [:r.id :room_id] [:r.name :room_name] [:b.name :building_name])

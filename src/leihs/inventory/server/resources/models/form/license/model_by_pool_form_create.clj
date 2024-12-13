@@ -9,7 +9,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.license.common :refer [int-to-numeric int-to-numeric-or-nil double-to-numeric-or-zero double-to-numeric-or-nil
 
-                                                                        cast-to-nil cast-to-nil-or-uuid fetch-default-room-id remove-empty-or-nil
+                                                                        cast-to-nil cast-to-uuid-or-nil fetch-default-room-id remove-empty-or-nil
                                                                         parse-json-array normalize-files file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-license-data]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
@@ -41,7 +41,7 @@
           tx (:tx request)
           invoice_date (:invoice_date multipart)
           invoice-date (when (not (empty? invoice_date)) (java.time.LocalDate/parse invoice_date))
-          supplier_id (cast-to-nil-or-uuid (:supplier_id multipart))
+          supplier_id (cast-to-uuid-or-nil (:supplier_id multipart))
           price (double-to-numeric-or-nil (:price multipart))
           multipart2 (dissoc multipart :attachments :retired :supplier_id)
           multipart2b {:created_at now-ts

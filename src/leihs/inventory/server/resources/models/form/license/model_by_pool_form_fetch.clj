@@ -95,9 +95,14 @@
                                                 (let [model-result (assoc model-result
                                                                           :product {:name (:product model-result)
                                                                                     :model_id (:id model-result)})
-                                                      model-result (assoc model-result
-                                                                          :supplier {:name (:supplier_name model-result)
-                                                                                     :supplier_id (:supplier_id model-result)})
+
+                                                      supplier_name (:supplier_name model-result)
+                                                      supplier_id (:supplier_id model-result)
+                                                      supplier-data (if (some? supplier_id) {:name supplier_name
+                                                                                             :supplier_id supplier_id}
+                                                                        nil)
+                                                      model-result (assoc model-result :supplier supplier-data)
+
                                                       attachments (jdbc/execute! tx
                                                                                  (-> (sql/select :id :filename :content_type :size)
                                                                                      (sql/from :attachments)
