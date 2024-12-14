@@ -110,6 +110,10 @@
   (let [item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
+        p (println ">o> req.update.auth" (:authenticated-entity request))
+
+
         tx (:tx request)
         res (fetch-license-data tx model-id item-id pool-id)]
     (if res
