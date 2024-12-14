@@ -38,27 +38,37 @@
     normalized-data))
 
 (defn extract-shortname-and-number [code]
-  (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
+  (let [pattern #"^(P-AUS)(\d+)$|^([A-Z]+)(\d+)$"
+        matches (re-matches pattern code)]
     (if matches
-      {:shortname (nth matches 1)
-       :number (Integer/parseInt (nth matches 2))}
+      (let [shortname (or (nth matches 1) (nth matches 3)) ;; "P-AUS" or normal uppercase letters
+            number (or (nth matches 2) (nth matches 4))] ;; Extracted number
+        {:shortname shortname
+         :number (Integer/parseInt number)})
+
       (do
-        (println "Caution: Code format is invalid! Expected format: UPPERCASE followed by digits, e.g., AUS85941")
+        (println (str "Caution: Code format is invalid! Current=" code
+                      "\n         Expected formats: 'P-AUS<number>' or 'UPPERCASE followed by digits'"))
+        (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
         nil))))
 
 (defn fetch-latest-inventory-code [tx owner-id]
   (let [res (jdbc/execute-one! tx
                                (-> (sql/select :items.inventory_code)
                                    (sql/from :items)
-                                   (sql/where [:= :items.owner_id owner-id])
+                                   (cond-> owner-id (sql/where [:= :items.owner_id owner-id]))
                                    (sql/order-by [:created_at :desc])
                                    (sql/limit 1)
                                    sql-format))
 
-        res (extract-shortname-and-number (:inventory_code res))
-        res (if res
-              (assoc res :next-code (str (:shortname res) (+ (:number res) 1)))
-              {:error "No inventory code found"})]
+        res (if (nil? res)
+              (let [default {:next-code "DEFAULT-0001"}]
+                (println ">o> INFO: no inventory_code found, use default: " (:next-code default))
+                default)
+              (let [shortname-and-number (extract-shortname-and-number (:inventory_code res))]
+                (if shortname-and-number
+                  (assoc res :next-code (str (:shortname shortname-and-number) (+ (:number shortname-and-number) 1)))
+                  {:error "No valid inventory code found"})))]
     res))
 
 (defn normalize-license-data
@@ -71,6 +81,28 @@
                                 {}
                                 key-map)]
     normalized-data))
+
+(defn parse-json-map
+  "Parse the JSON string and return a map. (swagger-ui normalizer)"
+  [request key]
+  (let [json-map-string (get-in request [:parameters :multipart key])]
+    (cond
+      (not json-map-string) {}
+      (and (string? json-map-string) (some #(= json-map-string %) ["" "[]" "{}"])) {}
+      :else
+      (try
+        (let [normalized-json-map-string
+              (if (.startsWith json-map-string "[")
+                (subs json-map-string 1 (dec (count json-map-string)))
+                json-map-string)
+
+              parsed (cjson/parse-string normalized-json-map-string true)]
+
+          (if (map? parsed)
+            parsed
+            (throw (ex-info "Invalid JSON Object Format" {:parsed parsed}))))
+        (catch Exception e
+          (throw (ex-info "Invalid JSON Map Format" {:error (.getMessage e)})))))))
 
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"

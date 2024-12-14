@@ -47,7 +47,8 @@
                                                [:= :u.is_admin is-admin]
                                                [:is-not :u.login nil]
                                                [:= :u.is_system_admin is-system-admin]
-                                               [:= :ua.role role]]
+                                               [:= :ua.role role]
+                                               [:= :ua.inventory_pool_id #uuid "8bd16d45-056d-5590-bc7f-12849f034351"]]
                                        :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email]}]]})
 
           build-specific-query (fn [base-query type where-clause]

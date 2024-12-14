@@ -40,11 +40,46 @@
     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
       (int-to-numeric parsed-value))))
 
+(defn remove-nil-entries
+  "Removes entries from the map if the values of the specified keys are nil."
+  [data keys-to-check]
+  (reduce (fn [m k]
+            (if (nil? (get m k))
+              (dissoc m k)
+              m))
+          data
+          keys-to-check))
+
+(defn remove-empty-entries
+  "Removes entries from the map if the values of the specified keys are empty strings."
+  [data keys-to-check]
+  (reduce (fn [m k]
+            (try
+              (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
+                (dissoc m k)
+                m)
+              (catch Exception e)))
+          data
+          keys-to-check))
+
+(defn parse-local-date-or-nil
+  "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
+  [value]
+  (if (and value (not (empty? (str value))))
+    (java.time.LocalDate/parse value)
+    nil))
+
 (defn double-to-numeric-or-nil [int-value]
-  (if (customized-empty? int-value)
-    nil
-    (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
-      (int-to-numeric-or-nil parsed-value))))
+  (cond
+    (nil? int-value) nil
+    (instance? java.lang.Double int-value) int-value
+    (customized-empty? int-value) nil
+    :else (let [parsed-value (if (string? int-value)
+                               (try
+                                 (Double/parseDouble int-value)
+                                 (catch NumberFormatException _ nil))
+                               int-value)]
+            (int-to-numeric-or-nil parsed-value))))
 
 (defn cast-to-nil [value]
   (if (customized-empty? value) nil value))
@@ -99,6 +134,21 @@
     (str base extension)
     filename))
 
+(defn calculate-retired-value
+  "Determines the retired value based on database and request values."
+  [db-retired request-retired]
+  (let [now-ts (LocalDateTime/now)]
+    (cond
+      (and (boolean? request-retired) (nil? db-retired) request-retired) (.toLocalDate now-ts)
+      (and (boolean? request-retired) (nil? db-retired) (not request-retired)) nil
+      (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
+      (and (not (nil? db-retired)) (not request-retired)) nil
+      :else db-retired)))
+
+(defn remove-entries-by-keys
+  [m keys-to-remove]
+  (reduce dissoc m keys-to-remove))
+
 (defn process-attachments [tx attachments col_name id]
   (doseq [entry attachments]
     (let [id (to-uuid id)
@@ -112,3 +162,7 @@
                         (sql/from :attachments)
                         (sql/where [:= (keyword col_name) (to-uuid id)])
                         sql-format)))
+
+(defn create-validation-response [data validation]
+  {:data data
+   :validation validation})

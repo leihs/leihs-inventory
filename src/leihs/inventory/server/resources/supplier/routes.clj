@@ -14,11 +14,16 @@
    [leihs.inventory.server.resources.supplier.main :refer [get-suppliers-handler
                                                            get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
+
+(def resp-supplier [{:id s/Uuid
+                     :name s/Str
+                     :note s/Str}])
 
 (defn get-supplier-routes []
   [""
@@ -26,6 +31,7 @@
     {:swagger {:conflicting true
                :tags ["Supplier"] :security []}}
     ["" {:get {:conflicting true
+               :summary "OK | Lieferanten anzeigen [v0]"
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "
@@ -43,12 +49,14 @@
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                :body (s/->Either [resp-supplier {:data resp-supplier
+                                                                  :pagination pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
     ["/:supplier_id"
      {:get {:conflicting true
+            :summary "OK | Lieferant anzeigen [v0]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware session/wrap]
@@ -57,6 +65,6 @@
             :parameters {:path {:supplier_id s/Uuid}}
             :handler get-suppliers-auto-pagination-handler
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             :body resp-supplier}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])

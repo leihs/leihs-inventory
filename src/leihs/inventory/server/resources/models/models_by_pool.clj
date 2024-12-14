@@ -35,6 +35,7 @@
          {:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
          option-type (extract-option-type-from-uri (:uri request))
          query-params (query-params request)
+         {:keys [filter_ids]} query-params
          {:keys [page size]} (fetch-pagination-params request)
          sort-by (case (:sort_by query-params)
                    :manufacturer-asc [:m.manufacturer :asc]
@@ -63,6 +64,7 @@
                         (cond-> filter-product
                           (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                         (cond-> model_id (sql/where [:= :m.id model_id]))
+                        (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
                         (cond-> (and sort-by model_id) (sql/order-by sort-by)))]
      (create-pagination-response request base-query with-pagination?))))
 

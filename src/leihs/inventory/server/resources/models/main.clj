@@ -26,12 +26,9 @@
           query-params (query-params request)
           mtype (:type query-params)
           search-term (:search-term query-params)
-          in-detail (cond
-                      (and (= mtype "Model") (not (str/blank? search-term)) (= (:in-detail query-params) "true")) true
-                      (and (= mtype "Software") (= (:in-detail query-params) "true")) true
-                      :else false)
-          select-stm (if (= in-detail true)
-                       (sql/select-distinct :m.id :m.manufacturer :m.product :m.version)
+          in-detail (str-to-bool (:in-detail query-params))
+          select-stm (if in-detail
+                       (sql/select-distinct :m.id :m.manufacturer :m.product :m.version [:m.id :model_id])
                        (sql/select-distinct :m.manufacturer))
 
           base-query (-> select-stm

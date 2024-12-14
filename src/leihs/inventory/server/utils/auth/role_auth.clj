@@ -73,5 +73,5 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: in permission-checker" (.getMessage e))
+          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized:" (.getMessage e))
           (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))

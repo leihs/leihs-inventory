@@ -20,6 +20,7 @@
                                                               set-password-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
@@ -28,6 +29,7 @@
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.models.main]
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
+   [leihs.inventory.server.resources.models.tree.routes :refer [get-tree-route]]
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
@@ -65,10 +67,11 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
+   (get-tree-route)
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)
-
+   (get-buildings-rooms-routes)
    (get-dev-routes)
 
    (get-owner-department-routes)
@@ -168,7 +171,7 @@
       {:swagger {:tags ["Auth"] :security []}}
 
       ["login"
-       {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+       {:get {:summary "[] OK | DEV | Authenticate user by login ( set cookie with token ) [v0]"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}] :deprecated true}

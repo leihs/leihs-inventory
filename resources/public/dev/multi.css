@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.multi-select-container {
+    width: 300px;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.selected-item {
+    background: #007bff;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.selected-item span {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.suggestions {
+    border: 1px solid #ccc;
+    max-height: 150px;
+    overflow-y: auto;
+    display: none;
+    position: absolute;
+    background: white;
+    width: 290px;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #f0f0f0;
+}

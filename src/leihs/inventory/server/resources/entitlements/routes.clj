@@ -18,35 +18,48 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-entitlements-routes []
-  ["/:pool_id"
-   {:swagger {:conflicting true
-              :tags ["Entitlements"] :security []}}
-
-   ["/entitlement-groups/:id"
-    {:get {:conflicting true
-           :summary "OK | a.k.a 'Anspruchsgruppen'"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:path {:pool_id s/Uuid :id s/Uuid}}
-           :handler get-entitlement-groups-of-pool-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-
-   ["/entitlement-groups"
-    {:get {:conflicting true
-           :summary "OK | a.k.a 'Anspruchsgruppen'"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:path {:pool_id s/Uuid}}
-           :handler get-entitlement-groups-of-pool-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+;(defn get-entitlements-routes []
+;  ["/:pool_id"
+;   {:swagger {:conflicting true
+;              :tags ["Entitlements"] :security []}}
+;
+;   ["/entitlement-groups/:id"
+;    {:get {:conflicting true
+;           :summary "OK | a.k.a 'Anspruchsgruppen' [v0]"
+;           :accept "application/json"
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json"]}
+;           :parameters {:path {:pool_id s/Uuid :id s/Uuid}}
+;           :handler get-entitlement-groups-of-pool-handler
+;           :responses {200 {:description "OK"
+;                            :body [{:id s/Uuid
+;                                    :name s/Str
+;                                    :inventory_pool_id s/Uuid
+;                                    :is_verification_required s/Bool
+;                                    :created_at s/Any
+;                                    :updated_at s/Any}]}
+;
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}}]
+;
+;   ["/entitlement-groups" ;;form
+;    {:get {:conflicting true
+;           :summary "OK | a.k.a 'Anspruchsgruppen' [v0]"
+;           :accept "application/json"
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json"]}
+;           :parameters {:path {:pool_id s/Uuid}}
+;           :handler get-entitlement-groups-of-pool-handler
+;           :responses {200 {:description "OK"
+;                            ;:body s/Any}
+;                            :body [{:id s/Uuid
+;                                    :name s/Str
+;                                    :inventory_pool_id s/Uuid
+;                                    :is_verification_required s/Bool
+;                                    :created_at s/Any
+;                                    :updated_at s/Any}]}
+;
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}}]])

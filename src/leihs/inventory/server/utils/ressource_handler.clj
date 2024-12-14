@@ -73,28 +73,51 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
+;; TODO: remove DEV-FORMS-HANDLING if not used anymore (start)
+(defn extract-filetype [uri]
+  (when-let [filename (last (str/split uri #"/"))]
+    (second (re-matches #".*\.([a-zA-Z0-9]+)$" filename))))
+
+(defn extract-filename [uri]
+  (let [filename (last (str/split uri #"/"))]
+    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
+      filename
+      nil)))
+
+(def allowed-types #{"model" "software" "license" "item" "option" "package"})
+
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
         request ((session/wrap-authenticate (fn [request] request)) request)
         uri (:uri request)
+        file (extract-filename uri)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)]
+        asset (fetch-file-entry uri assets)
+
+        ;; TODO: remove DEV-FORMS-HANDLING if not used anymore
+        uri-parts (str/split uri #"/")
+        uuid (nth uri-parts 2 nil)
+        dev-file (nth uri-parts 4 nil)
+        valid-files #{"model" "software" "license" "item" "option" "package"}]
+
     (cond
       (= uri "/") (create-root-page)
 
       ;; TODO: DEV-ENDPOINT
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
-                                                                           :headers {"Content-Type" "text/html"}
-                                                                           :body (slurp (io/resource "public/dev/create-model.html"))}
+      (and (str/starts-with? uri "/inventory/dev/") (not (nil? file))) ;; true
+      {:status 200
+       :headers {"Content-Type" (str "text/" (extract-filetype uri))}
+       :body (slurp (io/resource (str "public/dev/" file)))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software") {:status 200
-                                                                              :headers {"Content-Type" "text/html"}
-                                                                              :body (slurp (io/resource "public/dev/create-software.html"))}
-
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license") {:status 200
-                                                                             :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-license.html"))}
+      (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri)
+      (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
+        (if (allowed-types type)
+          {:status 200
+           :headers {"Content-Type" "text/html"}
+           :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
+          {:status 400
+           :body "Invalid type"}))
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))

@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require_relative "../_shared"
+require_relative "../../_shared"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do

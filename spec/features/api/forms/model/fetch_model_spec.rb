@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require_relative "../_shared"
+require_relative "../../_shared"
 require "faker"
 
 feature "Inventory Model Management" do

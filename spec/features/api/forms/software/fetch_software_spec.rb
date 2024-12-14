@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require_relative "../_shared"
+require_relative "../../_shared"
 require "faker"
 
 feature "Inventory Model Management" do
@@ -65,13 +65,7 @@ feature "Inventory Model Management" do
 
     context "create model" do
       it "creates software with all available attributes" do
-        # compatibles = @form_manufacturer
-        #
-        # expect(compatibles.count).to eq(1)
-        # binding.pry
-        # compatibles.first["id"] = compatibles.first.delete("model_id")
-
-        # create model request
+        # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,
           # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
@@ -100,7 +94,7 @@ feature "Inventory Model Management" do
 
         expect(result.status).to eq(200)
 
-        # fetch created model
+        # fetch created software
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
@@ -114,7 +108,7 @@ feature "Inventory Model Management" do
 
         expect(Attachment.where(model_id: model_id).count).to eq(1)
 
-        # update model request
+        # update software request
         form_data = {
           "product" => "updated product",
           # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],

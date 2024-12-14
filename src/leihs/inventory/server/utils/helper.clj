@@ -53,7 +53,14 @@
 ;; Used for columns of jsonb type
 (defn convert-map-if-exist [m]
   (-> m
+      (modify-if-exists :is_borrowable #(if (contains? m :is_borrowable) [:cast % ::boolean]))
+      (modify-if-exists :is_inventory_relevant #(if (contains? m :is_inventory_relevant) [:cast % ::boolean]))
+      (modify-if-exists :is_broken #(if (contains? m :is_broken) [:cast % ::boolean]))
+      (modify-if-exists :is_incomplete #(if (contains? m :is_incomplete) [:cast % ::boolean]))
+
       (modify-if-exists :deleted_at #(if (contains? m :deleted_at) [:cast % ::date]))
+      (modify-if-exists :retired #(if (contains? m :retired) [:cast % ::date]))
+      (modify-if-exists :last_check #(if (contains? m :last_check) [:cast % ::date]))
       (modify-if-exists :layout #(if (contains? m :layout) [:cast % :public.collection_layout]))
       (modify-if-exists :default_resource_type #(if (contains? m :default_resource_type) [:cast % :public.collection_default_resource_type]))
       (modify-if-exists :sorting #(if (contains? m :sorting) [:cast % :public.collection_sorting]))
@@ -68,6 +75,9 @@
       (modify-if-exists :user_id #(if (contains? m :user_id) (to-uuid %)))
       (modify-if-exists :accepted_usage_terms_id #(if (contains? m :accepted_usage_terms_id) (to-uuid %)))
 
+      (modify-if-exists :room_id #(if (contains? m :room_id) (to-uuid %)))
+      (modify-if-exists :model_id #(if (contains? m :model_id) (to-uuid %)))
+      (modify-if-exists :owner_id #(if (contains? m :owner_id) (to-uuid %)))
       (modify-if-exists :created_by_id #(if (contains? m :created_by_id) (to-uuid %)))
       (modify-if-exists :uploader_id #(if (contains? m :uploader_id) (to-uuid %)))
       (modify-if-exists :media_entry_id #(if (contains? m :media_entry_id) (to-uuid %)))
