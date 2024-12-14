@@ -2,10 +2,10 @@
   (:require
    [clojure.data.json :as json]
    [clojure.java.io :as io]
-   [leihs.core.core :refer [presence]]
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
                                                                          inventory-manager-license-subquery
                                                                          lending-manager-license-subquery
@@ -103,7 +103,7 @@
     (try
       (let [query (-> (sql/select :*)
                       license-base-query
-                    subquery
+                      subquery
                       (sql/order-by :ff.group :ff.position)
                       sql-format)
             fields (jdbc/execute! tx query)

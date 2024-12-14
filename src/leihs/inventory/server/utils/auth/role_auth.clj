@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
-   [ring.util.response :refer [response status]]
    [clojure.string :as str]
-   [leihs.inventory.server.utils.auth.roles :as roles]))
+   [leihs.inventory.server.utils.auth.roles :as roles]
+   [ring.util.response :refer [response status]]))
 
 (defn determine-required-scope
   "Determines the required scope based on the HTTP method and URI."
@@ -38,13 +38,13 @@
   (let [roles-for-pool (if requested-pool-id
                          ;; Filter roles for the specific pool
                          (->> auth-entity
-                           (filter #(= (:inventory_pool_id %) requested-pool-id))
-                           (map (comp keyword :role))
-                           set)
+                              (filter #(= (:inventory_pool_id %) requested-pool-id))
+                              (map (comp keyword :role))
+                              set)
                          ;; Use all roles if no pool ID is specified
                          (->> auth-entity
-                           (map (comp keyword :role))
-                           set))]
+                              (map (comp keyword :role))
+                              set))]
     ;; Validation logic
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       (throw (Exception. "invalid role for the requested pool or method")))
@@ -67,7 +67,7 @@
               required-scope (determine-required-scope method uri)
 
               has-scope? (or (get user required-scope)
-                           (validate-admin-scopes user required-scope))
+                             (validate-admin-scopes user required-scope))
               _ (when-not has-scope?
                   (throw (Exception. "invalid scope for the requested method")))
 

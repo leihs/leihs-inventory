@@ -3,8 +3,6 @@
    [cheshire.core :as json]
    [clojure.set]
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.auth.role-auth :refer [ permission-by-role-and-pool]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
@@ -20,7 +18,6 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
-
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -30,6 +27,9 @@
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+
+   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
+   [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -628,7 +628,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-license-handler-by-pool-form-fetch
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
@@ -849,7 +849,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
-        :get {:accept "application/json"                    ;;new
+        :get {:accept "application/json" ;;new
               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?
@@ -860,8 +860,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :responses {200 {:description "OK"
                                :body any?}
                           404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}
-        }]]
+                          500 {:description "Internal Server Error"}}}}]]
 
      ["/properties"
       ["" {:get {:accept "application/json"
