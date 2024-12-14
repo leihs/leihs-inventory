@@ -103,8 +103,6 @@ shared_context :setup_models_api do |role|
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
-    puts ">>>>>>>>> Role: #{role}"
-
     @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
 
     @models = create_models

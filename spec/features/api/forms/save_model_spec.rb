@@ -8,22 +8,6 @@ feature "Inventory Model Management" do
     include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
-    # let(:user) { @user }
-    # let(:cookie_str) {
-    #   resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-    # expect(resp.status).to eq(200)
-    #
-    # cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-    #
-    # # resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
-    # #   req.headers["Content-Type"] = "application/json"
-    # #   req.headers["Cookie"] = cookie.to_s
-    # # end
-    #
-    #   cookie.to_s
-    # }
-    # let(:cookie_header) { { "Accept" => "application/json", "Cookie" => cookie_str } }
     let(:cookie_header) { @cookie_header }
 
     let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }

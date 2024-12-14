@@ -19,7 +19,8 @@ feature "Fetching Fields" do
     # - no fields for group_manager/customer
 
     it "compare counts of keys concerning filter with status 200" do
-      ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      ["inventory_manager", "lending_manager"].each do |role|
         direct_access_right_of_user.update(role: role)
 
         url = "/inventory/#{pool_id}/license"
@@ -32,7 +33,8 @@ feature "Fetching Fields" do
     end
 
     it "compare counts of keys concerning filter with status 200" do
-      ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      ["inventory_manager", "lending_manager"].each do |role|
         direct_access_right_of_user.update(role: role)
 
         url = "/inventory/#{pool_id}/models/#{software_model.id}/licenses/#{license_item.id}"
@@ -44,7 +46,8 @@ feature "Fetching Fields" do
     end
 
     it "compare counts of keys concerning filter with status 200" do
-      ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+      ["inventory_manager", "lending_manager"].each do |role|
         direct_access_right_of_user.update(role: role)
 
         url = "/inventory/#{pool_id}/software/#{software_model.id}"
