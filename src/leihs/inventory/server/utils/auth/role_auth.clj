@@ -1,93 +1,99 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
-   ;[ring.util.http-response :as response]
-   [ring.util.response :refer [bad-request response status]]
+   [ring.util.response :refer [response status]]
    [leihs.inventory.server.utils.auth.roles :as roles]))
 
+;; Helper function to validate request
+(defn validate-request
+  "Validates the user's access based on roles, scope, and optionally a pool ID."
+  [auth-entity allowed-roles requested-pool-id]
+  (let [roles-for-pool (if requested-pool-id
+                         ;; Filter roles for the specific pool
+                         (->> auth-entity
+                           (filter #(= (:inventory_pool_id %) requested-pool-id))
+                           (map (comp keyword :role))
+                           set)
+                         ;; Use all roles if no pool ID is specified
+                         (->> auth-entity
+                           (map (comp keyword :role))
+                           set))]
+    ;; Validation logic
+    (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
+      (throw (Exception. "invalid role for the requested pool or method")))
+    roles-for-pool))
+
+;; Middleware: permission-by-role
 (defn permission-by-role
-  "Middleware that blocks requests if the user's roles do not match the allowed roles."
+  "Middleware that blocks requests if the user's roles do not match the allowed roles and scopes."
   [allowed-roles]
   (fn [handler]
     (fn [request]
-      (println ">o> permission-by-role")
-      (let [auth-entity (get-in request [:authenticated-entity :access-rights])
-            user-roles (set (map :role auth-entity))]
-        (if (not-empty (clojure.set/intersection allowed-roles user-roles))
-          ;; User has at least one allowed role, proceed to handler
-          (handler request)
-          ;; No matching roles, return bad request
-          ;(bad-request {:error "Bad Request: Insufficient permissions"}))))))
-(status (response {:error "Unauthorized: Insufficient permissions"}) 401))))))
+      (try
+        (let [auth-entity (get-in request [:authenticated-entity :access-rights])
+              _ (when (nil? auth-entity)
+                  (throw (Exception. "unknown user")))
+              method (get request :request-method)
 
+              ;; Map HTTP methods to required scopes
+              required-scope (case method
+                               :get :scope_read
+                               (:post :put :delete) :scope_write)
+
+              has-scope? (get-in request [:authenticated-entity required-scope])]
+
+          (when-not has-scope?
+            (throw (Exception. "invalid scope for the requested method")))
+
+          ;; Validate roles
+          (validate-request auth-entity allowed-roles nil)
+
+          ;; Proceed to handler
+          (handler request))
+
+        (catch Exception e
+          (println ">o> error in permission-by-role" (.getMessage e))
+          (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))
+
+;; Middleware: permission-by-role-and-pool
 (defn permission-by-role-and-pool
   "Middleware that blocks requests if the user's roles, inventory pool ID, and request method
   do not match the allowed roles, pools, and scopes."
   [allowed-roles]
   (fn [handler]
     (fn [request]
-
-
       (try
-
-
-      (let [auth-entity (get-in request [:authenticated-entity :access-rights])
-
-
-            _ (when (nil? auth-entity)
-                (throw (Exception. "unknown user")))
-
-            requested-pool-id (get-in request [:parameters :path :pool_id])
-            method (get request :request-method)
-
-
-            p (println ">o> abc" (nil? auth-entity) method)
-
-            ;; Map HTTP methods to required scopes
-            required-scope (case method
-                             :get :scope_read
-                             (:post :put :delete) :scope_write)
-            p (println ">o> required-scope" required-scope)
-
-            ;; Normalize roles to keywords
-            roles-for-pool (->> auth-entity
-                             (filter #(= (:inventory_pool_id %) requested-pool-id))
-                             (map (comp keyword :role))
-                             set)
-            p (println ">o> roles-for-pool" roles-for-pool)
-
-            ;; Check if the user has the required scope
-            has-scope? (get-in request [:authenticated-entity required-scope])
-            p (println ">o> has-scope?" has-scope?)
-
-            ]
-
-        ;; Debugging information
-        (println ">o> auth-entity" auth-entity)
-        (println ">o> requested-pool-id" requested-pool-id)
-        (println ">o> roles-for-pool" roles-for-pool)
-        (println ">o> method" method)
-        (println ">o> required-scope" required-scope)
-        (println ">o> has-scope?" has-scope?)
-
-        ;; Validation logic
-        (if (and has-scope? ;; User has the required scope
-              (not-empty (clojure.set/intersection allowed-roles roles-for-pool))) ;; Allowed roles match
-          ;; User has the right role and scope for the specific pool, proceed
-          (handler request)
-          ;; Unauthorized for this pool, role, or method
-          ;(status (response {:error "Unauthorized: Insufficient permissions for the requested inventory pool or method"}) 401))
-          (.throw (Exception. "invalid role or scope"))
-          )
+        (let [auth-entity (get-in request [:authenticated-entity :access-rights])
+              _ (when (nil? auth-entity)
+                  (throw (Exception. "unknown user")))
+              requested-pool-id (get-in request [:parameters :path :pool_id])
+              method (get request :request-method)
 
 
 
+              ;; todo: add further checks based on users.is_admin & users.is_system_admin
+              ;:scope_admin_read (:is_admin user)
+              ;:scope_admin_write (:is_admin user)
+              ;:scope_system_admin_read (:is_system_admin user)
+              ;:scope_system_admin_write (:is_system_admin user))))
 
-        )
 
-      (catch Exception e
-        ;(println ">o> abc" e)
-          ;(status (response {:error "Unauthorized: Insufficient permissions for the requested inventory pool or method"}) 401))
-          (status (response {:error (str "Unauthorized: Insufficient permissions, " (.getMessage e))}) 401))
-      )
 
-      )))
+              ;; Map HTTP methods to required scopes
+              required-scope (case method
+                               :get :scope_read
+                               (:post :put :delete) :scope_write)
+
+              has-scope? (get-in request [:authenticated-entity required-scope])]
+
+          (when-not has-scope?
+            (throw (Exception. "invalid scope for the requested method")))
+
+          ;; Validate roles and pool
+          (validate-request auth-entity allowed-roles requested-pool-id)
+
+          ;; Proceed to handler
+          (handler request))
+
+        (catch Exception e
+          (println ">o> error in permission-by-role-and-pool" (.getMessage e))
+          (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))
