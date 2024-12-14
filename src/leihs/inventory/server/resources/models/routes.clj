@@ -573,6 +573,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                            " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
                            " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
+
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :parameters {:path {:pool_id uuid?}
                           :multipart ::multipart}
              :handler create-model-handler-by-pool-form
@@ -587,6 +590,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :handler create-model-handler-by-pool-form-fetch
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -596,6 +601,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :multipart ::multipart}
@@ -618,10 +625,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?}
                           :multipart :license/multipart}
 
-
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-
-
 
              :handler create-license-handler-by-pool-form
              :responses {200 {:description "OK"}
@@ -665,6 +669,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :multipart ::multipart}
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler update-license-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -681,6 +686,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
                           :multipart ::multipart}
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :handler create-software-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -694,6 +701,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler create-software-handler-by-pool-form-fetch
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
@@ -707,6 +716,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :model_id uuid?}
                           :multipart ::multipart}
              :handler update-software-handler-by-pool-form
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
