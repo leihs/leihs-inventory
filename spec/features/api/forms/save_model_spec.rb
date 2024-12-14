@@ -4,9 +4,11 @@ require_relative "../_shared"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
+    include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
+    let(:cookie_header) { @cookie_header }
 
     let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
     let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
@@ -24,7 +26,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -40,7 +43,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -60,7 +64,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -79,7 +84,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -98,7 +104,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -117,7 +124,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -137,7 +145,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -156,7 +165,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -187,7 +197,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)

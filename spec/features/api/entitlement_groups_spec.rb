@@ -4,7 +4,7 @@ require "#{File.dirname(__FILE__)}/_shared"
 
 feature "Inventory API Endpoints - Model Links" do
   context "when fetching model links for a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
 
     let(:url) { "/inventory/#{@inventory_pool.id}/entitlement-groups" }
     let(:client) { plain_faraday_json_client }

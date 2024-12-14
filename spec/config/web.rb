@@ -38,21 +38,10 @@ def plain_faraday_resource_client(headers = {})
   end
 end
 
-def plain_faraday_json_client
+def plain_faraday_json_client(headers = nil)
   @plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,
-    headers: {accept: "application/json"}
-  ) do |conn|
-    yield(conn) if block_given?
-    conn.response :json, content_type: /\bjson$/
-    conn.adapter Faraday.default_adapter
-  end
-end
-
-def plain_faraday_json_client2
-  Faraday.new(
-    url: api_base_url,
-    headers: {accept: "application/json"}
+    headers: headers || {accept: "application/json"}
   ) do |conn|
     yield(conn) if block_given?
     conn.response :json, content_type: /\bjson$/

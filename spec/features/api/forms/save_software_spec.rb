@@ -4,9 +4,11 @@ require_relative "../_shared"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
+    include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
+    let(:cookie_header) { @cookie_header }
 
     let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
     let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
@@ -22,7 +24,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/software",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -38,7 +41,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/software",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -57,7 +61,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/software",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -86,7 +91,8 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/software",
-        form_data
+        form_data,
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)

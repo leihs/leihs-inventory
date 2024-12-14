@@ -6,9 +6,11 @@ require "faker"
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api_model
+    include_context :generate_session_header
 
-    let(:client) { plain_faraday_json_client }
     let(:pool_id) { @inventory_pool.id }
+    let(:cookie_header) { @cookie_header }
+    let(:client) { plain_faraday_json_client(cookie_header) }
 
     # let(:form_categories) { @form_categories }
     # let(:form_compatible_models) { @form_compatible_models }
@@ -88,7 +90,8 @@ feature "Inventory Model Management" do
 
         result = http_multipart_client(
           "/inventory/#{pool_id}/software",
-          form_data
+          form_data,
+          headers: cookie_header
         )
 
         # puts "Result.model_id: #{result.body["data"]["id"]}"
@@ -131,7 +134,8 @@ feature "Inventory Model Management" do
         result = http_multipart_client(
           "/inventory/#{pool_id}/software/#{model_id}",
           form_data,
-          method: :put
+          method: :put,
+          headers: cookie_header
         )
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)

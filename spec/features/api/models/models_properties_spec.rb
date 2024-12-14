@@ -4,7 +4,7 @@ require_relative "../_shared"
 
 feature "Inventory API Endpoints - Model Properties" do
   context "when fetching properties for a specific model in an inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
 
     let(:model_with_properties) { @models.first }
     let(:model_without_properties) { @models.third }

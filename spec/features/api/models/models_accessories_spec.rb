@@ -4,7 +4,7 @@ require_relative "../_shared"
 
 feature "Inventory API Endpoints - Accessories" do
   context "when fetching accessories for models in an inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
 
     let(:model_with_accessories) { @models.first }
     let(:model_without_accessories) { @models.third }

@@ -49,7 +49,7 @@
       merged-data)
 
     (catch Exception e
-      (println ">o> EXCEPTION-DETAIL: " (str "generate-license-data: An error occurred, " e))
+      (println "EXCEPTION-DETAIL: " (str "generate-license-data: An error occurred, " e))
       (throw (ex-info (str "generate-license-data: An error occurred, " (.getMessage e))
                       {:function-name 'generate-license-data
                        :original-exception e})))))

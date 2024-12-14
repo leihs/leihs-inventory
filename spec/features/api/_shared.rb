@@ -98,12 +98,12 @@ shared_context :setup_category_model_linked_all_to_pool do
   end
 end
 
-shared_context :setup_models_api do
+shared_context :setup_models_api do |role|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
-    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
 
     @models = create_models
     create_and_add_items_to_models(@inventory_pool, [@models.first])
@@ -112,8 +112,20 @@ shared_context :setup_models_api do
   include_context :setup_accessory_entitlements
 end
 
+shared_context :generate_session_header do
+  before :each do
+    resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+    expect(resp.status).to eq(200)
+
+    cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+    cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
+    @cookie_header = {"Accept" => "application/json", "Cookie" => cookie.to_s}
+  end
+end
+
 shared_context :setup_models_api_model do
-  include_context :setup_models_api
+  include_context :setup_models_api, "inventory_manager"
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
@@ -144,7 +156,7 @@ shared_context :setup_unknown_building_room_supplier do
 end
 
 shared_context :setup_models_api_license do
-  include_context :setup_models_api
+  include_context :setup_models_api, "inventory_manager"
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]

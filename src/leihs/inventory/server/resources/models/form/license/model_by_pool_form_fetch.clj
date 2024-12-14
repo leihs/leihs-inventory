@@ -5,8 +5,10 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
                                                                          inventory-manager-license-subquery
+                                                                         lending-manager-license-subquery
                                                                          license-base-query]]
    [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query
@@ -71,17 +73,33 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
-(defn create-license-handler-by-pool-form-fetch [request]
+(defn subquery-by-role [roles-for-pool]
+  (let [roles (if (set? roles-for-pool)
+                roles-for-pool
+                (:roles roles-for-pool))
+        subquery (cond
+                   (contains? roles :inventory_manager) inventory-manager-license-subquery
+                   (contains? roles :lending_manager) lending-manager-license-subquery
+                   :else nil)]
+
+    (when-not subquery
+      (throw (Exception. "invalid role for the requested pool")))
+
+    subquery))
+
+(defn fetch-license-handler-by-pool-form-fetch [request]
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
+        roles-for-pool (:roles-for-pool request)
         item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        subquery (subquery-by-role roles-for-pool)]
 
     (try
       (let [query (-> (sql/select :*)
                       license-base-query
-                      inventory-manager-license-subquery
+                      subquery
                       (sql/order-by :ff.group :ff.position)
                       sql-format)
             fields (jdbc/execute! tx query)
