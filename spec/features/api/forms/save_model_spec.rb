@@ -22,6 +22,7 @@ feature "Inventory Model Management" do
 
       cookie.to_s
     }
+    let(:cookie_header) { { "Accept" => "application/json", "Cookie" => cookie_str } }
 
     let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
     let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
@@ -59,7 +60,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
       )
 
       expect(result.status).to eq(200)
@@ -76,7 +77,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -98,7 +99,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -119,7 +120,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -140,7 +141,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -161,7 +162,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -183,7 +184,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -204,7 +205,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
@@ -237,7 +238,7 @@ feature "Inventory Model Management" do
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
         form_data,
-        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+        headers: cookie_header
 
       )
 
