@@ -2,6 +2,8 @@
   (:require
    [clojure.data.json :as json]
    [clojure.java.io :as io]
+   [leihs.core.core :refer [presence]]
+
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -72,21 +74,75 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
+
+(defn subquery-by-role [roles-for-pool]
+     (let [roles (:roles roles-for-pool)
+
+           subquery-by-role (cond
+             (contains? roles :inventory_manager) "inventory-manager-license-subquery"
+             (contains? roles :lending_manager) "lending-manager-license-subquery"
+             :else "nil")
+
+           p (println ">o> subquery-by-role => " subquery-by-role)
+           ]
+       (cond
+         (contains? roles :inventory_manager) inventory-manager-license-subquery
+         (contains? roles :lending_manager) lending-manager-license-subquery
+         :else nil)       ))
+
+(defn subquery-by-role [roles-for-pool]
+  (let [roles (if (set? roles-for-pool)
+                roles-for-pool
+                (:roles roles-for-pool)) ;; Ensure roles is a set
+        subquery (cond
+                   (contains? roles :inventory_manager) inventory-manager-license-subquery
+                   (contains? roles :lending_manager) lending-manager-license-subquery
+                   :else nil)]
+
+    (println ">o> subquery-by-role => " subquery) ;; Debugging output
+
+    (when-not subquery
+      (throw (Exception. "invalid role for the requested pool")))
+
+    subquery))
+
+
+
 (defn fetch-license-handler-by-pool-form-fetch [request]
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
 
         p (println ">o> req.fetch.auth" (:authenticated-entity request))
 
+
+        roles-for-pool (:roles-for-pool request)
+        p (println ">o> roles-for-pool" roles-for-pool)
+
         item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
+
+              ;subquery        (if (subquery-by-role roles-for-pool)
+              ;                  presence
+              ;                  (.throw (Exception. "invalid role for the requested pool"))
+              ;                  )
+
+        subquery (subquery-by-role roles-for-pool)
+
+        ]
 
     (try
       (let [query (-> (sql/select :*)
                       license-base-query
+
                       ;inventory-manager-license-subquery
-                      lending-manager-license-subquery
+                      ;lending-manager-license-subquery
+
+
+                      ;(subquery-by-role roles-for-pool)
+                    subquery
+
                       (sql/order-by :ff.group :ff.position)
                       sql-format)
             fields (jdbc/execute! tx query)

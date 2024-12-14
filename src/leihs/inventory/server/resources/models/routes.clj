@@ -619,7 +619,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart :license/multipart}
 
 
-             :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
 
 
@@ -634,7 +634,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-license-handler-by-pool-form-fetch
 
-             :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
             :responses {200 {:description "OK"}
                         404 {:description "Not Found"}
@@ -649,7 +649,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :model_id uuid?}}
              :handler fetch-license-handler-by-pool-form-fetch
 
-             :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
 
              :swagger {:deprecated true}
@@ -833,7 +833,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                    :model_id uuid?}
                             :multipart :license/multipart}
 
-               :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
 
                :handler create-license-handler-by-pool-form
@@ -852,7 +852,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                   :item_id uuid?}
                            :multipart :license/multipart}
 
-              :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
               :handler update-license-handler-by-pool-form
               :responses {200 {:description "OK"
@@ -867,8 +867,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                   :model_id uuid?
                                   :item_id uuid?}}
 
-              ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-              :middleware [(permission-by-role-and-pool roles/min-role-inventory-manager)]
+              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
 
               :handler fetch-license-handler-by-pool-form-fetch
               :responses {200 {:description "OK"

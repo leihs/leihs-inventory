@@ -1,9 +1,40 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
    [ring.util.response :refer [response status]]
+   [clojure.string :as str]
    [leihs.inventory.server.utils.auth.roles :as roles]))
 
-;; Helper function to validate request
+;; Helper: Determine required scope based on HTTP method and URI
+(defn determine-required-scope
+  "Determines the required scope based on the HTTP method and URI."
+  [method uri]
+  (cond
+    (and (str/includes? uri "/admin/") (= method :get)) :scope_system_admin_read
+    (and (str/includes? uri "/admin/") (#{:post :put :delete} method)) :scope_system_admin_write
+    (= method :get) :scope_read
+    (#{:post :put :delete} method) :scope_write))
+
+;; Helper: Validate admin scopes
+(defn validate-admin-scopes
+  "Checks admin-level scopes (is_admin or is_system_admin) for elevated privileges."
+  [user required-scope]
+  (cond
+    (:is_system_admin user)
+    (case required-scope
+      :scope_system_admin_read true
+      :scope_system_admin_write true
+      true)
+
+    (:is_admin user)
+    (case required-scope
+      :scope_admin_read true
+      :scope_admin_write true
+      true)
+
+    :else
+    false))
+
+;; Helper: Validate request
 (defn validate-request
   "Validates the user's access based on roles, scope, and optionally a pool ID."
   [auth-entity allowed-roles requested-pool-id]
@@ -16,7 +47,9 @@
                          ;; Use all roles if no pool ID is specified
                          (->> auth-entity
                            (map (comp keyword :role))
-                           set))]
+                           set))
+        p (println ">o> roles-for-pool" roles-for-pool)
+        ]
     ;; Validation logic
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       (throw (Exception. "invalid role for the requested pool or method")))
@@ -29,24 +62,27 @@
   (fn [handler]
     (fn [request]
       (try
-        (let [auth-entity (get-in request [:authenticated-entity :access-rights])
+        (let [user (get-in request [:authenticated-entity])
+              auth-entity (:access-rights user)
               _ (when (nil? auth-entity)
                   (throw (Exception. "unknown user")))
               method (get request :request-method)
+              uri (get request :uri)
 
-              ;; Map HTTP methods to required scopes
-              required-scope (case method
-                               :get :scope_read
-                               (:post :put :delete) :scope_write)
+              ;; Determine required scope
+              required-scope (determine-required-scope method uri)
 
-              has-scope? (get-in request [:authenticated-entity required-scope])]
+              has-scope? (or (get user required-scope)
+                           (validate-admin-scopes user required-scope))
 
-          (when-not has-scope?
-            (throw (Exception. "invalid scope for the requested method")))
+              _ (when-not has-scope?
+                  (throw (Exception. "invalid scope for the requested method")))
 
-          ;; Validate roles
-          (validate-request auth-entity allowed-roles nil)
+              ;; Validate roles and pool
+              roles-for-pool (validate-request auth-entity allowed-roles nil)
+              p (println ">o> roles-for-pool" roles-for-pool)
 
+              ]
           ;; Proceed to handler
           (handler request))
 
@@ -62,34 +98,30 @@
   (fn [handler]
     (fn [request]
       (try
-        (let [auth-entity (get-in request [:authenticated-entity :access-rights])
+        (let [user (get-in request [:authenticated-entity])
+              auth-entity (:access-rights user)
               _ (when (nil? auth-entity)
                   (throw (Exception. "unknown user")))
-              requested-pool-id (get-in request [:parameters :path :pool_id])
               method (get request :request-method)
+              uri (get request :uri)
+              requested-pool-id (get-in request [:parameters :path :pool_id])
 
+              ;; Determine required scope
+              required-scope (determine-required-scope method uri)
 
+              has-scope? (or (get user required-scope)
+                           (validate-admin-scopes user required-scope))
 
-              ;; todo: add further checks based on users.is_admin & users.is_system_admin
-              ;:scope_admin_read (:is_admin user)
-              ;:scope_admin_write (:is_admin user)
-              ;:scope_system_admin_read (:is_system_admin user)
-              ;:scope_system_admin_write (:is_system_admin user))))
-
-
-
-              ;; Map HTTP methods to required scopes
-              required-scope (case method
-                               :get :scope_read
-                               (:post :put :delete) :scope_write)
-
-              has-scope? (get-in request [:authenticated-entity required-scope])]
-
-          (when-not has-scope?
+          _ (when-not has-scope?
             (throw (Exception. "invalid scope for the requested method")))
 
           ;; Validate roles and pool
-          (validate-request auth-entity allowed-roles requested-pool-id)
+              roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
+              p (println ">o> roles-for-pool" roles-for-pool)
+
+              request (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
+
+              ]
 
           ;; Proceed to handler
           (handler request))
@@ -97,3 +129,4 @@
         (catch Exception e
           (println ">o> error in permission-by-role-and-pool" (.getMessage e))
           (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))
+
