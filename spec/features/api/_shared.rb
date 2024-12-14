@@ -112,6 +112,18 @@ shared_context :setup_models_api do |role|
   end
 
   include_context :setup_accessory_entitlements
+  end
+
+shared_context :generate_session_header do
+  before :each do
+      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      expect(resp.status).to eq(200)
+
+      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+      cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
+    @cookie_header= { "Accept" => "application/json", "Cookie" => cookie.to_s }
+  end
 end
 
 shared_context :setup_models_api_model do

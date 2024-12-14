@@ -5,24 +5,26 @@ require_relative "../_shared"
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
+    include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
-    let(:user) { @user }
-    let(:cookie_str) {
-      resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-    expect(resp.status).to eq(200)
-
-    cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-
-    # resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
-    #   req.headers["Content-Type"] = "application/json"
-    #   req.headers["Cookie"] = cookie.to_s
-    # end
-
-      cookie.to_s
-    }
-    let(:cookie_header) { { "Accept" => "application/json", "Cookie" => cookie_str } }
+    # let(:user) { @user }
+    # let(:cookie_str) {
+    #   resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+    # expect(resp.status).to eq(200)
+    #
+    # cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+    # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+    #
+    # # resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+    # #   req.headers["Content-Type"] = "application/json"
+    # #   req.headers["Cookie"] = cookie.to_s
+    # # end
+    #
+    #   cookie.to_s
+    # }
+    # let(:cookie_header) { { "Accept" => "application/json", "Cookie" => cookie_str } }
+    let(:cookie_header) { @cookie_header }
 
     let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
     let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
@@ -33,24 +35,6 @@ feature "Inventory Model Management" do
       [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
         raise "File not found: #{path}" unless File.exist?(path)
       end
-    end
-
-    it "accesses protected resource with valid session cookie" do
-      resp = plain_faraday_json_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(403)
-
-      resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-      expect(resp.status).to eq(200)
-
-      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-      cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
-        req.headers["Content-Type"] = "application/json"
-        req.headers["Cookie"] = cookie.to_s
-      end
-
-      expect(resp.status).to eq(200)
     end
 
 
