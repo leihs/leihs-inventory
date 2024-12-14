@@ -4,9 +4,24 @@ require_relative "../_shared"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
 
     let(:pool_id) { @inventory_pool.id }
+    let(:user) { @user }
+    let(:cookie_str) {
+      resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+    expect(resp.status).to eq(200)
+
+    cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+    cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
+    # resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+    #   req.headers["Content-Type"] = "application/json"
+    #   req.headers["Cookie"] = cookie.to_s
+    # end
+
+      cookie.to_s
+    }
 
     let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
     let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
@@ -19,12 +34,32 @@ feature "Inventory Model Management" do
       end
     end
 
+    it "accesses protected resource with valid session cookie" do
+      resp = plain_faraday_json_client.get("/inventory/session/protected")
+      expect(resp.status).to eq(403)
+
+      resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+      expect(resp.status).to eq(200)
+
+      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+      cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
+      resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["Cookie"] = cookie.to_s
+      end
+
+      expect(resp.status).to eq(200)
+    end
+
+
     it "creates a model with only the required product attribute" do
       form_data = {"product" => "New-Product"}
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
       )
 
       expect(result.status).to eq(200)
@@ -40,7 +75,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -60,7 +97,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -79,7 +118,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -98,7 +139,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -117,7 +160,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -137,7 +182,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -156,7 +203,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)
@@ -187,7 +236,9 @@ feature "Inventory Model Management" do
 
       result = http_multipart_client(
         "/inventory/#{pool_id}/model",
-        form_data
+        form_data,
+        headers: { "Accept" => "application/json", "Cookie" => cookie_str }
+
       )
 
       expect(result.status).to eq(200)

@@ -4,7 +4,7 @@ require_relative "../_shared"
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api
+    include_context :setup_models_api, "inventory_manager"
 
     let(:pool_id) { @inventory_pool.id }
 

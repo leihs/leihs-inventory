@@ -98,12 +98,14 @@ shared_context :setup_category_model_linked_all_to_pool do
   end
 end
 
-shared_context :setup_models_api do
+shared_context :setup_models_api do |role|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
-    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    puts ">>>>>>>>> Role: #{role}"
+
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
 
     @models = create_models
     create_and_add_items_to_models(@inventory_pool, [@models.first])
@@ -113,7 +115,7 @@ shared_context :setup_models_api do
 end
 
 shared_context :setup_models_api_model do
-  include_context :setup_models_api
+  include_context :setup_models_api, "inventory_manager"
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
@@ -144,7 +146,7 @@ shared_context :setup_unknown_building_room_supplier do
 end
 
 shared_context :setup_models_api_license do
-  include_context :setup_models_api
+  include_context :setup_models_api, "inventory_manager"
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
