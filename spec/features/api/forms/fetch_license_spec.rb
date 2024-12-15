@@ -7,9 +7,12 @@ feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api_license
     include_context :setup_unknown_building_room_supplier
+    include_context :generate_session_header
+
 
     let(:client) { plain_faraday_json_client }
     let(:pool_id) { @inventory_pool.id }
+    let(:cookie_header) { @cookie_header }
 
     let(:software_model) { @software_model }
     let(:license_item) { @license_item }
@@ -105,7 +108,9 @@ feature "Inventory Model Management" do
 
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses",
-          form_data
+          form_data,
+          headers: cookie_header
+
         )
 
         expect(result.status).to eq(200)
@@ -152,7 +157,9 @@ feature "Inventory Model Management" do
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}",
           form_data,
-          method: :put
+          method: :put,
+          headers: cookie_header
+
         )
 
         expect(result.status).to eq(200)
@@ -212,7 +219,9 @@ feature "Inventory Model Management" do
 
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses",
-          form_data
+          form_data,
+          headers: cookie_header
+
         )
 
         expect(result.status).to eq(200)
@@ -262,7 +271,9 @@ feature "Inventory Model Management" do
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}",
           form_data,
-          method: :put
+          method: :put,
+          headers: cookie_header
+
         )
 
         expect(result.status).to eq(200)

@@ -5,10 +5,13 @@ require_relative "../_shared"
 feature "Fetching Fields" do
   context "when searching for fields in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api_license
+    include_context :generate_session_header
+
 
     let(:client) { plain_faraday_json_client }
     let(:pool_id) { @inventory_pool.id }
     let(:direct_access_right_of_user) { @direct_access_right }
+    let(:cookie_header) { @cookie_header }
 
     let(:software_model) { @software_model }
     let(:license_item) { @license_item }
