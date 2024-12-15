@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New License (dyn)</title>
+    <title>Create New Package</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -263,7 +263,7 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package</a></li>
 </ul>
 
-<h1 id="formTitle">Create New License</h1>
+<h1 id="formTitle">Create New Packages (dyn)</h1>
 
 <h3>Options</h3>
 <div class="form-group">
@@ -278,10 +278,10 @@
 </div>
 
 <div class="form-group">
-    <label for="licenseId">License ID (item_id) [licenseId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="licenseId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <label for="itemsId">Package ID (item_id) [itemsId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
+    <input type="text" id="itemsId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
 
-    <button id="fetchLicenseBtn">Fetch License</button>
+    <button id="fetchPackageBtn">Fetch Package</button>
 </div>
 
 
@@ -722,7 +722,7 @@
 
         // After generating form fields, add the save button if not already present
         if ($("#saveButton").length === 0) {
-            form.append('<button type="submit" id="saveButton">Save License</button>');
+            form.append('<button type="submit" id="saveButton">Save Package</button>');
         }
 
         // TODO: define/trigger init
@@ -1059,19 +1059,19 @@
             });
         }
 
-        $("#fetchLicenseBtn").click(function () {
-            const licenseId = $("#licenseId").val();
+        $("#fetchPackageBtn").click(function () {
+            const itemsId = $("#itemsId").val();
             const modelId = $("#softwareId").val();
             const poolId = $("#poolId").val();
 
-            if (!licenseId) {
-                alert("Please enter a license ID.");
+            if (!itemsId) {
+                alert("Please enter a items ID.");
                 return;
             }
 
             // FETCH LICENSE
             $.ajax({
-                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
+                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
@@ -1087,7 +1087,7 @@
                         populateFieldValues(data, fieldMapping);
 
                         CONST_IS_CREATE_FORM = false;
-                        $("#formTitle").text("Update License");
+                        $("#formTitle").text("Update Package");
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
                         // software
@@ -1158,7 +1158,7 @@
 
                         setupDongleAndRetiredHandler(data)
 
-                        $("#saveButton").text("Update License");
+                        $("#saveButton").text("Update Package");
                         $("#saveButton").off('click').click(function (e) {
 
                             // UPDATE LICENSE
@@ -1168,7 +1168,7 @@
 
                             const poolId = $("#poolId").val();
                             const modelId = $("#softwareId").val();
-                            const licenseId = $("#licenseId").val();
+                            const itemId = $("#itemId").val();
                             let formData = new FormData($("#softwareForm")[0]);
 
 
@@ -1213,43 +1213,43 @@
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
-                                url: `/inventory/${poolId}/models/${modelId}/licenses/${licenseId}`,
+                                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
                                 method: "PUT",
                                 data: formData,
                                 processData: false,
                                 contentType: false,
                                 headers: {Accept: "application/json"},
                                 success: function (response) {
-                                    console.log("License updated successfully!", response);
+                                    console.log("Package updated successfully!", response);
 
                                     $(`#attachmentsList`).data('to-delete', [])
                                     $('#attachments').val('');
 
                                     // $('#softwareId').val(response.data.model_id)
-                                    // $('#licenseId').val(response.data.id)
+                                    // $('#itemId').val(response.data.id)
                                     $('#softwareId').val(response[0].model_id)
-                                    $('#licenseId').val(response[0].id)
+                                    $('#itemId').val(response[0].id)
 
-                                    $('#fetchLicenseBtn').trigger('click');
+                                    $('#fetchPackageBtn').trigger('click');
 
                                     showResultEffect("save-success");
                                 },
                                 error: function (xhr, status, error) {
-                                    console.error("Error updating license:", error);
+                                    console.error("Error updating item:", error);
                                     showResultEffect("save-failed");
                                 },
                             });
                         });
 
 
-                        console.log("License data fetched successfully!", response);
+                        console.log("Package data fetched successfully!", response);
                         showResultEffect("save-success");
                     } else {
                         showResultEffect("no-result-success");
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.error("Error fetching license:", error);
+                    console.error("Error fetching item:", error);
                     showResultEffect("save-failed");
                 },
             });
@@ -1257,16 +1257,16 @@
     });
 
     $("body").ready(function () {
-        const licenseId = $("#softwareId").val();
+        const itemId = $("#softwareId").val();
         const poolId = $("#poolId").val();
 
-        if (!licenseId) {
-            alert("Please enter a license ID.");
+        if (!itemId) {
+            alert("Please enter a item ID.");
             return;
         }
 
         $.ajax({
-            url: `/inventory/${poolId}/license`,
+            url: `/inventory/${poolId}/item`,
             method: "GET",
             headers: { Accept: "application/json" },
             success: function (response) {
@@ -1285,7 +1285,7 @@
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
 
-                    $("#saveButton").text("Save License");
+                    $("#saveButton").text("Save Package");
                     $("#saveButton").off('click').click(function(e) {
                         e.preventDefault(); // Prevent default form submission
                         console.log("Update button clicked");
@@ -1318,25 +1318,25 @@
 
                         // If it's in update mode, make a PUT request
                         $.ajax({
-                            // url: `/inventory/${poolId}/license`,
-                            url: `/inventory/${poolId}/models/${modelId}/licenses`,
+                            // url: `/inventory/${poolId}/item`,
+                            url: `/inventory/${poolId}/models/${modelId}/items`,
                             method: "POST",
                             data: formData,
                             processData: false,
                             contentType: false,
                             headers: { Accept: "application/json" },
                             success: function (response) {
-                                console.log("License create successfully!", response);
+                                console.log("Package create successfully!", response);
                                 console.info("UPDATING ITEM-ID")
 
                                 $('#softwareId').val(response.data.model_id)
-                                $('#licenseId').val(response.data.item_id)
+                                $('#itemId').val(response.data.item_id)
 
                                 $(`#attachmentsList`).data('to-delete', [])
                                 $('#attachments').val('');
 
 
-                                $('#fetchLicenseBtn').trigger('click');
+                                $('#fetchPackageBtn').trigger('click');
 
                                 showResultEffect("save-success");
 
@@ -1344,7 +1344,7 @@
                                 // TODO: fetch data by response id's
                             },
                             error: function (xhr, status, error) {
-                                console.error("Error updating license:", error);
+                                console.error("Error updating item:", error);
                                 showResultEffect("save-failed");
                             },
                         });
@@ -1356,18 +1356,18 @@
                     // populateFieldValues(data, fieldMapping);
 
                     // CONST_IS_CREATE_FORM = false;
-                    // $("#formTitle").text("Update License");
+                    // $("#formTitle").text("Update Package");
 
                     setupDongleAndRetiredHandler()
 
-                    console.log("License fields fetched successfully!", response);
+                    console.log("Package fields fetched successfully!", response);
                     // showResultEffect("save-success");
                 } else {
                     showResultEffect("no-result-success");
                 }
             },
             error: function (xhr, status, error) {
-                console.error("Error fetching license:", error);
+                console.error("Error fetching item:", error);
                 showResultEffect("save-failed");
             },
         });
