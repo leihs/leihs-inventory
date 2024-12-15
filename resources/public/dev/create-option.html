@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Model</title>
+    <title>Create New Option</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -135,14 +135,14 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchModelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Model-ID (API)</a></label>
-    <input type="text" id="fetchModelId" name="fetchModelId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
-    <input type="button" id="fetchModelBtn" value="Fetch model" class="btn" />
+    <label for="fetchOptionId"><a target="_blank" href="/inventory/api-docs/index.html#/Options%20by%20pool/get_inventory__pool_id__models" >Option-ID (API)</a></label>
+    <input type="text" id="fetchOptionId" name="fetchOptionId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
+    <input type="button" id="fetchOptionBtn" value="Fetch model" class="btn" />
 </div>
 
 <br/><br/><br/><br/>
 
-<h1 id="formTitle">Create New Model</h1>
+<h1 id="formTitle">Create New Option</h1>
 
 <form id="modelForm">
     <div class="form-group">
@@ -222,7 +222,7 @@
         <button type="button" id="addAccessory">Add Zubehör / Accessory</button>
     </div>
     <div class="form-group">
-        <button type="submit">Save Model</button>
+        <button type="submit">Save Option</button>
     </div>
 </form>
 
@@ -415,8 +415,8 @@
         //     updateDropdowns(newPoolId);
         // });
 
-        $('#fetchModelBtn').click(function() {
-            var modelId = $('#fetchModelId').val();
+        $('#fetchOptionBtn').click(function() {
+            var modelId = $('#fetchOptionId').val();
             var poolId = $('#poolId').val();
 
             // Send request to API
@@ -427,7 +427,7 @@
                     'Accept': 'application/json'
                 },
                 success: function(response) {
-                    console.log('Model fetched successfully!');
+                    console.log('Option fetched successfully!');
                     console.log(response);
 
                     $("#cache").removeData();
@@ -456,7 +456,7 @@
 
                     // Set CONST_IS_CREATE_FORM to false and update the title
                     CONST_IS_CREATE_FORM = false;
-                    $('#formTitle').text('Update Model');
+                    $('#formTitle').text('Update Option');
 
                     // Populate properties
                     $('#propertiesList').empty();
@@ -710,9 +710,9 @@
 
 
         $('#testImage').ready(function() {
-            // alert('fetchModelBtn');
+            // alert('fetchOptionBtn');
 
-            var modelId = $('#fetchModelId').val();
+            var modelId = $('#fetchOptionId').val();
             var poolId = $('#poolId').val();
 
             fetch("/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
@@ -1069,7 +1069,7 @@
 
             // Get the poolId value
             var poolId = $('#poolId').val();
-            var modelId = $('#fetchModelId').val();
+            var modelId = $('#fetchOptionId').val();
 
             var config = FNC_CONFIG(poolId, modelId);
             let canvasPromises = [];
@@ -1108,13 +1108,13 @@
                             'Accept': 'application/json'
                         },
                         success: function(response) {
-                            console.log('Model created successfully!');
+                            console.log('Option created successfully!');
                             clearForm(); // Clear the form after successful save
                             $("#cache").removeData();
 
                             if( !CONST_IS_CREATE_FORM) {
-                                // $('#fetchModelId').val(response.model_id);
-                                $('#fetchModelBtn').click()
+                                // $('#fetchOptionId').val(response.model_id);
+                                $('#fetchOptionBtn').click()
                             }
 
 

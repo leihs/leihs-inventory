@@ -96,9 +96,13 @@
                                                                              :headers {"Content-Type" "text/html"}
                                                                              :body (slurp (io/resource "public/dev/create-license.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/items") {:status 200
+      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item") {:status 200
                                                                              :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-items.html"))}
+                                                                             :body (slurp (io/resource "public/dev/create-item.html"))}
+
+      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option") {:status 200
+                                                                             :headers {"Content-Type" "text/html"}
+                                                                             :body (slurp (io/resource "public/dev/create-option.html"))}
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))
