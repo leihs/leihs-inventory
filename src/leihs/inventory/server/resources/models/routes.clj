@@ -6,6 +6,11 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
+
+   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
@@ -857,6 +862,55 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                   :item_id uuid?}}
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :handler fetch-license-handler-by-pool-form-fetch
+              :responses {200 {:description "OK"
+                               :body any?}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}}]]
+
+ ["/items" ;; new
+      {:swagger {:conflicting true
+                 :tags ["form / licenses"] :security []}}
+
+      [""
+       {:post {:accept "application/json"
+               :swagger {:consumes ["multipart/form-data"]
+                         :produces "application/json"}
+               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+               :coercion spec/coercion
+               :parameters {:path {:pool_id uuid?
+                                   :model_id uuid?}
+                            :multipart :license/multipart}
+               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+               :handler create-items-handler-by-pool-form
+               :responses {200 {:description "OK"}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}}]
+
+      ["/:item_id"
+       {:put {:accept "application/json"
+              :swagger {:consumes ["multipart/form-data"]
+                        :produces "application/json"}
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?}
+                           :multipart :license/multipart}
+              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+              :handler update-items-handler-by-pool-form
+              :responses {200 {:description "OK"
+                               :body any?}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}
+
+        :get {:accept "application/json" ;;new
+              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
+              :coercion spec/coercion
+              :parameters {:path {:pool_id uuid?
+                                  :model_id uuid?
+                                  :item_id uuid?}}
+              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+              :handler fetch-items-handler-by-pool-form
               :responses {200 {:description "OK"
                                :body any?}
                           404 {:description "Not Found"}
