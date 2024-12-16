@@ -112,3 +112,7 @@
                         (sql/from :attachments)
                         (sql/where [:= (keyword col_name) (to-uuid id)])
                         sql-format)))
+
+(defn create-validation-response [data validation]
+  {:data data
+   :validation validation})

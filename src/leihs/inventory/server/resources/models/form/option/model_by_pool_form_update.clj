@@ -25,206 +25,21 @@
            (java.time LocalDateTime)
            [java.util UUID]))
 
-(defn prepare-model-data
-  [data]
-  (let [normalize-data (normalize-model-data data)
-        created-ts (LocalDateTime/now)
-        res (assoc normalize-data :updated_at created-ts)]
-    (assoc res :is_package (str-to-bool (:is_package res)))))
-
-(defn update-or-insert
-  [tx table where-values update-values]
-  (let [select-query (-> (sql/select :*)
-                         (sql/from table)
-                         (sql/where where-values)
-                         sql-format)
-        existing-entry (first (jdbc/execute! tx select-query))]
-    (if existing-entry
-      (jdbc/execute-one! tx (-> (sql/update table)
-                                (sql/set update-values)
-                                (sql/where where-values)
-                                (sql/returning :*)
-                                sql-format))
-      (jdbc/execute-one! tx (-> (sql/insert-into table)
-                                (sql/values [update-values])
-                                (sql/returning :*)
-                                sql-format)))))
-
-(defn update-insert-or-delete
-  [tx table where-values update-values entry]
-  (if (:delete entry)
-    (jdbc/execute-one! tx (-> (sql/delete-from table)
-                              (sql/where where-values)
-                              sql-format))
-    (update-or-insert tx table where-values update-values)))
-
-(defn process-deletions [tx ids table key]
-  (doseq [id ids]
-    (jdbc/execute! tx (-> (sql/delete-from table)
-                          (sql/where [:= key (to-uuid id)])
-                          sql-format))))
-
-(defn process-image-deletions [tx images-to-delete model-id]
-  (doseq [id images-to-delete]
-    (let [id (to-uuid id)
-          row (jdbc/execute-one! tx (-> (sql/select :*)
-                                        (sql/from :models)
-                                        (sql/where [:= :id model-id])
-                                        sql-format))]
-      (when (= (:cover_image_id row) id)
-        (jdbc/execute! tx (-> (sql/update :models)
-                              (sql/set {:cover_image_id nil})
-                              (sql/where [:= :id model-id])
-                              sql-format)))
-      (jdbc/execute! tx (sql-format {:with [[:ordered_images
-                                             {:select [:id]
-                                              :from [:images]
-                                              :where [:or [:= :parent_id id] [:= :id id]]
-                                              :order-by [[:parent_id :asc]]}]]
-                                     :delete-from :images
-                                     :where [:in :id {:select [:id] :from [:ordered_images]}]})))))
-
-(defn process-images [tx images model-id]
-  (let [image-groups (group-by #(base-filename (:filename %)) images)]
-    (doseq [[_ entries] image-groups]
-      (when (= 2 (count entries))
-        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
-                                   [(second entries) (first entries)]
-                                   [(first entries) (second entries)])
-              file-content (file-to-base64 (:tempfile main-image))
-              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                  (dissoc :tempfile)
-                                  (assoc :content file-content
-                                         :target_id model-id
-                                         :target_type "Model"
-                                         :thumbnail false))
-              main-image-result (first (jdbc/execute! tx (-> (sql/insert-into :images)
-                                                             (sql/values [main-image-data])
-                                                             (sql/returning :*)
-                                                             sql-format)))
-              file-content (file-to-base64 (:tempfile thumb))
-              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                 (dissoc :tempfile)
-                                 (assoc :content file-content
-                                        :target_id model-id
-                                        :target_type "Model"
-                                        :thumbnail true
-                                        :parent_id (:id main-image-result)))]
-          (jdbc/execute! tx (-> (sql/insert-into :images)
-                                (sql/values [thumbnail-data])
-                                (sql/returning :*)
-                                sql-format)))))))
-
-(defn process-entitlements [tx entitlements model-id]
-  (doseq [entry entitlements]
-    (let [id (to-uuid (:entitlement_id entry))
-          where-clause (if id
-                         [:and [:= :id id] [:= :model_id model-id]]
-                         [:and [:= :model_id model-id] [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]])]
-      (update-insert-or-delete tx :entitlements where-clause
-                               {:model_id model-id
-                                :entitlement_group_id (to-uuid (:entitlement_group_id entry))
-                                :quantity (:quantity entry)} entry))))
-
-(defn process-properties [tx properties model-id]
-  (doseq [entry properties]
-    (let [id (to-uuid (:id entry))
-          where-clause (if id
-                         [:and [:= :id id] [:= :model_id model-id]]
-                         [:and [:= :model_id model-id] [:= :key (:key entry)]])]
-      (update-insert-or-delete tx :properties where-clause
-                               {:model_id model-id
-                                :key (:key entry)
-                                :value (:value entry)} entry))))
-
-(defn process-accessories [tx accessories model-id pool-id]
-  (doseq [entry accessories]
-    (let [id (to-uuid (:id entry))]
-      (if (:delete entry)
-        (do
-          (jdbc/execute! tx (-> (sql/delete-from :accessories_inventory_pools)
-                                (sql/where [:= :accessory_id id] [:= :inventory_pool_id pool-id])
-                                sql-format))
-          (jdbc/execute! tx (-> (sql/delete-from :accessories)
-                                (sql/where [:= :id id])
-                                sql-format)))
-        (let [where-clause (if id
-                             [:= :id id]
-                             [:and [:= :model_id model-id] [:= :name (:name entry)]])
-              accessory (update-or-insert tx :accessories where-clause
-                                          {:model_id model-id :name (:name entry)})
-              accessory-id (:id accessory)]
-          (if (:inventory_bool entry)
-            (update-or-insert tx :accessories_inventory_pools
-                              [:and [:= :accessory_id accessory-id] [:= :inventory_pool_id pool-id]]
-                              {:accessory_id accessory-id :inventory_pool_id pool-id})
-            (jdbc/execute! tx (-> (sql/delete-from :accessories_inventory_pools)
-                                  (sql/where [:= :accessory_id accessory-id] [:= :inventory_pool_id pool-id])
-                                  sql-format))))))))
-
-(defn process-compatibles [tx compatibles model-id]
-  (doseq [compatible compatibles]
-    (let [compatible-id (to-uuid (:id compatible))]
-      (update-insert-or-delete tx :models_compatibles
-                               [:and [:= :model_id model-id] [:= :compatible_id compatible-id]]
-                               {:model_id model-id :compatible_id compatible-id}
-                               compatible))))
-
-(defn process-categories [tx categories model-id pool-id]
-  (doseq [category categories]
-    (let [category-id (to-uuid (:id category))]
-      (if (:delete category)
-        (jdbc/execute! tx (-> (sql/delete-from :model_links)
-                              (sql/where [:= :model_id model-id] [:= :model_group_id category-id])
-                              sql-format))
-        (do
-          (update-or-insert tx :model_links
-                            [:and [:= :model_id model-id] [:= :model_group_id category-id]]
-                            {:model_id model-id :model_group_id category-id})
-          (update-or-insert tx :inventory_pools_model_groups
-                            [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
-                            {:inventory_pool_id pool-id :model_group_id category-id}))))))
-
 (defn update-option-handler-by-pool-form [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
         tx (:tx request)
-        ;prepared-model-data (prepare-model-data multipart)
-
 
         price (double-to-numeric-or-nil (:price multipart))
-        ;multipart (assoc multipart :price price :inventory_pool_id pool-id)
-        multipart (assoc multipart :price price)
-
-        ]
+        multipart (assoc multipart :price price)  ]
     (try
       (let [update-model-query (-> (sql/update :options)
                                    (sql/set multipart)
                                    (sql/where [:= :id option-id])
                                    (sql/returning :*)
                                    sql-format)
-            updated-model (jdbc/execute-one! tx update-model-query)
-            ;compatibles (parse-json-array request :compatibles)
-            ;categories (parse-json-array request :categories)
-            ;attachments (normalize-files request :attachments)
-            ;attachments-to-delete (parse-json-array request :attachments-to-delete)
-            ;images (normalize-files request :images)
-            ;images-to-delete (parse-json-array request :images-to-delete)
-            ;properties (parse-json-array request :properties)
-            ;accessories (parse-json-array request :accessories)
-            ;entitlements (parse-json-array request :entitlements)
-            ]
-
-        ;(process-attachments tx attachments model-id)
-        ;(process-deletions tx attachments-to-delete :attachments :id)
-        ;(process-images tx images model-id)
-        ;(process-image-deletions tx images-to-delete model-id)
-        ;(process-entitlements tx entitlements model-id)
-        ;(process-properties tx properties model-id)
-        ;(process-accessories tx accessories model-id pool-id)
-        ;(process-compatibles tx compatibles model-id)
-        ;(process-categories tx categories model-id pool-id)
+            updated-model (jdbc/execute-one! tx update-model-query) ]
 
         (if updated-model
           (response [updated-model])
