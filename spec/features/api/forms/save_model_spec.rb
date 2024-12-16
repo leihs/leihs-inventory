@@ -21,7 +21,6 @@ feature "Inventory Model Management" do
       end
     end
 
-
     it "creates a model with only the required product attribute" do
       form_data = {"product" => "New-Product"}
 
@@ -46,7 +45,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -68,7 +66,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -89,7 +86,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -110,7 +106,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -131,7 +126,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -153,7 +147,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -174,7 +167,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -207,7 +199,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/model",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)

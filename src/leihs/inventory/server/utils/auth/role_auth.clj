@@ -36,16 +36,13 @@
   "Validates the user's access based on roles, scope, and optionally a pool ID."
   [auth-entity allowed-roles requested-pool-id]
   (let [roles-for-pool (if requested-pool-id
-                         ;; Filter roles for the specific pool
                          (->> auth-entity
-                              (filter #(= (:inventory_pool_id %) requested-pool-id))
-                              (map (comp keyword :role))
-                              set)
-                         ;; Use all roles if no pool ID is specified
+                           (filter #(= (:inventory_pool_id %) requested-pool-id))
+                           (map (comp keyword :role))
+                           set)
                          (->> auth-entity
-                              (map (comp keyword :role))
-                              set))]
-    ;; Validation logic
+                           (map (comp keyword :role))
+                           set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       (throw (Exception. "invalid role for the requested pool or method")))
     roles-for-pool))
@@ -63,24 +60,18 @@
               method (get request :request-method)
               uri (get request :uri)
               requested-pool-id (get-in request [:parameters :path :pool_id])
-
               required-scope (determine-required-scope method uri)
-
               has-scope? (or (get user required-scope)
-                             (validate-admin-scopes user required-scope))
+                           (validate-admin-scopes user required-scope))
               _ (when-not has-scope?
                   (throw (Exception. "invalid scope for the requested method")))
 
               roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
-              _ (println ">o> roles-for-pool" roles-for-pool)
-
               request (if requested-pool-id
                         (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
                         request)]
-
           (handler request))
 
         (catch Exception e
-          (println ">o> error in permission-checker" (.getMessage e))
+          (println "EXCEPTION-DETAIL: in permission-checker" (.getMessage e))
           (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))
-

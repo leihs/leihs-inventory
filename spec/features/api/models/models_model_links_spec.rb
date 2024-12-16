@@ -6,7 +6,6 @@ feature "Inventory API Endpoints - model-links" do
   context "when fetching model-links for a model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
-
     let(:model_with_links) { @models.first }
     let(:model_without_links) { @models.third }
     let(:client) { plain_faraday_json_client }

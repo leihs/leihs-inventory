@@ -8,9 +8,9 @@ feature "Inventory Model Management" do
     include_context :setup_models_api_model
     include_context :generate_session_header
 
-    let(:client) { plain_faraday_json_client }
     let(:pool_id) { @inventory_pool.id }
     let(:cookie_header) { @cookie_header }
+    let(:client) { plain_faraday_json_client(cookie_header) }
 
     # let(:form_categories) { @form_categories }
     # let(:form_compatible_models) { @form_compatible_models }
@@ -92,7 +92,6 @@ feature "Inventory Model Management" do
           "/inventory/#{pool_id}/software",
           form_data,
           headers: cookie_header
-
         )
 
         # puts "Result.model_id: #{result.body["data"]["id"]}"

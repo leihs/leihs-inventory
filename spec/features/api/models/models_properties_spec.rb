@@ -6,7 +6,6 @@ feature "Inventory API Endpoints - Model Properties" do
   context "when fetching properties for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
-
     let(:model_with_properties) { @models.first }
     let(:model_without_properties) { @models.third }
     let(:client) { plain_faraday_json_client }

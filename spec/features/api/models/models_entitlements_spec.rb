@@ -6,7 +6,6 @@ feature "Inventory API Endpoints - Entitlements" do
   context "when fetching entitlements for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
-
     let(:model_with_entitlements) { @models.first }
     let(:model_without_entitlements) { @models.third }
 

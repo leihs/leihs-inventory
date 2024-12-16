@@ -26,7 +26,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/software",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -44,7 +43,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/software",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -65,7 +63,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/software",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)
@@ -96,7 +93,6 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/software",
         form_data,
         headers: cookie_header
-
       )
 
       expect(result.status).to eq(200)

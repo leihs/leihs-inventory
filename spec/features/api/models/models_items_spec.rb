@@ -6,7 +6,6 @@ feature "Inventory API Endpoints - Items" do
   context "when fetching items for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
-
     let(:model_with_items) { @models.first }
     let(:model_without_items) { @models.third }
     let(:client) { plain_faraday_json_client }
