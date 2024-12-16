@@ -541,6 +541,26 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              :str string?)
                               :none nil?))
 
+(sa/def :option/multipart (sa/keys :req-un [::product]
+                             :opt-un [::version
+                                      ::price
+                                      ::inventory_code
+                                      ;::isPackage
+                                      ;::description
+                                      ;::technicalDetails
+                                      ;::internalDescription
+                                      ;::importantNotes
+                                      ;::categories
+                                      ;::attachments-to-delete
+                                      ;::images-to-delete
+                                      ;::compatibles
+                                      ;::images
+                                      ;::attachments
+                                      ;::entitlements
+                                      ;:software/properties
+                                      ;::accessories
+                                      ]))
+
 (sa/def ::multipart (sa/keys :req-un [::product]
                              :opt-un [::version
                                       ::manufacturer
@@ -634,21 +654,21 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :multipart ::multipart}
+                          :multipart :option/multipart}
              :handler create-option-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
-    ["/:model_id"
+    ["/:option_id"
      [""
       {:get {:accept "application/json"
              :summary "(DEV) | Form-Handler: Fetch form data"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}}
+                                 :option_id uuid?}}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-option-handler-by-pool-form
+             :handler fetch-option-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
@@ -659,8 +679,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :multipart ::multipart}
+                                 :option_id uuid?}
+                          :multipart :option/multipart}
              :handler update-option-handler-by-pool-form
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}

@@ -8,6 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.license.common :refer [double-to-numeric-or-nil]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -27,14 +28,18 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
-(defn prepare-model-data
+(defn prepare-option-data
   [data]
-  (let [normalize-data (normalize-model-data data)
+  (let [
+        normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)]
     (assoc normalize-data
            :type "Model"
            :created_at created-ts
-           :updated_at created-ts)))
+           :updated_at created-ts))
+
+  (select-keys data [:inventory_code :manufacturer :product :version :price])
+  )
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
@@ -160,31 +165,43 @@
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        option-id (to-uuid (get-in request [:path-params :option_id]))
+
         multipart (get-in request [:parameters :multipart])
-        prepared-model-data (-> (prepare-model-data multipart)
-                                (assoc :is_package (str-to-bool (:is_package multipart))))
-        categories (parse-json-array request :categories)
-        compatibles (parse-json-array request :compatibles)
-        attachments (normalize-files request :attachments)
-        images (normalize-files request :images)
-        properties (parse-json-array request :properties)
-        accessories (parse-json-array request :accessories)
-        entitlements (parse-json-array request :entitlements)]
+
+
+        price (double-to-numeric-or-nil (:price multipart))
+        multipart (assoc multipart :price price :inventory_pool_id pool-id)
+
+
+        ;prepared-model-data (-> (prepare-option-data multipart)
+        ;                        (assoc :is_package (str-to-bool (:is_package multipart))))
+        ;categories (parse-json-array request :categories)
+        ;compatibles (parse-json-array request :compatibles)
+        ;attachments (normalize-files request :attachments)
+        ;images (normalize-files request :images)
+        ;properties (parse-json-array request :properties)
+        ;accessories (parse-json-array request :accessories)
+        ;entitlements (parse-json-array request :entitlements)
+
+        p (println ">o> multipart" multipart)
+
+        ]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [prepared-model-data])
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
+                                          (sql/values [multipart])
                                           (sql/returning :*)
                                           sql-format))
             model-id (:id res)]
 
-        (process-attachments tx attachments "model_id" model-id)
-        (process-images tx images model-id validation-result)
-        (process-entitlements tx entitlements model-id)
-        (process-properties tx properties model-id)
-        (process-accessories tx accessories model-id pool-id)
-        (process-compatibles tx compatibles model-id)
-        (process-categories tx categories model-id pool-id)
+        ;(process-attachments tx attachments "model_id" model-id)
+        ;(process-images tx images model-id validation-result)
+        ;(process-entitlements tx entitlements model-id)
+        ;(process-properties tx properties model-id)
+        ;(process-accessories tx accessories model-id pool-id)
+        ;(process-compatibles tx compatibles model-id)
+        ;(process-categories tx categories model-id pool-id)
 
         (if res
           (response (create-validation-response res @validation-result))
@@ -195,11 +212,11 @@
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
                          :message "Model already exists"
-                         :detail {:product (:product prepared-model-data)}})
+                         :detail {:product (:product multipart)}})
               (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
-                         :detail {:product (:product prepared-model-data)}})
+                         :detail {:product (:product multipart)}})
               (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))

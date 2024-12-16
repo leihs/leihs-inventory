@@ -159,11 +159,11 @@
     </div>
     <div class="form-group">
         <label for="version">Preis</label>
-        <input type="text" id="price" name="version">
+        <input type="text" id="price" name="price">
     </div>
     <div class="form-group">
-        <label for="version">Version</label>
-        <input type="text" id="inventory_code" name="version">
+        <label for="version">Inventory-Code</label>
+        <input type="text" id="inventory_code" name="inventory_code">
     </div>
 <!--    -->
 <!--    <div class="form-group">-->
@@ -459,216 +459,217 @@
                     // Fill form with response data
                     $('#product').val(response.product);
                     $('#version').val(response.version);
-                    $('#manufacturer').val(response.manufacturer).trigger('change');
-                    $('#description').val(response.description);
-                    $('#technicalDetails').val(response.technical_detail);
-                    $('#internalDescription').val(response.internal_description);
-                    // $('#isPackage').prop('checked', response.type === 'Package');
-                    // formData.delete('isPackage');
-                    $('#isPackage').prop('checked', response.is_package);
+                    $('#price').val(response.price);
+                    $('#inventory_code').val(response.inventory_code);
 
+                    // $('#manufacturer').val(response.manufacturer).trigger('change');
+                    // $('#description').val(response.description);
+                    // $('#technicalDetails').val(response.technical_detail);
+                    // $('#internalDescription').val(response.internal_description);
+                    // // $('#isPackage').prop('checked', response.type === 'Package');
+                    // // formData.delete('isPackage');
+                    // $('#isPackage').prop('checked', response.is_package);
+                    //
                     // Set CONST_IS_CREATE_FORM to false and update the title
                     CONST_IS_CREATE_FORM = false;
                     $('#formTitle').text('Update Option');
-
-                    // Populate properties
-                    $('#propertiesList').empty();
-                        response.properties.forEach(function(prop) {
-                            var ab = $('#propertiesList').append(`
-                            <div class="dynamic-item">
-                                <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
-                                <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
-                                <button type="button"  ftype="properties" class="remove-btn">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    // Populate accessories
-                    $('#accessoriesList').empty();
-                    response.accessories.forEach(function(acc) {
-                        $('#accessoriesList').append(`
-                            <div class="dynamic-item">
-                                <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
-                                <label>
-                                    <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.has_inventory_pool === true ? 'checked' : ''}>
-                                    In inventory
-                                </label>
-                                <button type="button" ftype="accessories" class="remove-btn">Remove</button>
-                            </div>
-                        `);
-                    });
-
-                    function cacheDeletedProperties(type, obj) {
-                        var data = $("#cache").data(`deleted-${type}`) || []
-                        const key = obj.siblings('input[name="propertyKey[]"]').val();
-                        const val = obj.siblings('input[name="propertyValue[]"]').val();
-
-                        data.push({
-                            id: $(this).prev().attr("id"),
-                            delete: true,
-                            key: key,
-                            value: val
-                        })
-                        return data
-                    }
-
-                    function cacheDeletedAccessories(type, obj) {
-                        const data = $("#cache").data(`deleted-${type}`) || []
-                        data.push({
-                            id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
-                            delete: true,
-                            name: obj.siblings('input[name="accessoryName[]"]').val(),
-                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
-                        })
-                        return data
-                    }
-
-
-
-                    // Add event listener for remove button to delete only the clicked item
-                    $(document).on('click', '.remove-btn', function() {
-                        const type = $(this).attr("ftype")
-                        var data=[];
-                        console.log(">o> remove-btn > !!!!", type)
-                        if (type === 'properties') {
-                            data = cacheDeletedProperties(type, $(this))
-                        } else if (type === 'accessories') {
-                            data = cacheDeletedAccessories(type, $(this))
-                        } else  {
-                            console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
-                        }
-
-                        console.log(">o> remove-btn > ", type,  data)
-                        $("#cache").data(`deleted-${type}`, data)
-
-                        $(this).closest('.dynamic-item').remove();
-                    });
-
-
-                    // Populate entitlements (entitlement groups)
-                    $('#entitlements').data('entitlement-groups', response.entitlement_groups)
-                    $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
-                    $('#entitlements').find('option:selected').each(function(index, option, a, b) {
-                        const groupId = $(option).val();
-                        const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
-                        if (entitlementData) {
-                            $(option).data('entitlement', entitlementData);
-                            console.log('Updated option data:', $(option).data('entitlement'));
-                        }
-                    });
-                    $('#entitlements').on('change', function() {
-                        const currentSelection = $(this).val() || [];
-                        const previousSelection = $("#cache").data("prev-entitlements") || [];
-                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                        var deleted_data = $("#cache").data("deleted-entitlements") || []
-                        removedOptions.forEach(id => {
-                            const removedOption = $(this).find(`option[value="${id}"]`);
-                            var removedEntitlementData = removedOption.data('entitlement')
-                            if(removedEntitlementData == undefined){
-                                return;
-                            }
-
-                            removedEntitlementData.delete = true;
-
-                            console.log('Removed option data:', removedEntitlementData);
-                            var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
-                            removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
-                            deleted_data.push(removedEntitlementData)
-                        });
-
-                        $("#cache").data("deleted-entitlements",  deleted_data);
-                        // $("#cache").data("deleted-categories",  deleted_data);
-
-                        $("#cache").data("prev-entitlements",  currentSelection);
-                    });
-
-
-
-
-
-
-                    // Populate categories (assuming it's part of the response)
-                    if (response.categories) {
-                        $('#categories').val(response.categories.map(c => c.id)).trigger('change');
-                        $('#categories').find('option:selected').each(function(index, option, a, b) {
-                            const categoryId = $(option).val();
-                            const entitlementData = response.categories.find(eg => eg.id === categoryId);
-                            if (entitlementData) {
-                                $(option).data('categories', entitlementData);
-                                console.log('Updated option data:', $(option).data('categories'));
-                            }
-                        });
-                        $("#cache").data("prev-categories",  $('#categories').val())
-
-                        $('#categories').on('change', function() {
-                            const currentSelection = $(this).val() || [];
-                            const previousSelection = $("#cache").data("prev-categories") || [];
-                            const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                            var deleted_data = $("#cache").data("deleted-categories") || []
-                            removedOptions.forEach(id => {
-                                const removedOption = $(this).find(`option[value="${id}"]`);
-                                var removedEntitlementData = removedOption.data('categories')
-                                if(removedEntitlementData == undefined){
-                                    return;
-                                }
-
-                                removedEntitlementData.delete = true;
-                                deleted_data.push(removedEntitlementData)
-                            });
-
-                            $("#cache").data("deleted-categories",  deleted_data);
-                            $("#cache").data("prev-categories",  currentSelection);
-                        });
-                    }
-
-
-
-
-
-
-
-                    if (response.compatibles) {
-
-                    // Populate compatibles
-                    $('#compatibles').val(response.compatibles
-                        .filter(c => c && c.id != null)
-                        .map(c => c.id)).trigger('change');
-
-                    $('#compatibles').find('option:selected').each(function(index, option, a, b) {
-                        const categoryId = $(option).val();
-                        var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
-                        if (entitlementData) {
-                            $(option).data('compatible', entitlementData);
-                            console.log('Updated option data:', $(option).data('compatible'));
-                        }
-                    });
-                    $("#cache").data("prev-compatibles",  $('#compatibles').val())
-
-                    $('#compatibles').on('change', function() {
-                        const currentSelection = $(this).val() || [];
-                        const previousSelection = $("#cache").data("prev-compatibles") || [];
-                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                        var deleted_data = $("#cache").data("deleted-compatibles") || []
-                        removedOptions.forEach(id => {
-                            const removedOption = $(this).find(`option[value="${id}"]`);
-                            var removedEntitlementData = removedOption.data('compatible')
-                            if(removedEntitlementData == undefined){
-                                return;
-                            }
-
-                            removedEntitlementData.delete = true;
-                            deleted_data.push(removedEntitlementData)
-                        });
-
-                        $("#cache").data("deleted-compatibles",  deleted_data);
-                        $("#cache").data("prev-compatibles",  currentSelection);
-                    });
-                    };
-
-
+                    //
+                    // // Populate properties
+                    // $('#propertiesList').empty();
+                    //     response.properties.forEach(function(prop) {
+                    //         var ab = $('#propertiesList').append(`
+                    //         <div class="dynamic-item">
+                    //             <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
+                    //             <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
+                    //             <button type="button"  ftype="properties" class="remove-btn">Remove</button>
+                    //         </div>
+                    //     `);
+                    // });
+                    //
+                    // // Populate accessories
+                    // $('#accessoriesList').empty();
+                    // response.accessories.forEach(function(acc) {
+                    //     $('#accessoriesList').append(`
+                    //         <div class="dynamic-item">
+                    //             <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
+                    //             <label>
+                    //                 <input type="checkbox"  id="${acc.id}" name="accessoryInventory[]" ${acc.has_inventory_pool === true ? 'checked' : ''}>
+                    //                 In inventory
+                    //             </label>
+                    //             <button type="button" ftype="accessories" class="remove-btn">Remove</button>
+                    //         </div>
+                    //     `);
+                    // });
+                    //
+                    // function cacheDeletedProperties(type, obj) {
+                    //     var data = $("#cache").data(`deleted-${type}`) || []
+                    //     const key = obj.siblings('input[name="propertyKey[]"]').val();
+                    //     const val = obj.siblings('input[name="propertyValue[]"]').val();
+                    //
+                    //     data.push({
+                    //         id: $(this).prev().attr("id"),
+                    //         delete: true,
+                    //         key: key,
+                    //         value: val
+                    //     })
+                    //     return data
+                    // }
+                    //
+                    // function cacheDeletedAccessories(type, obj) {
+                    //     const data = $("#cache").data(`deleted-${type}`) || []
+                    //     data.push({
+                    //         id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
+                    //         delete: true,
+                    //         name: obj.siblings('input[name="accessoryName[]"]').val(),
+                    //         is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
+                    //     })
+                    //     return data
+                    // }
+                    //
+                    //
+                    //
+                    // // Add event listener for remove button to delete only the clicked item
+                    // $(document).on('click', '.remove-btn', function() {
+                    //     const type = $(this).attr("ftype")
+                    //     var data=[];
+                    //     console.log(">o> remove-btn > !!!!", type)
+                    //     if (type === 'properties') {
+                    //         data = cacheDeletedProperties(type, $(this))
+                    //     } else if (type === 'accessories') {
+                    //         data = cacheDeletedAccessories(type, $(this))
+                    //     } else  {
+                    //         console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
+                    //     }
+                    //
+                    //     console.log(">o> remove-btn > ", type,  data)
+                    //     $("#cache").data(`deleted-${type}`, data)
+                    //
+                    //     $(this).closest('.dynamic-item').remove();
+                    // });
+                    //
+                    //
+                    // // Populate entitlements (entitlement groups)
+                    // $('#entitlements').data('entitlement-groups', response.entitlement_groups)
+                    // $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
+                    // $('#entitlements').find('option:selected').each(function(index, option, a, b) {
+                    //     const groupId = $(option).val();
+                    //     const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
+                    //     if (entitlementData) {
+                    //         $(option).data('entitlement', entitlementData);
+                    //         console.log('Updated option data:', $(option).data('entitlement'));
+                    //     }
+                    // });
+                    // $('#entitlements').on('change', function() {
+                    //     const currentSelection = $(this).val() || [];
+                    //     const previousSelection = $("#cache").data("prev-entitlements") || [];
+                    //     const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+                    //
+                    //     var deleted_data = $("#cache").data("deleted-entitlements") || []
+                    //     removedOptions.forEach(id => {
+                    //         const removedOption = $(this).find(`option[value="${id}"]`);
+                    //         var removedEntitlementData = removedOption.data('entitlement')
+                    //         if(removedEntitlementData == undefined){
+                    //             return;
+                    //         }
+                    //
+                    //         removedEntitlementData.delete = true;
+                    //
+                    //         console.log('Removed option data:', removedEntitlementData);
+                    //         var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
+                    //         removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
+                    //         deleted_data.push(removedEntitlementData)
+                    //     });
+                    //
+                    //     $("#cache").data("deleted-entitlements",  deleted_data);
+                    //     // $("#cache").data("deleted-categories",  deleted_data);
+                    //
+                    //     $("#cache").data("prev-entitlements",  currentSelection);
+                    // });
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    // // Populate categories (assuming it's part of the response)
+                    // if (response.categories) {
+                    //     $('#categories').val(response.categories.map(c => c.id)).trigger('change');
+                    //     $('#categories').find('option:selected').each(function(index, option, a, b) {
+                    //         const categoryId = $(option).val();
+                    //         const entitlementData = response.categories.find(eg => eg.id === categoryId);
+                    //         if (entitlementData) {
+                    //             $(option).data('categories', entitlementData);
+                    //             console.log('Updated option data:', $(option).data('categories'));
+                    //         }
+                    //     });
+                    //     $("#cache").data("prev-categories",  $('#categories').val())
+                    //
+                    //     $('#categories').on('change', function() {
+                    //         const currentSelection = $(this).val() || [];
+                    //         const previousSelection = $("#cache").data("prev-categories") || [];
+                    //         const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+                    //
+                    //         var deleted_data = $("#cache").data("deleted-categories") || []
+                    //         removedOptions.forEach(id => {
+                    //             const removedOption = $(this).find(`option[value="${id}"]`);
+                    //             var removedEntitlementData = removedOption.data('categories')
+                    //             if(removedEntitlementData == undefined){
+                    //                 return;
+                    //             }
+                    //
+                    //             removedEntitlementData.delete = true;
+                    //             deleted_data.push(removedEntitlementData)
+                    //         });
+                    //
+                    //         $("#cache").data("deleted-categories",  deleted_data);
+                    //         $("#cache").data("prev-categories",  currentSelection);
+                    //     });
+                    // }
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    // if (response.compatibles) {
+                    //
+                    // // Populate compatibles
+                    // $('#compatibles').val(response.compatibles
+                    //     .filter(c => c && c.id != null)
+                    //     .map(c => c.id)).trigger('change');
+                    //
+                    // $('#compatibles').find('option:selected').each(function(index, option, a, b) {
+                    //     const categoryId = $(option).val();
+                    //     var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
+                    //     if (entitlementData) {
+                    //         $(option).data('compatible', entitlementData);
+                    //         console.log('Updated option data:', $(option).data('compatible'));
+                    //     }
+                    // });
+                    // $("#cache").data("prev-compatibles",  $('#compatibles').val())
+                    //
+                    // $('#compatibles').on('change', function() {
+                    //     const currentSelection = $(this).val() || [];
+                    //     const previousSelection = $("#cache").data("prev-compatibles") || [];
+                    //     const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+                    //
+                    //     var deleted_data = $("#cache").data("deleted-compatibles") || []
+                    //     removedOptions.forEach(id => {
+                    //         const removedOption = $(this).find(`option[value="${id}"]`);
+                    //         var removedEntitlementData = removedOption.data('compatible')
+                    //         if(removedEntitlementData == undefined){
+                    //             return;
+                    //         }
+                    //
+                    //         removedEntitlementData.delete = true;
+                    //         deleted_data.push(removedEntitlementData)
+                    //     });
+                    //
+                    //     $("#cache").data("deleted-compatibles",  deleted_data);
+                    //     $("#cache").data("prev-compatibles",  currentSelection);
+                    // });
+                    // };
 
 
 
@@ -679,28 +680,30 @@
 
 
 
-                    // Populate existing images
-                    $('#imagesList').empty();
-                    response.images.forEach(function(image, index) {
-                        $('#imagesList').append(`
-                            <div class="file-item">
-                                <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
-                                <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
-                                <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}"  data-file-index="${index}">Remove</button>
-                            </div>
-                        `);
-                    });
 
-                    // Populate existing attachments
-                    $('#attachmentsList').empty();
-                    response.attachments.forEach(function(attachment, index) {
-                        $('#attachmentsList').append(`
-                            <div class="file-item">
-                                <span>${attachment.filename}</span>
-                                <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}" data-file-index="${index}">Remove</button>
-                            </div>
-                        `);
-                    });
+
+                    // // Populate existing images
+                    // $('#imagesList').empty();
+                    // response.images.forEach(function(image, index) {
+                    //     $('#imagesList').append(`
+                    //         <div class="file-item">
+                    //             <a href="${image["thumbnail-url"]}" target="_blank"><img src="${image["thumbnail-url"]}" alt="Lights"/> </a>
+                    //             <a href="${image.url}"  target="_blank"> <span>${image.filename}</span></a>
+                    //             <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}"  data-file-index="${index}">Remove</button>
+                    //         </div>
+                    //     `);
+                    // });
+                    //
+                    // // Populate existing attachments
+                    // $('#attachmentsList').empty();
+                    // response.attachments.forEach(function(attachment, index) {
+                    //     $('#attachmentsList').append(`
+                    //         <div class="file-item">
+                    //             <span>${attachment.filename}</span>
+                    //             <button type="button" ftype="attachments"  class="remove-file-btn" data-file-id="${attachment.id}" data-file-index="${index}">Remove</button>
+                    //         </div>
+                    //     `);
+                    // });
 
                     $('body').addClass('save-success');
                     setTimeout(function() {
@@ -914,13 +917,13 @@
         // Clear form fields
         function clearForm() {
             $('#modelForm')[0].reset();
-            $('#propertiesList').empty();
-            $('#accessoriesList').empty();
-            $('#imagesList').empty();
-            $('#attachmentsList').empty();
-            $('#images-to-delete').empty();
-            $('#attachments-to-delete').empty();
-            $('select').val(null).trigger('change');
+            // $('#propertiesList').empty();
+            // $('#accessoriesList').empty();
+            // $('#imagesList').empty();
+            // $('#attachmentsList').empty();
+            // $('#images-to-delete').empty();
+            // $('#attachments-to-delete').empty();
+            // $('select').val(null).trigger('change');
         }
 
 
@@ -1079,12 +1082,16 @@
             // formData.delete('propertyKey[]');
             // formData.delete('propertyValue[]');
             // formData.delete('accessoryInventory[]');
-            //
-            // // Get the poolId value
-            // var poolId = $('#poolId').val();
-            // var modelId = $('#fetchOptionId').val();
-            //
-            // var config = FNC_CONFIG(poolId, modelId);
+
+
+
+
+
+            // Get the poolId value
+            var poolId = $('#poolId').val();
+            var modelId = $('#fetchOptionId').val();
+
+            var config = FNC_CONFIG(poolId, modelId);
             // let canvasPromises = [];
             // $("#imagesList").find("canvas").each(function (index, canvas) {
             //     const promise = new Promise((resolve, reject) => {

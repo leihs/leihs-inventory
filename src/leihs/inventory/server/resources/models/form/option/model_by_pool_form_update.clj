@@ -5,6 +5,7 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
+   [leihs.inventory.server.resources.models.form.license.common :refer [double-to-numeric-or-nil]]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -185,37 +186,45 @@
                             {:inventory_pool_id pool-id :model_group_id category-id}))))))
 
 (defn update-option-handler-by-pool-form [request]
-  (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+  (let [option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+        ;prepared-model-data (prepare-model-data multipart)
+
+
+        price (double-to-numeric-or-nil (:price multipart))
+        ;multipart (assoc multipart :price price :inventory_pool_id pool-id)
+        multipart (assoc multipart :price price)
+
+        ]
     (try
-      (let [update-model-query (-> (sql/update :models)
-                                   (sql/set prepared-model-data)
-                                   (sql/where [:= :id model-id])
+      (let [update-model-query (-> (sql/update :options)
+                                   (sql/set multipart)
+                                   (sql/where [:= :id option-id])
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
-            compatibles (parse-json-array request :compatibles)
-            categories (parse-json-array request :categories)
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
-            images (normalize-files request :images)
-            images-to-delete (parse-json-array request :images-to-delete)
-            properties (parse-json-array request :properties)
-            accessories (parse-json-array request :accessories)
-            entitlements (parse-json-array request :entitlements)]
+            ;compatibles (parse-json-array request :compatibles)
+            ;categories (parse-json-array request :categories)
+            ;attachments (normalize-files request :attachments)
+            ;attachments-to-delete (parse-json-array request :attachments-to-delete)
+            ;images (normalize-files request :images)
+            ;images-to-delete (parse-json-array request :images-to-delete)
+            ;properties (parse-json-array request :properties)
+            ;accessories (parse-json-array request :accessories)
+            ;entitlements (parse-json-array request :entitlements)
+            ]
 
-        (process-attachments tx attachments model-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
-        (process-images tx images model-id)
-        (process-image-deletions tx images-to-delete model-id)
-        (process-entitlements tx entitlements model-id)
-        (process-properties tx properties model-id)
-        (process-accessories tx accessories model-id pool-id)
-        (process-compatibles tx compatibles model-id)
-        (process-categories tx categories model-id pool-id)
+        ;(process-attachments tx attachments model-id)
+        ;(process-deletions tx attachments-to-delete :attachments :id)
+        ;(process-images tx images model-id)
+        ;(process-image-deletions tx images-to-delete model-id)
+        ;(process-entitlements tx entitlements model-id)
+        ;(process-properties tx properties model-id)
+        ;(process-accessories tx accessories model-id pool-id)
+        ;(process-compatibles tx compatibles model-id)
+        ;(process-categories tx categories model-id pool-id)
 
         (if updated-model
           (response [updated-model])
