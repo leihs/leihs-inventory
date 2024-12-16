@@ -37,12 +37,12 @@
   [auth-entity allowed-roles requested-pool-id]
   (let [roles-for-pool (if requested-pool-id
                          (->> auth-entity
-                           (filter #(= (:inventory_pool_id %) requested-pool-id))
-                           (map (comp keyword :role))
-                           set)
+                              (filter #(= (:inventory_pool_id %) requested-pool-id))
+                              (map (comp keyword :role))
+                              set)
                          (->> auth-entity
-                           (map (comp keyword :role))
-                           set))]
+                              (map (comp keyword :role))
+                              set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       (throw (Exception. "invalid role for the requested pool or method")))
     roles-for-pool))
@@ -62,7 +62,7 @@
               requested-pool-id (get-in request [:parameters :path :pool_id])
               required-scope (determine-required-scope method uri)
               has-scope? (or (get user required-scope)
-                           (validate-admin-scopes user required-scope))
+                             (validate-admin-scopes user required-scope))
               _ (when-not has-scope?
                   (throw (Exception. "invalid scope for the requested method")))
 

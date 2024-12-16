@@ -97,12 +97,12 @@
                                                                              :body (slurp (io/resource "public/dev/create-license.html"))}
 
       (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item") {:status 200
-                                                                             :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-item.html"))}
+                                                                          :headers {"Content-Type" "text/html"}
+                                                                          :body (slurp (io/resource "public/dev/create-item.html"))}
 
       (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option") {:status 200
-                                                                             :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-option.html"))}
+                                                                            :headers {"Content-Type" "text/html"}
+                                                                            :body (slurp (io/resource "public/dev/create-option.html"))}
 
       (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package") {:status 200
                                                                              :headers {"Content-Type" "text/html"}

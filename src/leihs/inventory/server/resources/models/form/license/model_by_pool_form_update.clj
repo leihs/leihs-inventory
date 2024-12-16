@@ -15,15 +15,15 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.math BigDecimal RoundingMode]
-   [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util UUID]))
+           [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util UUID]))
 
 (defn process-deletions [tx ids table key]
   (doseq [id ids]
     (jdbc/execute! tx (-> (sql/delete-from table)
-                        (sql/where [:= key (to-uuid id)])
-                        sql-format))))
+                          (sql/where [:= key (to-uuid id)])
+                          sql-format))))
 
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
@@ -40,19 +40,19 @@
           price (double-to-numeric-or-nil (:price multipart))
           supplier-id (cast-to-uuid-or-nil (:supplier_id multipart))
           merged-data (merge (dissoc multipart :attachments :properties :retired :price :supplier_id :invoice_date :attachments-to-delete)
-                        {:updated_at now-ts
-                         :properties [:cast (jsonc/generate-string properties) :jsonb]
-                         :inventory_pool_id pool-id
-                         :owner_id pool-id
-                         :room_id (:room_id (fetch-default-room-id tx))})
+                             {:updated_at now-ts
+                              :properties [:cast (jsonc/generate-string properties) :jsonb]
+                              :inventory_pool_id pool-id
+                              :owner_id pool-id
+                              :room_id (:room_id (fetch-default-room-id tx))})
           merged-data (assoc merged-data :invoice_date invoice-date :price price :supplier_id supplier-id)]
       merged-data)
 
     (catch Exception e
       (println "EXCEPTION-DETAIL: " (str "generate-license-data: An error occurred, " e))
       (throw (ex-info (str "generate-license-data: An error occurred, " (.getMessage e))
-               {:function-name 'generate-license-data
-                :original-exception e})))))
+                      {:function-name 'generate-license-data
+                       :original-exception e})))))
 
 (defn- calculate-retired-value
   "Determines the retired value based on database and request values."
@@ -76,10 +76,10 @@
                       update-data)]
     (try
       (let [update-model-query (-> (sql/update :items)
-                                 (sql/set update-data)
-                                 (sql/where [:= :id item-id])
-                                 (sql/returning :*)
-                                 sql-format)
+                                   (sql/set update-data)
+                                   (sql/where [:= :id item-id])
+                                   (sql/returning :*)
+                                   sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
@@ -87,9 +87,9 @@
                 (process-attachments tx attachments "item_id" (:id updated-model))
                 (process-deletions tx attachments-to-delete :attachments :id))
             res (jdbc/execute! tx (-> (sql/select :id :filename :content_type :size)
-                                    (sql/from :attachments)
-                                    (sql/where [:= :item_id item-id])
-                                    sql-format))
+                                      (sql/from :attachments)
+                                      (sql/where [:= :item_id item-id])
+                                      sql-format))
             updated-model (assoc updated-model :attachments res)]
         (if updated-model
           (response [updated-model])
@@ -100,9 +100,9 @@
 
 (defn fetch-license-data [tx model-id item-id pool-id]
   (let [query (-> (sql/select :*)
-                (sql/from :items)
-                (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
-                sql-format)
+                  (sql/from :items)
+                  (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
+                  sql-format)
         res (jdbc/execute-one! tx query)]
     res))
 

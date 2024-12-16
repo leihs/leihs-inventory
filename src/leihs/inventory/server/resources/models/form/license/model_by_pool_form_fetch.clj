@@ -29,8 +29,8 @@
    [ring.util.response :as response :refer [bad-request]]
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]
-   [java.time.format DateTimeFormatter]
-   [java.util UUID]))
+           [java.time.format DateTimeFormatter]
+           [java.util UUID]))
 
 (defn get-current-timestamp []
   (let [current-timestamp (LocalDateTime/now)
@@ -46,27 +46,27 @@
         whitelisted-keywords (set (map keyword whitelisted-keys))
         blacklisted-keywords (set (map keyword blacklisted-keys))
         all-keys (clojure.set/difference
-                   (clojure.set/union allowed-keywords whitelisted-keywords)
-                   blacklisted-keywords)]
+                  (clojure.set/union allowed-keywords whitelisted-keywords)
+                  blacklisted-keywords)]
     (reduce-kv
-      (fn [result k v]
-        (if (contains? all-keys k)
-          (assoc result k v)
-          result))
-      {}
-      data)))
+     (fn [result k v]
+       (if (contains? all-keys k)
+         (assoc result k v)
+         result))
+     {}
+     data)))
 
 (defn rename-keys
   "Renames keys in a map based on a provided key mapping.
    `key-map` is a map where the keys are old keys and the values are new keys."
   [m key-map]
   (reduce
-    (fn [acc [old-key new-key]]
-      (if (contains? m old-key)
-        (assoc acc new-key (get m old-key))
-        acc))
-    (apply dissoc m (keys key-map))
-    key-map))
+   (fn [acc [old-key new-key]]
+     (if (contains? m old-key)
+       (assoc acc new-key (get m old-key))
+       acc))
+   (apply dissoc m (keys key-map))
+   key-map))
 
 (defn filter-entries
   "Filters a collection of maps, keeping only the specified keys in each map."
@@ -98,10 +98,10 @@
 
     (try
       (let [query (-> (sql/select :*)
-                    license-base-query
-                    subquery
-                    (sql/order-by :ff.group :ff.position)
-                    sql-format)
+                      license-base-query
+                      subquery
+                      (sql/order-by :ff.group :ff.position)
+                      sql-format)
             fields (jdbc/execute! tx query)
             filtered (filter-entries fields [:group :label :role])
             dyn-select (build-select fields)
@@ -111,35 +111,35 @@
                                  model-result (jdbc/execute-one! tx model-query)
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
-                                                                     :product {:name (:product model-result)
-                                                                               :model_id (:id model-result)})
+                                                                          :product {:name (:product model-result)
+                                                                                    :model_id (:id model-result)})
 
                                                       supplier_name (:supplier_name model-result)
                                                       supplier_id (:supplier_id model-result)
                                                       supplier-data (if (some? supplier_id) {:name supplier_name
                                                                                              :supplier_id supplier_id}
-                                                                                            nil)
+                                                                        nil)
                                                       model-result (assoc model-result :supplier supplier-data)
 
                                                       attachments (jdbc/execute! tx
-                                                                    (-> (sql/select :id :filename :content_type :size)
-                                                                      (sql/from :attachments)
-                                                                      (sql/where [:= :item_id item-id])
-                                                                      sql-format))
+                                                                                 (-> (sql/select :id :filename :content_type :size)
+                                                                                     (sql/from :attachments)
+                                                                                     (sql/where [:= :item_id item-id])
+                                                                                     sql-format))
                                                       model-result (assoc model-result :attachments attachments)
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
                                                       model-result (assoc model-result :retired retired)
                                                       model-result (filter-by-allowed-keys model-result dyn-select
-                                                                     ["properties"
-                                                                      "inventory_code"
-                                                                      "inventory_pool_id"
-                                                                      "responsible_department"
-                                                                      "product"
-                                                                      "license_version"
-                                                                      "supplier"
-                                                                      "version"]
-                                                                     ["supplier_name" "supplier_id"])]
+                                                                                           ["properties"
+                                                                                            "inventory_code"
+                                                                                            "inventory_pool_id"
+                                                                                            "responsible_department"
+                                                                                            "product"
+                                                                                            "license_version"
+                                                                                            "supplier"
+                                                                                            "version"]
+                                                                                           ["supplier_name" "supplier_id"])]
                                                   model-result))]
                              model-result)
                            ;; Fetch default

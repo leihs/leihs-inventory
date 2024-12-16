@@ -24,7 +24,6 @@
 (defn fetch-attachments [tx model-id]
   (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
 
-
 (defn fetch-items-handler-by-pool-form [request]
   (let [tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))
