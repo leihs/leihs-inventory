@@ -11,9 +11,14 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
@@ -608,6 +613,63 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
+
+
+
+
+   ["/option"
+    {:swagger {:conflicting true
+               :tags ["form / model"] :security []}}
+    [""
+     {:post {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE???"
+             ;:description (str
+             ;              " - Upload images and attachments \n"
+             ;              " - Save data \n"
+             ;              " - images: additional handling needed to process no/one/multiple files \n"
+             ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+             ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?}
+                          :multipart ::multipart}
+             :handler create-option-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]
+
+    ["/:model_id"
+     [""
+      {:get {:accept "application/json"
+             :summary "(DEV) | Form-Handler: Fetch form data"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}}
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :handler create-option-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+       :put {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          :multipart ::multipart}
+             :handler update-option-handler-by-pool-form
+             :responses {200 {:description "OK"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
+
+
+
+
+
 
    ["/license" ;;old
     {:swagger {:conflicting true

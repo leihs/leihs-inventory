@@ -110,20 +110,20 @@
 
 <div id="cache"></div>
 
-<div class="image-group">
-    <div class="image-container">
-        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">
-        <p class="image-footer">Thumbnail Image by img-Tag</p>
-    </div>
-    <div class="image-container">
-        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">
-        <p class="image-footer">Image by img-Tag</p>
-    </div>
-    <div class="image-container">
-        <img id="testImage" alt="Lights">
-        <p class="image-footer">Image  by ajax-Request</p>
-    </div>
-</div>
+<!--<div class="image-group">-->
+<!--    <div class="image-container">-->
+<!--        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail" alt="Lights">-->
+<!--        <p class="image-footer">Thumbnail Image by img-Tag</p>-->
+<!--    </div>-->
+<!--    <div class="image-container">-->
+<!--        <img src="/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e" alt="Lights">-->
+<!--        <p class="image-footer">Image by img-Tag</p>-->
+<!--    </div>-->
+<!--    <div class="image-container">-->
+<!--        <img id="testImage" alt="Lights">-->
+<!--        <p class="image-footer">Image  by ajax-Request</p>-->
+<!--    </div>-->
+<!--</div>-->
 
 <br/><br/>
 
@@ -140,7 +140,7 @@
 </div>
 <div class="form-group">
     <label for="fetchOptionId"><a target="_blank" href="/inventory/api-docs/index.html#/Options%20by%20pool/get_inventory__pool_id__models" >Option-ID (API)</a></label>
-    <input type="text" id="fetchOptionId" name="fetchOptionId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
+    <input type="text" id="fetchOptionId" name="fetchOptionId" value="dab818e5-1ae0-4259-a661-8871dd980217"/>
     <input type="button" id="fetchOptionBtn" value="Fetch model" class="btn" />
 </div>
 
@@ -249,14 +249,14 @@
             // create
             if(CONST_IS_CREATE_FORM) {
                 return  {
-                        url: '/inventory/' + poolId + '/model',
+                        url: '/inventory/' + poolId + '/option',
                         method: 'POST'
                     }
                 }
 
             // update
             return  {
-                    url:  '/inventory/' + poolId + '/model/' + modelId,
+                    url:  '/inventory/' + poolId + '/option/' + modelId,
                     method: 'PUT'
                 }
         };
@@ -434,7 +434,7 @@
 
             // Send request to API
             $.ajax({
-                url: '/inventory/' + poolId + '/model/' + modelId,
+                url: '/inventory/' + poolId + '/option/' + modelId,
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
@@ -722,156 +722,156 @@
         });
 
 
-        $('#testImage').ready(function() {
-            // alert('fetchOptionBtn');
+        // $('#testImage').ready(function() {
+        //     // alert('fetchOptionBtn');
+        //
+        //     var modelId = $('#fetchOptionId').val();
+        //     var poolId = $('#poolId').val();
+        //
+        //     fetch("/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
+        //         headers: {
+        //             "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
+        //         }
+        //     })
+        //         .then(response => {
+        //             if (response.ok) {
+        //                 console.log("create blob()")
+        //                 return response.blob(); // Convert the response to a blob
+        //             }
+        //             throw new Error('Network response was not ok.');
+        //         })
+        //         .then(blob => {
+        //                 console.log("todo: imgUrl create")
+        //             const imgUrl = URL.createObjectURL(blob);
+        //             document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
+        //                 console.log("imgUrl created")
+        //         })
+        //         .catch(error => {
+        //             console.error('There has been a problem with your fetch operation:', error);
+        //         });
+        //
+        // });
+        //
+        //
+        // // Add Property
+        // $('#addProperty').click(function() {
+        //     $('#propertiesList').append(`
+        //         <div class="dynamic-item">
+        //             <input type="text" name="propertyKey[]" placeholder="Key" required>
+        //             <input type="text" name="propertyValue[]" placeholder="Value" required>
+        //             <button type="button" class="remove-btn">Remove</button>
+        //         </div>
+        //     `);
+        //
+        //
+        // });
+        //
+        // // Add Accessory
+        // $('#addAccessory').click(function() {
+        //     $('#accessoriesList').append(`
+        //         <div class="dynamic-item">
+        //             <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
+        //             <label>
+        //                 <input type="checkbox" name="accessoryInventory[]">
+        //                 In inventory
+        //             </label>
+        //             <button type="button" class="remove-btn">Remove</button>
+        //         </div>
+        //     `);
+        // });
+        //
+        // // Remove dynamic item
+        // $(document).on('click', '.remove-btn', function() {
+        //     $(this).parent().remove();
+        // });
+        //
+        // // Handle file selection for images
+        // $('#images').change(function() {
+        //     updateFileList(this, '#imagesList', 'images');
+        // });
+        //
+        // // Handle file selection for attachments
+        // $('#attachments').change(function() {
+        //     updateFileList(this, '#attachmentsList', 'attachments');
+        // });
 
-            var modelId = $('#fetchOptionId').val();
-            var poolId = $('#poolId').val();
+        // // Update file list
+        // function addPostfixToFilename(filename, postfix) {
+        //     const dotIndex = filename.lastIndexOf('.');
+        //
+        //     if (dotIndex === -1) {
+        //         return filename + postfix;
+        //     }
+        //
+        //     const name = filename.substring(0, dotIndex);
+        //     const extension = filename.substring(dotIndex);
+        //
+        //     return name + postfix + extension;
+        // }
 
-            fetch("/inventory/images/0062c982-bd38-4fd4-840d-9f142023744e/thumbnail", {
-                headers: {
-                    "Accept": "image/jpeg" // This specifies that you’re expecting an image in response
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("create blob()")
-                        return response.blob(); // Convert the response to a blob
-                    }
-                    throw new Error('Network response was not ok.');
-                })
-                .then(blob => {
-                        console.log("todo: imgUrl create")
-                    const imgUrl = URL.createObjectURL(blob);
-                    document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
-                        console.log("imgUrl created")
-                })
-                .catch(error => {
-                    console.error('There has been a problem with your fetch operation:', error);
-                });
-
-        });
-
-
-        // Add Property
-        $('#addProperty').click(function() {
-            $('#propertiesList').append(`
-                <div class="dynamic-item">
-                    <input type="text" name="propertyKey[]" placeholder="Key" required>
-                    <input type="text" name="propertyValue[]" placeholder="Value" required>
-                    <button type="button" class="remove-btn">Remove</button>
-                </div>
-            `);
-
-
-        });
-
-        // Add Accessory
-        $('#addAccessory').click(function() {
-            $('#accessoriesList').append(`
-                <div class="dynamic-item">
-                    <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
-                    <label>
-                        <input type="checkbox" name="accessoryInventory[]">
-                        In inventory
-                    </label>
-                    <button type="button" class="remove-btn">Remove</button>
-                </div>
-            `);
-        });
-
-        // Remove dynamic item
-        $(document).on('click', '.remove-btn', function() {
-            $(this).parent().remove();
-        });
-
-        // Handle file selection for images
-        $('#images').change(function() {
-            updateFileList(this, '#imagesList', 'images');
-        });
-
-        // Handle file selection for attachments
-        $('#attachments').change(function() {
-            updateFileList(this, '#attachmentsList', 'attachments');
-        });
-
-        // Update file list
-        function addPostfixToFilename(filename, postfix) {
-            const dotIndex = filename.lastIndexOf('.');
-
-            if (dotIndex === -1) {
-                return filename + postfix;
-            }
-
-            const name = filename.substring(0, dotIndex);
-            const extension = filename.substring(dotIndex);
-
-            return name + postfix + extension;
-        }
-
-        function updateFileList(input, listSelector, inputId) {
-            var fileList = $(listSelector);
-            fileList.empty();
-
-            console.log(">> updateFileList1 > ", input.files);
-            console.log(">> updateFileList2 > ", listSelector);
-
-            if (input.files && input.files.length > 0) {
-                for (var i = 0; i < input.files.length; i++) {
-                    var file = input.files[i];
-                    var fileName = file.name;
-                    var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
-                    file.nameThumb= fileNameThumb
-
-
-                        // Create a file item container
-                    var fileItem = $(`
-                        <div class="file-item">
-                            <span>${fileName}</span>
-                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
-                            <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
-                        </div>
-                    `);
-
-                    fileList.append(fileItem);
-                    fileItem.find("canvas").data("file", file)
-
-                    if (file.type.startsWith('image/')) {
-                        var reader = new FileReader();
-
-                        reader.onload = (function (canvasId) {
-                            return function (e) {
-                                var canvas = document.getElementById(canvasId);
-                                var ctx = canvas.getContext('2d');
-                                var img = new Image();
-
-                                img.onload = function () {
-                                    // Resize and draw the image to fit the canvas
-                                    var aspectRatio = img.width / img.height;
-                                    var canvasWidth = canvas.width;
-                                    var canvasHeight = canvas.height;
-
-                                    if (aspectRatio > 1) {
-                                        canvasHeight = canvas.width / aspectRatio;
-                                    } else {
-                                        canvasWidth = canvas.height * aspectRatio;
-                                    }
-
-                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                    ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-
-                                    $(canvas).show();
-                                };
-
-                                img.src = e.target.result;
-                            };
-                        })(`canvas-${inputId}-${i}`);
-
-                        reader.readAsDataURL(file);
-                    }
-                }
-            }
-        }
+        // function updateFileList(input, listSelector, inputId) {
+        //     var fileList = $(listSelector);
+        //     fileList.empty();
+        //
+        //     console.log(">> updateFileList1 > ", input.files);
+        //     console.log(">> updateFileList2 > ", listSelector);
+        //
+        //     if (input.files && input.files.length > 0) {
+        //         for (var i = 0; i < input.files.length; i++) {
+        //             var file = input.files[i];
+        //             var fileName = file.name;
+        //             var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
+        //             file.nameThumb= fileNameThumb
+        //
+        //
+        //                 // Create a file item container
+        //             var fileItem = $(`
+        //                 <div class="file-item">
+        //                     <span>${fileName}</span>
+        //                     <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+        //                     <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+        //                 </div>
+        //             `);
+        //
+        //             fileList.append(fileItem);
+        //             fileItem.find("canvas").data("file", file)
+        //
+        //             if (file.type.startsWith('image/')) {
+        //                 var reader = new FileReader();
+        //
+        //                 reader.onload = (function (canvasId) {
+        //                     return function (e) {
+        //                         var canvas = document.getElementById(canvasId);
+        //                         var ctx = canvas.getContext('2d');
+        //                         var img = new Image();
+        //
+        //                         img.onload = function () {
+        //                             // Resize and draw the image to fit the canvas
+        //                             var aspectRatio = img.width / img.height;
+        //                             var canvasWidth = canvas.width;
+        //                             var canvasHeight = canvas.height;
+        //
+        //                             if (aspectRatio > 1) {
+        //                                 canvasHeight = canvas.width / aspectRatio;
+        //                             } else {
+        //                                 canvasWidth = canvas.height * aspectRatio;
+        //                             }
+        //
+        //                             ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //                             ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+        //
+        //                             $(canvas).show();
+        //                         };
+        //
+        //                         img.src = e.target.result;
+        //                     };
+        //                 })(`canvas-${inputId}-${i}`);
+        //
+        //                 reader.readAsDataURL(file);
+        //             }
+        //         }
+        //     }
+        // }
 
         // // jQuery to add a click event to the remove button
         // $('#removeFileButton').click(function() {
@@ -882,33 +882,33 @@
         //     console.log("File input cleared.");
         // });
 
-        // Remove file from list
-        $(document).on('click', '.remove-file-btn', function() {
-            var fileId = $(this).data('fileId')
-            var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
-
-            var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
-            toDelte.push(fileId)
-            $(`#${inputId}-to-delete`).data('to-delete', toDelte)
-
-            $(this).parent().remove();
-
-        });
-
-        // Remove file from input
-        function removeFile(inputId, index) {
-            var input = document.getElementById(inputId);
-            var files = Array.from(input.files);
-            files.splice(index, 1);
-
-            // Create a new FileList object
-            var dataTransfer = new DataTransfer();
-            files.forEach(file => { dataTransfer.items.add(file); });
-            input.files = dataTransfer.files;
-
-            // Update the file list display
-            updateFileList(input, `#${inputId}List`, inputId);
-        }
+        // // Remove file from list
+        // $(document).on('click', '.remove-file-btn', function() {
+        //     var fileId = $(this).data('fileId')
+        //     var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
+        //
+        //     var toDelte = $(`#${inputId}-to-delete`).data('to-delete') || []
+        //     toDelte.push(fileId)
+        //     $(`#${inputId}-to-delete`).data('to-delete', toDelte)
+        //
+        //     $(this).parent().remove();
+        //
+        // });
+        //
+        // // Remove file from input
+        // function removeFile(inputId, index) {
+        //     var input = document.getElementById(inputId);
+        //     var files = Array.from(input.files);
+        //     files.splice(index, 1);
+        //
+        //     // Create a new FileList object
+        //     var dataTransfer = new DataTransfer();
+        //     files.forEach(file => { dataTransfer.items.add(file); });
+        //     input.files = dataTransfer.files;
+        //
+        //     // Update the file list display
+        //     updateFileList(input, `#${inputId}List`, inputId);
+        // }
 
 
         // Clear form fields
@@ -929,186 +929,186 @@
             e.preventDefault();
             var formData = new FormData(this);
 
-            // Prepare properties
-            var properties = [];
-            $('input[name="propertyKey[]"]').each(function(index) {
-                properties.push({
-                    key: $(this).val(),
-                    value: $('input[name="propertyValue[]"]').eq(index).val(),
-                    id: $('input[name="propertyValue[]"]').eq(index).attr('id')
-                });
-            });
-            var deleted_data = $("#cache").data("deleted-properties") || []
-            var mergedProperties = properties.concat(deleted_data);
-            formData.append('properties', JSON.stringify(mergedProperties));
+            // // Prepare properties
+            // var properties = [];
+            // $('input[name="propertyKey[]"]').each(function(index) {
+            //     properties.push({
+            //         key: $(this).val(),
+            //         value: $('input[name="propertyValue[]"]').eq(index).val(),
+            //         id: $('input[name="propertyValue[]"]').eq(index).attr('id')
+            //     });
+            // });
+            // var deleted_data = $("#cache").data("deleted-properties") || []
+            // var mergedProperties = properties.concat(deleted_data);
+            // formData.append('properties', JSON.stringify(mergedProperties));
+            //
+            //
+            // // Prepare accessories
+            // var accessories = [];
+            // $('input[name="accessoryName[]"]').each(function(index, option) {
+            //
+            //     if(option.textContent === 'Select an option'){
+            //         return;
+            //     }
+            //
+            //     accessories.push({
+            //         name: $(this).val(),
+            //         inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
+            //         id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
+            //     });
+            // });
+            // deleted_data = $("#cache").data("deleted-accessories") || []
+            // mergedProperties = accessories.concat(deleted_data);
+            // console.log(">o> accessories > ", mergedProperties)
+            // formData.append('accessories', JSON.stringify(mergedProperties));
+            //
+            //
+            //
+            // // Prepare entitlements
+            // const entitlements = [];
+            // $('#entitlements').find('option:selected').each(function(index, option) {
+            //     if(option.textContent === 'Select an option'){
+            //         return;
+            //     }
+            //
+            //     const entitlementData = $(option).data()
+            //     const entitlement = entitlementData.entitlement
+            //     const entitlement_group = entitlementData.entitlement_group
+            //
+            //     const entitlement_group_id = entitlementData.entitlement_group.id
+            //
+            //
+            //
+            //     var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
+            //     if(isNaN(quantity)){
+            //         console.error("Quantity is not a number, setting to 1")
+            //         quantity = 1
+            //     }
+            //
+            //     if (entitlementData) {
+            //         entitlements.push({
+            //             entitlement_group_id: entitlement_group.id,
+            //             entitlement_id: entitlement == undefined ? null : entitlement.id,
+            //             // quantity: entitlement == undefined ? 1 : (quantity || 1)
+            //             quantity: (quantity || 1)
+            //         });
+            //     }
+            // });
+            // formData.delete('entitlements');
+            // deleted_data = $("#cache").data("deleted-entitlements") || []
+            // mergedProperties = entitlements.concat(deleted_data);
+            // console.log(">o> entitlements > ", mergedProperties)
+            // formData.append('entitlements', JSON.stringify(mergedProperties));
+            //
+            //
+            //
+            // // Prepare categories
+            // const categories = [];
+            // $('#categories').find('option:selected').each(function(index, option) {
+            //     if(option.textContent === 'Select an option'){
+            //         return;
+            //     }
+            //
+            //     const categoriesData = $(option).data().categories
+            //     // const entitlement = categoriesData.entitlement
+            //     // const entitlement_group = categoriesData.entitlement_group
+            //     // id name type
+            //     if (categoriesData) {
+            //         categories.push(categoriesData)
+            //         // categories.push({
+            //         //     entitlement_group_id: entitlement_group.id,
+            //         //     entitlement_id: entitlement == undefined ? null : entitlement.id,
+            //         //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
+            //         // });
+            //     }
+            // });
+            // formData.delete('categories');
+            // deleted_data = $("#cache").data("deleted-categories") || []
+            // mergedProperties = categories.concat(deleted_data);
+            // console.log(">o> categories > ", mergedProperties)
+            // formData.append('categories', JSON.stringify(mergedProperties));
+            //
+            //
+            //
+            //
+            // // Prepare compatibles
+            // const compatibles = [];
+            // $('#compatibles').find('option:selected').each(function(index, option) {
+            //     if(option.textContent === 'Select an option'){
+            //         return;
+            //     }
+            //
+            //     const categoriesData = $(option).data().compatible
+            //     if (categoriesData) {
+            //         compatibles.push(categoriesData)
+            //     }
+            // });
+            // formData.delete('compatibles');
+            // deleted_data = $("#cache").data("deleted-compatibles") || []
+            // mergedProperties = compatibles.concat(deleted_data);
+            //
+            // console.log(">o> compatibles 1> ", mergedProperties)
+            //
+            // var keyMapa = { model_id: "id" };
+            // mergedProperties.forEach(function(item, index) {
+            //     mergedProperties[index] = renameKeys(item, keyMapa);
+            // } );
+            //
+            // console.log(">o> compatibles 2> ", mergedProperties)
+            // formData.append('compatibles', JSON.stringify(mergedProperties));
+            //
+            //
+            //
+            // formData.delete('images-to-delete');
+            // var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
+            // formData.append('images-to-delete', JSON.stringify(imagesToDelete));
+            //
+            // formData.delete('attachments-to-delete');
+            // var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
+            // formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
 
 
-            // Prepare accessories
-            var accessories = [];
-            $('input[name="accessoryName[]"]').each(function(index, option) {
 
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
+            // formData.delete('isPackage');
+            // // $('#isPackage').prop('checked', false);
+            // // $('#isPackageFlag').val($('#isPackage').is(':checked'))
+            // const isPackage = $('#isPackage').is(':checked')
+            // formData.append('isPackage', isPackage);
+            //
+            // formData.delete('accessoryName[]');
+            // formData.delete('propertyKey[]');
+            // formData.delete('propertyValue[]');
+            // formData.delete('accessoryInventory[]');
+            //
+            // // Get the poolId value
+            // var poolId = $('#poolId').val();
+            // var modelId = $('#fetchOptionId').val();
+            //
+            // var config = FNC_CONFIG(poolId, modelId);
+            // let canvasPromises = [];
+            // $("#imagesList").find("canvas").each(function (index, canvas) {
+            //     const promise = new Promise((resolve, reject) => {
+            //         canvas.toBlob(function (blob) {
+            //             if (blob) {
+            //                 const fileInfo = $(canvas).data("file");
+            //                 const file = new File([blob], fileInfo.nameThumb, { type: fileInfo.type });
+            //
+            //                 console.log(">>> Canvas processed to file: ", file);
+            //                 resolve(file);
+            //             } else {
+            //                 reject(new Error("Blob creation failed for canvas."));
+            //             }
+            //         }, 'image/jpeg');
+            //     });
+            //     canvasPromises.push(promise);
+            // });
 
-                accessories.push({
-                    name: $(this).val(),
-                    inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
-                    id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
-                });
-            });
-            deleted_data = $("#cache").data("deleted-accessories") || []
-            mergedProperties = accessories.concat(deleted_data);
-            console.log(">o> accessories > ", mergedProperties)
-            formData.append('accessories', JSON.stringify(mergedProperties));
-
-
-
-            // Prepare entitlements
-            const entitlements = [];
-            $('#entitlements').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const entitlementData = $(option).data()
-                const entitlement = entitlementData.entitlement
-                const entitlement_group = entitlementData.entitlement_group
-
-                const entitlement_group_id = entitlementData.entitlement_group.id
-
-
-
-                var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
-                if(isNaN(quantity)){
-                    console.error("Quantity is not a number, setting to 1")
-                    quantity = 1
-                }
-
-                if (entitlementData) {
-                    entitlements.push({
-                        entitlement_group_id: entitlement_group.id,
-                        entitlement_id: entitlement == undefined ? null : entitlement.id,
-                        // quantity: entitlement == undefined ? 1 : (quantity || 1)
-                        quantity: (quantity || 1)
-                    });
-                }
-            });
-            formData.delete('entitlements');
-            deleted_data = $("#cache").data("deleted-entitlements") || []
-            mergedProperties = entitlements.concat(deleted_data);
-            console.log(">o> entitlements > ", mergedProperties)
-            formData.append('entitlements', JSON.stringify(mergedProperties));
-
-
-
-            // Prepare categories
-            const categories = [];
-            $('#categories').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const categoriesData = $(option).data().categories
-                // const entitlement = categoriesData.entitlement
-                // const entitlement_group = categoriesData.entitlement_group
-                // id name type
-                if (categoriesData) {
-                    categories.push(categoriesData)
-                    // categories.push({
-                    //     entitlement_group_id: entitlement_group.id,
-                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
-                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
-                    // });
-                }
-            });
-            formData.delete('categories');
-            deleted_data = $("#cache").data("deleted-categories") || []
-            mergedProperties = categories.concat(deleted_data);
-            console.log(">o> categories > ", mergedProperties)
-            formData.append('categories', JSON.stringify(mergedProperties));
-
-
-
-
-            // Prepare compatibles
-            const compatibles = [];
-            $('#compatibles').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
-                    return;
-                }
-
-                const categoriesData = $(option).data().compatible
-                if (categoriesData) {
-                    compatibles.push(categoriesData)
-                }
-            });
-            formData.delete('compatibles');
-            deleted_data = $("#cache").data("deleted-compatibles") || []
-            mergedProperties = compatibles.concat(deleted_data);
-
-            console.log(">o> compatibles 1> ", mergedProperties)
-
-            var keyMapa = { model_id: "id" };
-            mergedProperties.forEach(function(item, index) {
-                mergedProperties[index] = renameKeys(item, keyMapa);
-            } );
-
-            console.log(">o> compatibles 2> ", mergedProperties)
-            formData.append('compatibles', JSON.stringify(mergedProperties));
-
-
-
-            formData.delete('images-to-delete');
-            var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
-            formData.append('images-to-delete', JSON.stringify(imagesToDelete));
-
-            formData.delete('attachments-to-delete');
-            var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
-            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
-
-
-
-            formData.delete('isPackage');
-            // $('#isPackage').prop('checked', false);
-            // $('#isPackageFlag').val($('#isPackage').is(':checked'))
-            const isPackage = $('#isPackage').is(':checked')
-            formData.append('isPackage', isPackage);
-
-            formData.delete('accessoryName[]');
-            formData.delete('propertyKey[]');
-            formData.delete('propertyValue[]');
-            formData.delete('accessoryInventory[]');
-
-            // Get the poolId value
-            var poolId = $('#poolId').val();
-            var modelId = $('#fetchOptionId').val();
-
-            var config = FNC_CONFIG(poolId, modelId);
-            let canvasPromises = [];
-            $("#imagesList").find("canvas").each(function (index, canvas) {
-                const promise = new Promise((resolve, reject) => {
-                    canvas.toBlob(function (blob) {
-                        if (blob) {
-                            const fileInfo = $(canvas).data("file");
-                            const file = new File([blob], fileInfo.nameThumb, { type: fileInfo.type });
-
-                            console.log(">>> Canvas processed to file: ", file);
-                            resolve(file);
-                        } else {
-                            reject(new Error("Blob creation failed for canvas."));
-                        }
-                    }, 'image/jpeg');
-                });
-                canvasPromises.push(promise);
-            });
-
-            Promise.all(canvasPromises)
-                .then(files => {
-                    files.forEach(file => {
-                        // formData.append('previews', file);
-                        formData.append('images', file);
-                    });
+            // Promise.all(canvasPromises)
+            //     .then(files => {
+            //         files.forEach(file => {
+            //             // formData.append('previews', file);
+            //             formData.append('images', file);
+            //         });
 
                     // Send form data to API
                     $.ajax({
@@ -1144,10 +1144,10 @@
                             }, 3000);
                         }
                     });
-                })
-                .catch(error => {
-                    console.error("Error processing canvases: ", error);
-                });
+                // })
+                // .catch(error => {
+                //     console.error("Error processing canvases: ", error);
+                // });
         });
 
 
