@@ -127,6 +127,9 @@
 
 <br/><br/>
 
+<p>https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/options/81280143-f9fb-43ee-b16b-ccdf2ebc3f6f</p>
+<p>_method: put / authenticity_token: rVX6zlF1KYyGvZ53nIwfrO9GANudf-4hi21RT7kGVg2MBYYKgdpeHNzyA85S9qGXE51xeZhsANiiFZoAOm3UhQ
+</p>
 <br/><br/>
 
 <h3>Options</h3>
@@ -155,73 +158,82 @@
         <input type="text" id="version" name="version">
     </div>
     <div class="form-group">
-        <label for="manufacturer">Manufacturer</label>
-        <select id="manufacturer" name="manufacturer"></select>
+        <label for="version">Preis</label>
+        <input type="text" id="price" name="version">
     </div>
     <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description"></textarea>
+        <label for="version">Version</label>
+        <input type="text" id="inventory_code" name="version">
     </div>
-    <div class="form-group">
-        <label for="technicalDetails">Technical Details</label>
-        <textarea id="technicalDetails" name="technicalDetails"></textarea>
-    </div>
-    <div class="form-group">
-        <label for="internalDescription">Internal Description</label>
-        <textarea id="internalDescription" name="internalDescription"></textarea>
-    </div>
-    <div class="form-group">
-        <label>Eigenschaften</label>
-        <div id="propertiesList" class="dynamic-list"></div>
-        <button type="button" id="addProperty">Add Property</button>
-    </div>
-    <div class="form-group">
-        <b><label for="images">Bilder</label></b>
-        <input type="file" id="images" name="images" multiple accept="image/*">
-        <input type="hidden" id="images-to-delete" name="images-to-delete" />
-        <div id="imagesList" class="file-list"></div>
-    </div>
-    <div class="form-group">
-        <b><label for="attachments">Anhänge</label></b>
-        <input type="file" id="attachments" name="attachments" multiple>
-        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
-        <div id="attachmentsList" class="file-list"></div>
-    </div>
-    <div class="form-group">
-        <label>
-            <input type="checkbox" id="isPackage" name="isPackage">
-            This is a package
-        </label>
-    </div>
-
-
-
+<!--    -->
 <!--    <div class="form-group">-->
-<!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
-<!--        <select id="entitlements" name="entitlements" multiple></select>-->
+<!--        <label for="manufacturer">Manufacturer</label>-->
+<!--        <select id="manufacturer" name="manufacturer"></select>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="description">Description</label>-->
+<!--        <textarea id="description" name="description"></textarea>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="technicalDetails">Technical Details</label>-->
+<!--        <textarea id="technicalDetails" name="technicalDetails"></textarea>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="internalDescription">Internal Description</label>-->
+<!--        <textarea id="internalDescription" name="internalDescription"></textarea>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label>Eigenschaften</label>-->
+<!--        <div id="propertiesList" class="dynamic-list"></div>-->
+<!--        <button type="button" id="addProperty">Add Property</button>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <b><label for="images">Bilder</label></b>-->
+<!--        <input type="file" id="images" name="images" multiple accept="image/*">-->
+<!--        <input type="hidden" id="images-to-delete" name="images-to-delete" />-->
+<!--        <div id="imagesList" class="file-list"></div>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <b><label for="attachments">Anhänge</label></b>-->
+<!--        <input type="file" id="attachments" name="attachments" multiple>-->
+<!--        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />-->
+<!--        <div id="attachmentsList" class="file-list"></div>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label>-->
+<!--            <input type="checkbox" id="isPackage" name="isPackage">-->
+<!--            This is a package-->
+<!--        </label>-->
 <!--    </div>-->
 
-    <div class="form-group row">
-        <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
-        <div class="col-sm-9">
-            <select id="entitlements" name="entitlements" class="form-control" multiple></select>
-            <div id="selected-entitlements" class="mt-2"></div>
-        </div>
-    </div>
 
-    <div class="form-group">
-        <label for="categories">Kategorien ( /model-groups )</label>
-        <select id="categories" name="categories" multiple></select>
-    </div>
-    <div class="form-group">
-        <label for="compatibles">Ergänzende Modelle (Compatibles)</label>
-        <select id="compatibles" name="compatibles" multiple></select>
-    </div>
-    <div class="form-group">
-        <label>Zubehör</label>
-        <div id="accessoriesList" class="dynamic-list"></div>
-        <button type="button" id="addAccessory">Add Zubehör / Accessory</button>
-    </div>
+
+<!--&lt;!&ndash;    <div class="form-group">&ndash;&gt;-->
+<!--&lt;!&ndash;        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>&ndash;&gt;-->
+<!--&lt;!&ndash;        <select id="entitlements" name="entitlements" multiple></select>&ndash;&gt;-->
+<!--&lt;!&ndash;    </div>&ndash;&gt;-->
+
+<!--    <div class="form-group row">-->
+<!--        <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
+<!--        <div class="col-sm-9">-->
+<!--            <select id="entitlements" name="entitlements" class="form-control" multiple></select>-->
+<!--            <div id="selected-entitlements" class="mt-2"></div>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <div class="form-group">-->
+<!--        <label for="categories">Kategorien ( /model-groups )</label>-->
+<!--        <select id="categories" name="categories" multiple></select>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label for="compatibles">Ergänzende Modelle (Compatibles)</label>-->
+<!--        <select id="compatibles" name="compatibles" multiple></select>-->
+<!--    </div>-->
+<!--    <div class="form-group">-->
+<!--        <label>Zubehör</label>-->
+<!--        <div id="accessoriesList" class="dynamic-list"></div>-->
+<!--        <button type="button" id="addAccessory">Add Zubehör / Accessory</button>-->
+<!--    </div>-->
     <div class="form-group">
         <button type="submit">Save Option</button>
     </div>
