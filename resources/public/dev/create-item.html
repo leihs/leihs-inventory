@@ -272,15 +272,15 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
+    <label for="modelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [modelId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
 
-    <input type="text" id="softwareId" name="softwareId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
-<!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
+    <input type="text" id="modelId" name="modelId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
+<!--    <input type="text" id="modelId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
 <div class="form-group">
-    <label for="itemsId">Item ID (item_id) [itemsId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="itemsId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <label for="itemId">Item ID (item_id) [itemId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
+    <input type="text" id="itemId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
 
     <button id="fetchItemBtn">Fetch Item</button>
 </div>
@@ -1062,8 +1062,8 @@
         }
 
         $("#fetchItemBtn").click(function () {
-            const itemId = $("#itemsId").val();
-            const modelId = $("#softwareId").val();
+            const itemId = $("#itemId").val();
+            const modelId = $("#modelId").val();
             const poolId = $("#poolId").val();
 
             if (!itemId) {
@@ -1071,6 +1071,7 @@
                 return;
             }
 
+            // debugger
             // FETCH ITEM
             $.ajax({
                 url: `/inventory/${poolId}/models/${modelId}/item/${itemId}`,
@@ -1169,7 +1170,7 @@
                             console.log("Update button clicked");
 
                             const poolId = $("#poolId").val();
-                            const modelId = $("#softwareId").val();
+                            const modelId = $("#modelId").val();
                             const itemId = $("#itemId").val();
                             let formData = new FormData($("#softwareForm")[0]);
 
@@ -1203,7 +1204,7 @@
                                 console.log(key, value);
                             }
 
-                            checkFormDataOrThrow(formData, modelId)
+                            // checkFormDataOrThrow(formData, modelId)
 
                             formData.delete('attachments-to-delete');
                             var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
@@ -1213,9 +1214,12 @@
                             formData = appendQuantityAllocationToFormData(formData);
                             deleteParamsFromPutPostFormData(formData);
 
+
+                            // debugger
+
                             // If it's in update mode, make a PUT request
                             $.ajax({
-                                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
+                                url: `/inventory/${poolId}/models/${modelId}/item/${itemId}`,
                                 method: "PUT",
                                 data: formData,
                                 processData: false,
@@ -1227,10 +1231,12 @@
                                     $(`#attachmentsList`).data('to-delete', [])
                                     $('#attachments').val('');
 
-                                    // $('#softwareId').val(response.data.model_id)
+                                    // $('#modelId').val(response.data.model_id)
                                     // $('#itemId').val(response.data.id)
-                                    $('#softwareId').val(response[0].model_id)
-                                    $('#itemId').val(response[0].id)
+
+                                    // FIXME
+                                    // $('#modelId').val(response[0].model_id)
+                                    // $('#itemId').val(response[0].id)
 
                                     $('#fetchItemBtn').trigger('click');
 
@@ -1259,7 +1265,7 @@
     });
 
     $("body").ready(function () {
-        const itemId = $("#softwareId").val();
+        const itemId = $("#itemId").val();
         const poolId = $("#poolId").val();
 
         if (!itemId) {
@@ -1293,7 +1299,7 @@
                         console.log("Update button clicked");
 
                         const poolId = $("#poolId").val();
-                        // const modelId = $("#softwareId").val();
+                        // const modelId = $("#modelId").val();
                         let formData = new FormData($("#softwareForm")[0]);
 
 
@@ -1311,7 +1317,7 @@
                         let modelId=formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
-                        checkFormDataOrThrow(formData, modelId)
+                        // checkFormDataOrThrow(formData, modelId)
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {
@@ -1331,7 +1337,7 @@
                                 console.log("Item create successfully!", response);
                                 console.info("UPDATING ITEM-ID")
 
-                                $('#softwareId').val(response.data.model_id)
+                                $('#modelId').val(response.data.model_id)
                                 $('#itemId').val(response.data.item_id)
 
                                 $(`#attachmentsList`).data('to-delete', [])
