@@ -9,12 +9,15 @@
    [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
                                                                          inventory-manager-license-subquery
                                                                          lending-manager-license-subquery
+                                                            inventory-manager-item-subquery
+                                                                         lending-manager-item-subquery
                                                                          license-base-query]]
    [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query
                                                             attachments-query
                                                             entitlements-query
                                                             item-query
+
                                                             model-links-query
                                                             properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
@@ -73,13 +76,14 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
+
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
                 roles-for-pool
                 (:roles roles-for-pool))
         subquery (cond
-                   (contains? roles :inventory_manager) inventory-manager-license-subquery
-                   (contains? roles :lending_manager) lending-manager-license-subquery
+                   (contains? roles :inventory_manager) inventory-manager-item-subquery
+                   (contains? roles :lending_manager) lending-manager-item-subquery
                    :else nil)]
 
     (when-not subquery
@@ -99,56 +103,106 @@
 
     (try
       (let [query (-> (sql/select :*)
-                      license-base-query
+
+
+                    ;inventory-manager-item-subquery
+                    ;lending-manager-item-subquery
+
                       subquery
-                      (sql/order-by :ff.group :ff.position)
+
+                    ;license-base-query
+                    ;  subquery
+                    ;  (sql/order-by :ff.group :ff.position)
+
+                    ;(sql/from [(-> (sql/select :f.id
+                    ;                 [[:f.data->>"label"] :label]
+                    ;                 :f.active
+                    ;                 :f.position
+                    ;                 [[:coalesce [[:f.data->>"group"] "none"]] :group]
+                    ;                 [[:coalesce [[:f.data->>"target_type"] "\"\""]] :target]
+                    ;
+                    ;                 ;[[:coalesce [:f.data->>"group" "none"]] :group]
+                    ;                 ;[[:coalesce [:f.data->>"target_type" "\"\""]] :target]
+                    ;
+                    ;                 [[:f.data->>"permissions.role"] :role]
+                    ;                 [[:f.data->"permissions.role"] :role2]
+                    ;                 [[:f.data->>"permissions.owner"] :owner]
+                    ;                 )
+                    ;             (sql/from [:fields :f])
+                    ;             (sql/where [:= :f.active true]))
+                    ;           :ff])
+
+
+                    ;(sql/where [:and
+                    ;          [:in :ff.group ["General Information"
+                    ;                          "Invoice Information"
+                    ;                          "Status"
+                    ;                          "Inventory"
+                    ;                          "Invoice Information"
+                    ;                          "none"
+                    ;                          "Location"
+                    ;                          "Eigenschaften"]]
+                    ;          [:in :ff.target ["\"item\"" "\"\""]]])
+
+                    ;(sql/order-by [:ff.group :asc] [:ff.position :asc])
+
+
                       sql-format)
+
             fields (jdbc/execute! tx query)
-            filtered (filter-entries fields [:group :label :role])
-            dyn-select (build-select fields)
-            model-result (if model-id
-                           ;; Fetch model data
-                           (let [model-query (-> (model-query item-id model-id pool-id) sql-format)
-                                 model-result (jdbc/execute-one! tx model-query)
-                                 model-result (when model-result
-                                                (let [model-result (assoc model-result
-                                                                          :product {:name (:product model-result)
-                                                                                    :model_id (:id model-result)})
+            ;filtered (filter-entries fields [:group :label :role])
+            ;dyn-select (build-select fields)
 
-                                                      supplier_name (:supplier_name model-result)
-                                                      supplier_id (:supplier_id model-result)
-                                                      supplier-data (if (some? supplier_id) {:name supplier_name
-                                                                                             :supplier_id supplier_id}
-                                                                        nil)
-                                                      model-result (assoc model-result :supplier supplier-data)
 
-                                                      attachments (jdbc/execute! tx
-                                                                                 (-> (sql/select :id :filename :content_type :size)
-                                                                                     (sql/from :attachments)
-                                                                                     (sql/where [:= :item_id item-id])
-                                                                                     sql-format))
-                                                      model-result (assoc model-result :attachments attachments)
-                                                      model-result (rename-keys model-result {:item_version :version})
-                                                      retired (not (nil? (:retired model-result)))
-                                                      model-result (assoc model-result :retired retired)
-                                                      model-result (filter-by-allowed-keys model-result dyn-select
-                                                                                           ["properties"
-                                                                                            "inventory_code"
-                                                                                            "inventory_pool_id"
-                                                                                            "responsible_department"
-                                                                                            "product"
-                                                                                            "license_version"
-                                                                                            "supplier"
-                                                                                            "version"]
-                                                                                           ["supplier_name" "supplier_id"])]
-                                                  model-result))]
-                             model-result)
-                           ;; Fetch default
-                           (let [responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
-                                 {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
-                             {:inventory_pool_id pool-id
-                              :responsible_department responsible_department
-                              :inventory_code next-code}))]
+            p (println ">o> ??? fields" fields)
+
+            model-result []
+
+            ;model-result (if model-id
+            ;               ;; Fetch model data
+            ;               (let [model-query (-> (model-query item-id model-id pool-id) sql-format)
+            ;                     model-result (jdbc/execute-one! tx model-query)
+            ;                     model-result (when model-result
+            ;                                    (let [model-result (assoc model-result
+            ;                                                              :product {:name (:product model-result)
+            ;                                                                        :model_id (:id model-result)})
+            ;
+            ;                                          supplier_name (:supplier_name model-result)
+            ;                                          supplier_id (:supplier_id model-result)
+            ;                                          supplier-data (if (some? supplier_id) {:name supplier_name
+            ;                                                                                 :supplier_id supplier_id}
+            ;                                                            nil)
+            ;                                          model-result (assoc model-result :supplier supplier-data)
+            ;
+            ;                                          attachments (jdbc/execute! tx
+            ;                                                                     (-> (sql/select :id :filename :content_type :size)
+            ;                                                                         (sql/from :attachments)
+            ;                                                                         (sql/where [:= :item_id item-id])
+            ;                                                                         sql-format))
+            ;                                          model-result (assoc model-result :attachments attachments)
+            ;                                          model-result (rename-keys model-result {:item_version :version})
+            ;                                          retired (not (nil? (:retired model-result)))
+            ;                                          model-result (assoc model-result :retired retired)
+            ;                                          model-result (filter-by-allowed-keys model-result dyn-select
+            ;                                                                               ["properties"
+            ;                                                                                "inventory_code"
+            ;                                                                                "inventory_pool_id"
+            ;                                                                                "responsible_department"
+            ;                                                                                "product"
+            ;                                                                                "license_version"
+            ;                                                                                "supplier"
+            ;                                                                                "version"]
+            ;                                                                               ["supplier_name" "supplier_id"])]
+            ;                                      model-result))]
+            ;                 model-result)
+            ;               ;; Fetch default
+            ;               (let [responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
+            ;                     {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
+            ;                 {:inventory_pool_id pool-id
+            ;                  :responsible_department responsible_department
+            ;                  :inventory_code next-code}))
+
+            ]
 
         (if model-result
           (response/response {:data model-result :fields fields})
