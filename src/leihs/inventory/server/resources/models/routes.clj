@@ -621,6 +621,12 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
      ]
+     ]
+
+   ["/models/:model_id/item" ;; new
+    {:swagger {:conflicting true
+               :tags ["form / item"] :security []}}
+
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -650,7 +656,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :responses {200 {:description "OK"
                              :body any?}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
+                        500 {:description "Internal Server Error"}}}}]
+
+    ]
 
 
 

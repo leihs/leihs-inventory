@@ -94,6 +94,7 @@
 
 
 (defn fetch-items-handler-by-pool-form [request]
+  (println ">o> fetch-items-handler-by-pool-form" )
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
@@ -154,15 +155,40 @@
             ;filtered (filter-entries fields [:group :label :role])
             ;dyn-select (build-select fields)
 
+            fields               (conj fields                 {:active true
+                                                               :data {:type "text"
+                                                                      :group "Inventory"
+                                                                      :label "Anzahl"
+                                                                      :values "1"
+                                                                      :value "1"
+                                                                      }
+                                                               :attribute "quantity"
+                                                               :default false
+                                                               :forPackage true
+                                                               :group "Inventory"
+                                                               :group_default "Inventory"
+                                                               :id "quantity"
+                                                               :label "Anzahl"
+                                                               :owner nil
+                                                               :position 13
+                                                               :role nil
+                                                               :role_default ""
+                                                               :target nil
+                                                               :target_default ""})
 
-            p (println ">o> ??? fields" fields)
+
+            ;p (println ">o> ??? fields" fields)
 
             ;model-result []
 
             model-result (if model-id
                            ;; Fetch model data
-                           (let [model-query (-> (item-query item-id pool-id) sql-format)
+                           (let [model-query (-> (item-base-query item-id model-id pool-id) sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
+
+
+                                 p (println ">o> model-result" model-result)
+
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
                                                                           :product {:name (:product model-result)
@@ -202,6 +228,7 @@
                                  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
+                              :quantity 1
                               :inventory_code next-code}))
 
             ]

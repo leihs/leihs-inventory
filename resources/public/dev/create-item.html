@@ -1023,6 +1023,7 @@
         }
 
         function populateFieldValues(data, mapping) {
+
             Object.entries(mapping).forEach(([key, fieldId]) => {
                 const keys = key.split(".");
                 let value = data;
@@ -1070,9 +1071,9 @@
                 return;
             }
 
-            // FETCH LICENSE
+            // FETCH ITEM
             $.ajax({
-                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
+                url: `/inventory/${poolId}/models/${modelId}/item/${itemId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
@@ -1320,7 +1321,7 @@
                         // If it's in update mode, make a PUT request
                         $.ajax({
                             // url: `/inventory/${poolId}/item`,
-                            url: `/inventory/${poolId}/models/${modelId}/items`,
+                            url: `/inventory/${poolId}/models/${modelId}/item`,
                             method: "POST",
                             data: formData,
                             processData: false,

@@ -12,9 +12,14 @@
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 
 (defn item-base-query [item-id model-id pool-id]
-  (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-                  :m.hand_over_note :m.description :m.internal_description
-                  :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name])
+   (println ">o> item-base-query" item-id model-id pool-id)
+  (-> (sql/select
+        ;:m.id :m.product :m.manufacturer :m.version :m.type
+        ;          :m.hand_over_note :m.description :m.internal_description
+        ;          :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name]
+
+        :i.*
+        )
       (sql/from [:models :m])
       (sql/join [:items :i] [:= :m.id :i.model_id])
       (sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
