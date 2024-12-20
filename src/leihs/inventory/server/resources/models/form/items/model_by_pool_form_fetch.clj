@@ -191,7 +191,7 @@
 
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
-                                                                          :product {:name (:product model-result)
+                                                                          :product {:name (:product_name model-result)
                                                                                     :model_id (:id model-result)})
 
                                                       supplier_name (:supplier_name model-result)

@@ -306,7 +306,7 @@
         ajax: {
             url: function (params) {
                 const searchTerm = params.term ? encodeURIComponent(params.term) : '';
-                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+                return `/inventory/manufacturers?type=Model&in-detail=true&search-term=${searchTerm}`;
             },
             data: function () {
                 return {};
@@ -727,7 +727,7 @@
         }
 
         // TODO: define/trigger init
-        $("#mySoftware").select2(initSoftwareConfig)
+        $("#myModel").select2(initSoftwareConfig)
         $("#mySupplier").select2(initSupplierConfig)
 
 
@@ -899,12 +899,12 @@
     const initialPoolId = $("#poolId").val();
 
     let currentRequest = null;
-    // $("#mySoftware").on("change", function () {
+    // $("#myModel").on("change", function () {
 
-    $("#mySoftware").select2(initSoftwareConfig)
+    $("#myModel").select2(initSoftwareConfig)
 
     // Optional: Adding an onchange event listener to log the selected value
-    $("#mySoftware").on("change", function () {
+    $("#myModel").on("change", function () {
         const selectedValue = $(this).val();
         console.log(">o> Selected software:", selectedValue);
     });
@@ -1097,7 +1097,7 @@
                         var swValue = data.product.name;
                         var swId = data.product.model_id;
                         var newOption = new Option(swValue, swId, true, true);
-                        $("#mySoftware").append(newOption).trigger('change');
+                        $("#myModel").append(newOption).trigger('change');
                         $("#myOldSoftware").val(swId)
 
                         // supplier
@@ -1175,7 +1175,7 @@
                             let formData = new FormData($("#softwareForm")[0]);
 
 
-                            renameFormDataKey(formData, "mySoftware", "model_id");
+                            renameFormDataKey(formData, "myModel", "model_id");
                             renameFormDataKey(formData, "myOldSoftware", "old_model_id");
                             renameFormDataKey(formData, "mySupplier", "supplier_id");
                             renameFormDataKey(formData, "myOwner", "owner_id");
@@ -1306,8 +1306,8 @@
                         let formData = new FormData($("#softwareForm")[0]);
 
 
-                        // renameFormDataKey(formData, "mySoftware", "software_id");
-                        renameFormDataKey(formData, "mySoftware", "model_id");
+                        // renameFormDataKey(formData, "myModel", "software_id");
+                        renameFormDataKey(formData, "myModel", "model_id");
                         renameFormDataKey(formData, "mySupplier", "supplier_id");
                         renameFormDataKey(formData, "myOwner", "owner_id");
                         renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");

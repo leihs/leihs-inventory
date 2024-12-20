@@ -18,7 +18,7 @@
         ;          :m.hand_over_note :m.description :m.internal_description
         ;          :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name]
 
-        :i.*
+        :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
         )
       (sql/from [:models :m])
       (sql/join [:items :i] [:= :m.id :i.model_id])
