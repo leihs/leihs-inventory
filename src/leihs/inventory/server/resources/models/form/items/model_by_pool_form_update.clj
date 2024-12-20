@@ -9,12 +9,13 @@
    [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
 
 
-   [leihs.inventory.server.resources.models.form.license.common :refer [cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
+   [leihs.inventory.server.resources.models.form.license.common :refer [ cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-files
+                                                           ;process-attachments-by
                                                            process-attachments parse-json-map parse-json-array]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
@@ -138,11 +139,12 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
 
             p (println ">o> ??? updated-model" updated-model)
 
-            ;attachments (normalize-files request :attachments)
-            ;attachments-to-delete (parse-json-array request :attachments-to-delete)
+            attachments (normalize-files request :attachments)
+            attachments-to-delete (parse-json-array request :attachments-to-delete)
             ]
         ;(process-attachments tx attachments model-id)
-        ;(process-deletions tx attachments-to-delete :attachments :id)
+        (process-attachments tx attachments "item_id" item-id)
+        (process-deletions tx attachments-to-delete :attachments :id)
         (if updated-model
           ;(response [updated-model])
           (response (create-validation-response updated-model []))
