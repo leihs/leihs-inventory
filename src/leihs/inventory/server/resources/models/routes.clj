@@ -547,7 +547,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::supplier_id
                                              ::attachments-to-delete
                                              ::attachments
-                                             ;::retired_reason
+                                             ::retired_reason
                                              ;:simple/properties
                                              ::owner_id
                                              ;::item_version
@@ -560,7 +560,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::shelf
                                              ::inventory_code
                                              ::retired
-                                             ::retired_reason
+
                                              ::is_borrowable
                                              ::is_broken
                                              ::is_incomplete

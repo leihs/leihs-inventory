@@ -983,6 +983,8 @@
         const fieldMapping = {
             "serial_number": "serial_number",
             "note": "note",
+            "status_note": "status_note",
+            "retired": "retired",
             "retired_reason": "retired_reason",
 
             "maintenance_price": "properties_maintenance_price",
@@ -992,6 +994,7 @@
             "dongle_id": "properties_dongle_id",
             "project_number": "properties_project_number",
 
+            "invoice_number": "invoice_number",
             "invoice_date": "invoice_date",
             "procured_by": "properties_procured_by",
             "properties_maintenance_price": "properties_maintenance_price",
@@ -1005,11 +1008,17 @@
             // "license_expiration": "maintenance_expiration",
             "maintenance_expiration": "properties_maintenance_expiration",
 
-            // name="properties,operating_system"
-            // "operating_system":
+            // TODO: properties
+            "imei_number": "properties_imei_number",
+            "electrical_power": "properties_electrical_power",
+            "p4u": "properties_p4u",
+            "reference": "properties,reference",
+            "project_number": "properties_project_number",
+            "warranty_expiration": "properties_warranty_expiration",
+            // "quantity_allocations": "properties_imei_number",
+            "user_name": "user_name",
+            "last_check": "last_check",
 
-
-            // "procured_by": "properties_procured_by"
         };
 
 
@@ -1023,7 +1032,7 @@
         }
 
         function populateFieldValues(data, mapping) {
-
+// debugger
             Object.entries(mapping).forEach(([key, fieldId]) => {
                 const keys = key.split(".");
                 let value = data;
@@ -1101,11 +1110,29 @@
                         $("#myOldSoftware").val(swId)
 
                         // supplier
-                        var supplierName = data.supplier.name;
-                        var supplierId = data.supplier.supplier_id;
-                        var newOption = new Option(supplierName, supplierId, true, true);
-                        $("#mySupplier").append(newOption).trigger('change');
+                        if(data.supplier != undefined){
+                            var supplierName = data.supplier.name;
+                            var supplierId = data.supplier.supplier_id;
+                            var newOption = new Option(supplierName, supplierId, true, true);
+                            $("#mySupplier").append(newOption).trigger('change');
+                        }
+                        // var supplierName = data.supplier.name;
+                        // var supplierId = data.supplier.supplier_id;
+                        // var newOption = new Option(supplierName, supplierId, true, true);
+                        // $("#mySupplier").append(newOption).trigger('change');
 
+
+                        if(data.is_broken){
+                         $("[name=is_broken][value=true]").prop("checked", true)
+                        }else{
+                         $("[name=is_broken][value=false]").prop("checked", true)
+                        }
+
+                        if(data.is_incomplete){
+                         $("[name=is_incomplete][value=true]").prop("checked", true)
+                        }else{
+                         $("[name=is_incomplete][value=false]").prop("checked", true)
+                        }
 
                         if(data.is_borrowable){
                          $("[name=is_borrowable][value=true]").prop("checked", true)
@@ -1120,24 +1147,22 @@
                          $("[name='properties,reference'][value=investment]").prop("checked", true)
                         }
 
-
-
-                        ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
-                            if(data.operating_system != undefined && data.operating_system.includes(os)){
-                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
-                            }else{
-                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
-                            }
-                        })
-
-                        const installationList = data.installation || []; // Default to an empty array
-                        ["citrix", "local", "web"].forEach(os => {
-                            if (installationList.includes(os)) {
-                                $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
-                            } else {
-                                $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
-                            }
-                        });
+                        // ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
+                        //     if(data.operating_system != undefined && data.operating_system.includes(os)){
+                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
+                        //     }else{
+                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
+                        //     }
+                        // })
+                        //
+                        // const installationList = data.installation || []; // Default to an empty array
+                        // ["citrix", "local", "web"].forEach(os => {
+                        //     if (installationList.includes(os)) {
+                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
+                        //     } else {
+                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
+                        //     }
+                        // });
 
                         const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
                         $('#propertiesList').empty()

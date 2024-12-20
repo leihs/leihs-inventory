@@ -31,6 +31,11 @@
         ;              data)
 
         data (assoc data :retired retired-value)
+        data (when (= false request-retired) (assoc data :retired_reason nil))
+
+
+        p (println ">o> retired ??? " (:retired data) (:retired_reason data))
+
 
 
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
@@ -68,8 +73,8 @@
 
 
         ;prepared-model-data multipart
-        prepared-model-data (remove-entries-by-keys prepared-model-data [])
-        prepared-model-data (remove-empty-or-nil prepared-model-data)
+        ;prepared-model-data (remove-entries-by-keys prepared-model-data [])
+        ;prepared-model-data (remove-empty-or-nil prepared-model-data)
 
         p (println ">o> >>> prepared-item-data" prepared-model-data)
         ]
