@@ -72,6 +72,31 @@
                                 key-map)]
     normalized-data))
 
+(defn parse-json-map
+  "Parse the JSON string and return a map. (swagger-ui normalizer)"
+  [request key]
+  (let [json-map-string (get-in request [:parameters :multipart key])]
+    (cond
+      ;; If the JSON string is nil or an empty representation, return an empty map.
+      (not json-map-string) {}
+      (and (string? json-map-string) (some #(= json-map-string %) ["" "[]" "{}"])) {}
+      :else
+      (try
+        (let [normalized-json-map-string
+              ;; Ensure the string is a valid JSON object representation
+              (if (.startsWith json-map-string "[")
+                (subs json-map-string 1 (dec (count json-map-string)))
+                json-map-string)
+
+              parsed (cjson/parse-string normalized-json-map-string true)]
+          ;; Ensure the parsed JSON is a map
+          (if (map? parsed)
+            parsed
+            (throw (ex-info "Invalid JSON Object Format" {:parsed parsed}))))
+        (catch Exception e
+          (throw (ex-info "Invalid JSON Map Format" {:error (.getMessage e)})))))))
+
+
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
   [request key]

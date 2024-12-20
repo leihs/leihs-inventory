@@ -3,21 +3,37 @@
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
-   [clojure.java.io :as io]
+   [cheshire.core :as jsonc]
+      [clojure.java.io :as io]
+
+   [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
+
+
    [leihs.inventory.server.resources.models.form.license.common :refer [cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-files
-                                                           process-attachments parse-json-array]]
+                                                           process-attachments parse-json-map parse-json-array]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]))
 
-(defn prepare-item-data [data item-entry]
+(defn remove-nil-entries
+  "Removes entries from the map if the values of the specified keys are nil."
+  [data keys-to-check]
+  (reduce (fn [m k]
+            (if (nil? (get m k))
+              (dissoc m k)
+              m))
+    data
+    keys-to-check))
+
+
+(defn prepare-item-data [data item-entry properties]
   (let [
         ;normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
@@ -31,7 +47,9 @@
         ;              data)
 
         data (assoc data :retired retired-value)
-        data (when (= false request-retired) (assoc data :retired_reason nil))
+        data (if (= false request-retired)
+               (assoc data :retired_reason nil)
+               data)
 
 
         p (println ">o> retired ??? " (:retired data) (:retired_reason data))
@@ -45,12 +63,23 @@
         price (double-to-numeric-or-nil (:price data))
 
         data (dissoc data :attachments :attachments-to-delete)
-        data (dissoc data :properties (parse-json-array data :properties))
+
+        properties [:cast (jsonc/generate-string properties) :jsonb]
+
+        ;;properties (parse-json-map data :properties)
+        ;properties ( :properties data)
+
+        ;data (assoc data :properties (to-json properties))
+        data (assoc data :properties properties)
+
+    data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+
+data (remove-nil-entries data [:electrical_power :imei_number :p4u :reference :project_number :warranty_expiration :quantity_allocations])
 
 
         ]
-    ;(assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
-    (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)))
+    data
+    ))
 
 (defn process-deletions [tx ids table key]
   (doseq [id (set ids)]
@@ -66,9 +95,14 @@
         item-id (to-uuid (get-in request [:path-params :item_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
+        p (println ">o> >>> multipart" multipart)
+
         tx (:tx request)
 
-        prepared-model-data (prepare-item-data multipart item-entry)
+
+          properties (first (parse-json-array request :properties))
+
+        prepared-model-data (prepare-item-data multipart item-entry properties)
 
 
 

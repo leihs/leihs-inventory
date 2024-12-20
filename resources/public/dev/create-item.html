@@ -824,6 +824,29 @@
             }
         })
 
+
+        // relevant_for_inventory handling
+        if(data != undefined){
+            $("#is_inventory_relevant").data("is_inventory_relevant", data.is_inventory_relevant)
+            $("#is_inventory_relevant").val(String(data.is_inventory_relevant))
+        }
+        // if($("#retired").val()=='false'){
+        //     $("#retired_reason").prop("disabled", true)
+        //     $("#retired_reason").val("")
+        // }else{
+        //     $("#retired_reason").prop("disabled", false)
+        // }
+
+        // $("#is_inventory_relevant").off("change").on("change", function () {
+        //     if($("#is_inventory_relevant").val()=='false'){
+        //         // if($("#retired").val()== undefined){
+        //         $("#retired_reason").prop("disabled", true)
+        //         $("#retired_reason").val("")
+        //     }else{
+        //         $("#retired_reason").prop("disabled", false)
+        //     }
+        // })
+
     }
 
     function appendQuantityAllocationToFormData(formData) {
@@ -1018,6 +1041,8 @@
             // "quantity_allocations": "properties_imei_number",
             "user_name": "user_name",
             "last_check": "last_check",
+            "shelf": "shelf",
+            "is_inventory_relevant": "is_inventory_relevant",
 
         };
 
