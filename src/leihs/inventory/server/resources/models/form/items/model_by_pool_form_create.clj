@@ -5,9 +5,13 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
+   [clojure.data.json :as json]
+   [cheshire.core :as jsonc]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
+
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -27,37 +31,159 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
-(defn prepare-software-data
-  [data]
-  (let [normalize-data (normalize-model-data data)
-        created-ts (LocalDateTime/now)]
-    (assoc normalize-data
-           :type "Software"
-           :created_at created-ts
-           :updated_at created-ts)))
+;(defn prepare-software-data
+;  [data]
+;  (let [normalize-data (normalize-model-data data)
+;        created-ts (LocalDateTime/now)]
+;    (assoc normalize-data
+;           :type "Software"
+;           :created_at created-ts
+;           :updated_at created-ts)))
+
+
+
+;(defn prepare-item-data [data item-entry properties]
+;  (let [
+;        ;normalize-data (normalize-model-data data)
+;        created-ts (LocalDateTime/now)
+;
+;        db-retired (:retired item-entry)
+;        request-retired (:retired data)
+;        retired-value (calculate-retired-value db-retired request-retired)
+;        p (println ">o> ??? retired-value vs db-retired" retired-value db-retired)
+;        ;data (if (not= retired-value db-retired)
+;        ;              (assoc data :retired retired-value)
+;        ;              data)
+;
+;        data (assoc data :retired retired-value)
+;        data (if (= false request-retired)
+;               (assoc data :retired_reason nil)
+;               data)
+;
+;
+;        p (println ">o> retired ??? " (:retired data) (:retired_reason data))
+;
+;
+;
+;        supplier-id (cast-to-uuid-or-nil (:supplier_id data))
+;
+;
+;        invoice-date (parse-local-date-or-nil (:invoice_date data))
+;        price (double-to-numeric-or-nil (:price data))
+;
+;        data (dissoc data :attachments :attachments-to-delete)
+;
+;        properties [:cast (jsonc/generate-string properties) :jsonb]
+;
+;        ;;properties (parse-json-map data :properties)
+;        ;properties ( :properties data)
+;
+;        ;data (assoc data :properties (to-json properties))
+;        data (assoc data :properties properties)
+;
+;        data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+;
+;        data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+;
+;
+;        ]
+;    data
+;    ))
+
+
+
+
+
+(defn prepare-item-data [data properties]
+;(defn prepare-item-data [data item-entry properties]
+  (let [
+        ;normalize-data (normalize-model-data data)
+        created-ts (LocalDateTime/now)
+
+        db-retired nil
+        request-retired (:retired data)
+        retired-value (calculate-retired-value db-retired request-retired)
+        p (println ">o> ??? retired-value vs db-retired" retired-value db-retired)
+        ;data (if (not= retired-value db-retired)
+        ;              (assoc data :retired retired-value)
+        ;              data)
+
+        data (assoc data :retired retired-value)
+        data (if (= false request-retired)
+               (assoc data :retired_reason nil)
+               data)
+
+
+        p (println ">o> retired ??? " (:retired data) (:retired_reason data))
+
+
+
+        supplier-id (cast-to-uuid-or-nil (:supplier_id data))
+
+
+        invoice-date (parse-local-date-or-nil (:invoice_date data))
+        price (double-to-numeric-or-nil (:price data))
+
+        data (dissoc data :attachments :attachments-to-delete)
+
+        properties [:cast (jsonc/generate-string properties) :jsonb]
+
+        ;;properties (parse-json-map data :properties)
+        ;properties ( :properties data)
+
+        ;data (assoc data :properties (to-json properties))
+        data (assoc data :properties properties)
+
+        data (assoc data :updated_at created-ts
+
+               ;; FIXME
+               :room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
+
+               :created_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+
+        data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+
+
+        ]
+    data
+    ))
+
+
 
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
 
 (defn create-items-handler-by-pool-form [request]
+  (println ">o> create-items-handler-by-pool-form" )
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
-        prepared-model-data (-> (prepare-software-data multipart)
-                                (assoc :is_package (str-to-bool (:is_package multipart))))
+
+        properties (first (parse-json-array request :properties))
+
+        multipart (assoc multipart :inventory_pool_id pool-id)
+
+        prepared-model-data (prepare-item-data multipart properties)
+        ;prepared-model-data (->
+        ;                      ;(prepare-software-data multipart)
+        ;                      (prepare-item-data multipart properties)
+        ;                        (assoc :is_package (str-to-bool (:is_package multipart))))
+
+        ;prepared-model-data (assoc multipart :is_package (str-to-bool (:is_package multipart)))
+
         attachments (normalize-files request :attachments)]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
-            model-id (:id res)]
+            item-id (:id res)]
 
-        (process-attachments tx attachments model-id)
+        (process-attachments tx attachments "item_id" item-id)
 
         (if res
           (response (create-validation-response res @validation-result))

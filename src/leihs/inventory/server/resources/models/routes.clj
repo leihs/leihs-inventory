@@ -494,6 +494,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::shelf string?)                                    ;; FIXME
 
+(sa/def ::user_name string?)
 (sa/def ::activation_type string?)
 (sa/def ::dongle_id string?)
 (sa/def ::license_type string?)
@@ -550,6 +551,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::retired_reason
                                              ;:simple/properties
                                              ::owner_id
+                                             ::user_name
                                              ;::item_version
                                           ]
                                     :req-un [::serial_number
@@ -620,8 +622,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :multipart :license/multipart}
+                                 ;:model_id uuid?
+                                 }
+                          :multipart :item/multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
              :responses {200 {:description "OK"}

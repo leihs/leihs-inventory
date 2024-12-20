@@ -40,6 +40,16 @@
     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
       (int-to-numeric parsed-value))))
 
+(defn remove-nil-entries
+  "Removes entries from the map if the values of the specified keys are nil."
+  [data keys-to-check]
+  (reduce (fn [m k]
+            (if (nil? (get m k))
+              (dissoc m k)
+              m))
+    data
+    keys-to-check))
+
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
   [value]

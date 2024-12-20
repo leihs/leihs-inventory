@@ -9,7 +9,7 @@
    [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
 
 
-   [leihs.inventory.server.resources.models.form.license.common :refer [ cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
+   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -23,15 +23,15 @@
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]))
 
-(defn remove-nil-entries
-  "Removes entries from the map if the values of the specified keys are nil."
-  [data keys-to-check]
-  (reduce (fn [m k]
-            (if (nil? (get m k))
-              (dissoc m k)
-              m))
-    data
-    keys-to-check))
+;(defn remove-nil-entries
+;  "Removes entries from the map if the values of the specified keys are nil."
+;  [data keys-to-check]
+;  (reduce (fn [m k]
+;            (if (nil? (get m k))
+;              (dissoc m k)
+;              m))
+;    data
+;    keys-to-check))
 
 (defn create-validation-response [data validation]
   {:data data :validation validation})

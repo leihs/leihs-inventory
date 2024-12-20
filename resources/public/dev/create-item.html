@@ -494,7 +494,7 @@
         // for url
         if (['null', undefined, null].includes(modelId)) {
             // formData.delete("supplier_id");
-            throw new Error("Software is required");
+            throw new Error("Model is required");
         }
     }
 
@@ -1371,7 +1371,7 @@
                         let modelId=formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
-                        // checkFormDataOrThrow(formData, modelId)
+                        checkFormDataOrThrow(formData, modelId)
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {
@@ -1380,8 +1380,8 @@
 
                         // If it's in update mode, make a PUT request
                         $.ajax({
-                            // url: `/inventory/${poolId}/item`,
-                            url: `/inventory/${poolId}/models/${modelId}/item`,
+                            url: `/inventory/${poolId}/item`,
+                            // url: `/inventory/${poolId}/models/${modelId}/item`,
                             method: "POST",
                             data: formData,
                             processData: false,
@@ -1392,7 +1392,8 @@
                                 console.info("UPDATING ITEM-ID")
 
                                 $('#modelId').val(response.data.model_id)
-                                $('#itemId').val(response.data.item_id)
+                                // $('#itemId').val(response.data.item_id)
+                                $('#itemId').val(response.data.id)
 
                                 $(`#attachmentsList`).data('to-delete', [])
                                 $('#attachments').val('');
