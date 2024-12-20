@@ -40,6 +40,13 @@
     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
       (int-to-numeric parsed-value))))
 
+(defn parse-local-date-or-nil
+  "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
+  [value]
+  (if (and value (not (empty? (str value))))
+    (java.time.LocalDate/parse value)
+    nil))
+
 (defn double-to-numeric-or-nil [int-value]
   (if (customized-empty? int-value)
     nil
@@ -98,6 +105,21 @@
   (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]
     (str base extension)
     filename))
+
+(defn calculate-retired-value
+  "Determines the retired value based on database and request values."
+  [db-retired request-retired]
+  (let [now-ts (LocalDateTime/now)]
+    (cond
+      (and (boolean? request-retired) (nil? db-retired) request-retired) (.toLocalDate now-ts)
+      (and (boolean? request-retired) (nil? db-retired) (not request-retired)) nil
+      (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
+      (and (not (nil? db-retired)) (not request-retired)) nil
+      :else db-retired)))
+
+(defn remove-entries-by-keys
+  [m keys-to-remove]
+  (reduce dissoc m keys-to-remove))
 
 (defn process-attachments [tx attachments col_name id]
   (doseq [entry attachments]

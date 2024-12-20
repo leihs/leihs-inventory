@@ -469,9 +469,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
                        :none nil?))
-(sa/def ::propeties map?)
+(sa/def ::properties string?)
 (sa/def ::serial_number string?)
 (sa/def ::note string?)
+(sa/def ::status_note string?)
 
 (sa/def ::owner_id uuid?)
 (sa/def ::software_id uuid?)
@@ -483,10 +484,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
 (sa/def ::is_borrowable boolean?)
+(sa/def ::is_incomplete boolean?)
+(sa/def ::is_broken boolean?)
 (sa/def ::retired boolean?)
 (sa/def ::retired_reason string?)
 (sa/def ::price string?)
 (sa/def ::invoice_date string?)
+(sa/def ::invoice_number string?)
+
+(sa/def ::shelf string?)                                    ;; FIXME
 
 (sa/def ::activation_type string?)
 (sa/def ::dongle_id string?)
@@ -536,6 +542,36 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::is_borrowable
                                              ::inventory_code]))
 
+(sa/def :item/multipart (sa/keys :opt-un [
+                                             ;::model_id
+                                             ::supplier_id
+                                             ::attachments-to-delete
+                                             ::attachments
+                                             ;::retired_reason
+                                             ;:simple/properties
+                                             ::owner_id
+                                             ;::item_version
+                                          ]
+                                    :req-un [::serial_number
+                                             ::note
+                                             ::invoice_date
+                                             ::invoice_number
+                                             ::price
+                                             ::shelf
+                                             ::inventory_code
+                                             ::retired
+                                             ::retired_reason
+                                             ::is_borrowable
+                                             ::is_broken
+                                             ::is_incomplete
+
+                                             ::status_note
+                                             ;::supplier_id
+                                             ;::owner_id
+                                             ::properties
+
+                                             ]))
+
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::property)
                                              :str string?)
@@ -545,20 +581,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                              :opt-un [::version
                                       ::price
                                       ::inventory_code
-                                      ;::isPackage
-                                      ;::description
-                                      ;::technicalDetails
-                                      ;::internalDescription
-                                      ;::importantNotes
-                                      ;::categories
-                                      ;::attachments-to-delete
-                                      ;::images-to-delete
-                                      ;::compatibles
-                                      ;::images
-                                      ;::attachments
-                                      ;::entitlements
-                                      ;:software/properties
-                                      ;::accessories
                                       ]))
 
 (sa/def ::multipart (sa/keys :req-un [::product]
@@ -637,7 +659,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         :multipart :license/multipart}
+                         :multipart :item/multipart}
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-items-handler-by-pool-form
             :responses {200 {:description "OK"

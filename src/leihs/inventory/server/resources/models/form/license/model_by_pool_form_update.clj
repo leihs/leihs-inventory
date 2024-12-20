@@ -7,7 +7,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.license.common :refer [int-to-numeric int-to-numeric-or-nil double-to-numeric-or-zero double-to-numeric-or-nil
+
+   [leihs.inventory.server.resources.models.form.license.common :refer [parse-local-date-or-nil calculate-retired-value int-to-numeric int-to-numeric-or-nil double-to-numeric-or-zero double-to-numeric-or-nil
                                                                         cast-to-nil cast-to-uuid-or-nil fetch-default-room-id remove-empty-or-nil
                                                                         parse-json-array normalize-files file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -25,12 +26,12 @@
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
 
-(defn parse-local-date-or-nil
-  "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
-  [value]
-  (if (and value (not (empty? (str value))))
-    (java.time.LocalDate/parse value)
-    nil))
+;(defn parse-local-date-or-nil
+;  "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
+;  [value]
+;  (if (and value (not (empty? (str value))))
+;    (java.time.LocalDate/parse value)
+;    nil))
 
 (defn generate-license-data [request multipart properties pool-id]
   (try
@@ -54,14 +55,14 @@
                       {:function-name 'generate-license-data
                        :original-exception e})))))
 
-(defn- calculate-retired-value
-  "Determines the retired value based on database and request values."
-  [db-retired request-retired]
-  (let [now-ts (LocalDateTime/now)]
-    (cond
-      (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
-      (and (not (nil? db-retired)) (not request-retired)) nil
-      :else db-retired)))
+;(defn- calculate-retired-value
+;  "Determines the retired value based on database and request values."
+;  [db-retired request-retired]
+;  (let [now-ts (LocalDateTime/now)]
+;    (cond
+;      (and (nil? db-retired) request-retired) (.toLocalDate now-ts)
+;      (and (not (nil? db-retired)) (not request-retired)) nil
+;      :else db-retired)))
 
 (defn- update-license-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
   (let [properties (first (parse-json-array request :properties))
@@ -70,10 +71,13 @@
         now-ts (LocalDateTime/now)
         db-retired (:retired item-entry)
         request-retired (:retired multipart)
+
         retired-value (calculate-retired-value db-retired request-retired)
-        update-data (if (not= retired-value db-retired)
-                      (assoc update-data :retired retired-value)
-                      update-data)]
+        ;update-data (if (not= retired-value db-retired)
+        ;              (assoc update-data :retired retired-value)
+        ;              update-data)
+        update-data (assoc update-data :retired retired-value)
+        ]
     (try
       (let [update-model-query (-> (sql/update :items)
                                    (sql/set update-data)
