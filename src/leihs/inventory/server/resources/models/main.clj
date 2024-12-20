@@ -31,7 +31,7 @@
                       (and (= mtype "Software") (= (:in-detail query-params) "true")) true
                       :else false)
           select-stm (if (= in-detail true)
-                       (sql/select-distinct :m.id :m.manufacturer :m.product :m.version)
+                       (sql/select-distinct :m.id :m.manufacturer :m.product :m.version [:m.id :model_id])
                        (sql/select-distinct :m.manufacturer))
 
           base-query (-> select-stm

@@ -32,6 +32,8 @@
     data
     keys-to-check))
 
+(defn create-validation-response [data validation]
+  {:data data :validation validation})
 
 (defn prepare-item-data [data item-entry properties]
   (let [
@@ -74,7 +76,7 @@
 
     data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
 
-data (remove-nil-entries data [:electrical_power :imei_number :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
 
 
         ]
@@ -91,13 +93,24 @@ data (remove-nil-entries data [:electrical_power :imei_number :p4u :reference :p
 (defn update-item-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
 
     (let [
-        model-id (to-uuid (get-in request [:path-params :model_id]))
-        item-id (to-uuid (get-in request [:path-params :item_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        ;model-id (to-uuid (get-in request [:path-params :model_id]))
+        ;item-id (to-uuid (get-in request [:path-params :item_id]))
+        ;pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
         p (println ">o> >>> multipart" multipart)
 
         tx (:tx request)
+
+
+          model-id-to-update (:model_id multipart)
+
+
+          p (println ">o> ??? model-id-to-update vs model-id" model-id-to-update model-id)
+
+          multipart (if (= model-id-to-update model-id)
+                      (dissoc multipart :model_id)
+                      multipart)
+
 
 
           properties (first (parse-json-array request :properties))
@@ -116,6 +129,7 @@ data (remove-nil-entries data [:electrical_power :imei_number :p4u :reference :p
       (let [update-model-query (-> (sql/update [:items :i])
                                    (sql/set prepared-model-data)
                                  ;(sql/join [:models :m] [:= :i.model_id :m.id])
+                                 ;  (sql/where [:= :i.id item-id] )
                                    (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id] ])
                                    (sql/returning :*)
                                    sql-format)
@@ -130,7 +144,8 @@ data (remove-nil-entries data [:electrical_power :imei_number :p4u :reference :p
         ;(process-attachments tx attachments model-id)
         ;(process-deletions tx attachments-to-delete :attachments :id)
         (if updated-model
-          (response [updated-model])
+          ;(response [updated-model])
+          (response (create-validation-response updated-model []))
           (bad-request {:error "Failed to update item"})))
       (catch Exception e
         (error "Failed to update item" (.getMessage e))

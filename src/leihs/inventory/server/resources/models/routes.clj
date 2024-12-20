@@ -543,7 +543,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::inventory_code]))
 
 (sa/def :item/multipart (sa/keys :opt-un [
-                                             ;::model_id
+                                             ::model_id
                                              ::supplier_id
                                              ::attachments-to-delete
                                              ::attachments

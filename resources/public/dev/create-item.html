@@ -1234,10 +1234,11 @@
 
 
                             console.log(">o> ")
-
+// debugger
                             // set new model_id if needed
                             let model_id = formData.get('model_id')
-                            let old_model_id = formData.get('old_model_id')
+                            // let old_model_id = formData.get('old_model_id')
+                            let old_model_id = modelId
                             if(model_id != old_model_id){
                                 console.log("model_id != old_model_id")
                                 formData.delete('old_model_id')
@@ -1284,8 +1285,8 @@
                                     $(`#attachmentsList`).data('to-delete', [])
                                     $('#attachments').val('');
 
-                                    // $('#modelId').val(response.data.model_id)
-                                    // $('#itemId').val(response.data.id)
+                                    $('#modelId').val(response.data.model_id)
+                                    $('#itemId').val(response.data.id)
 
                                     // FIXME
                                     // $('#modelId').val(response[0].model_id)
