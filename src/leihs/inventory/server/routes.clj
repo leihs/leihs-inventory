@@ -11,6 +11,9 @@
    [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
+
+   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
+
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
@@ -69,6 +72,8 @@
    (get-pools-routes)
    (get-categories-routes)
 
+
+   (get-buildings-rooms-routes)
    (get-dev-routes)
 
    (get-owner-department-routes)
