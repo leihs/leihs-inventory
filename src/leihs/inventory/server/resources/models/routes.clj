@@ -475,6 +475,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::status_note string?)
 
 (sa/def ::owner_id uuid?)
+
+(sa/def ::building_id uuid?)
+(sa/def ::room_id uuid?)
 (sa/def ::software_id uuid?)
 ;(sa/def ::supplier_id uuid?)
 ;(sa/def ::supplier_id (sa/nilable uuid?))
@@ -566,6 +569,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::is_borrowable
                                              ::is_broken
                                              ::is_incomplete
+
+                                             ;::building_id
+                                             ::room_id
 
                                              ::status_note
                                              ;::supplier_id

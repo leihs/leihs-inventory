@@ -393,6 +393,23 @@
     `);
     }
 
+
+    function renameFormKeys(formData){
+
+        formData.delete("myBuilding");
+        // renameFormDataKey(formData, "myBuilding", "building_id");
+
+        renameFormDataKey(formData, "myRoom", "room_id");
+        renameFormDataKey(formData, "myModel", "model_id");
+        renameFormDataKey(formData, "myOldSoftware", "old_model_id");
+        renameFormDataKey(formData, "mySupplier", "supplier_id");
+        renameFormDataKey(formData, "myOwner", "owner_id");
+        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+
+        return formData;
+    }
+
     function updateFileList(input, listSelector, inputId) {
         var fileList = $(listSelector);
         // fileList.empty();
@@ -902,6 +919,38 @@
 
 
 
+    function fetchBuildingHandler () {
+        const selectedBuildingId = $(this).val();
+        const $roomDropdown = $('#myRoom');
+
+        // Clear and reset the room dropdown
+        $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
+
+        if (selectedBuildingId) {
+            // Fetch rooms for the selected building
+            $.ajax({
+                url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
+                method: 'GET',
+                headers: { 'accept': 'application/json' },
+                success: function (rooms) {
+                    // Populate the rooms dropdown
+                    rooms.forEach(function (room) {
+                        $roomDropdown.append(
+                            $('<option></option>')
+                                .attr('value', room.id)
+                                .text(room.name)
+                        );
+                    });
+                    $roomDropdown.prop('disabled', false);
+                },
+                error: function () {
+                    alert('Failed to load rooms.');
+                }
+            });
+        }
+    };
+
+
     function fetchOptions(url, selectId) {
         fetch(url, { headers: { Accept: "application/json" } })
             .then((response) => response.json())
@@ -1214,7 +1263,7 @@
                         $("#saveButton").text("Update Item");
                         $("#saveButton").off('click').click(function (e) {
 
-                            // UPDATE LICENSE
+                            // UPDATE ITEM
 
                             e.preventDefault(); // Prevent default form submission
                             console.log("Update button clicked");
@@ -1225,12 +1274,16 @@
                             let formData = new FormData($("#softwareForm")[0]);
 
 
-                            renameFormDataKey(formData, "myModel", "model_id");
-                            renameFormDataKey(formData, "myOldSoftware", "old_model_id");
-                            renameFormDataKey(formData, "mySupplier", "supplier_id");
-                            renameFormDataKey(formData, "myOwner", "owner_id");
-                            renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                            // // TODO
+                            // renameFormDataKey(formData, "myBuilding", "building_id");
+                            // renameFormDataKey(formData, "myRoom", "room_id");
+                            // renameFormDataKey(formData, "myModel", "model_id");
+                            // renameFormDataKey(formData, "myOldSoftware", "old_model_id");
+                            // renameFormDataKey(formData, "mySupplier", "supplier_id");
+                            // renameFormDataKey(formData, "myOwner", "owner_id");
+                            // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
 
+                            formData = renameFormKeys(formData);
 
 
                             console.log(">o> ")
@@ -1347,6 +1400,38 @@
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
 
+
+                    $.ajax({
+                        url: 'http://localhost:3260/inventory/buildings',
+                        method: 'GET',
+                        headers: { 'accept': 'application/json' },
+                        success: function (buildings) {
+                            const $buildingDropdown = $('#myBuilding');
+                            // Populate the buildings dropdown
+                            buildings.forEach(function (building) {
+                                $buildingDropdown.append(
+                                    $('<option></option>')
+                                        .attr('value', building.id)
+                                        .text(building.name)
+                                );
+                            });
+
+                            // Handle building selection and load rooms
+                            // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+
+
+                            // Remove any previously bound handlers and attach the new one
+                            $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+                            // Update save button text
+                            $("#saveButton").text("Save Item");
+                        },
+                        error: function () {
+                            alert('Failed to load buildings.');
+                        }
+                    });
+
                     $("#saveButton").text("Save Item");
                     $("#saveButton").off('click').click(function(e) {
                         e.preventDefault(); // Prevent default form submission
@@ -1357,11 +1442,17 @@
                         let formData = new FormData($("#softwareForm")[0]);
 
 
-                        // renameFormDataKey(formData, "myModel", "software_id");
-                        renameFormDataKey(formData, "myModel", "model_id");
-                        renameFormDataKey(formData, "mySupplier", "supplier_id");
-                        renameFormDataKey(formData, "myOwner", "owner_id");
-                        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                        // // TODO
+                        // // renameFormDataKey(formData, "myModel", "software_id");
+                        // renameFormDataKey(formData, "myModel", "model_id");
+                        // renameFormDataKey(formData, "mySupplier", "supplier_id");
+                        // renameFormDataKey(formData, "myOwner", "owner_id");
+                        // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+                        formData = renameFormKeys(formData);
+
+
+
 
                         // for (let [key, value] of formData.entries()) {
                         //     console.log(key, value);
@@ -1434,6 +1525,12 @@
                 showResultEffect("save-failed");
             },
         });
+
+
+
+
+
+
     });
 
 </script>
