@@ -19,9 +19,11 @@
         ;          :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name]
 
         :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
+        :r.building_id
         )
       (sql/from [:models :m])
       (sql/join [:items :i] [:= :m.id :i.model_id])
+      (sql/join [:rooms :r] [:= :r.id :i.room_id])
       (sql/left-join [:suppliers :s] [:= :i.supplier_id :s.id])
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 

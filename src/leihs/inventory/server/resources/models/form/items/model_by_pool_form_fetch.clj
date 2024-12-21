@@ -235,8 +235,8 @@
 
         (if model-result
           (response/response {:data model-result :fields fields})
-          (response/status (response/response {:error "Failed to fetch license"
+          (response/status (response/response {:error "Failed to fetch item"
                                                :details "No data found"}) 404)))
       (catch Exception e
-        (error "Failed to fetch license" (.getMessage e))
-        (bad-request {:error "Failed to fetch license" :details (.getMessage e)})))))
+        (error "Failed to fetch item" (.getMessage e))
+        (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))

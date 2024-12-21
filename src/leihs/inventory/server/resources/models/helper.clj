@@ -38,22 +38,37 @@
     normalized-data))
 
 (defn extract-shortname-and-number [code]
-  (let [matches (re-matches #"([A-Z]+)(\d+)" code)]
+  (let [
+        ;code "jfdksl" ;; TODO: remove me
+        matches (re-matches #"([A-Z]+)(\d+)" code)]
     (if matches
       {:shortname (nth matches 1)
        :number (Integer/parseInt (nth matches 2))}
       (do
-        (println "Caution: Code format is invalid! Expected format: UPPERCASE followed by digits, e.g., AUS85941")
-        nil))))
+        (println (str "Caution: Code format is invalid! Current=" code  "\n         Expected format: UPPERCASE followed by digits, e.g., AUS85941"))
+
+        (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
+
+
+      nil))))
 
 (defn fetch-latest-inventory-code [tx owner-id]
   (let [res (jdbc/execute-one! tx
                                (-> (sql/select :items.inventory_code)
                                    (sql/from :items)
-                                   (sql/where [:= :items.owner_id owner-id])
-                                   (sql/order-by [:created_at :desc])
+
+
+                                 ;(sql/where [:= :items.owner_id owner-id])
+                                 (cond-> owner-id (sql/where [:= :items.owner_id owner-id]))
+
+
+
+                                 (sql/order-by [:created_at :desc])
                                    (sql/limit 1)
                                    sql-format))
+
+        p (println ">o> fetch-latest-inventory-code.res" res)
+
 
         res (extract-shortname-and-number (:inventory_code res))
         res (if res

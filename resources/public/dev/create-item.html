@@ -513,6 +513,12 @@
             // formData.delete("supplier_id");
             throw new Error("Model is required");
         }
+
+        let roomId = formData.get("room_id")
+        if (['null', undefined, null].includes(roomId)) {
+            // formData.delete("supplier_id");
+            throw new Error("Room is required");
+        }
     }
 
     function renameFormDataKey(formData, oldKey, newKey) {
@@ -919,21 +925,49 @@
 
 
 
-    function fetchBuildingHandler () {
+    // function fetchBuildingHandler () {
+    //     const selectedBuildingId = $(this).val();
+    //     const $roomDropdown = $('#myRoom');
+    //
+    //     // Clear and reset the room dropdown
+    //     $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
+    //
+    //     if (selectedBuildingId) {
+    //         // Fetch rooms for the selected building
+    //         $.ajax({
+    //             url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
+    //             method: 'GET',
+    //             headers: { 'accept': 'application/json' },
+    //             success: function (rooms) {
+    //                 // Populate the rooms dropdown
+    //                 rooms.forEach(function (room) {
+    //                     $roomDropdown.append(
+    //                         $('<option></option>')
+    //                             .attr('value', room.id)
+    //                             .text(room.name)
+    //                     );
+    //                 });
+    //                 $roomDropdown.prop('disabled', false);
+    //             },
+    //             error: function () {
+    //                 alert('Failed to load rooms.');
+    //             }
+    //         });
+    //     }
+    // };
+
+
+    function fetchBuildingHandler ()  {
         const selectedBuildingId = $(this).val();
         const $roomDropdown = $('#myRoom');
-
-        // Clear and reset the room dropdown
         $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
 
         if (selectedBuildingId) {
-            // Fetch rooms for the selected building
             $.ajax({
                 url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
                 method: 'GET',
                 headers: { 'accept': 'application/json' },
                 success: function (rooms) {
-                    // Populate the rooms dropdown
                     rooms.forEach(function (room) {
                         $roomDropdown.append(
                             $('<option></option>')
@@ -941,14 +975,100 @@
                                 .text(room.name)
                         );
                     });
+
                     $roomDropdown.prop('disabled', false);
+
+                    // debugger
+                    // Set the initial value for the room if available
+                    let roomId = $("#myRoom").data("initValue")
+                    if (roomId) {
+                        $roomDropdown.val(roomId);
+                    }
                 },
                 error: function () {
                     alert('Failed to load rooms.');
                 }
             });
         }
-    };
+    }
+
+
+    function initializeDropdowns(buildingId, roomId) {
+
+        console.log("initializeDropdowns ???", buildingId, roomId)
+
+        // Fetch buildings and populate the dropdown
+        $.ajax({
+            url: 'http://localhost:3260/inventory/buildings',
+            method: 'GET',
+            headers: { 'accept': 'application/json' },
+            success: function (buildings) {
+                const $buildingDropdown = $('#myBuilding');
+                $buildingDropdown.empty().append('<option value="">Select Building</option>');
+
+                buildings.forEach(function (building) {
+                    $buildingDropdown.append(
+                        $('<option></option>')
+                            .attr('value', building.id)
+                            .text(building.name)
+                    );
+                });
+
+
+
+                // $buildingDropdown.data("initValue", buildingId)
+                $("#myRoom").data("initValue", roomId)
+
+                // After building dropdown is initialized, fetch and set rooms
+
+                // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+                $buildingDropdown.off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+
+                // Set the initial value for the building and trigger change
+                if (buildingId) {
+                    $buildingDropdown.val(buildingId).trigger('change');
+                }
+                // $buildingDropdown.on('change', function () {
+                //     const selectedBuildingId = $(this).val();
+                //     const $roomDropdown = $('#myRoom');
+                //     $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
+                //
+                //     if (selectedBuildingId) {
+                //         $.ajax({
+                //             url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
+                //             method: 'GET',
+                //             headers: { 'accept': 'application/json' },
+                //             success: function (rooms) {
+                //                 rooms.forEach(function (room) {
+                //                     $roomDropdown.append(
+                //                         $('<option></option>')
+                //                             .attr('value', room.id)
+                //                             .text(room.name)
+                //                     );
+                //                 });
+                //
+                //                 $roomDropdown.prop('disabled', false);
+                //
+                //                 // Set the initial value for the room if available
+                //                 if (roomId) {
+                //                     $roomDropdown.val(roomId);
+                //                 }
+                //             },
+                //             error: function () {
+                //                 alert('Failed to load rooms.');
+                //             }
+                //         });
+                //     }
+                // });
+
+
+            },
+            error: function () {
+                alert('Failed to load buildings.');
+            }
+        });
+    }
 
 
     function fetchOptions(url, selectId) {
@@ -1004,6 +1124,9 @@
                         text: item.name
                     }));
                 });
+
+                // console.log("fetch.data")
+                // initializeDropdowns(data.building_id, data.room_id);
 
                 $select.val(init_data.responsible_department)
             },
@@ -1195,6 +1318,8 @@
                         // var newOption = new Option(supplierName, supplierId, true, true);
                         // $("#mySupplier").append(newOption).trigger('change');
 
+                        console.log("fetch.item")
+                        initializeDropdowns(data.building_id, data.room_id);
 
                         if(data.is_broken){
                          $("[name=is_broken][value=true]").prop("checked", true)
