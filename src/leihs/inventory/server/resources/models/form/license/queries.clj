@@ -119,6 +119,7 @@
                           jsonb_extract_path_text(f.data, 'label') AS label,
                           f.active,
                           f.position,
+                          f.data,
 
                           COALESCE(jsonb_extract_path_text(f.data, 'group'), 'none') AS group,
                           COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '') AS target,
