@@ -137,7 +137,7 @@
         data (assoc data :updated_at created-ts
 
                ;; FIXME
-               :room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
+               ;:room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
 
                :created_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
 
