@@ -21,6 +21,7 @@
                                :description "Fetch one account of each variant of:
 - role: inventory_manager, lending_manager, group_manager, customer\n
 - is_admin: true\n
+- inventory_pool_id=8bd16d45-056d-5590-bc7f-12849f034351\n
 - is_system_admin: true\n\n
 .. and set password"
                                :accept "application/json"

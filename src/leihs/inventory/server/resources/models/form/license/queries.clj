@@ -78,6 +78,7 @@
 
 
 (defn inventory-manager-item-subquery [query]
+  (println ">o> inventory-manager-item-subquery" )
   (-> query
     (sql/from [[:raw
                 "(SELECT
@@ -105,73 +106,10 @@
                 WHERE (ff.group_default IN ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Location', 'Eigenschaften', 'none'))
                 AND (ff.target_default IN ('item', ''))
                 ORDER BY ff.group_default, ff.position"]])))
-;
-;
-;
-;(defn lending-manager-item-subquery [query]
-;
-;
-;  (-> query
-;    (sql/from [[:raw
-;
-;
-;                "(select *
-;                from (select f.id,
-;                       f.data ->> 'label'                      as label,
-;                       f.active,
-;                       f.position,
-;
-;                       COALESCE(f.data ->> 'group', 'none')    AS group,
-;                       COALESCE(f.data -> 'target_type', '""') AS target,
-;
-;                                 f.data -> 'permissions' -> 'role'       as role,
-;                                 f.data -> 'permissions' -> 'owner'      as owner
-;                                 from fields f
-;                                 where f.active = true) as ff
-;
-;                       where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
-;                       and (ff.target in ('\"item\"', '\"\"'))
-;                             and (ff.role is null or ff.role = '\"lending_manager\"')
-;                                   order by ff.group, ff.position)"
-;
-;
-;
-;
-;                ]]))
 
 
   (defn lending-manager-item-subquery [query]
-    (-> query
-      (sql/from [[:raw
-                  "(SELECT
-                        f.id,
-                        f.active,
-                        f.position,
-                        f.data,
-
-                        jsonb_extract_path_text(f.data, 'label') AS label,
-
-                        jsonb_extract_path_text(f.data, 'group') AS group,
-                        COALESCE(jsonb_extract_path_text(f.data, 'group'), 'none') AS group_default,
-
-                        jsonb_extract_path_text(f.data, 'target_type') AS target,
-                        COALESCE(jsonb_extract_path_text(f.data, 'target_type'), '') AS target_default,
-
-                        jsonb_extract_path_text(f.data, 'permissions', 'role') AS role,
-                        COALESCE(jsonb_extract_path_text(f.data, 'permissions', 'role'), '') AS role_default,
-
-                        jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
-
-                   FROM fields f
-                   WHERE f.active = true) AS ff
-                   WHERE (ff.group_default IN ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Location', 'Eigenschaften', 'none'))
-                     AND (ff.target_default IN ('item', ''))
-                     AND (ff.role_default = '' OR ff.role_default = 'lending_manager')
-                   ORDER BY ff.group_default, ff.position)"]])))
-
-
-
-  (defn lending-manager-item-subquery [query]
+    (println ">o> lending-manager-item-subquery" )
     (-> query
       (sql/from [[:raw
                   "(SELECT *
