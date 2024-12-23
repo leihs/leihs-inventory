@@ -280,8 +280,8 @@
 </div>
 
 <div class="form-group">
-    <label for="itemsId">Package ID (item_id) [itemsId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="itemsId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <label for="itemId">Package ID (item_id) [itemId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
+    <input type="text" id="itemId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
 
     <button id="fetchPackageBtn">Fetch Package</button>
 </div>
@@ -1218,18 +1218,18 @@
         }
 
         $("#fetchPackageBtn").click(function () {
-            const itemsId = $("#itemsId").val();
+            const itemId = $("#itemId").val();
             const modelId = $("#softwareId").val();
             const poolId = $("#poolId").val();
 
-            if (!itemsId) {
+            if (!itemId) {
                 alert("Please enter a items ID.");
                 return;
             }
 
             // FETCH LICENSE
             $.ajax({
-                url: `/inventory/${poolId}/models/${modelId}/package/${itemsId}`,
+                url: `/inventory/${poolId}/models/${modelId}/package/${itemId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
@@ -1344,8 +1344,6 @@
                             e.preventDefault(); // Prevent default form submission
                             console.log("Update button clicked");
 
-
-                            debugger
                             const poolId = $("#poolId").val();
                             const modelId = $("#softwareId").val();
                             const itemId = $("#itemId").val();
@@ -1416,7 +1414,6 @@
                                     // $('#softwareId').val(response.data.model_id)
                                     // $('#itemId').val(response.data.id)
 
-                                    debugger
                                     // $('#modelId').val(response.data.model_id)
                                     // $('#itemId').val(response.data.id)
 
@@ -1522,8 +1519,6 @@
 
                         formData =renameFormKeys(formData);
 
-                        debugger
-
                         for (let [key, value] of formData.entries()) {
                             console.log(key, value);
                         }
@@ -1542,7 +1537,8 @@
                         // If it's in update mode, make a PUT request
                         $.ajax({
                             // url: `/inventory/${poolId}/item`,
-                            url: `/inventory/${poolId}/models/${modelId}/package`,
+                            // url: `/inventory/${poolId}/models/${modelId}/package`,
+                            url: `/inventory/${poolId}/package`,
                             method: "POST",
                             data: formData,
                             processData: false,
