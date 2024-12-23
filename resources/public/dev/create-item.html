@@ -567,11 +567,6 @@
 
         config.forEach((fieldConfig) => {
             let data = fieldConfig.data;
-
-            // if(data === undefined){
-            //     return;
-            // }
-
             data = renameLabel(data)
             const group = data.group || "General";
             let groupContainer = form.find(`.form-group[data-group="${group}"]`);
@@ -757,7 +752,9 @@
 
         // TODO: define/trigger init
         $("#myModel").select2(initSoftwareConfig)
-        $("#mySupplier").select2(initSupplierConfig)
+
+        // $("#mySoftware").select2(initSoftwareConfig)
+        // $("#mySupplier").select2(initSupplierConfig)
 
 
         // Add Property Button Click Event
@@ -930,39 +927,6 @@
     }
 
 
-
-    // function fetchBuildingHandler () {
-    //     const selectedBuildingId = $(this).val();
-    //     const $roomDropdown = $('#myRoom');
-    //
-    //     // Clear and reset the room dropdown
-    //     $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
-    //
-    //     if (selectedBuildingId) {
-    //         // Fetch rooms for the selected building
-    //         $.ajax({
-    //             url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
-    //             method: 'GET',
-    //             headers: { 'accept': 'application/json' },
-    //             success: function (rooms) {
-    //                 // Populate the rooms dropdown
-    //                 rooms.forEach(function (room) {
-    //                     $roomDropdown.append(
-    //                         $('<option></option>')
-    //                             .attr('value', room.id)
-    //                             .text(room.name)
-    //                     );
-    //                 });
-    //                 $roomDropdown.prop('disabled', false);
-    //             },
-    //             error: function () {
-    //                 alert('Failed to load rooms.');
-    //             }
-    //         });
-    //     }
-    // };
-
-
     function fetchBuildingHandler ()  {
         const selectedBuildingId = $(this).val();
         const $roomDropdown = $('#myRoom');
@@ -1035,39 +999,6 @@
                 if (buildingId) {
                     $buildingDropdown.val(buildingId).trigger('change');
                 }
-                // $buildingDropdown.on('change', function () {
-                //     const selectedBuildingId = $(this).val();
-                //     const $roomDropdown = $('#myRoom');
-                //     $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
-                //
-                //     if (selectedBuildingId) {
-                //         $.ajax({
-                //             url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
-                //             method: 'GET',
-                //             headers: { 'accept': 'application/json' },
-                //             success: function (rooms) {
-                //                 rooms.forEach(function (room) {
-                //                     $roomDropdown.append(
-                //                         $('<option></option>')
-                //                             .attr('value', room.id)
-                //                             .text(room.name)
-                //                     );
-                //                 });
-                //
-                //                 $roomDropdown.prop('disabled', false);
-                //
-                //                 // Set the initial value for the room if available
-                //                 if (roomId) {
-                //                     $roomDropdown.val(roomId);
-                //                 }
-                //             },
-                //             error: function () {
-                //                 alert('Failed to load rooms.');
-                //             }
-                //         });
-                //     }
-                // });
-
 
             },
             error: function () {
@@ -1104,7 +1035,7 @@
     // Optional: Adding an onchange event listener to log the selected value
     $("#myModel").on("change", function () {
         const selectedValue = $(this).val();
-        console.log(">o> Selected software:", selectedValue);
+        console.log(">o> Selected model:", selectedValue);
     });
 
 
@@ -1130,9 +1061,6 @@
                         text: item.name
                     }));
                 });
-
-                // console.log("fetch.data")
-                // initializeDropdowns(data.building_id, data.room_id);
 
                 $select.val(init_data.responsible_department)
             },
@@ -1235,7 +1163,6 @@
         }
 
         function populateFieldValues(data, mapping) {
-// debugger
             Object.entries(mapping).forEach(([key, fieldId]) => {
                 const keys = key.split(".");
                 let value = data;
@@ -1351,6 +1278,8 @@
                         }else{
                          $("[name='properties,reference'][value=investment]").prop("checked", true)
                         }
+
+
 
                         // ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
                         //     if(data.operating_system != undefined && data.operating_system.includes(os)){
@@ -1656,12 +1585,6 @@
                 showResultEffect("save-failed");
             },
         });
-
-
-
-
-
-
     });
 
 </script>

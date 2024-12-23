@@ -307,7 +307,7 @@
         ajax: {
             url: function (params) {
                 const searchTerm = params.term ? encodeURIComponent(params.term) : '';
-                return `/inventory/manufacturers?type=Software&in-detail=true&search-term=${searchTerm}`;
+                return `/inventory/manufacturers?type=Model&in-detail=true&search-term=${searchTerm}`;
             },
             data: function () {
                 return {};
@@ -392,6 +392,23 @@
             <button type="button" class="remove-btn">Remove</button>
         </div>
     `);
+    }
+
+
+    function renameFormKeys(formData){
+
+        formData.delete("myBuilding");
+        // renameFormDataKey(formData, "myBuilding", "building_id");
+
+        renameFormDataKey(formData, "myRoom", "room_id");
+        renameFormDataKey(formData, "myModel", "model_id");
+        renameFormDataKey(formData, "myOldSoftware", "old_model_id");
+        renameFormDataKey(formData, "mySupplier", "supplier_id");
+        renameFormDataKey(formData, "myOwner", "owner_id");
+        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+
+        return formData;
     }
 
     function updateFileList(input, listSelector, inputId) {
@@ -495,7 +512,13 @@
         // for url
         if (['null', undefined, null].includes(modelId)) {
             // formData.delete("supplier_id");
-            throw new Error("Software is required");
+            throw new Error("Model is required");
+        }
+
+        let roomId = formData.get("room_id")
+        if (['null', undefined, null].includes(roomId)) {
+            // formData.delete("supplier_id");
+            throw new Error("Room is required");
         }
     }
 
@@ -729,7 +752,7 @@
 
         // TODO: define/trigger init
         $("#mySoftware").select2(initSoftwareConfig)
-        $("#mySupplier").select2(initSupplierConfig)
+        // $("#mySupplier").select2(initSupplierConfig)
 
 
         // Add Property Button Click Event
@@ -825,6 +848,29 @@
             }
         })
 
+
+        // relevant_for_inventory handling
+        if(data != undefined){
+            $("#is_inventory_relevant").data("is_inventory_relevant", data.is_inventory_relevant)
+            $("#is_inventory_relevant").val(String(data.is_inventory_relevant))
+        }
+        // if($("#retired").val()=='false'){
+        //     $("#retired_reason").prop("disabled", true)
+        //     $("#retired_reason").val("")
+        // }else{
+        //     $("#retired_reason").prop("disabled", false)
+        // }
+
+        // $("#is_inventory_relevant").off("change").on("change", function () {
+        //     if($("#is_inventory_relevant").val()=='false'){
+        //         // if($("#retired").val()== undefined){
+        //         $("#retired_reason").prop("disabled", true)
+        //         $("#retired_reason").val("")
+        //     }else{
+        //         $("#retired_reason").prop("disabled", false)
+        //     }
+        // })
+
     }
 
     function appendQuantityAllocationToFormData(formData) {
@@ -879,6 +925,86 @@
     }
 
 
+    function fetchBuildingHandler ()  {
+        const selectedBuildingId = $(this).val();
+        const $roomDropdown = $('#myRoom');
+        $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
+
+        if (selectedBuildingId) {
+            $.ajax({
+                url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
+                method: 'GET',
+                headers: { 'accept': 'application/json' },
+                success: function (rooms) {
+                    rooms.forEach(function (room) {
+                        $roomDropdown.append(
+                            $('<option></option>')
+                                .attr('value', room.id)
+                                .text(room.name)
+                        );
+                    });
+
+                    $roomDropdown.prop('disabled', false);
+
+                    // debugger
+                    // Set the initial value for the room if available
+                    let roomId = $("#myRoom").data("initValue")
+                    if (roomId) {
+                        $roomDropdown.val(roomId);
+                    }
+                },
+                error: function () {
+                    alert('Failed to load rooms.');
+                }
+            });
+        }
+    }
+
+
+    function initializeDropdowns(buildingId, roomId) {
+
+        console.log("initializeDropdowns ???", buildingId, roomId)
+
+        // Fetch buildings and populate the dropdown
+        $.ajax({
+            url: 'http://localhost:3260/inventory/buildings',
+            method: 'GET',
+            headers: { 'accept': 'application/json' },
+            success: function (buildings) {
+                const $buildingDropdown = $('#myBuilding');
+                $buildingDropdown.empty().append('<option value="">Select Building</option>');
+
+                buildings.forEach(function (building) {
+                    $buildingDropdown.append(
+                        $('<option></option>')
+                            .attr('value', building.id)
+                            .text(building.name)
+                    );
+                });
+
+
+
+                // $buildingDropdown.data("initValue", buildingId)
+                $("#myRoom").data("initValue", roomId)
+
+                // After building dropdown is initialized, fetch and set rooms
+
+                // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+                $buildingDropdown.off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+
+                // Set the initial value for the building and trigger change
+                if (buildingId) {
+                    $buildingDropdown.val(buildingId).trigger('change');
+                }
+
+            },
+            error: function () {
+                alert('Failed to load buildings.');
+            }
+        });
+    }
+
 
     function fetchOptions(url, selectId) {
         fetch(url, { headers: { Accept: "application/json" } })
@@ -900,12 +1026,12 @@
     const initialPoolId = $("#poolId").val();
 
     let currentRequest = null;
-    // $("#mySoftware").on("change", function () {
+    // $("#myModel").on("change", function () {
 
-    $("#mySoftware").select2(initSoftwareConfig)
+    $("#myModel").select2(initSoftwareConfig)
 
     // Optional: Adding an onchange event listener to log the selected value
-    $("#mySoftware").on("change", function () {
+    $("#myModel").on("change", function () {
         const selectedValue = $(this).val();
         console.log(">o> Selected software:", selectedValue);
     });
@@ -984,6 +1110,8 @@
         const fieldMapping = {
             "serial_number": "serial_number",
             "note": "note",
+            "status_note": "status_note",
+            "retired": "retired",
             "retired_reason": "retired_reason",
 
             "maintenance_price": "properties_maintenance_price",
@@ -993,6 +1121,7 @@
             "dongle_id": "properties_dongle_id",
             "project_number": "properties_project_number",
 
+            "invoice_number": "invoice_number",
             "invoice_date": "invoice_date",
             "procured_by": "properties_procured_by",
             "properties_maintenance_price": "properties_maintenance_price",
@@ -1006,11 +1135,19 @@
             // "license_expiration": "maintenance_expiration",
             "maintenance_expiration": "properties_maintenance_expiration",
 
-            // name="properties,operating_system"
-            // "operating_system":
+            // TODO: properties
+            "imei_number": "properties_imei_number",
+            "electrical_power": "properties_electrical_power",
+            "p4u": "properties_p4u",
+            "reference": "properties,reference",
+            "project_number": "properties_project_number",
+            "warranty_expiration": "properties_warranty_expiration",
+            // "quantity_allocations": "properties_imei_number",
+            "user_name": "user_name",
+            "last_check": "last_check",
+            "shelf": "shelf",
+            "is_inventory_relevant": "is_inventory_relevant",
 
-
-            // "procured_by": "properties_procured_by"
         };
 
 
@@ -1073,7 +1210,7 @@
 
             // FETCH LICENSE
             $.ajax({
-                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
+                url: `/inventory/${poolId}/models/${modelId}/package/${itemsId}`,
                 method: "GET",
                 headers: { Accept: "application/json" },
                 success: function (response) {
@@ -1093,18 +1230,39 @@
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
                         // software
+                        debugger
                         var swValue = data.product.name;
                         var swId = data.product.model_id;
                         var newOption = new Option(swValue, swId, true, true);
-                        $("#mySoftware").append(newOption).trigger('change');
+                        $("#myModel").append(newOption).trigger('change');
                         $("#myOldSoftware").val(swId)
 
                         // supplier
-                        var supplierName = data.supplier.name;
-                        var supplierId = data.supplier.supplier_id;
-                        var newOption = new Option(supplierName, supplierId, true, true);
-                        $("#mySupplier").append(newOption).trigger('change');
+                        if(data.supplier != undefined){
+                            var supplierName = data.supplier.name;
+                            var supplierId = data.supplier.supplier_id;
+                            var newOption = new Option(supplierName, supplierId, true, true);
+                            $("#mySupplier").append(newOption).trigger('change');
+                        }
+                        // var supplierName = data.supplier.name;
+                        // var supplierId = data.supplier.supplier_id;
+                        // var newOption = new Option(supplierName, supplierId, true, true);
+                        // $("#mySupplier").append(newOption).trigger('change');
 
+                        console.log("fetch.item")
+                        initializeDropdowns(data.building_id, data.room_id);
+
+                        if(data.is_broken){
+                         $("[name=is_broken][value=true]").prop("checked", true)
+                        }else{
+                         $("[name=is_broken][value=false]").prop("checked", true)
+                        }
+
+                        if(data.is_incomplete){
+                         $("[name=is_incomplete][value=true]").prop("checked", true)
+                        }else{
+                         $("[name=is_incomplete][value=false]").prop("checked", true)
+                        }
 
                         if(data.is_borrowable){
                          $("[name=is_borrowable][value=true]").prop("checked", true)
@@ -1121,22 +1279,22 @@
 
 
 
-                        ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
-                            if(data.operating_system != undefined && data.operating_system.includes(os)){
-                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
-                            }else{
-                             $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
-                            }
-                        })
-
-                        const installationList = data.installation || []; // Default to an empty array
-                        ["citrix", "local", "web"].forEach(os => {
-                            if (installationList.includes(os)) {
-                                $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
-                            } else {
-                                $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
-                            }
-                        });
+                        // ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
+                        //     if(data.operating_system != undefined && data.operating_system.includes(os)){
+                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
+                        //     }else{
+                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
+                        //     }
+                        // })
+                        //
+                        // const installationList = data.installation || []; // Default to an empty array
+                        // ["citrix", "local", "web"].forEach(os => {
+                        //     if (installationList.includes(os)) {
+                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
+                        //     } else {
+                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
+                        //     }
+                        // });
 
                         const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
                         $('#propertiesList').empty()
@@ -1186,7 +1344,8 @@
 
                             // set new model_id if needed
                             let model_id = formData.get('model_id')
-                            let old_model_id = formData.get('old_model_id')
+                            // let old_model_id = formData.get('old_model_id')
+                            let old_model_id = modelId
                             if(model_id != old_model_id){
                                 console.log("model_id != old_model_id")
                                 formData.delete('old_model_id')
@@ -1213,9 +1372,15 @@
                             formData = appendQuantityAllocationToFormData(formData);
                             deleteParamsFromPutPostFormData(formData);
 
+
+                            formData.delete('undefined')
+
+
+                            // debugger
+
                             // If it's in update mode, make a PUT request
                             $.ajax({
-                                url: `/inventory/${poolId}/models/${modelId}/items/${itemId}`,
+                                url: `/inventory/${poolId}/models/${modelId}/package/${itemId}`,
                                 method: "PUT",
                                 data: formData,
                                 processData: false,
@@ -1229,6 +1394,11 @@
 
                                     // $('#softwareId').val(response.data.model_id)
                                     // $('#itemId').val(response.data.id)
+
+                                    debugger
+                                    // $('#modelId').val(response.data.model_id)
+                                    // $('#itemId').val(response.data.id)
+
                                     $('#softwareId').val(response[0].model_id)
                                     $('#itemId').val(response[0].id)
 
@@ -1268,7 +1438,7 @@
         }
 
         $.ajax({
-            url: `/inventory/${poolId}/item`,
+            url: `/inventory/${poolId}/package`,
             method: "GET",
             headers: { Accept: "application/json" },
             success: function (response) {
@@ -1287,6 +1457,38 @@
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
 
+
+                    $.ajax({
+                        url: 'http://localhost:3260/inventory/buildings',
+                        method: 'GET',
+                        headers: { 'accept': 'application/json' },
+                        success: function (buildings) {
+                            const $buildingDropdown = $('#myBuilding');
+                            // Populate the buildings dropdown
+                            buildings.forEach(function (building) {
+                                $buildingDropdown.append(
+                                    $('<option></option>')
+                                        .attr('value', building.id)
+                                        .text(building.name)
+                                );
+                            });
+
+                            // Handle building selection and load rooms
+                            // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+
+
+                            // Remove any previously bound handlers and attach the new one
+                            $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
+
+                            // Update save button text
+                            $("#saveButton").text("Save Item");
+                        },
+                        error: function () {
+                            alert('Failed to load buildings.');
+                        }
+                    });
+
                     $("#saveButton").text("Save Package");
                     $("#saveButton").off('click').click(function(e) {
                         e.preventDefault(); // Prevent default form submission
@@ -1297,11 +1499,13 @@
                         let formData = new FormData($("#softwareForm")[0]);
 
 
-                        // renameFormDataKey(formData, "mySoftware", "software_id");
-                        renameFormDataKey(formData, "mySoftware", "model_id");
-                        renameFormDataKey(formData, "mySupplier", "supplier_id");
-                        renameFormDataKey(formData, "myOwner", "owner_id");
-                        renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                        // // renameFormDataKey(formData, "mySoftware", "software_id");
+                        // renameFormDataKey(formData, "mySoftware", "model_id");
+                        // renameFormDataKey(formData, "mySupplier", "supplier_id");
+                        // renameFormDataKey(formData, "myOwner", "owner_id");
+                        // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+
+                        formData = renameFormKeys(formData);
 
                         // for (let [key, value] of formData.entries()) {
                         //     console.log(key, value);
@@ -1321,7 +1525,7 @@
                         // If it's in update mode, make a PUT request
                         $.ajax({
                             // url: `/inventory/${poolId}/item`,
-                            url: `/inventory/${poolId}/models/${modelId}/items`,
+                            url: `/inventory/${poolId}/models/${modelId}/package`,
                             method: "POST",
                             data: formData,
                             processData: false,

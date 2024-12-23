@@ -155,7 +155,7 @@
    :validation validation})
 
 (defn create-package-handler-by-pool-form [request]
-  (println ">o> create-items-handler-by-pool-form" )
+  (println ">o> create-package-handler-by-pool-form" )
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)

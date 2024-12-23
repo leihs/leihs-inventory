@@ -10,8 +10,13 @@
                                                                          inventory-manager-license-subquery
                                                                          lending-manager-license-subquery
                                                             inventory-manager-item-subquery
+
+                                                                         inventory-manager-package-subquery
+                                                                         lending-manager-package-subquery
+
                                                                          item-base-query
                                                                          lending-manager-item-subquery
+
                                                                          license-base-query]]
    [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query
@@ -83,8 +88,8 @@
                 roles-for-pool
                 (:roles roles-for-pool))
         subquery (cond
-                   (contains? roles :inventory_manager) inventory-manager-item-subquery
-                   (contains? roles :lending_manager) lending-manager-item-subquery
+                   (contains? roles :inventory_manager) inventory-manager-package-subquery
+                   (contains? roles :lending_manager) lending-manager-package-subquery
                    :else nil)]
 
     (when-not subquery
@@ -94,7 +99,7 @@
 
 
 (defn fetch-package-handler-by-pool-form [request]
-  (println ">o> fetch-items-handler-by-pool-form" )
+  (println ">o> fetch-package-handler-by-pool-form" )
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)

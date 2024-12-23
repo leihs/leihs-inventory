@@ -163,6 +163,7 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
     res))
 
 (defn update-package-handler-by-pool-form [request]
+  (println ">o> update-package-handler-by-pool-form" )
   (let [item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
