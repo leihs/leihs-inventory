@@ -49,7 +49,9 @@
                :tags ["Items by pool"] :security []}}
 
     ["/items"
-     {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
+     {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items \n\n
+
+     "
             :conflicting true
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -57,7 +59,15 @@
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid}
                          :query {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int}}
+                                 (s/optional-key :size) s/Int
+
+                                 (s/optional-key :search_term) s/Str
+                                 (s/optional-key :not_packaged) s/Bool
+                                 (s/optional-key :packages) s/Bool
+                                 (s/optional-key :retired) s/Bool
+
+                                 :result_type (s/enum "Min" "Normal")
+                                 }}
             :handler get-items-of-pool-with-pagination-handler
             :responses {200 {:description "OK"
                              :body s/Any}
