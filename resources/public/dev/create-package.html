@@ -395,6 +395,21 @@
     }
 
 
+    function renameFormDataKey(formData, oldKey, newKey) {
+        console.log(`Attempting to rename ${oldKey} to ${newKey}`);
+
+        console.log("?? formData", formData.has(oldKey), `>${oldKey}<`)
+        if (formData.has(oldKey)) {
+            const value = formData.get(oldKey);
+            console.log(`??? Renaming key ${oldKey} to ${newKey} with value ${value}`);
+            formData.delete(newKey); // Prevent duplicates
+            formData.append(newKey, value);
+            formData.delete(oldKey);
+        } else {
+            console.warn(`Key ${oldKey} not found`);
+        }
+    }
+
     function renameFormKeys(formData){
 
         formData.delete("myBuilding");
@@ -522,18 +537,20 @@
         }
     }
 
-    function renameFormDataKey(formData, oldKey, newKey) {
-        if (formData.has(oldKey)) {
-            // Get the value of the old key
-            const value = formData.get(oldKey);
+    // function renameFormDataKey(formData, oldKey, newKey) {
+    //     if (formData.has(oldKey)) {
+    //         // Get the value of the old key
+    //         const value = formData.get(oldKey);
+    //
+    //         // Add the value to the new key
+    //         formData.append(newKey, value);
+    //
+    //         // Delete the old key
+    //         formData.delete(oldKey);
+    //     }
+    // }
 
-            // Add the value to the new key
-            formData.append(newKey, value);
 
-            // Delete the old key
-            formData.delete(oldKey);
-        }
-    }
 
 
     function renameLabel(data) {
@@ -751,7 +768,9 @@
         }
 
         // TODO: define/trigger init
-        $("#mySoftware").select2(initSoftwareConfig)
+        $("#myModel").select2(initSoftwareConfig)
+
+        // $("#mySoftware").select2(initSoftwareConfig)
         // $("#mySupplier").select2(initSupplierConfig)
 
 
@@ -1230,7 +1249,6 @@
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
                         // software
-                        debugger
                         var swValue = data.product.name;
                         var swId = data.product.model_id;
                         var newOption = new Option(swValue, swId, true, true);
@@ -1326,17 +1344,20 @@
                             e.preventDefault(); // Prevent default form submission
                             console.log("Update button clicked");
 
+
+                            debugger
                             const poolId = $("#poolId").val();
                             const modelId = $("#softwareId").val();
                             const itemId = $("#itemId").val();
                             let formData = new FormData($("#softwareForm")[0]);
 
 
-                            renameFormDataKey(formData, "mySoftware", "model_id");
-                            renameFormDataKey(formData, "myOldSoftware", "old_model_id");
-                            renameFormDataKey(formData, "mySupplier", "supplier_id");
-                            renameFormDataKey(formData, "myOwner", "owner_id");
-                            renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                            // renameFormDataKey(formData, "mySoftware", "model_id");
+                            // renameFormDataKey(formData, "myOldSoftware", "old_model_id");
+                            // renameFormDataKey(formData, "mySupplier", "supplier_id");
+                            // renameFormDataKey(formData, "myOwner", "owner_id");
+                            // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                            formData =renameFormKeys(formData);
 
 
 
@@ -1499,17 +1520,13 @@
                         let formData = new FormData($("#softwareForm")[0]);
 
 
-                        // // renameFormDataKey(formData, "mySoftware", "software_id");
-                        // renameFormDataKey(formData, "mySoftware", "model_id");
-                        // renameFormDataKey(formData, "mySupplier", "supplier_id");
-                        // renameFormDataKey(formData, "myOwner", "owner_id");
-                        // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
+                        formData =renameFormKeys(formData);
 
-                        formData = renameFormKeys(formData);
+                        debugger
 
-                        // for (let [key, value] of formData.entries()) {
-                        //     console.log(key, value);
-                        // }
+                        for (let [key, value] of formData.entries()) {
+                            console.log(key, value);
+                        }
 
                         formData = appendQuantityAllocationToFormData(formData);
                         let modelId=formData.get("model_id")
