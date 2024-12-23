@@ -582,7 +582,41 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ;::supplier_id
                                              ;::owner_id
                                              ::properties
+                                             ]))
 
+
+(sa/def :package/multipart (sa/keys :opt-un [
+                                             ::model_id
+                                             ::supplier_id
+                                             ::attachments-to-delete
+                                             ::attachments
+                                             ::retired_reason
+                                             ;:simple/properties
+                                             ::owner_id
+                                             ::user_name
+                                             ;::item_version
+                                          ]
+                                    :req-un [
+                                             ;::serial_number
+                                             ::note
+                                             ;::invoice_date
+                                             ;::invoice_number
+                                             ::price
+                                             ::shelf
+                                             ::inventory_code
+                                             ::retired
+
+                                             ::is_borrowable
+                                             ::is_broken
+                                             ::is_incomplete
+
+                                             ;::building_id
+                                             ::room_id
+
+                                             ::status_note
+                                             ;::supplier_id
+                                             ;::owner_id
+                                             ::properties
                                              ]))
 
 (sa/def :software/properties (sa/or
@@ -709,7 +743,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?
                                  ;:model_id uuid?
                                  }
-                          :multipart :item/multipart}
+                          :multipart :package/multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"}
@@ -747,7 +781,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         :multipart :item/multipart}        ;; TODO
+                         :multipart :package/multipart}        ;; TODO
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-package-handler-by-pool-form
             :responses {200 {:description "OK"

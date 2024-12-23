@@ -1411,14 +1411,8 @@
                                     $(`#attachmentsList`).data('to-delete', [])
                                     $('#attachments').val('');
 
-                                    // $('#softwareId').val(response.data.model_id)
-                                    // $('#itemId').val(response.data.id)
-
-                                    // $('#modelId').val(response.data.model_id)
-                                    // $('#itemId').val(response.data.id)
-
-                                    $('#softwareId').val(response[0].model_id)
-                                    $('#itemId').val(response[0].id)
+                                    $('#softwareId').val(response.data.model_id)
+                                    $('#itemId').val(response.data.id)
 
                                     $('#fetchPackageBtn').trigger('click');
 
@@ -1549,7 +1543,8 @@
                                 console.info("UPDATING ITEM-ID")
 
                                 $('#softwareId').val(response.data.model_id)
-                                $('#itemId').val(response.data.item_id)
+                                // $('#itemId').val(response.data.item_id)
+                                $('#itemId').val(response.data.id)
 
                                 $(`#attachmentsList`).data('to-delete', [])
                                 $('#attachments').val('');
