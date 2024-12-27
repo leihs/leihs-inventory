@@ -71,7 +71,7 @@
          ;children
 
 
-         base-select (cond                       (= result_type "Min")  (sql/select :i.retired :i.parent_id :i.id :i.model_id :m.is_package)
+         base-select (cond                       (= result_type "Min")  (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)
                        :else (sql/select :m.is_package :i.* [:b.name :building_name] [:r.name :room_name])  )
 
          ;base-query (-> (sql/select-distinct :i.*)

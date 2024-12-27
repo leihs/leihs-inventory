@@ -182,6 +182,30 @@
                                                                :target_default ""})
 
 
+            fields               (conj fields                 {:active true
+                                                               :data {
+                                                                      ;:type "select"
+                                                                      :type "autocomplete-search"
+                                                                      :group "Content"
+                                                                      :label "Add Item"
+
+                                                                      :values []
+                                                                      ;:value "1"
+                                                                      }
+                                                               :attribute "quantity"
+                                                               :default false
+                                                               :forPackage true
+                                                               :group "Content"
+                                                               :group_default "Content"
+                                                               :id "add-item-group"
+                                                               :label "Add Item"
+                                                               ;:owner nil
+                                                               ;:position 13
+                                                               ;:role nil
+                                                               ;:role_default ""
+                                                               ;:target nil
+                                                               ;:target_default ""
+                                                               })
             ;p (println ">o> ??? fields" fields)
 
             ;model-result []
