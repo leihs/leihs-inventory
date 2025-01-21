@@ -7,6 +7,14 @@ import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
 import truncate from "truncate"
 import SortableList from "@/components/react/sortable-list"
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableRow,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table"
 
 function Item({
   children,
@@ -27,7 +35,7 @@ function Item({
       )}
       {...props}
     >
-      <div className="flex items-center flex-row gap-4 h-full">
+      <TableCell>
         {file.type === "application/pdf" ? (
           <FileText className="text-rose-700 w-6 h-6" />
         ) : (
@@ -42,10 +50,10 @@ function Item({
             {(file.size / (1024 * 1024)).toFixed(2)} MB
           </div>
         </div>
-      </div>
-      <div className={cn("flex gap-2")}>
-        {children}
+      </TableCell>
+      <TableCell>{children}</TableCell>
 
+      <TableCell>
         <Button
           variant="outline"
           size="icon"
@@ -54,7 +62,7 @@ function Item({
         >
           <Trash className="w-4 h-4" />
         </Button>
-      </div>
+      </TableCell>
     </div>
   )
 }
@@ -65,6 +73,7 @@ export const Dropzone = React.forwardRef(
       containerClassName,
       dropZoneClassName,
       children,
+      itemExtensions,
       showFilesList = true,
       showErrorMessage = true,
       ...props
@@ -80,14 +89,14 @@ export const Dropzone = React.forwardRef(
     const accept =
       props.filetypes && props.filetypes.includes(",")
         ? props.filetypes
-            // create array
-            .split(",")
-            //map filetypes from splitted filetypes
-            .map((type) => filetypes[type])
-            // reduce array of filetypes to a single object
-            .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+          // create array
+          .split(",")
+          //map filetypes from splitted filetypes
+          .map((type) => filetypes[type])
+          // reduce array of filetypes to a single object
+          .reduce((acc, cur) => ({ ...acc, ...cur }), {})
         : // when filteypes is single type without comma
-          props.filetypes
+        props.filetypes
           ? filetypes[props.filetypes]
           : []
 
@@ -194,29 +203,41 @@ export const Dropzone = React.forwardRef(
                 onDragEnd={handleDragEnd}
                 items={filesUploaded.map((file) => file.name)}
               >
-                {filesUploaded.map((fileUploaded, index) => (
-                  <React.Fragment key={fileUploaded.name}>
-                    {props.sortable ? (
-                      <SortableList.Draggable id={fileUploaded.name}>
-                        <Item
-                          file={fileUploaded}
-                          index={index}
-                          id={fileUploaded.name}
-                          onDeleteFile={() => deleteUploadedFile(index)}
-                        >
-                          <SortableList.DragHandle id={fileUploaded.name} />
-                        </Item>
-                      </SortableList.Draggable>
-                    ) : (
-                      <Item
-                        file={fileUploaded}
-                        index={index}
-                        id={fileUploaded.name}
-                        onDeleteFile={() => deleteUploadedFile(index)}
-                      ></Item>
-                    )}
-                  </React.Fragment>
-                ))}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Files</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filesUploaded.map((fileUploaded, index) => (
+                      <TableRow key={fileUploaded.name}>
+                        {props.sortable ? (
+                          <SortableList.Draggable id={fileUploaded.name}>
+                            <Item
+                              file={fileUploaded}
+                              index={index}
+                              id={fileUploaded.name}
+                              onDeleteFile={() => deleteUploadedFile(index)}
+                            >
+                              {itemExtensions}
+                              <SortableList.DragHandle id={fileUploaded.name} />
+                            </Item>
+                          </SortableList.Draggable>
+                        ) : (
+                          <Item
+                            file={fileUploaded}
+                            index={index}
+                            id={fileUploaded.name}
+                            onDeleteFile={() => deleteUploadedFile(index)}
+                          >
+                            {itemExtensions}
+                          </Item>
+                        )}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </SortableList>
             </div>
           </div>

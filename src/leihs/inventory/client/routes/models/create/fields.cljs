@@ -13,8 +13,7 @@
 (def fields-map
   {"input" Input
    "dropzone" Dropzone
-   "textarea" Textarea
-   "checkbox" Checkbox})
+   "textarea" Textarea})
 
 (defui field [{:keys [control block]}]
   (cond
