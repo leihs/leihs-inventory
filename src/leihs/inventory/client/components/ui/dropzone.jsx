@@ -104,14 +104,15 @@ export const Dropzone = React.forwardRef(
       ...props,
       accept: accept,
       onDrop(acceptedFiles, fileRejections, event) {
-        if (props.onDrop) props.onDrop(acceptedFiles, fileRejections, event)
+        if (props.onDrop)
+          props.onDrop(acceptedFiles, fileRejections, setFilesUploaded)
         else {
           setFilesUploaded((_filesUploaded) => {
             acceptedFiles.map((file) => {
               file.custom = "hello"
             })
 
-            console.debug("new", acceptedFiles)
+            // console.debug("new", acceptedFiles)
             return [..._filesUploaded, ...acceptedFiles]
           })
 
@@ -136,6 +137,7 @@ export const Dropzone = React.forwardRef(
     }, [setFilesUploadedExternal])
 
     React.useEffect(() => {
+      console.debug("change", filesUploaded)
       if (props.onChange) {
         props.onChange(filesUploaded)
       }
