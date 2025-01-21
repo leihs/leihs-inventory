@@ -6,6 +6,7 @@ const fileSchema = z.object({
   type: z
     .string()
     .regex(/^image\/(jpeg|png)$/, "Only JPEG and PNG files are allowed"),
+  is_cover: z.boolean().default(false),
 })
 
 const modelProperties = z.object({
@@ -149,10 +150,10 @@ export const structure = [
     title: "Bilder",
     blocks: [
       {
-        name: "images",
+        name: "image-dropzone",
         label: "Bilder",
         // description: "Listen Sie die Bild-URLs auf",
-        input: "dropzone",
+        component: "image-dropzone",
         props: {
           sortable: true,
           multiple: true,
@@ -169,11 +170,6 @@ export const structure = [
         label: "Anhänge",
         // description: "Listen Sie die Anhang-URLs auf",
         input: "dropzone",
-        props: {
-          sortable: false,
-          multiple: true,
-          filetypes: "pdf",
-        },
       },
     ],
   },

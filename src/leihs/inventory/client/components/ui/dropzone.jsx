@@ -27,11 +27,11 @@ function Item({
 }) {
   return (
     <>
-      <TableCell className="flex">
+      <TableCell className="flex gap-4 items-center">
         {file.type === "application/pdf" ? (
-          <FileText className="text-rose-700 w-6 h-6" />
+          <FileText className="w-10 h-10" />
         ) : (
-          <Image className="text-rose-700 w-6 h-6" />
+          <Image className="w-10 h-10" />
         )}
         <div className="flex flex-col gap-0">
           <div className="text-[0.85rem] font-medium leading-snug">
@@ -43,7 +43,8 @@ function Item({
           </div>
         </div>
       </TableCell>
-      <TableCell>{children}</TableCell>
+
+      {children}
 
       <TableCell>
         <div className="flex gap-2 justify-end">
@@ -71,10 +72,14 @@ export const Dropzone = React.forwardRef(
       itemExtensions,
       showFilesList = true,
       showErrorMessage = true,
+      setFilesUploadedExternal, // Add this line
       ...props
     },
     ref,
   ) => {
+    const [filesUploaded, setFilesUploaded] = React.useState([])
+    const [errorMessage, setErrorMessage] = React.useState()
+
     const filetypes = {
       jpeg: { "image/jpeg": [".jpg", ".jpeg"] },
       png: { "image/png": [".png"] },
@@ -84,14 +89,14 @@ export const Dropzone = React.forwardRef(
     const accept =
       props.filetypes && props.filetypes.includes(",")
         ? props.filetypes
-          // create array
-          .split(",")
-          //map filetypes from splitted filetypes
-          .map((type) => filetypes[type])
-          // reduce array of filetypes to a single object
-          .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+            // create array
+            .split(",")
+            //map filetypes from splitted filetypes
+            .map((type) => filetypes[type])
+            // reduce array of filetypes to a single object
+            .reduce((acc, cur) => ({ ...acc, ...cur }), {})
         : // when filteypes is single type without comma
-        props.filetypes
+          props.filetypes
           ? filetypes[props.filetypes]
           : []
 
@@ -101,10 +106,14 @@ export const Dropzone = React.forwardRef(
       onDrop(acceptedFiles, fileRejections, event) {
         if (props.onDrop) props.onDrop(acceptedFiles, fileRejections, event)
         else {
-          setFilesUploaded((_filesUploaded) => [
-            ..._filesUploaded,
-            ...acceptedFiles,
-          ])
+          setFilesUploaded((_filesUploaded) => {
+            acceptedFiles.map((file) => {
+              file.custom = "hello"
+            })
+
+            console.debug("new", acceptedFiles)
+            return [..._filesUploaded, ...acceptedFiles]
+          })
 
           if (fileRejections.length > 0) {
             let _errorMessage = `Could not upload ${fileRejections[0].file.name}`
@@ -120,8 +129,11 @@ export const Dropzone = React.forwardRef(
       },
     })
 
-    const [filesUploaded, setFilesUploaded] = React.useState([])
-    const [errorMessage, setErrorMessage] = React.useState()
+    React.useEffect(() => {
+      if (setFilesUploadedExternal) {
+        setFilesUploadedExternal(setFilesUploaded)
+      }
+    }, [setFilesUploadedExternal])
 
     React.useEffect(() => {
       if (props.onChange) {

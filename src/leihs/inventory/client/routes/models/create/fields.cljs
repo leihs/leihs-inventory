@@ -7,6 +7,7 @@
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.create.components.image-upload :refer [ImageUpload]]
    [leihs.inventory.client.routes.models.create.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
@@ -20,6 +21,9 @@
     (-> block :component (= "accessory-list"))
     ($ AccessoryList {:control control
                       :props (:props block)})
+
+    (-> block :component (= "image-dropzone"))
+    ($ ImageUpload {:control control})
 
     (-> block :component (= "model-properties"))
     ($ ModelProperties {:control control
