@@ -7,20 +7,23 @@
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.create.components.image-upload :refer [ImageUpload]]
    [leihs.inventory.client.routes.models.create.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
 (def fields-map
   {"input" Input
    "dropzone" Dropzone
-   "textarea" Textarea
-   "checkbox" Checkbox})
+   "textarea" Textarea})
 
 (defui field [{:keys [control block]}]
   (cond
     (-> block :component (= "accessory-list"))
     ($ AccessoryList {:control control
                       :props (:props block)})
+
+    (-> block :component (= "image-dropzone"))
+    ($ ImageUpload {:control control :props (:props block)})
 
     (-> block :component (= "model-properties"))
     ($ ModelProperties {:control control
