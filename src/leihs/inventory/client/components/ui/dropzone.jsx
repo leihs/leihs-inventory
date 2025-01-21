@@ -26,16 +26,8 @@ function Item({
   ...props
 }) {
   return (
-    <div
-      className={cn(
-        className,
-        "cursor-default flex justify-between items-center",
-        "flex-row w-full h-16 mt-2 px-4",
-        "border-solid border-[1px] border-gray-200 rounded-lg",
-      )}
-      {...props}
-    >
-      <TableCell>
+    <>
+      <TableCell className="flex">
         {file.type === "application/pdf" ? (
           <FileText className="text-rose-700 w-6 h-6" />
         ) : (
@@ -45,8 +37,8 @@ function Item({
           <div className="text-[0.85rem] font-medium leading-snug">
             {truncate(file.name.split(".").slice(0, -1).join("."), 30)}
           </div>
-          <div className="text-[0.7rem] text-gray-500 leading-tight">
-            .{file.name.split(".").pop()} •{" "}
+          <div className="text-[0.7rem] text-gray-500 leading-tight uppercase">
+            {file.name.split(".").pop()},{" "}
             {(file.size / (1024 * 1024)).toFixed(2)} MB
           </div>
         </div>
@@ -54,16 +46,19 @@ function Item({
       <TableCell>{children}</TableCell>
 
       <TableCell>
-        <Button
-          variant="outline"
-          size="icon"
-          className="select-none cursor-pointer"
-          onClick={onDeleteFile}
-        >
-          <Trash className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-2 justify-end">
+          <SortableList.DragHandle id={id} />
+          <Button
+            variant="outline"
+            size="icon"
+            className="select-none cursor-pointer"
+            onClick={onDeleteFile}
+          >
+            <Trash className="w-4 h-4" />
+          </Button>
+        </div>
       </TableCell>
-    </div>
+    </>
   )
 }
 
@@ -195,9 +190,7 @@ export const Dropzone = React.forwardRef(
           <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
         )}
         {showFilesList && filesUploaded.length > 0 && (
-          <div
-            className={`flex flex-col gap-2 w-full h-fit mt-2 ${filesUploaded.length > 0 ? "pb-2" : ""}`}
-          >
+          <div className="rounded-md border">
             <div className="w-full">
               <SortableList
                 onDragEnd={handleDragEnd}
@@ -211,9 +204,25 @@ export const Dropzone = React.forwardRef(
                   </TableHeader>
                   <TableBody>
                     {filesUploaded.map((fileUploaded, index) => (
-                      <TableRow key={fileUploaded.name}>
+                      <React.Fragment key={fileUploaded.name}>
                         {props.sortable ? (
-                          <SortableList.Draggable id={fileUploaded.name}>
+                          <SortableList.Draggable
+                            asChild={true}
+                            id={fileUploaded.name}
+                          >
+                            <TableRow>
+                              <Item
+                                file={fileUploaded}
+                                index={index}
+                                id={fileUploaded.name}
+                                onDeleteFile={() => deleteUploadedFile(index)}
+                              >
+                                {itemExtensions}
+                              </Item>
+                            </TableRow>
+                          </SortableList.Draggable>
+                        ) : (
+                          <TableRow>
                             <Item
                               file={fileUploaded}
                               index={index}
@@ -221,20 +230,10 @@ export const Dropzone = React.forwardRef(
                               onDeleteFile={() => deleteUploadedFile(index)}
                             >
                               {itemExtensions}
-                              <SortableList.DragHandle id={fileUploaded.name} />
                             </Item>
-                          </SortableList.Draggable>
-                        ) : (
-                          <Item
-                            file={fileUploaded}
-                            index={index}
-                            id={fileUploaded.name}
-                            onDeleteFile={() => deleteUploadedFile(index)}
-                          >
-                            {itemExtensions}
-                          </Item>
+                          </TableRow>
                         )}
-                      </TableRow>
+                      </React.Fragment>
                     ))}
                   </TableBody>
                 </Table>
