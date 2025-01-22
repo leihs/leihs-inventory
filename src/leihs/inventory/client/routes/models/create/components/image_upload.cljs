@@ -6,8 +6,15 @@
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
+#_(defn handle-drop [files rejections setFiles]
+    (setFiles (fn [prevFiles] (cj (vec (concat prevFiles files))))))
+
 (defn handle-drop [files rejections setFiles]
-  (setFiles (fn [prevFiles] (vec (concat prevFiles files)))))
+  (setFiles (fn [prevFiles]
+              (let [allFiles (cj (vec (concat prevFiles files)))]
+                (doseq [file allFiles]
+                  (aset file "isCover" false))
+                allFiles))))
 
 (defui main [{:keys [control props]}]
   ($ FormField {:control (cj control)
@@ -18,7 +25,7 @@
                                ($ Dropzone (merge
                                             {:multiple false
                                              :onDrop (fn [files rejections setFiles] (handle-drop files rejections setFiles))
-                                             :sortable false}
+                                             :sortable true}
                                             (:field (jc %)))))
 
                             ($ FormMessage))}))

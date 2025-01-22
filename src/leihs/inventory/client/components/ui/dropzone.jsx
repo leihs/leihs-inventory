@@ -16,15 +16,7 @@ import {
   TableCell,
 } from "@/components/ui/table"
 
-function Item({
-  children,
-  className,
-  id,
-  file,
-  onDeleteFile,
-  index,
-  ...props
-}) {
+function Item({ children, className, id, file, index, ...props }) {
   return (
     <>
       <TableCell className="flex gap-4 items-center">
@@ -45,20 +37,6 @@ function Item({
       </TableCell>
 
       {children}
-
-      <TableCell>
-        <div className="flex gap-2 justify-end">
-          <SortableList.DragHandle id={id} />
-          <Button
-            variant="outline"
-            size="icon"
-            className="select-none cursor-pointer"
-            onClick={onDeleteFile}
-          >
-            <Trash className="w-4 h-4" />
-          </Button>
-        </div>
-      </TableCell>
     </>
   )
 }
@@ -138,6 +116,7 @@ export const Dropzone = React.forwardRef(
 
     React.useEffect(() => {
       console.debug("change", filesUploaded)
+
       if (props.onChange) {
         props.onChange(filesUploaded)
       }
@@ -213,7 +192,8 @@ export const Dropzone = React.forwardRef(
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Files</TableHead>
+                      <TableHead>Bezeichnen</TableHead>
+                      {itemExtensions?.head && itemExtensions.head}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -229,9 +209,24 @@ export const Dropzone = React.forwardRef(
                                 file={fileUploaded}
                                 index={index}
                                 id={fileUploaded.name}
-                                onDeleteFile={() => deleteUploadedFile(index)}
                               >
                                 {itemExtensions}
+
+                                <TableCell>
+                                  <div className="flex gap-2 justify-end">
+                                    <SortableList.DragHandle
+                                      id={fileUploaded.name}
+                                    />
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="select-none cursor-pointer"
+                                      onClick={() => deleteUploadedFile(index)}
+                                    >
+                                      <Trash className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
                               </Item>
                             </TableRow>
                           </SortableList.Draggable>
@@ -241,9 +236,20 @@ export const Dropzone = React.forwardRef(
                               file={fileUploaded}
                               index={index}
                               id={fileUploaded.name}
-                              onDeleteFile={() => deleteUploadedFile(index)}
                             >
                               {itemExtensions}
+                              <TableCell>
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="select-none cursor-pointer"
+                                    onClick={() => deleteUploadedFile(index)}
+                                  >
+                                    <Trash className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
                             </Item>
                           </TableRow>
                         )}
