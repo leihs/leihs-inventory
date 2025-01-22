@@ -6,6 +6,7 @@ import { Card } from "@@/card"
 import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
 import truncate from "truncate"
+import { cloneElement } from "react"
 import SortableList from "@/components/react/sortable-list"
 import {
   Table,
@@ -50,7 +51,6 @@ export const Dropzone = React.forwardRef(
       itemExtensions,
       showFilesList = true,
       showErrorMessage = true,
-      setFilesUploadedExternal, // Add this line
       ...props
     },
     ref,
@@ -85,14 +85,10 @@ export const Dropzone = React.forwardRef(
         if (props.onDrop)
           props.onDrop(acceptedFiles, fileRejections, setFilesUploaded)
         else {
-          setFilesUploaded((_filesUploaded) => {
-            acceptedFiles.map((file) => {
-              file.custom = "hello"
-            })
-
-            // console.debug("new", acceptedFiles)
-            return [..._filesUploaded, ...acceptedFiles]
-          })
+          setFilesUploaded((_filesUploaded) => [
+            ..._filesUploaded,
+            ...acceptedFiles,
+          ])
 
           if (fileRejections.length > 0) {
             let _errorMessage = `Could not upload ${fileRejections[0].file.name}`
@@ -107,12 +103,6 @@ export const Dropzone = React.forwardRef(
         }
       },
     })
-
-    React.useEffect(() => {
-      if (setFilesUploadedExternal) {
-        setFilesUploadedExternal(setFilesUploaded)
-      }
-    }, [setFilesUploadedExternal])
 
     React.useEffect(() => {
       console.debug("change", filesUploaded)
@@ -182,6 +172,7 @@ export const Dropzone = React.forwardRef(
         {errorMessage && (
           <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
         )}
+
         {showFilesList && filesUploaded.length > 0 && (
           <div className="rounded-md border">
             <div className="w-full">
@@ -193,7 +184,14 @@ export const Dropzone = React.forwardRef(
                   <TableHeader>
                     <TableRow>
                       <TableHead>Bezeichnen</TableHead>
-                      {itemExtensions?.head && itemExtensions.head}
+                      {itemExtensions &&
+                        itemExtensions.map((itemExtension) => {
+                          return (
+                            <TableHead key={itemExtension.head}>
+                              {itemExtension.head}
+                            </TableHead>
+                          )
+                        })}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -210,8 +208,20 @@ export const Dropzone = React.forwardRef(
                                 index={index}
                                 id={fileUploaded.name}
                               >
-                                {itemExtensions}
+                                {itemExtensions &&
+                                  itemExtensions.map((itemExtension) => {
+                                    const clonedComponent = itemExtension.comp
+                                      ? cloneElement(itemExtension.comp, {
+                                          value: index,
+                                        })
+                                      : null
 
+                                    return (
+                                      <TableCell key={itemExtension.head}>
+                                        {clonedComponent}
+                                      </TableCell>
+                                    )
+                                  })}
                                 <TableCell>
                                   <div className="flex gap-2 justify-end">
                                     <SortableList.DragHandle
