@@ -47,28 +47,30 @@
                                                          :onDrop (fn [files rej ev] (handle-drop files rej ev))}
                                                         (:field (jc %))))
 
-                                       ($ DropzoneFiles
-                                          ($ Table
-                                             ($ TableHeader
-                                                ($ TableRow
-                                                   ($ TableHead "Bezeichnung")
-                                                   ($ TableHead "Coverbild")
-                                                   ($ TableHead "")))
-                                             ($ TableBody
-                                                (for [[index file] (map-indexed vector files)]
-                                                  ($ TableRow {:key (.. file -name)}
+                                       (when (seq files)
+                                         ($ DropzoneFiles
+                                            ($ Table
+                                               ($ TableHeader
+                                                  ($ TableRow
+                                                     ($ TableHead "Bezeichnung")
+                                                     ($ TableHead "Coverbild")
+                                                     ($ TableHead "")))
+                                               ($ TableBody
+                                                  (for [[index file] (map-indexed vector files)]
+                                                    ($ TableRow {:key (.. file -name)}
 
-                                                     ($ Item {:file file}
-                                                        ($ TableCell
-                                                           ($ RadioGroupItem))
-                                                        ($ TableCell
-                                                           ($ Button {:variant "outline"
-                                                                      :size "icon"
-                                                                      :type "button"
-                                                                      :onClick (fn [_] (handle-delete index))
-                                                                      :className "select-none cursor-pointer"}
+                                                       ($ Item {:file file}
+                                                          ($ TableCell
+                                                             ($ RadioGroupItem))
+                                                          ($ TableCell
+                                                             ($ :div {:className "flex justify-end"}
+                                                                ($ Button {:variant "outline"
+                                                                           :size "icon"
+                                                                           :type "button"
+                                                                           :onClick (fn [_] (handle-delete index))
+                                                                           :className "select-none cursor-pointer"}
 
-                                                              ($ Trash {:className "w-4 h-4"})))))))))))
+                                                                   ($ Trash {:className "w-4 h-4"})))))))))))))
 
                                  ($ FormMessage))}))))
 

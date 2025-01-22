@@ -2,11 +2,9 @@ import * as React from "react"
 import { Upload, Trash, Image, FileText } from "lucide-react"
 import { arrayMove } from "@dnd-kit/sortable"
 import { Button } from "@@/button"
-import { Card } from "@@/card"
 import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
 import truncate from "truncate"
-import { cloneElement } from "react"
 import SortableList from "@/components/react/sortable-list"
 import {
   Table,
