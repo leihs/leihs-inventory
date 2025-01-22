@@ -18,7 +18,7 @@
        [coverIndex files]))
 
     (defn handle-drop [files rejections setFiles]
-      ;; (setFiles! #(vec (concat % files)))
+      (setFiles! #(vec (concat % files)))
       (setFiles (fn [prevFiles]
                   (let [allFiles (cj (vec (concat prevFiles files)))]
 
