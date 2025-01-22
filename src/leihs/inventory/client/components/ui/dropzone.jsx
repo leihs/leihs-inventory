@@ -51,6 +51,7 @@ export const Dropzone = React.forwardRef(
       itemExtensions,
       showFilesList = true,
       showErrorMessage = true,
+      setFilesExternal,
       ...props
     },
     ref,
@@ -103,6 +104,12 @@ export const Dropzone = React.forwardRef(
         }
       },
     })
+
+    React.useEffect(() => {
+      if (setFilesExternal) {
+        setFilesExternal(filesUploaded)
+      }
+    }, [filesUploaded])
 
     React.useEffect(() => {
       console.debug("change", filesUploaded)

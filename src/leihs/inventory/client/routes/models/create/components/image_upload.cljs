@@ -13,11 +13,9 @@
 
     (uix.core/use-effect
      (fn []
-       (js/console.debug "hello")
-       (setFiles! (fn [prevFiles]
-                    (doseq [[index file] (map-indexed vector prevFiles)]
-                      (aset file "isCover" (= index coverIndex))))))
-     [coverIndex])
+       (doseq [[index file] (map-indexed vector files)]
+         (aset file "isCover" (= index coverIndex)))
+       [coverIndex files]))
 
     (defn handle-drop [files rejections setFiles]
       (setFiles! #(vec (concat % files)))
@@ -29,7 +27,8 @@
 
                     allFiles))))
 
-    ($ RadioGroup {:defaultValue 0 :onValueChange #(setCoverIndex! %)}
+    ($ RadioGroup {:defaultValue nil
+                   :onValueChange #(setCoverIndex! %)}
        ($ FormField {:control (cj control)
                      :name "images"
                      :render #($ FormItem {:class-name "mt-6"}
