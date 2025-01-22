@@ -52,14 +52,14 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
   const accept =
     props.filetypes && props.filetypes.includes(",")
       ? props.filetypes
-        // create array
-        .split(",")
-        //map filetypes from splitted filetypes
-        .map((type) => filetypes[type])
-        // reduce array of filetypes to a single object
-        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+          // create array
+          .split(",")
+          //map filetypes from splitted filetypes
+          .map((type) => filetypes[type])
+          // reduce array of filetypes to a single object
+          .reduce((acc, cur) => ({ ...acc, ...cur }), {})
       : // when filteypes is single type without comma
-      props.filetypes
+        props.filetypes
         ? filetypes[props.filetypes]
         : []
 
@@ -214,11 +214,7 @@ const Dropzone = React.forwardRef(
                             id={fileUploaded.name}
                           >
                             <TableRow>
-                              <Item
-                                file={fileUploaded}
-                                index={index}
-                                id={fileUploaded.name}
-                              >
+                              <Item file={fileUploaded}>
                                 <TableCell>
                                   <div className="flex gap-2 justify-end">
                                     {props.sortable && (
