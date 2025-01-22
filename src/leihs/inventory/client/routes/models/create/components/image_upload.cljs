@@ -22,18 +22,19 @@
         handle-delete (fn [index]
                         (setFiles!
                          (fn [prev]
-                           (vec (remove #(= index %) prev)))))
+                           (vec (concat (subvec prev 0 index)
+                                        (subvec prev (inc index)))))))
 
-        handle-coverimage (fn [index]
-                            (setFiles!
-                             (fn [prev]
-                               (vec (map-indexed (fn [i file]
-                                                   (if (= i index)
-                                                     (aset file "isCover" true)))
-                                                 prev)))))]
+        handle-cover (fn [index]
+                       (setFiles!
+                        (fn [prev]
+                          (vec (map-indexed (fn [i file]
+                                              (if (= i index)
+                                                (aset file "isCover" true)))
+                                            prev)))))]
 
     ($ RadioGroup {:defaultValue nil
-                   :onValueChange #(handle-coverimage %)}
+                   :onValueChange #(handle-cover %)}
 
        ($ FormField {:control (cj control)
                      :name "images"
@@ -43,7 +44,6 @@
                                     ($ Dropzone
                                        ($ DropzoneArea (merge
                                                         {:multiple true
-                                                         :sortable false
                                                          :onDrop (fn [files rej ev] (handle-drop files rej ev))}
                                                         (:field (jc %))))
 
