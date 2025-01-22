@@ -15,11 +15,25 @@
   (let [[coverIndex setCoverIndex!] (uix.core/use-state "")
         [files setFiles!] (uix.core/use-state nil)
         handle-drop (fn [files rejections event]
-                      (setFiles! (fn [prev]
-                                   (vec (concat prev files)))))]
+                      (setFiles!
+                       (fn [prev]
+                         (vec (concat prev files)))))
+
+        handle-delete (fn [index]
+                        (setFiles!
+                         (fn [prev]
+                           (vec (remove #(= index %) prev)))))
+
+        handle-coverimage (fn [index]
+                            (setFiles!
+                             (fn [prev]
+                               (vec (map-indexed (fn [i file]
+                                                   (if (= i index)
+                                                     (aset file "isCover" true)))
+                                                 prev)))))]
 
     ($ RadioGroup {:defaultValue nil
-                   :onValueChange #(setCoverIndex! %)}
+                   :onValueChange #(handle-coverimage %)}
 
        ($ FormField {:control (cj control)
                      :name "images"
@@ -32,6 +46,7 @@
                                                          :sortable false
                                                          :onDrop (fn [files rej ev] (handle-drop files rej ev))}
                                                         (:field (jc %))))
+
                                        ($ DropzoneFiles
                                           ($ Table
                                              ($ TableHeader
@@ -39,17 +54,21 @@
                                                    ($ TableHead "Bezeichnung")
                                                    ($ TableHead "Coverbild")
                                                    ($ TableHead "")))
-                                             (for [file files]
-                                               ($ TableRow {:key (.. file -name)}
+                                             ($ TableBody
+                                                (for [[index file] (map-indexed vector files)]
+                                                  ($ TableRow {:key (.. file -name)}
 
-                                                  ($ Item {:file file}
-                                                     ($ TableCell
-                                                        ($ RadioGroupItem))
-                                                     ($ TableCell
-                                                        ($ Button {:variant "outline"
-                                                                   :size "icon"
-                                                                   :className "select-none cursor-pointer"}
-                                                           ($ Trash {:className "w-4 h-4"}))))))))))
+                                                     ($ Item {:file file}
+                                                        ($ TableCell
+                                                           ($ RadioGroupItem))
+                                                        ($ TableCell
+                                                           ($ Button {:variant "outline"
+                                                                      :size "icon"
+                                                                      :type "button"
+                                                                      :onClick (fn [_] (handle-delete index))
+                                                                      :className "select-none cursor-pointer"}
+
+                                                              ($ Trash {:className "w-4 h-4"})))))))))))
 
                                  ($ FormMessage))}))))
 
