@@ -18,12 +18,13 @@
        [coverIndex files]))
 
     (defn handle-drop [files rejections setFiles]
-      (setFiles! #(vec (concat % files)))
+      ;; (setFiles! #(vec (concat % files)))
       (setFiles (fn [prevFiles]
                   (let [allFiles (cj (vec (concat prevFiles files)))]
 
                     (doseq [file allFiles]
                       (aset file "isCover" false))
+                    (js/console.debug allFiles)
 
                     allFiles))))
 
@@ -35,11 +36,11 @@
                                  ($ FormLabel "Upload Image")
                                  ($ FormControl
                                     ($ Dropzone (merge
-                                                 {:multiple false
+                                                 {:multiple true
                                                   :itemExtensions (cj [{:head "Coverbild"
                                                                         :comp ($ RadioGroupItem)}])
                                                   :onDrop (fn [files rejections setFiles] (handle-drop files rejections setFiles))
-                                                  :sortable true}
+                                                  :sortable false}
                                                  (:field (jc %)))))
 
                                  ($ FormMessage))}))))

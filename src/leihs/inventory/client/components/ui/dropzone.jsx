@@ -42,6 +42,46 @@ function Item({ children, className, id, file, index, ...props }) {
   )
 }
 
+const DropzoneArea = React.forwardRef(
+  ({ className, dropzone, ...props }, ref) => {
+    return (
+      <div
+        {...dropzone.getRootProps()}
+        className={cn(
+          "flex justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
+          className,
+        )}
+      >
+        <input
+          ref={ref}
+          {...dropzone.getInputProps()}
+          id={props.id}
+          multiple={props.multiple}
+          onBlur={props.onBlur}
+          aria-describedby={props["aria-describedby"]}
+          aria-invalid={props["aria-invalid"]}
+          name={props.name}
+        />
+
+        {dropzone.isDragAccept ? (
+          <div className="text-sm font-medium">Drop your files here!</div>
+        ) : (
+          <div className="flex items-center flex-col gap-1.5">
+            <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
+              <Upload className="mr-2 h-4 w-4" /> Upload files
+            </div>
+            {props.maxSize && (
+              <div className="text-xs text-gray-400 font-medium">
+                Max. file size: {(props.maxSize / (1024 * 1024)).toFixed(2)} MB
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  },
+)
+
 export const Dropzone = React.forwardRef(
   (
     {
@@ -51,7 +91,6 @@ export const Dropzone = React.forwardRef(
       itemExtensions,
       showFilesList = true,
       showErrorMessage = true,
-      setFilesExternal,
       ...props
     },
     ref,
@@ -106,14 +145,6 @@ export const Dropzone = React.forwardRef(
     })
 
     React.useEffect(() => {
-      if (setFilesExternal) {
-        setFilesExternal(filesUploaded)
-      }
-    }, [filesUploaded])
-
-    React.useEffect(() => {
-      console.debug("change", filesUploaded)
-
       if (props.onChange) {
         props.onChange(filesUploaded)
       }
@@ -141,41 +172,13 @@ export const Dropzone = React.forwardRef(
 
     return (
       <div className={cn("flex flex-col gap-2", containerClassName)}>
-        <div
-          {...dropzone.getRootProps()}
-          className={cn(
-            "flex justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
-            dropZoneClassName,
-          )}
-        >
-          <input
-            ref={ref}
-            {...dropzone.getInputProps()}
-            id={props.id}
-            onBlur={props.onBlur}
-            aria-describedby={props["aria-describedby"]}
-            aria-invalid={props["aria-invalid"]}
-            name={props.name}
-          />
+        <DropzoneArea
+          ref={ref}
+          className={dropZoneClassName}
+          dropzone={dropzone}
+          {...props}
+        />
 
-          {children ? (
-            children(dropzone)
-          ) : dropzone.isDragAccept ? (
-            <div className="text-sm font-medium">Drop your files here!</div>
-          ) : (
-            <div className="flex items-center flex-col gap-1.5">
-              <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
-                <Upload className="mr-2 h-4 w-4" /> Upload files
-              </div>
-              {props.maxSize && (
-                <div className="text-xs text-gray-400 font-medium">
-                  Max. file size: {(props.maxSize / (1024 * 1024)).toFixed(2)}{" "}
-                  MB
-                </div>
-              )}
-            </div>
-          )}
-        </div>
         {errorMessage && (
           <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
         )}
@@ -204,59 +207,37 @@ export const Dropzone = React.forwardRef(
                   <TableBody>
                     {filesUploaded.map((fileUploaded, index) => (
                       <React.Fragment key={fileUploaded.name}>
-                        {props.sortable ? (
-                          <SortableList.Draggable
-                            asChild={true}
-                            id={fileUploaded.name}
-                          >
-                            <TableRow>
-                              <Item
-                                file={fileUploaded}
-                                index={index}
-                                id={fileUploaded.name}
-                              >
-                                {itemExtensions &&
-                                  itemExtensions.map((itemExtension) => {
-                                    const clonedComponent = itemExtension.comp
-                                      ? cloneElement(itemExtension.comp, {
-                                          value: index,
-                                        })
-                                      : null
-
-                                    return (
-                                      <TableCell key={itemExtension.head}>
-                                        {clonedComponent}
-                                      </TableCell>
-                                    )
-                                  })}
-                                <TableCell>
-                                  <div className="flex gap-2 justify-end">
-                                    <SortableList.DragHandle
-                                      id={fileUploaded.name}
-                                    />
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      className="select-none cursor-pointer"
-                                      onClick={() => deleteUploadedFile(index)}
-                                    >
-                                      <Trash className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </Item>
-                            </TableRow>
-                          </SortableList.Draggable>
-                        ) : (
+                        <SortableList.Draggable
+                          asChild={true}
+                          id={fileUploaded.name}
+                        >
                           <TableRow>
                             <Item
                               file={fileUploaded}
                               index={index}
                               id={fileUploaded.name}
                             >
-                              {itemExtensions}
+                              {itemExtensions &&
+                                itemExtensions.map((itemExtension) => {
+                                  const clonedComponent = itemExtension.comp
+                                    ? cloneElement(itemExtension.comp, {
+                                        value: index,
+                                      })
+                                    : null
+
+                                  return (
+                                    <TableCell key={itemExtension.head}>
+                                      {clonedComponent}
+                                    </TableCell>
+                                  )
+                                })}
                               <TableCell>
                                 <div className="flex gap-2 justify-end">
+                                  {props.sortable && (
+                                    <SortableList.DragHandle
+                                      id={fileUploaded.name}
+                                    />
+                                  )}
                                   <Button
                                     variant="outline"
                                     size="icon"
@@ -269,7 +250,7 @@ export const Dropzone = React.forwardRef(
                               </TableCell>
                             </Item>
                           </TableRow>
-                        )}
+                        </SortableList.Draggable>
                       </React.Fragment>
                     ))}
                   </TableBody>
