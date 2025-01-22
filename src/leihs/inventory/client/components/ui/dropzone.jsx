@@ -17,7 +17,7 @@ import {
   TableCell,
 } from "@/components/ui/table"
 
-function Item({ children, className, id, file, index, ...props }) {
+function Item({ children, className, file }) {
   return (
     <>
       <TableCell className="flex gap-4 items-center">
@@ -42,47 +42,81 @@ function Item({ children, className, id, file, index, ...props }) {
   )
 }
 
-const DropzoneArea = React.forwardRef(
-  ({ className, dropzone, ...props }, ref) => {
-    return (
-      <div
-        {...dropzone.getRootProps()}
-        className={cn(
-          "flex justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
-          className,
-        )}
-      >
-        <input
-          ref={ref}
-          {...dropzone.getInputProps()}
-          id={props.id}
-          multiple={props.multiple}
-          onBlur={props.onBlur}
-          aria-describedby={props["aria-describedby"]}
-          aria-invalid={props["aria-invalid"]}
-          name={props.name}
-        />
+const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
+  const filetypes = {
+    jpeg: { "image/jpeg": [".jpg", ".jpeg"] },
+    png: { "image/png": [".png"] },
+    pdf: { "application/pdf": [".pdf"] },
+  }
 
-        {dropzone.isDragAccept ? (
-          <div className="text-sm font-medium">Drop your files here!</div>
-        ) : (
-          <div className="flex items-center flex-col gap-1.5">
-            <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
-              <Upload className="mr-2 h-4 w-4" /> Upload files
-            </div>
-            {props.maxSize && (
-              <div className="text-xs text-gray-400 font-medium">
-                Max. file size: {(props.maxSize / (1024 * 1024)).toFixed(2)} MB
-              </div>
-            )}
+  const accept =
+    props.filetypes && props.filetypes.includes(",")
+      ? props.filetypes
+        // create array
+        .split(",")
+        //map filetypes from splitted filetypes
+        .map((type) => filetypes[type])
+        // reduce array of filetypes to a single object
+        .reduce((acc, cur) => ({ ...acc, ...cur }), {})
+      : // when filteypes is single type without comma
+      props.filetypes
+        ? filetypes[props.filetypes]
+        : []
+
+  const dropzone = useDropzone({
+    ...props,
+    accept: accept,
+    onDrop(acceptedFiles, fileRejections, event) {
+      props.onDrop && props.onDrop(acceptedFiles, fileRejections, event)
+    },
+  })
+
+  return (
+    <div
+      {...dropzone.getRootProps()}
+      className={cn(
+        "flex justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
+        className,
+      )}
+    >
+      <input
+        ref={ref}
+        {...dropzone.getInputProps()}
+        id={props.id}
+        multiple={props.multiple}
+        onBlur={props.onBlur}
+        aria-describedby={props["aria-describedby"]}
+        aria-invalid={props["aria-invalid"]}
+        name={props.name}
+      />
+
+      {dropzone.isDragAccept ? (
+        <div className="text-sm font-medium">Drop your files here!</div>
+      ) : (
+        <div className="flex items-center flex-col gap-1.5">
+          <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
+            <Upload className="mr-2 h-4 w-4" /> Upload files
           </div>
-        )}
-      </div>
-    )
-  },
-)
+          {props.maxSize && (
+            <div className="text-xs text-gray-400 font-medium">
+              Max. file size: {(props.maxSize / (1024 * 1024)).toFixed(2)} MB
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+})
 
-export const Dropzone = React.forwardRef(
+function DropzoneFiles({ children }) {
+  return (
+    <div className="rounded-md border">
+      <div className="w-full">{children}</div>
+    </div>
+  )
+}
+
+const Dropzone = React.forwardRef(
   (
     {
       containerClassName,
@@ -97,52 +131,6 @@ export const Dropzone = React.forwardRef(
   ) => {
     const [filesUploaded, setFilesUploaded] = React.useState([])
     const [errorMessage, setErrorMessage] = React.useState()
-
-    const filetypes = {
-      jpeg: { "image/jpeg": [".jpg", ".jpeg"] },
-      png: { "image/png": [".png"] },
-      pdf: { "application/pdf": [".pdf"] },
-    }
-
-    const accept =
-      props.filetypes && props.filetypes.includes(",")
-        ? props.filetypes
-            // create array
-            .split(",")
-            //map filetypes from splitted filetypes
-            .map((type) => filetypes[type])
-            // reduce array of filetypes to a single object
-            .reduce((acc, cur) => ({ ...acc, ...cur }), {})
-        : // when filteypes is single type without comma
-          props.filetypes
-          ? filetypes[props.filetypes]
-          : []
-
-    const dropzone = useDropzone({
-      ...props,
-      accept: accept,
-      onDrop(acceptedFiles, fileRejections, event) {
-        if (props.onDrop)
-          props.onDrop(acceptedFiles, fileRejections, setFilesUploaded)
-        else {
-          setFilesUploaded((_filesUploaded) => [
-            ..._filesUploaded,
-            ...acceptedFiles,
-          ])
-
-          if (fileRejections.length > 0) {
-            let _errorMessage = `Could not upload ${fileRejections[0].file.name}`
-            if (fileRejections.length > 1)
-              _errorMessage =
-                _errorMessage +
-                `, and ${fileRejections.length - 1} other files.`
-            setErrorMessage(_errorMessage)
-          } else {
-            setErrorMessage("")
-          }
-        }
-      },
-    })
 
     React.useEffect(() => {
       if (props.onChange) {
@@ -163,6 +151,23 @@ export const Dropzone = React.forwardRef(
       }
     }
 
+    function handleDrop(acceptedFiles, fileRejections, event) {
+      setFilesUploaded((_filesUploaded) => [
+        ..._filesUploaded,
+        ...acceptedFiles,
+      ])
+
+      if (fileRejections.length > 0) {
+        let _errorMessage = `Could not upload ${fileRejections[0].file.name}`
+        if (fileRejections.length > 1)
+          _errorMessage =
+            _errorMessage + `, and ${fileRejections.length - 1} other files.`
+        setErrorMessage(_errorMessage)
+      } else {
+        setErrorMessage("")
+      }
+    }
+
     const deleteUploadedFile = (index) => {
       setFilesUploaded((_uploadedFiles) => [
         ..._uploadedFiles.slice(0, index),
@@ -172,94 +177,80 @@ export const Dropzone = React.forwardRef(
 
     return (
       <div className={cn("flex flex-col gap-2", containerClassName)}>
-        <DropzoneArea
-          ref={ref}
-          className={dropZoneClassName}
-          dropzone={dropzone}
-          {...props}
-        />
+        {children ? (
+          children
+        ) : (
+          <>
+            <DropzoneArea
+              ref={ref}
+              className={dropZoneClassName}
+              onDrop={(acceptedFiles, fileRejections, event) =>
+                handleDrop(acceptedFiles, fileRejections, event)
+              }
+              {...props}
+            />
+            {errorMessage && (
+              <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
+            )}
 
-        {errorMessage && (
-          <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
-        )}
-
-        {showFilesList && filesUploaded.length > 0 && (
-          <div className="rounded-md border">
-            <div className="w-full">
-              <SortableList
-                onDragEnd={handleDragEnd}
-                items={filesUploaded.map((file) => file.name)}
-              >
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Bezeichnen</TableHead>
-                      {itemExtensions &&
-                        itemExtensions.map((itemExtension) => {
-                          return (
-                            <TableHead key={itemExtension.head}>
-                              {itemExtension.head}
-                            </TableHead>
-                          )
-                        })}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filesUploaded.map((fileUploaded, index) => (
-                      <React.Fragment key={fileUploaded.name}>
-                        <SortableList.Draggable
-                          asChild={true}
-                          id={fileUploaded.name}
-                        >
-                          <TableRow>
-                            <Item
-                              file={fileUploaded}
-                              index={index}
-                              id={fileUploaded.name}
-                            >
-                              {itemExtensions &&
-                                itemExtensions.map((itemExtension) => {
-                                  const clonedComponent = itemExtension.comp
-                                    ? cloneElement(itemExtension.comp, {
-                                        value: index,
-                                      })
-                                    : null
-
-                                  return (
-                                    <TableCell key={itemExtension.head}>
-                                      {clonedComponent}
-                                    </TableCell>
-                                  )
-                                })}
-                              <TableCell>
-                                <div className="flex gap-2 justify-end">
-                                  {props.sortable && (
-                                    <SortableList.DragHandle
-                                      id={fileUploaded.name}
-                                    />
-                                  )}
-                                  <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="select-none cursor-pointer"
-                                    onClick={() => deleteUploadedFile(index)}
-                                  >
-                                    <Trash className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </Item>
-                          </TableRow>
-                        </SortableList.Draggable>
-                      </React.Fragment>
-                    ))}
-                  </TableBody>
-                </Table>
-              </SortableList>
-            </div>
-          </div>
+            {showFilesList && filesUploaded.length > 0 && (
+              <DropzoneFiles>
+                <SortableList
+                  onDragEnd={handleDragEnd}
+                  items={filesUploaded.map((file) => file.name)}
+                >
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Bezeichnung</TableHead>
+                        <TableHead></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filesUploaded.map((fileUploaded, index) => (
+                        <React.Fragment key={fileUploaded.name}>
+                          <SortableList.Draggable
+                            asChild={true}
+                            id={fileUploaded.name}
+                          >
+                            <TableRow>
+                              <Item
+                                file={fileUploaded}
+                                index={index}
+                                id={fileUploaded.name}
+                              >
+                                <TableCell>
+                                  <div className="flex gap-2 justify-end">
+                                    {props.sortable && (
+                                      <SortableList.DragHandle
+                                        id={fileUploaded.name}
+                                      />
+                                    )}
+                                    <Button
+                                      variant="outline"
+                                      size="icon"
+                                      className="select-none cursor-pointer"
+                                      onClick={() => deleteUploadedFile(index)}
+                                    >
+                                      <Trash className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </Item>
+                            </TableRow>
+                          </SortableList.Draggable>
+                        </React.Fragment>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </SortableList>
+              </DropzoneFiles>
+            )}
+          </>
         )}
       </div>
     )
   },
 )
+
+export { Item, DropzoneArea, DropzoneFiles, Dropzone }
