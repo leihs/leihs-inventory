@@ -4,7 +4,6 @@ import { arrayMove } from "@dnd-kit/sortable"
 import { Button } from "@@/button"
 import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
-import truncate from "truncate"
 import SortableList from "@/components/react/sortable-list"
 import {
   Table,
@@ -14,23 +13,53 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 function Item({ children, className, file }) {
+  const [preview, setPreview] = React.useState()
+
+  React.useEffect(() => {
+    setPreview(URL.createObjectURL(file))
+    return () => URL.revokeObjectURL(preview)
+  }, [])
+
   return (
     <>
       <TableCell className="flex gap-4 items-center">
         {file.type === "application/pdf" ? (
           <FileText className="w-10 h-10" />
         ) : (
-          <Image className="w-10 h-10" />
+          <>
+            {file.type.startsWith("image/") ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <img
+                      src={preview}
+                      className="w-10 h-10 rounded object-cover"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <img src={preview} className="w-64 h-auto rounded" />
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <FileText className="w-10 h-10" />
+            )}
+          </>
         )}
         <div className="flex flex-col gap-0">
           <div className="text-[0.85rem] font-medium leading-snug">
-            {truncate(file.name.split(".").slice(0, -1).join("."), 30)}
+            {file.name}
           </div>
           <div className="text-[0.7rem] text-gray-500 leading-tight uppercase">
-            {file.name.split(".").pop()},{" "}
-            {(file.size / (1024 * 1024)).toFixed(2)} MB
+            {file.name.split(".").pop()}, {(file.size / 1024).toFixed(2)} kB
           </div>
         </div>
       </TableCell>
