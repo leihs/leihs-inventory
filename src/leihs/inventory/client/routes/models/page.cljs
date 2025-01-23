@@ -11,19 +11,22 @@
                        TableRow]]
    ["@tanstack/react-query" :as react-query :refer [useMutation useQuery]]
    ["lucide-react" :refer [Ellipsis Image Tags Download ChevronDown]]
+   ["react-router-dom" :as router]
    [leihs.inventory.client.lib.utils :refer [jc cj]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn fetch-inventory []
-  (.. (js/fetch "/inventory/models"
-                (cj {:headers {"Accept" "application/json"}}))
-      (then #(.json %))
-      (then #(jc %))))
+(defn fetch-inventory [params]
+  (let [path (router/generatePath "/inventory/:pool-id/models" params)]
+    (.. (js/fetch path
+                  (cj {:headers {"Accept" "application/json"}}))
+        (then #(.json %))
+        (then #(jc %)))))
 
 (defui page [{:keys [data]}]
-  (let [models (jc (useQuery (cj {:queryKey ["inventory"]
-                                  :queryFn fetch-inventory})))]
+  (let [params (router/useParams)
+        models (jc (useQuery (cj {:queryKey ["inventory"]
+                                  :queryFn #(fetch-inventory params)})))]
 
     (cond
       (:isLoading models)
@@ -107,7 +110,7 @@
                            ($ TableHead "Verfügbarkeit")
                            ($ TableHead "")))
                      ($ TableBody
-                        (for [item (:data models)]
+                        (for [item (:data (:data models))]
                           ($ TableRow {:key (-> item :id)}
                              ($ TableCell
                                 ($ Button {:variant "outline"
