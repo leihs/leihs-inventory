@@ -7,6 +7,7 @@
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.create.components.entitlement-allocations :refer [EntitlementAllocations]]
    [leihs.inventory.client.routes.models.create.components.image-upload :refer [ImageUpload]]
    [leihs.inventory.client.routes.models.create.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
@@ -16,11 +17,17 @@
    "dropzone" Dropzone
    "textarea" Textarea})
 
-(defui field [{:keys [control block]}]
+(defui field [{:keys [control form block]}]
   (cond
     (-> block :component (= "accessory-list"))
     ($ AccessoryList {:control control
                       :props (:props block)})
+
+    (-> block :component (= "entitlement-allocations"))
+    ($ EntitlementAllocations {:control control
+                               :items "0"
+                               :form form
+                               :props (:props block)})
 
     (-> block :component (= "image-dropzone"))
     ($ ImageUpload {:control control :props (:props block)})

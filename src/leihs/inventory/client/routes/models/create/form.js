@@ -23,7 +23,9 @@ export const schema = z.object({
   technical_detail: z.string(),
   internal_description: z.string(),
   hand_over_note: z.string(),
-  // entitlements: z.string().array(),
+  entitlements: z.array(
+    z.object({ entitlement_group_id: z.string(), quantity: z.number() }),
+  ),
   // categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
@@ -115,23 +117,24 @@ export const structure = [
       },
     ],
   },
-  // {
-  //   title: "Zuteilungen",
-  //   blocks: [
-  //     {
-  //       name: "entitlements",
-  //       label: "Berechtigungen",
-  //       description: "Listen Sie die Berechtigungen auf",
-  //       input: {
-  //         component: "combobox",
-  //         props: {
-  //           placeholder: "Berechtigungen eingeben",
-  //           "auto-complete": "off",
-  //         },
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    title: "Zuteilungen",
+    blocks: [
+      {
+        name: "entitlements",
+        label: "Berechtigungen",
+        description: "Listen Sie die Berechtigungen auf",
+        component: "entitlement-allocations",
+        // input: {
+        //   component: "combobox",
+        //   props: {
+        //     placeholder: "Berechtigungen eingeben",
+        //     "auto-complete": "off",
+        //   },
+        // },
+      },
+    ],
+  },
   // {
   //   title: "Kategorien",
   //   blocks: [

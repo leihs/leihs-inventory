@@ -64,7 +64,7 @@
                             ($ TableCell
                                ($ FormField
                                   {:control (cj control)
-                                   :name (str "properties." index (-> inputs (nth 0) :name))
+                                   :name (str "properties." index "." (-> inputs (nth 0) :name))
                                    :render #($ FormItem
                                                ($ FormControl
                                                   ($ Textarea (merge
