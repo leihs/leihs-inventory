@@ -53,10 +53,6 @@
          p (println "\n>o> ?? filter_ids" filter_ids)
          p (println ">o> ?? filter-params" pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id)
 
-
-         ;pool_id nil
-
-
          filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          filter-product (if-not model_id (:filter_product query-params) nil)
          base-query (-> (sql/select-distinct :m.*)

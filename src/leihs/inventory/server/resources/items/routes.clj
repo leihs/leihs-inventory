@@ -148,69 +148,69 @@
 
 
 
-                                ;ids (vec (flatten (map :model_id res1)))
-                                ;count-before (count ids)
-                                ;
-                                ;ids (vec (distinct ids))
-                                ;count-after (count ids)
-                                ;
-                                ;p (println ">o> REDUCED IDS FROM " count-before" TO "count-after)
-                                ;p (println ">o> abc.ids1" ids)
-                                ;;ids [(first ids)]
-                                ;
-                                ;;p (println ">o> abc.ids2" ids)
-                                ;
-                                ;
-                                ;
-                                ;;res1 (json/generate-string res1 {:pretty true})
-                                ;
-                                ;
-                                ;;res1 (:data (get-items-of-pool-with-pagination-handler request))
-                                ;
-                                ;
-                                ;   ;request (assoc request :query-params {})
-                                ;;request (update request :query-params #(select-keys % [:search_term]))
-                                ;;
-                                ;;
-                                ;
-                                ;request (assoc-in request [:parameters :query] {})
-                                ;request (assoc-in request [:parameters :path] {})
-                                ;request (update-in request [:parameters :query] merge {:paginate false :filter_ids ids})
-                                ;
-                                ;res2 (get-models-handler request false)
-                                ;;res2 (:data res2)
+                                ids (vec (flatten (map :model_id res1)))
+                                count-before (count ids)
+
+                                ids (vec (distinct ids))
+                                count-after (count ids)
+
+                                p (println ">o> REDUCED IDS FROM " count-before" TO "count-after)
+                                p (println ">o> abc.ids1" ids)
+                                ;ids [(first ids)]
+
+                                ;p (println ">o> abc.ids2" ids)
+
+
+
+                                ;res1 (json/generate-string res1 {:pretty true})
+
+
+                                ;res1 (:data (get-items-of-pool-with-pagination-handler request))
+
+
+                                   ;request (assoc request :query-params {})
+                                ;request (update request :query-params #(select-keys % [:search_term]))
                                 ;
                                 ;
-                                ;;res2 (rename-key res2 :id :model_id)
-                                ;;
-                                ;p (println ">o> abc.res2" res2)
-                                ;
-                                ;
-                                ;
-                                ;res2 (map #(select-keys % [:id :product :manufacturer]) res2)
+
+                                request (assoc-in request [:parameters :query] {})
+                                request (assoc-in request [:parameters :path] {})
+                                request (update-in request [:parameters :query] merge {:paginate false :filter_ids ids})
+
+                                res2 (get-models-handler request false)
+                                ;res2 (:data res2)
+
+
                                 ;res2 (rename-key res2 :id :model_id)
                                 ;
-                                ;
-                                ;res3 (merge-by-id res1 res2 :model_id)
-                                ;;res3 (merge-mn res1 res2 :model_id)
-                                ;
-                                ;
-                                ;res4 (map #(select-keys % [:inventory_code :product]) res3)
+                                p (println ">o> abc.res2" res2)
 
 
 
-                                result res1
+                                res2 (map #(select-keys % [:id :product :manufacturer]) res2)
+                                res2 (rename-key res2 :id :model_id)
+
+
+                                res3 (merge-by-id res1 res2 :model_id)
+                                ;res3 (merge-mn res1 res2 :model_id)
+
+
+                                res4 (map #(select-keys % [:inventory_code :product]) res3)
+
+
+
+                                result res3
                                    ]
 
 
                        ;(response/response res1)
                        ;(response/response [res1 res2 res3])
-                       ;(response/response [res1 res2])
+                       (response/response [res1 res2])
                        ;(response/response res2)
                        ;(response/response res3)
 
-                            (-> (response/response result)
-                              (response/header "Count" (count result)))
+                            ;(-> (response/response result)
+                            ;  (response/header "Count" (count result)))
 
                        ;(response/response res4)
                             ;res1
