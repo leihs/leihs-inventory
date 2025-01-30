@@ -122,12 +122,17 @@
 
                           (let [
 
+                                ;; request items
                                 result-type (get-in request [:parameters :query :result_type])
 
-                                request (update-in request [:parameters :query] merge {:size 200 :page 1 :not_packaged true :packages false :retired false :result_type "Distinct"})
+                                request (update-in request [:parameters :query] merge {
+                                                                                       ;:size 200 :page 1
+                                                                                       :not_packaged true :packages false :retired false :result_type "Distinct"})
                                 res1 (get-items-handler request true)
-                                ids (vec (flatten (map :model_id res1)))
+                                ;; TODO: handle empty result _> no result "abc"
 
+                                ;; prepare and request models
+                                ids (vec (flatten (map :model_id res1)))
                                 request (-> request
                                              (assoc-in [:parameters :query] {})
                                              (assoc-in [:parameters :path] {})
