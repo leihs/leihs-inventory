@@ -22,6 +22,28 @@
        pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
        pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
 
+(defn base-pool-query-distinct [query pool-id]
+  (-> query
+      (sql/from [:items :i])
+
+      ;(sql/join [:rooms :r] [:= :r.id :i.room_id])
+      (sql/join [:models :m] [:= :m.id :i.model_id])
+      ;(sql/join [:buildings :b] [:= :b.id :r.building_id])
+
+      (cond->
+       ;pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
+       pool-id (sql/where [:= :i.inventory_pool_id [:cast pool-id :uuid]]))
+
+    (sql/group-by :m.product :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id
+
+      ;:i.retired :i.parent_id :i.id
+      ;:m.is_package
+      )
+      (sql/limit 10)
+    ;(sql/group-by :m.product :i.inventory_code )
+
+    ))
+
 (defn valid-get-request? [request]
   (let [method (:request-method request)
         uri (:uri request)
@@ -57,7 +79,7 @@
          ;          nil)
 
 
-         p (println ">o> abc???" search_term not_packaged packages retired result_type)
+         p (println ">o> abc???.params" search_term not_packaged packages retired result_type)
 
          ;filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          ;filter-product (if-not model_id (:filter_product query-params) nil)
@@ -70,41 +92,82 @@
          ;can_destroy
          ;children
 
+         ;; TODO: distinct select
+   ;      SELECT distinct on (m.product) i.inventory_code, m.product
+   ;,       i.retired, m.is_package, i.parent_id
+   ;
+   ;      --        i.retired, m.is_package, i.parent_id
+   ;      FROM models m
+   ;      JOIN items i ON i.model_id = m.id
+   ;      WHERE i.inventory_pool_id = '8bd16d45-056d-5590-bc7f-12849f034351'
+   ;        AND i.retired IS NULL
+   ;      AND m.is_package = FALSE
+   ;      AND i.parent_id IS NULL
+   ;      AND (i.inventory_code ILIKE '%rode%' OR m.product ILIKE '%rode%')
+   ;      group by m.product, i.inventory_code ,      i.retired, m.is_package, i.parent_id
+   ;      ORDER BY m.product
 
-         base-select (cond                       (= result_type "Min")  (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)
+         base-select (cond
+                       (= result_type "Distinct")  (sql/select-distinct-on [:m.product]
+                                                     :i.retired :i.parent_id :i.id
+                                                     :m.is_package
+                                                     :i.inventory_code
+                                                     :i.inventory_pool_id
+                                                     :m.product)
+                       (= result_type "Min")  (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)
                        :else (sql/select :m.is_package :i.* [:b.name :building_name] [:r.name :room_name])  )
 
-         ;base-query (-> (sql/select-distinct :i.*)
-         ;base-query (-> (sql/select)
+
          base-query (-> base-select
 
-                        ((fn [query] (base-pool-query query pool_id)))
+                      ((fn [query] (base-pool-query-distinct query pool_id))))
 
-                        (cond-> item_id (sql/where [:= :i.id item_id]))
-
-
-                        (cond-> (= true retired) (sql/where [:is :i.retired nil]))
-                        (cond-> (= false retired) (sql/where [:is-not :i.retired nil]))
-
-                        (cond-> (= true packages) (sql/where [:= :m.is_package true]))
-                        (cond-> (= false packages) (sql/where [:= :m.is_package false]))
-
-                        (cond-> (= true not_packaged) (sql/where [:is :i.parent_id nil]))
-                        (cond-> (= false not_packaged) (sql/where [:is-not :i.parent_id nil]))
-
-                      (cond-> (not (empty? search_term))
-                        (sql/where [:or [:ilike :i.inventory_code (str "%" search_term "%")] [:ilike :m.product (str "%" search_term "%")]]))
-
-                        (cond-> item_id (sql/where [:= :i.id item_id]))
+         ;query (-> base-query sql-format)
+         ;
+         ;p (println ">o> query1" query)
+         ;p (println ">o> query2" (jdbc/query tx query))
+         ;p (println ">o> query3" (jdbc/execute! tx query))
 
 
 
 
-                        (cond-> (and sort-by item_id) (sql/order-by item_id)))]
-     (cond
-       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-       with-pagination? (pagination-response request base-query)
-       :else (jdbc/query tx (-> base-query sql-format))))))
+         ;base-query (-> base-select
+         ;
+         ;               ((fn [query] (base-pool-query query pool_id)))
+         ;
+         ;               (cond-> item_id (sql/where [:= :i.id item_id]))
+         ;
+         ;
+         ;               (cond-> (= true retired) (sql/where [:is-not :i.retired nil]))
+         ;               (cond-> (= false retired) (sql/where [:is :i.retired nil]))
+         ;
+         ;               (cond-> (= true packages) (sql/where [:= :m.is_package true]))
+         ;               (cond-> (= false packages) (sql/where [:= :m.is_package false]))
+         ;
+         ;               (cond-> (= true not_packaged) (sql/where [:is :i.parent_id nil]))
+         ;               (cond-> (= false not_packaged) (sql/where [:is-not :i.parent_id nil]))
+         ;
+         ;             (cond-> (not (empty? search_term))
+         ;               (sql/where [:or [:ilike :i.inventory_code (str "%" search_term "%")] [:ilike :m.product (str "%" search_term "%")]
+         ;                           [:ilike :m.manufacturer (str "%" search_term "%")]]))
+         ;
+         ;               (cond-> item_id (sql/where [:= :i.id item_id]))
+         ;
+         ;
+         ;
+         ;
+         ;               (cond-> (and sort-by item_id) (sql/order-by item_id)))
+
+         ]
+
+     ;(cond
+     ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+     ;  with-pagination? (pagination-response request base-query)
+     ;  :else (jdbc/query tx (-> base-query sql-format)))
+
+     (jdbc/query tx (-> base-query sql-format))
+
+     )))
 
 (defn get-items-of-pool-with-pagination-handler [request]
   (response (get-items-handler request true)))
