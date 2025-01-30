@@ -1670,6 +1670,12 @@ debugger
                             deleteParamsFromPutPostFormData(formData);
 
 
+
+                            let items = window.getSelectedItems()
+                            formData.add('items', JSON.stringify(items));
+                            debugger
+
+
                             formData.delete('undefined')
 
 
@@ -1811,6 +1817,10 @@ debugger
 
                         deleteParamsFromPutPostFormData(formData);
                         checkFormDataOrThrow(formData, modelId)
+
+                        let items = window.getSelectedItems()
+                        formData.append('items', JSON.stringify(items));
+                        debugger
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {

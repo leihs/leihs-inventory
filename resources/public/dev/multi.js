@@ -1,6 +1,27 @@
 $(document).ready(function () {
     let selectedItems = [];
 
+    window.getSelectedItems = function () {
+
+        // function getSelectedItems() {
+        let selectedItems = [];
+
+        // Select all .selected-item elements inside div[name="multi-select"]
+        document.querySelectorAll('div[name="multi-select"] .selected-item').forEach(item => {
+            selectedItems.push({
+                inventory: item.getAttribute("data-inventory"),
+                id: item.getAttribute("data-id"),
+                text: item.textContent.trim().replace('×', '') // Removes the close (×) symbol
+            });
+        });
+
+        return selectedItems;
+    }
+
+// Example usage:
+    console.log(getSelectedItems()); // Logs the extracted data
+
+
     // Function to fetch search results via AJAX
     function fetchSuggestions(query) {
         if (query.length < 2) {
@@ -73,7 +94,8 @@ $(document).ready(function () {
                             selectedItems.push(selectedItemData.inventory_code);
 
                             $(".selected-items").append(`
-                                <div class="selected-item" data-inventory="${selectedItemData.inventory_code}">
+                                <div class="selected-item" data-inventory="${selectedItemData.inventory_code}"
+                                data-id="${selectedItemData.id}">
                                     ${selectedItemData.inventory_code} | ${selectedItemData.manufacturer} / ${selectedItemData.product}
                                     <span>&times;</span>
                                 </div>
