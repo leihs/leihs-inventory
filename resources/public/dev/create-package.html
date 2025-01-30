@@ -7,6 +7,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="/inventory/dev/multi.js"></script>
+    <link href="/inventory/dev/multi.css" rel="stylesheet" />
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         .form-group { margin-bottom: 15px; }
@@ -297,11 +299,18 @@
 <form id="softwareForm">
     <div id="dynamicFields"></div>
 
-    <div class="form-group">
-        <label for="items">Add Items</label>
-        <select id="items" name="items" multiple></select>
-    </div>
 </form>
+
+<div class="form-group">
+    <label for="items">Add Items</label>
+    <select id="items" name="items" multiple></select>
+</div>
+
+<div class="multi-select-container">
+    <div class="selected-items"></div>
+    <input type="text" id="searchBox" placeholder="Start typing..." autocomplete="off">
+    <div class="suggestions"></div>
+</div>
 
 <script>
 
@@ -784,7 +793,7 @@
         $("#myModel").select2(initSoftwareConfig)
 
 
-        debugger
+        // debugger
 
         // $("#myAddItem").select2({
         //     placeholder: 'Search items',
@@ -833,7 +842,7 @@
         //                         },
         //                         dataType: 'json',
         //                         success: function (modelResponse) {
-        //                             debugger
+        //                             // debugger
         //                             const results = modelResponse.data.map(model => ({
         //                                 id: model.id,
         //                                 text: `${model.product} | ${model.product}` // Customize display text
@@ -1075,7 +1084,7 @@
                 //     console.log("key???", key, value)
                 // if(key == 'properties,operating_system'){
                 //     console.log("key", key, value)
-                //     debugger
+                //     // debugger
                 // }
 
                 const propertyName = key.split(",")[1];
@@ -1136,7 +1145,7 @@
 
                     $roomDropdown.prop('disabled', false);
 
-                    // debugger
+                    // // debugger
                     // Set the initial value for the room if available
                     let roomId = $("#myRoom").data("initValue")
                     if (roomId) {
@@ -1200,15 +1209,70 @@
         fetch(url, { headers: { Accept: "application/json" } })
             .then((response) => response.json())
             .then((data) => {
+
+
+
+
+                // debugger
+
+                // if (response.compatibles) {
+                //
+                //
+                //     // Populate compatibles
+                //     $('#compatibles').val(response.compatibles
+                //         .filter(c => c && c.id != null)
+                //         .map(c => c.id)).trigger('change');
+                //
+                //     $('#compatibles').find('option:selected').each(function(index, option, a, b) {
+                //         const categoryId = $(option).val();
+                //         var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
+                //         if (entitlementData) {
+                //             $(option).data('compatible', entitlementData);
+                //             console.log('Updated option data:', $(option).data('compatible'));
+                //         }
+                //     });
+                //     $("#cache").data("prev-compatibles",  $('#compatibles').val())
+                //
+                //     $('#compatibles').on('change', function() {
+                //         const currentSelection = $(this).val() || [];
+                //         const previousSelection = $("#cache").data("prev-compatibles") || [];
+                //         const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+                //
+                //         var deleted_data = $("#cache").data("deleted-compatibles") || []
+                //         removedOptions.forEach(id => {
+                //             const removedOption = $(this).find(`option[value="${id}"]`);
+                //             var removedEntitlementData = removedOption.data('compatible')
+                //             if(removedEntitlementData == undefined){
+                //                 return;
+                //             }
+                //
+                //             removedEntitlementData.delete = true;
+                //             deleted_data.push(removedEntitlementData)
+                //         });
+                //
+                //         $("#cache").data("deleted-compatibles",  deleted_data);
+                //         $("#cache").data("prev-compatibles",  currentSelection);
+                //     });
+                // };
+
+                // debugger
+
                 const select = document.getElementById(selectId);
                 select.innerHTML = '<option value="">Select an option</option>';
                 data.forEach((item) => {
                     const option = document.createElement("option");
-                    option.value = item;
-                    option.textContent = item;
+                    option.value = item.id;
+                    option.textContent = item.inventory_code + " | " + item.product;
+                    $(option).data('item', item);
+
                     select.appendChild(option);
                 });
                 initSelect2(selectId);
+
+                if(selectId === 'item'){
+                    $("#cache").data(`prev-${selectId}`,  $('#item').val());
+                }
+
             })
             .catch((error) => console.error("Error:", error));
     }
@@ -1341,11 +1405,18 @@
 
         };
 
-
+        function initSelect2(selectId, type) {
+            $(`#${selectId}`).select2({
+                width: "100%",
+                placeholder: "Select an option",
+                allowClear: true
+            });
+        }
         function updateDropdowns(poolId) {
             // fetchOptions(`/inventory/manufacturers`, 'manufacturer');
             // fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
-            fetchOptions(`/inventory/models-compatibles`, 'compatibles');
+            fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
+            // fetchOptions(`/inventory/models-compatibles`, 'compatibles');
             // fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
         }
 
@@ -1407,6 +1478,7 @@
                 alert("Please enter a items ID.");
                 return;
             }
+
 
             // FETCH PACKAGE
             $.ajax({
@@ -1577,7 +1649,7 @@
                             formData.delete('undefined')
 
 
-                            // debugger
+                            // // debugger
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
@@ -1658,7 +1730,7 @@
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
 
-                    // debugger
+                    // // debugger
                     $('#inventory_code').val(data.inventory_code)
                     // $('#myOwner').val(data.inventory_pool_id)
 

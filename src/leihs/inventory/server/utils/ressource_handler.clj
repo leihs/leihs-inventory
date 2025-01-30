@@ -51,6 +51,10 @@
           assets)
     nil))
 
+(defn extract-filetype [uri]
+  (when-let [filename (last (str/split uri #"/"))]
+    (second (re-matches #".*\.([a-zA-Z0-9]+)$" filename))))
+
 (defn get-assets []
   (into {}
         (for [file RESOURCE_FILES]
@@ -73,17 +77,30 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
+(defn extract-filename [uri]
+  (let [filename (last (str/split uri #"/"))]
+    (if (re-matches #".*\.(css|js)$" filename)
+      filename
+      nil)))
+
+
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
         request ((session/wrap-authenticate (fn [request] request)) request)
         uri (:uri request)
+        file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
     (cond
       (= uri "/") (create-root-page)
 
       ;; TODO: DEV-ENDPOINT
+      (and (str/starts-with? uri "/inventory/dev/") (not (nil? file)))  ;; true
+                                                                        {:status 200
+                                                                           :headers {"Content-Type" (str "text/"( extract-filetype uri))}
+                                                                           :body (slurp (io/resource (str "public/dev/" file)))}
+
       (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
                                                                            :headers {"Content-Type" "text/html"}
                                                                            :body (slurp (io/resource "public/dev/create-model.html"))}

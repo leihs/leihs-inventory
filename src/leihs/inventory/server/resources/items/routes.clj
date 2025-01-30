@@ -102,7 +102,7 @@
 
 
     ["/items-with-model-info"
-     {:get {:description "Shortcut to fetch Items with model info (distinct item entries"
+     {:get {:description "Shortcut to fetch Items with model info (distinct item entries) page&size set!!"
             :conflicting true
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -124,7 +124,7 @@
 
                                 result-type (get-in request [:parameters :query :result_type])
 
-                                request (update-in request [:parameters :query] merge {:not_packaged true :packages false :retired false :result_type "Distinct"})
+                                request (update-in request [:parameters :query] merge {:size 200 :page 1 :not_packaged true :packages false :retired false :result_type "Distinct"})
                                 res1 (get-items-handler request true)
                                 ids (vec (flatten (map :model_id res1)))
 
