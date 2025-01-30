@@ -27,7 +27,7 @@
       (sql/from [:items :i])
       (sql/join [:models :m] [:= :m.id :i.model_id])
       (cond->       pool-id (sql/where [:= :i.inventory_pool_id [:cast pool-id :uuid]]))
-    (sql/group-by :m.product :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id)
+    (sql/group-by :m.product :i.model_id :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id)
     ))
 
 (defn valid-get-request? [request]
@@ -84,6 +84,7 @@
                                                      :i.retired :i.parent_id :i.id
                                                      :m.is_package
                                                      :i.inventory_code
+                                                     :i.model_id
                                                      :i.inventory_pool_id
                                                      :m.product)
                        (= result_type "Min")  (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)

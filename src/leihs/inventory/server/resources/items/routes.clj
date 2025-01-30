@@ -8,6 +8,8 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [clojure.set :as set]
 
+   [leihs.inventory.server.resources.utils.request :refer [query-params]]
+
    [leihs.inventory.server.resources.models.models-by-pool :refer [
                                                                    ;get-models-of-pool-handler
                                                                    ;create-model-handler-by-pool
@@ -100,9 +102,7 @@
 
 
     ["/items-with-model-info"
-     {:get {:description "Shortcut
-
-     "
+     {:get {:description "Shortcut to fetch Items with model info (distinct item entries"
             :conflicting true
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -114,113 +114,65 @@
                                  (s/optional-key :size) s/Int
 
                                  (s/optional-key :search_term) s/Str
-                                 ;(s/optional-key :not_packaged) s/Bool
-                                 ;(s/optional-key :packages) s/Bool
-                                 ;(s/optional-key :retired) s/Bool
+                                 :result_type (s/enum "Normal" "Min")
 
-                                 ;:result_type (s/enum "Min" "Normal")
                                  }}
-            ;:handler get-items-of-pool-with-pagination-handler
-
             :handler (fn [request]
-
-                       ;; how to set query parameters in request
 
 
                           (let [
-                                ;request (update request [:parameters :query] {:not_packaged true :packages false :retired false :result_type "Min"})
 
-                                ;request (update-in request [:parameters :query] merge {:not_packaged true :packages false :retired false :result_type "Min"})
+                                result-type (get-in request [:parameters :query :result_type])
+
                                 request (update-in request [:parameters :query] merge {:not_packaged true :packages false :retired false :result_type "Distinct"})
-
-
-                                ;res1 (get-items-of-pool-with-pagination-handler request)
-
                                 res1 (get-items-handler request true)
-
-                                p (println ">o> abc.res1" (type res1))
-
-                                ;res1 (json/parse-string res1)
-                                ;res1 (get "data" res1)
-                                ;res1 (:data res1)
-
-                                p (println ">o> abc.res1.count" res1)
-
-
-
                                 ids (vec (flatten (map :model_id res1)))
-                                count-before (count ids)
 
-                                ids (vec (distinct ids))
-                                count-after (count ids)
-
-                                p (println ">o> REDUCED IDS FROM " count-before" TO "count-after)
-                                p (println ">o> abc.ids1" ids)
-                                ;ids [(first ids)]
-
-                                ;p (println ">o> abc.ids2" ids)
-
-
-
-                                ;res1 (json/generate-string res1 {:pretty true})
-
-
-                                ;res1 (:data (get-items-of-pool-with-pagination-handler request))
-
-
-                                   ;request (assoc request :query-params {})
-                                ;request (update request :query-params #(select-keys % [:search_term]))
-                                ;
-                                ;
-
-                                request (assoc-in request [:parameters :query] {})
-                                request (assoc-in request [:parameters :path] {})
-                                request (update-in request [:parameters :query] merge {:paginate false :filter_ids ids})
+                                request (-> request
+                                             (assoc-in [:parameters :query] {})
+                                             (assoc-in [:parameters :path] {})
+                                             (update-in [:parameters :query] merge {:paginate false :filter_ids ids}))
 
                                 res2 (get-models-handler request false)
-                                ;res2 (:data res2)
-
-
-                                ;res2 (rename-key res2 :id :model_id)
-                                ;
-                                p (println ">o> abc.res2" res2)
-
-
 
                                 res2 (map #(select-keys % [:id :product :manufacturer]) res2)
                                 res2 (rename-key res2 :id :model_id)
 
-
                                 res3 (merge-by-id res1 res2 :model_id)
-                                ;res3 (merge-mn res1 res2 :model_id)
-
-
                                 res4 (map #(select-keys % [:inventory_code :product]) res3)
 
 
 
-                                result res3
+                                result (if (= "Normal" result-type)
+                                         res3
+                                         res4
+                                         )
+
+                                ;result res4
                                    ]
 
-
-                       ;(response/response res1)
-                       ;(response/response [res1 res2 res3])
-                       (response/response [res1 res2])
-                       ;(response/response res2)
-                       ;(response/response res3)
-
-                            ;(-> (response/response result)
-                            ;  (response/header "Count" (count result)))
-
-                       ;(response/response res4)
-                            ;res1
+                            (-> (response/response result)
+                              (response/header "Count" (count result)))
                             )
 
 )
 
 
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             :body [{:inventory_code s/Str
+                                     :product s/Str
+
+                                     (s/optional-key :is_package)        s/Bool
+                                      (s/optional-key :retired)           s/Any
+                                      (s/optional-key :model_id)          s/Uuid
+                                      (s/optional-key :parent_id)         (s/maybe s/Uuid)
+                                      (s/optional-key :id)                s/Uuid
+                                      (s/optional-key :inventory_pool_id) s/Uuid
+                                      (s/optional-key :manufacturer)      (s/maybe s/Str)
+                                     }]
+                             ;:body s/Any
+                              }
+
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
@@ -242,7 +194,7 @@
                                  (s/optional-key :packages) s/Bool
                                  (s/optional-key :retired) s/Bool
 
-                                 :result_type (s/enum "Min" "Normal")
+                                 :result_type (s/enum "Min" "Normal" "Distinct")
                                  }}
             :handler get-items-of-pool-with-pagination-handler
             :responses {200 {:description "OK"
