@@ -21,6 +21,8 @@
 (defui main [{:keys [control items form props]}]
   (let [{:keys [entitlements]} (uix/use-context state-context)
         [allocations set-allocations!] (uix/use-state 0)
+        [width set-width!] (uix/use-state nil)
+        buttonRef (uix/use-ref nil)
         set-value (aget form "setValue")
         get-values (aget form "getValues")
 
@@ -38,6 +40,12 @@
 
     (uix/use-effect
      (fn []
+       (when (.. buttonRef -current)
+         (set-width! (.. buttonRef -current -offsetWidth))))
+     [])
+
+    (uix/use-effect
+     (fn []
        (let [entitlements (jc (get-values "entitlements"))
              allocations-combined (reduce (fn [acc item]
                                             (+ acc (js/parseInt (:quantity item))))
@@ -52,14 +60,15 @@
 
        ($ Popover
           ($ PopoverTrigger {:as-child true}
-             ($ Button {:variant "outline"
+             ($ Button {:ref buttonRef
+                        :variant "outline"
                         :role "combobox"
                         :class-name (str "justify-between w-full")}
                 "Select Entitlement Group"
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
-                             :align "left"}
+                             :style {:width (str width "px")}}
              ($ Command
                 ($ CommandInput {:placeholder "Search entitlement groups"})
                 ($ CommandList

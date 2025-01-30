@@ -26,7 +26,7 @@ export const schema = z.object({
   entitlements: z.array(
     z.object({ entitlement_group_id: z.string(), quantity: z.number() }),
   ),
-  // categories: z.string().array(),
+  categories: z.string().array(),
   images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
   attachments: z.string().array(),
   accessories: z.array(z.object({ accessory: z.string() })),
@@ -135,20 +135,16 @@ export const structure = [
       },
     ],
   },
-  // {
-  //   title: "Kategorien",
-  //   blocks: [
-  //     {
-  //       name: "categories",
-  //       label: "Kategorien",
-  //       description: "Listen Sie die Kategorien auf",
-  //       input: {
-  //         component: "combobox",
-  //         props: { placeholder: "Kategorien eingeben", "auto-complete": "off" },
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    title: "Kategorien",
+    blocks: [
+      {
+        name: "categories",
+        label: "Kategorien",
+        component: "category-assignment",
+      },
+    ],
+  },
   {
     title: "Bilder",
     blocks: [
