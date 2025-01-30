@@ -135,20 +135,12 @@ export const structure = [
       },
     ],
   },
-  // {
-  //   title: "Kategorien",
-  //   blocks: [
-  //     {
-  //       name: "categories",
-  //       label: "Kategorien",
-  //       description: "Listen Sie die Kategorien auf",
-  //       input: {
-  //         component: "combobox",
-  //         props: { placeholder: "Kategorien eingeben", "auto-complete": "off" },
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    title: "Kategorien",
+    name: "categories",
+    label: "Kategorien",
+    component: "category-assignment",
+  },
   {
     title: "Bilder",
     blocks: [
