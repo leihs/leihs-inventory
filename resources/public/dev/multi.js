@@ -63,13 +63,13 @@ $(document).ready(function () {
             headers: { 'Accept': 'application/json' },
             data: requestData,
             success: function (response) {
+
+                // XXX: copy1
                 let filtered = response.filter(item => !selectedItems.includes(item.inventory_code));
 
                 if (filtered.length > 0) {
                     let suggestionsHtml = filtered.map(item =>
                     {
-                        // // // debugger
-
                         const manu = item.manufacturer ? `${item.manufacturer} /` : '';
                         return `<div class="suggestion-item" 
                              data-inventory_code="${item.inventory_code}" 
@@ -81,11 +81,7 @@ $(document).ready(function () {
                     }
                     ).join('');
 
-                    // $(".suggestions").html(suggestionsHtml).show();
-                    const el = $(".suggestions").html(suggestionsHtml)
-// // // debugger
-                        // el.data('item', item)
-                        el.show();
+                    $(".suggestions").html(suggestionsHtml).show();
                 } else {
                     $(".suggestions").hide();
                 }

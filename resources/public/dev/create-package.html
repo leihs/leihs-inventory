@@ -1540,6 +1540,23 @@
                         // Populate field values
                         populateFieldValues(data, fieldMapping);
 
+                        const items= data.items_attributes || [];
+
+                        items.forEach(item => {
+                            const selectedItemData = item;
+                            const manu = selectedItemData.manufacturer ? selectedItemData.manufacturer.name : "";
+                            $(".selected-items").append(`
+                                <div class="selected-item"
+                                data-inventory_code="${selectedItemData.inventory_code}"
+                                data-id="${selectedItemData.id}"
+
+                                >${selectedItemData.inventory_code} | ${manu} ${selectedItemData.product}
+                                    <span>&times;</span>
+                                </div>
+                            `);
+                        });
+
+
                         CONST_IS_CREATE_FORM = false;
                         $("#formTitle").text("Update Package");
                         // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
@@ -1586,11 +1603,11 @@
                         }
 
 
-                        if(data.reference == "invoice"){
-                         $("[name='properties,reference'][value=invoice]").prop("checked", true)
-                        }else{
-                         $("[name='properties,reference'][value=investment]").prop("checked", true)
-                        }
+                        // if(data.reference == "invoice"){
+                        //  $("[name='properties,reference'][value=invoice]").prop("checked", true)
+                        // }else{
+                        //  $("[name='properties,reference'][value=investment]").prop("checked", true)
+                        // }
 
 
 
@@ -1611,25 +1628,25 @@
                         //     }
                         // });
 
-                        const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
-                        $('#propertiesList').empty()
-                        quantity_allocations.forEach(entry => {
-                            addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
-                        });
+                        // const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
+                        // $('#propertiesList').empty()
+                        // quantity_allocations.forEach(entry => {
+                        //     addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
+                        // });
 
-                        const attachments = data.attachments || []; // Default to an empty array
-                        $("#attachmentsList").empty();
-                        attachments.forEach(attachment => {
-
-                               let entry= $("#attachmentsList").append(`
-                                    <div class="file-item" withData>
-                                        <span>${attachment.filename} (${attachment.content_type})</span>
-                                        <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
-                                    </div>
-                                `);
-
-                            entry.data("raw", attachment)
-                            });
+                        // const attachments = data.attachments || []; // Default to an empty array
+                        // $("#attachmentsList").empty();
+                        // attachments.forEach(attachment => {
+                        //
+                        //        let entry= $("#attachmentsList").append(`
+                        //             <div class="file-item" withData>
+                        //                 <span>${attachment.filename} (${attachment.content_type})</span>
+                        //                 <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
+                        //             </div>
+                        //         `);
+                        //
+                        //     entry.data("raw", attachment)
+                        //     });
 
                         setupDongleAndRetiredHandler(data)
 
