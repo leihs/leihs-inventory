@@ -1673,6 +1673,20 @@
 
                             // PUT
                             let items = window.getSelectedItems()
+
+                            let deletedItems = window.deletedItems || []
+
+                            // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
+                            // Add `delete: true` to items that are in deletedItems
+                            items = items.map(item => {
+                                const isDeleted = deletedItems.some(deletedItem =>
+                                    deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+                                );
+
+                                return isDeleted ? { ...item, delete: true } : item;
+                            });
+
+
                             formData.append('items_attributes', JSON.stringify(items));
                             // debugger
 
@@ -1822,6 +1836,19 @@
                         // POST
                         let items = window.getSelectedItems()
                         // items = items_attributes.map(({ id, inventory_code }) => ({ id, inventory_code }));
+
+
+                        let deletedItems = window.deletedItems || []
+
+                        // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
+                        // Add `delete: true` to items that are in deletedItems
+                        items = items.map(item => {
+                            const isDeleted = deletedItems.some(deletedItem =>
+                                deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+                            );
+
+                            return isDeleted ? { ...item, delete: true } : item;
+                        });
 
                         formData.append('items_attributes', JSON.stringify(items));
                         // debugger
