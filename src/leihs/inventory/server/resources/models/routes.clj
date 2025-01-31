@@ -784,11 +784,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         :multipart :package/multipart}        ;; TODO
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                         ;:multipart :package/multipart}        ;; TODO
+                         :multipart any?}        ;; TODO
+            ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)] ;; FIXME
             :handler update-package-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             :body any?}
+            :responses {
+                        200 {}
+                        ;200 {:description "OK"
+                        ;     :body any?}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 

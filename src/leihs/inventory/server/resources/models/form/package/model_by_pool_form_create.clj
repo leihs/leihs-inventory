@@ -151,7 +151,6 @@
 
         data (dissoc data :items_attributes)
 
-
         data (convert-map-if-exist data)
 
 
@@ -188,33 +187,12 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
 
-        ;items_attributes (first (parse-json-array request :items_attributes))
         items_attributes (parse-json-array request :items_attributes)
-
-
-        ;multipart (assoc multipart :inventory_pool_id pool-id)
 
         p (println ">o> items_attributes" items_attributes)
 
-        ;items_attributes (:items_attributes data)
-
-
         multipart (assoc multipart :inventory_pool_id pool-id)
         prepared-package-data (prepare-package-data multipart)
-        ;prepared-package-data (prepare-package-data multipart items_attributes)
-
-
-
-        ;prepared-package-data (->
-        ;                      ;(prepare-software-data multipart)
-        ;                      (prepare-item-data multipart properties)
-        ;                        (assoc :is_package (str-to-bool (:is_package multipart))))
-
-        ;prepared-package-data (assoc multipart :is_package (str-to-bool (:is_package multipart)))
-
-        ;attachments (normalize-files request :attachments)
-
-
 
         p (println ">o> prepared-package-data" prepared-package-data)
         ]

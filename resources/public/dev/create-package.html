@@ -1729,6 +1729,7 @@
 
 
                             formData.delete('undefined')
+                            formData.delete('attachments-to-delete')
 
 
                             // // debugger
@@ -1744,8 +1745,8 @@
                                 success: function (response) {
                                     console.log("Package updated successfully!", response);
 
-                                    $(`#attachmentsList`).data('to-delete', [])
-                                    $('#attachments').val('');
+                                    //$(`#attachmentsList`).data('to-delete', [])
+                                    // $('#attachments').val('');
 
                                     $('#softwareId').val(response.data.model_id)
                                     $('#itemId').val(response.data.id)

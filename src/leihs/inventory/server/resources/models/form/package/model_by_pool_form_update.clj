@@ -6,6 +6,9 @@
    [cheshire.core :as jsonc]
       [clojure.java.io :as io]
 
+
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [prepare-package-data]]
+
    [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
 
 
@@ -78,9 +81,7 @@
     data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
 
 data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
-
-
-        ]
+       ]
     data
     ))
 
@@ -97,26 +98,26 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
         ;model-id (to-uuid (get-in request [:path-params :model_id]))
         ;item-id (to-uuid (get-in request [:path-params :item_id]))
         ;pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
-        p (println ">o> >>> multipart" multipart)
-
-        tx (:tx request)
-
-
-          model-id-to-update (:model_id multipart)
-
-
-          p (println ">o> ??? model-id-to-update vs model-id" model-id-to-update model-id)
-
-          multipart (if (= model-id-to-update model-id)
-                      (dissoc multipart :model_id)
-                      multipart)
-
-
-
-          properties (first (parse-json-array request :properties))
-
-        prepared-model-data (prepare-item-data multipart item-entry properties)
+        ;multipart (get-in request [:parameters :multipart])
+        ;p (println ">o> >>> multipart" multipart)
+        ;
+        ;tx (:tx request)
+        ;
+        ;
+        ;  model-id-to-update (:model_id multipart)
+        ;
+        ;
+        ;  p (println ">o> ??? model-id-to-update vs model-id" model-id-to-update model-id)
+        ;
+        ;  multipart (if (= model-id-to-update model-id)
+        ;              (dissoc multipart :model_id)
+        ;              multipart)
+        ;
+        ;
+        ;
+        ;  properties (first (parse-json-array request :properties))
+        ;
+        ;prepared-model-data (prepare-item-data multipart item-entry properties)
 
 
 
@@ -124,11 +125,37 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
         ;prepared-model-data (remove-entries-by-keys prepared-model-data [])
         ;prepared-model-data (remove-empty-or-nil prepared-model-data)
 
-        p (println ">o> >>> prepared-item-data" prepared-model-data)
-        ]
+
+
+
+          created-ts (LocalDateTime/now)
+          tx (:tx request)
+          pool-id (to-uuid (get-in request [:path-params :pool_id]))
+          multipart (get-in request [:parameters :multipart])
+
+          items_attributes (parse-json-array request :items_attributes)
+
+          p (println ">o> items_attributes" items_attributes)
+
+          multipart (assoc multipart :inventory_pool_id pool-id)
+
+          ;; FIXME: handle retired_reason with NEW-FE
+          multipart (dissoc multipart :retired)
+
+          prepared-package-data (prepare-package-data multipart)
+
+          p (println ">o> prepared-package-data" prepared-package-data)
+
+          ;retired: true
+          ;retired_reason: jo is retired
+
+          ;>o> retired ???  #object[java.time.LocalDate 0x1389ac10 2025-01-31] jo is retired
+
+
+          ]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
-                                   (sql/set prepared-model-data)
+                                   (sql/set prepared-package-data)
                                  ;(sql/join [:models :m] [:= :i.model_id :m.id])
                                  ;  (sql/where [:= :i.id item-id] )
                                    (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id] ])
