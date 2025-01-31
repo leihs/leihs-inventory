@@ -145,13 +145,18 @@
 
         p (println ">o> ??? abc:last_check" (:last_check data) (type (:last_check data)))
 
+        p (println ">o> abc1" (type data))
         ;data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
-        data (remove-nil-entries data [:last_check :user_name :price :shelf :status_note :note])
-        data (remove-empty-entries data [:last_check :user_name :price :shelf :status_note :note])
+        data (remove-nil-entries data [:retired :last_check :user_name  :shelf :status_note :note])
+        p (println ">o> abc1" (type data))
+        data (remove-empty-entries data [:retired :last_check :user_name  :shelf :status_note :note])
 
+        p (println ">o> abc2" (type data))
         data (dissoc data :items_attributes)
 
+        p (println ">o> abc3" (type data))
         data (convert-map-if-exist data)
+        p (println ">o> abc4" (type data))
 
 
         ]

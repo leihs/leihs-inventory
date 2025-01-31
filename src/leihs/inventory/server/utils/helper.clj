@@ -59,6 +59,8 @@
       (modify-if-exists :is_incomplete #(if (contains? m :is_incomplete) [:cast % ::boolean]))
 
       (modify-if-exists :deleted_at #(if (contains? m :deleted_at) [:cast % ::date]))
+      (modify-if-exists :retired #(if (contains? m :retired) [:cast % ::date]))
+      (modify-if-exists :last_check #(if (contains? m :last_check) [:cast % ::date]))
       (modify-if-exists :layout #(if (contains? m :layout) [:cast % :public.collection_layout]))
       (modify-if-exists :default_resource_type #(if (contains? m :default_resource_type) [:cast % :public.collection_default_resource_type]))
       (modify-if-exists :sorting #(if (contains? m :sorting) [:cast % :public.collection_sorting]))

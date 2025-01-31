@@ -55,9 +55,15 @@
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]
   (reduce (fn [m k]
+          (try  (println ">o> abc ?1" k (get m k))
             (if (clojure.string/blank? (get m k))
               (dissoc m k)
-              m))
+              m)
+
+                (catch Exception e (println ">o> abc ?1-error" (.getMessage e)))
+                )
+
+            )
     data
     keys-to-check))
 

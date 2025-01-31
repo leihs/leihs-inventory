@@ -52,6 +52,23 @@
 
       nil))))
 
+
+(defn extract-shortname-and-number [code]
+  (let [pattern #"^(P-AUS)(\d+)$|^([A-Z]+)(\d+)$"
+        matches (re-matches pattern code)]
+    (if matches
+      (let [shortname (or (nth matches 1) (nth matches 3))  ;; "P-AUS" or normal uppercase letters
+            number (or (nth matches 2) (nth matches 4))]     ;; Extracted number
+        {:shortname shortname
+         :number (Integer/parseInt number)})
+
+      (do
+        (println (str "Caution: Code format is invalid! Current=" code
+                   "\n         Expected formats: 'P-AUS<number>' or 'UPPERCASE followed by digits'"))
+        (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
+        nil))))
+
+
 (defn fetch-latest-inventory-code [tx owner-id]
   (let [res (jdbc/execute-one! tx
                                (-> (sql/select :items.inventory_code)
