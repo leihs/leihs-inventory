@@ -50,6 +50,17 @@
     data
     keys-to-check))
 
+
+(defn remove-empty-entries
+  "Removes entries from the map if the values of the specified keys are empty strings."
+  [data keys-to-check]
+  (reduce (fn [m k]
+            (if (clojure.string/blank? (get m k))
+              (dissoc m k)
+              m))
+    data
+    keys-to-check))
+
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
   [value]

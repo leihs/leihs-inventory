@@ -19,7 +19,7 @@ $(document).ready(function () {
 
         // Select all .selected-item elements inside div[name="multi-select"]
         document.querySelectorAll('div[name="multi-select"] .selected-item').forEach(item => {
-            // // debugger
+            // // // debugger
 
 
             console.log(item.getAttribute("data-inventory_code"));
@@ -68,7 +68,7 @@ $(document).ready(function () {
                 if (filtered.length > 0) {
                     let suggestionsHtml = filtered.map(item =>
                     {
-                        // // debugger
+                        // // // debugger
 
                         const manu = item.manufacturer ? `${item.manufacturer} /` : '';
                         return `<div class="suggestion-item" 
@@ -83,7 +83,7 @@ $(document).ready(function () {
 
                     // $(".suggestions").html(suggestionsHtml).show();
                     const el = $(".suggestions").html(suggestionsHtml)
-// // debugger
+// // // debugger
                         // el.data('item', item)
                         el.show();
                 } else {
@@ -131,7 +131,7 @@ $(document).ready(function () {
 
                             const manu = selectedItemData.manufacturer ? `${selectedItemData.manufacturer} /` : '';
 
-                        debugger
+                        // debugger
                             $(".selected-items").append(`
                                 <div class="selected-item" 
                                 data-inventory_code="${selectedItemData.inventory_code}"
@@ -160,7 +160,7 @@ $(document).ready(function () {
                         // selectedItems = selectedItems.filter(item => item !== itemToRemove);
                         selectedItems = selectedItems.filter(item => item !== itemToRemove.inventory_code);
 
-debugger
+// debugger
                         deletedItems.push(itemToRemove)
 
                         $(this).parent().remove();

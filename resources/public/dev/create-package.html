@@ -275,15 +275,15 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
+    <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a></label>
 
-    <input type="text" id="softwareId" name="softwareId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
+    <input type="text" id="softwareId" name="softwareId" value="8cb59612-ea49-59a4-9848-2fccf20f4b89">
 <!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
 <div class="form-group">
     <label for="itemId">Package ID (item_id) [itemId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="itemId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <input type="text" id="itemId"  value="e9a3951f-799b-5806-b71d-be170d460914">
 
     <button id="fetchPackageBtn">Fetch Package</button>
 </div>
@@ -566,7 +566,25 @@
     //     }
     // }
 
+    function prepareItemsAndMarkDeletedItems(formData) {
+        // Get selected items
+        let items = window.getSelectedItems();
 
+        // Ensure deletedItems exists
+        let deletedItems = window.deletedItems || [];
+
+        // Add `delete: true` to items that are in deletedItems
+        items = items.map(item => {
+            const isDeleted = deletedItems.some(deletedItem =>
+                deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+            );
+
+            return isDeleted ? { ...item, delete: true } : item;
+        });
+
+        // Append modified items to formData
+        formData.append('items_attributes', JSON.stringify(items));
+    }
 
 
     function renameLabel(data) {
@@ -1672,23 +1690,25 @@
 
 
                             // PUT
-                            let items = window.getSelectedItems()
+                            // let items = window.getSelectedItems()
+                            //
+                            // let deletedItems = window.deletedItems || []
+                            //
+                            // // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
+                            // // Add `delete: true` to items that are in deletedItems
+                            // items = items.map(item => {
+                            //     const isDeleted = deletedItems.some(deletedItem =>
+                            //         deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+                            //     );
+                            //
+                            //     return isDeleted ? { ...item, delete: true } : item;
+                            // });
+                            //
+                            //
+                            // formData.append('items_attributes', JSON.stringify(items));
+                            // // debugger
 
-                            let deletedItems = window.deletedItems || []
-
-                            // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
-                            // Add `delete: true` to items that are in deletedItems
-                            items = items.map(item => {
-                                const isDeleted = deletedItems.some(deletedItem =>
-                                    deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
-                                );
-
-                                return isDeleted ? { ...item, delete: true } : item;
-                            });
-
-
-                            formData.append('items_attributes', JSON.stringify(items));
-                            // debugger
+                            prepareItemsAndMarkDeletedItems(formData)
 
 
                             formData.delete('undefined')
@@ -1834,23 +1854,26 @@
                         checkFormDataOrThrow(formData, modelId)
 
                         // POST
-                        let items = window.getSelectedItems()
-                        // items = items_attributes.map(({ id, inventory_code }) => ({ id, inventory_code }));
+                        // let items = window.getSelectedItems()
+                        // // items = items_attributes.map(({ id, inventory_code }) => ({ id, inventory_code }));
+                        //
+                        //
+                        // let deletedItems = window.deletedItems || []
+                        //
+                        // // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
+                        // // Add `delete: true` to items that are in deletedItems
+                        // items = items.map(item => {
+                        //     const isDeleted = deletedItems.some(deletedItem =>
+                        //         deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+                        //     );
+                        //
+                        //     return isDeleted ? { ...item, delete: true } : item;
+                        // });
+                        //
+                        // formData.append('items_attributes', JSON.stringify(items));
 
+                        prepareItemsAndMarkDeletedItems(formData)
 
-                        let deletedItems = window.deletedItems || []
-
-                        // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
-                        // Add `delete: true` to items that are in deletedItems
-                        items = items.map(item => {
-                            const isDeleted = deletedItems.some(deletedItem =>
-                                deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
-                            );
-
-                            return isDeleted ? { ...item, delete: true } : item;
-                        });
-
-                        formData.append('items_attributes', JSON.stringify(items));
                         // debugger
 
                         // // Debugging: log all keys and values in the FormData
