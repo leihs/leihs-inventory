@@ -15,6 +15,7 @@
                                                                          lending-manager-package-subquery
 
                                                                          item-base-query
+                                                                         package-base-query
                                                                          lending-manager-item-subquery
 
                                                                          license-base-query]]
@@ -212,8 +213,59 @@
 
             model-result (if model-id
                            ;; Fetch model data
-                           (let [model-query (-> (item-base-query item-id model-id pool-id) sql-format)
+                           ;(let [model-query (-> (item-base-query item-id model-id pool-id) sql-format)
+                           (let [model-query (-> (package-base-query item-id model-id pool-id) sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
+
+                                 ;; remove all attr except defined keys
+                                  model-result (filter-by-allowed-keys model-result
+                                                                        [
+                                                                         "product"
+                                                                        "product_name"
+                                                                        "model_id"
+                                                                        ;"supplier_name"
+                                                                        ;"supplier_id"
+                                                                        ;"properties"
+                                                                        "inventory_code"
+                                                                        "inventory_pool_id"
+                                                                        "responsible_department"
+                                                                        ;"license_version"
+                                                                        ;"version"
+                                                                         "id"
+                                                                         "building_id"
+                                                                         "created_at"
+                                                                         "updated_at"
+                                                                         "owner_id"
+                                                                         "retired"
+                                                                         "retired_reason"
+                                                                         "room_id"
+                                                                         "shelf"
+                                                                         "last_check"
+                                                                         "is_borrowable"
+                                                                         "is_inventory_relevant"
+                                                                          "is_broken"
+                                                                          "is_incomplete"
+                                                                         "note"
+                                                                         "status_note"
+                                                                         "user_name"
+                                                                         "price"
+
+
+                                                                         ]
+                                                                        ;["supplier_name" "supplier_id"]
+                                                 []
+                                                 []
+                                                 )
+
+
+                                 items (jdbc/execute! tx
+                                                      (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
+                                                          (sql/from [:items :i])
+                                                        (sql/join [:models :m] [:= :m.id :i.model_id])
+                                                          (sql/where [:= :parent_id item-id])
+                                                          sql-format))
+
+                                  model-result (assoc model-result :items_attributes items)
 
 
                                  p (println ">o> model-result" model-result)
