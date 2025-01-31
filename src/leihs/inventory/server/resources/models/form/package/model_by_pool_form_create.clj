@@ -94,7 +94,7 @@
 
 
 
-(defn prepare-item-data [data properties]
+(defn prepare-package-data [data items_attributes]
 ;(defn prepare-item-data [data item-entry properties]
   (let [
         ;normalize-data (normalize-model-data data)
@@ -118,7 +118,7 @@
 
 
 
-        supplier-id (cast-to-uuid-or-nil (:supplier_id data))
+        ;supplier-id (cast-to-uuid-or-nil (:supplier_id data))
 
 
         invoice-date (parse-local-date-or-nil (:invoice_date data))
@@ -126,7 +126,7 @@
 
         data (dissoc data :attachments :attachments-to-delete)
 
-        properties [:cast (jsonc/generate-string properties) :jsonb]
+        properties [:cast (jsonc/generate-string items_attributes) :jsonb]
 
         ;;properties (parse-json-map data :properties)
         ;properties ( :properties data)
@@ -139,9 +139,11 @@
                ;; FIXME
                ;:room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
 
-               :created_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+               :created_at created-ts :invoice_date invoice-date :price price
+               ;;:supplier_id supplier-id
+               )
 
-        data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+        ;data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
 
 
         ]
@@ -162,11 +164,11 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
 
-        properties (first (parse-json-array request :properties))
+        items_attributes (first (parse-json-array request :items_attributes))
 
         multipart (assoc multipart :inventory_pool_id pool-id)
 
-        prepared-model-data (prepare-item-data multipart properties)
+        prepared-model-data (prepare-package-data multipart items_attributes)
         ;prepared-model-data (->
         ;                      ;(prepare-software-data multipart)
         ;                      (prepare-item-data multipart properties)
@@ -174,7 +176,8 @@
 
         ;prepared-model-data (assoc multipart :is_package (str-to-bool (:is_package multipart)))
 
-        attachments (normalize-files request :attachments)]
+        ;attachments (normalize-files request :attachments)
+        ]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
@@ -183,7 +186,7 @@
                                           sql-format))
             item-id (:id res)]
 
-        (process-attachments tx attachments "item_id" item-id)
+        ;(process-attachments tx attachments "item_id" item-id)
 
         (if res
           (response (create-validation-response res @validation-result))

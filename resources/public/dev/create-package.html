@@ -524,6 +524,7 @@
 
     function deleteParamsFromPutPostFormData(formData){
         // formData.delete("model_id");
+        formData.delete("undefined");
         formData.delete("inventory_pool_id");
         formData.delete("myOldSoftware");
     }
@@ -630,7 +631,7 @@
 
                     if(data.label == "Add Item"){
                         // oldField = `<input type="hidden" id="myOld${nstr(data.label)}" name="myOld${nstr(data.label)}"></input>`
-debugger
+// debugger
                         field = $(`
                              <div class="multi-select-container">
                                  <div name="multi-select" class="selected-items"></div>
@@ -1140,7 +1141,7 @@ debugger
         keysToDelete.forEach(key => formData.delete(key));
 
         // Add the JSON stringified properties object back into formData
-        formData.append("properties", JSON.stringify(properties));
+        // formData.append("properties", JSON.stringify(properties));
 
         return formData;
     }
@@ -1666,14 +1667,14 @@ debugger
                             formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
 
 
-                            formData = appendQuantityAllocationToFormData(formData);
+                            // formData = appendQuantityAllocationToFormData(formData);
                             deleteParamsFromPutPostFormData(formData);
 
 
-
+                            // PUT
                             let items = window.getSelectedItems()
-                            formData.add('items', JSON.stringify(items));
-                            debugger
+                            formData.append('items_attributes', JSON.stringify(items));
+                            // debugger
 
 
                             formData.delete('undefined')
@@ -1812,15 +1813,18 @@ debugger
                             console.log(key, value);
                         }
 
-                        formData = appendQuantityAllocationToFormData(formData);
+                        // formData = appendQuantityAllocationToFormData(formData);
                         let modelId=formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
                         checkFormDataOrThrow(formData, modelId)
 
+                        // POST
                         let items = window.getSelectedItems()
-                        formData.append('items', JSON.stringify(items));
-                        debugger
+                        // items = items_attributes.map(({ id, inventory_code }) => ({ id, inventory_code }));
+
+                        formData.append('items_attributes', JSON.stringify(items));
+                        // debugger
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {

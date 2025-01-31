@@ -160,33 +160,33 @@
             ;filtered (filter-entries fields [:group :label :role])
             ;dyn-select (build-select fields)
 
-            fields               (conj fields                 {:active true
-                                                               :data {:type "text"
-                                                                      :group "Inventory"
-                                                                      :label "Anzahl"
-                                                                      :values "1"
-                                                                      :value "1"
-                                                                      }
-                                                               :attribute "quantity"
-                                                               :default false
-                                                               :forPackage true
-                                                               :group "Inventory"
-                                                               :group_default "Inventory"
-                                                               :id "quantity"
-                                                               :label "Anzahl"
-                                                               :owner nil
-                                                               :position 13
-                                                               :role nil
-                                                               :role_default ""
-                                                               :target nil
-                                                               :target_default ""})
+            ;fields               (conj fields                 {:active true
+            ;                                                   :data {:type "text"
+            ;                                                          :group "Inventory"
+            ;                                                          :label "Anzahl"
+            ;                                                          :values "1"
+            ;                                                          :value "1"
+            ;                                                          }
+            ;                                                   :attribute "quantity"
+            ;                                                   :default false
+            ;                                                   :forPackage true
+            ;                                                   :group "Inventory"
+            ;                                                   :group_default "Inventory"
+            ;                                                   :id "quantity"
+            ;                                                   :label "Anzahl"
+            ;                                                   :owner nil
+            ;                                                   :position 13
+            ;                                                   :role nil
+            ;                                                   :role_default ""
+            ;                                                   :target nil
+            ;                                                   :target_default ""})
 
 
             fields               (conj fields                 {:active true
                                                                :data {
                                                                       ;:type "select"
                                                                       :type "autocomplete-search"
-                                                                      :group "Content"
+                                                                      :group "Inhalt"
                                                                       :label "Add Item"
 
                                                                       :values []
@@ -195,8 +195,8 @@
                                                                :attribute "quantity"
                                                                :default false
                                                                :forPackage true
-                                                               :group "Content"
-                                                               :group_default "Content"
+                                                               :group "Inhalt"
+                                                               :group_default "Inhalt"
                                                                :id "add-item-group"
                                                                :label "Add Item"
                                                                ;:owner nil
@@ -223,19 +223,19 @@
                                                                           :product {:name (:product_name model-result)
                                                                                     :model_id (:model_id model-result)})
 
-                                                      supplier_name (:supplier_name model-result)
-                                                      supplier_id (:supplier_id model-result)
-                                                      supplier-data (if (some? supplier_id) {:name supplier_name
-                                                                                             :supplier_id supplier_id}
-                                                                        nil)
-                                                      model-result (assoc model-result :supplier supplier-data)
+                                                      ;supplier_name (:supplier_name model-result)
+                                                      ;supplier_id (:supplier_id model-result)
+                                                      ;supplier-data (if (some? supplier_id) {:name supplier_name
+                                                      ;                                       :supplier_id supplier_id}
+                                                      ;                  nil)
+                                                      ;model-result (assoc model-result :supplier supplier-data)
 
-                                                      attachments (jdbc/execute! tx
-                                                                                 (-> (sql/select :id :filename :content_type :size)
-                                                                                     (sql/from :attachments)
-                                                                                     (sql/where [:= :item_id item-id])
-                                                                                     sql-format))
-                                                      model-result (assoc model-result :attachments attachments)
+                                                      ;attachments (jdbc/execute! tx
+                                                      ;                           (-> (sql/select :id :filename :content_type :size)
+                                                      ;                               (sql/from :attachments)
+                                                      ;                               (sql/where [:= :item_id item-id])
+                                                      ;                               sql-format))
+                                                      ;model-result (assoc model-result :attachments attachments)
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
                                                       model-result (assoc model-result :retired retired)
@@ -257,7 +257,7 @@
                                  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
-                              :quantity 1
+                              ;:quantity 1
                               :inventory_code next-code}))
 
             ]

@@ -8,10 +8,17 @@ $(document).ready(function () {
 
         // Select all .selected-item elements inside div[name="multi-select"]
         document.querySelectorAll('div[name="multi-select"] .selected-item').forEach(item => {
+            // // debugger
+
+
+            console.log(item.getAttribute("data-inventory_code"));
+            console.log(item.getAttribute("data-id"));
+
             selectedItems.push({
-                inventory: item.getAttribute("data-inventory"),
+                inventory_code: item.getAttribute("data-inventory_code"),
                 id: item.getAttribute("data-id"),
-                text: item.textContent.trim().replace('×', '') // Removes the close (×) symbol
+                // id: item.getAttribute("data-id"),
+                // text: item.textContent.trim().replace('×', '') // Removes the close (×) symbol
             });
         });
 
@@ -49,15 +56,25 @@ $(document).ready(function () {
 
                 if (filtered.length > 0) {
                     let suggestionsHtml = filtered.map(item =>
-                        `<div class="suggestion-item" 
-                             data-inventory="${item.inventory_code}" 
+                    {
+                        // // debugger
+
+                        const manu = item.manufacturer ? `${item.manufacturer} /` : '';
+                        return `<div class="suggestion-item" 
+                             data-inventory_code="${item.inventory_code}" 
+                             data-id="${item.id}" 
                              data-manufacturer="${item.manufacturer}" 
                              data-product="${item.product}">
-                             ${item.inventory_code} | ${item.manufacturer} / ${item.product}
+                             ${item.inventory_code} | ${manu} ${item.product}
                          </div>`
+                    }
                     ).join('');
 
-                    $(".suggestions").html(suggestionsHtml).show();
+                    // $(".suggestions").html(suggestionsHtml).show();
+                    const el = $(".suggestions").html(suggestionsHtml)
+// // debugger
+                        // el.data('item', item)
+                        el.show();
                 } else {
                     $(".suggestions").hide();
                 }
@@ -84,19 +101,40 @@ $(document).ready(function () {
 
                     // Reattach click event for selecting suggestions
                     $(document).off("click", ".suggestion-item").on("click", ".suggestion-item", function () {
-                        let selectedItemData = {
-                            inventory_code: $(this).data("inventory"),
-                            manufacturer: $(this).data("manufacturer"),
-                            product: $(this).data("product")
-                        };
+                        // let selectedItemData = {
+                        //     inventory_code: $(this).data("inventory"),
+                        //     manufacturer: $(this).data("manufacturer"),
+                        //     product: $(this).data("product")
+                        // };
+
+                        let selectedItemData = { ...$(this)[0].dataset };
+
+                        // let selectedItemData = $(this)[0].dataset
+                        // if selectedItemData.manufacturer is undefined null or "null" then set null
+                        if (selectedItemData.manufacturer === "null" || selectedItemData.manufacturer === null) {
+                            selectedItemData.manufacturer = null
+                        }
 
                         if (!selectedItems.includes(selectedItemData.inventory_code)) {
                             selectedItems.push(selectedItemData.inventory_code);
 
+
+                         //    return `<div class="suggestion-item"
+                         //     data-inventory="${item.inventory_code}"
+                         //     data-id="${item.id}"
+                         //     data-product="${item.product}">
+                         //     ${item.inventory_code} | ${manu} ${item.product}
+                         // </div>`
+
+                            const manu = selectedItemData.manufacturer ? `${selectedItemData.manufacturer} /` : '';
+
+                        // debugger
                             $(".selected-items").append(`
-                                <div class="selected-item" data-inventory="${selectedItemData.inventory_code}"
-                                data-id="${selectedItemData.id}">
-                                    ${selectedItemData.inventory_code} | ${selectedItemData.manufacturer} / ${selectedItemData.product}
+                                <div class="selected-item" 
+                                data-inventory_code="${selectedItemData.inventory_code}"
+                                data-id="${selectedItemData.id}"
+                                
+                                >${selectedItemData.inventory_code} | ${manu} ${selectedItemData.product}
                                     <span>&times;</span>
                                 </div>
                             `);

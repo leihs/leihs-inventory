@@ -743,10 +743,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?
                                  ;:model_id uuid?
                                  }
-                          :multipart :package/multipart}
+                          ;:multipart :package/multipart}
+                          :multipart any?}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {
+                         ;200 {:description "OK"}
+                         200 {}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
