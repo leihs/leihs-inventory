@@ -1,6 +1,17 @@
 $(document).ready(function () {
     let selectedItems = [];
 
+    window.deletedItems=[];
+
+    function removeFromDeletedItems(selectedItemData) {
+        if (!window.deletedItems) {
+            window.deletedItems = [];
+        }
+
+        window.deletedItems = window.deletedItems.filter(item =>
+            item.inventory_code !== selectedItemData.inventory_code || item.id !== selectedItemData.id
+        );
+    }
     window.getSelectedItems = function () {
 
         // function getSelectedItems() {
@@ -118,17 +129,9 @@ $(document).ready(function () {
                         if (!selectedItems.includes(selectedItemData.inventory_code)) {
                             selectedItems.push(selectedItemData.inventory_code);
 
-
-                         //    return `<div class="suggestion-item"
-                         //     data-inventory="${item.inventory_code}"
-                         //     data-id="${item.id}"
-                         //     data-product="${item.product}">
-                         //     ${item.inventory_code} | ${manu} ${item.product}
-                         // </div>`
-
                             const manu = selectedItemData.manufacturer ? `${selectedItemData.manufacturer} /` : '';
 
-                        // debugger
+                        debugger
                             $(".selected-items").append(`
                                 <div class="selected-item" 
                                 data-inventory_code="${selectedItemData.inventory_code}"
@@ -138,6 +141,8 @@ $(document).ready(function () {
                                     <span>&times;</span>
                                 </div>
                             `);
+
+                            removeFromDeletedItems(selectedItemData);
                         }
 
                         $("#searchBox").val('');
@@ -146,8 +151,18 @@ $(document).ready(function () {
 
                     // Reattach click event for removing selected items
                     $(document).off("click", ".selected-item span").on("click", ".selected-item span", function () {
-                        let itemToRemove = $(this).parent().data("inventory");
-                        selectedItems = selectedItems.filter(item => item !== itemToRemove);
+                        // let itemToRemove = $(this).parent().data("inventory");
+
+                        // let itemToRemove = { ...$(this)[0].dataset };
+                        let itemToRemove = { ...$(this).parent()[0].dataset };
+
+
+                        // selectedItems = selectedItems.filter(item => item !== itemToRemove);
+                        selectedItems = selectedItems.filter(item => item !== itemToRemove.inventory_code);
+
+debugger
+                        deletedItems.push(itemToRemove)
+
                         $(this).parent().remove();
                     });
 
