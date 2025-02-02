@@ -566,15 +566,35 @@
     //     }
     // }
 
+    // function prepareItemsAndMarkDeletedItems(formData) {
+    //     // Get selected items
+    //     let items = window.getSelectedItems();
+    //
+    //     // Ensure deletedItems exists
+    //     let deletedItems = window.deletedItems || [];
+    //
+    //     // Add `delete: true` to items that are in deletedItems
+    //     items = items.map(item => {
+    //         const isDeleted = deletedItems.some(deletedItem =>
+    //             deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
+    //         );
+    //
+    //         return isDeleted ? { ...item, delete: true } : item;
+    //     });
+    //
+    //     // Append modified items to formData
+    //     formData.append('items_attributes', JSON.stringify(items));
+    // }
+
     function prepareItemsAndMarkDeletedItems(formData) {
         // Get selected items
-        let items = window.getSelectedItems();
+        let items = window.getSelectedItems() || [];
 
         // Ensure deletedItems exists
         let deletedItems = window.deletedItems || [];
 
         // Add `delete: true` to items that are in deletedItems
-        items = items.map(item => {
+        let updatedItems = items.map(item => {
             const isDeleted = deletedItems.some(deletedItem =>
                 deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
             );
@@ -582,9 +602,21 @@
             return isDeleted ? { ...item, delete: true } : item;
         });
 
+        // Ensure all deletedItems are included, even if not in `items`
+        deletedItems.forEach(deletedItem => {
+            const existsInItems = updatedItems.some(item =>
+                item.id === deletedItem.id && item.inventory_code === deletedItem.inventory_code
+            );
+
+            if (!existsInItems) {
+                updatedItems.push({ ...deletedItem, delete: true });
+            }
+        });
+
         // Append modified items to formData
-        formData.append('items_attributes', JSON.stringify(items));
+        formData.append('items_attributes', JSON.stringify(updatedItems));
     }
+
 
 
     function renameLabel(data) {

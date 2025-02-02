@@ -286,8 +286,7 @@
               ;)
             ;
             ;; Unlink items from package
-            unlink-res ;; Unlink items from package
-            (let [ids-to-unlink (get split-items :ids-to-unlink)]
+            unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
               (when (seq ids-to-unlink)  ;; Ensure ids-to-unlink is not empty
                 (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
 

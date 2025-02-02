@@ -7,7 +7,7 @@
       [clojure.java.io :as io]
 
 
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [prepare-package-data]]
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [prepare-package-data split-items]]
 
    [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
 
@@ -146,6 +146,10 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
 
           p (println ">o> prepared-package-data" prepared-package-data)
 
+
+          split-items (split-items items_attributes)
+          p (println ">o> abc.split-items" split-items)
+
           ;retired: true
           ;retired_reason: jo is retired
 
@@ -161,20 +165,57 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
                                    (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id] ])
                                    (sql/returning :*)
                                    sql-format)
-            updated-model (jdbc/execute-one! tx update-model-query)
+            res (jdbc/execute-one! tx update-model-query)
 
 
-            p (println ">o> ??? updated-model" updated-model)
+            p (println ">o> ??? updated-model" res)
 
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
+
+            ;; Link items from package
+            link-res (let [ids-to-link (get split-items :ids-to-link)]
+                       (when (seq ids-to-link)  ;; Ensure ids-to-link is not empty
+                         (println ">o> abc.ids-to-link" ids-to-link)
+
+                         (let [update-link-items-query (-> (sql/update :items)
+                                                         (sql/set {:parent_id (:id res)})
+                                                         (sql/where [:in :id ids-to-link])
+                                                         (sql/where [:is :parent_id nil])
+                                                         (sql/returning :*)
+                                                         sql-format)
+
+                               _ (println ">o> abc.update-link-items-query" update-link-items-query)
+
+                               linked-items-res (jdbc/execute! tx update-link-items-query)]
+
+                           (println ">o> abc.linked-items-res" linked-items-res)
+                           linked-items-res)))
+            ;)
+            ;
+            ;; Unlink items from package
+            unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
+                         (when (seq ids-to-unlink)  ;; Ensure ids-to-unlink is not empty
+                           (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
+
+                           (let [update-unlink-items-query (-> (sql/update :items)
+                                                             (sql/set {:parent_id nil})
+                                                             (sql/where [:in :id ids-to-unlink])
+                                                             (sql/where [:is-not :parent_id nil])
+                                                             (sql/returning :*)
+                                                             sql-format)
+                                 unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
+
+                             (println ">o> abc.unlinked" unlinked-items-res)
+                             unlinked-items-res)))
+
+            ;attachments (normalize-files request :attachments)
+            ;attachments-to-delete (parse-json-array request :attachments-to-delete)
             ]
         ;(process-attachments tx attachments model-id)
-        (process-attachments tx attachments "item_id" item-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
-        (if updated-model
+        ;(process-attachments tx attachments "item_id" item-id)
+        ;(process-deletions tx attachments-to-delete :attachments :id)
+        (if res
           ;(response [updated-model])
-          (response (create-validation-response updated-model []))
+          (response (create-validation-response res []))
           (bad-request {:error "Failed to update item"})))
       (catch Exception e
         (error "Failed to update item" (.getMessage e))
