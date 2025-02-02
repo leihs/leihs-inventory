@@ -3,6 +3,11 @@ $(document).ready(function () {
 
     window.deletedItems=[];
 
+
+    window.clearMulti = function(){
+        window.deletedItems = [];
+        $(".selected-items").empty();
+    }
     function removeFromDeletedItems(selectedItemData) {
         if (!window.deletedItems) {
             window.deletedItems = [];

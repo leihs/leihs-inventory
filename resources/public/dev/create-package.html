@@ -1349,6 +1349,8 @@
                 // Assuming `data` is an array of objects with `id` and `name` properties
                 const $select = $("#myResponsibleDepartment");
                 $select.empty(); // Clear any existing options
+                // window.clearMulti()
+
 
                 // Populate the <select> with options
                 data.forEach(item => {
@@ -1535,6 +1537,8 @@
                         // flatten
                         Object.assign(data, data.properties);
                         delete data.properties;
+                        window.clearMulti()
+
 
 
                         // Populate field values
@@ -1796,8 +1800,11 @@
                     const data = response.data;
                     const fields = response.fields;
 
+                    window.clearMulti()
+
                     initResponsibleData(data);
                     initOwnersData(data);
+
 
 
                     // // TODO: add items
@@ -1912,6 +1919,9 @@
                             success: function (response) {
                                 console.log("Package create successfully!", response);
                                 console.info("UPDATING ITEM-ID")
+
+                                window.clearMulti()
+
 
                                 $('#softwareId').val(response.data.model_id)
                                 // $('#itemId').val(response.data.item_id)

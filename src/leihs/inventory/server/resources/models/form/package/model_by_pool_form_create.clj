@@ -99,6 +99,9 @@
 ;(defn prepare-package-data [data items_attributes]
 ;(defn prepare-item-data [data item-entry properties]
   (let [
+
+        p (println ">o> abc.data" data)
+
         ;normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
 
@@ -124,13 +127,17 @@
 
 
         invoice-date (parse-local-date-or-nil (:invoice_date data))
-        price (double-to-numeric-or-nil (:price data))
 
+        p (println ">o> abc.invoice-date" invoice-date)
+
+        price (double-to-numeric-or-nil (:price data))
+        p (println ">o> abc.price" price)
         ;data (dissoc data :attachments :attachments-to-delete)
 
         ;properties [:cast (jsonc/generate-string items_attributes) :jsonb]
         ;data (assoc data :properties properties)
 
+        p (println ">o> abc0" (type data))
 
 
         data (assoc data :updated_at created-ts
@@ -147,16 +154,16 @@
 
         p (println ">o> abc1" (type data))
         ;data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
-        data (remove-nil-entries data [:retired :last_check :user_name  :shelf :status_note :note])
-        p (println ">o> abc1" (type data))
-        data (remove-empty-entries data [:retired :last_check :user_name  :shelf :status_note :note])
-
+        data (remove-nil-entries data [:invoice_date :price :room_id :retired :last_check :user_name  :shelf :status_note :note])
         p (println ">o> abc2" (type data))
-        data (dissoc data :items_attributes)
+        data (remove-empty-entries data [:retired :room_id :last_check :user_name  :shelf :status_note :note])
 
         p (println ">o> abc3" (type data))
-        data (convert-map-if-exist data)
+        data (dissoc data :items_attributes)
+
         p (println ">o> abc4" (type data))
+        data (convert-map-if-exist data)
+        p (println ">o> abc5" (type data))
 
 
         ]
@@ -207,7 +214,7 @@
 
 
 
-
+            p (println ">o> ??? abc.prepared-package-data" prepared-package-data)
             res (jdbc/execute-one! tx (-> (sql/insert-into :items)
                                           (sql/values [prepared-package-data])
                                           (sql/returning :*)
@@ -259,22 +266,31 @@
 
 
             ;; Link items from package
-            link-res (if-let [ids-to-link (get split-items :ids-to-link)]
-              ;(when (seq ids-to-link)  ;; Ensure ids-to-link is not empty
-                (let [update-link-items-query (-> (sql/update :items)
-                                                (sql/set {:parent_id (:id res)})
-                                                (sql/where [:in :id ids-to-link])
-                                                (sql/where [:is :parent_id nil])
-                                                (sql/returning :*)
-                                                sql-format)
-                      linked-items-res (jdbc/execute! tx update-link-items-query)]
-                  (println ">o> abc.linked" linked-items-res)
-                  linked-items-res))
+            link-res (let [ids-to-link (get split-items :ids-to-link)]
+                       (when (seq ids-to-link)  ;; Ensure ids-to-link is not empty
+                         (println ">o> abc.ids-to-link" ids-to-link)
+
+                         (let [update-link-items-query (-> (sql/update :items)
+                                                         (sql/set {:parent_id (:id res)})
+                                                         (sql/where [:in :id ids-to-link])
+                                                         (sql/where [:is :parent_id nil])
+                                                         (sql/returning :*)
+                                                         sql-format)
+
+                               _ (println ">o> abc.update-link-items-query" update-link-items-query)
+
+                               linked-items-res (jdbc/execute! tx update-link-items-query)]
+
+                           (println ">o> abc.linked-items-res" linked-items-res)
+                           linked-items-res)))
               ;)
             ;
             ;; Unlink items from package
-            unlink-res (if-let [ids-to-unlink (get split-items :ids-to-unlink)]
-              ;(when (seq ids-to-unlink)  ;; Ensure ids-to-unlink is not empty
+            unlink-res ;; Unlink items from package
+            (let [ids-to-unlink (get split-items :ids-to-unlink)]
+              (when (seq ids-to-unlink)  ;; Ensure ids-to-unlink is not empty
+                (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
+
                 (let [update-unlink-items-query (-> (sql/update :items)
                                                   (sql/set {:parent_id nil})
                                                   (sql/where [:in :id ids-to-unlink])
@@ -282,13 +298,18 @@
                                                   (sql/returning :*)
                                                   sql-format)
                       unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
+
                   (println ">o> abc.unlinked" unlinked-items-res)
-                  unlinked-items-res))
-        ;)
+                  unlinked-items-res)))
+
+            ;)
 
 
 
-            item-id (:id res)]
+            item-id (:id res)
+
+            p (println ">o> abc.res??" res)
+            ]
 
         ;(process-attachments tx attachments "item_id" item-id)
 
