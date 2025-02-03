@@ -86,11 +86,15 @@
 
         p (println ">o> fetch-latest-inventory-code.res" res)
 
-
-        res (extract-shortname-and-number (:inventory_code res))
-        res (if res
-              (assoc res :next-code (str (:shortname res) (+ (:number res) 1)))
-              {:error "No inventory code found"})]
+        res (if (nil? res)
+              (let [default {:next-code "DEFAULT-0001"}]
+                (println ">o> INFO: no inventory_code found, use default: " (:next-code default))
+                default)
+              (let [shortname-and-number (extract-shortname-and-number (:inventory_code res))]
+                (if shortname-and-number
+                  (assoc res :next-code (str (:shortname shortname-and-number) (+ (:number shortname-and-number) 1)))
+                  {:error "No valid inventory code found"})))
+        ]
     res))
 
 (defn normalize-license-data

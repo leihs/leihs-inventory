@@ -1492,7 +1492,10 @@
         function updateDropdowns(poolId) {
             // fetchOptions(`/inventory/manufacturers`, 'manufacturer');
             // fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
-            fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
+
+            // fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
+            fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal`, 'items');
+
             // fetchOptions(`/inventory/models-compatibles`, 'compatibles');
             // fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
         }

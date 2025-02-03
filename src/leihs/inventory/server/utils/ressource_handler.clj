@@ -84,6 +84,9 @@
       nil)))
 
 
+(defn is-valid-uuid? [s]
+  (re-matches #"[0-9a-fA-F-]{36}" s))
+
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
@@ -91,7 +94,14 @@
         uri (:uri request)
         file (extract-filename uri)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)]
+        asset (fetch-file-entry uri assets)
+
+        uri-parts (str/split uri #"/")
+        uuid (nth uri-parts 2 nil)
+        dev-file (nth uri-parts 4 nil)
+        valid-files #{"model" "software" "license" "item" "option" "package"}
+
+        ]
     (cond
       (= uri "/") (create-root-page)
 
@@ -101,29 +111,45 @@
                                                                            :headers {"Content-Type" (str "text/"( extract-filetype uri))}
                                                                            :body (slurp (io/resource (str "public/dev/" file)))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
-                                                                           :headers {"Content-Type" "text/html"}
-                                                                           :body (slurp (io/resource "public/dev/create-model.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software") {:status 200
-                                                                              :headers {"Content-Type" "text/html"}
-                                                                              :body (slurp (io/resource "public/dev/create-software.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license") {:status 200
-                                                                             :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-license.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item") {:status 200
-                                                                          :headers {"Content-Type" "text/html"}
-                                                                          :body (slurp (io/resource "public/dev/create-item.html"))}
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
+      ;                                                                     :headers {"Content-Type" "text/html"}
+      ;                                                                     :body (slurp (io/resource "public/dev/create-model.html"))}
+      ;
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software") {:status 200
+      ;                                                                        :headers {"Content-Type" "text/html"}
+      ;                                                                        :body (slurp (io/resource "public/dev/create-software.html"))}
+      ;
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license") {:status 200
+      ;                                                                       :headers {"Content-Type" "text/html"}
+      ;                                                                       :body (slurp (io/resource "public/dev/create-license.html"))}
+      ;
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item") {:status 200
+      ;                                                                    :headers {"Content-Type" "text/html"}
+      ;                                                                    :body (slurp (io/resource "public/dev/create-item.html"))}
+      ;
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option") {:status 200
+      ;                                                                      :headers {"Content-Type" "text/html"}
+      ;                                                                      :body (slurp (io/resource "public/dev/create-option.html"))}
+      ;
+      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package") {:status 200
+      ;                                                                       :headers {"Content-Type" "text/html"}
+      ;                                                                       :body (slurp (io/resource "public/dev/create-package.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option") {:status 200
-                                                                            :headers {"Content-Type" "text/html"}
-                                                                            :body (slurp (io/resource "public/dev/create-option.html"))}
 
-      (= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package") {:status 200
-                                                                             :headers {"Content-Type" "text/html"}
-                                                                             :body (slurp (io/resource "public/dev/create-package.html"))}
+      ;; Match any UUID and a valid dev file
+      (and (= (nth uri-parts 1 nil) "inventory")
+        (is-valid-uuid? uuid)
+        (= (nth uri-parts 3 nil) "dev")
+        (valid-files dev-file))
+      {:status 200
+       :headers {"Content-Type" "text/html"}
+       :body (slurp (io/resource (str "public/dev/create-" dev-file ".html")))}
+
+
+
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))

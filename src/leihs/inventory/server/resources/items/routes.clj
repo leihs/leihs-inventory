@@ -129,29 +129,42 @@
                                                                                        ;:size 200 :page 1
                                                                                        :not_packaged true :packages false :retired false :result_type "Distinct"})
                                 res1 (get-items-handler request true)
-                                ;; TODO: handle empty result _> no result "abc"
+                                ;; TODO: handle empty result _> no result [] "abc"
 
-                                ;; prepare and request models
-                                ids (vec (flatten (map :model_id res1)))
-                                request (-> request
-                                             (assoc-in [:parameters :query] {})
-                                             (assoc-in [:parameters :path] {})
-                                             (update-in [:parameters :query] merge {:paginate false :filter_ids ids}))
-
-                                res2 (get-models-handler request false)
-
-                                res2 (map #(select-keys % [:id :product :manufacturer]) res2)
-                                res2 (rename-key res2 :id :model_id)
-
-                                res3 (merge-by-id res1 res2 :model_id)
-                                res4 (map #(select-keys % [:inventory_code :product]) res3)
+                                p (println ">o> ??? abc.res1" res1)
 
 
+                                result (if (empty? res1) []
+                                                       (let [
 
-                                result (if (= "Normal" result-type)
-                                         res3
-                                         res4
-                                         )
+                                                          ;; prepare and request models
+                                                          ids (vec (flatten (map :model_id res1)))
+                                                          request (-> request
+                                                                       (assoc-in [:parameters :query] {})
+                                                                       (assoc-in [:parameters :path] {})
+                                                                       (update-in [:parameters :query] merge {:paginate false :filter_ids ids}))
+
+                                                          res2 (get-models-handler request false)
+
+                                                          res2 (map #(select-keys % [:id :product :manufacturer]) res2)
+                                                          res2 (rename-key res2 :id :model_id)
+
+                                                          res3 (merge-by-id res1 res2 :model_id)
+                                                          res4 (map #(select-keys % [:inventory_code :product]) res3)
+
+
+
+                                                          result (if (= "Normal" result-type)
+                                                                   res3
+                                                                   res4
+                                                                   )
+
+                                                                                       ]result)
+
+
+                                                       )
+
+
 
                                 ;result res4
                                    ]
