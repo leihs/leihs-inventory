@@ -1482,27 +1482,30 @@
 
         };
 
-        function initSelect2(selectId, type) {
-            $(`#${selectId}`).select2({
-                width: "100%",
-                placeholder: "Select an option",
-                allowClear: true
-            });
-        }
-        function updateDropdowns(poolId) {
-            // fetchOptions(`/inventory/manufacturers`, 'manufacturer');
-            // fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
+        // function initSelect2(selectId, type) {
+        //     $(`#${selectId}`).select2({
+        //         width: "100%",
+        //         placeholder: "Select an option",
+        //         allowClear: true
+        //     });
+        // }
 
-            // fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
-            fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal`, 'items');
-
-            // fetchOptions(`/inventory/models-compatibles`, 'compatibles');
-            // fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
-        }
+        // function updateDropdowns(poolId) {
+        //     // fetchOptions(`/inventory/manufacturers`, 'manufacturer');
+        //     // fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
+        //
+        //     // fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
+        //
+        //     const searchTerm = $("#searchBox").val()
+        //     fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=${searchTerm}`, 'items');
+        //
+        //     // fetchOptions(`/inventory/models-compatibles`, 'compatibles');
+        //     // fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
+        // }
 
         // Initialize dropdowns on page load
         var initialPoolId = $('#poolId').val();
-        updateDropdowns(initialPoolId);
+        // updateDropdowns(initialPoolId);
 
         function formatDateForInput(dateString) {
             if (!dateString) return null;

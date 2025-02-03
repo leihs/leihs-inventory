@@ -139,14 +139,14 @@
       ;                                                                       :body (slurp (io/resource "public/dev/create-package.html"))}
 
 
-      ;; Match any UUID and a valid dev file
-      (and (= (nth uri-parts 1 nil) "inventory")
-        (is-valid-uuid? uuid)
-        (= (nth uri-parts 3 nil) "dev")
-        (valid-files dev-file))
-      {:status 200
-       :headers {"Content-Type" "text/html"}
-       :body (slurp (io/resource (str "public/dev/create-" dev-file ".html")))}
+      ;;; Match any UUID and a valid dev file
+      ;(and (= (nth uri-parts 1 nil) "inventory")
+      ;  (is-valid-uuid? uuid)
+      ;  (= (nth uri-parts 3 nil) "dev")
+      ;  (valid-files dev-file))
+      ;{:status 200
+      ; :headers {"Content-Type" "text/html"}
+      ; :body (slurp (io/resource (str "public/dev/create-" dev-file ".html")))}
 
 
 
