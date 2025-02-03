@@ -1,6 +1,6 @@
 require "spec_helper"
 require "pry"
-require_relative "../_shared"
+require_relative "../../_shared"
 
 feature "Fetching Fields" do
   context "when searching for fields in a specific inventory pool", driver: :selenium_headless do
