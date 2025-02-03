@@ -676,7 +676,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::is_inventory_relevant boolean?)
 (sa/def ::last_check inst?) ;; Assuming it is a date
 (sa/def ::user_name string?)
-(sa/def ::price int?)
+
+;(sa/def ::price int?)
+(sa/def ::price string?)
+
 (sa/def ::shelf string?)
 (sa/def ::inventory_code string?)
 (sa/def ::retired boolean?)
