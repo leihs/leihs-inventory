@@ -634,16 +634,21 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                    ::responsible_department])
             :description "Data section of the body"}))
 
+
+(defn nil-or [pred]
+  (sa/or :nil nil? :value pred))
+
 (sa/def ::active boolean?)
 (sa/def ::data any?)
 (sa/def ::group string?)
 (sa/def ::id string?)
 (sa/def ::label string?)
-(sa/def ::owner string?)
+;(sa/def ::owner (nil-or uuid?))
+(sa/def ::owner (nil-or string?))
 (sa/def ::position int?)
-(sa/def ::role string?)
+(sa/def ::role (nil-or string?))
 (sa/def ::role_default string?)
-(sa/def ::target string?)
+(sa/def ::target (nil-or string?))
 (sa/def ::target_default string?)
 
 (sa/def ::fields-spec
@@ -652,7 +657,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                    ::id
                                    ::label
                                    ::owner
-                                   ::position
+                                          ::position
                                    ::role
                                    ::role_default
                                    ::target_default]
@@ -940,7 +945,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {
-                             :body :get-package-response/body-spec
+                             ;:body :get-package-response/body-spec ;; FIXME
+                             :body any?
                              :description "OK"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
