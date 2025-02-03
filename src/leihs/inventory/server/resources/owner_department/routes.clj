@@ -17,6 +17,7 @@
    ["/owners"
     ["" {:get {:conflicting true
                :accept "application/json"
+               :summary "Get owner department by id [v0]"
                :description "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware]
@@ -25,7 +26,8 @@
                                     (s/optional-key :size) s/Int}}
                :handler get-owner-department-of-pool-auto-pagination-handler
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                :body [{:id s/Uuid
+                                        :name s/Str}]}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 

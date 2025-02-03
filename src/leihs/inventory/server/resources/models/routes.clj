@@ -1,5 +1,10 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
+
+   [schema.core :as s]
+   [schema.coerce :as coerce]
+   [schema.utils :as utils]
+
    [cheshire.core :as json]
    [clojure.set]
    [clojure.spec.alpha :as sa]
@@ -619,6 +624,45 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::properties
                                              ]))
 
+(sa/def ::inventory_code string?)
+(sa/def ::inventory_pool_id uuid?)
+(sa/def ::responsible_department uuid?)
+
+(sa/def ::data-spec
+  (st/spec {:spec (sa/keys :req-un [::inventory_code
+                                   ::inventory_pool_id
+                                   ::responsible_department])
+            :description "Data section of the body"}))
+
+(sa/def ::active boolean?)
+(sa/def ::data any?)
+(sa/def ::group string?)
+(sa/def ::id string?)
+(sa/def ::label string?)
+(sa/def ::owner string?)
+(sa/def ::position int?)
+(sa/def ::role string?)
+(sa/def ::role_default string?)
+(sa/def ::target string?)
+(sa/def ::target_default string?)
+
+(sa/def ::fields-spec
+  (st/spec {:spec (sa/keys :req-un [::active
+                                   ::data
+                                   ::id
+                                   ::label
+                                   ::owner
+                                   ::position
+                                   ::role
+                                   ::role_default
+                                   ::target_default]
+                    :opt-un [::group ::target])
+            :description "Fields section of the body"}))
+
+(sa/def :get-package-response/body-spec
+  (st/spec {:spec (sa/keys :req-un [::data-spec ::fields-spec])
+            :description "Body of the request"}))
+
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::property)
                                              :str string?)
@@ -755,12 +799,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
       :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:description "OK"}
+            :responses {200 {
+                             :body :get-package-response/body-spec
+                             :description "OK"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -779,7 +825,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:put {:accept "application/json"
             :swagger {:consumes ["multipart/form-data"]
                       :produces "application/json"}
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?

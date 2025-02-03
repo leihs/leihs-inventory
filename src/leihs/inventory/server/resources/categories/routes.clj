@@ -123,7 +123,7 @@
 
     ["/entitlement-groups"
      ["" {:get {:conflicting true
-                :summary "OK | a.k.a 'Anspruchsgruppen'"
+                :summary "OK | a.k.a 'Anspruchsgruppen' [v0]"
                 :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
                 :accept "application/json"
                 :coercion reitit.coercion.schema/coercion
@@ -132,7 +132,14 @@
                 :parameters {:path {:pool_id s/Uuid}}
                 :handler get-entitlement-groups-of-pool-handler
                 :responses {200 {:description "OK"
-                                 :body s/Any}
+                                 :body [{
+                                         :id s/Uuid
+                                         :name s/Str
+                                         :inventory_pool_id s/Uuid
+                                         :is_verification_required s/Bool
+                                         :created_at s/Any
+                                         :updated_at s/Any
+                                         }]}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 

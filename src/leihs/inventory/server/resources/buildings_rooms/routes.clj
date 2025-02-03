@@ -27,6 +27,7 @@
 
   ["/:building_id"
     {:get {:conflicting true
+           :summary "Get building by id [v0]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -34,7 +35,9 @@
            :parameters {:path {:building_id s/Uuid}}
            :handler get-buildings-handler
            :responses {200 {:description "OK"
-                            :body s/Any}
+                            :body [{:id s/Uuid
+                                    :name s/Str
+                                    :code s/Str}]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -56,6 +59,7 @@
 
   ["/:room_id"
     {:get {:conflicting true
+           :summary "Get room by id [v0]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -63,7 +67,11 @@
            :parameters {:path {:room_id s/Uuid}}
            :handler get-rooms-handler
            :responses {200 {:description "OK"
-                            :body s/Any}
+                            :body [{:building_id s/Uuid
+                                    :description s/Str
+                                    :id s/Uuid
+                                    :name s/Str
+                                    :general s/Bool}]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
