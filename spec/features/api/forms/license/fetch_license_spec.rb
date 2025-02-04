@@ -172,6 +172,8 @@ feature "Inventory Model Management" do
       end
 
       it "creates and update license (simple)" do
+
+        # fetch supplier
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
         expect(result.status).to eq(200)
@@ -179,6 +181,8 @@ feature "Inventory Model Management" do
 
         supplier_id = result.body[0]["id"]
 
+
+        # create license
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
@@ -232,8 +236,13 @@ feature "Inventory Model Management" do
         expect(result.body["data"]["owner_id"]).to be
         expect(result.body["data"]["inventory_pool_id"]).to be
 
-        # attachments_id = result.body["data"]["attachments"][0]["id"]
+        # fetch license
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"]).to be_present
+        expect(resp.body["fields"].count).to eq(29)
 
+        # update license
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",

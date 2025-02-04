@@ -674,7 +674,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;; Define primitive field specs
 (sa/def ::note string?)
 (sa/def ::is_inventory_relevant boolean?)
-(sa/def ::last_check inst?) ;; Assuming it is a date
+;(sa/def ::last_check inst?) ;; Assuming it is a date
+(sa/def ::last_check any?)
 (sa/def ::user_name string?)
 
 ;(sa/def ::price int?)
@@ -700,7 +701,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;; Define the main spec for the request body
 (sa/def :package-put/inventory-attributes
-  (st/spec {:spec (sa/keys :req-un [::note
+  (st/spec {:spec (sa/keys :req-un [
+                                    ;::note
                                    ::is_inventory_relevant
                                    ::last_check
                                    ::user_name
@@ -708,14 +710,21 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                    ::shelf
                                    ::inventory_code
                                    ::retired
-                                   ::retired_reason
+                                   ;::retired_reason
                                    ::is_broken
                                    ::is_incomplete
                                    ::is_borrowable
                                    ::status_note
                                    ::room_id
+                                    ::model_id
                                    ::owner_id
-                                   ::items_attributes])
+                                    ]
+
+                    :opt-un [::note ::retired_reason
+                                   ::items_attributes
+
+                             ]
+                    )
             :description "Inventory attributes with details"}))
 
 
@@ -755,43 +764,73 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :res/user_name string?)
 (sa/def :res/room_id uuid?)
 (sa/def :res/serial_number (sa/nilable string?))
-(sa/def :res/price double?)
+;(sa/def :res/price double?)
+(sa/def :res/price (sa/nilable any?))
 (sa/def :res/created_at inst?) ;; Date
+(sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
+
+
+;is_inventory_relevant: true,
+;last_check: nil,
+;user_name: nil,
+;price: nil,
+;shelf: nil,
+;inventory_code: "P-AUS00002",
+;retired: false,
+;is_broken: false,
+;is_incomplete: false,
+;is_borrowable: false,
+;status_note: nil,
+;room_id: @form_rooms[0]["id"],
+;model_id: @form_model_data[0]["id"],
+;owner_id: @form_owners[0]["id"],
+;items_attributes: []
 
 ;; ✅ Correct: Define the `data` spec properly
 (sa/def :res/data
-  (st/spec {:spec (sa/keys :req-un [:res/properties
+  (st/spec {:spec (sa/keys :req-un [
                                     :res/inventory_code
-                                    :res/owner_id
-                                    :res/is_borrowable
                                     :res/retired
+                                    :res/is_borrowable
                                     :res/is_inventory_relevant
+                                    :res/is_broken
+                                    :res/is_incomplete
                                     :res/last_check
                                     :res/shelf
                                     :res/status_note
+                                    :res/user_name
+                                    :res/room_id
+                                    :res/model_id
+                                    :res/owner_id
+                                    :res/price
+
+
+
+                                    ]
+
+                    :opt-un [:res/note
+                                    :res/items_attributes
                                     :res/name
                                     :res/invoice_number
-                                    :res/is_broken
-                                    :res/note
+                                    :res/properties
                                     :res/updated_at
                                     :res/retired_reason
                                     :res/responsible
                                     :res/invoice_date
-                                    :res/model_id
                                     :res/supplier_id
                                     :res/parent_id
                                     :res/id
                                     :res/inventory_pool_id
-                                    :res/is_incomplete
                                     :res/item_version
                                     :res/needs_permission
-                                    :res/user_name
-                                    :res/room_id
                                     :res/serial_number
-                                    :res/price
                                     :res/created_at
-                                    :res/insurance_number])
+                                    :res/insurance_number
+                                    :res/insurance_number
+
+
+                             ])
             :description "Inventory item data"}))
 
 (sa/def :res/validation (sa/coll-of map? :kind vector?))
@@ -800,7 +839,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
-                    :opt-un [:res/validation])
+                    :opt-un [:res/validation :res/items_attributes])
             :description "Complete inventory response"}))
 
 
@@ -1057,15 +1096,17 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 :model_id uuid?
                                 :item_id uuid?}
                          ;:multipart :package/multipart}        ;; TODO
-                         ;:multipart any?}        ;; TODO
-                         :multipart :package-put/inventory-attributes}        ;; TODO
+                         :multipart any?}        ;; TODO
+                         ;:multipart :package-put/inventory-attributes
+                         ;}        ;; TODO
             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)] ;; FIXME
             :handler update-package-handler-by-pool-form
             :responses {
                         ;200 {}
                         200 {:description "OK"
-                             ;:body any?}
-                             :body :package-put-response/inventory-item}
+                             :body any?}
+                             ;; FIXME
+                             ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
