@@ -25,131 +25,238 @@ feature "Inventory Model Management" do
         raise "File not found: #{path}" unless File.exist?(path)
       end
 
-      # Fetch shared data and set global instance variables
-      resp = client.get "/inventory/manufacturers?type=Model"
-      @form_manufacturer = resp.body
-      raise "Failed to fetch manufacturers" unless resp.status == 200
-
       resp = client.get "/inventory/#{pool_id}/entitlement-groups"
       @form_entitlement_groups = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-      resp = client.get "/inventory/models-compatibles"
-      @form_models_compatibles = resp.body["data"]
+      resp = client.get "/inventory/owners"
+      # binding.pry
+      @form_owners = resp.body
+      raise "Failed to fetch manufacturers" unless resp.status == 200
+
+      resp = client.get "/inventory/buildings"
+      # binding.pry
+      @form_buildings = resp.body
+      raise "Failed to fetch entitlement groups" unless resp.status == 200
+
+      resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
+      # binding.pry
+      @form_rooms = resp.body
+      raise "Failed to fetch entitlement groups" unless resp.status == 200
+
+
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+      # binding.pry
+      @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
 
-      resp = client.get "/inventory/#{pool_id}/model-groups"
-      @form_model_groups = resp.body
-      raise "Failed to fetch model groups" unless resp.status == 200
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]}"
+      # binding.pry
+      @form_model_data = resp.body
+      raise "Failed to fetch compatible models" unless resp.status == 200
     end
 
     context "fetch form data" do
-      it "ensures form manufacturer data is fetched" do
-        expect(@form_manufacturer).not_to be_nil
-        expect(@form_manufacturer.count).to eq(2)
-      end
 
       it "ensures entitlement groups data is fetched" do
         expect(@form_entitlement_groups).not_to be_nil
         expect(@form_entitlement_groups.count).to eq(1)
       end
 
+      it "ensures form manufacturer data is fetched" do
+        expect(@form_owners).not_to be_nil
+        expect(@form_owners.count).to eq(2)
+      end
+
       it "ensures models compatible data is fetched" do
-        expect(@form_models_compatibles).not_to be_nil
-        expect(@form_models_compatibles.count).to eq(3)
+        expect(@form_buildings).not_to be_nil
+        expect(@form_buildings.count).to eq(2)
       end
 
       it "ensures model groups data is fetched" do
-        expect(@form_model_groups).not_to be_nil
-        expect(@form_model_groups.count).to eq(2)
+        expect(@form_rooms).not_to be_nil
+        expect(@form_rooms.count).to eq(1)
       end
+
+      it "ensures models compatible data is fetched" do
+        expect(@form_model_names).not_to be_nil
+        expect(@form_model_names.count).to eq(2)
+      end
+
+      it "ensures model groups data is fetched" do
+        expect(@form_model_data).not_to be_nil
+        expect(@form_model_data.count).to eq(1)
+      end
+    end
+
+    context "fetch of form" do
+      it "ensures form manufacturer data is fetched" do
+
+        resp = client.get "/inventory/#{pool_id}/item"
+        @form_entitlement_groups = resp.body
+        expect(resp.status).to be(200)
+
+          expect(@form_entitlement_groups["data"]["inventory_pool_id"]).to eq(pool_id)
+        expect(@form_entitlement_groups["fields"].count).to eq(32)
+
+        expect(@form_entitlement_groups).not_to be_nil
+        expect(@form_entitlement_groups.count).to eq(2)
+      end
+
     end
 
     context "create model" do
       it "creates a model with all available attributes" do
-        compatibles = @form_models_compatibles
-        compatibles.first["id"] = compatibles.first.delete("model_id")
 
-        # create model request
+        # create item
         form_data = {
-          "product" => Faker::Commerce.product_name,
-          "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-          "attachments" => [File.open(path_test_pdf, "rb")],
-          "version" => "v1.0",
-          "manufacturer" => @form_manufacturer.first, # Use fetched manufacturer name
-          "isPackage" => "true",
-          "description" => "A sample product",
-          "technicalDetails" => "Specs go here",
-          "internalDescription" => "Internal notes",
-          "importantNotes" => "Important usage notes",
-          "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
-          "compatibles" => [compatibles.first].to_json,
-          "categories" => [@form_model_groups.first].to_json
-        }
+          serial_number: nil,
+          note: nil,
+
+          # attachments: [], # binary data
+          # attachments_to_delete: [],
+
+          is_inventory_relevant: "true",
+          last_check: nil,
+          user_name: nil,
+          # undefined: nil,
+          invoice_number: nil,
+          invoice_date: nil,
+          price: nil,
+          shelf: nil,
+          inventory_code: "AUS45859",
+          retired: "false",
+          is_broken: "false",
+          is_incomplete: "false",
+          is_borrowable: "false",
+          status_note: nil,
+          room_id: @form_rooms[0]["id"],
+          # model_id: "c53ba068-423f-4816-8707-623cbb0a3141",
+          model_id: @form_model_data[0]["id"],
+          # owner_id: "8bd16d45-056d-5590-bc7f-12849f034351",
+          owner_id: @form_owners[0]["id"],
+          properties: {
+            electrical_power: "",
+            imei_number: "",
+            p4u: "",
+            reference: "invoice",
+            warranty_expiration: "",
+            quantity_allocations: []
+          }.to_json
+        }.transform_values { |v| v.nil? ? "" : v.to_s }
 
         result = http_multipart_client(
-          "/inventory/#{pool_id}/model",
+          "/inventory/#{pool_id}/item",
           form_data,
+          method: :post,
           headers: cookie_header
         )
 
-        # puts "Result.model_id: #{result.body["data"]["id"]}"
-        # puts "Result.pool_id: #{pool_id}"
-        # puts "Result.body: #{result.body}"
 
         expect(result.status).to eq(200)
 
-        # fetch created model
-        model_id = result.body["data"]["id"]
-        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+        model_id = result.body["data"]["model_id"]
+        item_id = result.body["data"]["id"]
 
-        expect(resp.body[0]["images"].count).to eq(1)
-        expect(resp.body[0]["attachments"].count).to eq(1)
 
-        expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-        expect(resp.body[0]["compatibles"].count).to eq(1)
-        expect(resp.body[0]["categories"].count).to eq(1)
+
+
+        # fetch created item
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+        binding.pry
+        @form_entitlement_groups = resp.body
+        expect(resp.status).to be(200)
+
+        expect(@form_entitlement_groups).not_to be_nil
+        expect(@form_entitlement_groups.count).to eq(2)
+
         expect(result.status).to eq(200)
+        expect(@form_entitlement_groups["data"]).to exit
+        expect(@form_entitlement_groupsy["validation"].count).to eq(0)
 
-        expect(Image.where(target_id: model_id).count).to eq(2)
 
-        # update model request
-        form_data = {
-          "product" => "updated product",
-          "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-          "attachments" => [File.open(path_test_pdf, "rb")],
-          "version" => "updated v1.0",
-          "manufacturer" => "updated manufacturer",
-          "isPackage" => "true",
-          "description" => "updated description",
-          "technicalDetails" => "updated techDetail",
-          "internalDescription" => "updated internalDesc",
-          "importantNotes" => "updated notes",
-          "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
-          "compatibles" => [compatibles.first, compatibles.second].to_json,
-          "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
-        }
 
+
+
+        # update item request
         result = http_multipart_client(
-          "/inventory/#{pool_id}/model/#{model_id}",
+          "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}/item",
           form_data,
           method: :put,
           headers: cookie_header
         )
-        expect(result.status).to eq(200)
-        expect(result.body[0]["id"]).to eq(model_id)
 
-        # fetch updated model
-        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-        expect(resp.body[0]["images"].count).to eq(2)
-        expect(resp.body[0]["attachments"].count).to eq(2)
-        expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-        expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-        expect(resp.body[0]["compatibles"].count).to eq(2)
-        expect(resp.body[0]["categories"].count).to eq(2)
         expect(result.status).to eq(200)
+
+
+
+
+
       end
+
+
+
+
+
+
+
+
+
+
+      #
+      #     # fetch created model
+      #     model_id = result.body["data"]["id"]
+      #     resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+      #
+      #     expect(resp.body[0]["images"].count).to eq(1)
+      #     expect(resp.body[0]["attachments"].count).to eq(1)
+      #
+      #     expect(resp.body[0]["entitlement_groups"].count).to eq(1)
+      #     expect(resp.body[0]["compatibles"].count).to eq(1)
+      #     expect(resp.body[0]["categories"].count).to eq(1)
+      #     expect(result.status).to eq(200)
+      #
+      #     expect(Image.where(target_id: model_id).count).to eq(2)
+      #
+      #     # update model request
+      #     form_data = {
+      #       "product" => "updated product",
+      #       "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+      #       "attachments" => [File.open(path_test_pdf, "rb")],
+      #       "version" => "updated v1.0",
+      #       "manufacturer" => "updated manufacturer",
+      #       "isPackage" => "true",
+      #       "description" => "updated description",
+      #       "technicalDetails" => "updated techDetail",
+      #       "internalDescription" => "updated internalDesc",
+      #       "importantNotes" => "updated notes",
+      #       "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
+      #       "compatibles" => [compatibles.first, compatibles.second].to_json,
+      #       "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+      #     }
+      #
+      #     result = http_multipart_client(
+      #       "/inventory/#{pool_id}/model/#{model_id}",
+      #       form_data,
+      #       method: :put,
+      #       headers: cookie_header
+      #     )
+      #     expect(result.status).to eq(200)
+      #     expect(result.body[0]["id"]).to eq(model_id)
+      #
+      #     # fetch updated model
+      #     resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+      #
+      #     expect(resp.body[0]["images"].count).to eq(2)
+      #     expect(resp.body[0]["attachments"].count).to eq(2)
+      #     expect(resp.body[0]["entitlement_groups"].count).to eq(1)
+      #     expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
+      #     expect(resp.body[0]["compatibles"].count).to eq(2)
+      #     expect(resp.body[0]["categories"].count).to eq(2)
+      #     expect(result.status).to eq(200)
+      #   end
+
     end
   end
 end

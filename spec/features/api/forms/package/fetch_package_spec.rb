@@ -66,44 +66,6 @@ feature "Inventory Model Management" do
       # binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
-
-      # resp = client.get "/inventory/#{pool_id}/model-groups"
-      # @form_model_groups = resp.body
-      # raise "Failed to fetch model groups" unless resp.status == 200
-
-
-
-
-
-      # it "fetch default" do
-      #   result = client.get "/inventory/owners"
-      #
-      #   # binding.pry
-      #   expect(result.status).to eq(200)
-      #   expect(result.body.count).to eq(2)
-      # end
-      #
-      # it "fetch default" do
-      #   result = client.get "/inventory/buildings"
-      #
-      #   # binding.pry
-      #   expect(result.status).to eq(200)
-      #   expect(result.body.count).to eq(3)
-      # end
-      #
-      # it "fetch default" do
-      #   # result = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=a"
-      #   result = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-
-
-
-
-
-
-
-
-
-
       end
 
     context "create model" do
