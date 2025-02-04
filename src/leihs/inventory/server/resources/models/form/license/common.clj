@@ -77,11 +77,38 @@
     (java.time.LocalDate/parse value))
     nil))
 
+;(defn double-to-numeric-or-nil [int-value]
+;
+;  (cond int-value
+;    (instance? java.lang.Double int-value) int-value
+;
+;    (customized-empty? int-value) nil
+;
+;    :default     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
+;                   (int-to-numeric-or-nil parsed-value))
+;    )
+;
+;  ;(if (customized-empty? int-value)
+;  ;  nil
+;  ;  (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
+;  ;    (int-to-numeric-or-nil parsed-value))
+;  ;  )
+;
+;  )
+
+
 (defn double-to-numeric-or-nil [int-value]
-  (if (customized-empty? int-value)
-    nil
-    (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
-      (int-to-numeric-or-nil parsed-value))))
+  (cond
+    (nil? int-value) nil
+    (instance? java.lang.Double int-value) int-value
+    (customized-empty? int-value) nil
+    :else (let [parsed-value (if (string? int-value)
+                               (try
+                                 (Double/parseDouble int-value)
+                                 (catch NumberFormatException _ nil))
+                               int-value)]
+            (int-to-numeric-or-nil parsed-value))))
+
 
 (defn cast-to-nil [value]
   (if (customized-empty? value) nil value))

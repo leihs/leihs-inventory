@@ -171,7 +171,7 @@ feature "Inventory Model Management" do
       end
 
 
-      it "create by form data" do
+      it "create, fetch & update by form data" do
 
         # result = client.get "inventory/manufacturers?type=Software&in-detail=true"
         #
@@ -239,7 +239,8 @@ feature "Inventory Model Management" do
 
 
 
-
+        # TODO: update item
+        # TODO: update item/
 
 
 

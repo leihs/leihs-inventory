@@ -1,12 +1,12 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
 
-   [schema.core :as s]
-   [schema.coerce :as coerce]
-   [schema.utils :as utils]
-
-   [cheshire.core :as json]
-   [clojure.set]
+   ;[schema.core :as s]
+   ;[schema.coerce :as coerce]
+   ;[schema.utils :as utils]
+   ;
+   ;[cheshire.core :as json]
+   ;[clojure.set]
    [clojure.spec.alpha :as sa]
 
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
@@ -835,6 +835,88 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :software/properties
                                       ::accessories]))
 
+
+;;; Define UUID Spec
+;(sa/def ::id (st/spec {:spec #(re-matches #"\b[0-9a-fA-F-]{36}\b" %)
+;                       :name "id"
+;                       :json-name "id"
+;                       :description "Unique identifier (UUID)"}))
+;
+;(sa/def ::inventory_pool_id (st/spec {:spec #(re-matches #"\b[0-9a-fA-F-]{36}\b" %)
+;                                      :name "inventory_pool_id"
+;                                      :json-name "inventory_pool_id"
+;                                      :description "Inventory pool UUID"}))
+;
+;;; Define Other Field Specs
+;(sa/def ::inventory_code (st/spec string? {:name "inventory_code"
+;                                           :json-name "inventory_code"
+;                                           :description "Inventory code"}))
+;(sa/def ::manufacturer (st/spec (sa/nilable string?) {:name "manufacturer"
+;                                                      :json-name "manufacturer"
+;                                                      :description "Manufacturer name"}))
+;(sa/def ::product (st/spec string? {:name "product"
+;                                    :json-name "product"
+;                                    :description "Product name"}))
+;(sa/def ::version (st/spec string? {:name "version"
+;                                    :json-name "version"
+;                                    :description "Product version"}))
+;(sa/def ::price (st/spec number? {:name "price"
+;                                  :json-name "price"
+;                                  :description "Item price"}))
+;
+;;; Define Data Spec with Explicit :name and :json-name
+;(sa/def ::data
+;  (st/spec (sa/keys :req [::id
+;                          ::inventory_pool_id
+;                          ::inventory_code
+;                          ::product
+;                          ::version
+;                          ::price]
+;             :opt [::manufacturer])
+;    {:name "data"
+;     :json-name "data"
+;     :description "Inventory item data"}))
+;
+;;; Define Validation Spec
+;(sa/def ::validation (st/spec (sa/coll-of string? :kind vector?)
+;                       {:name "validation"
+;                        :json-name "validation"
+;                        :description "List of validation messages"}))
+;
+;;; Define Full Response Spec with Correct Naming
+;(sa/def :res2/request
+;  (st/spec (sa/keys :req [::data ::validation])
+;    {:name "request"
+;     :json-name "request"
+;     :description "Inventory request object"}))
+
+
+
+(def response-option-object {
+  :id uuid?
+  :inventory_pool_id uuid?
+  :inventory_code string?
+  :manufacturer  any?
+  :product string?
+  :version string?
+  :price any?
+  })
+
+(def response-option [response-option-object])
+
+;(def response-option [{
+;  :id uuid?
+;  :inventory_pool_id uuid?
+;  :inventory_code string?
+;  :manufacturer  any?
+;  :product string?
+;  :version string?
+;  :price any?
+;  }])
+
+
+
+
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
@@ -1078,9 +1160,23 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?}
                           :multipart :option/multipart}
              :handler create-option-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {
+                              :description "OK"
+                              ;:body :res2/request ;; FIXME: shows key-prefixes
+                              :body {:data {:product string?
+                                            :inventory_pool_id uuid?
+                                            :version string?
+                                            :price any?
+                                            :id uuid?
+                                            :inventory_code string?}
+                                     :validation any?}
+                              }
+
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+                         500 {:description "Internal Server Error"}}
+
+
+             }}]
 
     ["/:option_id"
      [""
@@ -1091,7 +1187,18 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :option_id uuid?}}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler fetch-option-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :body response-option
+                              ;:body [{
+                              ;        :id uuid?
+                              ;        :inventory_pool_id uuid?
+                              ;        :inventory_code string?
+                              ;        :manufacturer  any?
+                              ;        :product string?
+                              ;        :version string?
+                              ;        :price any?
+                              ;        }]
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1104,7 +1211,20 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :option_id uuid?}
                           :multipart :option/multipart}
              :handler update-option-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :content_type "multipart/form-data"
+                              :body response-option
+                              ;:body [{:product string?
+                              ;        :version string?
+                              ;        ;:price double?
+                              ;        :price any?
+                              ;        :id uuid?
+                              ;        ;:manufacturer (s/maybe string?)
+                              ;        ;:manufacturer (s/maybe any?)
+                              ;        :manufacturer  any?
+                              ;        :inventory_pool_id uuid?
+                              ;        :inventory_code string?}]
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 

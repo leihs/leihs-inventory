@@ -83,6 +83,8 @@
       filename
       nil)))
 
+(def allowed-types #{"model" "software" "license" "item" "option" "package"})
+
 
 (defn is-valid-uuid? [s]
   (re-matches #"[0-9a-fA-F-]{36}" s))
@@ -112,6 +114,14 @@
                                                                            :body (slurp (io/resource (str "public/dev/" file)))}
 
 
+      (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri)
+      (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
+        (if (allowed-types type)
+          {:status 200
+           :headers {"Content-Type" "text/html"}
+           :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
+          {:status 400
+           :body "Invalid type"}))
 
 
       ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
