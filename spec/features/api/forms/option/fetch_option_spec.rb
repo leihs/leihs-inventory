@@ -22,7 +22,7 @@ feature "Inventory Model Management2" do
 
       it "create, fetch & update by form data" do
 
-        # create
+        # create option
         form_data = {
           product: Faker::Commerce.product_name,
           version: "v1",
@@ -43,12 +43,12 @@ feature "Inventory Model Management2" do
         option_id = result.body["data"]["id"]
 
 
-        # fetch
+        # fetch option
         result = client.get "/inventory/#{pool_id}/option/#{option_id}"
         expect(result.body.count).to eq(1)
 
 
-        # update
+        # update option
         form_data = {
           product: Faker::Commerce.product_name,
           version: "v2",
