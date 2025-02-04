@@ -30,28 +30,28 @@ feature "Inventory Model Management" do
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/owners"
-      # binding.pry
+      # # binding.pry
       @form_owners = resp.body
       raise "Failed to fetch manufacturers" unless resp.status == 200
 
       resp = client.get "/inventory/buildings"
-      # binding.pry
+      # # binding.pry
       @form_buildings = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
-      # binding.pry
+      # # binding.pry
       @form_rooms = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-      # binding.pry
+      # # binding.pry
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]}"
-      # binding.pry
+      # # binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
     end
@@ -163,7 +163,7 @@ feature "Inventory Model Management" do
 
         # fetch created item
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        binding.pry
+        # # binding.pry
         @form_entitlement_groups = resp.body
         expect(resp.status).to be(200)
 
@@ -171,8 +171,9 @@ feature "Inventory Model Management" do
         expect(@form_entitlement_groups.count).to eq(2)
 
         expect(result.status).to eq(200)
-        expect(@form_entitlement_groups["data"]).to exit
-        expect(@form_entitlement_groupsy["validation"].count).to eq(0)
+        expect(@form_entitlement_groups["data"]).to be_present
+        # binding.pry #here
+        expect(@form_entitlement_groups["fields"].count).to eq(32)
 
 
 
@@ -180,7 +181,7 @@ feature "Inventory Model Management" do
 
         # update item request
         result = http_multipart_client(
-          "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}/item",
+          "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
