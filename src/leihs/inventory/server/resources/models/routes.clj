@@ -104,6 +104,7 @@
 
    ["manufacturers"
     {:get {:conflicting true
+           :summary "Get manufacturers [v0]"
            :accept "application/json"
            :description "'search-term' starts working with at least one character, considers:\n
 - manufacturer\n
@@ -117,7 +118,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 (s/optional-key :search-term) s/Str
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
-                            :body [s/Any]}
+                            ;:body [s/Any]}
+                            :body [(s/->Either [ {:id s/Uuid
+                                                          :manufacturer s/Str
+                                                          :product s/Str
+                                                          :version s/Str
+                                                          :model_id s/Uuid
+                                                          } s/Str])]
+                            }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
