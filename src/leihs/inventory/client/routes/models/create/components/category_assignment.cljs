@@ -8,11 +8,15 @@
    ["lucide-react" :refer [CirclePlus Trash]]
    ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
 (defui main [{:keys [control props]}]
-  ($ :div "hello"))
+  (let [{:keys [categories]} (uix/use-context state-context)]
+
+    (js/console.debug "categories" categories)
+    ($ :div "hello")))
 
 (def CategoryAssignment
   (uix/as-react

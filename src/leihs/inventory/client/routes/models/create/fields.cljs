@@ -31,7 +31,8 @@
                                :props (:props block)})
 
     (-> block :component (= "category-assignment"))
-    ($ CategoryAssignment {:control control :props (:props block)})
+    ($ CategoryAssignment {:control control
+                           :props (:props block)})
 
     (-> block :component (= "image-dropzone"))
     ($ ImageUpload {:control control :props (:props block)})
