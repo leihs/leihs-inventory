@@ -984,6 +984,104 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;; ----------------------
 
+;(ns my-api.schema
+;  (:require [clojure.spec.alpha :as s]))
+
+;; Define a UUID type (as string)
+(sa/def ::uuid string?)
+
+;; Define a nullable string
+(sa/def ::nullable-string (sa/nilable string?))
+
+;; Define boolean and integer types
+(sa/def ::boolean boolean?)
+(sa/def ::integer int?)
+
+;; Define "data" schema
+;(sa/def ::inventory_pool_id ::uuid)
+(sa/def ::inventory_pool_id string?)
+(sa/def ::inventory_pool_id any?)
+(sa/def ::responsible_department ::uuid)
+(sa/def ::inventory_code string?)
+
+(sa/def ::DataSchema
+  (sa/keys :req-un [::inventory_pool_id
+                   ::responsible_department
+                   ::inventory_code]))
+
+;; Define "permissions" schema inside "data"
+(sa/def ::role string?)
+(sa/def ::owner ::boolean)
+
+(sa/def ::PermissionsSchema
+  (sa/keys :req-un [::role ::owner]))
+
+;; Define "data" inside "fields"
+(sa/def ::type string?)
+(sa/def ::group string?)
+(sa/def ::label string?)
+(sa/def ::attribute any?)
+;(sa/def ::permissions ::PermissionsSchema)
+(sa/def ::permissions any?)
+(sa/def ::forPackage boolean?)
+
+
+;; Define "fields" schema
+(sa/def :nil/role (sa/nilable string?))
+(sa/def :nil/group (sa/nilable string?))
+(sa/def ::group_default string?)
+(sa/def ::target_type string?)
+(sa/def ::role_default string?)
+(sa/def ::target_default string?)
+(sa/def ::active ::boolean)
+(sa/def ::label string?)
+;(sa/def :bool/owner boolean?)
+;(sa/def :bool/owner (sa/nilable boolean?))
+(sa/def :bool/owner (sa/nilable string?))
+(sa/def ::id string?)
+(sa/def ::position ::integer)
+(sa/def ::target ::nullable-string)
+(sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
+
+;(sa/def ::FieldDataSchema
+;  (sa/keys :req-un [::type :nil/group ::label ::attribute  ]
+;
+;    :opt-un [ ::target_type ::permissions ::forPackage]
+;    ))
+
+(sa/def ::FieldDataSchema
+  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code  ]
+
+
+    ))
+
+
+
+;(sa/def ::data ::FieldDataSchema)
+
+(sa/def ::FieldSchema
+  (sa/keys :req-un [:nil/role
+                   :nil/group
+                   ::group_default
+                   ::role_default
+                   ::target_default
+                   ::active
+                   ::label
+                   ::id
+                   ::position
+                   ::target
+                   :bool/owner
+                   ::data]))
+
+;; Define response body schema
+;(sa/def :response/ResponseBodySchema
+;  (sa/keys :req-un [::DataSchema
+;                   (sa/coll-of ::FieldSchema :kind vector?)])) ;; Ensure fields is a vector
+
+
+
+
+;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
@@ -1383,7 +1481,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
 
-   ["/license" ;;old
+   ["/license" ;;new
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
 
@@ -1392,7 +1490,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"
                        :deprecated true}
-             :summary "(DEV) | Dynamic-Form-Handler"
+             :summary "(DEV) | Dynamic-Form-Handler [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
                           :multipart :license/multipart}
@@ -1408,7 +1506,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-license-handler-by-pool-form-fetch
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:description "OK"}
+            :responses {200 {:description "OK"
+
+;:body ResponseBodySchema3
+;:body :response/ResponseBodySchema
+:body {:data ::FieldDataSchema
+       :fields [::FieldSchema]}
+                             }
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 

@@ -26,6 +26,7 @@
     {:swagger {:conflicting true
                :tags ["Supplier"] :security []}}
     ["" {:get {:conflicting true
+                :summary "OK | Lieferanten anzeigen [v0]"
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "
@@ -43,12 +44,16 @@
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                ;:body s/Any}
+                                :body [{:id s/Uuid
+                                        :name s/Str
+                                        :note s/Str}]}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
     ["/:supplier_id"
      {:get {:conflicting true
+                :summary "OK | Lieferant anzeigen [v0]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware session/wrap]
@@ -57,6 +62,9 @@
             :parameters {:path {:supplier_id s/Uuid}}
             :handler get-suppliers-auto-pagination-handler
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             ;:body s/Any}
+                        :body [{:id s/Uuid
+                                :name s/Str
+                                :note s/Str}]}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])

@@ -153,6 +153,8 @@
              :parameters {:path {:pool_id s/Uuid :entitlement_group_id s/Uuid}}
              :handler get-entitlement-groups-of-pool-handler
              :responses {200 {:description "OK"
-                              :body s/Any}
+                              ;:body s/Any}
+                         :body [{:id s/Uuid
+                                 :name s/Str}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])
