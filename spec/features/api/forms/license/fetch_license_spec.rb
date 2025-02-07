@@ -171,11 +171,12 @@ feature "Inventory Model Management" do
         expect(result.body[0]["inventory_pool_id"]).to be
       end
 
-      it "creates and update license (simple)" do
+      it "creates and update license with attachment" do
 
         # fetch supplier
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
+        binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
 
@@ -224,6 +225,8 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
+        binding.pry
+
         expect(result.status).to eq(200)
 
         expect(result.body["data"]["item_id"]).to be
@@ -238,6 +241,9 @@ feature "Inventory Model Management" do
 
         # fetch license
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+
+        binding.pry
+
         expect(resp.status).to eq(200)
         expect(resp.body["data"]).to be_present
         expect(resp.body["fields"].count).to eq(29)
@@ -279,6 +285,8 @@ feature "Inventory Model Management" do
           method: :put,
           headers: cookie_header
         )
+
+        binding.pry
 
         expect(result.status).to eq(200)
 

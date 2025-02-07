@@ -40,7 +40,9 @@
             :parameters {:path {:id s/Uuid}}
             :handler get-owner-department-of-pool-auto-pagination-handler
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             ;:body s/Any}
+                        :body [{:id s/Uuid
+                                :name s/Str}]}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 

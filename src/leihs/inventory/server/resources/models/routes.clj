@@ -476,8 +476,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::id uuid?)
 (sa/def ::id-or-nil (sa/nilable uuid?))
 (sa/def ::name string?)
-(sa/def ::created_at string?)
-(sa/def ::updated_at string?)
+(sa/def ::created_at any?)
+(sa/def ::updated_at any?)
 
 (sa/def ::type
   (sa/and string? #{"Category"}))
@@ -500,8 +500,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
-(sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
-                             :single ::file))
+;(sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
+;                             :single ::file))
+(sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def ::quantity int?)
@@ -541,6 +542,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::retired_reason string?)
 (sa/def ::price string?)
 (sa/def ::invoice_date string?)
+(sa/def :lr/invoice_date any?)
 (sa/def ::invoice_number string?)
 
 (sa/def ::shelf string?)                                    ;; FIXME
@@ -666,6 +668,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::inventory_pool_id uuid?)
 (sa/def ::responsible any?)
 (sa/def :nil/responsible (sa/nilable any?))
+(sa/def :nil/invoice_number (sa/nilable any?))
 
 
 (sa/def ::responsible_department uuid?)
@@ -722,6 +725,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;(sa/def ::price int?)
 (sa/def ::price string?)
+(sa/def :lr/price any?)
 
 (sa/def ::shelf string?)
 (sa/def ::inventory_code string?)
@@ -1086,14 +1090,22 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
 (sa/def :nil/name (sa/nilable string?))
+(sa/def :nil/status_note (sa/nilable string?))
+(sa/def :nil/shelf (sa/nilable string?))
+(sa/def :nil/last_check (sa/nilable string?))
 (sa/def :nil/item_version (sa/nilable string?))
-(sa/def :nil/retired (sa/nilable boolean?))
+(sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
 (sa/def :nil/price (sa/nilable string?))
 (sa/def :nil/invoice_date (sa/nilable string?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
 (sa/def :nil/insurance_number (sa/nilable any?))
+(sa/def :nil/user_name (sa/nilable any?))
+(sa/def :nil/supplier_id (sa/nilable any?))
+
+
+
 (sa/def ::needs_permission  boolean?)
 (sa/def ::is_incomplete  boolean?)
 
@@ -1146,6 +1158,51 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
 
+(sa/def ::post-license (sa/keys :req-un [::inventory_code ::owner_id ::item_id]
+                     :opt-un [::p4u
+                              ::total_quantity
+                              ::operating_system
+                              ::quantity_allocations
+                              ::maintenance_price
+                              ::maintenance_expiration
+                              ::maintenance_currency
+                              ::project_number
+                              ::license_expiration
+                              ::reference
+                              ::installation
+                              ::dongle_id
+                              ::procured_by
+                              ::maintenance_contract
+                              ::license_type
+                              ::activation_type
+                              ::is_borrowable
+                              :nil/retired
+                              ::is_inventory_relevant
+                              :nil/last_check
+                              :nil/shelf
+                              :nil/status_note
+                              :nil/name
+                              ::attachments
+                              :nil/invoice_number
+                              ::is_broken
+                              ::note
+                              ::updated_at
+                              ::retired_reason
+                              :nil/responsible
+                              :lr/invoice_date
+                              ::model_id
+                              :nil/supplier_id
+                              :nil/parent_id
+                              ::inventory_pool_id
+                              ::is_incomplete
+                              ::item_version
+                              ::needs_permission
+                              :nil/user_name
+                              ::room_id
+                              ::serial_number
+                              :lr/price
+                              ::created_at
+                              :nil/insurance_number]))
 
 
 (defn get-model-by-pool-route []
@@ -1716,7 +1773,12 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                             :multipart :license/multipart}
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                :handler create-license-handler-by-pool-form
-               :responses {200 {:description "OK"}
+               :responses {200 {:description "OK"
+
+
+                                :body {:data ::post-license
+                                       :validation [any?]}
+                                }
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
