@@ -173,7 +173,7 @@
       {:swagger {:tags ["Auth"] :security []}}
 
       ["login"
-       {:get {:summary "[] OK | Authenticate user by login ( set cookie with token )"
+       {:get {:summary "[] OK | DEV | Authenticate user by login ( set cookie with token ) [v0]"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}] :deprecated true}

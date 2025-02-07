@@ -103,6 +103,7 @@
 
     ["/items-with-model-info"
      {:get {:description "Shortcut to fetch Items with model info (distinct item entries) page&size set!!"
+            :summary "Fetch Items with model info [v0]"
             :conflicting true
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
