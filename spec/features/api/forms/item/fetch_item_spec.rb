@@ -50,10 +50,8 @@ feature "Inventory Model Management" do
       # binding.pry
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
-      binding.pry
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
-      binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
     end
@@ -158,6 +156,7 @@ feature "Inventory Model Management" do
           method: :post,
           headers: cookie_header
         )
+        binding.pry
 
         expect(result.status).to eq(200)
 

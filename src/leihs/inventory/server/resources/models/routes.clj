@@ -1084,8 +1084,92 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    })
 
 
+;; ----------------------
+
+(sa/def :nil/id (sa/nilable uuid?))
+;(sa/def ::name string?)
+;(sa/def ::created_at string?)
+;(sa/def :nil/updated_at (sa/nilable string?))
+;(sa/def :nil/created_at (sa/nilable string?))
+(sa/def :nil/updated_at (sa/nilable any?))
+(sa/def :nil/created_at (sa/nilable any?))
+
+(sa/def :nil/name (sa/nilable string?))
 
 
+(sa/def :nil/item_version (sa/nilable string?))
+;(sa/def :nil/is_borrowable boolean?)
+;(sa/def :nil/is_incomplete boolean?)
+;(sa/def :nil/is_broken boolean?)
+(sa/def :nil/retired (sa/nilable boolean?))
+(sa/def :nil/retired_reason (sa/nilable string?))
+(sa/def :nil/price (sa/nilable string?))
+(sa/def :nil/invoice_date (sa/nilable string?))
+
+;(ns my-api.schema
+;  (:require [clojure.spec.alpha :as s]))
+
+;; Define a UUID type
+(sa/def ::uuid (sa/nilable string?))  ;; UUIDs are typically strings but can be nil
+
+;; Define a nullable string
+(sa/def ::nullable-string (sa/nilable string?))
+
+;; Define boolean and integer types
+(sa/def ::boolean boolean?)
+(sa/def ::integer int?)
+
+;; Define a timestamp (ISO 8601)
+(sa/def ::timestamp string?)
+
+;; Define properties inside "data"
+(sa/def ::properties any?)
+;(sa/def ::properties
+;  (sa/keys :req-un [::nullable-string]))
+
+;; Define the data schema
+(sa/def ::DataSchema
+  (sa/keys :req-un [::inventory_code
+                   ::owner_id
+                   ::is_borrowable
+                   :nil/retired
+                   ::is_inventory_relevant
+                   ::last_check
+                   ::shelf
+                   ::status_note
+                   :nil/name
+                   ::invoice_number
+                   ::is_broken
+                   ::note
+                   :nil/updated_at
+                   :nil/retired_reason
+                   ::responsible
+                   :nil/invoice_date
+                   ::model_id
+                   ::supplier_id
+                   ::parent_id
+                   :nil/id
+                   ::inventory_pool_id
+                   ::is_incomplete
+                   :nil/item_version
+                   ::needs_permission
+                   ::user_name
+                   ::room_id
+                   ::serial_number
+                   :nil/price
+                   :nil/created_at
+                   ::insurance_number
+                   ::properties]))
+
+;; Define the overall response schema
+;(def test_ResponseBodySchema
+;  (sa/keys :req-un [::DataSchema
+;                   ::validation]))  ;; Assuming validation is an array (can be defined separately)
+
+(def test_ResponseBodySchema
+  {:data ::DataSchema
+   :validation [any?]
+   })
 
 
 
@@ -1121,6 +1205,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ;              :quantity s/Int
                               ;              :inventory_code s/Str}
                               ;       :fields s/Any}
+
+                              ;:body ResponseBodySchema      ;; error
+:body test_ResponseBodySchema
                               }
 
 
@@ -1135,20 +1222,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-items-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
-                             ;:body {:data {:inventory_pool_id uuid?
-                             ;              :responsible_department (nil-or string?)
-                             ;              :quantity int?
-                             ;              :inventory_code string?}
-                             ;       :fields s/Any}
-
-                             ;:body [{:data {:inventory_pool_id uuid?
-                             ;              :responsible_department (nil-or string?)
-                             ;              :quantity int?
-                             ;              :inventory_code string?}
-                             ;       :fields s/Any}]
-
                              ;; TODO
-                             ;:body RoleSchemaList
                              :body ResponseBodySchema
                              }
                         404 {:description "Not Found"}
