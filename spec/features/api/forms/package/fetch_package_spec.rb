@@ -39,7 +39,7 @@ feature "Inventory Model Management" do
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
 
-      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]}"
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
       # # binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
