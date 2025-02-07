@@ -50,9 +50,10 @@ feature "Inventory Model Management" do
       # binding.pry
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
+      binding.pry
 
-      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]}"
-      # binding.pry
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
+      binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
     end
@@ -100,7 +101,7 @@ feature "Inventory Model Management" do
       it "ensures form manufacturer data is fetched" do
 
         resp = client.get "/inventory/#{pool_id}/item"
-        binding.pry
+        # binding.pry
         @form_entitlement_groups = resp.body
         expect(resp.status).to be(200)
 
@@ -139,9 +140,7 @@ feature "Inventory Model Management" do
           is_borrowable: "false",
           status_note: nil,
           room_id: @form_rooms[0]["id"],
-          # model_id: "c53ba068-423f-4816-8707-623cbb0a3141",
           model_id: @form_model_data[0]["id"],
-          # owner_id: "8bd16d45-056d-5590-bc7f-12849f034351",
           owner_id: @form_owners[0]["id"],
           properties: {
             electrical_power: "",
@@ -160,13 +159,10 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-
         expect(result.status).to eq(200)
 
         model_id = result.body["data"]["model_id"]
         item_id = result.body["data"]["id"]
-
-
 
 
         # fetch created item
@@ -184,9 +180,6 @@ feature "Inventory Model Management" do
         expect(@form_entitlement_groups["fields"].count).to eq(32)
 
 
-
-
-
         # update item request
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
@@ -195,76 +188,11 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-
         expect(result.status).to eq(200)
-
-
-
-
 
       end
 
-
-
-
-
-
-
-
-
-
-      #
-      #     # fetch created model
-      #     model_id = result.body["data"]["id"]
-      #     resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-      #
-      #     expect(resp.body[0]["images"].count).to eq(1)
-      #     expect(resp.body[0]["attachments"].count).to eq(1)
-      #
-      #     expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-      #     expect(resp.body[0]["compatibles"].count).to eq(1)
-      #     expect(resp.body[0]["categories"].count).to eq(1)
-      #     expect(result.status).to eq(200)
-      #
-      #     expect(Image.where(target_id: model_id).count).to eq(2)
-      #
-      #     # update model request
-      #     form_data = {
-      #       "product" => "updated product",
-      #       "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-      #       "attachments" => [File.open(path_test_pdf, "rb")],
-      #       "version" => "updated v1.0",
-      #       "manufacturer" => "updated manufacturer",
-      #       "isPackage" => "true",
-      #       "description" => "updated description",
-      #       "technicalDetails" => "updated techDetail",
-      #       "internalDescription" => "updated internalDesc",
-      #       "importantNotes" => "updated notes",
-      #       "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
-      #       "compatibles" => [compatibles.first, compatibles.second].to_json,
-      #       "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
-      #     }
-      #
-      #     result = http_multipart_client(
-      #       "/inventory/#{pool_id}/model/#{model_id}",
-      #       form_data,
-      #       method: :put,
-      #       headers: cookie_header
-      #     )
-      #     expect(result.status).to eq(200)
-      #     expect(result.body[0]["id"]).to eq(model_id)
-      #
-      #     # fetch updated model
-      #     resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-      #
-      #     expect(resp.body[0]["images"].count).to eq(2)
-      #     expect(resp.body[0]["attachments"].count).to eq(2)
-      #     expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-      #     expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-      #     expect(resp.body[0]["compatibles"].count).to eq(2)
-      #     expect(resp.body[0]["categories"].count).to eq(2)
-      #     expect(result.status).to eq(200)
-      #   end
+      # TODO: write tests with attachments
 
     end
   end

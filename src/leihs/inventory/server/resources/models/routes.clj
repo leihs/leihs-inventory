@@ -1037,22 +1037,22 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
 
-;; Define the nested "data" schema inside each field
-(def FieldDataSchema
+(def FieldDataSchema                                        ;; FIXME
   {:type string?
    :group string?
    :label string?
    (ds/opt :values) any?
    (ds/opt :default) any?
-   :attribute string?
+   :attribute any?
    (ds/opt :forPackage) any?
    (ds/opt :target_type) any?
-   ;:permissions {:role string?
-   ;              :owner boolean?}
-   ;
+   (ds/opt :values_label_method) any?
+   (ds/opt :values_dependency_field_id) any?
+   (ds/opt :required) any?
+   :permissions {:role string?
+                 :owner boolean?}
    })
 
-;; Define the schema for each field
 (def FieldSchema
   {:role (sa/nilable string?)
    :group  (sa/nilable string?)
@@ -1062,37 +1062,26 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    :active boolean?
    :label string?
    :id string?
-   :position int? ;; Converts "4" → 4
-   (ds/opt :target) (sa/nilable string?) ;; Can be nil
-   :owner (sa/nilable string?) ;; Converts "true"/"false" to Boolean
-   ;:data FieldDataSchema
+   :position int?
+   (ds/opt :target) (sa/nilable string?)
+   :owner (sa/nilable string?)
+
+   ;:data FieldDataSchema                                    ;; FIXME broken
    :data any?
    })
 
-;; Define the "data" schema for the main response body
 (def DataSchema
   {
-   ;:inventory_pool_id string? ;; UUID as a string
-   :inventory_pool_id uuid? ;; UUID as a string
-
-   :responsible_department string? ;; UUID as a string
-   ;:responsible_department uuid? ;; UUID as a string _> FIXME: error
-
-   ;:quantity pos-i nt? ;; Positive integer
-   :quantity int? ;; Positive integer
+   :inventory_pool_id uuid?
+   :responsible_department string?
+   :quantity int?
    :inventory_code string?
-   ;:attribute any?
-   ;(ds/opt :attribute) any?
    })
 
-;; Define the full response body schema
 (def ResponseBodySchema
   {:data DataSchema
-   ;:fields [FieldSchema]
-   :fields [any?]
-   ;:fields [map?]
-
-   }) ;; Vector of fields
+   :fields [FieldSchema]
+   })
 
 
 
