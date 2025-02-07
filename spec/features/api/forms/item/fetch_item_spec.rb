@@ -26,28 +26,28 @@ feature "Inventory Model Management" do
       end
 
       resp = client.get "/inventory/#{pool_id}/entitlement-groups"
-      # # binding.pry
+      # # # binding.pry
       @form_entitlement_groups = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/owners"
-      # # binding.pry
+      # # # binding.pry
       @form_owners = resp.body
       raise "Failed to fetch manufacturers" unless resp.status == 200
 
       resp = client.get "/inventory/buildings"
-      # # binding.pry
+      # # # binding.pry
       @form_buildings = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
-      # # binding.pry
+      # # # binding.pry
       @form_rooms = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-      # binding.pry
+      # # binding.pry
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
 
@@ -59,37 +59,37 @@ feature "Inventory Model Management" do
     # context "fetch form data" do
     #
     #   it "ensures entitlement groups data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_entitlement_groups).not_to be_nil
     #     expect(@form_entitlement_groups.count).to eq(1)
     #   end
     #
     #   it "ensures form manufacturer data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_owners).not_to be_nil
     #     expect(@form_owners.count).to eq(2)
     #   end
     #
     #   it "ensures models compatible data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_buildings).not_to be_nil
     #     expect(@form_buildings.count).to eq(2)
     #   end
     #
     #   it "ensures model groups data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_rooms).not_to be_nil
     #     expect(@form_rooms.count).to eq(1)
     #   end
     #
     #   it "ensures models compatible data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_model_names).not_to be_nil
     #     expect(@form_model_names.count).to eq(2)
     #   end
     #
     #   it "ensures model groups data is fetched" do
-    #     binding.pry
+    #     # binding.pry
     #     expect(@form_model_data).not_to be_nil
     #     expect(@form_model_data.count).to eq(1)
     #   end
@@ -99,7 +99,7 @@ feature "Inventory Model Management" do
       it "ensures form manufacturer data is fetched" do
 
         resp = client.get "/inventory/#{pool_id}/item"
-        # binding.pry
+        # # binding.pry
         @form_entitlement_groups = resp.body
         expect(resp.status).to be(200)
 
@@ -156,7 +156,7 @@ feature "Inventory Model Management" do
           method: :post,
           headers: cookie_header
         )
-        binding.pry
+        # binding.pry
 
         expect(result.status).to eq(200)
 
@@ -166,7 +166,7 @@ feature "Inventory Model Management" do
 
         # fetch created item
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        # # binding.pry
+        # # # binding.pry
         @form_entitlement_groups = resp.body
         expect(resp.status).to be(200)
 
@@ -175,7 +175,7 @@ feature "Inventory Model Management" do
 
         expect(result.status).to eq(200)
         expect(@form_entitlement_groups["data"]).to be_present
-        # # # binding.pry #here
+        # # # # binding.pry #here
         expect(@form_entitlement_groups["fields"].count).to eq(32)
 
 

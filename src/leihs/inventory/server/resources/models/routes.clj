@@ -1087,47 +1087,24 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;; ----------------------
 
 (sa/def :nil/id (sa/nilable uuid?))
-;(sa/def ::name string?)
-;(sa/def ::created_at string?)
-;(sa/def :nil/updated_at (sa/nilable string?))
-;(sa/def :nil/created_at (sa/nilable string?))
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
-
 (sa/def :nil/name (sa/nilable string?))
-
-
 (sa/def :nil/item_version (sa/nilable string?))
-;(sa/def :nil/is_borrowable boolean?)
-;(sa/def :nil/is_incomplete boolean?)
-;(sa/def :nil/is_broken boolean?)
 (sa/def :nil/retired (sa/nilable boolean?))
 (sa/def :nil/retired_reason (sa/nilable string?))
 (sa/def :nil/price (sa/nilable string?))
 (sa/def :nil/invoice_date (sa/nilable string?))
 
-;(ns my-api.schema
-;  (:require [clojure.spec.alpha :as s]))
 
-;; Define a UUID type
-(sa/def ::uuid (sa/nilable string?))  ;; UUIDs are typically strings but can be nil
+;(sa/def ::uuid (sa/nilable string?))  ;; UUIDs are typically strings but can be nil
 
-;; Define a nullable string
-(sa/def ::nullable-string (sa/nilable string?))
-
-;; Define boolean and integer types
-(sa/def ::boolean boolean?)
-(sa/def ::integer int?)
-
-;; Define a timestamp (ISO 8601)
-(sa/def ::timestamp string?)
-
-;; Define properties inside "data"
+;(sa/def ::nullable-string (sa/nilable string?))
+;(sa/def ::boolean boolean?)
+;(sa/def ::integer int?)
+;(sa/def ::timestamp string?)
 (sa/def ::properties any?)
-;(sa/def ::properties
-;  (sa/keys :req-un [::nullable-string]))
 
-;; Define the data schema
 (sa/def ::DataSchema
   (sa/keys :req-un [::inventory_code
                    ::owner_id
