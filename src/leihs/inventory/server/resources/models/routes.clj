@@ -7,6 +7,8 @@
    ;
    ;[cheshire.core :as json]
    ;[clojure.set]
+
+   [spec-tools.data-spec :as ds]
    [clojure.spec.alpha :as sa]
 
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
@@ -119,12 +121,40 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             ;:body [s/Any]}
-                            :body [(s/->Either [ {:id s/Uuid
-                                                          :manufacturer s/Str
-                                                          :product s/Str
-                                                          :version s/Str
-                                                          :model_id s/Uuid
-                                                          } s/Str])]
+
+                            ;:body [ {
+                            ;         :id s/Uuid
+                            ;         ;:id s/Str
+                            ;         :manufacturer s/Str
+                            ;         :product s/Str
+                            ;         :version (s/maybe s/Str)
+                            ;         :model_id s/Uuid
+                            ;         ;:model_id s/Str
+                            ;         }]
+                            ;
+                            ;:body [(s/->Either [ {
+                            ;                      :id s/Uuid
+                            ;                      ;:id s/Str
+                            ;                      :manufacturer s/Str
+                            ;                      :product s/Str
+                            ;                      :version (s/maybe s/Str)
+                            ;                      :model_id s/Uuid
+                            ;                      ;:model_id s/Str
+                            ;                      }
+                            ;                    s/Str])]
+
+
+
+
+                           :body [(s/conditional
+                                        map? {:id s/Uuid
+                                              :manufacturer s/Str
+                                              :product s/Str
+                                              :version (s/maybe s/Str)
+                                              :model_id s/Uuid}
+                                        string? s/Str)]
+
+
                             }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
@@ -937,7 +967,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;     :json-name "request"
 ;     :description "Inventory request object"}))
 
+(defn nil-or [pred]
+  (sa/or :nil nil? :value pred))
 
+;(sa/def ::descriptions (nil-or string?))
 
 (def response-option-object {
   :id uuid?
@@ -961,6 +994,111 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;  :price any?
 ;  }])
 
+;(def PermissionsSchema
+;  (st/spec
+;    {:name :permissions
+;     :spec {:role string?
+;            :owner boolean?}}))  ;; Converts "true"/"false" to Boolean
+;
+;(def DataSchema
+;  (st/spec
+;    {:name :data
+;     :spec {:type string?
+;            :group string?
+;            :label string?
+;            :attribute string?
+;            :permissions PermissionsSchema}}))
+;
+;(def RoleSchema
+;  (st/spec
+;    {:name :role-schema
+;     :spec {:role string?
+;            :group string?
+;            :group_default string?
+;            :role_default string?
+;            (ds/opt :target_default) string?
+;            :active boolean?
+;            :label string?
+;            :id string?
+;            :position int?   ;; Converts "4" → 4
+;            (ds/opt :target) (sa/nilable string?)
+;            :owner boolean?  ;; Converts "true"/"false" to Boolean
+;            :data DataSchema}}))
+;
+;;; Define a schema for a vector of RoleSchema
+;(def RoleSchemaList (sa/coll-of RoleSchema))
+
+
+
+
+
+
+
+
+
+
+;; Define the nested "data" schema inside each field
+(def FieldDataSchema
+  {:type string?
+   :group string?
+   :label string?
+   (ds/opt :values) any?
+   (ds/opt :default) any?
+   :attribute string?
+   (ds/opt :forPackage) any?
+   (ds/opt :target_type) any?
+   ;:permissions {:role string?
+   ;              :owner boolean?}
+   ;
+   })
+
+;; Define the schema for each field
+(def FieldSchema
+  {:role (sa/nilable string?)
+   :group  (sa/nilable string?)
+   :group_default string?
+   :role_default string?
+   (ds/opt :target_default) string?
+   :active boolean?
+   :label string?
+   :id string?
+   :position int? ;; Converts "4" → 4
+   (ds/opt :target) (sa/nilable string?) ;; Can be nil
+   :owner (sa/nilable string?) ;; Converts "true"/"false" to Boolean
+   ;:data FieldDataSchema
+   :data any?
+   })
+
+;; Define the "data" schema for the main response body
+(def DataSchema
+  {
+   ;:inventory_pool_id string? ;; UUID as a string
+   :inventory_pool_id uuid? ;; UUID as a string
+
+   :responsible_department string? ;; UUID as a string
+   ;:responsible_department uuid? ;; UUID as a string _> FIXME: error
+
+   ;:quantity pos-i nt? ;; Positive integer
+   :quantity int? ;; Positive integer
+   :inventory_code string?
+   ;:attribute any?
+   ;(ds/opt :attribute) any?
+   })
+
+;; Define the full response body schema
+(def ResponseBodySchema
+  {:data DataSchema
+   ;:fields [FieldSchema]
+   :fields [any?]
+   ;:fields [map?]
+
+   }) ;; Vector of fields
+
+
+
+
+
+
 
 
 
@@ -980,7 +1118,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  ;:model_id uuid?
@@ -988,18 +1126,42 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart :item/multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              ;:body {:data {:inventory_pool_id s/Uuid
+                              ;              :responsible_department (s/maybe s/Str)
+                              ;              :quantity s/Int
+                              ;              :inventory_code s/Str}
+                              ;       :fields s/Any}
+                              }
+
+
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
 
       :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-items-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:description "OK"}
+            :responses {200 {:description "OK"
+                             ;:body {:data {:inventory_pool_id uuid?
+                             ;              :responsible_department (nil-or string?)
+                             ;              :quantity int?
+                             ;              :inventory_code string?}
+                             ;       :fields s/Any}
+
+                             ;:body [{:data {:inventory_pool_id uuid?
+                             ;              :responsible_department (nil-or string?)
+                             ;              :quantity int?
+                             ;              :inventory_code string?}
+                             ;       :fields s/Any}]
+
+                             ;; TODO
+                             ;:body RoleSchemaList
+                             :body ResponseBodySchema
+                             }
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
