@@ -1104,6 +1104,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/shelf (sa/nilable string?))
 (sa/def :nil/last_check (sa/nilable string?))
 (sa/def :nil/item_version (sa/nilable string?))
+(sa/def :nil2/item_version (sa/nilable any?))
 (sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
 (sa/def :nil/price (sa/nilable string?))
@@ -1146,7 +1147,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                    :nil/id
                    ::inventory_pool_id
                    ::is_incomplete
-                   :nil/item_version
+                   ;:nil/item_version
                    ::needs_permission
                    ::user_name
                    ::room_id
@@ -1154,7 +1155,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                    :nil/price
                    :nil/created_at
                    :nil/insurance_number
-                   ::properties]))
+                   ::properties]
+     :opt-un [                   :nil2/item_version
+              ]))
+    ;))
 
 ;; Define the overall response schema
 ;(def test_ResponseBodySchema
@@ -1255,14 +1259,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
              :responses {200 {:description "OK"
-                              ;:body {:data {:inventory_pool_id s/Uuid
-                              ;              :responsible_department (s/maybe s/Str)
-                              ;              :quantity s/Int
-                              ;              :inventory_code s/Str}
-                              ;       :fields s/Any}
-
-                              ;:body ResponseBodySchema      ;; error
-:body test_ResponseBodySchema
+             :body test_ResponseBodySchema
                               }
 
 
@@ -1298,7 +1295,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:put {:accept "application/json"
             :swagger {:consumes ["multipart/form-data"]
                       :produces "application/json"}
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
@@ -1307,12 +1304,20 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             :body any?}
+                             ;:body any?}
+
+                        :body {:data DataSchema2
+                         ;{:data any?
+                         ;:fields [any?]
+                         :validation [any?]
+                         }
+                             }
+
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
       :get {:accept "application/json" ;;new
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
@@ -1320,7 +1325,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler fetch-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             :body any?}
+                             ;:body any?}
+
+
+                        :body {:data DataSchema2
+                               ;{:data any?
+                               :fields [any?]
+                               ;:validation [any?]
+                               }
+                        }
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
