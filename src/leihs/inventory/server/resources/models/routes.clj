@@ -1043,6 +1043,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;(sa/def :bool/owner (sa/nilable boolean?))
 (sa/def :bool/owner (sa/nilable string?))
 (sa/def ::id string?)
+(sa/def :lr/id uuid?)
 (sa/def ::position ::integer)
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
@@ -1158,8 +1159,12 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
 
-(sa/def ::post-license (sa/keys :req-un [::inventory_code ::owner_id ::item_id]
-                     :opt-un [::p4u
+(sa/def ::post-license (sa/keys :req-un [::inventory_code ::owner_id ]
+                     :opt-un [
+                              ::item_id
+                              :lr/id
+
+                              ::p4u
                               ::total_quantity
                               ::operating_system
                               ::quantity_allocations
@@ -1795,7 +1800,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :handler update-license-handler-by-pool-form
               :responses {200 {:description "OK"
-                               :body any?}
+                               ;:body any?}
+                               :body [::post-license]}
+                          ;:body {:data ::post-license
+                          ;       :validation [any?]}}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
@@ -1808,7 +1816,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :handler fetch-license-handler-by-pool-form-fetch
               :responses {200 {:description "OK"
-                               :body any?}
+                               ;:body any?}
+                          :body {:data ::post-license
+                                 :fields [any?]}
+                               }
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 

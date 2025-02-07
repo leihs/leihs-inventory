@@ -29,48 +29,48 @@ feature "Inventory Model Management" do
     context "create model" do
       it "fetch default" do
         result = client.get "/inventory/#{pool_id}/license"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body["fields"].count).to eq(29)
       end
 
       it "fetch default" do
         result = client.get "/inventory/#{pool_id}/entitlement-groups"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
       end
 
       it "fetch default" do
         result = client.get "/inventory/owners"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(2)
       end
 
       it "fetch default" do
         result = client.get "/inventory/supplier?search-term=a"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
       end
 
       it "fetch default" do
         result = client.get "inventory/manufacturers?type=Software&in-detail=true&search-term=b"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
       end
 
       it "fetch default" do
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
       end
 
       it "creates and update license (simple)" do
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
-        binding.pry
+        # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
 
@@ -176,7 +176,7 @@ feature "Inventory Model Management" do
         # fetch supplier
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-        binding.pry
+        # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
 
@@ -225,7 +225,7 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        binding.pry
+        # # binding.pry
 
         expect(result.status).to eq(200)
 
@@ -242,7 +242,7 @@ feature "Inventory Model Management" do
         # fetch license
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
 
-        binding.pry
+        # # binding.pry
 
         expect(resp.status).to eq(200)
         expect(resp.body["data"]).to be_present
@@ -286,7 +286,7 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        binding.pry
+        # binding.pry
 
         expect(result.status).to eq(200)
 
