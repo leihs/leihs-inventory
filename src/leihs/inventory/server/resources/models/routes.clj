@@ -535,7 +535,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
-(sa/def ::is_borrowable boolean?)
+;(sa/def ::is_borrowable boolean?)
 (sa/def ::is_incomplete boolean?)
 (sa/def ::is_broken boolean?)
 (sa/def ::retired boolean?)
@@ -551,8 +551,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::activation_type string?)
 (sa/def ::dongle_id string?)
 (sa/def ::license_type string?)
+
 (sa/def ::total_quantity string?)
+
+(sa/def ::operating_system string?)
+(sa/def ::quantity_allocations any?)
+(sa/def ::maintenance_currency string?)
+
 (sa/def ::license_expiration string?)
+(sa/def ::installation string?)
 (sa/def ::p4u string?)
 (sa/def ::reference string?)
 (sa/def ::project_number string?)
@@ -1169,12 +1176,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ::owner_id
                               ::p4u
                               ::total_quantity
+
                               ::operating_system
                               ::quantity_allocations
+                              ::maintenance_currency
+
                               ::maintenance_price
                               ::maintenance_expiration
-                              ::maintenance_currency
                               ::project_number
+
                               ::license_expiration
                               ::reference
                               ::installation
@@ -1183,10 +1193,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ::maintenance_contract
                               ::license_type
                               ::activation_type
+
                               ::is_borrowable
                               :nil/retired
+
                               ::is_inventory_relevant
                               :nil/last_check
+
                               :nil/shelf
                               :nil/status_note
                               :nil/name
@@ -1212,7 +1225,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ::room_id
                               :lr/price
                               ::created_at
-                              :nil/insurance_number]))
+                              :nil/insurance_number
+                              ]))
+
 
 
 (defn get-model-by-pool-route []
