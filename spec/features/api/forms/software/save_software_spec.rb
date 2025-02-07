@@ -27,7 +27,7 @@ feature "Inventory Model Management" do
         form_data,
         headers: cookie_header
       )
-
+      # binding.pry
       expect(result.status).to eq(200)
       expect(result.body["data"].count).to be
       expect(result.body["validation"].count).to eq(0)
@@ -44,7 +44,7 @@ feature "Inventory Model Management" do
         form_data,
         headers: cookie_header
       )
-
+      # binding.pry
       expect(result.status).to eq(200)
       expect(result.body["data"].count).to be
       expect(result.body["validation"].count).to eq(0)

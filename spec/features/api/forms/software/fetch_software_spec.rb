@@ -65,13 +65,8 @@ feature "Inventory Model Management" do
 
     context "create model" do
       it "creates software with all available attributes" do
-        # compatibles = @form_manufacturer
-        #
-        # expect(compatibles.count).to eq(1)
-        # binding.pry
-        # compatibles.first["id"] = compatibles.first.delete("model_id")
 
-        # create model request
+        # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,
           # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
@@ -94,16 +89,19 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
+        # # binding.pry
+
         # puts "Result.model_id: #{result.body["data"]["id"]}"
         # puts "Result.pool_id: #{pool_id}"
         # puts "Result.body: #{result.body}"
 
         expect(result.status).to eq(200)
 
-        # fetch created model
+        # fetch created software
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
+        # binding.pry
         # expect(resp.body[0]["images"].count).to eq(1)
         expect(resp.body[0]["attachments"].count).to eq(1)
 
@@ -114,7 +112,7 @@ feature "Inventory Model Management" do
 
         expect(Attachment.where(model_id: model_id).count).to eq(1)
 
-        # update model request
+        # update software request
         form_data = {
           "product" => "updated product",
           # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
@@ -137,12 +135,16 @@ feature "Inventory Model Management" do
           method: :put,
           headers: cookie_header
         )
+
+        # binding.pry
+
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
 
         # fetch updated model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
+        # binding.pry
         # expect(resp.body[0]["images"].count).to eq(2)
         expect(resp.body[0]["attachments"].count).to eq(2)
         # expect(resp.body[0]["entitlement_groups"].count).to eq(1)

@@ -1081,7 +1081,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                    ::target_default
                    ::active
                    ::label
-                   ::id
+                   :any/id
                    ::position
                    ::target
                    :bool/owner
@@ -1170,6 +1170,93 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
   ;{:data any?
    :validation [any?]
    })
+
+
+;(def ResponseBodySoftware
+;  {
+;
+;   :description (sa/nilable string?)
+;   :is_package boolean?
+;   :attachments any?                                        ;; should be optional-key
+;   :maintenance_period int?
+;   :type string?
+;   :rental_price (sa/nilable any?)
+;   :cover_image_id (sa/nilable any?)
+;   :hand_over_note (sa/nilable any?)
+;   :updated_at any?
+;   :internal_description (sa/nilable any?)
+;   :product string?
+;   :info_url (sa/nilable any?)
+;   :id uuid?
+;   :manufacturer any?
+;   :version string?
+;   :created_at any?
+;   :technical_detail string?
+;
+;   }
+;
+;  )
+
+;(require '[clojure.spec.alpha :as s])
+;(require '[clojure.uuid :as uuid]) ;; Ensure UUID validation
+
+;; Define specs for individual fields
+(sa/def ::description (sa/nilable string?))
+(sa/def ::is_package boolean?)
+(sa/def ::attachments (sa/nilable any?)) ;; Optional field
+(sa/def ::maintenance_period int?)
+(sa/def ::type string?)
+(sa/def ::rental_price (sa/nilable any?))
+(sa/def ::cover_image_id (sa/nilable any?))
+(sa/def ::hand_over_note (sa/nilable any?))
+(sa/def ::updated_at any?)
+(sa/def ::internal_description (sa/nilable string?))
+(sa/def ::product string?)
+(sa/def ::info_url (sa/nilable any?))
+(sa/def ::id uuid?) ;; UUID spec
+(sa/def :any/id any?) ;; UUID spec
+(sa/def ::manufacturer any?)
+(sa/def ::version string?)
+(sa/def ::created_at any?)
+(sa/def ::technical_detail string?)
+
+(sa/def :ni/technical_detail (sa/nilable string?))
+(sa/def :ni/version (sa/nilable string?))
+(sa/def :ni/description (sa/nilable string?))
+(sa/def :ni/rental_price (sa/nilable string?))
+(sa/def :ni/cover_image_id (sa/nilable string?))
+(sa/def :ni/hand_over_note (sa/nilable string?))
+(sa/def :ni/internal_description (sa/nilable string?))
+(sa/def :ni/info_url (sa/nilable string?))
+;(sa/def :ni/internal_description (sa/nilable string?))
+;(sa/def :ni/internal_description (sa/nilable string?))
+
+;; Define the full map spec
+(def ResponseBodySoftware
+  (sa/keys :req-un [
+                 :ni/description
+                 ;::description
+                ::is_package
+                ::type
+                :ni/hand_over_note
+                :ni/internal_description
+                ::product
+                ::id
+                ::manufacturer
+                :ni/version
+                :ni/technical_detail
+
+                    ]
+    :opt-un [::attachments
+                ::maintenance_period
+                :ni/rental_price
+                :ni/cover_image_id
+                ::updated_at
+                :ni/info_url
+                ::created_at
+
+
+             ])) ;; Optional key
 
 
 
@@ -1644,7 +1731,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                :tags ["form / software"] :security []}}
     [""
      {:post {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data"
+             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -1652,34 +1739,65 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart ::multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-software-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+
+                              ;{"data"=>
+                              ; {"description"=>nil,
+                              ;  "is_package"=>false,
+                              ;  "maintenance_period"=>0,
+                              ;  "type"=>"Software",
+                              ;  "rental_price"=>nil,
+                              ;  "cover_image_id"=>nil,
+                              ;  "hand_over_note"=>nil,
+                              ;  "updated_at"=>"2025-02-07T21:54:35Z",
+                              ;  "internal_description"=>nil,
+                              ;  "product"=>"Practical Steel Wallet",
+                              ;  "info_url"=>nil,
+                              ;  "id"=>"317a6005-984e-4043-83ea-24cfa0ce95a2",
+                              ;  "manufacturer"=>"Stark-Hettinger",
+                              ;  "version"=>"v1.0",
+                              ;  "created_at"=>"2025-02-07T21:54:35Z",
+                              ;  "technical_detail"=>"Specs go here"},
+                              ; "validation"=>[]}
+
+                              ;:body {:data {::ResponseBodySoftware}
+                              :body {:data ResponseBodySoftware
+                                     :validation [any?]}
+
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data"
+             :summary "(DEV) | Form-Handler: Fetch form data  [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler create-software-handler-by-pool-form-fetch
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :body [ResponseBodySoftware]
+                              ;:body ResponseBodySoftware
+
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Fetch form data"
+             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :multipart ::multipart}
              :handler update-software-handler-by-pool-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :body [ResponseBodySoftware]
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
