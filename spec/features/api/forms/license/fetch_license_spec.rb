@@ -112,7 +112,6 @@ feature "Inventory Model Management" do
         )
 
         expect(result.status).to eq(200)
-
         expect(result.body["data"]["item_id"]).to be
         expect(result.body["data"]["id"]).to be
         expect(result.body["data"]["id"]).to eq(result.body["data"]["item_id"])

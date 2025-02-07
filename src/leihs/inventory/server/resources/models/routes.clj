@@ -669,6 +669,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::responsible any?)
 (sa/def :nil/responsible (sa/nilable any?))
 (sa/def :nil/invoice_number (sa/nilable any?))
+(sa/def :nil/note (sa/nilable string?))
+(sa/def :nil/serial_number (sa/nilable string?))
 
 
 (sa/def ::responsible_department uuid?)
@@ -1127,6 +1129,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
                    :nil/updated_at
                    :nil/retired_reason
+                   ;::retired_reason
                    ;::responsible
                     :nil/responsible
                    :nil/invoice_date
@@ -1159,11 +1162,11 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 
 
-(sa/def ::post-license (sa/keys :req-un [::inventory_code ::owner_id ]
+(sa/def ::post-license (sa/keys :req-un [::inventory_code  ]
                      :opt-un [
                               ::item_id
                               :lr/id
-
+                              ::owner_id
                               ::p4u
                               ::total_quantity
                               ::operating_system
@@ -1190,9 +1193,12 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ::attachments
                               :nil/invoice_number
                               ::is_broken
-                              ::note
+
+                              :nil/note
+                              :nil/serial_number
+
                               ::updated_at
-                              ::retired_reason
+                              :nil/retired_reason
                               :nil/responsible
                               :lr/invoice_date
                               ::model_id
@@ -1204,7 +1210,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ::needs_permission
                               :nil/user_name
                               ::room_id
-                              ::serial_number
                               :lr/price
                               ::created_at
                               :nil/insurance_number]))

@@ -42,7 +42,6 @@ feature "Fetching Fields" do
 
         url = "/inventory/#{pool_id}/models/#{software_model.id}/licenses/#{license_item.id}"
         resp = client.get url
-
         expect(resp.body["fields"].size).to eq(expected_count)
         expect(resp.status).to eq(200)
       end
