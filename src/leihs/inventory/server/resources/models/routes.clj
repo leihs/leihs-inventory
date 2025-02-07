@@ -1220,39 +1220,39 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::created_at any?)
 (sa/def ::technical_detail string?)
 
-(sa/def :ni/technical_detail (sa/nilable string?))
-(sa/def :ni/version (sa/nilable string?))
-(sa/def :ni/description (sa/nilable string?))
-(sa/def :ni/rental_price (sa/nilable string?))
-(sa/def :ni/cover_image_id (sa/nilable string?))
-(sa/def :ni/hand_over_note (sa/nilable string?))
-(sa/def :ni/internal_description (sa/nilable string?))
-(sa/def :ni/info_url (sa/nilable string?))
-;(sa/def :ni/internal_description (sa/nilable string?))
-;(sa/def :ni/internal_description (sa/nilable string?))
+(sa/def :nil/technical_detail (sa/nilable string?))
+(sa/def :nil/version (sa/nilable string?))
+(sa/def :nil/description (sa/nilable string?))
+(sa/def :nil/rental_price (sa/nilable string?))
+(sa/def :nil/cover_image_id (sa/nilable string?))
+(sa/def :nil/hand_over_note (sa/nilable string?))
+(sa/def :nil/internal_description (sa/nilable string?))
+(sa/def :nil/info_url (sa/nilable string?))
+;(sa/def :nil/internal_description (sa/nilable string?))
+;(sa/def :nil/internal_description (sa/nilable string?))
 
 ;; Define the full map spec
 (def ResponseBodySoftware
   (sa/keys :req-un [
-                 :ni/description
+                 :nil/description
                  ;::description
                 ::is_package
                 ::type
-                :ni/hand_over_note
-                :ni/internal_description
+                :nil/hand_over_note
+                :nil/internal_description
                 ::product
                 ::id
                 ::manufacturer
-                :ni/version
-                :ni/technical_detail
+                :nil/version
+                :nil/technical_detail
 
                     ]
     :opt-un [::attachments
                 ::maintenance_period
-                :ni/rental_price
-                :ni/cover_image_id
+                :nil/rental_price
+                :nil/cover_image_id
                 ::updated_at
-                :ni/info_url
+                :nil/info_url
                 ::created_at
 
 
