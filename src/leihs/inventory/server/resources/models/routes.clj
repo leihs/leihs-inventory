@@ -913,60 +913,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       ::accessories]))
 
 
-;;; Define UUID Spec
-;(sa/def ::id (st/spec {:spec #(re-matches #"\b[0-9a-fA-F-]{36}\b" %)
-;                       :name "id"
-;                       :json-name "id"
-;                       :description "Unique identifier (UUID)"}))
-;
-;(sa/def ::inventory_pool_id (st/spec {:spec #(re-matches #"\b[0-9a-fA-F-]{36}\b" %)
-;                                      :name "inventory_pool_id"
-;                                      :json-name "inventory_pool_id"
-;                                      :description "Inventory pool UUID"}))
-;
-;;; Define Other Field Specs
-;(sa/def ::inventory_code (st/spec string? {:name "inventory_code"
-;                                           :json-name "inventory_code"
-;                                           :description "Inventory code"}))
-;(sa/def ::manufacturer (st/spec (sa/nilable string?) {:name "manufacturer"
-;                                                      :json-name "manufacturer"
-;                                                      :description "Manufacturer name"}))
-;(sa/def ::product (st/spec string? {:name "product"
-;                                    :json-name "product"
-;                                    :description "Product name"}))
-;(sa/def ::version (st/spec string? {:name "version"
-;                                    :json-name "version"
-;                                    :description "Product version"}))
-;(sa/def ::price (st/spec number? {:name "price"
-;                                  :json-name "price"
-;                                  :description "Item price"}))
-;
-;;; Define Data Spec with Explicit :name and :json-name
-;(sa/def ::data
-;  (st/spec (sa/keys :req [::id
-;                          ::inventory_pool_id
-;                          ::inventory_code
-;                          ::product
-;                          ::version
-;                          ::price]
-;             :opt [::manufacturer])
-;    {:name "data"
-;     :json-name "data"
-;     :description "Inventory item data"}))
-;
-;;; Define Validation Spec
-;(sa/def ::validation (st/spec (sa/coll-of string? :kind vector?)
-;                       {:name "validation"
-;                        :json-name "validation"
-;                        :description "List of validation messages"}))
-;
-;;; Define Full Response Spec with Correct Naming
-;(sa/def :res2/request
-;  (st/spec (sa/keys :req [::data ::validation])
-;    {:name "request"
-;     :json-name "request"
-;     :description "Inventory request object"}))
-
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
 
@@ -983,58 +929,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
   })
 
 (def response-option [response-option-object])
-
-;(def response-option [{
-;  :id uuid?
-;  :inventory_pool_id uuid?
-;  :inventory_code string?
-;  :manufacturer  any?
-;  :product string?
-;  :version string?
-;  :price any?
-;  }])
-
-;(def PermissionsSchema
-;  (st/spec
-;    {:name :permissions
-;     :spec {:role string?
-;            :owner boolean?}}))  ;; Converts "true"/"false" to Boolean
-;
-;(def DataSchema
-;  (st/spec
-;    {:name :data
-;     :spec {:type string?
-;            :group string?
-;            :label string?
-;            :attribute string?
-;            :permissions PermissionsSchema}}))
-;
-;(def RoleSchema
-;  (st/spec
-;    {:name :role-schema
-;     :spec {:role string?
-;            :group string?
-;            :group_default string?
-;            :role_default string?
-;            (ds/opt :target_default) string?
-;            :active boolean?
-;            :label string?
-;            :id string?
-;            :position int?   ;; Converts "4" → 4
-;            (ds/opt :target) (sa/nilable string?)
-;            :owner boolean?  ;; Converts "true"/"false" to Boolean
-;            :data DataSchema}}))
-;
-;;; Define a schema for a vector of RoleSchema
-;(def RoleSchemaList (sa/coll-of RoleSchema))
-
-
-
-
-
-
-
-
 
 
 (def FieldDataSchema                                        ;; FIXME
@@ -1095,14 +989,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/retired_reason (sa/nilable string?))
 (sa/def :nil/price (sa/nilable string?))
 (sa/def :nil/invoice_date (sa/nilable string?))
-
-
-;(sa/def ::uuid (sa/nilable string?))  ;; UUIDs are typically strings but can be nil
-
-;(sa/def ::nullable-string (sa/nilable string?))
-;(sa/def ::boolean boolean?)
-;(sa/def ::integer int?)
-;(sa/def ::timestamp string?)
 (sa/def ::properties any?)
 
 (sa/def ::DataSchema
