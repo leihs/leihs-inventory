@@ -664,6 +664,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::inventory_code string?)
 (sa/def ::inventory_pool_id uuid?)
+(sa/def ::responsible any?)
+(sa/def :nil/responsible (sa/nilable any?))
+
+
 (sa/def ::responsible_department uuid?)
 
 (sa/def ::data-spec
@@ -990,8 +994,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/price (sa/nilable string?))
 (sa/def :nil/invoice_date (sa/nilable string?))
 (sa/def ::properties any?)
+(sa/def :nil/parent_id (sa/nilable uuid?))
+(sa/def :nil/insurance_number (sa/nilable any?))
+(sa/def ::needs_permission  boolean?)
+(sa/def ::is_incomplete  boolean?)
 
-(sa/def ::DataSchema
+
+(def DataSchema2
   (sa/keys :req-un [::inventory_code
                    ::owner_id
                    ::is_borrowable
@@ -1004,13 +1013,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                    ::invoice_number
                    ::is_broken
                    ::note
+
                    :nil/updated_at
                    :nil/retired_reason
-                   ::responsible
+                   ;::responsible
+                    :nil/responsible
                    :nil/invoice_date
                    ::model_id
                    ::supplier_id
-                   ::parent_id
+                   :nil/parent_id
                    :nil/id
                    ::inventory_pool_id
                    ::is_incomplete
@@ -1021,7 +1032,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                    ::serial_number
                    :nil/price
                    :nil/created_at
-                   ::insurance_number
+                   :nil/insurance_number
                    ::properties]))
 
 ;; Define the overall response schema
@@ -1030,7 +1041,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;                   ::validation]))  ;; Assuming validation is an array (can be defined separately)
 
 (def test_ResponseBodySchema
-  {:data ::DataSchema
+  {:data DataSchema2
+  ;{:data any?
    :validation [any?]
    })
 

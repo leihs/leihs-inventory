@@ -156,7 +156,7 @@ feature "Inventory Model Management" do
           method: :post,
           headers: cookie_header
         )
-        # binding.pry
+        binding.pry
 
         expect(result.status).to eq(200)
 
