@@ -41,7 +41,14 @@
               ;:parameters {:path {:pool_id s/Uuid}}
                :handler get-model-group-links-of-pool-handler
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                ;:body s/Any}
+                                :body [{
+                                        :id s/Uuid
+                                        :parent_id s/Uuid
+                                        :child_id s/Uuid
+                                        :label s/Str
+                                        }]
+                                }
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
@@ -56,7 +63,13 @@
                                 :category_link_id s/Uuid}}
             :handler get-model-group-links-of-pool-handler
             :responses {200 {:description "OK"
-                             :body s/Any}
+                             ;:body s/Any}
+                        :body [{
+                                :id s/Uuid
+                                :parent_id s/Uuid
+                                :child_id s/Uuid
+                                :label s/Str
+                                }]}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
