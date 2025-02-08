@@ -12,15 +12,14 @@
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 
 (defn item-base-query [item-id model-id pool-id]
-   (println ">o> item-base-query" item-id model-id pool-id)
+  (println ">o> item-base-query" item-id model-id pool-id)
   (-> (sql/select
         ;:m.id :m.product :m.manufacturer :m.version :m.type
         ;          :m.hand_over_note :m.description :m.internal_description
         ;          :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name]
 
-        :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
-        :r.building_id
-        )
+       :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
+       :r.building_id)
       (sql/from [:models :m])
       (sql/join [:items :i] [:= :m.id :i.model_id])
       (sql/join [:rooms :r] [:= :r.id :i.room_id])
@@ -28,15 +27,14 @@
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 
 (defn package-base-query [item-id model-id pool-id]
-   (println ">o> item-base-query" item-id model-id pool-id)
+  (println ">o> item-base-query" item-id model-id pool-id)
   (-> (sql/select
         ;:m.id :m.product :m.manufacturer :m.version :m.type
         ;          :m.hand_over_note :m.description :m.internal_description
         ;          :m.technical_detail :m.is_package :i.* [:s.id :supplier_id] [:s.name :supplier_name]
 
-        :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
-        :r.building_id
-        )
+       :i.* [:s.id :supplier_id] [:s.name :supplier_name] [:m.id :model_id] [:m.product :product_name]
+       :r.building_id)
       (sql/from [:models :m])
       (sql/join [:items :i] [:= :m.id :i.model_id])
       (sql/join [:rooms :r] [:= :r.id :i.room_id])
@@ -91,13 +89,11 @@
          [:= :ff.group_default "\"none\""]
          [:<> :ff.target_default "item"]]])))
 
-
-
 (defn inventory-manager-item-subquery [query]
-  (println ">o> inventory-manager-item-subquery" )
+  (println ">o> inventory-manager-item-subquery")
   (-> query
-    (sql/from [[:raw
-                "(SELECT
+      (sql/from [[:raw
+                  "(SELECT
                 f.id,
                 f.active,
                 f.position,
@@ -123,10 +119,9 @@
                 AND (ff.target_default IN ('item', ''))
                 ORDER BY ff.group_default, ff.position"]])))
 
-
-  (defn lending-manager-item-subquery [query]
-    (println ">o> lending-manager-item-subquery" )
-    (-> query
+(defn lending-manager-item-subquery [query]
+  (println ">o> lending-manager-item-subquery")
+  (-> query
       (sql/from [[:raw
                   "(SELECT *
                     FROM (
@@ -151,8 +146,7 @@
                       AND (ff.role IS NULL OR ff.role = 'lending_manager')
                     ORDER BY ff.group, ff.position) k"]])))
 
-
-  ; -- item -- lending-manager -- ok 21, quantity?
+; -- item -- lending-manager -- ok 21, quantity?
   ; select *
   ; from (select f.id,
   ;        f.data ->> 'label'                      as label,
@@ -173,17 +167,12 @@
   ;                               order by ff.group, ff.position;
   ;)
 
-
-
-
-
-
 (defn inventory-manager-package-subquery [query]
-  (println ">o> inventory-manager-item-subquery" )
+  (println ">o> inventory-manager-item-subquery")
   (-> query
-    (sql/from [[:raw
+      (sql/from [[:raw
 
-                "(SELECT
+                  "(SELECT
                   f.id,
                   f.active,
                   f.position,
@@ -218,13 +207,12 @@
                                   ;OR ff.id in ('inventory_code', 'price', 'last_check', 'note')
                                   ;OR ff.id in ('inventory_code', 'model_id', 'price', 'last_check', 'note')
 
-
 (defn lending-manager-package-subquery [query]
-  (println ">o> inventory-manager-item-subquery" )
+  (println ">o> inventory-manager-item-subquery")
   (-> query
-    (sql/from [[:raw
+      (sql/from [[:raw
 
-                "(SELECT
+                  "(SELECT
                   f.id,
                   f.active,
                   f.position,
@@ -251,9 +239,5 @@
                             AND (ff.target_default IN ('item', ''))
                                   OR ff.id in ('inventory_code', 'model_id', 'price', 'last_check', 'note')
                                   ORDER BY ff.group_default, ff.position"]])))
-
-
-
-
 
 ;; TODO: queries for package

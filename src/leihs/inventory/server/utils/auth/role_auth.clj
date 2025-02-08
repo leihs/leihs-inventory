@@ -48,8 +48,7 @@
         p (println ">o> abc.allowed-roles" allowed-roles)
         p (println ">o> abc.requested-pool-id" requested-pool-id)
         p (println ">o> abc.requested-pool-id" requested-pool-id)
-        p (println ">o> abc.roles-for-pool" roles-for-pool)
-        ]
+        p (println ">o> abc.roles-for-pool" roles-for-pool)]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       (throw (Exception. "invalid role for the requested pool or method")))
     roles-for-pool))

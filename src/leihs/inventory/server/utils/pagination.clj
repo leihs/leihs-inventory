@@ -78,14 +78,12 @@
   "To receive a paginated response, the request must contain the query parameters `page` and `size`."
   [request base-query with-pagination?]
 
-      (println ">o> query????" (-> base-query sql-format))
+  (println ">o> query????" (-> base-query sql-format))
 
   (let [{:keys [page size]} (fetch-pagination-params-raw request)
         tx (:tx request)]
     (cond
       (and (or (nil? with-pagination?) (= with-pagination? false)) (single-entity-get-request? request))
-
-
 
       (jdbc/query (:tx request) (-> base-query sql-format))
 

@@ -19,15 +19,13 @@ feature "Inventory Model Management2" do
     let(:model_id) { @software_model.id }
 
     context "create model" do
-
       it "create, fetch & update by form data" do
-
         # create option
         form_data = {
           product: Faker::Commerce.product_name,
           version: "v1",
           price: "111",
-          inventory_code: "O-1001",
+          inventory_code: "O-1001"
         }
 
         result = http_multipart_client(
@@ -42,11 +40,9 @@ feature "Inventory Model Management2" do
 
         option_id = result.body["data"]["id"]
 
-
         # fetch option
         result = client.get "/inventory/#{pool_id}/option/#{option_id}"
         expect(result.body.count).to eq(1)
-
 
         # update option
         form_data = {
@@ -65,10 +61,7 @@ feature "Inventory Model Management2" do
         expect(result.status).to eq(200)
         expect(result.body[0]["version"]).to eq("v2")
         expect(result.body[0]["price"]).to eq(222.0)
-
       end
-
     end
-
   end
 end

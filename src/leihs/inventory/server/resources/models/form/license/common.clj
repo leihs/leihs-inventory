@@ -47,34 +47,31 @@
             (if (nil? (get m k))
               (dissoc m k)
               m))
-    data
-    keys-to-check))
-
+          data
+          keys-to-check))
 
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]
   (reduce (fn [m k]
-          (try  (println ">o> abc ?1" k (get m k) (type (get m k)) (str (get m k)))
+            (try (println ">o> abc ?1" k (get m k) (type (get m k)) (str (get m k)))
             ;(if (clojure.string/blank? (get m k))
-            (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
-              (dissoc m k)
-              m)
+                 (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
+                   (dissoc m k)
+                   m)
 
-                (catch Exception e (println ">o> abc ?1-error" (.getMessage e)))
-                )
+                 (catch Exception e (println ">o> abc ?1-error" (.getMessage e)))))
 
-            )
-    data
-    keys-to-check))
+          data
+          keys-to-check))
 
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
   [value]
   (if (and value (not (empty? (str value))))
-  (do
-    (println ">o> abc.value.parseDate" value)
-    (java.time.LocalDate/parse value))
+    (do
+      (println ">o> abc.value.parseDate" value)
+      (java.time.LocalDate/parse value))
     nil))
 
 ;(defn double-to-numeric-or-nil [int-value]
@@ -96,7 +93,6 @@
 ;
 ;  )
 
-
 (defn double-to-numeric-or-nil [int-value]
   (cond
     (nil? int-value) nil
@@ -108,7 +104,6 @@
                                  (catch NumberFormatException _ nil))
                                int-value)]
             (int-to-numeric-or-nil parsed-value))))
-
 
 (defn cast-to-nil [value]
   (if (customized-empty? value) nil value))

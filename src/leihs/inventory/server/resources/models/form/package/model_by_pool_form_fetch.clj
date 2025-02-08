@@ -9,7 +9,7 @@
    [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
                                                                          inventory-manager-license-subquery
                                                                          lending-manager-license-subquery
-                                                            inventory-manager-item-subquery
+                                                                         inventory-manager-item-subquery
 
                                                                          inventory-manager-package-subquery
                                                                          lending-manager-package-subquery
@@ -83,7 +83,6 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
-
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
                 roles-for-pool
@@ -98,9 +97,8 @@
 
     subquery))
 
-
 (defn fetch-package-handler-by-pool-form [request]
-  (println ">o> fetch-package-handler-by-pool-form" )
+  (println ">o> fetch-package-handler-by-pool-form")
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
@@ -112,8 +110,7 @@
     (try
       (let [query (-> (sql/select :*)
 
-
-                    ;inventory-manager-item-subquery
+;inventory-manager-item-subquery
                     ;lending-manager-item-subquery
 
                       subquery
@@ -140,8 +137,7 @@
                     ;             (sql/where [:= :f.active true]))
                     ;           :ff])
 
-
-                    ;(sql/where [:and
+;(sql/where [:and
                     ;          [:in :ff.group ["General Information"
                     ;                          "Invoice Information"
                     ;                          "Status"
@@ -153,7 +149,6 @@
                     ;          [:in :ff.target ["\"item\"" "\"\""]]])
 
                     ;(sql/order-by [:ff.group :asc] [:ff.position :asc])
-
 
                       sql-format)
 
@@ -182,31 +177,29 @@
             ;                                                   :target nil
             ;                                                   :target_default ""})
 
+            fields (conj fields {:active true
+                                 :data {;:type "select"
+                                        :type "autocomplete-search"
+                                        :group "Inhalt"
+                                        :label "Add Item"
 
-            fields               (conj fields                 {:active true
-                                                               :data {
-                                                                      ;:type "select"
-                                                                      :type "autocomplete-search"
-                                                                      :group "Inhalt"
-                                                                      :label "Add Item"
-
-                                                                      :values []
+                                        :values []
                                                                       ;:value "1"
-                                                                      }
-                                                               :attribute "quantity"
-                                                               :default false
-                                                               :forPackage true
-                                                               :group "Inhalt"
-                                                               :group_default "Inhalt"
-                                                               :id "add-item-group"
-                                                               :label "Add Item"
+                                        }
+                                 :attribute "quantity"
+                                 :default false
+                                 :forPackage true
+                                 :group "Inhalt"
+                                 :group_default "Inhalt"
+                                 :id "add-item-group"
+                                 :label "Add Item"
                                                                ;:owner nil
                                                                ;:position 13
                                                                ;:role nil
                                                                ;:role_default ""
                                                                ;:target nil
                                                                ;:target_default ""
-                                                               })
+                                 })
             ;p (println ">o> ??? fields" fields)
 
             ;model-result []
@@ -218,55 +211,49 @@
                                  model-result (jdbc/execute-one! tx model-query)
 
                                  ;; remove all attr except defined keys
-                                  model-result (filter-by-allowed-keys model-result
-                                                                        [
-                                                                         "product"
-                                                                        "product_name"
-                                                                        "model_id"
+                                 model-result (filter-by-allowed-keys model-result
+                                                                      ["product"
+                                                                       "product_name"
+                                                                       "model_id"
                                                                         ;"supplier_name"
                                                                         ;"supplier_id"
                                                                         ;"properties"
-                                                                        "inventory_code"
-                                                                        "inventory_pool_id"
-                                                                        "responsible_department"
+                                                                       "inventory_code"
+                                                                       "inventory_pool_id"
+                                                                       "responsible_department"
                                                                         ;"license_version"
                                                                         ;"version"
-                                                                         "id"
-                                                                         "building_id"
-                                                                         "created_at"
-                                                                         "updated_at"
-                                                                         "owner_id"
-                                                                         "retired"
-                                                                         "retired_reason"
-                                                                         "room_id"
-                                                                         "shelf"
-                                                                         "last_check"
-                                                                         "is_borrowable"
-                                                                         "is_inventory_relevant"
-                                                                          "is_broken"
-                                                                          "is_incomplete"
-                                                                         "note"
-                                                                         "status_note"
-                                                                         "user_name"
-                                                                         "price"
+                                                                       "id"
+                                                                       "building_id"
+                                                                       "created_at"
+                                                                       "updated_at"
+                                                                       "owner_id"
+                                                                       "retired"
+                                                                       "retired_reason"
+                                                                       "room_id"
+                                                                       "shelf"
+                                                                       "last_check"
+                                                                       "is_borrowable"
+                                                                       "is_inventory_relevant"
+                                                                       "is_broken"
+                                                                       "is_incomplete"
+                                                                       "note"
+                                                                       "status_note"
+                                                                       "user_name"
+                                                                       "price"]
 
-
-                                                                         ]
-                                                                        ;["supplier_name" "supplier_id"]
-                                                 []
-                                                 []
-                                                 )
-
+;["supplier_name" "supplier_id"]
+                                                                      []
+                                                                      [])
 
                                  items (jdbc/execute! tx
                                                       (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
                                                           (sql/from [:items :i])
-                                                        (sql/join [:models :m] [:= :m.id :i.model_id])
+                                                          (sql/join [:models :m] [:= :m.id :i.model_id])
                                                           (sql/where [:= :parent_id item-id])
                                                           sql-format))
 
-                                  model-result (assoc model-result :items_attributes items)
-
+                                 model-result (assoc model-result :items_attributes items)
 
                                  p (println ">o> model-result" model-result)
 
@@ -310,9 +297,7 @@
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
                               ;:quantity 1
-                              :inventory_code next-code}))
-
-            ]
+                              :inventory_code next-code}))]
 
         (if model-result
           (response/response {:data model-result :fields fields})

@@ -12,9 +12,8 @@
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
 
-   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
-
    [leihs.core.sign-out.back :as so]
+
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
@@ -23,6 +22,7 @@
                                                               set-password-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
@@ -71,7 +71,6 @@
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)
-
 
    (get-buildings-rooms-routes)
    (get-dev-routes)

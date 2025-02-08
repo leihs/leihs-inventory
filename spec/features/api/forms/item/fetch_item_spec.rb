@@ -45,7 +45,6 @@ feature "Inventory Model Management" do
       @form_rooms = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
       # # # # binding.pry
       @form_model_names = resp.body
@@ -97,24 +96,21 @@ feature "Inventory Model Management" do
 
     context "fetch of form" do
       it "ensures form manufacturer data is fetched" do
-
         resp = client.get "/inventory/#{pool_id}/item"
         # # # # binding.pry
         @form_entitlement_groups = resp.body
         expect(resp.status).to be(200)
 
-          expect(@form_entitlement_groups["data"]["inventory_pool_id"]).to eq(pool_id)
+        expect(@form_entitlement_groups["data"]["inventory_pool_id"]).to eq(pool_id)
         expect(@form_entitlement_groups["fields"].count).to eq(32)
 
         expect(@form_entitlement_groups).not_to be_nil
         expect(@form_entitlement_groups.count).to eq(2)
       end
-
     end
 
     context "create model" do
       it "creates a model with all available attributes" do
-
         # create item
         form_data = {
           serial_number: nil,
@@ -163,7 +159,6 @@ feature "Inventory Model Management" do
         model_id = result.body["data"]["model_id"]
         item_id = result.body["data"]["id"]
 
-
         # fetch created item
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
         # # # # # binding.pry
@@ -179,7 +174,6 @@ feature "Inventory Model Management" do
         # # # # # # binding.pry #here
         expect(@form_entitlement_groups["fields"].count).to eq(32)
 
-
         # update item request
         result = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
@@ -189,11 +183,9 @@ feature "Inventory Model Management" do
         )
         # binding.pry
         expect(result.status).to eq(200)
-
       end
 
       # TODO: write tests with attachments
-
     end
   end
 end

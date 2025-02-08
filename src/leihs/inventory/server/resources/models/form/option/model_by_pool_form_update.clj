@@ -5,10 +5,10 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
-   [leihs.inventory.server.resources.models.form.license.common :refer [double-to-numeric-or-nil]]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.license.common :refer [double-to-numeric-or-nil]]
    ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
@@ -32,14 +32,14 @@
         tx (:tx request)
 
         price (double-to-numeric-or-nil (:price multipart))
-        multipart (assoc multipart :price price)  ]
+        multipart (assoc multipart :price price)]
     (try
       (let [update-model-query (-> (sql/update :options)
                                    (sql/set multipart)
                                    (sql/where [:= :id option-id])
                                    (sql/returning :*)
                                    sql-format)
-            updated-model (jdbc/execute-one! tx update-model-query) ]
+            updated-model (jdbc/execute-one! tx update-model-query)]
 
         (if updated-model
           (response [updated-model])

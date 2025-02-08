@@ -78,13 +78,11 @@
                 :handler get-model-groups-of-pool-handler
                 :responses {200 {:description "OK"
                                  ;:body s/Any}
-                                 :body [{
-                                        :id s/Uuid
-                                        :type s/Str
-                                        :name s/Str
-                                        :created_at s/Any
-                                        :updated_at s/Any
-                                        }]}
+                                 :body [{:id s/Uuid
+                                         :type s/Str
+                                         :name s/Str
+                                         :created_at s/Any
+                                         :updated_at s/Any}]}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
@@ -99,13 +97,11 @@
              :handler get-model-groups-of-pool-handler
              :responses {200 {:description "OK"
                               ;:body s/Any}
-                         :body [{
-                                :id s/Uuid
-                                :type s/Str
-                                :name s/Str
-                                :created_at s/Any
-                                :updated_at s/Any
-                                }]}
+                              :body [{:id s/Uuid
+                                      :type s/Str
+                                      :name s/Str
+                                      :created_at s/Any
+                                      :updated_at s/Any}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]
 
@@ -146,14 +142,12 @@
                 :parameters {:path {:pool_id s/Uuid}}
                 :handler get-entitlement-groups-of-pool-handler
                 :responses {200 {:description "OK"
-                                 :body [{
-                                         :id s/Uuid
+                                 :body [{:id s/Uuid
                                          :name s/Str
                                          :inventory_pool_id s/Uuid
                                          :is_verification_required s/Bool
                                          :created_at s/Any
-                                         :updated_at s/Any
-                                         }]}
+                                         :updated_at s/Any}]}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
@@ -168,7 +162,7 @@
              :handler get-entitlement-groups-of-pool-handler
              :responses {200 {:description "OK"
                               ;:body s/Any}
-                         :body [{:id s/Uuid
-                                 :name s/Str}]}
+                              :body [{:id s/Uuid
+                                      :name s/Str}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])

@@ -85,7 +85,6 @@
 
 (def allowed-types #{"model" "software" "license" "item" "option" "package"})
 
-
 (defn is-valid-uuid? [s]
   (re-matches #"[0-9a-fA-F-]{36}" s))
 
@@ -101,18 +100,16 @@
         uri-parts (str/split uri #"/")
         uuid (nth uri-parts 2 nil)
         dev-file (nth uri-parts 4 nil)
-        valid-files #{"model" "software" "license" "item" "option" "package"}
+        valid-files #{"model" "software" "license" "item" "option" "package"}]
 
-        ]
     (cond
       (= uri "/") (create-root-page)
 
       ;; TODO: DEV-ENDPOINT
-      (and (str/starts-with? uri "/inventory/dev/") (not (nil? file)))  ;; true
-                                                                        {:status 200
-                                                                           :headers {"Content-Type" (str "text/"( extract-filetype uri))}
-                                                                           :body (slurp (io/resource (str "public/dev/" file)))}
-
+      (and (str/starts-with? uri "/inventory/dev/") (not (nil? file))) ;; true
+      {:status 200
+       :headers {"Content-Type" (str "text/" (extract-filetype uri))}
+       :body (slurp (io/resource (str "public/dev/" file)))}
 
       (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri)
       (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
@@ -123,8 +120,7 @@
           {:status 400
            :body "Invalid type"}))
 
-
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
+;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
       ;                                                                     :headers {"Content-Type" "text/html"}
       ;                                                                     :body (slurp (io/resource "public/dev/create-model.html"))}
       ;
@@ -148,8 +144,7 @@
       ;                                                                       :headers {"Content-Type" "text/html"}
       ;                                                                       :body (slurp (io/resource "public/dev/create-package.html"))}
 
-
-      ;;; Match any UUID and a valid dev file
+;;; Match any UUID and a valid dev file
       ;(and (= (nth uri-parts 1 nil) "inventory")
       ;  (is-valid-uuid? uuid)
       ;  (= (nth uri-parts 3 nil) "dev")
@@ -157,9 +152,6 @@
       ;{:status 200
       ; :headers {"Content-Type" "text/html"}
       ; :body (slurp (io/resource (str "public/dev/create-" dev-file ".html")))}
-
-
-
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))

@@ -65,7 +65,6 @@ feature "Inventory Model Management" do
 
     context "create model" do
       it "creates software with all available attributes" do
-
         # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,

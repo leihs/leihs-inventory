@@ -37,7 +37,6 @@
          query-params (query-params request)
          ;{:keys [filter_ids]} (query-params request)
 
-
          p (println ">o> abc.query-params ???? " query-params)
 
          {:keys [filter_ids]} query-params
@@ -75,9 +74,8 @@
                           (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                         (cond-> model_id (sql/where [:= :m.id model_id]))
                         (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
+                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))]
 
-         ]
      (create-pagination-response request base-query with-pagination?))))
 
 (defn get-models-of-pool-with-pagination-handler [request]

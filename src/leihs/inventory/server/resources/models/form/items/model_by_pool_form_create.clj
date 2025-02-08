@@ -1,12 +1,12 @@
 (ns leihs.inventory.server.resources.models.form.items.model-by-pool-form-create
   (:require
    [cheshire.core :as cjson]
+   [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
+   [clojure.data.json :as json]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
-   [clojure.data.json :as json]
-   [cheshire.core :as jsonc]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -39,8 +39,6 @@
 ;           :type "Software"
 ;           :created_at created-ts
 ;           :updated_at created-ts)))
-
-
 
 ;(defn prepare-item-data [data item-entry properties]
 ;  (let [
@@ -90,14 +88,9 @@
 ;    data
 ;    ))
 
-
-
-
-
 (defn prepare-item-data [data properties]
 ;(defn prepare-item-data [data item-entry properties]
-  (let [
-        ;normalize-data (normalize-model-data data)
+  (let [;normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
 
         db-retired nil
@@ -113,13 +106,9 @@
                (assoc data :retired_reason nil)
                data)
 
-
         p (println ">o> retired ??? " (:retired data) (:retired_reason data))
 
-
-
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
-
 
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
@@ -139,23 +128,18 @@
                ;; FIXME
                ;:room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
 
-               :created_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+                    :created_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
 
-        data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+        data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])]
 
-
-        ]
-    data
-    ))
-
-
+    data))
 
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
 
 (defn create-items-handler-by-pool-form [request]
-  (println ">o> create-items-handler-by-pool-form" )
+  (println ">o> create-items-handler-by-pool-form")
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)

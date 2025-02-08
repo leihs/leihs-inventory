@@ -9,7 +9,7 @@
    [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
                                                                          inventory-manager-license-subquery
                                                                          lending-manager-license-subquery
-                                                            inventory-manager-item-subquery
+                                                                         inventory-manager-item-subquery
                                                                          item-base-query
                                                                          lending-manager-item-subquery
                                                                          license-base-query]]
@@ -77,7 +77,6 @@
   [maps keys-to-keep]
   (map #(select-keys % keys-to-keep) maps))
 
-
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
                 roles-for-pool
@@ -92,9 +91,8 @@
 
     subquery))
 
-
 (defn fetch-items-handler-by-pool-form [request]
-  (println ">o> fetch-items-handler-by-pool-form" )
+  (println ">o> fetch-items-handler-by-pool-form")
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
@@ -106,8 +104,7 @@
     (try
       (let [query (-> (sql/select :*)
 
-
-                    ;inventory-manager-item-subquery
+;inventory-manager-item-subquery
                     ;lending-manager-item-subquery
 
                       subquery
@@ -134,8 +131,7 @@
                     ;             (sql/where [:= :f.active true]))
                     ;           :ff])
 
-
-                    ;(sql/where [:and
+;(sql/where [:and
                     ;          [:in :ff.group ["General Information"
                     ;                          "Invoice Information"
                     ;                          "Status"
@@ -148,36 +144,33 @@
 
                     ;(sql/order-by [:ff.group :asc] [:ff.position :asc])
 
-
                       sql-format)
 
             fields (jdbc/execute! tx query)
             ;filtered (filter-entries fields [:group :label :role])
             ;dyn-select (build-select fields)
 
-            fields               (conj fields                 {:active true
-                                                               :data {:type "text"
-                                                                      :group "Inventory"
-                                                                      :label "Anzahl"
-                                                                      :values "1"
-                                                                      :value "1"
-                                                                      }
-                                                               :attribute "quantity"
-                                                               :default false
-                                                               :forPackage true
-                                                               :group "Inventory"
-                                                               :group_default "Inventory"
-                                                               :id "quantity"
-                                                               :label "Anzahl"
-                                                               :owner nil
-                                                               :position 13
-                                                               :role nil
-                                                               :role_default ""
-                                                               :target nil
-                                                               :target_default ""})
+            fields (conj fields {:active true
+                                 :data {:type "text"
+                                        :group "Inventory"
+                                        :label "Anzahl"
+                                        :values "1"
+                                        :value "1"}
+                                 :attribute "quantity"
+                                 :default false
+                                 :forPackage true
+                                 :group "Inventory"
+                                 :group_default "Inventory"
+                                 :id "quantity"
+                                 :label "Anzahl"
+                                 :owner nil
+                                 :position 13
+                                 :role nil
+                                 :role_default ""
+                                 :target nil
+                                 :target_default ""})
 
-
-            ;p (println ">o> ??? fields" fields)
+;p (println ">o> ??? fields" fields)
 
             ;model-result []
 
@@ -185,7 +178,6 @@
                            ;; Fetch model data
                            (let [model-query (-> (item-base-query item-id model-id pool-id) sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
-
 
                                  p (println ">o> model-result" model-result)
 
@@ -229,9 +221,7 @@
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
                               :quantity 1
-                              :inventory_code next-code}))
-
-            ]
+                              :inventory_code next-code}))]
 
         (if model-result
           (response/response {:data model-result :fields fields})

@@ -1,26 +1,26 @@
 (ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-create
   (:require
    [cheshire.core :as cjson]
+   [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
+   [clojure.data.json :as json]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
-   [clojure.data.json :as json]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [cheshire.core :as jsonc]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-entries remove-empty-or-nil remove-entries-by-keys]]
-
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
+
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
@@ -40,8 +40,6 @@
 ;           :type "Software"
 ;           :created_at created-ts
 ;           :updated_at created-ts)))
-
-
 
 ;(defn prepare-item-data [data item-entry properties]
 ;  (let [
@@ -91,16 +89,10 @@
 ;    data
 ;    ))
 
-
-
-
-
 (defn prepare-package-data [data]
 ;(defn prepare-package-data [data items_attributes]
 ;(defn prepare-item-data [data item-entry properties]
-  (let [
-
-        p (println ">o> abc.data" data)
+  (let [p (println ">o> abc.data" data)
 
         ;normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
@@ -118,13 +110,9 @@
                (assoc data :retired_reason nil)
                data)
 
-
         p (println ">o> retired ??? " (:retired data) (:retired_reason data))
 
-
-
-        ;supplier-id (cast-to-uuid-or-nil (:supplier_id data))
-
+;supplier-id (cast-to-uuid-or-nil (:supplier_id data))
 
         invoice-date (parse-local-date-or-nil (:invoice_date data))
 
@@ -139,38 +127,30 @@
 
         p (println ">o> abc0" (type data))
 
-
         data (assoc data :updated_at created-ts
 
                ;; FIXME
                ;:room_id #uuid "95c6329a-214a-4db5-8fd3-0b9ccf02705b"
 
-               :created_at created-ts :invoice_date invoice-date :price price
+                    :created_at created-ts :invoice_date invoice-date :price price
                ;;:supplier_id supplier-id
-               )
-
-
+                    )
         p (println ">o> ??? abc:last_check" (:last_check data) (type (:last_check data)))
 
         p (println ">o> abc1" (type data))
         ;data (remove-nil-entries data [:electrical_power :imei_number :room_id :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
-        data (remove-nil-entries data [:invoice_date :price :room_id :retired :last_check :user_name  :shelf :status_note :note])
+        data (remove-nil-entries data [:invoice_date :price :room_id :retired :last_check :user_name :shelf :status_note :note])
         p (println ">o> abc2" (type data))
-        data (remove-empty-entries data [:retired :room_id :last_check :user_name  :shelf :status_note :note])
+        data (remove-empty-entries data [:retired :room_id :last_check :user_name :shelf :status_note :note])
 
         p (println ">o> abc3" (type data))
         data (dissoc data :items_attributes)
 
         p (println ">o> abc4" (type data))
         data (convert-map-if-exist data)
-        p (println ">o> abc5" (type data))
+        p (println ">o> abc5" (type data))]
 
-
-        ]
-    data
-    ))
-
-
+    data))
 
 (defn create-validation-response [data validation]
   {:data data
@@ -182,17 +162,17 @@
    - `ids-to-link` (items without `:delete` or `false`)."
   [items]
   (reduce
-    (fn [{:keys [ids-to-unlink ids-to-link]} item]
-      (if (:delete item)
-        {:ids-to-unlink (conj ids-to-unlink (to-uuid (:id item)))
-         :ids-to-link ids-to-link}
-        {:ids-to-unlink ids-to-unlink
-         :ids-to-link (conj ids-to-link (to-uuid (:id item)))}))
-    {:ids-to-unlink [] :ids-to-link []}
-    items))
+   (fn [{:keys [ids-to-unlink ids-to-link]} item]
+     (if (:delete item)
+       {:ids-to-unlink (conj ids-to-unlink (to-uuid (:id item)))
+        :ids-to-link ids-to-link}
+       {:ids-to-unlink ids-to-unlink
+        :ids-to-link (conj ids-to-link (to-uuid (:id item)))}))
+   {:ids-to-unlink [] :ids-to-link []}
+   items))
 
 (defn create-package-handler-by-pool-form [request]
-  (println ">o> create-package-handler-by-pool-form" )
+  (println ">o> create-package-handler-by-pool-form")
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
@@ -206,21 +186,14 @@
         multipart (assoc multipart :inventory_pool_id pool-id)
         prepared-package-data (prepare-package-data multipart)
 
-        p (println ">o> prepared-package-data" prepared-package-data)
-        ]
+        p (println ">o> prepared-package-data" prepared-package-data)]
 
     (try
-      (let [
-
-
-
-            p (println ">o> ??? abc.prepared-package-data" prepared-package-data)
+      (let [p (println ">o> ??? abc.prepared-package-data" prepared-package-data)
             res (jdbc/execute-one! tx (-> (sql/insert-into :items)
                                           (sql/values [prepared-package-data])
                                           (sql/returning :*)
                                           sql-format))
-
-
 
             split-items (split-items items_attributes)
             p (println ">o> abc.split-items" split-items)
@@ -263,19 +236,17 @@
             ;      )
             ;p (println ">o> abc.unlinked" res)
 
-
-
-            ;; Link items from package
+;; Link items from package
             link-res (let [ids-to-link (get split-items :ids-to-link)]
-                       (when (seq ids-to-link)  ;; Ensure ids-to-link is not empty
+                       (when (seq ids-to-link) ;; Ensure ids-to-link is not empty
                          (println ">o> abc.ids-to-link" ids-to-link)
 
                          (let [update-link-items-query (-> (sql/update :items)
-                                                         (sql/set {:parent_id (:id res)})
-                                                         (sql/where [:in :id ids-to-link])
-                                                         (sql/where [:is :parent_id nil])
-                                                         (sql/returning :*)
-                                                         sql-format)
+                                                           (sql/set {:parent_id (:id res)})
+                                                           (sql/where [:in :id ids-to-link])
+                                                           (sql/where [:is :parent_id nil])
+                                                           (sql/returning :*)
+                                                           sql-format)
 
                                _ (println ">o> abc.update-link-items-query" update-link-items-query)
 
@@ -287,30 +258,27 @@
             ;
             ;; Unlink items from package
             unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
-              (when (seq ids-to-unlink)  ;; Ensure ids-to-unlink is not empty
-                (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
+                         (when (seq ids-to-unlink) ;; Ensure ids-to-unlink is not empty
+                           (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
 
-                (let [update-unlink-items-query (-> (sql/update :items)
-                                                  (sql/set {:parent_id nil})
-                                                  (sql/where [:in :id ids-to-unlink])
-                                                  (sql/where [:is-not :parent_id nil])
-                                                  (sql/returning :*)
-                                                  sql-format)
-                      unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
+                           (let [update-unlink-items-query (-> (sql/update :items)
+                                                               (sql/set {:parent_id nil})
+                                                               (sql/where [:in :id ids-to-unlink])
+                                                               (sql/where [:is-not :parent_id nil])
+                                                               (sql/returning :*)
+                                                               sql-format)
+                                 unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
 
-                  (println ">o> abc.unlinked" unlinked-items-res)
-                  unlinked-items-res)))
+                             (println ">o> abc.unlinked" unlinked-items-res)
+                             unlinked-items-res)))
 
             ;)
 
-
-
             item-id (:id res)
 
-            p (println ">o> abc.res??" res)
-            ]
+            p (println ">o> abc.res??" res)]
 
-        ;(process-attachments tx attachments "item_id" item-id)
+;(process-attachments tx attachments "item_id" item-id)
 
         (if res
           (response (create-validation-response res @validation-result))

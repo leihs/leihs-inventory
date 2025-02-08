@@ -25,11 +25,11 @@
         option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
-      (let [model-query (-> 
-                          (sql/select :o.*)
-                            (sql/from [:options :o])
-                            (sql/where [:= :o.id option-id])
-                            sql-format)
+      (let [model-query (->
+                         (sql/select :o.*)
+                         (sql/from [:options :o])
+                         (sql/where [:= :o.id option-id])
+                         sql-format)
             model-result (jdbc/execute-one! tx model-query)
 
             result (if model-result

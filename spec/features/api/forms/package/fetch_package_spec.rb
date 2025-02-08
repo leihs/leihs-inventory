@@ -18,7 +18,6 @@ feature "Inventory Model Management" do
     let(:model_id) { @software_model.id }
 
     before do
-
       resp = client.get "/inventory/owners"
       # # # binding.pry
       @form_owners = resp.body
@@ -43,7 +42,7 @@ feature "Inventory Model Management" do
       # # # binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
-      end
+    end
 
     context "create model" do
       it "fetch default" do
@@ -74,7 +73,6 @@ feature "Inventory Model Management" do
         expect(result.body.count).to eq(1)
       end
 
-
       it "fetch default" do
         result = client.get "/inventory/owners"
 
@@ -100,18 +98,14 @@ feature "Inventory Model Management" do
         expect(result.body.count).to eq(2)
       end
 
-
       it "fetch by form data" do
         result = client.get "/inventory/#{pool_id}/package"
 
         expect(result.body["data"]["inventory_pool_id"]).to eq(pool_id)
         expect(result.body["fields"].count).to eq(20)
-
       end
 
-
       it "create, fetch & update by form data" do
-
         # create package
         form_data = {
           is_inventory_relevant: true,
@@ -131,7 +125,6 @@ feature "Inventory Model Management" do
           items_attributes: []
         }.transform_values { |v| v.nil? ? "" : v.to_s }
 
-
         result = http_multipart_client(
           "/inventory/#{pool_id}/package",
           form_data,
@@ -144,14 +137,9 @@ feature "Inventory Model Management" do
         expect(result.body["data"]).to be_present
         expect(result.body["validation"].count).to eq(0)
 
-        item_id=result.body["data"]["id"]
-        model_id=result.body["data"]["model_id"]
-        product_name=result.body["data"]["product"]
-
-
-
-
-
+        item_id = result.body["data"]["id"]
+        model_id = result.body["data"]["model_id"]
+        # product_name = result.body["data"]["product"]
 
         # fetch package
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
@@ -159,7 +147,6 @@ feature "Inventory Model Management" do
 
         expect(result.body["data"]).to be_present
         expect(result.body["fields"].count).to eq(20)
-
 
         # update package
         result = http_multipart_client(
@@ -175,10 +162,7 @@ feature "Inventory Model Management" do
         expect(result.status).to eq(200)
         expect(result.body["data"]).to be_present
         expect(result.body["validation"].count).to eq(0)
-
       end
-
     end
-
   end
 end

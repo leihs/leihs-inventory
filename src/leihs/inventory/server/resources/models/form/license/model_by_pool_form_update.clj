@@ -76,8 +76,7 @@
         ;update-data (if (not= retired-value db-retired)
         ;              (assoc update-data :retired retired-value)
         ;              update-data)
-        update-data (assoc update-data :retired retired-value)
-        ]
+        update-data (assoc update-data :retired retired-value)]
     (try
       (let [update-model-query (-> (sql/update :items)
                                    (sql/set update-data)

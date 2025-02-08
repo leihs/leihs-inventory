@@ -171,7 +171,6 @@ feature "Inventory Model Management" do
       end
 
       it "creates and update license with attachment" do
-
         # fetch supplier
         result = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
@@ -180,7 +179,6 @@ feature "Inventory Model Management" do
         expect(result.body.count).to eq(1)
 
         supplier_id = result.body[0]["id"]
-
 
         # create license
         form_data = {

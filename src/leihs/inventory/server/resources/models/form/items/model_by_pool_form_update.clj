@@ -1,19 +1,18 @@
 (ns leihs.inventory.server.resources.models.form.items.model-by-pool-form-update
   (:require
    [cheshire.core :as cjson]
+   [cheshire.core :as jsonc]
+   [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
-   [cheshire.core :as jsonc]
-      [clojure.java.io :as io]
 
-   [cheshire.core :refer [generate-string] :rename {generate-string to-json}]
+   [clojure.java.io :as io]
 
-
-   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-files
                                                            ;process-attachments-by
                                                            process-attachments parse-json-map parse-json-array]]
@@ -37,8 +36,7 @@
   {:data data :validation validation})
 
 (defn prepare-item-data [data item-entry properties]
-  (let [
-        ;normalize-data (normalize-model-data data)
+  (let [;normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
 
         db-retired (:retired item-entry)
@@ -54,13 +52,9 @@
                (assoc data :retired_reason nil)
                data)
 
-
         p (println ">o> retired ??? " (:retired data) (:retired_reason data))
 
-
-
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
-
 
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
@@ -75,14 +69,11 @@
         ;data (assoc data :properties (to-json properties))
         data (assoc data :properties properties)
 
-    data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
+        data (assoc data :updated_at created-ts :invoice_date invoice-date :price price :supplier_id supplier-id)
 
-data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])
+        data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :reference :project_number :warranty_expiration :quantity_allocations])]
 
-
-        ]
-    data
-    ))
+    data))
 
 (defn process-deletions [tx ids table key]
   (doseq [id (set ids)]
@@ -93,8 +84,7 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
 ;(defn update-item-handler [request]
 (defn update-item-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
 
-    (let [
-        ;model-id (to-uuid (get-in request [:path-params :model_id]))
+  (let [;model-id (to-uuid (get-in request [:path-params :model_id]))
         ;item-id (to-uuid (get-in request [:path-params :item_id]))
         ;pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
@@ -102,46 +92,37 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
 
         tx (:tx request)
 
+        model-id-to-update (:model_id multipart)
 
-          model-id-to-update (:model_id multipart)
+        p (println ">o> ??? model-id-to-update vs model-id" model-id-to-update model-id)
 
+        multipart (if (= model-id-to-update model-id)
+                    (dissoc multipart :model_id)
+                    multipart)
 
-          p (println ">o> ??? model-id-to-update vs model-id" model-id-to-update model-id)
-
-          multipart (if (= model-id-to-update model-id)
-                      (dissoc multipart :model_id)
-                      multipart)
-
-
-
-          properties (first (parse-json-array request :properties))
+        properties (first (parse-json-array request :properties))
 
         prepared-model-data (prepare-item-data multipart item-entry properties)
 
-
-
-        ;prepared-model-data multipart
+;prepared-model-data multipart
         ;prepared-model-data (remove-entries-by-keys prepared-model-data [])
         ;prepared-model-data (remove-empty-or-nil prepared-model-data)
 
-        p (println ">o> >>> prepared-item-data" prepared-model-data)
-        ]
+        p (println ">o> >>> prepared-item-data" prepared-model-data)]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
                                    (sql/set prepared-model-data)
                                  ;(sql/join [:models :m] [:= :i.model_id :m.id])
                                  ;  (sql/where [:= :i.id item-id] )
-                                   (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id] ])
+                                   (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id]])
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
 
-
             p (println ">o> ??? updated-model" updated-model)
 
             attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
-            ]
+            attachments-to-delete (parse-json-array request :attachments-to-delete)]
         ;(process-attachments tx attachments model-id)
         (process-attachments tx attachments "item_id" item-id)
         (process-deletions tx attachments-to-delete :attachments :id)
@@ -153,12 +134,11 @@ data (remove-nil-entries data [:electrical_power :imei_number :model_id :p4u :re
         (error "Failed to update item" (.getMessage e))
         (bad-request {:error "Failed to update item" :details (.getMessage e)})))))
 
-
 (defn fetch-license-data [tx model-id item-id pool-id]
   (let [query (-> (sql/select :*)
-                (sql/from :items)
-                (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
-                sql-format)
+                  (sql/from :items)
+                  (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
+                  sql-format)
         res (jdbc/execute-one! tx query)]
     res))
 

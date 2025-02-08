@@ -8,30 +8,29 @@
    ;[cheshire.core :as json]
    ;[clojure.set]
 
-   [spec-tools.data-spec :as ds]
    [clojure.spec.alpha :as sa]
-
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
+
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
@@ -49,8 +48,8 @@
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
+
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -59,7 +58,8 @@
    [ring.middleware.accept]
    [ring.util.response :as response]
    [schema.core :as s]
-   [spec-tools.core :as st]))
+   [spec-tools.core :as st]
+   [spec-tools.data-spec :as ds]))
 
 (def schema
   {:id s/Uuid
@@ -143,19 +143,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                             ;                      }
                             ;                    s/Str])]
 
+                            :body [(s/conditional
+                                    map? {:id s/Uuid
+                                          :manufacturer s/Str
+                                          :product s/Str
+                                          :version (s/maybe s/Str)
+                                          :model_id s/Uuid}
+                                    string? s/Str)]}
 
-
-
-                           :body [(s/conditional
-                                        map? {:id s/Uuid
-                                              :manufacturer s/Str
-                                              :product s/Str
-                                              :version (s/maybe s/Str)
-                                              :model_id s/Uuid}
-                                        string? s/Str)]
-
-
-                            }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -545,7 +540,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :lr/invoice_date any?)
 (sa/def ::invoice_number string?)
 
-(sa/def ::shelf string?)                                    ;; FIXME
+(sa/def ::shelf string?) ;; FIXME
 
 (sa/def ::user_name string?)
 (sa/def ::activation_type string?)
@@ -603,42 +598,38 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::is_borrowable
                                              ::inventory_code]))
 
-(sa/def :item/multipart (sa/keys :opt-un [
-                                             ::model_id
-                                             ::supplier_id
-                                             ::attachments-to-delete
-                                             ::attachments
-                                             ::retired_reason
+(sa/def :item/multipart (sa/keys :opt-un [::model_id
+                                          ::supplier_id
+                                          ::attachments-to-delete
+                                          ::attachments
+                                          ::retired_reason
                                              ;:simple/properties
-                                             ::owner_id
-                                             ::user_name
+                                          ::owner_id
+                                          ::user_name
                                              ;::item_version
                                           ]
-                                    :req-un [::serial_number
-                                             ::note
-                                             ::invoice_date
-                                             ::invoice_number
-                                             ::price
-                                             ::shelf
-                                             ::inventory_code
-                                             ::retired
+                                 :req-un [::serial_number
+                                          ::note
+                                          ::invoice_date
+                                          ::invoice_number
+                                          ::price
+                                          ::shelf
+                                          ::inventory_code
+                                          ::retired
 
-                                             ::is_borrowable
-                                             ::is_broken
-                                             ::is_incomplete
+                                          ::is_borrowable
+                                          ::is_broken
+                                          ::is_incomplete
 
                                              ;::building_id
-                                             ::room_id
+                                          ::room_id
 
-                                             ::status_note
+                                          ::status_note
                                              ;::supplier_id
                                              ;::owner_id
-                                             ::properties
-                                             ]))
+                                          ::properties]))
 
-
-(sa/def :package/multipart (sa/keys :opt-un [
-                                             ::model_id
+(sa/def :package/multipart (sa/keys :opt-un [::model_id
                                              ::supplier_id
                                              ::attachments-to-delete
                                              ::attachments
@@ -647,9 +638,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::owner_id
                                              ::user_name
                                              ;::item_version
-                                          ]
-                                    :req-un [
-                                             ;::serial_number
+                                             ]
+                                    :req-un [;::serial_number
                                              ::note
                                              ;::invoice_date
                                              ;::invoice_number
@@ -668,8 +658,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                              ::status_note
                                              ;::supplier_id
                                              ;::owner_id
-                                             ::properties
-                                             ]))
+                                             ::properties]))
 
 (sa/def ::inventory_code string?)
 (sa/def ::inventory_pool_id uuid?)
@@ -679,15 +668,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/note (sa/nilable string?))
 (sa/def :nil/serial_number (sa/nilable string?))
 
-
 (sa/def ::responsible_department uuid?)
 
 (sa/def ::data-spec
   (st/spec {:spec (sa/keys :req-un [::inventory_code
-                                   ::inventory_pool_id
-                                   ::responsible_department])
+                                    ::inventory_pool_id
+                                    ::responsible_department])
             :description "Data section of the body"}))
-
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
@@ -707,23 +694,20 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::fields-spec
   (st/spec {:spec (sa/keys :req-un [::active
-                                   ::data
-                                   ::id
-                                   ::label
-                                   ::owner
-                                          ::position
-                                   ::role
-                                   ::role_default
-                                   ::target_default]
-                    :opt-un [::group ::target])
+                                    ::data
+                                    ::id
+                                    ::label
+                                    ::owner
+                                    ::position
+                                    ::role
+                                    ::role_default
+                                    ::target_default]
+                           :opt-un [::group ::target])
             :description "Fields section of the body"}))
 
 (sa/def :get-package-response/body-spec
   (st/spec {:spec (sa/keys :req-un [::data-spec ::fields-spec])
             :description "Body of the request"}))
-
-
-
 
 ;; Define primitive field specs
 (sa/def ::note string?)
@@ -756,39 +740,27 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;; Define the main spec for the request body
 (sa/def :package-put/inventory-attributes
-  (st/spec {:spec (sa/keys :req-un [
-                                    ;::note
-                                   ::is_inventory_relevant
-                                   ::last_check
-                                   ::user_name
-                                   ::price
-                                   ::shelf
-                                   ::inventory_code
-                                   ::retired
+  (st/spec {:spec (sa/keys :req-un [;::note
+                                    ::is_inventory_relevant
+                                    ::last_check
+                                    ::user_name
+                                    ::price
+                                    ::shelf
+                                    ::inventory_code
+                                    ::retired
                                    ;::retired_reason
-                                   ::is_broken
-                                   ::is_incomplete
-                                   ::is_borrowable
-                                   ::status_note
-                                   ::room_id
+                                    ::is_broken
+                                    ::is_incomplete
+                                    ::is_borrowable
+                                    ::status_note
+                                    ::room_id
                                     ::model_id
-                                   ::owner_id
-                                    ]
+                                    ::owner_id]
 
-                    :opt-un [::note ::retired_reason
-                                   ::items_attributes
+                           :opt-un [::note ::retired_reason
+                                    ::items_attributes])
 
-                             ]
-                    )
             :description "Inventory attributes with details"}))
-
-
-
-
-
-
-
-
 
 ;; Ensure all spec keys are properly namespaced
 (sa/def :res/properties map?)
@@ -825,7 +797,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
 
-
 ;is_inventory_relevant: true,
 ;last_check: nil,
 ;user_name: nil,
@@ -844,8 +815,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;; ✅ Correct: Define the `data` spec properly
 (sa/def :res/data
-  (st/spec {:spec (sa/keys :req-un [
-                                    :res/inventory_code
+  (st/spec {:spec (sa/keys :req-un [:res/inventory_code
                                     :nil/retired
                                     :res/is_borrowable
                                     :res/is_inventory_relevant
@@ -858,10 +828,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                     :res/room_id
                                     :res/model_id
                                     :res/owner_id
-                                    :res/price
-                                    ]
+                                    :res/price]
 
-                    :opt-un [:res/note
+                           :opt-un [:res/note
                                     :res/items_attributes
                                     :res/name
                                     :res/invoice_number
@@ -880,29 +849,23 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                     :res/serial_number
                                     :res/created_at
                                     :res/insurance_number
-                                    :res/insurance_number
+                                    :res/insurance_number])
 
-
-                             ])
             :description "Inventory item data"}))
 
 (sa/def :res/validation (sa/coll-of map? :kind vector?))
 
-
 ;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
-                    :opt-un [:res/validation :res/items_attributes])
+                           :opt-un [:res/validation :res/items_attributes])
             :description "Complete inventory response"}))
 
 ;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response2/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
-                    :opt-un [:res/validation ])
+                           :opt-un [:res/validation])
             :description "Complete inventory response"}))
-
-
-
 
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::property)
@@ -910,10 +873,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               :none nil?))
 
 (sa/def :option/multipart (sa/keys :req-un [::product]
-                             :opt-un [::version
-                                      ::price
-                                      ::inventory_code
-                                      ]))
+                                   :opt-un [::version
+                                            ::price
+                                            ::inventory_code]))
 
 (sa/def ::multipart (sa/keys :req-un [::product]
                              :opt-un [::version
@@ -933,26 +895,22 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :software/properties
                                       ::accessories]))
 
-
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
 
 ;(sa/def ::descriptions (nil-or string?))
 
-(def response-option-object {
-  :id uuid?
-  :inventory_pool_id uuid?
-  :inventory_code string?
-  :manufacturer  any?
-  :product string?
-  :version string?
-  :price any?
-  })
+(def response-option-object {:id uuid?
+                             :inventory_pool_id uuid?
+                             :inventory_code string?
+                             :manufacturer any?
+                             :product string?
+                             :version string?
+                             :price any?})
 
 (def response-option [response-option-object])
 
-
-(def FieldDataSchema                                        ;; FIXME
+(def FieldDataSchema ;; FIXME
   {:type string?
    :group string?
    :label string?
@@ -965,12 +923,11 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    (ds/opt :values_dependency_field_id) any?
    (ds/opt :required) any?
    :permissions {:role string?
-                 :owner boolean?}
-   })
+                 :owner boolean?}})
 
 (def FieldSchema
   {:role (sa/nilable string?)
-   :group  (sa/nilable string?)
+   :group (sa/nilable string?)
    :group_default string?
    :role_default string?
    (ds/opt :target_default) string?
@@ -982,22 +939,17 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    :owner (sa/nilable string?)
 
    ;:data FieldDataSchema                                    ;; FIXME broken
-   :data any?
-   })
+   :data any?})
 
 (def DataSchema
-  {
-   :inventory_pool_id uuid?
+  {:inventory_pool_id uuid?
    :responsible_department string?
    :quantity int?
-   :inventory_code string?
-   })
+   :inventory_code string?})
 
 (def ResponseBodySchema
   {:data DataSchema
-   :fields [FieldSchema]
-   })
-
+   :fields [FieldSchema]})
 
 ;; ----------------------
 
@@ -1023,8 +975,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::DataSchema
   (sa/keys :req-un [::inventory_pool_id
-                   ::responsible_department
-                   ::inventory_code]))
+                    ::responsible_department
+                    ::inventory_code]))
 
 ;; Define "permissions" schema inside "data"
 (sa/def ::role string?)
@@ -1041,7 +993,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;(sa/def ::permissions ::PermissionsSchema)
 (sa/def ::permissions any?)
 (sa/def ::forPackage boolean?)
-
 
 ;; Define "fields" schema
 (sa/def :nil/role (sa/nilable string?))
@@ -1068,36 +1019,28 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 ;    ))
 
 (sa/def ::FieldDataSchema
-  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code  ]
-
-
-    ))
-
-
+  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
 ;(sa/def ::data ::FieldDataSchema)
 
 (sa/def ::FieldSchema
   (sa/keys :req-un [:nil/role
-                   :nil/group
-                   ::group_default
-                   ::role_default
-                   ::target_default
-                   ::active
-                   ::label
-                   :any/id
-                   ::position
-                   ::target
-                   :bool/owner
-                   ::data]))
+                    :nil/group
+                    ::group_default
+                    ::role_default
+                    ::target_default
+                    ::active
+                    ::label
+                    :any/id
+                    ::position
+                    ::target
+                    :bool/owner
+                    ::data]))
 
 ;; Define response body schema
 ;(sa/def :response/ResponseBodySchema
 ;  (sa/keys :req-un [::DataSchema
 ;                   (sa/coll-of ::FieldSchema :kind vector?)])) ;; Ensure fields is a vector
-
-
-
 
 ;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
@@ -1119,49 +1062,45 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/user_name (sa/nilable any?))
 (sa/def :nil/supplier_id (sa/nilable any?))
 
-
-
-(sa/def ::needs_permission  boolean?)
-(sa/def ::is_incomplete  boolean?)
-
+(sa/def ::needs_permission boolean?)
+(sa/def ::is_incomplete boolean?)
 
 (def DataSchema2
   (sa/keys :req-un [::inventory_code
-                   ::owner_id
-                   ::is_borrowable
-                   :nil/retired
-                   ::is_inventory_relevant
-                   ::last_check
-                   ::shelf
-                   ::status_note
-                   :nil/name
-                   ::invoice_number
-                   ::is_broken
-                   ::note
+                    ::owner_id
+                    ::is_borrowable
+                    :nil/retired
+                    ::is_inventory_relevant
+                    ::last_check
+                    ::shelf
+                    ::status_note
+                    :nil/name
+                    ::invoice_number
+                    ::is_broken
+                    ::note
 
-                   :nil/updated_at
-                   :nil/retired_reason
+                    :nil/updated_at
+                    :nil/retired_reason
                    ;::retired_reason
                    ;::responsible
                     :nil/responsible
-                   :nil/invoice_date
-                   ::model_id
-                   ::supplier_id
-                   :nil/parent_id
-                   :nil/id
-                   ::inventory_pool_id
-                   ::is_incomplete
+                    :nil/invoice_date
+                    ::model_id
+                    ::supplier_id
+                    :nil/parent_id
+                    :nil/id
+                    ::inventory_pool_id
+                    ::is_incomplete
                    ;:nil/item_version
-                   ::needs_permission
-                   ::user_name
-                   ::room_id
-                   ::serial_number
-                   :nil/price
-                   :nil/created_at
-                   :nil/insurance_number
-                   ::properties]
-     :opt-un [                   :nil2/item_version
-              ]))
+                    ::needs_permission
+                    ::user_name
+                    ::room_id
+                    ::serial_number
+                    :nil/price
+                    :nil/created_at
+                    :nil/insurance_number
+                    ::properties]
+           :opt-un [:nil2/item_version]))
     ;))
 
 ;; Define the overall response schema
@@ -1172,9 +1111,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (def test_ResponseBodySchema
   {:data DataSchema2
   ;{:data any?
-   :validation [any?]
-   })
-
+   :validation [any?]})
 
 ;(def ResponseBodySoftware
 ;  {
@@ -1237,121 +1174,107 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;; Define the full map spec
 (def ResponseBodySoftware
-  (sa/keys :req-un [
-                 :nil/description
+  (sa/keys :req-un [:nil/description
                  ;::description
-                ::is_package
-                ::type
-                :nil/hand_over_note
-                :nil/internal_description
-                ::product
-                ::id
-                ::manufacturer
-                :nil/version
-                :nil/technical_detail
+                    ::is_package
+                    ::type
+                    :nil/hand_over_note
+                    :nil/internal_description
+                    ::product
+                    ::id
+                    ::manufacturer
+                    :nil/version
+                    :nil/technical_detail]
 
-                    ]
-    :opt-un [::attachments
-                ::maintenance_period
-                :nil/rental_price
-                :nil/cover_image_id
-                ::updated_at
-                :nil/info_url
-                ::created_at
+           :opt-un [::attachments
+                    ::maintenance_period
+                    :nil/rental_price
+                    :nil/cover_image_id
+                    ::updated_at
+                    :nil/info_url
+                    ::created_at]))
 
+;; Optional key
 
-             ])) ;; Optional key
+(sa/def ::post-license (sa/keys :req-un [::inventory_code]
+                                :opt-un [::item_id
+                                         :lr/id
+                                         ::owner_id
+                                         ::p4u
+                                         ::total_quantity
 
+                                         ::operating_system
+                                         ::quantity_allocations
+                                         ::maintenance_currency
 
+                                         ::maintenance_price
+                                         ::maintenance_expiration
+                                         ::project_number
 
-(sa/def ::post-license (sa/keys :req-un [::inventory_code  ]
-                     :opt-un [
-                              ::item_id
-                              :lr/id
-                              ::owner_id
-                              ::p4u
-                              ::total_quantity
+                                         ::license_expiration
+                                         ::reference
+                                         ::installation
+                                         ::dongle_id
+                                         ::procured_by
+                                         ::maintenance_contract
+                                         ::license_type
+                                         ::activation_type
 
-                              ::operating_system
-                              ::quantity_allocations
-                              ::maintenance_currency
+                                         ::is_borrowable
+                                         :nil/retired
 
-                              ::maintenance_price
-                              ::maintenance_expiration
-                              ::project_number
+                                         ::is_inventory_relevant
+                                         :nil/last_check
 
-                              ::license_expiration
-                              ::reference
-                              ::installation
-                              ::dongle_id
-                              ::procured_by
-                              ::maintenance_contract
-                              ::license_type
-                              ::activation_type
+                                         :nil/shelf
+                                         :nil/status_note
+                                         :nil/name
+                                         ::attachments
+                                         :nil/invoice_number
+                                         ::is_broken
 
-                              ::is_borrowable
-                              :nil/retired
+                                         :nil/note
+                                         :nil/serial_number
 
-                              ::is_inventory_relevant
-                              :nil/last_check
-
-                              :nil/shelf
-                              :nil/status_note
-                              :nil/name
-                              ::attachments
-                              :nil/invoice_number
-                              ::is_broken
-
-                              :nil/note
-                              :nil/serial_number
-
-                              ::updated_at
-                              :nil/retired_reason
-                              :nil/responsible
-                              :lr/invoice_date
-                              ::model_id
-                              :nil/supplier_id
-                              :nil/parent_id
-                              ::inventory_pool_id
-                              ::is_incomplete
-                              ::item_version
-                              ::needs_permission
-                              :nil/user_name
-                              ::room_id
-                              :lr/price
-                              ::created_at
-                              :nil/insurance_number
-                              ]))
+                                         ::updated_at
+                                         :nil/retired_reason
+                                         :nil/responsible
+                                         :lr/invoice_date
+                                         ::model_id
+                                         :nil/supplier_id
+                                         :nil/parent_id
+                                         ::inventory_pool_id
+                                         ::is_incomplete
+                                         ::item_version
+                                         ::needs_permission
+                                         :nil/user_name
+                                         ::room_id
+                                         :lr/price
+                                         ::created_at
+                                         :nil/insurance_number]))
 
 (def PackagePostPayload
-   {
-              :is_inventory_relevant boolean?
-              :last_check any?
-              :user_name (sa/nilable string?)
-              :price (sa/nilable string?)
-              :shelf (sa/nilable string?)
-              :inventory_code string?
-              :retired boolean?
-              :is_broken boolean?
-              :is_incomplete boolean?
-              :is_borrowable boolean?
-              :status_note (sa/nilable string?)
-              :room_id uuid?
-              :model_id uuid?
-              :owner_id uuid?
-              :items_attributes any?
-
-
-              }
-  )
+  {:is_inventory_relevant boolean?
+   :last_check any?
+   :user_name (sa/nilable string?)
+   :price (sa/nilable string?)
+   :shelf (sa/nilable string?)
+   :inventory_code string?
+   :retired boolean?
+   :is_broken boolean?
+   :is_incomplete boolean?
+   :is_borrowable boolean?
+   :status_note (sa/nilable string?)
+   :room_id uuid?
+   :model_id uuid?
+   :owner_id uuid?
+   :items_attributes any?})
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
-
-
 
    ["/item" ;; new
     {:swagger {:conflicting true
@@ -1370,13 +1293,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
              :responses {200 {:description "OK"
-             :body test_ResponseBodySchema
-                              }
-
+                              :body test_ResponseBodySchema}
 
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
-
 
       :get {:accept "application/json"
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
@@ -1386,21 +1306,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
                              ;; TODO
-                             :body ResponseBodySchema
-                             }
+                             :body ResponseBodySchema}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      }
-
-
-     ]
-     ]
+                        500 {:description "Internal Server Error"}}}}]]
 
    ["/models/:model_id/item" ;; new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
-
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -1417,12 +1329,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :responses {200 {:description "OK"
                              ;:body any?}
 
-                        :body {:data DataSchema2
+                             :body {:data DataSchema2
                          ;{:data any?
                          ;:fields [any?]
-                         :validation [any?]
-                         }
-                             }
+                                    :validation [any?]}}
 
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
@@ -1438,17 +1348,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :responses {200 {:description "OK"
                              ;:body any?}
 
-
-                        :body {:data DataSchema2
+                             :body {:data DataSchema2
                                ;{:data any?
-                               :fields [any?]
+                                    :fields [any?]
                                ;:validation [any?]
-                               }
-                        }
+                                    }}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ]
+                        500 {:description "Internal Server Error"}}}}]]
 
    ["/package" ;; new
     {:swagger {:conflicting true
@@ -1486,18 +1392,15 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           ;
                           ;
                           ;            }
-             }
+                          }
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
-             :responses {
-                         200 {:description "OK"
+             :responses {200 {:description "OK"
 
-                              :body :package-put-response2/inventory-item
-                              }
+                              :body :package-put-response2/inventory-item}
 
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
-
 
       :get {:accept "application/json"
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
@@ -1505,29 +1408,20 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {
-                             ;:body :get-package-response/body-spec ;; FIXME
+            :responses {200 {;:body :get-package-response/body-spec ;; FIXME
                              ;:body any?
                              :body {:data {:inventory_code string?
                                            :inventory_pool_id uuid?
                                            :responsible_department any?}
                                            ;:responsible_department uuid?}
-                                    :fields [any?]
-                                    }
+                                    :fields [any?]}
                              :description "OK"}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      }
-
-
-     ]
-     ]
+                        500 {:description "Internal Server Error"}}}}]]
 
    ["/models/:model_id/package" ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
-
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -1541,21 +1435,16 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                          ;:multipart :package/multipart}        ;; TODO
                          ;:multipart any?
 
-                         :multipart PackagePostPayload
+                         :multipart PackagePostPayload} ;; TODO
 
-                         }        ;; TODO
-
-
-
-                         ;:multipart :package-put/inventory-attributes
+;:multipart :package-put/inventory-attributes
                          ;}        ;; TODO
             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)] ;; FIXME
             :handler update-package-handler-by-pool-form
-            :responses {
-                        ;200 {}
+            :responses {;200 {}
                         200 {:description "OK"
                              ;:body any?}
-                        :body :package-put-response2/inventory-item}
+                             :body :package-put-response2/inventory-item}
 
                         ;; FIXME
                              ;:body :package-put-response/inventory-item}
@@ -1572,17 +1461,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              ;:body any?}
-                        :body :package-put-response2/inventory-item}
+                             :body :package-put-response2/inventory-item}
 
-            404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ]
-
-
-
-
-
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]]
 
    ["/model"
     {:swagger {:conflicting true
@@ -1605,8 +1487,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler create-model-handler-by-pool-form
              :responses {200 {:description "OK"
 
-                              :body {:data {
-                                            :description (sa/nilable string?)
+                              :body {:data {:description (sa/nilable string?)
                                             :is_package boolean?
                                             ;:attachments any?
                                             :maintenance_period int?
@@ -1622,13 +1503,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :manufacturer any?
                                             :version string?
                                             :created_at any?
-                                            :technical_detail string?
+                                            :technical_detail string?}
 
+                                     :validation any?}}
 
-                                            }
-                                     :validation any?}
-
-                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -1642,15 +1520,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-model-handler-by-pool-form-fetch
              :responses {200 {:description "OK"
-:body [{
-        :description (sa/nilable string?)
-        :properties any?
-        :is_package boolean?
-        :accessories any?
-        :entitlement_groups any?
+                              :body [{:description (sa/nilable string?)
+                                      :properties any?
+                                      :is_package boolean?
+                                      :accessories any?
+                                      :entitlement_groups any?
 
         ;; FIXME: causes error
-        :images any?
+                                      :images any?
         ;:images [{
         ;          :id (sa/nilable any?)
         ;          :filename (sa/nilable string?)
@@ -1661,32 +1538,24 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
         ;          }]
 
         ;:attachments any?
-        :attachments [{
-                       :id (sa/nilable any?)
-                       :filename (sa/nilable string?)
-                       :content_type (sa/nilable string?)
-                       }]
-        :type string?
-        :hand_over_note (sa/nilable any?)
-        :internal_description (sa/nilable any?)
-        :product string?
+                                      :attachments [{:id (sa/nilable any?)
+                                                     :filename (sa/nilable string?)
+                                                     :content_type (sa/nilable string?)}]
+                                      :type string?
+                                      :hand_over_note (sa/nilable any?)
+                                      :internal_description (sa/nilable any?)
+                                      :product string?
         ;:categories any?
-        :categories [{
-                      :id (sa/nilable any?)
-                      :type (sa/nilable string?)
-                      :name (sa/nilable string?)
-                      }]
-        :id uuid?
-        :compatibles [{
-                       :id (sa/nilable any?)
-                        :product(sa/nilable string?)
-                       }]
-        :manufacturer any?
-        :version string?
-        :technical_detail string?
+                                      :categories [{:id (sa/nilable any?)
+                                                    :type (sa/nilable string?)
+                                                    :name (sa/nilable string?)}]
+                                      :id uuid?
+                                      :compatibles [{:id (sa/nilable any?)
+                                                     :product (sa/nilable string?)}]
+                                      :manufacturer any?
+                                      :version string?
+                                      :technical_detail string?}]}
 
-        }]
-                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1701,35 +1570,26 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart ::multipart}
              :handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body  [{
-                                            :description (sa/nilable string?)
-                                            :is_package boolean?
+                              :body [{:description (sa/nilable string?)
+                                      :is_package boolean?
                                             ;:attachments any?
-                                            :maintenance_period int?
-                                            :type string?
-                                            :rental_price (sa/nilable any?)
-                                            :cover_image_id (sa/nilable any?)
-                                            :hand_over_note (sa/nilable any?)
-                                            :updated_at any?
-                                            :internal_description (sa/nilable any?)
-                                            :product string?
-                                            :info_url (sa/nilable any?)
-                                            :id uuid?
-                                            :manufacturer any?
-                                            :version string?
-                                            :created_at any?
-                                            :technical_detail string?
+                                      :maintenance_period int?
+                                      :type string?
+                                      :rental_price (sa/nilable any?)
+                                      :cover_image_id (sa/nilable any?)
+                                      :hand_over_note (sa/nilable any?)
+                                      :updated_at any?
+                                      :internal_description (sa/nilable any?)
+                                      :product string?
+                                      :info_url (sa/nilable any?)
+                                      :id uuid?
+                                      :manufacturer any?
+                                      :version string?
+                                      :created_at any?
+                                      :technical_detail string?}]}
 
-
-                                            }]
-
-
-                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
-
-
-
 
    ["/option"
     {:swagger {:conflicting true
@@ -1750,8 +1610,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?}
                           :multipart :option/multipart}
              :handler create-option-handler-by-pool-form
-             :responses {200 {
-                              :description "OK"
+             :responses {200 {:description "OK"
                               ;:body :res2/request ;; FIXME: shows key-prefixes
                               :body {:data {:product string?
                                             :inventory_pool_id uuid?
@@ -1759,14 +1618,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :price any?
                                             :id uuid?
                                             :inventory_code string?}
-                                     :validation any?}
-                              }
+                                     :validation any?}}
 
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}
-
-
-             }}]
+                         500 {:description "Internal Server Error"}}}}]
 
     ["/:option_id"
      [""
@@ -1819,11 +1674,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-
-
-
-
-
    ["/license" ;;new
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
@@ -1853,9 +1703,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 ;:body ResponseBodySchema3
 ;:body :response/ResponseBodySchema
-:body {:data ::FieldDataSchema
-       :fields [::FieldSchema]}
-                             }
+                             :body {:data ::FieldDataSchema
+                                    :fields [::FieldSchema]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
@@ -1923,9 +1772,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
                               ;:body {:data {::ResponseBodySoftware}
                               :body {:data ResponseBodySoftware
-                                     :validation [any?]}
+                                     :validation [any?]}}
 
-                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -1941,7 +1789,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body [ResponseBodySoftware]
                               ;:body ResponseBodySoftware
-
                               }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
@@ -1957,8 +1804,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler update-software-handler-by-pool-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body [ResponseBodySoftware]
-                              }
+                              :body [ResponseBodySoftware]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
@@ -1976,12 +1822,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  (s/optional-key :filter_manufacturer) s/Str
                                  (s/optional-key :filter_product) s/Str
 
-                                 (s/optional-key :filter_ids) [s/Uuid]
-                                 }
+                                 (s/optional-key :filter_ids) [s/Uuid]}}
 
-                         }
-
-            ;:handler get-models-of-pool-handler
+;:handler get-models-of-pool-handler
             :handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"
@@ -2092,10 +1935,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                :handler create-license-handler-by-pool-form
                :responses {200 {:description "OK"
 
-
                                 :body {:data ::post-license
-                                       :validation [any?]}
-                                }
+                                       :validation [any?]}}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
@@ -2129,9 +1970,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :handler fetch-license-handler-by-pool-form-fetch
               :responses {200 {:description "OK"
                                ;:body any?}
-                          :body {:data ::post-license
-                                 :fields [any?]}
-                               }
+                               :body {:data ::post-license
+                                      :fields [any?]}}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
