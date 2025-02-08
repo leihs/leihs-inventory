@@ -1591,7 +1591,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE???"
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE??? [v0]"
              :description (str
                            " - Upload images and attachments \n"
                            " - Save data \n"
@@ -1603,24 +1603,95 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :parameters {:path {:pool_id uuid?}
                           :multipart ::multipart}
              :handler create-model-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+
+                              :body {:data {
+                                            :description (sa/nilable string?)
+                                            :is_package boolean?
+                                            ;:attachments any?
+                                            :maintenance_period int?
+                                            :type string?
+                                            :rental_price (sa/nilable any?)
+                                            :cover_image_id (sa/nilable any?)
+                                            :hand_over_note (sa/nilable any?)
+                                            :updated_at any?
+                                            :internal_description (sa/nilable any?)
+                                            :product string?
+                                            :info_url (sa/nilable any?)
+                                            :id uuid?
+                                            :manufacturer any?
+                                            :version string?
+                                            :created_at any?
+                                            :technical_detail string?
+
+
+                                            }
+                                     :validation any?}
+
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data"
+             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-model-handler-by-pool-form-fetch
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+:body [{
+        :description (sa/nilable string?)
+        :properties any?
+        :is_package boolean?
+        :accessories any?
+        :entitlement_groups any?
+
+        ;; FIXME: causes error
+        :images any?
+        ;:images [{
+        ;          :id (sa/nilable any?)
+        ;          :filename (sa/nilable string?)
+        ;          :content_type (sa/nilable string?)
+        ;          :url (sa/nilable string?)
+        ;          :thumbnail_url (sa/nilable string?)
+        ;          :cover_image_id (sa/nilable string?)
+        ;          }]
+
+        ;:attachments any?
+        :attachments [{
+                       :id (sa/nilable any?)
+                       :filename (sa/nilable string?)
+                       :content_type (sa/nilable string?)
+                       }]
+        :type string?
+        :hand_over_note (sa/nilable any?)
+        :internal_description (sa/nilable any?)
+        :product string?
+        ;:categories any?
+        :categories [{
+                      :id (sa/nilable any?)
+                      :type (sa/nilable string?)
+                      :name (sa/nilable string?)
+                      }]
+        :id uuid?
+        :compatibles [{
+                       :id (sa/nilable any?)
+                        :product(sa/nilable string?)
+                       }]
+        :manufacturer any?
+        :version string?
+        :technical_detail string?
+
+        }]
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
+             :summary "(DEV) | [v0]"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -1629,7 +1700,31 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :model_id uuid?}
                           :multipart ::multipart}
              :handler update-model-handler-by-pool-form
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :body  [{
+                                            :description (sa/nilable string?)
+                                            :is_package boolean?
+                                            ;:attachments any?
+                                            :maintenance_period int?
+                                            :type string?
+                                            :rental_price (sa/nilable any?)
+                                            :cover_image_id (sa/nilable any?)
+                                            :hand_over_note (sa/nilable any?)
+                                            :updated_at any?
+                                            :internal_description (sa/nilable any?)
+                                            :product string?
+                                            :info_url (sa/nilable any?)
+                                            :id uuid?
+                                            :manufacturer any?
+                                            :version string?
+                                            :created_at any?
+                                            :technical_detail string?
+
+
+                                            }]
+
+
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 

@@ -92,6 +92,7 @@ feature "Inventory Model Management" do
           form_data,
           headers: cookie_header
         )
+        # # binding.pry
 
         # puts "Result.model_id: #{result.body["data"]["id"]}"
         # puts "Result.pool_id: #{pool_id}"
@@ -102,6 +103,7 @@ feature "Inventory Model Management" do
         # fetch created model
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+        # binding.pry
 
         expect(resp.body[0]["images"].count).to eq(1)
         expect(resp.body[0]["attachments"].count).to eq(1)
@@ -141,6 +143,7 @@ feature "Inventory Model Management" do
 
         # fetch updated model
         resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+        # binding.pry
 
         expect(resp.body[0]["images"].count).to eq(2)
         expect(resp.body[0]["attachments"].count).to eq(2)

@@ -38,7 +38,7 @@
         images (jdbc/execute! tx query)]
     (map (fn [row]
            (assoc row :url (str "/inventory/images/" (:id row))
-                  :thumbnail-url (str "/inventory/images/" (:id row) "/thumbnail")))
+                  :thumbnail_url (str "/inventory/images/" (:id row) "/thumbnail")))
          images)))
 
 (defn fetch-accessories [tx model-id]

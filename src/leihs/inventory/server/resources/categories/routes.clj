@@ -78,13 +78,13 @@
                 :handler get-model-groups-of-pool-handler
                 :responses {200 {:description "OK"
                                  ;:body s/Any}
-                                 :body {
+                                 :body [{
                                         :id s/Uuid
                                         :type s/Str
                                         :name s/Str
                                         :created_at s/Any
                                         :updated_at s/Any
-                                        }}
+                                        }]}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
@@ -99,13 +99,13 @@
              :handler get-model-groups-of-pool-handler
              :responses {200 {:description "OK"
                               ;:body s/Any}
-                         :body {
+                         :body [{
                                 :id s/Uuid
                                 :type s/Str
                                 :name s/Str
                                 :created_at s/Any
                                 :updated_at s/Any
-                                }}
+                                }]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]
 
