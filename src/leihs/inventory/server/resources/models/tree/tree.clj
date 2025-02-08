@@ -12,6 +12,13 @@
       [leihs.inventory.server.resources.models.tree.shared :refer [base-query sql-add-metadata]]
       [next.jdbc.sql :as jdbc]))
 
+
+(defn pr [ fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> query >>> " fnc)
+  fnc
+  )
+
 ;#?(:clj
    (defn roots
      [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
@@ -25,6 +32,7 @@
              (sql/from :model_group_links)
              (sql/where [:= :model_group_links.child_id :model_groups.id]))]])
        sql-format
+       pr
        (->> (jdbc/query tx))))
 
 ;#?(:clj
