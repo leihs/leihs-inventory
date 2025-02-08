@@ -846,22 +846,19 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :res/data
   (st/spec {:spec (sa/keys :req-un [
                                     :res/inventory_code
-                                    :res/retired
+                                    :nil/retired
                                     :res/is_borrowable
                                     :res/is_inventory_relevant
                                     :res/is_broken
                                     :res/is_incomplete
-                                    :res/last_check
-                                    :res/shelf
-                                    :res/status_note
-                                    :res/user_name
+                                    :nil/last_check
+                                    :nil/shelf
+                                    :nil/status_note
+                                    :nil/user_name
                                     :res/room_id
                                     :res/model_id
                                     :res/owner_id
                                     :res/price
-
-
-
                                     ]
 
                     :opt-un [:res/note
@@ -870,7 +867,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                     :res/invoice_number
                                     :res/properties
                                     :res/updated_at
-                                    :res/retired_reason
+                                    :nil/retired_reason
+                                    :nil/note
                                     :res/responsible
                                     :res/invoice_date
                                     :res/supplier_id
@@ -895,6 +893,12 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :package-put-response/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
                     :opt-un [:res/validation :res/items_attributes])
+            :description "Complete inventory response"}))
+
+;; Define the main coercion spec with properly namespace-qualified keys
+(sa/def :package-put-response2/inventory-item
+  (st/spec {:spec (sa/keys :req-un [:res/data]
+                    :opt-un [:res/validation ])
             :description "Complete inventory response"}))
 
 
@@ -1319,7 +1323,27 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               :nil/insurance_number
                               ]))
 
+(def PackagePostPayload
+   {
+              :is_inventory_relevant boolean?
+              :last_check any?
+              :user_name (sa/nilable string?)
+              :price (sa/nilable string?)
+              :shelf (sa/nilable string?)
+              :inventory_code string?
+              :retired boolean?
+              :is_broken boolean?
+              :is_incomplete boolean?
+              :is_borrowable boolean?
+              :status_note (sa/nilable string?)
+              :room_id uuid?
+              :model_id uuid?
+              :owner_id uuid?
+              :items_attributes any?
 
+
+              }
+  )
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
@@ -1434,18 +1458,43 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
+             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  ;:model_id uuid?
                                  }
                           ;:multipart :package/multipart}
-                          :multipart any?}
+
+                          ;:multipart any?}
+                          :multipart PackagePostPayload
+                          ;:multipart {
+                          ;            :is_inventory_relevant boolean?
+                          ;            :last_check any?
+                          ;            :user_name (sa/nilable string?)
+                          ;            :price (sa/nilable string?)
+                          ;            :shelf (sa/nilable string?)
+                          ;            :inventory_code string?
+                          ;            :retired boolean?
+                          ;            :is_broken boolean?
+                          ;            :is_incomplete boolean?
+                          ;            :is_borrowable boolean?
+                          ;            :status_note (sa/nilable string?)
+                          ;            :room_id uuid?
+                          ;            :model_id uuid?
+                          ;            :owner_id uuid?
+                          ;            :items_attributes any?
+                          ;
+                          ;
+                          ;            }
+             }
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {
-                         ;200 {:description "OK"}
-                         200 {}
+                         200 {:description "OK"
+
+                              :body :package-put-response2/inventory-item
+                              }
+
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1458,7 +1507,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {
                              ;:body :get-package-response/body-spec ;; FIXME
-                             :body any?
+                             ;:body any?
+                             :body {:data {:inventory_code string?
+                                           :inventory_pool_id uuid?
+                                           :responsible_department any?}
+                                           ;:responsible_department uuid?}
+                                    :fields [any?]
+                                    }
                              :description "OK"}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
@@ -1484,7 +1539,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 :model_id uuid?
                                 :item_id uuid?}
                          ;:multipart :package/multipart}        ;; TODO
-                         :multipart any?}        ;; TODO
+                         ;:multipart any?
+
+                         :multipart PackagePostPayload
+
+                         }        ;; TODO
+
+
+
                          ;:multipart :package-put/inventory-attributes
                          ;}        ;; TODO
             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)] ;; FIXME
@@ -1492,14 +1554,16 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :responses {
                         ;200 {}
                         200 {:description "OK"
-                             :body any?}
-                             ;; FIXME
+                             ;:body any?}
+                        :body :package-put-response2/inventory-item}
+
+                        ;; FIXME
                              ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
       :get {:accept "application/json" ;;new
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
@@ -1507,8 +1571,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler fetch-package-handler-by-pool-form
             :responses {200 {:description "OK"
-                             :body any?}
-                        404 {:description "Not Found"}
+                             ;:body any?}
+                        :body :package-put-response2/inventory-item}
+
+            404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
     ]
