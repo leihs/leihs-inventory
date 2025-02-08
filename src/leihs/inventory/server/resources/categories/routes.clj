@@ -77,7 +77,14 @@
                 :parameters {:path {:pool_id s/Uuid}}
                 :handler get-model-groups-of-pool-handler
                 :responses {200 {:description "OK"
-                                 :body s/Any}
+                                 ;:body s/Any}
+                                 :body {
+                                        :id s/Uuid
+                                        :type s/Str
+                                        :name s/Str
+                                        :created_at s/Any
+                                        :updated_at s/Any
+                                        }}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
@@ -91,7 +98,14 @@
              :parameters {:path {:pool_id s/Uuid :model_group_id s/Uuid}}
              :handler get-model-groups-of-pool-handler
              :responses {200 {:description "OK"
-                              :body s/Any}
+                              ;:body s/Any}
+                         :body {
+                                :id s/Uuid
+                                :type s/Str
+                                :name s/Str
+                                :created_at s/Any
+                                :updated_at s/Any
+                                }}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]
 
