@@ -175,7 +175,7 @@
 (sa/def ::retired_reason string?)
 (sa/def ::price string?)
 (sa/def ::invoice_date string?)
-(sa/def :lr/invoice_date any?)
+(sa/def :any/invoice_date any?)
 (sa/def ::invoice_number string?)
 
 (sa/def ::shelf string?) ;; FIXME
@@ -356,7 +356,7 @@
 
 ;(sa/def ::price int?)
 (sa/def ::price string?)
-(sa/def :lr/price any?)
+(sa/def :any/price any?)
 
 (sa/def ::shelf string?)
 (sa/def ::inventory_code string?)
@@ -627,7 +627,7 @@
 ;(sa/def :bool/owner (sa/nilable boolean?))
 (sa/def :bool/owner (sa/nilable string?))
 (sa/def ::id string?)
-(sa/def :lr/id uuid?)
+(sa/def ::id uuid?)
 (sa/def ::position ::integer)
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
@@ -713,24 +713,26 @@
   {:data DataSchema2
    :validation [any?]})
 
-(sa/def ::description (sa/nilable string?))
 (sa/def ::is_package boolean?)
-(sa/def ::attachments (sa/nilable any?)) ;; Optional field
 (sa/def ::maintenance_period int?)
 (sa/def ::type string?)
-(sa/def ::rental_price (sa/nilable any?))
-(sa/def ::cover_image_id (sa/nilable any?))
-(sa/def ::hand_over_note (sa/nilable any?))
+;(sa/def :nil/description (sa/nilable string?))
+(sa/def :nil/attachments (sa/nilable any?)) ;; Optional field
+(sa/def :nil/rental_price (sa/nilable any?))
+(sa/def :nil/cover_image_id (sa/nilable any?))
+;(sa/def :nil/hand_over_note (sa/nilable any?))
+;(sa/def :nil/internal_description (sa/nilable string?))
+;(sa/def :nil/info_url (sa/nilable any?))
 (sa/def ::updated_at any?)
-(sa/def ::internal_description (sa/nilable string?))
 (sa/def ::product string?)
-(sa/def ::info_url (sa/nilable any?))
 (sa/def ::id uuid?) ;; UUID spec
-(sa/def :any/id any?) ;; UUID spec
 (sa/def ::manufacturer any?)
 (sa/def ::version string?)
 (sa/def ::created_at any?)
 (sa/def ::technical_detail string?)
+
+(sa/def :any/id any?) ;; UUID spec
+
 
 (sa/def :nil/technical_detail (sa/nilable string?))
 (sa/def :nil/version (sa/nilable string?))
@@ -767,7 +769,7 @@
 
 (sa/def :license/post-license (sa/keys :req-un [::inventory_code]
                                        :opt-un [::item_id
-                                                :lr/id
+                                                ::id
                                                 ::owner_id
                                                 ::p4u
                                                 ::total_quantity
@@ -808,7 +810,7 @@
                                                 ::updated_at
                                                 :nil/retired_reason
                                                 :nil/responsible
-                                                :lr/invoice_date
+                                                ::invoice_date
                                                 ::model_id
                                                 :nil/supplier_id
                                                 :nil/parent_id
@@ -818,24 +820,26 @@
                                                 ::needs_permission
                                                 :nil/user_name
                                                 ::room_id
-                                                :lr/price
+                                                ::price
                                                 ::created_at
                                                 :nil/insurance_number]))
 
 (def PackagePostPayload
-  {:is_inventory_relevant boolean?
-   :last_check any?
-   :user_name (sa/nilable string?)
-   :price (sa/nilable string?)
-   :shelf (sa/nilable string?)
+  {
+   :nil/user_name (sa/nilable string?)
+   :nil/price (sa/nilable string?)
+   :nil/shelf (sa/nilable string?)
+   :nil/status_note (sa/nilable string?)
+   :is_inventory_relevant boolean?
+   ::last_check any?
    :inventory_code string?
    :retired boolean?
    :is_broken boolean?
    :is_incomplete boolean?
    :is_borrowable boolean?
-   :status_note (sa/nilable string?)
    :room_id uuid?
    :model_id uuid?
    :owner_id uuid?
-   :items_attributes any?})
+   :items_attributes any?
+   })
 
