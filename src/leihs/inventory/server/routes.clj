@@ -14,6 +14,9 @@
 
    [leihs.core.sign-out.back :as so]
 
+
+   [leihs.inventory.server.resources.models.tree.routes :refer [get-tree-route]]
+
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
@@ -68,6 +71,9 @@
 (defn- incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
+
+   (get-tree-route)
+
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)

@@ -1294,57 +1294,57 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :tags ["Models by pool"] :security []}}
 
 
-   ["/tree" ;; new
-    {:swagger {:conflicting true
-               :tags ["tree"] :security []}}
-
-    [""
-    {
-     :get {:accept "application/json"
-           :summary "(DEV) | Dynamic-Tree-Handler [v1]"
-           :description "Fetch tree by pool_id\n
-- with-metadata provides: (base64-image-url)\n
-```
-\"metadata\": {\n            \"id\": \"1e435dbc-b25e-58a4-8d95-41ef94b000a9\",\n            \"name\": \"Verstärker\",\n            \"label\": \"Verstärker\",\n            \"models_count\": 71,\n            \"is_deletable\": false,\n            \"image_url\": null,\n            \"thumbnail_url\": null\n          },
-```"
-           :coercion spec/coercion
-           :parameters {
-                        :path {:pool_id uuid?}
-                        :query {:with-metadata boolean?}
-                        }
-
-
-
-            :handler (fn [{{:keys [pool_id ]} :path-params :as request}]
-              (let [
-
-                    ;; TODO: reduce to provide :with-metadata=false only
-                    ;; https://github.com/leihs/leihs-admin/blob/6ac7465731610563ad1986bd29e4cdd2c8a5ea79/src/leihs/admin/resources/categories/main.clj
-
-                    with-metadata (-> request :parameters :query :with-metadata)
-                    p (println ">o> 0abc.with-metadata" with-metadata)
-
-                    tx (:tx request)
-
-                    res {:body {:name "categories"
-                              :children (-> (tree tx {:with-metadata with-metadata})
-                                          (term-filter request))}}
-
-
-                    ]
-                res))
-
-           ;:handler fetch-items-handler-by-pool-form
-           ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-           :responses {200 {:description "OK"
-                            ;; TODO
-                            ;:body ResponseBodySchema
-                            }
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}
-
-     }
-    ]    ]
+;   ["/tree" ;; new
+;    {:swagger {:conflicting true
+;               :tags ["tree"] :security []}}
+;
+;    [""
+;    {
+;     :get {:accept "application/json"
+;           :summary "(DEV) | Dynamic-Tree-Handler [v1]"
+;           :description "Fetch tree by pool_id\n
+;- with-metadata provides: (base64-image-url)\n
+;```
+;\"metadata\": {\n            \"id\": \"1e435dbc-b25e-58a4-8d95-41ef94b000a9\",\n            \"name\": \"Verstärker\",\n            \"label\": \"Verstärker\",\n            \"models_count\": 71,\n            \"is_deletable\": false,\n            \"image_url\": null,\n            \"thumbnail_url\": null\n          },
+;```"
+;           :coercion spec/coercion
+;           :parameters {
+;                        :path {:pool_id uuid?}
+;                        :query {:with-metadata boolean?}
+;                        }
+;
+;
+;
+;            :handler (fn [{{:keys [pool_id ]} :path-params :as request}]
+;              (let [
+;
+;                    ;; TODO: reduce to provide :with-metadata=false only
+;                    ;; https://github.com/leihs/leihs-admin/blob/6ac7465731610563ad1986bd29e4cdd2c8a5ea79/src/leihs/admin/resources/categories/main.clj
+;
+;                    with-metadata (-> request :parameters :query :with-metadata)
+;                    p (println ">o> 0abc.with-metadata" with-metadata)
+;
+;                    tx (:tx request)
+;
+;                    res {:body {:name "categories"
+;                              :children (-> (tree tx {:with-metadata with-metadata})
+;                                          (term-filter request))}}
+;
+;
+;                    ]
+;                res))
+;
+;           ;:handler fetch-items-handler-by-pool-form
+;           ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+;           :responses {200 {:description "OK"
+;                            ;; TODO
+;                            ;:body ResponseBodySchema
+;                            }
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}
+;
+;     }
+;    ]    ]
 
 
 
