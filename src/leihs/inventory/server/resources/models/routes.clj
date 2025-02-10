@@ -80,23 +80,9 @@
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
 
 (def schema-min
-  {;:id s/Uuid
-   :type s/Str
+  {:type s/Str
    :product s/Str
-   (s/optional-key :manufacturer) (s/maybe s/Str)
-   ;(s/optional-key :version) (s/maybe s/Str)
-   ;(s/optional-key :info_url) (s/maybe s/Str)
-   ;(s/optional-key :rental_price) (s/maybe s/Num)
-   ;(s/optional-key :maintenance_period) (s/maybe s/Int)
-   ;(s/optional-key :is_package) (s/maybe s/Bool)
-   ;(s/optional-key :hand_over_note) (s/maybe s/Str)
-   ;(s/optional-key :description) (s/maybe s/Str)
-   ;(s/optional-key :internal_description) (s/maybe s/Str)
-   ;(s/optional-key :technical_detail) (s/maybe s/Str)
-   ;:created_at s/Inst
-   ;:updated_at s/Inst
-   ;(s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   })
+   (s/optional-key :manufacturer) (s/maybe s/Str)})
 
 (defn get-model-route []
   ["/"
@@ -1198,7 +1184,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler create-items-handler-by-pool-form
              :responses {200 {:description "OK"
                               :body test_ResponseBodySchema}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
