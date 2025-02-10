@@ -79,7 +79,7 @@
 
 (defn extract-filename [uri]
   (let [filename (last (str/split uri #"/"))]
-    (if (re-matches #".*\.(css|js)$" filename)
+    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
       filename
       nil)))
 
