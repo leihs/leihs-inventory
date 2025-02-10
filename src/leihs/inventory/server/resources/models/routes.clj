@@ -3,6 +3,8 @@
 
    [clojure.spec.alpha :as sa]
 
+   [leihs.inventory.server.resources.models.coercion :as mc]
+
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
 
@@ -59,28 +61,28 @@
    [spec-tools.core :as st]
    [spec-tools.data-spec :as ds]))
 
-(def schema
-  {:id s/Uuid
-   :type s/Str
-   (s/optional-key :manufacturer) (s/maybe s/Str)
-   :product s/Str
-   (s/optional-key :version) (s/maybe s/Str)
-   (s/optional-key :info_url) (s/maybe s/Str)
-   (s/optional-key :rental_price) (s/maybe s/Num)
-   (s/optional-key :maintenance_period) (s/maybe s/Int)
-   (s/optional-key :is_package) (s/maybe s/Bool)
-   (s/optional-key :hand_over_note) (s/maybe s/Str)
-   (s/optional-key :description) (s/maybe s/Str)
-   (s/optional-key :internal_description) (s/maybe s/Str)
-   (s/optional-key :technical_detail) (s/maybe s/Str)
-   :created_at s/Inst
-   :updated_at s/Inst
-   (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
-
-(def schema-min
-  {:type s/Str
-   :product s/Str
-   (s/optional-key :manufacturer) (s/maybe s/Str)})
+;(def schema
+;  {:id s/Uuid
+;   :type s/Str
+;   (s/optional-key :manufacturer) (s/maybe s/Str)
+;   :product s/Str
+;   (s/optional-key :version) (s/maybe s/Str)
+;   (s/optional-key :info_url) (s/maybe s/Str)
+;   (s/optional-key :rental_price) (s/maybe s/Num)
+;   (s/optional-key :maintenance_period) (s/maybe s/Int)
+;   (s/optional-key :is_package) (s/maybe s/Bool)
+;   (s/optional-key :hand_over_note) (s/maybe s/Str)
+;   (s/optional-key :description) (s/maybe s/Str)
+;   (s/optional-key :internal_description) (s/maybe s/Str)
+;   (s/optional-key :technical_detail) (s/maybe s/Str)
+;   :created_at s/Inst
+;   :updated_at s/Inst
+;   (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
+;
+;(def schema-min
+;  {:type s/Str
+;   :product s/Str
+;   (s/optional-key :manufacturer) (s/maybe s/Str)})
 
 (defn get-model-route []
   ["/"
@@ -199,7 +201,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
        :put {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:model_id s/Uuid}
-                          :body schema-min}
+                          :body mc/schema-min}
              :middleware [accept-json-middleware]
              :handler update-model-handler
              :responses {200 {:description "Returns the updated model."
@@ -1607,7 +1609,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"
-                             :body (s/->Either [s/Any schema])}
+                             :body (s/->Either [s/Any mc/schema])}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -1640,14 +1642,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                     :model_id s/Uuid}}
                 :handler get-models-of-pool-handler
                 :responses {200 {:description "OK"
-                                 :body (s/->Either [s/Any schema])}
+                                 :body (s/->Either [s/Any mc/schema])}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}
 
           :put {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :parameters {:path {:pool_id s/Uuid :model_id s/Uuid}
-                             :body schema-min}
+                             :body mc/schema-min}
                 :middleware [accept-json-middleware]
                 :handler update-model-handler-by-pool
                 :responses {200 {:description "Returns the updated model."
