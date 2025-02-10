@@ -9,6 +9,20 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+
+(def my-resp [{
+                :id s/Any
+                :name s/Str}])
+
+(def my-pagination {
+                    :total_records s/Int
+                    :current_page s/Int
+                    :per_page s/Int
+                    :total_pages s/Int
+                    :next_page (s/maybe s/Int)
+                    :prev_page (s/maybe s/Int)
+                    })
+
 (defn get-owner-department-routes []
   [""
    {:swagger {:conflicting true
@@ -26,8 +40,8 @@
                                     (s/optional-key :size) s/Int}}
                :handler get-owner-department-of-pool-auto-pagination-handler
                :responses {200 {:description "OK"
-                                :body [{:id s/Uuid
-                                        :name s/Str}]}
+                             :body (s/->Either [my-resp {:data my-resp
+                                                         :pagination my-pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
