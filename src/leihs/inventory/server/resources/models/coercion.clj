@@ -4,49 +4,49 @@
    [clojure.spec.alpha :as sa]
 
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
-
-   [leihs.inventory.server.resources.models.main :refer [create-model-handler
-                                                         delete-model-handler
-                                                         get-manufacturer-handler
-                                                         get-models-compatible-handler
-                                                         get-models-handler
-                                                         update-model-handler]]
-   [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
-                                                                   create-model-handler-by-pool
-                                                                   delete-model-handler-by-pool
-                                                                   get-models-of-pool-auto-pagination-handler
-                                                                   get-models-of-pool-handler
-                                                                   get-models-of-pool-with-pagination-handler
-                                                                   get-models-of-pool-auto-pagination-handler
-                                                                   update-model-handler-by-pool]]
-   [leihs.inventory.server.resources.models.tree.filter :as filter]
-   [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
+   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
+   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
+   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
+   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
+   ;
+   ;[leihs.inventory.server.resources.models.main :refer [create-model-handler
+   ;                                                      delete-model-handler
+   ;                                                      get-manufacturer-handler
+   ;                                                      get-models-compatible-handler
+   ;                                                      get-models-handler
+   ;                                                      update-model-handler]]
+   ;[leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
+   ;                                                                create-model-handler-by-pool
+   ;                                                                delete-model-handler-by-pool
+   ;                                                                get-models-of-pool-auto-pagination-handler
+   ;                                                                get-models-of-pool-handler
+   ;                                                                get-models-of-pool-with-pagination-handler
+   ;                                                                get-models-of-pool-auto-pagination-handler
+   ;                                                                update-model-handler-by-pool]]
+   ;[leihs.inventory.server.resources.models.tree.filter :as filter]
+   ;[leihs.inventory.server.resources.models.tree.tree :refer [tree]]
+   ;[leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   ;[leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
 
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -583,7 +583,7 @@
 (sa/def ::nullable-string (sa/nilable string?))
 
 ;; Define boolean and integer types
-(sa/def ::boolean boolean?)
+;(sa/def ::boolean boolean?)
 (sa/def ::integer int?)
 
 ;; Define "data" schema
@@ -600,7 +600,7 @@
 
 ;; Define "permissions" schema inside "data"
 (sa/def ::role string?)
-(sa/def ::owner ::boolean)
+;(sa/def ::owner ::boolean)
 
 (sa/def ::PermissionsSchema
   (sa/keys :req-un [::role ::owner]))
@@ -621,7 +621,7 @@
 (sa/def ::target_type string?)
 (sa/def ::role_default string?)
 (sa/def ::target_default string?)
-(sa/def ::active ::boolean)
+;(sa/def ::active ::boolean)
 (sa/def ::label string?)
 ;(sa/def :bool/owner boolean?)
 ;(sa/def :bool/owner (sa/nilable boolean?))
