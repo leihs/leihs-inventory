@@ -6,22 +6,13 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
+
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
-(def my-resp [{
-                :id s/Any
+(def resp-owners [{                :id s/Any
                 :name s/Str}])
-
-(def my-pagination {
-                    :total_records s/Int
-                    :current_page s/Int
-                    :per_page s/Int
-                    :total_pages s/Int
-                    :next_page (s/maybe s/Int)
-                    :prev_page (s/maybe s/Int)
-                    })
 
 (defn get-owner-department-routes []
   [""
@@ -40,8 +31,8 @@
                                     (s/optional-key :size) s/Int}}
                :handler get-owner-department-of-pool-auto-pagination-handler
                :responses {200 {:description "OK"
-                             :body (s/->Either [my-resp {:data my-resp
-                                                         :pagination my-pagination}])}
+                             :body (s/->Either [resp-owners {:data resp-owners
+                                                         :pagination pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
@@ -54,9 +45,7 @@
             :parameters {:path {:id s/Uuid}}
             :handler get-owner-department-of-pool-auto-pagination-handler
             :responses {200 {:description "OK"
-                             ;:body s/Any}
-                             :body [{:id s/Uuid
-                                     :name s/Str}]}
+                             :body resp-owners}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 

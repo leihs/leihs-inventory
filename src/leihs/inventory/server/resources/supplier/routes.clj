@@ -6,6 +6,8 @@
                                                          create-model-handler
                                                          update-model-handler
                                                          delete-model-handler]]
+
+   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    get-models-of-pool-handler
@@ -20,18 +22,9 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def my-resp [{:id s/Uuid
+(def resp-supplier [{:id s/Uuid
                :name s/Str
                :note s/Str}])
-
-(def my-pagination {
-                    :total_records s/Int
-                    :current_page s/Int
-                    :per_page s/Int
-                    :total_pages s/Int
-                    :next_page (s/maybe s/Int)
-                    :prev_page (s/maybe s/Int)
-                    })
 
 (defn get-supplier-routes []
   [""
@@ -57,14 +50,8 @@
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"
-                                ;:body s/Any}
-
-
-                                ;:body []}
-
-                           :body (s/->Either [my-resp {:data my-resp
-                                                       :pagination my-pagination}])}
-
+                           :body (s/->Either [resp-supplier {:data resp-supplier
+                                                       :pagination pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
@@ -79,9 +66,6 @@
             :parameters {:path {:supplier_id s/Uuid}}
             :handler get-suppliers-auto-pagination-handler
             :responses {200 {:description "OK"
-                             ;:body s/Any}
-                             :body [{:id s/Uuid
-                                     :name s/Str
-                                     :note s/Str}]}
+                             :body resp-supplier}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])
