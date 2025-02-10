@@ -12,7 +12,6 @@
    [ring.util.response :as response]
    [schema.core :as s]   ))
 
-
 (defn term-filter [tree request]
   (if-let [term (-> request :query-params-raw :term presence)]
     (filter/deep-filter #(re-matches (re-pattern (str "(?i).*" term ".*"))

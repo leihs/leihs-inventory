@@ -38,19 +38,6 @@
     normalized-data))
 
 (defn extract-shortname-and-number [code]
-  (let [;code "jfdksl" ;; TODO: remove me
-        matches (re-matches #"([A-Z]+)(\d+)" code)]
-    (if matches
-      {:shortname (nth matches 1)
-       :number (Integer/parseInt (nth matches 2))}
-      (do
-        (println (str "Caution: Code format is invalid! Current=" code "\n         Expected format: UPPERCASE followed by digits, e.g., AUS85941"))
-
-        (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
-
-        nil))))
-
-(defn extract-shortname-and-number [code]
   (let [pattern #"^(P-AUS)(\d+)$|^([A-Z]+)(\d+)$"
         matches (re-matches pattern code)]
     (if matches
@@ -69,15 +56,10 @@
   (let [res (jdbc/execute-one! tx
                                (-> (sql/select :items.inventory_code)
                                    (sql/from :items)
-
-;(sql/where [:= :items.owner_id owner-id])
                                    (cond-> owner-id (sql/where [:= :items.owner_id owner-id]))
-
                                    (sql/order-by [:created_at :desc])
                                    (sql/limit 1)
                                    sql-format))
-
-        p (println ">o> fetch-latest-inventory-code.res" res)
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]
@@ -105,19 +87,17 @@
   [request key]
   (let [json-map-string (get-in request [:parameters :multipart key])]
     (cond
-      ;; If the JSON string is nil or an empty representation, return an empty map.
       (not json-map-string) {}
       (and (string? json-map-string) (some #(= json-map-string %) ["" "[]" "{}"])) {}
       :else
       (try
         (let [normalized-json-map-string
-              ;; Ensure the string is a valid JSON object representation
               (if (.startsWith json-map-string "[")
                 (subs json-map-string 1 (dec (count json-map-string)))
                 json-map-string)
 
               parsed (cjson/parse-string normalized-json-map-string true)]
-          ;; Ensure the parsed JSON is a map
+
           (if (map? parsed)
             parsed
             (throw (ex-info "Invalid JSON Object Format" {:parsed parsed}))))

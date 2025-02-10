@@ -1,25 +1,15 @@
 (ns leihs.inventory.server.resources.models.tree.tree
-
-;(ns leihs.admin.resources.categories.tree
-;  #?(:clj
      (:require
       [honey.sql :refer [format] :rename {format sql-format}]
       [honey.sql.helpers :as sql]
-      ;[leihs.admin.resources.categories.category.descendents :refer [descendents]]
-      ;[leihs.admin.resources.categories.shared :refer [base-query sql-add-metadata]]
-
       [leihs.inventory.server.resources.models.tree.descendents :refer [descendents]]
       [leihs.inventory.server.resources.models.tree.shared :refer [base-query sql-add-metadata]]
       [next.jdbc.sql :as jdbc]))
 
-
 (defn pr [ fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> query >>> " fnc)
-  fnc
-  )
+  fnc  )
 
-;#?(:clj
    (defn roots
      [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
      (-> base-query
@@ -35,7 +25,6 @@
        pr
        (->> (jdbc/query tx))))
 
-;#?(:clj
    (defn tree [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
      (map #(descendents tx %
              :with-metadata with-metadata

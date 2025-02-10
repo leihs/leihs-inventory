@@ -1,7 +1,5 @@
 (ns leihs.inventory.server.resources.models.tree.filter)
 
-  ;(ns leihs.admin.resources.categories.filter)
-
 (defn current-or-any-descendent? [pred category]
   (or (pred category)
     (some (partial current-or-any-descendent? pred)

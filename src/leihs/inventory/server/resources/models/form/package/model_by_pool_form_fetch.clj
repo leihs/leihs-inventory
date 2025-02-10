@@ -78,10 +78,6 @@
    (apply dissoc m (keys key-map))
    key-map))
 
-(defn filter-entries
-  "Filters a collection of maps, keeping only the specified keys in each map."
-  [maps keys-to-keep]
-  (map #(select-keys % keys-to-keep) maps))
 
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
@@ -98,7 +94,6 @@
     subquery))
 
 (defn fetch-package-handler-by-pool-form [request]
-  (println ">o> fetch-package-handler-by-pool-form")
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
@@ -109,104 +104,25 @@
 
     (try
       (let [query (-> (sql/select :*)
-
-;inventory-manager-item-subquery
-                    ;lending-manager-item-subquery
-
                       subquery
-
-                    ;license-base-query
-                    ;  subquery
-                    ;  (sql/order-by :ff.group :ff.position)
-
-                    ;(sql/from [(-> (sql/select :f.id
-                    ;                 [[:f.data->>"label"] :label]
-                    ;                 :f.active
-                    ;                 :f.position
-                    ;                 [[:coalesce [[:f.data->>"group"] "none"]] :group]
-                    ;                 [[:coalesce [[:f.data->>"target_type"] "\"\""]] :target]
-                    ;
-                    ;                 ;[[:coalesce [:f.data->>"group" "none"]] :group]
-                    ;                 ;[[:coalesce [:f.data->>"target_type" "\"\""]] :target]
-                    ;
-                    ;                 [[:f.data->>"permissions.role"] :role]
-                    ;                 [[:f.data->"permissions.role"] :role2]
-                    ;                 [[:f.data->>"permissions.owner"] :owner]
-                    ;                 )
-                    ;             (sql/from [:fields :f])
-                    ;             (sql/where [:= :f.active true]))
-                    ;           :ff])
-
-;(sql/where [:and
-                    ;          [:in :ff.group ["General Information"
-                    ;                          "Invoice Information"
-                    ;                          "Status"
-                    ;                          "Inventory"
-                    ;                          "Invoice Information"
-                    ;                          "none"
-                    ;                          "Location"
-                    ;                          "Eigenschaften"]]
-                    ;          [:in :ff.target ["\"item\"" "\"\""]]])
-
-                    ;(sql/order-by [:ff.group :asc] [:ff.position :asc])
-
                       sql-format)
 
             fields (jdbc/execute! tx query)
-            ;filtered (filter-entries fields [:group :label :role])
-            ;dyn-select (build-select fields)
-
-            ;fields               (conj fields                 {:active true
-            ;                                                   :data {:type "text"
-            ;                                                          :group "Inventory"
-            ;                                                          :label "Anzahl"
-            ;                                                          :values "1"
-            ;                                                          :value "1"
-            ;                                                          }
-            ;                                                   :attribute "quantity"
-            ;                                                   :default false
-            ;                                                   :forPackage true
-            ;                                                   :group "Inventory"
-            ;                                                   :group_default "Inventory"
-            ;                                                   :id "quantity"
-            ;                                                   :label "Anzahl"
-            ;                                                   :owner nil
-            ;                                                   :position 13
-            ;                                                   :role nil
-            ;                                                   :role_default ""
-            ;                                                   :target nil
-            ;                                                   :target_default ""})
-
             fields (conj fields {:active true
-                                 :data {;:type "select"
-                                        :type "autocomplete-search"
+                                 :data { :type "autocomplete-search"
                                         :group "Inhalt"
                                         :label "Add Item"
-
-                                        :values []
-                                                                      ;:value "1"
-                                        }
+                                        :values []  }
                                  :attribute "quantity"
                                  :default false
                                  :forPackage true
                                  :group "Inhalt"
                                  :group_default "Inhalt"
                                  :id "add-item-group"
-                                 :label "Add Item"
-                                                               ;:owner nil
-                                                               ;:position 13
-                                                               ;:role nil
-                                                               ;:role_default ""
-                                                               ;:target nil
-                                                               ;:target_default ""
-                                 })
-            ;p (println ">o> ??? fields" fields)
-
-            ;model-result []
+                                 :label "Add Item"         })
 
             model-result (if model-id
                            ;; Fetch model data
-                           ;(let [model-query (-> (item-base-query item-id model-id pool-id) sql-format)
                            (let [model-query (-> (package-base-query item-id model-id pool-id) sql-format)
                                  model-result (jdbc/execute-one! tx model-query)
 
@@ -215,14 +131,9 @@
                                                                       ["product"
                                                                        "product_name"
                                                                        "model_id"
-                                                                        ;"supplier_name"
-                                                                        ;"supplier_id"
-                                                                        ;"properties"
                                                                        "inventory_code"
                                                                        "inventory_pool_id"
                                                                        "responsible_department"
-                                                                        ;"license_version"
-                                                                        ;"version"
                                                                        "id"
                                                                        "building_id"
                                                                        "created_at"
@@ -241,8 +152,6 @@
                                                                        "status_note"
                                                                        "user_name"
                                                                        "price"]
-
-;["supplier_name" "supplier_id"]
                                                                       []
                                                                       [])
 
@@ -254,41 +163,14 @@
                                                           sql-format))
 
                                  model-result (assoc model-result :items_attributes items)
-
-                                 p (println ">o> model-result" model-result)
-
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
                                                                           :product {:name (:product_name model-result)
                                                                                     :model_id (:model_id model-result)})
 
-                                                      ;supplier_name (:supplier_name model-result)
-                                                      ;supplier_id (:supplier_id model-result)
-                                                      ;supplier-data (if (some? supplier_id) {:name supplier_name
-                                                      ;                                       :supplier_id supplier_id}
-                                                      ;                  nil)
-                                                      ;model-result (assoc model-result :supplier supplier-data)
-
-                                                      ;attachments (jdbc/execute! tx
-                                                      ;                           (-> (sql/select :id :filename :content_type :size)
-                                                      ;                               (sql/from :attachments)
-                                                      ;                               (sql/where [:= :item_id item-id])
-                                                      ;                               sql-format))
-                                                      ;model-result (assoc model-result :attachments attachments)
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
-                                                      model-result (assoc model-result :retired retired)
-                                                      ;model-result (filter-by-allowed-keys model-result dyn-select
-                                                      ;                                     ["properties"
-                                                      ;                                      "inventory_code"
-                                                      ;                                      "inventory_pool_id"
-                                                      ;                                      "responsible_department"
-                                                      ;                                      "product"
-                                                      ;                                      "license_version"
-                                                      ;                                      "supplier"
-                                                      ;                                      "version"]
-                                                      ;                                     ["supplier_name" "supplier_id"])
-                                                      ]
+                                                      model-result (assoc model-result :retired retired) ]
                                                   model-result))]
                              model-result)
                            ;; Fetch default
@@ -296,7 +178,6 @@
                                  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
-                              ;:quantity 1
                               :inventory_code next-code}))]
 
         (if model-result

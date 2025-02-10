@@ -59,4 +59,3 @@
           (not (-> data :img256_url presence)))
       (remove-images data)
       data)))
-

@@ -1,9 +1,6 @@
 (ns leihs.inventory.server.resources.models.tree.shared
-
-;(ns leihs.admin.resources.categories.shared
   (:require [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   ;[leihs.admin.utils.images :as images]
    [leihs.inventory.server.resources.models.tree.images :as images]
    [leihs.core.core :refer [drop-keys flatten-once]]
    [leihs.core.db :as db]

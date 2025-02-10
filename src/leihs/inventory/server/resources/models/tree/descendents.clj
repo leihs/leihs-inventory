@@ -1,14 +1,9 @@
 (ns leihs.inventory.server.resources.models.tree.descendents
-;(ns leihs.admin.resources.categories.category.descendents
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.tree.shared :as shared]
-   ;[next.jdbc.sql :refer [delete! query update!]
-    [next.jdbc :as jdbc]
-
-    ;:rename {query jdbc-query, update! jdbc-update! delete! jdbc-delete!} ]
-))
+    [next.jdbc :as jdbc]))
 
 (defn children [tx category
                 & {:keys [with-metadata exclude] :or {with-metadata false}}]
