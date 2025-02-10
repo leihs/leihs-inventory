@@ -51,10 +51,6 @@
           assets)
     nil))
 
-(defn extract-filetype [uri]
-  (when-let [filename (last (str/split uri #"/"))]
-    (second (re-matches #".*\.([a-zA-Z0-9]+)$" filename))))
-
 (defn get-assets []
   (into {}
         (for [file RESOURCE_FILES]
@@ -77,6 +73,11 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
+;; TODO: remove DEV-FORMS-HANDLING if not used anymore (start)
+(defn extract-filetype [uri]
+  (when-let [filename (last (str/split uri #"/"))]
+    (second (re-matches #".*\.([a-zA-Z0-9]+)$" filename))))
+
 (defn extract-filename [uri]
   (let [filename (last (str/split uri #"/"))]
     (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
@@ -84,9 +85,6 @@
       nil)))
 
 (def allowed-types #{"model" "software" "license" "item" "option" "package"})
-
-(defn is-valid-uuid? [s]
-  (re-matches #"[0-9a-fA-F-]{36}" s))
 
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
@@ -97,6 +95,7 @@
         assets (get-assets)
         asset (fetch-file-entry uri assets)
 
+        ;; TODO: remove DEV-FORMS-HANDLING if not used anymore
         uri-parts (str/split uri #"/")
         uuid (nth uri-parts 2 nil)
         dev-file (nth uri-parts 4 nil)
@@ -119,39 +118,6 @@
            :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
           {:status 400
            :body "Invalid type"}))
-
-;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model") {:status 200
-      ;                                                                     :headers {"Content-Type" "text/html"}
-      ;                                                                     :body (slurp (io/resource "public/dev/create-model.html"))}
-      ;
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software") {:status 200
-      ;                                                                        :headers {"Content-Type" "text/html"}
-      ;                                                                        :body (slurp (io/resource "public/dev/create-software.html"))}
-      ;
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license") {:status 200
-      ;                                                                       :headers {"Content-Type" "text/html"}
-      ;                                                                       :body (slurp (io/resource "public/dev/create-license.html"))}
-      ;
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item") {:status 200
-      ;                                                                    :headers {"Content-Type" "text/html"}
-      ;                                                                    :body (slurp (io/resource "public/dev/create-item.html"))}
-      ;
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option") {:status 200
-      ;                                                                      :headers {"Content-Type" "text/html"}
-      ;                                                                      :body (slurp (io/resource "public/dev/create-option.html"))}
-      ;
-      ;(= uri "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package") {:status 200
-      ;                                                                       :headers {"Content-Type" "text/html"}
-      ;                                                                       :body (slurp (io/resource "public/dev/create-package.html"))}
-
-;;; Match any UUID and a valid dev file
-      ;(and (= (nth uri-parts 1 nil) "inventory")
-      ;  (is-valid-uuid? uuid)
-      ;  (= (nth uri-parts 3 nil) "dev")
-      ;  (valid-files dev-file))
-      ;{:status 200
-      ; :headers {"Content-Type" "text/html"}
-      ; :body (slurp (io/resource (str "public/dev/create-" dev-file ".html")))}
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri SUPPORTED_LOCALES))
