@@ -1,15 +1,6 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
 
-   ;[schema.core :as s]
-   ;[schema.coerce :as coerce]
-   ;[schema.utils :as utils]
-   ;
-   ;[cheshire.core :as json]
-   ;[clojure.set]
-
-   ;[leihs.inventory.server.resources.models.tree.tree :as tree]
-
    [leihs.inventory.server.resources.models.tree.tree  :refer [tree]]
 
 
@@ -129,29 +120,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 (s/optional-key :search-term) s/Str
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
-                            ;:body [s/Any]}
-
-                            ;:body [ {
-                            ;         :id s/Uuid
-                            ;         ;:id s/Str
-                            ;         :manufacturer s/Str
-                            ;         :product s/Str
-                            ;         :version (s/maybe s/Str)
-                            ;         :model_id s/Uuid
-                            ;         ;:model_id s/Str
-                            ;         }]
-                            ;
-                            ;:body [(s/->Either [ {
-                            ;                      :id s/Uuid
-                            ;                      ;:id s/Str
-                            ;                      :manufacturer s/Str
-                            ;                      :product s/Str
-                            ;                      :version (s/maybe s/Str)
-                            ;                      :model_id s/Uuid
-                            ;                      ;:model_id s/Str
-                            ;                      }
-                            ;                    s/Str])]
-
                             :body [(s/conditional
                                     map? {:id s/Uuid
                                           :manufacturer s/Str
@@ -159,7 +127,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                           :version (s/maybe s/Str)
                                           :model_id s/Uuid}
                                     string? s/Str)]}
-
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -504,8 +471,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
-;(sa/def ::attachments (sa/or :multiple (sa/coll-of ::file :kind vector?)
-;                             :single ::file))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
@@ -532,14 +497,11 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::building_id uuid?)
 (sa/def ::room_id uuid?)
 (sa/def ::software_id uuid?)
-;(sa/def ::supplier_id uuid?)
-;(sa/def ::supplier_id (sa/nilable uuid?))
 (sa/def ::supplier_id (sa/nilable string?))
 (sa/def ::model_id uuid?)
 
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
-;(sa/def ::is_borrowable boolean?)
 (sa/def ::is_incomplete boolean?)
 (sa/def ::is_broken boolean?)
 (sa/def ::retired boolean?)
@@ -806,21 +768,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
 
-;is_inventory_relevant: true,
-;last_check: nil,
-;user_name: nil,
-;price: nil,
-;shelf: nil,
-;inventory_code: "P-AUS00002",
-;retired: false,
-;is_broken: false,
-;is_incomplete: false,
-;is_borrowable: false,
-;status_note: nil,
-;room_id: @form_rooms[0]["id"],
-;model_id: @form_model_data[0]["id"],
-;owner_id: @form_owners[0]["id"],
-;items_attributes: []
 
 ;; ✅ Correct: Define the `data` spec properly
 (sa/def :res/data
@@ -906,8 +853,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
-
-;(sa/def ::descriptions (nil-or string?))
 
 (def response-option-object {:id uuid?
                              :inventory_pool_id uuid?
@@ -1021,16 +966,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
 
-;(sa/def ::FieldDataSchema
-;  (sa/keys :req-un [::type :nil/group ::label ::attribute  ]
-;
-;    :opt-un [ ::target_type ::permissions ::forPackage]
-;    ))
 
 (sa/def ::FieldDataSchema
   (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
-
-;(sa/def ::data ::FieldDataSchema)
 
 (sa/def ::FieldSchema
   (sa/keys :req-un [:nil/role
@@ -1046,10 +984,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                     :bool/owner
                     ::data]))
 
-;; Define response body schema
-;(sa/def :response/ResponseBodySchema
-;  (sa/keys :req-un [::DataSchema
-;                   (sa/coll-of ::FieldSchema :kind vector?)])) ;; Ensure fields is a vector
 
 ;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
@@ -1110,47 +1044,11 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                     :nil/insurance_number
                     ::properties]
            :opt-un [:nil2/item_version]))
-    ;))
-
-;; Define the overall response schema
-;(def test_ResponseBodySchema
-;  (sa/keys :req-un [::DataSchema
-;                   ::validation]))  ;; Assuming validation is an array (can be defined separately)
 
 (def test_ResponseBodySchema
   {:data DataSchema2
-  ;{:data any?
    :validation [any?]})
 
-;(def ResponseBodySoftware
-;  {
-;
-;   :description (sa/nilable string?)
-;   :is_package boolean?
-;   :attachments any?                                        ;; should be optional-key
-;   :maintenance_period int?
-;   :type string?
-;   :rental_price (sa/nilable any?)
-;   :cover_image_id (sa/nilable any?)
-;   :hand_over_note (sa/nilable any?)
-;   :updated_at any?
-;   :internal_description (sa/nilable any?)
-;   :product string?
-;   :info_url (sa/nilable any?)
-;   :id uuid?
-;   :manufacturer any?
-;   :version string?
-;   :created_at any?
-;   :technical_detail string?
-;
-;   }
-;
-;  )
-
-;(require '[clojure.spec.alpha :as s])
-;(require '[clojure.uuid :as uuid]) ;; Ensure UUID validation
-
-;; Define specs for individual fields
 (sa/def ::description (sa/nilable string?))
 (sa/def ::is_package boolean?)
 (sa/def ::attachments (sa/nilable any?)) ;; Optional field
@@ -1178,8 +1076,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :nil/hand_over_note (sa/nilable string?))
 (sa/def :nil/internal_description (sa/nilable string?))
 (sa/def :nil/info_url (sa/nilable string?))
-;(sa/def :nil/internal_description (sa/nilable string?))
-;(sa/def :nil/internal_description (sa/nilable string?))
 
 ;; Define the full map spec
 (def ResponseBodySoftware
@@ -1280,75 +1176,13 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    :items_attributes any?})
 
 
-(defn term-filter [tree request]
-  (if-let [term (-> request :query-params-raw :term presence)]
-    (filter/deep-filter #(re-matches (re-pattern (str "(?i).*" term ".*"))
-                           (:name %))
-      tree)
-    tree))
-
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
 
-
-;   ["/tree" ;; new
-;    {:swagger {:conflicting true
-;               :tags ["tree"] :security []}}
-;
-;    [""
-;    {
-;     :get {:accept "application/json"
-;           :summary "(DEV) | Dynamic-Tree-Handler [v1]"
-;           :description "Fetch tree by pool_id\n
-;- with-metadata provides: (base64-image-url)\n
-;```
-;\"metadata\": {\n            \"id\": \"1e435dbc-b25e-58a4-8d95-41ef94b000a9\",\n            \"name\": \"Verstärker\",\n            \"label\": \"Verstärker\",\n            \"models_count\": 71,\n            \"is_deletable\": false,\n            \"image_url\": null,\n            \"thumbnail_url\": null\n          },
-;```"
-;           :coercion spec/coercion
-;           :parameters {
-;                        :path {:pool_id uuid?}
-;                        :query {:with-metadata boolean?}
-;                        }
-;
-;
-;
-;            :handler (fn [{{:keys [pool_id ]} :path-params :as request}]
-;              (let [
-;
-;                    ;; TODO: reduce to provide :with-metadata=false only
-;                    ;; https://github.com/leihs/leihs-admin/blob/6ac7465731610563ad1986bd29e4cdd2c8a5ea79/src/leihs/admin/resources/categories/main.clj
-;
-;                    with-metadata (-> request :parameters :query :with-metadata)
-;                    p (println ">o> 0abc.with-metadata" with-metadata)
-;
-;                    tx (:tx request)
-;
-;                    res {:body {:name "categories"
-;                              :children (-> (tree tx {:with-metadata with-metadata})
-;                                          (term-filter request))}}
-;
-;
-;                    ]
-;                res))
-;
-;           ;:handler fetch-items-handler-by-pool-form
-;           ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-;           :responses {200 {:description "OK"
-;                            ;; TODO
-;                            ;:body ResponseBodySchema
-;                            }
-;                       404 {:description "Not Found"}
-;                       500 {:description "Internal Server Error"}}}
-;
-;     }
-;    ]    ]
-
-
-
-   ["/item" ;; new
+   ["/item" ;; form/item new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -1358,9 +1192,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                        :produces "application/json"}
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 ;:model_id uuid?
-                                 }
+             :parameters {:path {:pool_id uuid? }
                           :multipart :item/multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
@@ -1399,13 +1231,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             ;:body any?}
-
-                             :body {:data DataSchema2
-                         ;{:data any?
-                         ;:fields [any?]
+                               :body {:data DataSchema2
                                     :validation [any?]}}
-
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -1418,13 +1245,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler fetch-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             ;:body any?}
-
                              :body {:data DataSchema2
-                               ;{:data any?
-                                    :fields [any?]
-                               ;:validation [any?]
-                                    }}
+                                    :fields [any?] }}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
@@ -1438,33 +1260,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                        :produces "application/json"}
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 ;:model_id uuid?
-                                 }
-                          ;:multipart :package/multipart}
-
-                          ;:multipart any?}
-                          :multipart PackagePostPayload
-                          ;:multipart {
-                          ;            :is_inventory_relevant boolean?
-                          ;            :last_check any?
-                          ;            :user_name (sa/nilable string?)
-                          ;            :price (sa/nilable string?)
-                          ;            :shelf (sa/nilable string?)
-                          ;            :inventory_code string?
-                          ;            :retired boolean?
-                          ;            :is_broken boolean?
-                          ;            :is_incomplete boolean?
-                          ;            :is_borrowable boolean?
-                          ;            :status_note (sa/nilable string?)
-                          ;            :room_id uuid?
-                          ;            :model_id uuid?
-                          ;            :owner_id uuid?
-                          ;            :items_attributes any?
-                          ;
-                          ;
-                          ;            }
-                          }
+             :parameters {:path {:pool_id uuid?  }
+                          :multipart PackagePostPayload                          }
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"
@@ -1480,12 +1277,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {;:body :get-package-response/body-spec ;; FIXME
-                             ;:body any?
-                             :body {:data {:inventory_code string?
+            :responses {200 {:body {:data {:inventory_code string?
                                            :inventory_pool_id uuid?
                                            :responsible_department any?}
-                                           ;:responsible_department uuid?}
                                     :fields [any?]}
                              :description "OK"}
                         404 {:description "Not Found"}
@@ -1504,20 +1298,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         ;:multipart :package/multipart}        ;; TODO
-                         ;:multipart any?
-
                          :multipart PackagePostPayload} ;; TODO
-
-;:multipart :package-put/inventory-attributes
-                         ;}        ;; TODO
-            ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)] ;; FIXME
             :handler update-package-handler-by-pool-form
-            :responses {;200 {}
-                        200 {:description "OK"
-                             ;:body any?}
+            :responses { 200 {:description "OK"
                              :body :package-put-response2/inventory-item}
-
                         ;; FIXME
                              ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
@@ -1532,9 +1316,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler fetch-package-handler-by-pool-form
             :responses {200 {:description "OK"
-                             ;:body any?}
                              :body :package-put-response2/inventory-item}
-
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
@@ -1561,7 +1343,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
                               :body {:data {:description (sa/nilable string?)
                                             :is_package boolean?
-                                            ;:attachments any?
                                             :maintenance_period int?
                                             :type string?
                                             :rental_price (sa/nilable any?)
@@ -1576,7 +1357,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :version string?
                                             :created_at any?
                                             :technical_detail string?}
-
                                      :validation any?}}
 
                          404 {:description "Not Found"}
@@ -1609,7 +1389,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
         ;          :cover_image_id (sa/nilable string?)
         ;          }]
 
-        ;:attachments any?
                                       :attachments [{:id (sa/nilable any?)
                                                      :filename (sa/nilable string?)
                                                      :content_type (sa/nilable string?)}]
@@ -1617,7 +1396,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :hand_over_note (sa/nilable any?)
                                       :internal_description (sa/nilable any?)
                                       :product string?
-        ;:categories any?
                                       :categories [{:id (sa/nilable any?)
                                                     :type (sa/nilable string?)
                                                     :name (sa/nilable string?)}]
@@ -1644,7 +1422,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body [{:description (sa/nilable string?)
                                       :is_package boolean?
-                                            ;:attachments any?
                                       :maintenance_period int?
                                       :type string?
                                       :rental_price (sa/nilable any?)
@@ -1705,17 +1482,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler fetch-option-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body response-option
-                              ;:body [{
-                              ;        :id uuid?
-                              ;        :inventory_pool_id uuid?
-                              ;        :inventory_code string?
-                              ;        :manufacturer  any?
-                              ;        :product string?
-                              ;        :version string?
-                              ;        :price any?
-                              ;        }]
-                              }
+                              :body response-option  }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1731,18 +1498,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler update-option-handler-by-pool-form
              :responses {200 {:description "OK"
                               :content_type "multipart/form-data"
-                              :body response-option
-                              ;:body [{:product string?
-                              ;        :version string?
-                              ;        ;:price double?
-                              ;        :price any?
-                              ;        :id uuid?
-                              ;        ;:manufacturer (s/maybe string?)
-                              ;        ;:manufacturer (s/maybe any?)
-                              ;        :manufacturer  any?
-                              ;        :inventory_pool_id uuid?
-                              ;        :inventory_code string?}]
-                              }
+                              :body response-option                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
@@ -1772,9 +1528,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-license-handler-by-pool-form-fetch
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
-
-;:body ResponseBodySchema3
-;:body :response/ResponseBodySchema
                              :body {:data ::FieldDataSchema
                                     :fields [::FieldSchema]}}
                         404 {:description "Not Found"}
@@ -1822,30 +1575,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-software-handler-by-pool-form
              :responses {200 {:description "OK"
-
-                              ;{"data"=>
-                              ; {"description"=>nil,
-                              ;  "is_package"=>false,
-                              ;  "maintenance_period"=>0,
-                              ;  "type"=>"Software",
-                              ;  "rental_price"=>nil,
-                              ;  "cover_image_id"=>nil,
-                              ;  "hand_over_note"=>nil,
-                              ;  "updated_at"=>"2025-02-07T21:54:35Z",
-                              ;  "internal_description"=>nil,
-                              ;  "product"=>"Practical Steel Wallet",
-                              ;  "info_url"=>nil,
-                              ;  "id"=>"317a6005-984e-4043-83ea-24cfa0ce95a2",
-                              ;  "manufacturer"=>"Stark-Hettinger",
-                              ;  "version"=>"v1.0",
-                              ;  "created_at"=>"2025-02-07T21:54:35Z",
-                              ;  "technical_detail"=>"Specs go here"},
-                              ; "validation"=>[]}
-
-                              ;:body {:data {::ResponseBodySoftware}
                               :body {:data ResponseBodySoftware
                                      :validation [any?]}}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -1859,9 +1590,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler create-software-handler-by-pool-form-fetch
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body [ResponseBodySoftware]
-                              ;:body ResponseBodySoftware
-                              }
+                              :body [ResponseBodySoftware] }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1893,7 +1622,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                  (s/optional-key :filter_manufacturer) s/Str
                                  (s/optional-key :filter_product) s/Str
-
                                  (s/optional-key :filter_ids) [s/Uuid]}}
 
 ;:handler get-models-of-pool-handler
@@ -2006,7 +1734,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                :handler create-license-handler-by-pool-form
                :responses {200 {:description "OK"
-
                                 :body {:data ::post-license
                                        :validation [any?]}}
                            404 {:description "Not Found"}
@@ -2025,10 +1752,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :handler update-license-handler-by-pool-form
               :responses {200 {:description "OK"
-                               ;:body any?}
                                :body [::post-license]}
-                          ;:body {:data ::post-license
-                          ;       :validation [any?]}}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
@@ -2041,76 +1765,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :handler fetch-license-handler-by-pool-form-fetch
               :responses {200 {:description "OK"
-                               ;:body any?}
                                :body {:data ::post-license
                                       :fields [any?]}}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
-
-     ;["/item" ;; new
-     ; {:swagger {:conflicting true
-     ;            :tags ["form / item"] :security []}}
-     ;
-     ; [""
-     ;  {:post {:accept "application/json"
-     ;          :swagger {:consumes ["multipart/form-data"]
-     ;                    :produces "application/json"}
-     ;          :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
-     ;          :coercion spec/coercion
-     ;          :parameters {:path {:pool_id uuid?
-     ;                              :model_id uuid?}
-     ;                       :multipart :license/multipart}
-     ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-     ;          :handler create-items-handler-by-pool-form
-     ;          :responses {200 {:description "OK"}
-     ;                      404 {:description "Not Found"}
-     ;                      500 {:description "Internal Server Error"}}}
-     ;
-     ;
-     ;  :get {:accept "application/json"
-     ;        :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
-     ;        :coercion spec/coercion
-     ;        :parameters {:path {:pool_id uuid?}}
-     ;        :handler fetch-items-handler-by-pool-form
-     ;        :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-     ;        :responses {200 {:description "OK"}
-     ;                    404 {:description "Not Found"}
-     ;                    500 {:description "Internal Server Error"}}}
-     ;
-     ;   }
-     ;
-     ;
-     ;  ]
-     ;
-     ; ["/:item_id"
-     ;  {:put {:accept "application/json"
-     ;         :swagger {:consumes ["multipart/form-data"]
-     ;                   :produces "application/json"}
-     ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role"
-     ;         :coercion spec/coercion
-     ;         :parameters {:path {:pool_id uuid?
-     ;                             :model_id uuid?
-     ;                             :item_id uuid?}
-     ;                      :multipart :license/multipart}
-     ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-     ;         :handler update-items-handler-by-pool-form
-     ;         :responses {200 {:description "OK"
-     ;                          :body any?}
-     ;                     404 {:description "Not Found"}
-     ;                     500 {:description "Internal Server Error"}}}
-     ;
-     ;   :get {:accept "application/json" ;;new
-     ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data"
-     ;         :coercion spec/coercion
-     ;         :parameters {:path {:pool_id uuid?
-     ;                             :model_id uuid?
-     ;                             :item_id uuid?}}
-     ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-     ;         :handler fetch-items-handler-by-pool-form
-     ;         :responses {200 {:description "OK"
-     ;                          :body any?}
-     ;                     404 {:description "Not Found"}
-     ;                     500 {:description "Internal Server Error"}}}}]]
 
      ["/properties"
       ["" {:get {:accept "application/json"
