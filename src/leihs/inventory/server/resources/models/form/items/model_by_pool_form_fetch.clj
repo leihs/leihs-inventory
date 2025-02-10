@@ -124,7 +124,7 @@
                                                       model-result (assoc model-result :attachments attachments)
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
-                                                      model-result (assoc model-result :retired retired) ]
+                                                      model-result (assoc model-result :retired retired)]
                                                   model-result))]
                              model-result)
 

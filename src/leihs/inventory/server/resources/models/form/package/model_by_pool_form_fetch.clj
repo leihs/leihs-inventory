@@ -78,7 +78,6 @@
    (apply dissoc m (keys key-map))
    key-map))
 
-
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
                 roles-for-pool
@@ -109,17 +108,17 @@
 
             fields (jdbc/execute! tx query)
             fields (conj fields {:active true
-                                 :data { :type "autocomplete-search"
+                                 :data {:type "autocomplete-search"
                                         :group "Inhalt"
                                         :label "Add Item"
-                                        :values []  }
+                                        :values []}
                                  :attribute "quantity"
                                  :default false
                                  :forPackage true
                                  :group "Inhalt"
                                  :group_default "Inhalt"
                                  :id "add-item-group"
-                                 :label "Add Item"         })
+                                 :label "Add Item"})
 
             model-result (if model-id
                            ;; Fetch model data
@@ -170,7 +169,7 @@
 
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
-                                                      model-result (assoc model-result :retired retired) ]
+                                                      model-result (assoc model-result :retired retired)]
                                                   model-result))]
                              model-result)
                            ;; Fetch default

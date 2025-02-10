@@ -14,9 +14,9 @@
 (defn assert-proper-image-type! [prefix]
   (when-not (= IMG-DATA-URL-PREFIX prefix)
     (throw (ex-info "Image is not of expected type 'data:image/jpeg;base64'!"
-             {:status 422
-              :body (str "The first chars of img256_url must be equal to data:image/jpeg;base64. "
-                      "See also https://tools.ietf.org/html/rfc2397.")}))))
+                    {:status 422
+                     :body (str "The first chars of img256_url must be equal to data:image/jpeg;base64. "
+                                "See also https://tools.ietf.org/html/rfc2397.")}))))
 
 (defn data-url-img->buffered-image ^BufferedImage [data-url-img]
   (let [[img-type img-s] (clojure.string/split data-url-img #"," 2)
@@ -41,21 +41,21 @@
 
 (defn remove-images [data]
   (assoc data
-    :img256_url nil
-    :img32_url nil))
+         :img256_url nil
+         :img32_url nil))
 
 (defn set-images [data img-data-url]
   (let [img (data-url-img->buffered-image img-data-url)
         img256-data-url (-> img (resized-img 256) buffered-image->data-url-img)
         img32-data-url (-> img (resized-img 32) buffered-image->data-url-img)]
     (assoc data
-      :img256_url img256-data-url
-      :img32_url img32-data-url)))
+           :img256_url img256-data-url
+           :img32_url img32-data-url)))
 
 (defn process-images [data]
   (if-let [img-data-url (-> data :img256_url presence)]
     (set-images data img-data-url)
     (if (and (contains? data :img256_url)
-          (not (-> data :img256_url presence)))
+             (not (-> data :img256_url presence)))
       (remove-images data)
       data)))

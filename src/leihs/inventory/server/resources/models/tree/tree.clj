@@ -1,37 +1,37 @@
 (ns leihs.inventory.server.resources.models.tree.tree
-     (:require
-      [honey.sql :refer [format] :rename {format sql-format}]
-      [honey.sql.helpers :as sql]
-      [leihs.inventory.server.resources.models.tree.descendents :refer [descendents]]
-      [leihs.inventory.server.resources.models.tree.shared :refer [base-query sql-add-metadata]]
-      [next.jdbc.sql :as jdbc]))
+  (:require
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.tree.descendents :refer [descendents]]
+   [leihs.inventory.server.resources.models.tree.shared :refer [base-query sql-add-metadata]]
+   [next.jdbc.sql :as jdbc]))
 
-(defn pr [ fnc]
+(defn pr [fnc]
   (println ">oo> query >>> " fnc)
-  fnc  )
+  fnc)
 
-   (defn roots
-     [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
-     (-> base-query
-       (cond-> with-metadata
-         (sql-add-metadata :label nil :exclude exclude))
-       (sql/where
-         [:not
-          [:exists
-           (-> (sql/select 1)
+(defn roots
+  [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
+  (-> base-query
+      (cond-> with-metadata
+        (sql-add-metadata :label nil :exclude exclude))
+      (sql/where
+       [:not
+        [:exists
+         (-> (sql/select 1)
              (sql/from :model_group_links)
              (sql/where [:= :model_group_links.child_id :model_groups.id]))]])
-       sql-format
-       pr
-       (->> (jdbc/query tx))))
+      sql-format
+      pr
+      (->> (jdbc/query tx))))
 
-   (defn tree [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
-     (map #(descendents tx %
-             :with-metadata with-metadata
-             :exclude exclude)
+(defn tree [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
+  (map #(descendents tx %
+                     :with-metadata with-metadata
+                     :exclude exclude)
        (roots tx
-         :with-metadata with-metadata
-         :exclude exclude)))
+              :with-metadata with-metadata
+              :exclude exclude)))
 
 (defn convert-tree-path
   "Converts a tree path represented as a map into a tree path
@@ -44,5 +44,5 @@
             (if (empty? (:children node))
               (conj result node)
               (tree-path-h (first (:children node))
-                (conj result (dissoc node :children)))))]
+                           (conj result (dissoc node :children)))))]
     (tree-path-h node [])))

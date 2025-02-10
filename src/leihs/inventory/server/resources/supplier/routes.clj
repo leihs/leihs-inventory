@@ -7,7 +7,6 @@
                                                          update-model-handler
                                                          delete-model-handler]]
 
-   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    get-models-of-pool-handler
@@ -16,6 +15,7 @@
    [leihs.inventory.server.resources.supplier.main :refer [get-suppliers-handler
                                                            get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -23,8 +23,8 @@
    [schema.core :as s]))
 
 (def resp-supplier [{:id s/Uuid
-               :name s/Str
-               :note s/Str}])
+                     :name s/Str
+                     :note s/Str}])
 
 (defn get-supplier-routes []
   [""
@@ -50,8 +50,8 @@
 
                :handler get-suppliers-auto-pagination-handler
                :responses {200 {:description "OK"
-                           :body (s/->Either [resp-supplier {:data resp-supplier
-                                                       :pagination pagination}])}
+                                :body (s/->Either [resp-supplier {:data resp-supplier
+                                                                  :pagination pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 

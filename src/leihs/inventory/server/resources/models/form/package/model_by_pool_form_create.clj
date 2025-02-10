@@ -31,9 +31,8 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
-
 (defn prepare-package-data [data]
-  (let [        created-ts (LocalDateTime/now)
+  (let [created-ts (LocalDateTime/now)
         db-retired nil
         request-retired (:retired data)
         retired-value (calculate-retired-value db-retired request-retired)
@@ -46,7 +45,7 @@
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
         data (assoc data :updated_at created-ts
-                    :created_at created-ts :invoice_date invoice-date :price price      )
+                    :created_at created-ts :invoice_date invoice-date :price price)
 
         data (remove-nil-entries data [:invoice_date :price :room_id :retired :last_check :user_name :shelf :status_note :note])
         data (remove-empty-entries data [:retired :room_id :last_check :user_name :shelf :status_note :note])

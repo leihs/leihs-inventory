@@ -3,16 +3,16 @@
    [clojure.set]
    [leihs.inventory.server.resources.owner-department.main :refer [get-owner-department-of-pool-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
 
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def resp-owners [{                :id s/Any
-                :name s/Str}])
+(def resp-owners [{:id s/Any
+                   :name s/Str}])
 
 (defn get-owner-department-routes []
   [""
@@ -31,8 +31,8 @@
                                     (s/optional-key :size) s/Int}}
                :handler get-owner-department-of-pool-auto-pagination-handler
                :responses {200 {:description "OK"
-                             :body (s/->Either [resp-owners {:data resp-owners
-                                                         :pagination pagination}])}
+                                :body (s/->Either [resp-owners {:data resp-owners
+                                                                :pagination pagination}])}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 

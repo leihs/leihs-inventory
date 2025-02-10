@@ -2,13 +2,13 @@
 
 (defn current-or-any-descendent? [pred category]
   (or (pred category)
-    (some (partial current-or-any-descendent? pred)
-      (:children category))))
+      (some (partial current-or-any-descendent? pred)
+            (:children category))))
 
 (defn deep-filter [pred tree]
   (->> tree
-    (filter (partial current-or-any-descendent? pred))
-    (map #(update % :children (partial deep-filter pred)))))
+       (filter (partial current-or-any-descendent? pred))
+       (map #(update % :children (partial deep-filter pred)))))
 
 (comment
   (require '[clojure.test :as t])
@@ -23,8 +23,8 @@
                                        :children []}]}]}]
         term "oo"
         result (deep-filter #(re-matches (re-pattern (str "(?i).*" term ".*"))
-                               (:name %))
-                 tree)]
+                                         (:name %))
+                            tree)]
     ; result
     (t/is (= result [{:name "foo",
                       :children []}

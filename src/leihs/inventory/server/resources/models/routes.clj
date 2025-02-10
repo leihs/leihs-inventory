@@ -1,38 +1,34 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
 
-   [leihs.inventory.server.resources.models.tree.tree  :refer [tree]]
-
-
-   [leihs.inventory.server.resources.models.tree.filter :as filter]
-   [leihs.core.core :refer [presence]]
-
-
    [clojure.spec.alpha :as sa]
+
+   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
 
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
 
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -47,6 +43,8 @@
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
+   [leihs.inventory.server.resources.models.tree.filter :as filter]
+   [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
 
@@ -754,7 +752,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
 
-
 ;; ✅ Correct: Define the `data` spec properly
 (sa/def :res/data
   (st/spec {:spec (sa/keys :req-un [:res/inventory_code
@@ -952,7 +949,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
 
-
 (sa/def ::FieldDataSchema
   (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
@@ -969,7 +965,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                     ::target
                     :bool/owner
                     ::data]))
-
 
 ;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
@@ -1161,7 +1156,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
    :owner_id uuid?
    :items_attributes any?})
 
-
 (defn get-model-by-pool-route []
   ["/:pool_id"
 
@@ -1178,7 +1172,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                        :produces "application/json"}
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
-             :parameters {:path {:pool_id uuid? }
+             :parameters {:path {:pool_id uuid?}
                           :multipart :item/multipart}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
@@ -1216,7 +1210,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                               :body {:data DataSchema2
+                             :body {:data DataSchema2
                                     :validation [any?]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
@@ -1231,7 +1225,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-items-handler-by-pool-form
             :responses {200 {:description "OK"
                              :body {:data DataSchema2
-                                    :fields [any?] }}
+                                    :fields [any?]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
@@ -1245,8 +1239,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                        :produces "application/json"}
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?  }
-                          :multipart PackagePostPayload                          }
+             :parameters {:path {:pool_id uuid?}
+                          :multipart PackagePostPayload}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"
@@ -1285,7 +1279,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                 :item_id uuid?}
                          :multipart PackagePostPayload} ;; TODO
             :handler update-package-handler-by-pool-form
-            :responses { 200 {:description "OK"
+            :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
                         ;; FIXME
                              ;:body :package-put-response/inventory-item}
@@ -1467,7 +1461,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler fetch-option-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body response-option  }
+                              :body response-option}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -1483,7 +1477,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler update-option-handler-by-pool-form
              :responses {200 {:description "OK"
                               :content_type "multipart/form-data"
-                              :body response-option                              }
+                              :body response-option}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
@@ -1575,7 +1569,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler create-software-handler-by-pool-form-fetch
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body [ResponseBodySoftware] }
+                              :body [ResponseBodySoftware]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 

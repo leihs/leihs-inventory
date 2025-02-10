@@ -20,12 +20,11 @@
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]))
 
-
 (defn create-validation-response [data validation]
   {:data data :validation validation})
 
 (defn update-item-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
-  (let [        created-ts (LocalDateTime/now)
+  (let [created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
@@ -36,7 +35,7 @@
         multipart (dissoc multipart :retired)
 
         prepared-package-data (prepare-package-data multipart)
-        split-items (split-items items_attributes) ]
+        split-items (split-items items_attributes)]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
                                    (sql/set prepared-package-data)
@@ -80,7 +79,7 @@
                                  unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
 
                              (println ">o> abc.unlinked" unlinked-items-res)
-                             unlinked-items-res)))  ]
+                             unlinked-items-res)))]
         (if res
           (response (create-validation-response res []))
           (bad-request {:error "Failed to update item"})))

@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.items.main :refer [get-items-of-pool-handler
                                                         get-items-of-pool-with-pagination-handler
                                                         get-items-handler]]
-   [leihs.inventory.server.resources.models.models-by-pool :refer [                                                                   get-models-handler]]
+   [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -82,26 +82,25 @@
             :handler (fn [request]
                        (let [result-type (get-in request [:parameters :query :result_type])
                              updated-request (update-in request [:parameters :query] merge
-                                               {:not_packaged true :packages false :retired false :result_type "Distinct"})
+                                                        {:not_packaged true :packages false :retired false :result_type "Distinct"})
                              items-res (get-items-handler updated-request true)]
 
-                         (let [result (if (empty? items)
+                         (let [result (if (empty? items-res)
                                         []
                                         (let [ids (mapv :model_id items-res)
                                               request (-> updated-request
-                                                        (assoc-in [:parameters :query] {:paginate false :filter_ids ids})
-                                                        (assoc-in [:parameters :path] {}))
+                                                          (assoc-in [:parameters :query] {:paginate false :filter_ids ids})
+                                                          (assoc-in [:parameters :path] {}))
                                               models-res (->> (get-models-handler request false)
-                                                     (map #(select-keys % [:id :product :manufacturer]))
-                                                     (rename-key :id :model_id))
+                                                              (map #(select-keys % [:id :product :manufacturer]))
+                                                              (rename-key :id :model_id))
                                               merged-result (merge-by-id items-res models-res :model_id)
                                               reduced-res (map #(select-keys % [:inventory_code :product]) merged-result)]
 
                                           (if (= "Normal" result-type) merged-result reduced-res)))]
 
                            (-> (response/response result)
-                             (response/header "Count" (count result))))))
-
+                               (response/header "Count" (count result))))))
 
             :responses {200 {:description "OK"
                              :body [{:inventory_code s/Str
@@ -112,7 +111,7 @@
                                      (s/optional-key :parent_id) (s/maybe s/Uuid)
                                      (s/optional-key :id) s/Uuid
                                      (s/optional-key :inventory_pool_id) s/Uuid
-                                     (s/optional-key :manufacturer) (s/maybe s/Str)}]    }
+                                     (s/optional-key :manufacturer) (s/maybe s/Str)}]}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
