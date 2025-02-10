@@ -500,7 +500,7 @@
                                      ::price
                                      ::inventory_code]))
 
-(sa/def ::multipart (sa/keys :req-un [::product]
+(sa/def :software/multipart (sa/keys :req-un [::product]
                       :opt-un [::version
                                ::manufacturer
                                ::isPackage
@@ -766,7 +766,7 @@
 
 ;; Optional key
 
-(sa/def ::post-license (sa/keys :req-un [::inventory_code]
+(sa/def :license/post-license (sa/keys :req-un [::inventory_code]
                          :opt-un [::item_id
                                   :lr/id
                                   ::owner_id
