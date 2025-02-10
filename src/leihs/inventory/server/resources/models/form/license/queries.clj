@@ -12,7 +12,6 @@
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 
 (defn item-base-query [item-id model-id pool-id]
-  (println ">o> item-base-query" item-id model-id pool-id)
   (-> (sql/select
         ;:m.id :m.product :m.manufacturer :m.version :m.type
         ;          :m.hand_over_note :m.description :m.internal_description
@@ -27,7 +26,6 @@
       (sql/where [:= :i.id item-id] [:= :i.model_id model-id] [:= :i.inventory_pool_id pool-id])))
 
 (defn package-base-query [item-id model-id pool-id]
-  (println ">o> item-base-query" item-id model-id pool-id)
   (-> (sql/select
         ;:m.id :m.product :m.manufacturer :m.version :m.type
         ;          :m.hand_over_note :m.description :m.internal_description
@@ -90,7 +88,6 @@
          [:<> :ff.target_default "item"]]])))
 
 (defn inventory-manager-item-subquery [query]
-  (println ">o> inventory-manager-item-subquery")
   (-> query
       (sql/from [[:raw
                   "(SELECT
@@ -146,32 +143,10 @@
                       AND (ff.role IS NULL OR ff.role = 'lending_manager')
                     ORDER BY ff.group, ff.position) k"]])))
 
-; -- item -- lending-manager -- ok 21, quantity?
-  ; select *
-  ; from (select f.id,
-  ;        f.data ->> 'label'                      as label,
-  ;        f.active,
-  ;        f.position,
-  ;
-  ;        COALESCE(f.data ->> 'group', 'none')    AS group,
-  ;        COALESCE(f.data -> 'target_type', '""') AS target,
-  ;
-  ;                  f.data -> 'permissions' -> 'role'       as role,
-  ;                  f.data -> 'permissions' -> 'owner'      as owner
-  ;                  from fields f
-  ;                  where f.active = true) as ff
-  ;
-  ;        where (ff.group in ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Invoice Information', 'none', 'Location', 'Eigenschaften'))
-  ;        and (ff.target in ('"item"', '""'))
-  ;              and (ff.role is null or ff.role = '"lending_manager"')
-  ;                               order by ff.group, ff.position;
-  ;)
-
 (defn inventory-manager-package-subquery [query]
   (println ">o> inventory-manager-item-subquery")
   (-> query
       (sql/from [[:raw
-
                   "(SELECT
                   f.id,
                   f.active,
@@ -211,7 +186,6 @@
   (println ">o> inventory-manager-item-subquery")
   (-> query
       (sql/from [[:raw
-
                   "(SELECT
                   f.id,
                   f.active,

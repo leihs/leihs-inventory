@@ -9,7 +9,6 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.license.common :refer [double-to-numeric-or-nil]]
-   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query

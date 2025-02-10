@@ -55,13 +55,10 @@
   [data keys-to-check]
   (reduce (fn [m k]
             (try (println ">o> abc ?1" k (get m k) (type (get m k)) (str (get m k)))
-            ;(if (clojure.string/blank? (get m k))
                  (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
                    (dissoc m k)
                    m)
-
                  (catch Exception e (println ">o> abc ?1-error" (.getMessage e)))))
-
           data
           keys-to-check))
 
@@ -73,25 +70,6 @@
       (println ">o> abc.value.parseDate" value)
       (java.time.LocalDate/parse value))
     nil))
-
-;(defn double-to-numeric-or-nil [int-value]
-;
-;  (cond int-value
-;    (instance? java.lang.Double int-value) int-value
-;
-;    (customized-empty? int-value) nil
-;
-;    :default     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
-;                   (int-to-numeric-or-nil parsed-value))
-;    )
-;
-;  ;(if (customized-empty? int-value)
-;  ;  nil
-;  ;  (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
-;  ;    (int-to-numeric-or-nil parsed-value))
-;  ;  )
-;
-;  )
 
 (defn double-to-numeric-or-nil [int-value]
   (cond

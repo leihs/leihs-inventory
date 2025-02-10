@@ -79,7 +79,6 @@
             res (assoc res :item_id item-id :attachments all-attachments)]
         (if res
           (response (create-validation-response res @validation-result))
-          ;(response (create-validation-response updated-model []))
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
         (error "Failed to create model" (.getMessage e))

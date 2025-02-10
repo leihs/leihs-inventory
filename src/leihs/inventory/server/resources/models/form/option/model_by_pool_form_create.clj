@@ -34,17 +34,9 @@
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         option-id (to-uuid (get-in request [:path-params :option_id]))
-
         multipart (get-in request [:parameters :multipart])
-        p (println ">o> multipart" multipart)
-
-        p (println ">o> abc.(:price multipart))" (:price multipart) (type (:price multipart)))
         price (double-to-numeric-or-nil (:price multipart))
-        p (println ">o> abc.(:price multipart))" price (type price))
-
-        multipart (assoc multipart :price price :inventory_pool_id pool-id)
-
-        p (println ">o> multipart" multipart)]
+        multipart (assoc multipart :price price :inventory_pool_id pool-id)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
