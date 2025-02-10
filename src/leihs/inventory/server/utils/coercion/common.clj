@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.coercion.common
   (:require
+   [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [reitit.coercion.schema]
-   [clojure.spec.alpha :as sa]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [ring.util.response :refer [response status]]
@@ -58,12 +58,6 @@
 (sa/def ::needs_permission boolean?)
 (sa/def ::is_incomplete boolean?)
 
-
-
-
-
-
-
 ;; Define "data" inside "fields"
 (sa/def ::type string?)
 (sa/def ::group string?)
@@ -91,16 +85,9 @@
 (sa/def ::target string?)
 (sa/def ::owner string?)
 
-
-
-
-
-
-
 ;; Define "permissions" schema inside "data"
 (sa/def ::role string?)
 (sa/def ::owner ::boolean)
-
 
 ;; Define a UUID type (as string)
 (sa/def ::uuid string?)
@@ -118,8 +105,6 @@
 (sa/def ::inventory_pool_id any?)
 (sa/def ::responsible_department ::uuid)
 (sa/def ::inventory_code string?)
-
-
 
 ;; Ensure all spec keys are properly namespaced
 (sa/def ::properties map?)
@@ -156,8 +141,6 @@
 (sa/def ::items_attributes any?) ;; Date
 ;(sa/def ::insurance_number (sa/nilable string?))
 
-
-
 ;; Define primitive field specs
 (sa/def ::note string?)
 (sa/def ::is_inventory_relevant boolean?)
@@ -184,7 +167,6 @@
 (sa/def ::item_inventory_code string?)
 (sa/def ::item_id uuid?)
 
-
 (sa/def ::active boolean?)
 (sa/def ::data any?)
 (sa/def ::group string?)
@@ -208,7 +190,6 @@
 
 (sa/def ::responsible_department uuid?)
 
-
 (sa/def ::file multipart/temp-file-part)
 ;(sa/def ::name (sa/nilable string?))
 ;(sa/def ::product (sa/nilable string?))
@@ -223,17 +204,17 @@
 ;(sa/def ::allocations (sa/nilable string?))
 
 (sa/def ::compatible_ids (sa/or
-                           :multiple (sa/or :coll (sa/coll-of uuid?)
-                                       :str string?)
-                           :single uuid?
-                           :none nil?))
+                          :multiple (sa/or :coll (sa/coll-of uuid?)
+                                           :str string?)
+                          :single uuid?
+                          :none nil?))
 
 ;; TODO: initial validation-error
 (sa/def ::category_ids (sa/or
-                         :multiple (sa/or :coll (sa/coll-of uuid?)
-                                     :str string?)
-                         :single uuid?
-                         :none nil?))
+                        :multiple (sa/or :coll (sa/coll-of uuid?)
+                                         :str string?)
+                        :single uuid?
+                        :none nil?))
 
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
@@ -265,7 +246,7 @@
 (sa/def ::attachments-to-delete string?)
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
-                   :single ::file))
+                        :single ::file))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)

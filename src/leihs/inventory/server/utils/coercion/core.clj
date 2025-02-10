@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.coercion.core
   (:require
+   [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [reitit.coercion.schema]
-   [clojure.spec.alpha :as sa]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [ring.util.response :refer [response status]]

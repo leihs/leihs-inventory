@@ -3,9 +3,9 @@
 
    [clojure.spec.alpha :as sa]
 
-   [leihs.inventory.server.resources.models.coercion :as mc]
-
    [leihs.core.core :refer [presence]]
+
+   [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
 
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
@@ -60,7 +60,6 @@
    [schema.core :as s]
    [spec-tools.core :as st]
    [spec-tools.data-spec :as ds]))
-
 
 (defn get-model-route []
   ["/"
@@ -540,7 +539,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                         :multipart :software/multipart}
+                          :multipart :software/multipart}
              :handler create-model-handler-by-pool-form
              :responses {200 {:description "OK"
 

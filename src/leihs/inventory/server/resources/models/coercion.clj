@@ -82,7 +82,6 @@
    :product s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)})
 
-
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
 (sa/def ::product (sa/nilable string?))
@@ -97,17 +96,17 @@
 (sa/def ::allocations (sa/nilable string?))
 
 (sa/def ::compatible_ids (sa/or
-                           :multiple (sa/or :coll (sa/coll-of uuid?)
-                                       :str string?)
-                           :single uuid?
-                           :none nil?))
+                          :multiple (sa/or :coll (sa/coll-of uuid?)
+                                           :str string?)
+                          :single uuid?
+                          :none nil?))
 
 ;; TODO: initial validation-error
 (sa/def ::category_ids (sa/or
-                         :multiple (sa/or :coll (sa/coll-of uuid?)
-                                     :str string?)
-                         :single uuid?
-                         :none nil?))
+                        :multiple (sa/or :coll (sa/coll-of uuid?)
+                                         :str string?)
+                        :single uuid?
+                        :none nil?))
 
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
@@ -122,39 +121,39 @@
   (sa/and string? #{"Category"}))
 
 (sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
-                     :req-un [::id ::type ::name]))
+                            :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
-                       :single (sa/or :coll (sa/coll-of ::category)
-                                 :str string?)
-                       :none nil?))
+                      :single (sa/or :coll (sa/coll-of ::category)
+                                     :str string?)
+                      :none nil?))
 
 (sa/def ::compatible (sa/keys :opt-un [::delete]
-                       :req-un [::id ::product]))
+                              :req-un [::id ::product]))
 (sa/def ::compatibles (sa/or
-                        :single (sa/or :coll (sa/coll-of ::compatible)
-                                  :str string?)
-                        :none nil?))
+                       :single (sa/or :coll (sa/coll-of ::compatible)
+                                      :str string?)
+                       :none nil?))
 (sa/def ::images-to-delete string?)
 (sa/def ::attachments-to-delete string?)
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
-                   :single ::file))
+                        :single ::file))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def ::quantity int?)
 (sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
-                        :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
 (sa/def ::entitlements (sa/or
-                         :single (sa/or :coll (sa/coll-of ::entitlement)
-                                   :str string?)
-                         :none nil?))
+                        :single (sa/or :coll (sa/coll-of ::entitlement)
+                                       :str string?)
+                        :none nil?))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::inventory_bool]))
 (sa/def ::accessories (sa/or
-                        :single (sa/or :coll (sa/coll-of ::accessory)
-                                  :str string?)
-                        :none nil?))
+                       :single (sa/or :coll (sa/coll-of ::accessory)
+                                      :str string?)
+                       :none nil?))
 (sa/def ::properties string?)
 (sa/def ::serial_number string?)
 (sa/def ::note string?)
@@ -229,13 +228,13 @@
                                              :simple/properties
                                              ::owner_id
                                              ::item_version]
-                             :req-un [::serial_number
-                                      ::note
-                                      ::invoice_date
-                                      ::price
-                                      ::retired
-                                      ::is_borrowable
-                                      ::inventory_code]))
+                                    :req-un [::serial_number
+                                             ::note
+                                             ::invoice_date
+                                             ::price
+                                             ::retired
+                                             ::is_borrowable
+                                             ::inventory_code]))
 
 (sa/def :item/multipart (sa/keys :opt-un [::model_id
                                           ::supplier_id
@@ -247,26 +246,26 @@
                                           ::user_name
                                           ;::item_version
                                           ]
-                          :req-un [::serial_number
-                                   ::note
-                                   ::invoice_date
-                                   ::invoice_number
-                                   ::price
-                                   ::shelf
-                                   ::inventory_code
-                                   ::retired
+                                 :req-un [::serial_number
+                                          ::note
+                                          ::invoice_date
+                                          ::invoice_number
+                                          ::price
+                                          ::shelf
+                                          ::inventory_code
+                                          ::retired
 
-                                   ::is_borrowable
-                                   ::is_broken
-                                   ::is_incomplete
+                                          ::is_borrowable
+                                          ::is_broken
+                                          ::is_incomplete
 
                                    ;::building_id
-                                   ::room_id
+                                          ::room_id
 
-                                   ::status_note
+                                          ::status_note
                                    ;::supplier_id
                                    ;::owner_id
-                                   ::properties]))
+                                          ::properties]))
 
 (sa/def :package/multipart (sa/keys :opt-un [::model_id
                                              ::supplier_id
@@ -278,26 +277,26 @@
                                              ::user_name
                                              ;::item_version
                                              ]
-                             :req-un [;::serial_number
-                                      ::note
+                                    :req-un [;::serial_number
+                                             ::note
                                       ;::invoice_date
                                       ;::invoice_number
-                                      ::price
-                                      ::shelf
-                                      ::inventory_code
-                                      ::retired
+                                             ::price
+                                             ::shelf
+                                             ::inventory_code
+                                             ::retired
 
-                                      ::is_borrowable
-                                      ::is_broken
-                                      ::is_incomplete
+                                             ::is_borrowable
+                                             ::is_broken
+                                             ::is_incomplete
 
                                       ;::building_id
-                                      ::room_id
+                                             ::room_id
 
-                                      ::status_note
+                                             ::status_note
                                       ;::supplier_id
                                       ;::owner_id
-                                      ::properties]))
+                                             ::properties]))
 
 (sa/def ::inventory_code string?)
 (sa/def ::inventory_pool_id uuid?)
@@ -341,7 +340,7 @@
                                     ::role
                                     ::role_default
                                     ::target_default]
-                    :opt-un [::group ::target])
+                           :opt-un [::group ::target])
             :description "Fields section of the body"}))
 
 (sa/def :get-package-response/body-spec
@@ -396,8 +395,8 @@
                                     ::model_id
                                     ::owner_id]
 
-                    :opt-un [::note ::retired_reason
-                             ::items_attributes])
+                           :opt-un [::note ::retired_reason
+                                    ::items_attributes])
 
             :description "Inventory attributes with details"}))
 
@@ -453,26 +452,26 @@
                                     :res/owner_id
                                     :res/price]
 
-                    :opt-un [:res/note
-                             :res/items_attributes
-                             :res/name
-                             :res/invoice_number
-                             :res/properties
-                             :res/updated_at
-                             :nil/retired_reason
-                             :nil/note
-                             :res/responsible
-                             :res/invoice_date
-                             :res/supplier_id
-                             :res/parent_id
-                             :res/id
-                             :res/inventory_pool_id
-                             :res/item_version
-                             :res/needs_permission
-                             :res/serial_number
-                             :res/created_at
-                             :res/insurance_number
-                             :res/insurance_number])
+                           :opt-un [:res/note
+                                    :res/items_attributes
+                                    :res/name
+                                    :res/invoice_number
+                                    :res/properties
+                                    :res/updated_at
+                                    :nil/retired_reason
+                                    :nil/note
+                                    :res/responsible
+                                    :res/invoice_date
+                                    :res/supplier_id
+                                    :res/parent_id
+                                    :res/id
+                                    :res/inventory_pool_id
+                                    :res/item_version
+                                    :res/needs_permission
+                                    :res/serial_number
+                                    :res/created_at
+                                    :res/insurance_number
+                                    :res/insurance_number])
 
             :description "Inventory item data"}))
 
@@ -481,42 +480,42 @@
 ;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
-                    :opt-un [:res/validation :res/items_attributes])
+                           :opt-un [:res/validation :res/items_attributes])
             :description "Complete inventory response"}))
 
 ;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response2/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
-                    :opt-un [:res/validation])
+                           :opt-un [:res/validation])
             :description "Complete inventory response"}))
 
 (sa/def :software/properties (sa/or
-                               :single (sa/or :coll (sa/coll-of ::property)
-                                         :str string?)
-                               :none nil?))
+                              :single (sa/or :coll (sa/coll-of ::property)
+                                             :str string?)
+                              :none nil?))
 
 (sa/def :option/multipart (sa/keys :req-un [::product]
-                            :opt-un [::version
-                                     ::price
-                                     ::inventory_code]))
+                                   :opt-un [::version
+                                            ::price
+                                            ::inventory_code]))
 
 (sa/def :software/multipart (sa/keys :req-un [::product]
-                      :opt-un [::version
-                               ::manufacturer
-                               ::isPackage
-                               ::description
-                               ::technicalDetails
-                               ::internalDescription
-                               ::importantNotes
-                               ::categories
-                               ::attachments-to-delete
-                               ::images-to-delete
-                               ::compatibles
-                               ::images
-                               ::attachments
-                               ::entitlements
-                               :software/properties
-                               ::accessories]))
+                                     :opt-un [::version
+                                              ::manufacturer
+                                              ::isPackage
+                                              ::description
+                                              ::technicalDetails
+                                              ::internalDescription
+                                              ::importantNotes
+                                              ::categories
+                                              ::attachments-to-delete
+                                              ::images-to-delete
+                                              ::compatibles
+                                              ::images
+                                              ::attachments
+                                              ::entitlements
+                                              :software/properties
+                                              ::accessories]))
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
@@ -708,7 +707,7 @@
                     :nil/created_at
                     :nil/insurance_number
                     ::properties]
-    :opt-un [:nil2/item_version]))
+           :opt-un [:nil2/item_version]))
 
 (def test_ResponseBodySchema
   {:data DataSchema2
@@ -756,72 +755,72 @@
                     :nil/version
                     :nil/technical_detail]
 
-    :opt-un [::attachments
-             ::maintenance_period
-             :nil/rental_price
-             :nil/cover_image_id
-             ::updated_at
-             :nil/info_url
-             ::created_at]))
+           :opt-un [::attachments
+                    ::maintenance_period
+                    :nil/rental_price
+                    :nil/cover_image_id
+                    ::updated_at
+                    :nil/info_url
+                    ::created_at]))
 
 ;; Optional key
 
 (sa/def :license/post-license (sa/keys :req-un [::inventory_code]
-                         :opt-un [::item_id
-                                  :lr/id
-                                  ::owner_id
-                                  ::p4u
-                                  ::total_quantity
+                                       :opt-un [::item_id
+                                                :lr/id
+                                                ::owner_id
+                                                ::p4u
+                                                ::total_quantity
 
-                                  ::operating_system
-                                  ::quantity_allocations
-                                  ::maintenance_currency
+                                                ::operating_system
+                                                ::quantity_allocations
+                                                ::maintenance_currency
 
-                                  ::maintenance_price
-                                  ::maintenance_expiration
-                                  ::project_number
+                                                ::maintenance_price
+                                                ::maintenance_expiration
+                                                ::project_number
 
-                                  ::license_expiration
-                                  ::reference
-                                  ::installation
-                                  ::dongle_id
-                                  ::procured_by
-                                  ::maintenance_contract
-                                  ::license_type
-                                  ::activation_type
+                                                ::license_expiration
+                                                ::reference
+                                                ::installation
+                                                ::dongle_id
+                                                ::procured_by
+                                                ::maintenance_contract
+                                                ::license_type
+                                                ::activation_type
 
-                                  ::is_borrowable
-                                  :nil/retired
+                                                ::is_borrowable
+                                                :nil/retired
 
-                                  ::is_inventory_relevant
-                                  :nil/last_check
+                                                ::is_inventory_relevant
+                                                :nil/last_check
 
-                                  :nil/shelf
-                                  :nil/status_note
-                                  :nil/name
-                                  ::attachments
-                                  :nil/invoice_number
-                                  ::is_broken
+                                                :nil/shelf
+                                                :nil/status_note
+                                                :nil/name
+                                                ::attachments
+                                                :nil/invoice_number
+                                                ::is_broken
 
-                                  :nil/note
-                                  :nil/serial_number
+                                                :nil/note
+                                                :nil/serial_number
 
-                                  ::updated_at
-                                  :nil/retired_reason
-                                  :nil/responsible
-                                  :lr/invoice_date
-                                  ::model_id
-                                  :nil/supplier_id
-                                  :nil/parent_id
-                                  ::inventory_pool_id
-                                  ::is_incomplete
-                                  ::item_version
-                                  ::needs_permission
-                                  :nil/user_name
-                                  ::room_id
-                                  :lr/price
-                                  ::created_at
-                                  :nil/insurance_number]))
+                                                ::updated_at
+                                                :nil/retired_reason
+                                                :nil/responsible
+                                                :lr/invoice_date
+                                                ::model_id
+                                                :nil/supplier_id
+                                                :nil/parent_id
+                                                ::inventory_pool_id
+                                                ::is_incomplete
+                                                ::item_version
+                                                ::needs_permission
+                                                :nil/user_name
+                                                ::room_id
+                                                :lr/price
+                                                ::created_at
+                                                :nil/insurance_number]))
 
 (def PackagePostPayload
   {:is_inventory_relevant boolean?

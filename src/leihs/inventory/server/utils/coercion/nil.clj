@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.coercion.nil
   (:require
+   [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [reitit.coercion.schema]
-   [clojure.spec.alpha :as sa]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [ring.util.response :refer [response status]]
@@ -57,12 +57,6 @@
 ;(sa/def ::properties any?)
 ;(sa/def ::needs_permission boolean?)
 ;(sa/def ::is_incomplete boolean?)
-
-
-
-
-
-
 
 ;; Define "data" inside "fields"
 ;(sa/def ::type string?)
@@ -156,8 +150,6 @@
 ;(sa/def ::items_attributes any?) ;; Date
 (sa/def ::insurance_number (sa/nilable string?))
 
-
-
 ;;; Define primitive field specs
 ;(sa/def ::note string?)
 ;(sa/def ::is_inventory_relevant boolean?)
@@ -207,7 +199,6 @@
 (sa/def ::serial_number (sa/nilable string?))
 
 ;(sa/def ::responsible_department uuid?)
-
 
 ;(sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
@@ -270,7 +261,6 @@
 ;(sa/def ::entitlement_group_id uuid?)
 ;(sa/def ::entitlement_id uuid?)
 ;(sa/def ::quantity int?)
-
 
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
 ;                        :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
