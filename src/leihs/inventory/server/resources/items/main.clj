@@ -46,13 +46,7 @@
    (get-items-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
-         ;{:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
          {:keys [pool_id item_id]} (path-params request)
-
-         p (println ">o> pool_id" pool_id (type pool_id))
-
-         ;option-type (extract-option-by-uri (:uri request))
-         ;query-params (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          {:keys [search_term not_packaged packages retired result_type]} (query-params request)
          ;sort-by (case (:sort_by query-params)
@@ -61,8 +55,6 @@
          ;          :product-asc [:m.product :asc]
          ;          :product-desc [:m.product :desc]
          ;          nil)
-
-         p (println ">o> abc???.params" search_term not_packaged packages retired result_type)
 
          ;filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          ;filter-product (if-not model_id (:filter_product query-params) nil)
@@ -87,7 +79,6 @@
                        :else (sql/select :m.is_package :i.* [:b.name :building_name] [:r.name :room_name]))
 
          base-query (-> base-select
-
                         ((fn [query]
                            (if (= result_type "Distinct")
                              (base-pool-query-distinct query pool_id)

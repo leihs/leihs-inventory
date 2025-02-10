@@ -41,14 +41,11 @@
               ;:parameters {:path {:pool_id s/Uuid}}
                :handler get-model-group-links-of-pool-handler
                :responses {200 {:description "OK"
-                                ;:body s/Any}
-                                :body [{
-                                        :id s/Uuid
+                                :body [{  :id s/Uuid
                                         :parent_id s/Uuid
                                         :child_id s/Uuid
                                         :label s/Str
-                                        }]
-                                }
+                                        }] }
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
@@ -63,9 +60,7 @@
                                 :category_link_id s/Uuid}}
             :handler get-model-group-links-of-pool-handler
             :responses {200 {:description "OK"
-                             ;:body s/Any}
-                        :body [{
-                                :id s/Uuid
+                        :body [{     :id s/Uuid
                                 :parent_id s/Uuid
                                 :child_id s/Uuid
                                 :label s/Str
@@ -90,7 +85,6 @@
                 :parameters {:path {:pool_id s/Uuid}}
                 :handler get-model-groups-of-pool-handler
                 :responses {200 {:description "OK"
-                                 ;:body s/Any}
                                  :body [{:id s/Uuid
                                          :type s/Str
                                          :name s/Str
@@ -109,7 +103,6 @@
              :parameters {:path {:pool_id s/Uuid :model_group_id s/Uuid}}
              :handler get-model-groups-of-pool-handler
              :responses {200 {:description "OK"
-                              ;:body s/Any}
                               :body [{:id s/Uuid
                                       :type s/Str
                                       :name s/Str
@@ -174,16 +167,11 @@
              :parameters {:path {:pool_id s/Uuid :entitlement_group_id s/Uuid}}
              :handler get-entitlement-groups-of-pool-handler
              :responses {200 {:description "OK"
-                              ;:body s/Any}
-                              ;:body [{:id s/Uuid
-                              ;        :name s/Str}]}
-
                          :body [{:id s/Uuid
                                  :name s/Str
                                  :inventory_pool_id s/Uuid
                                  :is_verification_required s/Bool
                                  :created_at s/Any
                                  :updated_at s/Any}]}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])

@@ -80,32 +80,28 @@
                                  :result_type (s/enum "Normal" "Min")}}
 
             :handler (fn [request]
-
                        (let [result-type (get-in request [:parameters :query :result_type])
-                             request (update-in request [:parameters :query] merge {                                                                                    :not_packaged true :packages false :retired false :result_type "Distinct"})
-                             res1 (get-items-handler request true)
+                             updated-request (update-in request [:parameters :query] merge
+                                               {:not_packaged true :packages false :retired false :result_type "Distinct"})
+                             items-res (get-items-handler updated-request true)]
 
-                             result (if (empty? res1) []
-                                        (let [ids (vec (flatten (map :model_id res1)))
-                                              request (-> request
-                                                          (assoc-in [:parameters :query] {})
-                                                          (assoc-in [:parameters :path] {})
-                                                          (update-in [:parameters :query] merge {:paginate false :filter_ids ids}))
+                         (let [result (if (empty? items)
+                                        []
+                                        (let [ids (mapv :model_id items-res)
+                                              request (-> updated-request
+                                                        (assoc-in [:parameters :query] {:paginate false :filter_ids ids})
+                                                        (assoc-in [:parameters :path] {}))
+                                              models-res (->> (get-models-handler request false)
+                                                     (map #(select-keys % [:id :product :manufacturer]))
+                                                     (rename-key :id :model_id))
+                                              merged-result (merge-by-id items-res models-res :model_id)
+                                              reduced-res (map #(select-keys % [:inventory_code :product]) merged-result)]
 
-                                              res2 (get-models-handler request false)
-                                              res2 (map #(select-keys % [:id :product :manufacturer]) res2)
-                                              res2 (rename-key res2 :id :model_id)
-                                              res3 (merge-by-id res1 res2 :model_id)
-                                              res4 (map #(select-keys % [:inventory_code :product]) res3)
+                                          (if (= "Normal" result-type) merged-result reduced-res)))]
 
-                                              result (if (= "Normal" result-type)
-                                                       res3
-                                                       res4)]
+                           (-> (response/response result)
+                             (response/header "Count" (count result))))))
 
-                                          result))  ]
-
-                         (-> (response/response result)
-                             (response/header "Count" (count result)))))
 
             :responses {200 {:description "OK"
                              :body [{:inventory_code s/Str

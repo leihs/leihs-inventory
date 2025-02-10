@@ -48,10 +48,8 @@
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
-           ;:parameters {:path {:building_id s/Uuid}}
             :handler get-buildings-handler
             :responses {200 {:description "OK"
-                            ;:body s/Any}
                              :body [{:id s/Uuid
                                      :name s/Str
                                      :code (s/maybe s/Str)}]}
@@ -88,7 +86,6 @@
             :parameters {:query {(s/optional-key :building_id) s/Uuid}}
             :handler get-rooms-handler
             :responses {200 {:description "OK"
-                            ;:body s/Any}
                              :body [{:building_id s/Uuid
                                      :description (s/maybe s/Str)
                                      :id s/Uuid
