@@ -46,30 +46,21 @@
                                    sql-format)
             res (jdbc/execute-one! tx update-model-query)
 
-;; Link items from package
+            ;; Link items from package
             link-res (let [ids-to-link (get split-items :ids-to-link)]
-                       (when (seq ids-to-link) ;; Ensure ids-to-link is not empty
-                         (println ">o> abc.ids-to-link" ids-to-link)
-
+                       (when (seq ids-to-link)
                          (let [update-link-items-query (-> (sql/update :items)
                                                            (sql/set {:parent_id (:id res)})
                                                            (sql/where [:in :id ids-to-link])
                                                            (sql/where [:is :parent_id nil])
                                                            (sql/returning :*)
                                                            sql-format)
-
-                               _ (println ">o> abc.update-link-items-query" update-link-items-query)
-
                                linked-items-res (jdbc/execute! tx update-link-items-query)]
-
-                           (println ">o> abc.linked-items-res" linked-items-res)
                            linked-items-res)))
 
             ;; Unlink items from package
             unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
-                         (when (seq ids-to-unlink) ;; Ensure ids-to-unlink is not empty
-                           (println ">o> ???abc.ids-to-unlink" ids-to-unlink)
-
+                         (when (seq ids-to-unlink)
                            (let [update-unlink-items-query (-> (sql/update :items)
                                                                (sql/set {:parent_id nil})
                                                                (sql/where [:in :id ids-to-unlink])
@@ -77,8 +68,6 @@
                                                                (sql/returning :*)
                                                                sql-format)
                                  unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
-
-                             (println ">o> abc.unlinked" unlinked-items-res)
                              unlinked-items-res)))]
         (if res
           (response (create-validation-response res []))
@@ -96,7 +85,6 @@
     res))
 
 (defn update-package-handler-by-pool-form [request]
-  (println ">o> update-package-handler-by-pool-form")
   (let [item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))

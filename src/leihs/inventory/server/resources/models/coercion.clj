@@ -31,6 +31,10 @@
    :updated_at s/Inst
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Definition by def
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (def models-request-payload
   {:type s/Str
    :product s/Str
@@ -60,11 +64,14 @@
    :owner (sa/nilable string?)
    ;:data FieldDataSchema                                    ;; FIXME broken
    :data any?})
+
 (def item-response-get
   {:data item-data-schema
    :fields [item-field-schema]})
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by sa/def
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (sa/def :software/response
   (sa/keys :req-un [:nil/description
                     ::is_package
@@ -435,10 +442,10 @@
 
 (sa/def :res/validation (sa/coll-of map? :kind vector?))
 
-(sa/def :package-put-response/inventory-item
-  (st/spec {:spec (sa/keys :req-un [:res/data]
-                           :opt-un [:res/validation :res/items_attributes])
-            :description "Complete inventory response"}))
+;(sa/def :package-put-response/inventory-item
+;  (st/spec {:spec (sa/keys :req-un [:res/data]
+;                           :opt-un [:res/validation :res/items_attributes])
+;            :description "Complete inventory response"}))
 
 (sa/def :package-put-response2/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]

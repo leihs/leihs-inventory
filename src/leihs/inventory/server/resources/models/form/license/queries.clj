@@ -117,7 +117,6 @@
                 ORDER BY ff.group_default, ff.position"]])))
 
 (defn lending-manager-item-subquery [query]
-  (println ">o> lending-manager-item-subquery")
   (-> query
       (sql/from [[:raw
                   "(SELECT *
@@ -144,7 +143,6 @@
                     ORDER BY ff.group, ff.position) k"]])))
 
 (defn inventory-manager-package-subquery [query]
-  (println ">o> inventory-manager-item-subquery")
   (-> query
       (sql/from [[:raw
                   "(SELECT
@@ -183,7 +181,6 @@
                                   ;OR ff.id in ('inventory_code', 'model_id', 'price', 'last_check', 'note')
 
 (defn lending-manager-package-subquery [query]
-  (println ">o> inventory-manager-item-subquery")
   (-> query
       (sql/from [[:raw
                   "(SELECT

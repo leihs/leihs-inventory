@@ -466,10 +466,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"
-
-                              ;:body :mc:package-put-response2/inventory-item}
                               :body :package-put-response2/inventory-item}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -580,16 +577,16 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :accessories any?
                                       :entitlement_groups any?
 
-        ;; FIXME: causes error
+                                      ;; FIXME: causes error
                                       :images any?
-        ;:images [{
-        ;          :id (sa/nilable any?)
-        ;          :filename (sa/nilable string?)
-        ;          :content_type (sa/nilable string?)
-        ;          :url (sa/nilable string?)
-        ;          :thumbnail_url (sa/nilable string?)
-        ;          :cover_image_id (sa/nilable string?)
-        ;          }]
+                                      ;:images [{
+                                      ;          :id (sa/nilable any?)
+                                      ;          :filename (sa/nilable string?)
+                                      ;          :content_type (sa/nilable string?)
+                                      ;          :url (sa/nilable string?)
+                                      ;          :thumbnail_url (sa/nilable string?)
+                                      ;          :cover_image_id (sa/nilable string?)
+                                      ;          }]
 
                                       :attachments [{:id (sa/nilable any?)
                                                      :filename (sa/nilable string?)

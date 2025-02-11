@@ -14,8 +14,6 @@
 (defn get-buildings-handler [request]
   (try
     (let [tx (:tx request)
-          ;pool_id (-> request path-params :pool_id)
-          ;model_link_id (-> request path-params :id)
           building-id (-> request path-params :building_id)
           query (-> (sql/select :b.*)
                     (sql/from [:buildings :b])
@@ -23,8 +21,6 @@
                     sql-format)
 
           result (jdbc/query tx query)]
-
-      ;(response result)
 
       (-> (response result)
           (header "Count" (count result))))
@@ -36,14 +32,7 @@
 (defn get-rooms-handler [request]
   (try
     (let [tx (:tx request)
-          ;pool_id (-> request path-params :pool_id)
-          ;model_link_id (-> request path-params :id)
-
-          ;search-term (-> request query-params :search-term)
-
           building-id (-> request query-params :building_id)
-          p (println ">o> building-id" building-id)
-
           rooms-id (-> request path-params :rooms_id)
           query (-> (sql/select :r.*)
                     (sql/from [:rooms :r])
@@ -52,8 +41,6 @@
                     sql-format)
 
           result (jdbc/query tx query)]
-
-      ;(response result)
 
       (-> (response result)
           (header "Count" (count result))))

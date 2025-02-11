@@ -54,11 +54,11 @@
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]
   (reduce (fn [m k]
-            (try (println ">o> abc ?1" k (get m k) (type (get m k)) (str (get m k)))
+            (try
                  (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
                    (dissoc m k)
                    m)
-                 (catch Exception e (println ">o> abc ?1-error" (.getMessage e)))))
+                 (catch Exception e)))
           data
           keys-to-check))
 
@@ -66,9 +66,7 @@
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
   [value]
   (if (and value (not (empty? (str value))))
-    (do
-      (println ">o> abc.value.parseDate" value)
-      (java.time.LocalDate/parse value))
+    (java.time.LocalDate/parse value)
     nil))
 
 (defn double-to-numeric-or-nil [int-value]

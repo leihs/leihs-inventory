@@ -6,7 +6,6 @@
                                                          create-model-handler
                                                          update-model-handler
                                                          delete-model-handler]]
-
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    get-models-of-pool-handler
