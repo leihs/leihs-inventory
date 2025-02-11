@@ -763,7 +763,8 @@
 (sa/def :nil/info_url (sa/nilable string?))
 
 ;; Define the full map spec
-(def ResponseBodySoftware
+;(def ResponseBodySoftware
+(sa/def :software/response
   (sa/keys :req-un [:nil/description
                     ;::description
                     ::is_package
@@ -843,7 +844,8 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-(def PackagePostPayload
+;(def PackagePostPayload
+(sa/def :license/payload
   {:user_name :nil/user_name
    :price :nil/price
    :shelf :nil/shelf

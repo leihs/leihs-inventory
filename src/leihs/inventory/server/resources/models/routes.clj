@@ -462,7 +462,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
-                          :multipart mc/PackagePostPayload}
+                          :multipart :license/payload}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"
@@ -500,7 +500,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         :multipart mc/PackagePostPayload} ;; TODO
+                         :multipart :license/payload}
             :handler update-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
@@ -777,7 +777,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-software-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body {:data mc/ResponseBodySoftware
+                              :body {:data :software/response
                                      :validation [any?]}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
@@ -792,7 +792,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler create-software-handler-by-pool-form-fetch
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body [mc/ResponseBodySoftware]}
+                              :body [:software/response]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -807,7 +807,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :handler update-software-handler-by-pool-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body [mc/ResponseBodySoftware]}
+                              :body [:software/response]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
