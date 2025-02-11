@@ -561,14 +561,6 @@
    ;:data FieldDataSchema                                    ;; FIXME broken
    :data any?})
 
-
-
-
-
-
-
-
-
 (sa/def ::FieldDataSchema2
   (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
@@ -585,9 +577,6 @@
                     ::target
                     :bool/owner
                     ::data]))
-
-
-
 
 (def DataSchema
   {:inventory_pool_id uuid?
@@ -761,7 +750,6 @@
 
 (sa/def :any/id any?) ;; UUID spec
 
-
 (sa/def :nil/technical_detail (sa/nilable string?))
 (sa/def :nil/version (sa/nilable string?))
 (sa/def :nil/description (sa/nilable string?))
@@ -853,8 +841,7 @@
                                                 :nil/insurance_number]))
 
 (def PackagePostPayload
-  {
-   :nil/user_name (sa/nilable string?)
+  {:nil/user_name (sa/nilable string?)
    :nil/price (sa/nilable string?)
    :nil/shelf (sa/nilable string?)
    :nil/status_note (sa/nilable string?)
@@ -868,6 +855,5 @@
    :room_id uuid?
    :model_id uuid?
    :owner_id uuid?
-   :items_attributes any?
-   })
+   :items_attributes any?})
 
