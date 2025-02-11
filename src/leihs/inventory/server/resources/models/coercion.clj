@@ -841,12 +841,12 @@
                                                 :nil/insurance_number]))
 
 (def PackagePostPayload
-  {:nil/user_name (sa/nilable string?)
-   :nil/price (sa/nilable string?)
-   :nil/shelf (sa/nilable string?)
-   :nil/status_note (sa/nilable string?)
+  {:user_name (sa/nilable string?)
+   :price (sa/nilable string?)
+   :shelf (sa/nilable string?)
+   :status_note (sa/nilable string?)
    :is_inventory_relevant boolean?
-   ::last_check any?
+   :last_check any?
    :inventory_code string?
    :retired boolean?
    :is_broken boolean?
