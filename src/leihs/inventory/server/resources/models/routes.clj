@@ -462,7 +462,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?}
-                          :multipart :license/payload}
+                          :multipart :package/payload}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-package-handler-by-pool-form
              :responses {200 {:description "OK"
@@ -500,7 +500,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :parameters {:path {:pool_id uuid?
                                 :model_id uuid?
                                 :item_id uuid?}
-                         :multipart :license/payload}
+                         :multipart :package/payload}
             :handler update-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}

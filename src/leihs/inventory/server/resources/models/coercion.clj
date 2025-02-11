@@ -372,6 +372,7 @@
 ;; Define the schema for items in items_attributes
 (sa/def ::item_inventory_code string?)
 (sa/def ::item_id uuid?)
+(sa/def :any/items_attributes any?)
 
 (sa/def ::items_attributes
   (sa/coll-of (sa/keys :req-un [::item_inventory_code ::item_id]) :kind vector?))
@@ -844,8 +845,8 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-;(def PackagePostPayload
-(sa/def :license/payload
+;(sa/def :package/payload                                    ;;error
+(def PackagePostPayload
   {:user_name :nil/user_name
    :price :nil/price
    :shelf :nil/shelf
@@ -862,3 +863,23 @@
    :owner_id uuid?
    :items_attributes any?})
 
+
+(sa/def :package/payload (sa/keys :req-un [
+                                           :nil/user_name
+                                           :nil/price
+                                           :nil/shelf
+                                           :nil/status_note
+                                           ::is_inventory_relevant
+                                           ::last_check
+                                           ::inventory_code
+                                           ::retired
+                                           ::is_broken
+                                           ::is_incomplete
+                                           ::is_borrowable
+                                           ::room_id
+                                           ::model_id
+                                           ::owner_id
+                                           ;::items_attributes
+                                           :any/items_attributes
+                                                ]
+                                :opt-un []))
