@@ -673,6 +673,7 @@
 (sa/def :nil/name (sa/nilable string?))
 (sa/def :nil/status_note (sa/nilable string?))
 (sa/def :nil/shelf (sa/nilable string?))
+(sa/def :nil-str/shelf (sa/nilable string?))
 (sa/def :nil/last_check (sa/nilable string?))
 (sa/def :nil/item_version (sa/nilable string?))
 (sa/def :nil2/item_version (sa/nilable any?))
@@ -683,7 +684,9 @@
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
 (sa/def :nil/insurance_number (sa/nilable any?))
-(sa/def :nil/user_name (sa/nilable any?))
+(sa/def :nil/user_name (sa/nilable string?))
+(sa/def :nil-any/user_name (sa/nilable any?))
+;(sa/def :nil-str/user_name (sa/nilable string?))
 (sa/def :nil/supplier_id (sa/nilable any?))
 
 (sa/def ::needs_permission boolean?)
@@ -841,10 +844,10 @@
                                                 :nil/insurance_number]))
 
 (def PackagePostPayload
-  {:user_name (sa/nilable string?)
-   :price (sa/nilable string?)
-   :shelf (sa/nilable string?)
-   :status_note (sa/nilable string?)
+  {:user_name :nil/user_name
+   :price :nil/price
+   :shelf :nil/shelf
+   :status_note :nil/status_note
    :is_inventory_relevant boolean?
    :last_check any?
    :inventory_code string?
