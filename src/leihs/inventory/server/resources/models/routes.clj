@@ -178,7 +178,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
        :put {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :parameters {:path {:model_id s/Uuid}
-                          :body mc/schema-min}
+                          :body mc/models-request-payload}
              :middleware [accept-json-middleware]
              :handler update-model-handler
              :responses {200 {:description "Returns the updated model."
@@ -399,7 +399,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-items-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body mc/test_ResponseBodySchema}
+                              :body mc/item-response-post}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -411,7 +411,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
                              ;; TODO
-                             :body mc/ResponseBodySchema}
+                             :body mc/item-response-get}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
@@ -830,7 +830,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"
-                             :body (s/->Either [s/Any mc/schema])}
+                             :body (s/->Either [s/Any mc/models-response-payload])}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -863,14 +863,14 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                     :model_id s/Uuid}}
                 :handler get-models-of-pool-handler
                 :responses {200 {:description "OK"
-                                 :body (s/->Either [s/Any mc/schema])}
+                                 :body (s/->Either [s/Any mc/models-response-payload])}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}
 
           :put {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :parameters {:path {:pool_id s/Uuid :model_id s/Uuid}
-                             :body mc/schema-min}
+                             :body mc/models-request-payload}
                 :middleware [accept-json-middleware]
                 :handler update-model-handler-by-pool
                 :responses {200 {:description "Returns the updated model."

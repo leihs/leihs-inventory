@@ -1,53 +1,7 @@
 (ns leihs.inventory.server.resources.models.coercion
   (:require
-
    [clojure.spec.alpha :as sa]
-
    [leihs.core.core :refer [presence]]
-   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
-   ;[leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
-   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   ;[leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
-   ;
-   ;[leihs.inventory.server.resources.models.main :refer [create-model-handler
-   ;                                                      delete-model-handler
-   ;                                                      get-manufacturer-handler
-   ;                                                      get-models-compatible-handler
-   ;                                                      get-models-handler
-   ;                                                      update-model-handler]]
-   ;[leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
-   ;                                                                create-model-handler-by-pool
-   ;                                                                delete-model-handler-by-pool
-   ;                                                                get-models-of-pool-auto-pagination-handler
-   ;                                                                get-models-of-pool-handler
-   ;                                                                get-models-of-pool-with-pagination-handler
-   ;                                                                get-models-of-pool-auto-pagination-handler
-   ;                                                                update-model-handler-by-pool]]
-   ;[leihs.inventory.server.resources.models.tree.filter :as filter]
-   ;[leihs.inventory.server.resources.models.tree.tree :refer [tree]]
-   ;[leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   ;[leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -59,7 +13,7 @@
    [spec-tools.core :as st]
    [spec-tools.data-spec :as ds]))
 
-(def schema
+(def models-response-payload
   {:id s/Uuid
    :type s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)
@@ -77,7 +31,7 @@
    :updated_at s/Inst
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)})
 
-(def schema-min
+(def models-request-payload
   {:type s/Str
    :product s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)})
@@ -546,7 +500,7 @@
    :permissions {:role string?
                  :owner boolean?}})
 
-(def FieldSchema
+(def item-field-schema
   {:role (sa/nilable string?)
    :group (sa/nilable string?)
    :group_default string?
@@ -579,15 +533,15 @@
                     :bool/owner
                     ::data]))
 
-(def DataSchema
+(def item-data-schema
   {:inventory_pool_id uuid?
    :responsible_department string?
    :quantity int?
    :inventory_code string?})
 
-(def ResponseBodySchema
-  {:data DataSchema
-   :fields [FieldSchema]})
+(def item-response-get
+  {:data item-data-schema
+   :fields [item-field-schema]})
 
 ;; ----------------------
 
@@ -650,22 +604,22 @@
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
 
-(sa/def ::FieldDataSchema
-  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
+;(sa/def ::FieldDataSchema
+;  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
-(sa/def ::FieldSchema
-  (sa/keys :req-un [:nil/role
-                    :nil/group
-                    ::group_default
-                    ::role_default
-                    ::target_default
-                    ::active
-                    ::label
-                    :any/id
-                    ::position
-                    ::target
-                    :bool/owner
-                    ::data]))
+;(sa/def ::FieldSchema
+;  (sa/keys :req-un [:nil/role
+;                    :nil/group
+;                    ::group_default
+;                    ::role_default
+;                    ::target_default
+;                    ::active
+;                    ::label
+;                    :any/id
+;                    ::position
+;                    ::target
+;                    :bool/owner
+;                    ::data]))
 
 ;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
@@ -687,7 +641,6 @@
 (sa/def :nil/insurance_number (sa/nilable any?))
 (sa/def :nil/user_name (sa/nilable string?))
 (sa/def :nil-any/user_name (sa/nilable any?))
-;(sa/def :nil-str/user_name (sa/nilable string?))
 (sa/def :nil/supplier_id (sa/nilable any?))
 
 (sa/def ::needs_permission boolean?)
@@ -730,7 +683,7 @@
                     ::properties]
            :opt-un [:nil2/item_version]))
 
-(def test_ResponseBodySchema
+(def item-response-post
   {:data :item/response
    :validation [any?]})
 
@@ -844,24 +797,6 @@
                                                 :any/price
                                                 ::created_at
                                                 :nil/insurance_number]))
-
-;(sa/def :package/payload                                    ;;error
-(def PackagePostPayload
-  {:user_name :nil/user_name
-   :price :nil/price
-   :shelf :nil/shelf
-   :status_note :nil/status_note
-   :is_inventory_relevant boolean?
-   :last_check any?
-   :inventory_code string?
-   :retired boolean?
-   :is_broken boolean?
-   :is_incomplete boolean?
-   :is_borrowable boolean?
-   :room_id uuid?
-   :model_id uuid?
-   :owner_id uuid?
-   :items_attributes any?})
 
 
 (sa/def :package/payload (sa/keys :req-un [
