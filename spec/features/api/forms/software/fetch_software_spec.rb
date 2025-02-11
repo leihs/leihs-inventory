@@ -88,8 +88,6 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        # # binding.pry
-
         # puts "Result.model_id: #{result.body["data"]["id"]}"
         # puts "Result.pool_id: #{pool_id}"
         # puts "Result.body: #{result.body}"
@@ -100,7 +98,6 @@ feature "Inventory Model Management" do
         model_id = result.body["data"]["id"]
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-        # binding.pry
         # expect(resp.body[0]["images"].count).to eq(1)
         expect(resp.body[0]["attachments"].count).to eq(1)
 
@@ -134,16 +131,12 @@ feature "Inventory Model Management" do
           method: :put,
           headers: cookie_header
         )
-
-        # binding.pry
-
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
 
         # fetch updated model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-        # binding.pry
         # expect(resp.body[0]["images"].count).to eq(2)
         expect(resp.body[0]["attachments"].count).to eq(2)
         # expect(resp.body[0]["entitlement_groups"].count).to eq(1)

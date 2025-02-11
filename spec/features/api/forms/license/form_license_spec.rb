@@ -54,7 +54,6 @@ feature "Fetching Fields" do
 
         url = "/inventory/#{pool_id}/software/#{software_model.id}"
         resp = client.get url
-        # binding.pry
 
         expect(resp.body.size).to eq(expected_count)
         expect(resp.status).to eq(200)

@@ -19,27 +19,22 @@ feature "Inventory Model Management" do
 
     before do
       resp = client.get "/inventory/owners"
-      # # # binding.pry
       @form_owners = resp.body
       raise "Failed to fetch manufacturers" unless resp.status == 200
 
       resp = client.get "/inventory/buildings"
-      # # # binding.pry
       @form_buildings = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
-      # # # binding.pry
       @form_rooms = resp.body
       raise "Failed to fetch entitlement groups" unless resp.status == 200
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-      # # # binding.pry
       @form_model_names = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
 
       resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
-      # # # binding.pry
       @form_model_data = resp.body
       raise "Failed to fetch compatible models" unless resp.status == 200
     end
@@ -51,7 +46,6 @@ feature "Inventory Model Management" do
         # FIXME: no result handling
         # result = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal&search_term=podest"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
       end
@@ -59,7 +53,6 @@ feature "Inventory Model Management" do
       it "fetch default" do
         result = client.get "/inventory/#{pool_id}/package"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body["data"]["inventory_pool_id"]).to eq(pool_id)
         expect(result.body["fields"].count).to eq(20)
@@ -68,7 +61,6 @@ feature "Inventory Model Management" do
       it "fetch default" do
         result = client.get "/inventory/#{pool_id}/entitlement-groups"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(1)
       end
@@ -76,7 +68,6 @@ feature "Inventory Model Management" do
       it "fetch default" do
         result = client.get "/inventory/owners"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(2)
       end
@@ -84,16 +75,13 @@ feature "Inventory Model Management" do
       it "fetch default" do
         result = client.get "/inventory/buildings"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(3)
       end
 
       it "fetch default" do
-        # result = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=a"
         result = client.get "/inventory/manufacturers?type=Model&in-detail=true"
 
-        # # # binding.pry
         expect(result.status).to eq(200)
         expect(result.body.count).to eq(2)
       end
@@ -131,33 +119,25 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        # # binding.pry
         expect(result.status).to eq(200)
-        # expect(result.body.count).to eq(2)
         expect(result.body["data"]).to be_present
         expect(result.body["validation"].count).to eq(0)
 
         item_id = result.body["data"]["id"]
         model_id = result.body["data"]["model_id"]
-        # product_name = result.body["data"]["product"]
 
         # fetch package
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        # # binding.pry # here
-
         expect(result.body["data"]).to be_present
         expect(result.body["fields"].count).to eq(20)
 
         # update package
         result = http_multipart_client(
-          # "/inventory/#{pool_id}/package",
           "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
-
-        # binding.pry
 
         expect(result.status).to eq(200)
         expect(result.body["data"]).to be_present

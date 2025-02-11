@@ -6,7 +6,6 @@ require "faker"
 feature "Inventory Model Management2" do
   context "when interacting with inventory models in a specific inventory pool2", driver: :selenium_headless do
     include_context :setup_models_api_model
-    # include_context :setup_models_api_license
     include_context :setup_unknown_building_room_supplier
     include_context :generate_session_header
 

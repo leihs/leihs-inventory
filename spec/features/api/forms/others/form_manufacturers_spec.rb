@@ -23,7 +23,6 @@ feature "Fetching Fields" do
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
           resp = client.get "/inventory/manufacturers"
-          # binding.pry
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
           expect(resp.status).to eq(200)
@@ -32,7 +31,6 @@ feature "Fetching Fields" do
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
           resp = client.get "/inventory/manufacturers?in-detail=true"
 
-          # binding.pry
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(Hash)).to eq(true)
           expect(resp.status).to eq(200)
@@ -41,7 +39,6 @@ feature "Fetching Fields" do
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
           resp = client.get "/inventory/manufacturers?in-detail=false"
 
-          # binding.pry
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
           expect(resp.status).to eq(200)
