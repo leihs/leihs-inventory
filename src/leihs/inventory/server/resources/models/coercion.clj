@@ -561,6 +561,34 @@
    ;:data FieldDataSchema                                    ;; FIXME broken
    :data any?})
 
+
+
+
+
+
+
+
+
+(sa/def ::FieldDataSchema2
+  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
+
+(sa/def ::FieldSchema2
+  (sa/keys :req-un [:nil/role
+                    :nil/group
+                    ::group_default
+                    ::role_default
+                    ::target_default
+                    ::active
+                    ::label
+                    :any/id
+                    ::position
+                    ::target
+                    :bool/owner
+                    ::data]))
+
+
+
+
 (def DataSchema
   {:inventory_pool_id uuid?
    :responsible_department string?
@@ -810,7 +838,7 @@
                                                 ::updated_at
                                                 :nil/retired_reason
                                                 :nil/responsible
-                                                ::invoice_date
+                                                :any/invoice_date
                                                 ::model_id
                                                 :nil/supplier_id
                                                 :nil/parent_id
@@ -820,7 +848,7 @@
                                                 ::needs_permission
                                                 :nil/user_name
                                                 ::room_id
-                                                ::price
+                                                :any/price
                                                 ::created_at
                                                 :nil/insurance_number]))
 
