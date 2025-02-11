@@ -7,7 +7,6 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-
    [ring.middleware.accept]
    [schema.core :as s]))
 

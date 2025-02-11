@@ -21,10 +21,8 @@
                     sql-format)
 
           result (jdbc/query tx query)]
-
       (-> (response result)
           (header "Count" (count result))))
-
     (catch Exception e
       (error "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))
@@ -39,12 +37,9 @@
                     (cond-> rooms-id (sql/where [:= :r.id rooms-id]))
                     (cond-> building-id (sql/where [:= :r.building_id building-id]))
                     sql-format)
-
           result (jdbc/query tx query)]
-
       (-> (response result)
           (header "Count" (count result))))
-
     (catch Exception e
       (error "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

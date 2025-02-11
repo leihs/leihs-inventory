@@ -86,10 +86,8 @@
                    (contains? roles :inventory_manager) inventory-manager-package-subquery
                    (contains? roles :lending_manager) lending-manager-package-subquery
                    :else nil)]
-
     (when-not subquery
       (throw (Exception. "invalid role for the requested pool")))
-
     subquery))
 
 (defn fetch-package-handler-by-pool-form [request]

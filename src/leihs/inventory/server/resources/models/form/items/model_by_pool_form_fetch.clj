@@ -18,7 +18,6 @@
                                                             attachments-query
                                                             entitlements-query
                                                             item-query
-
                                                             model-links-query
                                                             properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]

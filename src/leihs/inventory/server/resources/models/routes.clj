@@ -1,36 +1,26 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
-
    [clojure.spec.alpha :as sa]
-
    [leihs.core.core :refer [presence]]
-
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -49,7 +39,6 @@
    [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -539,7 +528,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart :software/multipart}
              :handler create-model-handler-by-pool-form
              :responses {200 {:description "OK"
-
                               :body {:data {:description (sa/nilable string?)
                                             :is_package boolean?
                                             :maintenance_period int?
@@ -557,7 +545,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :created_at any?
                                             :technical_detail string?}
                                      :validation any?}}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -604,7 +591,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :manufacturer any?
                                       :version string?
                                       :technical_detail string?}]}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -635,7 +621,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :version string?
                                       :created_at any?
                                       :technical_detail string?}]}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
