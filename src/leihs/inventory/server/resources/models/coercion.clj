@@ -36,6 +36,55 @@
    :product s/Str
    (s/optional-key :manufacturer) (s/maybe s/Str)})
 
+(def item-response-post
+  {:data :item/response
+   :validation [any?]})
+
+(def item-data-schema
+  {:inventory_pool_id uuid?
+   :responsible_department string?
+   :quantity int?
+   :inventory_code string?})
+
+(def item-field-schema
+  {:role (sa/nilable string?)
+   :group (sa/nilable string?)
+   :group_default string?
+   :role_default string?
+   (ds/opt :target_default) string?
+   :active boolean?
+   :label string?
+   :id string?
+   :position int?
+   (ds/opt :target) (sa/nilable string?)
+   :owner (sa/nilable string?)
+   ;:data FieldDataSchema                                    ;; FIXME broken
+   :data any?})
+(def item-response-get
+  {:data item-data-schema
+   :fields [item-field-schema]})
+
+;; Definition by sa/def
+(sa/def :software/response
+  (sa/keys :req-un [:nil/description
+                    ::is_package
+                    ::type
+                    :nil/hand_over_note
+                    :nil/internal_description
+                    ::product
+                    ::id
+                    ::manufacturer
+                    :nil/version
+                    :nil/technical_detail]
+
+           :opt-un [::attachments
+                    ::maintenance_period
+                    :nil/rental_price
+                    :nil/cover_image_id
+                    ::updated_at
+                    :nil/info_url
+                    ::created_at]))
+
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
 (sa/def ::product (sa/nilable string?))
@@ -108,19 +157,17 @@
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
                        :none nil?))
+
 (sa/def ::properties string?)
 (sa/def ::serial_number string?)
 (sa/def ::note string?)
 (sa/def ::status_note string?)
-
 (sa/def ::owner_id uuid?)
-
 (sa/def ::building_id uuid?)
 (sa/def ::room_id uuid?)
 (sa/def ::software_id uuid?)
 (sa/def ::supplier_id (sa/nilable string?))
 (sa/def ::model_id uuid?)
-
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
 (sa/def ::is_incomplete boolean?)
@@ -131,16 +178,12 @@
 (sa/def ::invoice_date string?)
 (sa/def :any/invoice_date any?)
 (sa/def ::invoice_number string?)
-
 (sa/def ::shelf string?) ;; FIXME
-
 (sa/def ::user_name string?)
 (sa/def ::activation_type string?)
 (sa/def ::dongle_id string?)
 (sa/def ::license_type string?)
-
 (sa/def ::total_quantity string?)
-
 (sa/def ::operating_system string?)
 (sa/def ::quantity_allocations any?)
 (sa/def ::maintenance_currency string?)
@@ -154,13 +197,11 @@
 (sa/def ::maintenance_contract string?)
 (sa/def ::maintenance_expiration string?)
 (sa/def ::maintenance_price string?)
-
 (sa/def ::key string?)
 (sa/def ::value string?)
 (sa/def :simple/properties string?)
 (sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
 
-;; deprecated / not in use?
 (sa/def :license/properties (sa/keys :req-opt [::activation_type
                                                ::dongle_id
                                                ::license_type
@@ -195,11 +236,8 @@
                                           ::attachments-to-delete
                                           ::attachments
                                           ::retired_reason
-                                          ;:simple/properties
                                           ::owner_id
-                                          ::user_name
-                                          ;::item_version
-                                          ]
+                                          ::user_name]
                                  :req-un [::serial_number
                                           ::note
                                           ::invoice_date
@@ -208,17 +246,11 @@
                                           ::shelf
                                           ::inventory_code
                                           ::retired
-
                                           ::is_borrowable
                                           ::is_broken
                                           ::is_incomplete
-
-                                   ;::building_id
                                           ::room_id
-
                                           ::status_note
-                                   ;::supplier_id
-                                   ;::owner_id
                                           ::properties]))
 
 (sa/def :package/multipart (sa/keys :opt-un [::model_id
@@ -226,30 +258,18 @@
                                              ::attachments-to-delete
                                              ::attachments
                                              ::retired_reason
-                                             ;:simple/properties
                                              ::owner_id
-                                             ::user_name
-                                             ;::item_version
-                                             ]
-                                    :req-un [;::serial_number
-                                             ::note
-                                      ;::invoice_date
-                                      ;::invoice_number
+                                             ::user_name]
+                                    :req-un [::note
                                              ::price
                                              ::shelf
                                              ::inventory_code
                                              ::retired
-
                                              ::is_borrowable
                                              ::is_broken
                                              ::is_incomplete
-
-                                      ;::building_id
                                              ::room_id
-
                                              ::status_note
-                                      ;::supplier_id
-                                      ;::owner_id
                                              ::properties]))
 
 (sa/def ::inventory_code string?)
@@ -259,7 +279,6 @@
 (sa/def :nil/invoice_number (sa/nilable any?))
 (sa/def :nil/note (sa/nilable string?))
 (sa/def :nil/serial_number (sa/nilable string?))
-
 (sa/def ::responsible_department uuid?)
 
 (sa/def ::data-spec
@@ -276,7 +295,6 @@
 (sa/def ::group string?)
 (sa/def ::id string?)
 (sa/def ::label string?)
-;(sa/def ::owner (nil-or uuid?))
 (sa/def ::owner (nil-or string?))
 (sa/def ::position int?)
 (sa/def ::role (nil-or string?))
@@ -301,17 +319,12 @@
   (st/spec {:spec (sa/keys :req-un [::data-spec ::fields-spec])
             :description "Body of the request"}))
 
-;; Define primitive field specs
 (sa/def ::note string?)
 (sa/def ::is_inventory_relevant boolean?)
-;(sa/def ::last_check inst?) ;; Assuming it is a date
 (sa/def ::last_check any?)
 (sa/def ::user_name string?)
-
-;(sa/def ::price int?)
 (sa/def ::price string?)
 (sa/def :any/price any?)
-
 (sa/def ::shelf string?)
 (sa/def ::inventory_code string?)
 (sa/def ::retired boolean?)
@@ -322,8 +335,6 @@
 (sa/def ::status_note string?)
 (sa/def ::room_id uuid?)
 (sa/def ::owner_id uuid?)
-
-;; Define the schema for items in items_attributes
 (sa/def ::item_inventory_code string?)
 (sa/def ::item_id uuid?)
 (sa/def :any/items_attributes any?)
@@ -331,17 +342,14 @@
 (sa/def ::items_attributes
   (sa/coll-of (sa/keys :req-un [::item_inventory_code ::item_id]) :kind vector?))
 
-;; Define the main spec for the request body
 (sa/def :package-put/inventory-attributes
-  (st/spec {:spec (sa/keys :req-un [;::note
-                                    ::is_inventory_relevant
+  (st/spec {:spec (sa/keys :req-un [::is_inventory_relevant
                                     ::last_check
                                     ::user_name
                                     ::price
                                     ::shelf
                                     ::inventory_code
                                     ::retired
-                                    ;::retired_reason
                                     ::is_broken
                                     ::is_incomplete
                                     ::is_borrowable
@@ -349,13 +357,10 @@
                                     ::room_id
                                     ::model_id
                                     ::owner_id]
-
                            :opt-un [::note ::retired_reason
                                     ::items_attributes])
-
             :description "Inventory attributes with details"}))
 
-;; Ensure all spec keys are properly namespaced
 (sa/def :res/properties map?)
 (sa/def :res/inventory_code string?)
 (sa/def :res/owner_id uuid?)
@@ -384,13 +389,11 @@
 (sa/def :res/user_name string?)
 (sa/def :res/room_id uuid?)
 (sa/def :res/serial_number (sa/nilable string?))
-;(sa/def :res/price double?)
 (sa/def :res/price (sa/nilable any?))
 (sa/def :res/created_at inst?) ;; Date
 (sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
 
-;; ✅ Correct: Define the `data` spec properly
 (sa/def :res/data
   (st/spec {:spec (sa/keys :req-un [:res/inventory_code
                                     :nil/retired
@@ -432,13 +435,11 @@
 
 (sa/def :res/validation (sa/coll-of map? :kind vector?))
 
-;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
                            :opt-un [:res/validation :res/items_attributes])
             :description "Complete inventory response"}))
 
-;; Define the main coercion spec with properly namespace-qualified keys
 (sa/def :package-put-response2/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
                            :opt-un [:res/validation])
@@ -500,26 +501,9 @@
 ;   :permissions {:role string?
 ;                 :owner boolean?}})
 
-(def item-field-schema
-  {:role (sa/nilable string?)
-   :group (sa/nilable string?)
-   :group_default string?
-   :role_default string?
-   (ds/opt :target_default) string?
-   :active boolean?
-   :label string?
-   :id string?
-   :position int?
-   (ds/opt :target) (sa/nilable string?)
-   :owner (sa/nilable string?)
-
-   ;:data FieldDataSchema                                    ;; FIXME broken
-   :data any?})
-
 (sa/def :license/data-schema
   (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
-;(sa/def ::FieldSchema2
 (sa/def :license/field-schema
   (sa/keys :req-un [:nil/role
                     :nil/group
@@ -534,33 +518,9 @@
                     :bool/owner
                     ::data]))
 
-(def item-data-schema
-  {:inventory_pool_id uuid?
-   :responsible_department string?
-   :quantity int?
-   :inventory_code string?})
-
-(def item-response-get
-  {:data item-data-schema
-   :fields [item-field-schema]})
-
-;; ----------------------
-
-;(ns my-api.schema
-;  (:require [clojure.spec.alpha :as s]))
-
-;; Define a UUID type (as string)
 (sa/def ::uuid string?)
-
-;; Define a nullable string
 (sa/def ::nullable-string (sa/nilable string?))
-
-;; Define boolean and integer types
-;(sa/def ::boolean boolean?)
 (sa/def ::integer int?)
-
-;; Define "data" schema
-;(sa/def ::inventory_pool_id ::uuid)
 (sa/def ::inventory_pool_id string?)
 (sa/def ::inventory_pool_id any?)
 (sa/def ::responsible_department ::uuid)
@@ -571,33 +531,24 @@
                     ::responsible_department
                     ::inventory_code]))
 
-;; Define "permissions" schema inside "data"
 (sa/def ::role string?)
-;(sa/def ::owner ::boolean)
 
 (sa/def ::PermissionsSchema
   (sa/keys :req-un [::role ::owner]))
 
-;; Define "data" inside "fields"
 (sa/def ::type string?)
 (sa/def ::group string?)
 (sa/def ::label string?)
 (sa/def ::attribute any?)
-;(sa/def ::permissions ::PermissionsSchema)
 (sa/def ::permissions any?)
 (sa/def ::forPackage boolean?)
-
-;; Define "fields" schema
 (sa/def :nil/role (sa/nilable string?))
 (sa/def :nil/group (sa/nilable string?))
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
 (sa/def ::role_default string?)
 (sa/def ::target_default string?)
-;(sa/def ::active ::boolean)
 (sa/def ::label string?)
-;(sa/def :bool/owner boolean?)
-;(sa/def :bool/owner (sa/nilable boolean?))
 (sa/def :bool/owner (sa/nilable string?))
 (sa/def ::id string?)
 (sa/def ::id uuid?)
@@ -605,24 +556,6 @@
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
 
-;(sa/def ::FieldDataSchema
-;  (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
-
-;(sa/def ::FieldSchema
-;  (sa/keys :req-un [:nil/role
-;                    :nil/group
-;                    ::group_default
-;                    ::role_default
-;                    ::target_default
-;                    ::active
-;                    ::label
-;                    :any/id
-;                    ::position
-;                    ::target
-;                    :bool/owner
-;                    ::data]))
-
-;; ----------------------
 (sa/def :nil/id (sa/nilable uuid?))
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
@@ -643,7 +576,6 @@
 (sa/def :nil/user_name (sa/nilable string?))
 (sa/def :nil-any/user_name (sa/nilable any?))
 (sa/def :nil/supplier_id (sa/nilable any?))
-
 (sa/def ::needs_permission boolean?)
 (sa/def ::is_incomplete boolean?)
 
@@ -660,11 +592,8 @@
                     ::invoice_number
                     ::is_broken
                     ::note
-
                     :nil/updated_at
                     :nil/retired_reason
-                    ;::retired_reason
-                    ;::responsible
                     :nil/responsible
                     :nil/invoice_date
                     ::model_id
@@ -673,7 +602,6 @@
                     :nil/id
                     ::inventory_pool_id
                     ::is_incomplete
-                    ;:nil/item_version
                     ::needs_permission
                     ::user_name
                     ::room_id
@@ -684,20 +612,13 @@
                     ::properties]
            :opt-un [:nil2/item_version]))
 
-(def item-response-post
-  {:data :item/response
-   :validation [any?]})
-
 (sa/def ::is_package boolean?)
 (sa/def ::maintenance_period int?)
 (sa/def ::type string?)
-;(sa/def :nil/description (sa/nilable string?))
 (sa/def :nil/attachments (sa/nilable any?)) ;; Optional field
 (sa/def :nil/rental_price (sa/nilable any?))
 (sa/def :nil/cover_image_id (sa/nilable any?))
-;(sa/def :nil/hand_over_note (sa/nilable any?))
-;(sa/def :nil/internal_description (sa/nilable string?))
-;(sa/def :nil/info_url (sa/nilable any?))
+
 (sa/def ::updated_at any?)
 (sa/def ::product string?)
 (sa/def ::id uuid?) ;; UUID spec
@@ -716,31 +637,6 @@
 (sa/def :nil/hand_over_note (sa/nilable string?))
 (sa/def :nil/internal_description (sa/nilable string?))
 (sa/def :nil/info_url (sa/nilable string?))
-
-;; Define the full map spec
-;(def ResponseBodySoftware
-(sa/def :software/response
-  (sa/keys :req-un [:nil/description
-                    ;::description
-                    ::is_package
-                    ::type
-                    :nil/hand_over_note
-                    :nil/internal_description
-                    ::product
-                    ::id
-                    ::manufacturer
-                    :nil/version
-                    :nil/technical_detail]
-
-           :opt-un [::attachments
-                    ::maintenance_period
-                    :nil/rental_price
-                    :nil/cover_image_id
-                    ::updated_at
-                    :nil/info_url
-                    ::created_at]))
-
-;; Optional key
 
 (sa/def :license/post-license (sa/keys :req-un [::inventory_code]
                                        :opt-un [::item_id
@@ -799,9 +695,7 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-
-(sa/def :package/payload (sa/keys :req-un [
-                                           :nil/user_name
+(sa/def :package/payload (sa/keys :req-un [:nil/user_name
                                            :nil/price
                                            :nil/shelf
                                            :nil/status_note
@@ -815,7 +709,5 @@
                                            ::room_id
                                            ::model_id
                                            ::owner_id
-                                           ;::items_attributes
-                                           :any/items_attributes
-                                                ]
-                                :opt-un []))
+                                           :any/items_attributes]
+                                  :opt-un []))
