@@ -485,20 +485,20 @@
 
 (def response-option [response-option-object])
 
-(def FieldDataSchema ;; FIXME
-  {:type string?
-   :group string?
-   :label string?
-   (ds/opt :values) any?
-   (ds/opt :default) any?
-   :attribute any?
-   (ds/opt :forPackage) any?
-   (ds/opt :target_type) any?
-   (ds/opt :values_label_method) any?
-   (ds/opt :values_dependency_field_id) any?
-   (ds/opt :required) any?
-   :permissions {:role string?
-                 :owner boolean?}})
+;(def FieldDataSchema ;; FIXME
+;  {:type string?
+;   :group string?
+;   :label string?
+;   (ds/opt :values) any?
+;   (ds/opt :default) any?
+;   :attribute any?
+;   (ds/opt :forPackage) any?
+;   (ds/opt :target_type) any?
+;   (ds/opt :values_label_method) any?
+;   (ds/opt :values_dependency_field_id) any?
+;   (ds/opt :required) any?
+;   :permissions {:role string?
+;                 :owner boolean?}})
 
 (def item-field-schema
   {:role (sa/nilable string?)
@@ -516,10 +516,11 @@
    ;:data FieldDataSchema                                    ;; FIXME broken
    :data any?})
 
-(sa/def ::FieldDataSchema2
+(sa/def :license/data-schema
   (sa/keys :req-un [::inventory_pool_id ::responsible_department ::inventory_code]))
 
-(sa/def ::FieldSchema2
+;(sa/def ::FieldSchema2
+(sa/def :license/field-schema
   (sa/keys :req-un [:nil/role
                     :nil/group
                     ::group_default
@@ -646,7 +647,7 @@
 (sa/def ::needs_permission boolean?)
 (sa/def ::is_incomplete boolean?)
 
-(def :item/response
+(sa/def :item/response
   (sa/keys :req-un [::inventory_code
                     ::owner_id
                     ::is_borrowable

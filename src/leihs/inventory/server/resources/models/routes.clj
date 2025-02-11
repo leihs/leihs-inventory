@@ -730,8 +730,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler fetch-license-handler-by-pool-form-fetch
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
-                             :body {:data ::mc/FieldDataSchema2
-                                    :fields [::mc/FieldSchema2]}}
+                             :body {:data :license/data-schema
+                                    :fields [:license/field-schema]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
