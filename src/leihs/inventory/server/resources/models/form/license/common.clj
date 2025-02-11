@@ -55,10 +55,10 @@
   [data keys-to-check]
   (reduce (fn [m k]
             (try
-                 (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
-                   (dissoc m k)
-                   m)
-                 (catch Exception e)))
+              (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
+                (dissoc m k)
+                m)
+              (catch Exception e)))
           data
           keys-to-check))
 

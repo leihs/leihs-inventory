@@ -441,7 +441,7 @@
             :description "Inventory item data"}))
 
 (sa/def :res/validation (sa/coll-of map? :kind vector?))
-
+;; FIXME
 ;(sa/def :package-put-response/inventory-item
 ;  (st/spec {:spec (sa/keys :req-un [:res/data]
 ;                           :opt-un [:res/validation :res/items_attributes])
