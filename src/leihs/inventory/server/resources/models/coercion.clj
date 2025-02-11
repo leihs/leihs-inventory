@@ -693,7 +693,7 @@
 (sa/def ::needs_permission boolean?)
 (sa/def ::is_incomplete boolean?)
 
-(def DataSchema2
+(def :item/response
   (sa/keys :req-un [::inventory_code
                     ::owner_id
                     ::is_borrowable
@@ -731,7 +731,7 @@
            :opt-un [:nil2/item_version]))
 
 (def test_ResponseBodySchema
-  {:data DataSchema2
+  {:data :item/response
    :validation [any?]})
 
 (sa/def ::is_package boolean?)

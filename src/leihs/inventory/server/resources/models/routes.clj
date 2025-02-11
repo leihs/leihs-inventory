@@ -432,7 +432,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler update-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             :body {:data mc/DataSchema2
+                             :body {:data :item/response
                                     :validation [any?]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
@@ -446,7 +446,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :handler fetch-items-handler-by-pool-form
             :responses {200 {:description "OK"
-                             :body {:data mc/DataSchema2
+                             :body {:data :item/response
                                     :fields [any?]}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
