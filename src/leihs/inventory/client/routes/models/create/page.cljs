@@ -23,17 +23,15 @@
   (js/console.debug "is invalid: " data))
 
 (defn fetch-entitlement-groups [params]
-  (js/console.debug params)
   (let [path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)]
     (.. (js/fetch path (cj {:headers {"Accept" "application/json"}}))
         (then #(.json %))
         (then #(jc %)))))
 
-(defn fetch-categories [params]
-  (let [path (router/generatePath "/inventory/:pool-id/model-groups" params)]
-    (.. (js/fetch path (cj {:headers {"Accept" "application/json"}}))
-        (then #(.json %))
-        (then #(jc %)))))
+(defn fetch-categories []
+  (.. (js/fetch "/inventory/tree" (cj {:headers {"Accept" "application/json"}}))
+      (then #(.json %))
+      (then #(jc %))))
 
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
@@ -45,7 +43,7 @@
         entitlement-groups (jc (useQuery (cj {:queryKey ["entitlement-groups"]
                                               :queryFn #(fetch-entitlement-groups params)})))
         categories (jc (useQuery (cj {:queryKey ["categorories"]
-                                      :queryFn #(fetch-categories params)})))]
+                                      :queryFn #(fetch-categories)})))]
 
     (cond
       (and (:isLoading entitlement-groups) (:isLoading categories))
