@@ -46,6 +46,7 @@ feature "Inventory Model Management2" do
         # update option
         form_data = {
           product: Faker::Commerce.product_name,
+          inventory_code: "INV-1001",
           version: "v2",
           price: "222"
         }

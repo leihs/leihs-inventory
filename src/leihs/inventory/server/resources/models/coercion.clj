@@ -103,6 +103,7 @@
 (sa/def ::technicalDetails (sa/nilable string?))
 (sa/def ::internalDescription (sa/nilable string?))
 (sa/def ::importantNotes (sa/nilable string?))
+(sa/def ::handOverNote (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
 
 (sa/def ::compatible_ids (sa/or
@@ -457,10 +458,10 @@
                                              :str string?)
                               :none nil?))
 
-(sa/def :option/multipart (sa/keys :req-un [::product]
+(sa/def :option/multipart (sa/keys :req-un [::product
+                                            ::inventory_code]
                                    :opt-un [::version
-                                            ::price
-                                            ::inventory_code]))
+                                            ::price]))
 
 (sa/def :software/multipart (sa/keys :req-un [::product]
                                      :opt-un [::version
@@ -470,6 +471,7 @@
                                               ::technicalDetails
                                               ::internalDescription
                                               ::importantNotes
+                                              ::handOverNote
                                               ::categories
                                               ::attachments-to-delete
                                               ::images-to-delete
@@ -488,8 +490,8 @@
                              :inventory_code string?
                              :manufacturer any?
                              :product string?
-                             :version string?
-                             :price any?})
+                             :version (sa/nilable string?)
+                             :price (sa/nilable any?)})
 
 (def response-option [response-option-object])
 

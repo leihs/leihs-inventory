@@ -245,6 +245,9 @@
     <div class="form-group">
         <label for="internalDescription">Internal Description</label>
         <textarea id="internalDescription" name="internalDescription"></textarea>
+    </div>    <div class="form-group">
+        <label for="handOverNote">Important notes for hand over</label>
+        <textarea id="handOverNote" name="handOverNote"></textarea>
     </div>
     <div class="form-group">
         <label>Eigenschaften</label>
@@ -527,6 +530,7 @@
                     $('#description').val(response.description);
                     $('#technicalDetails').val(response.technical_detail);
                     $('#internalDescription').val(response.internal_description);
+                    $('#handOverNote').val(response.hand_over_note);
                     // $('#isPackage').prop('checked', response.type === 'Package');
                     // formData.delete('isPackage');
                     $('#isPackage').prop('checked', response.is_package);

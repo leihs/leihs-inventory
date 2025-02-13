@@ -6,6 +6,21 @@
     <title>Create New Software</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        function generateLinks() {
+            const poolId = document.getElementById('poolId').value;
+            const softwareId = document.getElementById('fetchSoftwareId').value;
+
+            const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/models/${softwareId}/edit?return_url=/manage/${poolId}/inventory`;
+            const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/models/${softwareId}/edit?return_url=/manage/${poolId}/inventory`;
+
+            document.getElementById('stagingLink').href = stagingLink;
+            document.getElementById('stagingLink').innerText = stagingLink;
+
+            document.getElementById('testLink').href = testLink;
+            document.getElementById('testLink').innerText = testLink;
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -15,7 +30,8 @@
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         .file-list { margin-top: 10px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .myBtn{ margin-top: 10px;}
+        .file-item { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
         .file-item span { flex-grow: 1; }
         .remove-file-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
         .remove-file-btn:hover { background-color: #a71d2a; }
@@ -83,6 +99,19 @@
 </ul>
 
 
+<h3>Links to Test/Staging</h3>
+
+<div>
+    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
+    <br/>
+    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+</div>
+<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
+
+
+<br/><br/>
+<br/><br/>
+
 <h1 id="formTitle">Create New Software</h1>
 
 <h3>Options</h3>
@@ -94,7 +123,7 @@
     <label for="fetchSoftwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a></label>
 
     <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="4ba376ff-5c55-4bac-b7af-2b4d6015e3a8">
-    <button id="fetchSoftwareBtn">Fetch Software</button>
+    <button id="fetchSoftwareBtn" class="myBtn">Fetch Software</button>
 </div>
 <br/><br/><br/><br/>
 
@@ -123,11 +152,23 @@
     </div>
 
     <div class="form-group">
-        <button type="submit">Save Software</button>
+        <button type="submit"  class="myBtn">Save Software</button>
     </div>
 </form>
 
 <script>
+    function showResultEffect(effectClass) {
+        $('body').addClass(effectClass);
+        setTimeout(() => $('body').removeClass(effectClass), 3000);
+    }
+
+    function clearForm() {
+        $('#product').val("");
+        $('#version').val("");
+        $('#manufacturer').val("");
+        $('#technicalDetails').val("");
+    }
+
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
 
@@ -136,11 +177,6 @@
                 ? { url: `/inventory/${poolId}/software`, method: 'POST' }
                 : { url: `/inventory/${poolId}/software/${softwareId}`, method: 'PUT' };
         };
-
-        function showResultEffect(effectClass) {
-            $('body').addClass(effectClass);
-            setTimeout(() => $('body').removeClass(effectClass), 3000);
-        }
 
         function fetchOptions(url, selectId) {
             fetch(url, { headers: { Accept: "application/json" } })
@@ -154,7 +190,6 @@
                         option.textContent = item;
                         select.appendChild(option);
                     });
-                    initSelect2(selectId);
                 })
                 .catch((error) => console.error("Error:", error));
         }
@@ -193,7 +228,8 @@
                             const attachmentItem = $(`
                                 <div class="file-item">
                                     <span>${attachment.filename}</span>
-                                    <a href="/inventory/attachments/${attachment.id}" target="_blank">Download</a>
+                                    <a href="/inventory/attachments/${attachment.id}?content_disposition=attachment" target="_blank">Download</a>
+                                    <a href="/inventory/attachments/${attachment.id}" target="_blank">Open Preview-Tab</a>
                                     <button type="button" class="remove-file-btn" data-attachment-id="${attachment.id}">Remove</button>
                                 </div>
                             `);
@@ -251,6 +287,16 @@
                 headers: { Accept: "application/json" },
                 success: function (response) {
                     console.log("Software saved successfully!", response);
+
+                    clearForm();
+
+                    if( CONST_IS_CREATE_FORM) {
+                        $('#fetchSoftwareId').val(response.data.id)
+                    }else{
+                        $('#fetchSoftwareId').val(response[0].id)
+                        $('#fetchSoftwareBtn').click()
+                    }
+
                     showResultEffect("save-success");
                 },
                 error: function (xhr, status, error) {
