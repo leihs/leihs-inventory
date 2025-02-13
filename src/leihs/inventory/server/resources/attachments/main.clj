@@ -13,18 +13,19 @@
   (:import [java.io ByteArrayInputStream]))
 
 (defn base64-to-content-stream
-  [base64-string file-name]
+  [base64-string file-name content-type content-disposition]
   (let [decoded-bytes (base64/decode (.getBytes base64-string "UTF-8"))
         input-stream (ByteArrayInputStream. decoded-bytes)]
     (-> (response/response input-stream)
-        (response/content-type "application/octet-stream")
-        (response/header "Content-Disposition" (str "attachment; filename=\"" file-name "\"")))))
+        (response/content-type content-type)
+        (response/header "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")))))
 
 (defn get-attachments-handler [request]
   (try
     (let [tx (:tx request)
           id (-> request path-params :id)
           accept-header (get-in request [:headers "accept"])
+          content_disposition (or (-> request :parameters :query :content_disposition) "inline")
           uri (:uri request)
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
@@ -35,8 +36,9 @@
         (= accept-header "application/octet-stream")
         (let [attachment (first result)
               base64-string (:content attachment)
-              file-name (:filename attachment)]
-          (base64-to-content-stream base64-string file-name))
+              file-name (:filename attachment)
+              content-type (:content_type attachment)]
+          (base64-to-content-stream base64-string file-name content-type content_disposition))
         :else
         (response {:attachments result})))
     (catch Exception e

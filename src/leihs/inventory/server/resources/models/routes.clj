@@ -590,7 +590,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                                      :product (sa/nilable string?)}]
                                       :manufacturer any?
                                       :version string?
-                                      :technical_detail string?}]}
+                                      :technical_detail (sa/nilable string?)}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 

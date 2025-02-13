@@ -19,7 +19,8 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json" "application/octet-stream"]}
-           :parameters {:path {:id s/Uuid}}
+           :parameters {:path {:id s/Uuid}
+                        :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
            :handler get-attachments-handler
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
