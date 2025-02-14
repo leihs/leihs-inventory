@@ -50,28 +50,26 @@
    :quantity int?
    :inventory_code string?})
 
-(def item-field-schema
-  {:role (sa/nilable string?)
-   :group (sa/nilable string?)
-   :group_default string?
-   :role_default string?
-   (ds/opt :target_default) string?
-   :active boolean?
-   :label string?
-   :id string?
-   :position int?
-   (ds/opt :target) (sa/nilable string?)
-   :owner (sa/nilable string?)
-   ;:data FieldDataSchema                                    ;; FIXME broken
-   :data any?})
-
 (def item-response-get
   {:data item-data-schema
-   :fields [item-field-schema]})
+   :fields [:items/response]})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by sa/def
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(sa/def :items/response
+  (sa/keys :req-un [:nil/role
+                    :nil/group
+                    ::active
+                    ::label
+                    :str/id
+                    ::position
+                    :nil-str/owner
+                    ::data]
+           :opt-un [:nil/group_default
+                    :nil/role_default
+                    ::target_default]))
+
 (sa/def :software/response
   (sa/keys :req-un [:nil/description
                     ::is_package
@@ -168,13 +166,14 @@
 
 (sa/def ::properties string?)
 (sa/def ::serial_number string?)
-(sa/def ::note string?)
+(sa/def :nil/note (sa/nilable string?))
 (sa/def ::status_note string?)
 (sa/def ::owner_id uuid?)
 (sa/def ::building_id uuid?)
 (sa/def ::room_id uuid?)
 (sa/def ::software_id uuid?)
 (sa/def ::supplier_id (sa/nilable string?))
+(sa/def :nil-any/supplier_id (sa/nilable any?))
 (sa/def ::model_id uuid?)
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
@@ -186,6 +185,7 @@
 (sa/def ::invoice_date string?)
 (sa/def :any/invoice_date any?)
 (sa/def ::invoice_number string?)
+(sa/def :nil/invoice_number (sa/nilable string?))
 (sa/def ::shelf string?) ;; FIXME
 (sa/def ::user_name string?)
 (sa/def ::activation_type string?)
@@ -244,6 +244,7 @@
                                           ::attachments-to-delete
                                           ::attachments
                                           ::retired_reason
+                                          ::quantity ;; TODO: used for POST only
                                           ::owner_id
                                           ::user_name]
                                  :req-un [::serial_number
@@ -331,6 +332,7 @@
 (sa/def ::is_inventory_relevant boolean?)
 (sa/def ::last_check any?)
 (sa/def ::user_name string?)
+(sa/def :nil/user_name (sa/nilable string?))
 (sa/def ::price string?)
 (sa/def :any/price any?)
 (sa/def ::shelf string?)
@@ -341,6 +343,7 @@
 (sa/def ::is_incomplete boolean?)
 (sa/def ::is_borrowable boolean?)
 (sa/def ::status_note string?)
+(sa/def :nil/status_note (sa/nilable string?))
 (sa/def ::room_id uuid?)
 (sa/def ::owner_id uuid?)
 (sa/def ::item_inventory_code string?)
@@ -475,6 +478,7 @@
                                               ::categories
                                               ::attachments-to-delete
                                               ::images-to-delete
+                                              ::owner
                                               ::compatibles
                                               ::images
                                               ::attachments
@@ -524,7 +528,7 @@
                     :any/id
                     ::position
                     ::target
-                    :bool/owner
+                    :nil-any/owner
                     ::data]))
 
 (sa/def ::uuid string?)
@@ -553,13 +557,15 @@
 (sa/def ::forPackage boolean?)
 (sa/def :nil/role (sa/nilable string?))
 (sa/def :nil/group (sa/nilable string?))
+(sa/def :nil/group_default (sa/nilable string?))
+(sa/def :nil/role_default (sa/nilable string?))
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
 (sa/def ::role_default string?)
 (sa/def ::target_default string?)
 (sa/def ::label string?)
-(sa/def :bool/owner (sa/nilable string?))
-(sa/def ::id string?)
+(sa/def :nil-str/owner (sa/nilable string?))
+(sa/def :str/id string?)
 (sa/def ::id uuid?)
 (sa/def ::position ::integer)
 (sa/def ::target ::nullable-string)
@@ -572,13 +578,13 @@
 (sa/def :nil/status_note (sa/nilable string?))
 (sa/def :nil/shelf (sa/nilable string?))
 (sa/def :nil-str/shelf (sa/nilable string?))
-(sa/def :nil/last_check (sa/nilable string?))
+(sa/def :nil/last_check (sa/nilable any?))
 (sa/def :nil/item_version (sa/nilable string?))
 (sa/def :nil2/item_version (sa/nilable any?))
 (sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
-(sa/def :nil/price (sa/nilable string?))
-(sa/def :nil/invoice_date (sa/nilable string?))
+(sa/def :nil/price (sa/nilable number?))
+(sa/def :nil/invoice_date (sa/nilable any?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
 (sa/def :nil/insurance_number (sa/nilable any?))
@@ -596,23 +602,24 @@
                     ::is_inventory_relevant
                     ::last_check
                     ::shelf
-                    ::status_note
+                    :nil/status_note
                     :nil/name
-                    ::invoice_number
+                    :nil/invoice_number
                     ::is_broken
-                    ::note
+                    :nil/note
                     :nil/updated_at
                     :nil/retired_reason
                     :nil/responsible
                     :nil/invoice_date
                     ::model_id
-                    ::supplier_id
+                    ;::supplier_id
+                    :nil-any/supplier_id
                     :nil/parent_id
                     :nil/id
                     ::inventory_pool_id
                     ::is_incomplete
                     ::needs_permission
-                    ::user_name
+                    :nil/user_name
                     ::room_id
                     ::serial_number
                     :nil/price
@@ -622,6 +629,8 @@
            :opt-un [:nil2/item_version]))
 
 (sa/def ::is_package boolean?)
+(sa/def :bool/owner (sa/nilable boolean?))
+(sa/def :nil-any/owner (sa/nilable any?))
 (sa/def ::maintenance_period int?)
 (sa/def ::type string?)
 (sa/def :nil/attachments (sa/nilable any?)) ;; Optional field
@@ -696,7 +705,7 @@
                                                 :nil/parent_id
                                                 ::inventory_pool_id
                                                 ::is_incomplete
-                                                ::item_version
+                                                :nil/item_version
                                                 ::needs_permission
                                                 :nil/user_name
                                                 ::room_id
@@ -704,11 +713,9 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-(sa/def :package/payload (sa/keys :req-un [:nil/user_name
-                                           :nil/price
+(sa/def :package/payload (sa/keys :req-un [:nil/price
                                            :nil/shelf
                                            :nil/status_note
-                                           ::is_inventory_relevant
                                            ::last_check
                                            ::inventory_code
                                            ::retired
@@ -717,6 +724,7 @@
                                            ::is_borrowable
                                            ::room_id
                                            ::model_id
-                                           ::owner_id
                                            :any/items_attributes]
-                                  :opt-un []))
+                                  :opt-un [::owner_id
+                                           ::is_inventory_relevant
+                                           :nil/user_name]))

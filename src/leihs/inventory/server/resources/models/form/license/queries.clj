@@ -61,7 +61,8 @@
                   jsonb_extract_path_text(f.data, 'permissions', 'owner') AS owner
 
                FROM fields f
-               WHERE f.active = true) ff"]])))
+               WHERE f.active = true
+               OR f.id = 'inventory_code') ff"]])))
 
 (defn inventory-manager-license-subquery [query]
   (-> query
@@ -114,6 +115,7 @@
 
                 WHERE (ff.group_default IN ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Location', 'Eigenschaften', 'none'))
                 AND (ff.target_default IN ('item', ''))
+                OR ff.id = 'inventory_code'
                 ORDER BY ff.group_default, ff.position"]])))
 
 (defn lending-manager-item-subquery [query]
@@ -140,6 +142,7 @@
                           ('General Information', 'Invoice Information', 'Status', 'Inventory', 'Location', 'Eigenschaften', 'none'))
                       AND (COALESCE(ff.target, '') IN ('item', ''))
                       AND (ff.role IS NULL OR ff.role = 'lending_manager')
+                      OR ff.id = 'inventory_code'
                     ORDER BY ff.group, ff.position) k"]])))
 
 (defn inventory-manager-package-subquery [query]

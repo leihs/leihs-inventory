@@ -6,6 +6,21 @@
     <title>Create New Item</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        function generateLinks() {
+            const poolId = document.getElementById('poolId').value;
+            const modelId = document.getElementById('itemId').value;
+
+            const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
+            const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
+
+            document.getElementById('stagingLink').href = stagingLink;
+            document.getElementById('stagingLink').innerText = stagingLink;
+
+            document.getElementById('testLink').href = testLink;
+            document.getElementById('testLink').innerText = testLink;
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -13,6 +28,7 @@
         label { display: block; margin-bottom: 5px; }
         input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        .myBtn{ margin-top: 10px;}
         button:hover { background-color: #0056b3; }
         .file-list { margin-top: 10px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -265,6 +281,21 @@
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
 </ul>
 
+
+
+<h3>Links to Test/Staging</h3>
+
+<div>
+    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
+    <br/>
+    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+</div>
+<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
+
+
+<br/><br/>
+<br/><br/>
+
 <h1 id="formTitle">Create New Items (dyn)</h1>
 
 <h3>Options</h3>
@@ -275,13 +306,12 @@
 <div class="form-group">
     <label for="modelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [modelId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
 
-    <input type="text" id="modelId" name="modelId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
-<!--    <input type="text" id="modelId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
+    <input type="text" id="modelId" name="modelId" value="2ed6f881-c7ac-5c9a-8109-10c22814b59b">
 </div>
 
 <div class="form-group">
     <label for="itemId">Item ID (item_id) [itemId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="itemId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <input type="text" id="itemId"  value="8623dc67-cdbe-5c2b-9b16-1cc647d8ad36">
 
     <button id="fetchItemBtn">Fetch Item</button>
 </div>
@@ -499,17 +529,19 @@
     }
 
 
-    function checkFormDataOrThrow(formData, modelId){
+    function checkFormDataOrThrow(formData, modelId, requestType) {
         if(formData == undefined){
             throw new Error("formData is undefined")
         }
 
-        // if (['null', undefined, null].includes(formData.get("supplier_id"))) {
-        //     // formData.delete("supplier_id");
-        //     throw new Error("Supplier is required");
-        // }
+        if (requestType=="post" && (formData.get("quantity") == undefined || formData.get("quantity") < 1)) {
+            throw new Error("Quantity is required");
+        }
 
-        // for url
+        if (requestType=="put" && formData.has("quantity") ) {
+            throw new Error("Quantity is not allowed");
+        }
+
         if (['null', undefined, null].includes(modelId)) {
             // formData.delete("supplier_id");
             throw new Error("Model is required");
@@ -608,7 +640,8 @@
                     field = $(`
                     <div class="form-item">
                         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                        <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
+<!--                         <input type="${data.type}" id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>-->
+                        <input type="${data.type}" id="${fieldId}" name="${fieldId}" ${data.required ? "required" : ""}>
                     </div>
                 `);
                     break;
@@ -754,7 +787,7 @@
         $("#myModel").select2(initSoftwareConfig)
 
         // $("#mySoftware").select2(initSoftwareConfig)
-        // $("#mySupplier").select2(initSupplierConfig)
+        $("#mySupplier").select2(initSupplierConfig)
 
 
         // Add Property Button Click Event
@@ -1367,8 +1400,9 @@
                             for (let [key, value] of formData.entries()) {
                                 console.log(key, value);
                             }
+                                formData.delete('quantity')
 
-                            // checkFormDataOrThrow(formData, modelId)
+                            checkFormDataOrThrow(formData, modelId, "put")
 
                             formData.delete('attachments-to-delete');
                             var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
@@ -1522,7 +1556,7 @@
                         let modelId=formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
-                        checkFormDataOrThrow(formData, modelId)
+                        checkFormDataOrThrow(formData, modelId, "post")
 
                         // // Debugging: log all keys and values in the FormData
                         // for (let [key, value] of formData.entries()) {
@@ -1545,6 +1579,9 @@
                                 $('#modelId').val(response.data.model_id)
                                 // $('#itemId').val(response.data.item_id)
                                 $('#itemId').val(response.data.id)
+
+
+                                console.info(`modelId=${response.data.model_id} itemId= ${response.data.id}`)
 
                                 $(`#attachmentsList`).data('to-delete', [])
                                 $('#attachments').val('');

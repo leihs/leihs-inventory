@@ -16,7 +16,7 @@
    ["/dev"
     {:swagger {:conflicting true
                :tags ["Dev"] :security []}}
-    ["/update-accounts" {:get {:conflicting true
+    ["/update-accounts" {:put {:conflicting true
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
 - role: inventory_manager, lending_manager, group_manager, customer\n

@@ -47,19 +47,19 @@
                       {:function-name 'generate-license-data
                        :original-exception e})))))
 
-(defn- update-license-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
+(defn- update-license-handler [{:keys [item_id model_id pool_id tx request item_entry] :as params}]
   (let [properties (first (parse-json-array request :properties))
         multipart (get-in request [:parameters :multipart])
-        update-data (generate-license-data request multipart properties pool-id)
+        update-data (generate-license-data request multipart properties pool_id)
         now-ts (LocalDateTime/now)
-        db-retired (:retired item-entry)
+        db-retired (:retired item_entry)
         request-retired (:retired multipart)
         retired-value (calculate-retired-value db-retired request-retired)
         update-data (assoc update-data :retired retired-value)]
     (try
       (let [update-model-query (-> (sql/update :items)
                                    (sql/set update-data)
-                                   (sql/where [:= :id item-id])
+                                   (sql/where [:= :id item_id])
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
@@ -70,7 +70,7 @@
                 (process-deletions tx attachments-to-delete :attachments :id))
             res (jdbc/execute! tx (-> (sql/select :id :filename :content_type :size)
                                       (sql/from :attachments)
-                                      (sql/where [:= :item_id item-id])
+                                      (sql/where [:= :item_id item_id])
                                       sql-format))
             updated-model (assoc updated-model :attachments res)]
         (if updated-model

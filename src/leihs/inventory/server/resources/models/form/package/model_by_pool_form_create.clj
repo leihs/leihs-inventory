@@ -82,6 +82,13 @@
 
         items_attributes (parse-json-array request :items_attributes)
         multipart (assoc multipart :inventory_pool_id pool-id)
+        ;;TODO: is this logic correct?
+        multipart (if (nil? (:owner_id multipart))
+                    (do
+                      (println ">> ToCHECK / WARNING: no owner_id set, default: pool_id=" pool-id)
+                      (assoc multipart :owner_id pool-id))
+                    multipart)
+
         prepared-package-data (prepare-package-data multipart)]
 
     (try

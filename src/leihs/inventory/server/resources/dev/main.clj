@@ -33,6 +33,7 @@
                                       {:select [:u.is_admin
                                                 :u.login
                                                 :u.email
+                                                :u.password_sign_in_enabled
                                                 :ua.user_id
                                                 :ua.inventory_pool_id
                                                 [:ip.name :pool_name]
@@ -48,7 +49,7 @@
                                                [:= :u.is_system_admin is-system-admin]
                                                [:= :ua.role role]
                                                [:= :ua.inventory_pool_id #uuid "8bd16d45-056d-5590-bc7f-12849f034351"]]
-                                       :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email]}]]})
+                                       :group-by [:ua.user_id :ua.inventory_pool_id :ip.name :u.is_admin :ua.role :u.login :u.email :u.password_sign_in_enabled]}]]})
 
           build-specific-query (fn [base-query type where-clause]
                                  (merge base-query

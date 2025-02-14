@@ -6,6 +6,21 @@
     <title>Create New License (dyn)</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        function generateLinks() {
+            const poolId = document.getElementById('poolId').value;
+            const modelId = document.getElementById('licenseId').value;
+
+            const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
+            const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
+
+            document.getElementById('stagingLink').href = stagingLink;
+            document.getElementById('stagingLink').innerText = stagingLink;
+
+            document.getElementById('testLink').href = testLink;
+            document.getElementById('testLink').innerText = testLink;
+        }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -13,6 +28,7 @@
         label { display: block; margin-bottom: 5px; }
         input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
         button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        .myBtn{ margin-top: 10px;}
         button:hover { background-color: #0056b3; }
         .file-list { margin-top: 10px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
@@ -265,6 +281,20 @@
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
 </ul>
 
+
+<h3>Links to Test/Staging</h3>
+
+<div>
+    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
+    <br/>
+    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+</div>
+<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
+
+
+<br/><br/>
+<br/><br/>
+
 <h1 id="formTitle">Create New License (dyn)</h1>
 
 <h3>Options</h3>
@@ -275,13 +305,12 @@
 <div class="form-group">
     <label for="softwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [softwareId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
 
-    <input type="text" id="softwareId" name="softwareId" value="26a110b9-e25a-5187-b8ff-dcd7e64cb09b">
-<!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
+    <input type="text" id="softwareId" name="softwareId" value="a8705e94-bb7c-50c0-9e43-e33197766fa1">
 </div>
 
 <div class="form-group">
     <label for="licenseId">License ID (item_id) [licenseId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="licenseId"  value="2ad83440-c867-47d5-bfca-f2a0fab43381">
+    <input type="text" id="licenseId"  value="2b542bfc-ba81-4719-a8c9-231ce4849317">
 
     <button id="fetchLicenseBtn">Fetch License</button>
 </div>
@@ -1100,11 +1129,12 @@
                         $("#myOldSoftware").val(swId)
 
                         // supplier
-                        var supplierName = data.supplier.name;
-                        var supplierId = data.supplier.supplier_id;
-                        var newOption = new Option(supplierName, supplierId, true, true);
-                        $("#mySupplier").append(newOption).trigger('change');
-
+                        if(data.supplier != undefined){
+                            var supplierName = data.supplier.name;
+                            var supplierId = data.supplier.supplier_id;
+                            var newOption = new Option(supplierName, supplierId, true, true);
+                            $("#mySupplier").append(newOption).trigger('change');
+                        }
 
                         if(data.is_borrowable){
                          $("[name=is_borrowable][value=true]").prop("checked", true)

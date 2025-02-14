@@ -99,7 +99,7 @@ feature "Inventory Model Management" do
           is_inventory_relevant: true,
           last_check: nil,
           user_name: nil,
-          price: nil,
+          price: 12.33,
           shelf: nil,
           inventory_code: "P-AUS00002",
           retired: false,

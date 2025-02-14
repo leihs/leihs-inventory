@@ -23,7 +23,7 @@
 
 (def resp-supplier [{:id s/Uuid
                      :name s/Str
-                     :note s/Str}])
+                     :note (s/maybe s/Str)}])
 
 (defn get-supplier-routes []
   [""

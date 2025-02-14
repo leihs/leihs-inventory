@@ -67,6 +67,14 @@
         attachments (normalize-files request :attachments)
         properties (first (parse-json-array request :properties))
         license-data (generate-license-data request multipart properties pool-id model-id)
+
+        ;;TODO: is this logic correct? Is lending_manager allowed to create license?
+        license-data (if (nil? (:owner_id multipart))
+                       (do
+                         (println ">> ToCHECK / WARNING: no owner_id set, default: pool_id=" pool-id)
+                         (assoc license-data :owner_id pool-id))
+                       license-data)
+
         model-data (-> (prepare-model-data multipart)
                        (assoc :is_package (str-to-bool (:is_package multipart))))]
     (try

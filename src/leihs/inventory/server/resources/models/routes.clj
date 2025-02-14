@@ -461,6 +461,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
       :get {:accept "application/json"
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            :description "Permitted access for:\n- lending_manager\n- inventory_manager"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
@@ -470,6 +471,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                            :responsible_department any?}
                                     :fields [any?]}
                              :description "OK"}
+                        401 {:description "Unauthorized: invalid role for the requested pool or method"
+                             :body {:error string?}}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 

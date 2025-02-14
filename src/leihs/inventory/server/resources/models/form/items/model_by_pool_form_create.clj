@@ -44,7 +44,7 @@
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
-        data (dissoc data :attachments :attachments-to-delete)
+        data (dissoc data :attachments :attachments-to-delete :quantity)
         properties [:cast (jsonc/generate-string properties) :jsonb]
 
         data (assoc data :properties properties)
@@ -66,6 +66,10 @@
         multipart (get-in request [:parameters :multipart])
         properties (first (parse-json-array request :properties))
         multipart (assoc multipart :inventory_pool_id pool-id)
+
+        ;; TODO: has to be created multiple times
+        quantity (-> multipart :quantity (or 1))
+
         prepared-model-data (prepare-item-data multipart properties)
         attachments (normalize-files request :attachments)]
 
