@@ -86,6 +86,12 @@
 
 (def allowed-types #{"model" "software" "license" "item" "option" "package"})
 
+(defn generate-content-type [filetype]
+  (let [charset "; charset=utf-8"]
+    (if (= filetype "js")
+      (str "application/javascript" charset)
+      (str "text/" filetype charset))))
+
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
@@ -107,7 +113,7 @@
       ;; TODO: DEV-ENDPOINT
       (and (str/starts-with? uri "/inventory/dev/") (not (nil? file))) ;; true
       {:status 200
-       :headers {"Content-Type" (str "text/" (extract-filetype uri))}
+       :headers {"Content-Type" (generate-content-type (extract-filetype uri))}
        :body (slurp (io/resource (str "public/dev/" file)))}
 
       (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri)
