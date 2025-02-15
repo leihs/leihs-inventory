@@ -592,7 +592,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :compatibles [{:id (sa/nilable any?)
                                                      :product (sa/nilable string?)}]
                                       :manufacturer any?
-                                      :version string?
+                                      :version (sa/nilable string?)
                                       :technical_detail (sa/nilable string?)}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
