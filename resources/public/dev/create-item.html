@@ -1253,6 +1253,14 @@
                     if (response && response.data) {
                         const data = response.data;
 
+                        // // FIXME: Clear & generate fields dynamically
+                        // // works, but init of other combo-fields is missing
+                        // $("#dynamicFields").html("")
+                        // const fields = response.fields;
+                        // generateFormFields(fields, "#softwareForm");
+                        $("#quantity").parent().remove()
+
+
                         // flatten
                         Object.assign(data, data.properties);
                         delete data.properties;
