@@ -18,6 +18,7 @@
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler
                                                               logout-handler
                                                               set-password-handler
+                                                              update-role-handler
                                                               token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
@@ -142,6 +143,15 @@
 (defn post-sign-out [request]
   (so/routes (convert-params request)))
 
+
+(def update-role-response  {
+                   :role-before s/Str
+                   :role-after s/Str
+                   :inventory_pool_id s/Uuid
+                   :count-of-direct-access-right-should-be-one s/Int
+                   (s/optional-key :update-result) s/Any
+                   })
+
 (defn basic-routes []
 
   ["/"
@@ -176,6 +186,48 @@
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}] :deprecated true}
               :handler authenticate-handler}}]
+
+      ["admin/update-role"
+       {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
+              :accept "application/json"
+              :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
+              :parameters {:query {
+                                   :role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                    ;:pool_id s/Uuid
+                                    (s/optional-key :pool_id) s/Uuid
+                                    ;:pool_id (s/default s/Uuid #uuid "00000000-0000-0000-0000-000000000000")
+                                   }
+                           }
+                                   ;}}
+              :coercion reitit.coercion.schema/coercion
+
+              :middleware [wrap-authenticate]
+              ;:swagger {:security [{:basicAuth []}] }
+              :handler update-role-handler
+              :responses {200 {:description "OK"
+                               :body {
+                                      :role-before s/Str
+                                      :role-after s/Str
+                                      :inventory_pool_id s/Uuid
+                                      :count-of-direct-access-right-should-be-one s/Int
+                               ;(s/optional-key :update-result) s/Any
+                                :update-result s/Any
+                                      }
+                               }
+
+                          409 {:description "Conflict"
+                               :body {
+                                      :role-before s/Str
+                                      :role-after s/Str
+                                      :inventory_pool_id s/Uuid
+                                      :count-of-direct-access-right-should-be-one s/Int
+                                      ;(s/optional-key :update-result) s/Any
+                                      ;:update-result s/Any
+                                      }
+                               }
+                          500 {:description "Internal Server Error"}}
+              ;}]]
+              }}]
 
       ["logout"
        {:get {:accept "application/json"
