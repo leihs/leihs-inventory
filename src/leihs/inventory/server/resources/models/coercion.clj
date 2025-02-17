@@ -716,6 +716,7 @@
 (sa/def :package/payload (sa/keys :req-un [:nil/price
                                            :nil/shelf
                                            :nil/status_note
+                                           :nil/note
                                            ::last_check
                                            ::inventory_code
                                            ::retired
@@ -726,5 +727,6 @@
                                            ::model_id
                                            :any/items_attributes]
                                   :opt-un [::owner_id
+                                           :nil/retired_reason
                                            ::is_inventory_relevant
                                            :nil/user_name]))

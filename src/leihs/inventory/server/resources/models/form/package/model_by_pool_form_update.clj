@@ -23,7 +23,7 @@
 (defn create-validation-response [data validation]
   {:data data :validation validation})
 
-(defn update-item-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
+(defn update-package-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -31,11 +31,15 @@
         items_attributes (parse-json-array request :items_attributes)
         multipart (assoc multipart :inventory_pool_id pool-id)
 
-          ;; FIXME: handle retired_reason with NEW-FE
-        multipart (dissoc multipart :retired)
+        ;; FIXME: handle retired_reason with NEW-FE
+        ;multipart (dissoc multipart :retired)
 
+        p (println ">o> abc.multipart" multipart)
         prepared-package-data (prepare-package-data multipart)
-        split-items (split-items items_attributes)]
+        split-items (split-items items_attributes)
+
+        p (println ">o> abc.prepared-package-data" prepared-package-data)
+        ]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
                                    (sql/set prepared-package-data)
@@ -76,7 +80,7 @@
         (error "Failed to update item" (.getMessage e))
         (bad-request {:error "Failed to update item" :details (.getMessage e)})))))
 
-(defn fetch-license-data [tx model-id item-id pool-id]
+(defn fetch-package-data [tx model-id item-id pool-id]
   (let [query (-> (sql/select :*)
                   (sql/from :items)
                   (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
@@ -89,7 +93,7 @@
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         tx (:tx request)
-        res (fetch-license-data tx model-id item-id pool-id)]
+        res (fetch-package-data tx model-id item-id pool-id)]
     (if res
-      (update-item-handler {:item_id item-id :model_id model-id :pool_id pool-id :tx tx :request request :item-entry res})
+      (update-package-handler {:item_id item-id :model_id model-id :pool_id pool-id :tx tx :request request :item-entry res})
       (bad-request {:error "Failed to update item" :details "No data found"}))))
