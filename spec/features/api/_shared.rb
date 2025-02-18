@@ -83,6 +83,7 @@ shared_context :setup_accessory_entitlements do
     create_accessory(@inventory_pool.id, first_model)
     create_and_add_property_to_model(first_model)
     create_and_add_entitlements(@inventory_pool, first_model)
+    create_and_add_entitlements(@inventory_pool, first_model)
   end
 end
 

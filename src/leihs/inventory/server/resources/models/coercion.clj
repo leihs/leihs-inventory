@@ -473,7 +473,7 @@
                                               ::description
                                               ::technicalDetails
                                               ::internalDescription
-                                              ::importantNotes
+                                              ;::importantNotes
                                               ::handOverNote
                                               ::categories
                                               ::attachments-to-delete
