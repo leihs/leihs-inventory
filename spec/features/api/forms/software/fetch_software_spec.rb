@@ -1,7 +1,111 @@
 require "spec_helper"
 require "pry"
 require_relative "../../_shared"
+# require_relative "../_common"
 require "faker"
+
+
+# post_response = {
+#   "description" => nil,
+#   "is_package" => false,
+#   "maintenance_period" => 0,
+#   "type" => "Software",
+#   "rental_price" => nil,
+#   "cover_image_id" => nil,
+#   "hand_over_note" => nil,
+#   "updated_at" => "2025-02-18T13:46:26Z",
+#   "internal_description" => nil,
+#   "product" => "Mediocre Rubber Lamp",
+#   "info_url" => nil,
+#   "id" => "78475b4c-c6a2-4018-ba81-ceac58323e3c",
+#   "manufacturer" => nil,
+#   "version" => nil,
+#   "created_at" => "2025-02-18T13:46:26Z",
+#   "technical_detail" => nil
+# }
+
+post_response = {
+  "description" => [NilClass, String],
+  "is_package" => [TrueClass, FalseClass],
+  "maintenance_period" => [NilClass, Integer],
+  "type" => String,
+  "rental_price" => [NilClass, Numeric],
+  "cover_image_id" => [NilClass, String],
+  "hand_over_note" => [NilClass, String],
+  "updated_at" => String,
+  "internal_description" => [NilClass, String],
+  "product" => String,
+  "info_url" => [NilClass, String],
+  "id" => String,
+  "manufacturer" => [NilClass, String],
+  "version" => [NilClass, String],
+  "created_at" => String,
+  "technical_detail" => [NilClass, String]
+}
+
+
+get_response = {
+  "description" => [NilClass, String],
+  "is_package" => [TrueClass, FalseClass],
+  "attachments" => Array,
+  "type" => String,
+  "hand_over_note" => [NilClass, String],
+  "internal_description" => [NilClass, String],
+  "product" => String,
+  "id" => String,
+  "manufacturer" => [NilClass, String],
+  "version" => [NilClass, String],
+  "technical_detail" => [NilClass, String]
+}
+
+put_response = {
+  "description" => [NilClass, String],
+  "is_package" => [TrueClass, FalseClass],
+  "maintenance_period" => [NilClass, Integer],
+  "type" => String,
+  "rental_price" => [NilClass, Numeric],
+  "cover_image_id" => [NilClass, String],
+  "hand_over_note" => [NilClass, String],
+  "updated_at" => String,
+  "internal_description" => [NilClass, String],
+  "product" => String,
+  "info_url" => [NilClass, String],
+  "id" => String,
+  "manufacturer" => [NilClass, String],
+  "version" => [NilClass, String],
+  "created_at" => String,
+  "technical_detail" => [NilClass, String]
+}
+
+
+
+def validate_map_structure(map, required_keys)
+
+  errors = []
+
+  required_keys.each do |key, expected_classes|
+    unless map.key?(key)
+      errors << "Missing key: #{key}"
+      next
+    end
+
+    value = map[key]
+    expected_classes = Array(expected_classes)
+
+    unless expected_classes.any? { |cls| value.is_a?(cls) }
+      errors << "Invalid type for key '#{key}': expected #{expected_classes.join(' or ')}, got #{value.class}"
+    end
+  end
+
+  if errors.empty?
+    puts "Map structure is valid."
+    true
+  else
+    puts "Validation failed with errors:"
+    errors.each { |error| puts "- #{error}" }
+    false
+  end
+end
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
@@ -158,13 +262,15 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
         expect(result.status).to eq(200)
-        binding.pry
+
+        validate_map_structure(result.body["data"], post_response)
 
         # fetch created software
         model_id = result.body["data"]["id"]
         result = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-        binding.pry
+        validate_map_structure(result.body.first, get_response)
+        # binding.pry
         expect(result.body[0]["attachments"].count).to eq(0)
         expect(result.status).to eq(200)
 
@@ -180,14 +286,16 @@ feature "Inventory Model Management" do
           method: :put,
           headers: cookie_header
         )
-        binding.pry
+
+        validate_map_structure(result.body.first, put_response)
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
 
 
         # fetch updated model
         result = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        binding.pry
+
+        validate_map_structure(result.body.first, get_response)
 
         expect(result.body[0]["product"]).to eq("updated product")
         expect(result.body[0]["attachments"].count).to eq(0)
