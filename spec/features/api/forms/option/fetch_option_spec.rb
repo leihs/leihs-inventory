@@ -2,6 +2,18 @@ require "spec_helper"
 require "pry"
 require_relative "../../_shared"
 require "faker"
+require_relative "../_common"
+
+post_response = {
+  "id" => String,
+  "inventory_pool_id" => String,
+  "inventory_code" => String, # TODO: remove
+  "manufacturer" => [NilClass, String], # TODO: remove
+  "product" => String,
+  "version" => [NilClass, String],
+  "price" => Numeric
+}
+
 
 feature "Inventory Model Management2" do
   context "when interacting with inventory models in a specific inventory pool2", driver: :selenium_headless do
@@ -32,6 +44,8 @@ feature "Inventory Model Management2" do
           form_data,
           headers: cookie_header
         )
+        # binding.pry
+        validate_map_structure(result.body["data"], post_response)
 
         expect(result.status).to eq(200)
         expect(result.body["data"]["id"]).to be_present
@@ -42,6 +56,8 @@ feature "Inventory Model Management2" do
         # fetch option
         result = client.get "/inventory/#{pool_id}/option/#{option_id}"
         expect(result.body.count).to eq(1)
+        # binding.pry
+        validate_map_structure(result.body.first, post_response)
 
         # update option
         form_data = {
@@ -57,6 +73,8 @@ feature "Inventory Model Management2" do
           method: :put,
           headers: cookie_header
         )
+        binding.pry
+        validate_map_structure(result.body.first, post_response)
 
         expect(result.status).to eq(200)
         expect(result.body[0]["version"]).to eq("v2")
