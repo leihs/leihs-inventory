@@ -24,21 +24,21 @@ feature "Inventory Model Management" do
       end
 
       # Fetch shared data and set global instance variables
-      resp = client.get "/inventory/manufacturers?type=Software"
-      @form_manufacturer = resp.body
-      raise "Failed to fetch manufacturers" unless resp.status == 200
+      result = client.get "/inventory/manufacturers?type=Software"
+      @form_manufacturer = result.body
+      raise "Failed to fetch manufacturers" unless result.status == 200
 
-      # resp = client.get "/inventory/#{pool_id}/entitlement-groups"
-      # @form_entitlement_groups = resp.body
-      # raise "Failed to fetch entitlement groups" unless resp.status == 200
+      # result = client.get "/inventory/#{pool_id}/entitlement-groups"
+      # @form_entitlement_groups = result.body
+      # raise "Failed to fetch entitlement groups" unless result.status == 200
       #
-      # resp = client.get "/inventory/models-compatibles"
-      # @form_models_compatibles = resp.body["data"]
-      # raise "Failed to fetch compatible models" unless resp.status == 200
+      # result = client.get "/inventory/models-compatibles"
+      # @form_models_compatibles = result.body["data"]
+      # raise "Failed to fetch compatible models" unless result.status == 200
       #
-      # resp = client.get "/inventory/#{pool_id}/model-groups"
-      # @form_model_groups = resp.body
-      # raise "Failed to fetch model groups" unless resp.status == 200
+      # result = client.get "/inventory/#{pool_id}/model-groups"
+      # @form_model_groups = result.body
+      # raise "Failed to fetch model groups" unless result.status == 200
     end
 
     context "fetch form data" do
@@ -95,14 +95,14 @@ feature "Inventory Model Management" do
 
       # fetch created software
       model_id = result.body["data"]["id"]
-      resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+      result = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-      # expect(resp.body[0]["images"].count).to eq(1)
-      expect(resp.body[0]["attachments"].count).to eq(1)
+      # expect(result.body[0]["images"].count).to eq(1)
+      expect(result.body[0]["attachments"].count).to eq(1)
 
-      # expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-      # expect(resp.body[0]["compatibles"].count).to eq(1)
-      # expect(resp.body[0]["categories"].count).to eq(1)
+      # expect(result.body[0]["entitlement_groups"].count).to eq(1)
+      # expect(result.body[0]["compatibles"].count).to eq(1)
+      # expect(result.body[0]["categories"].count).to eq(1)
       expect(result.status).to eq(200)
 
       expect(Attachment.where(model_id: model_id).count).to eq(1)
@@ -134,14 +134,14 @@ feature "Inventory Model Management" do
       expect(result.body[0]["id"]).to eq(model_id)
 
       # fetch updated model
-      resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+      result = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-      # expect(resp.body[0]["images"].count).to eq(2)
-      expect(resp.body[0]["attachments"].count).to eq(2)
-      # expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-      # expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-      # expect(resp.body[0]["compatibles"].count).to eq(2)
-      # expect(resp.body[0]["categories"].count).to eq(2)
+      # expect(result.body[0]["images"].count).to eq(2)
+      expect(result.body[0]["attachments"].count).to eq(2)
+      # expect(result.body[0]["entitlement_groups"].count).to eq(1)
+      # expect(result.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
+      # expect(result.body[0]["compatibles"].count).to eq(2)
+      # expect(result.body[0]["categories"].count).to eq(2)
       expect(result.status).to eq(200)
     end
 
@@ -158,13 +158,14 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
         expect(result.status).to eq(200)
-
+        binding.pry
 
         # fetch created software
         model_id = result.body["data"]["id"]
-        resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+        result = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-        expect(resp.body[0]["attachments"].count).to eq(0)
+        binding.pry
+        expect(result.body[0]["attachments"].count).to eq(0)
         expect(result.status).to eq(200)
 
 
@@ -179,15 +180,17 @@ feature "Inventory Model Management" do
           method: :put,
           headers: cookie_header
         )
+        binding.pry
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
 
 
         # fetch updated model
-        resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+        result = client.get "/inventory/#{pool_id}/software/#{model_id}"
+        binding.pry
 
-        expect(resp.body[0]["product"]).to eq("updated product")
-        expect(resp.body[0]["attachments"].count).to eq(0)
+        expect(result.body[0]["product"]).to eq("updated product")
+        expect(result.body[0]["attachments"].count).to eq(0)
         expect(result.status).to eq(200)
       end
     end
