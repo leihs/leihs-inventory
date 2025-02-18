@@ -1,7 +1,3 @@
-require "spec_helper"
-require "pry"
-require "faker"
-
 def validate_map_structure(map, required_keys)
 
   errors = []
