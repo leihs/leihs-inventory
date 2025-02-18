@@ -14,7 +14,6 @@ post_response = {
   "price" => Numeric
 }
 
-
 feature "Inventory Model Management2" do
   context "when interacting with inventory models in a specific inventory pool2", driver: :selenium_headless do
     include_context :setup_models_api_model
@@ -29,7 +28,7 @@ feature "Inventory Model Management2" do
     let(:license_item) { @license_item }
     let(:model_id) { @software_model.id }
 
-    context "create model" do
+    context "create option" do
       it "create, fetch & update by form data" do
         # create option
         form_data = {
@@ -44,19 +43,16 @@ feature "Inventory Model Management2" do
           form_data,
           headers: cookie_header
         )
-        # binding.pry
         validate_map_structure(result.body["data"], post_response)
 
         expect(result.status).to eq(200)
         expect(result.body["data"]["id"]).to be_present
         expect(result.body["validation"].count).to eq(0)
-
         option_id = result.body["data"]["id"]
 
         # fetch option
         result = client.get "/inventory/#{pool_id}/option/#{option_id}"
         expect(result.body.count).to eq(1)
-        # binding.pry
         validate_map_structure(result.body.first, post_response)
 
         # update option
@@ -73,7 +69,6 @@ feature "Inventory Model Management2" do
           method: :put,
           headers: cookie_header
         )
-        binding.pry
         validate_map_structure(result.body.first, post_response)
 
         expect(result.status).to eq(200)
@@ -81,5 +76,53 @@ feature "Inventory Model Management2" do
         expect(result.body[0]["price"]).to eq(222.0)
       end
     end
+
+    context "create option (min)" do
+      it "create, fetch & update by form data" do
+        # create option
+        form_data = {
+          product: Faker::Commerce.product_name,
+          inventory_code: "O-1001"
+        }
+
+        result = http_multipart_client(
+          "/inventory/#{pool_id}/option",
+          form_data,
+          headers: cookie_header
+        )
+        validate_map_structure(result.body["data"], post_response)
+
+        expect(result.status).to eq(200)
+        expect(result.body["data"]["id"]).to be_present
+        expect(result.body["validation"].count).to eq(0)
+        option_id = result.body["data"]["id"]
+
+        # fetch option
+        result = client.get "/inventory/#{pool_id}/option/#{option_id}"
+        expect(result.body.count).to eq(1)
+        validate_map_structure(result.body.first, post_response)
+
+        # update option
+        form_data = {
+          product: Faker::Commerce.product_name,
+          inventory_code: "INV-1001"
+        }
+
+        result = http_multipart_client(
+          "/inventory/#{pool_id}/option/#{option_id}",
+          form_data,
+          method: :put,
+          headers: cookie_header
+        )
+        validate_map_structure(result.body.first, post_response)
+
+        expect(result.status).to eq(200)
+      end
+    end
+
+
+
+
+
   end
 end

@@ -655,7 +655,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ;:body :res2/request ;; FIXME: shows key-prefixes
                               :body {:data {:product string?
                                             :inventory_pool_id uuid?
-                                            :version string?
+                                            :version (sa/nilable string?)
                                             :price any?
                                             :id uuid?
                                             :inventory_code string?}
