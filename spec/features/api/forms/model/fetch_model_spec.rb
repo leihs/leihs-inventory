@@ -10,7 +10,7 @@ end
 
 post_response = {
   "type" => String,
-  "rental_price" => [NilClass, Numeric], # TODO: has to be reomoved?
+  # "rental_price" => [NilClass, Numeric], # TODO: has to be reomoved?
   "cover_image_id" => [NilClass, String],
   "hand_over_note" => String,
   "updated_at" => String,
@@ -28,7 +28,7 @@ put_response = {
   "description" => String,
   "is_package" => [TrueClass, FalseClass], # Handle boolean correctly
   "type" => String,
-  "rental_price" => [NilClass, Numeric], # Allow nil or Numeric
+  # "rental_price" => [NilClass, Numeric], # Allow nil or Numeric
   "cover_image_id" => [NilClass, String],
   "hand_over_note" => String,
   "updated_at" => String,

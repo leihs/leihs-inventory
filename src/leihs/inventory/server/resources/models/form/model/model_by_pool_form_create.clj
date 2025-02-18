@@ -13,6 +13,7 @@
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -176,6 +177,7 @@
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
+            res (filter-response res [:rental_price])
             model-id (:id res)]
 
         (process-attachments tx attachments "model_id" model-id)

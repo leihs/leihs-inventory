@@ -535,7 +535,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :is_package boolean?
                                             :maintenance_period int?
                                             :type string?
-                                            :rental_price (sa/nilable any?)
+                                            ;:rental_price (sa/nilable any?)
                                             :cover_image_id (sa/nilable any?)
                                             :hand_over_note (sa/nilable any?)
                                             :updated_at any?
@@ -615,7 +615,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :is_package boolean?
                                       :maintenance_period int?
                                       :type string?
-                                      :rental_price (sa/nilable any?)
+                                      ;:rental_price (sa/nilable any?)
                                       :cover_image_id (sa/nilable any?)
                                       :hand_over_note (sa/nilable any?)
                                       :updated_at any?
