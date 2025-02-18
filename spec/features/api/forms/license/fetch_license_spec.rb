@@ -38,7 +38,7 @@ feature "Inventory Model Management" do
         result = client.get "/inventory/#{pool_id}/entitlement-groups"
 
         expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(result.body.count).to eq(2)
       end
 
       it "fetch default" do

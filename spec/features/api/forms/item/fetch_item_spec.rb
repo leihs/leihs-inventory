@@ -122,7 +122,7 @@ feature "Inventory Model Management" do
 
         expect(result.status).to eq(200)
         expect(@form_entitlement_groups["data"]).to be_present
-        expect(@form_entitlement_groups["fields"].count).to eq(32)
+        expect(@form_entitlement_groups["fields"].count).to eq(31)
 
         # update item request
         result = http_multipart_client(

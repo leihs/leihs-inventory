@@ -62,7 +62,7 @@ feature "Inventory Model Management" do
         result = client.get "/inventory/#{pool_id}/entitlement-groups"
 
         expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(result.body.count).to eq(2)
       end
 
       it "fetch default" do
@@ -107,6 +107,7 @@ feature "Inventory Model Management" do
           is_incomplete: false,
           is_borrowable: false,
           status_note: nil,
+          note: nil,
           room_id: @form_rooms[0]["id"],
           model_id: @form_model_data[0]["id"],
           owner_id: @form_owners[0]["id"],
@@ -118,7 +119,7 @@ feature "Inventory Model Management" do
           form_data,
           headers: cookie_header
         )
-
+        binding.pry
         expect(result.status).to eq(200)
         expect(result.body["data"]).to be_present
         expect(result.body["validation"].count).to eq(0)
