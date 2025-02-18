@@ -65,6 +65,97 @@ feature "Inventory Model Management" do
       end
     end
 
+    context "create model (min)" do
+      it "creates a model with all available attributes" do
+        compatibles = @form_models_compatibles
+        compatibles.first["id"] = compatibles.first.delete("model_id")
+
+        # create model request
+        form_data = {
+          "product" => Faker::Commerce.product_name,
+          # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+          # "attachments" => [File.open(path_test_pdf, "rb")],
+          # "version" => "v1.0",
+          # "manufacturer" => @form_manufacturer.first, # Use fetched manufacturer name
+          # "isPackage" => "true",
+          # "description" => "A sample product",
+          # "technicalDetails" => "Specs go here",
+          # "internalDescription" => "Internal notes",
+          # "importantNotes" => "Important usage notes",
+          # "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
+          # "compatibles" => [compatibles.first].to_json,
+          # "categories" => [@form_model_groups.first].to_json
+        }
+
+        result = http_multipart_client(
+          "/inventory/#{pool_id}/model",
+          form_data,
+          headers: cookie_header
+        )
+
+        # puts "Result.model_id: #{result.body["data"]["id"]}"
+        # puts "Result.pool_id: #{pool_id}"
+        # puts "Result.body: #{result.body}"
+
+        expect(result.status).to eq(200)
+
+        # fetch created model
+        model_id = result.body["data"]["id"]
+        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+
+        expect(resp.body[0]["images"].count).to eq(0)
+        expect(resp.body[0]["attachments"].count).to eq(0)
+
+        expect(resp.body[0]["entitlement_groups"].count).to eq(0)
+        expect(resp.body[0]["compatibles"].count).to eq(0)
+        expect(resp.body[0]["categories"].count).to eq(0)
+        expect(result.status).to eq(200)
+
+        expect(Image.where(target_id: model_id).count).to eq(0)
+
+        # update model request
+        form_data = {
+          "product" => "updated product",
+          # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+          # "attachments" => [File.open(path_test_pdf, "rb")],
+          # "version" => "updated v1.0",
+          # "manufacturer" => "updated manufacturer",
+          # "isPackage" => "true",
+          # "description" => "updated description",
+          # "technicalDetails" => "updated techDetail",
+          # "internalDescription" => "updated internalDesc",
+          # "importantNotes" => "updated notes",
+          # "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
+          # "compatibles" => [compatibles.first, compatibles.second].to_json,
+          # "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+        }
+
+        result = http_multipart_client(
+          "/inventory/#{pool_id}/model/#{model_id}",
+          form_data,
+          method: :put,
+          headers: cookie_header
+        )
+
+        # binding.pry
+
+
+        expect(result.status).to eq(200)
+        expect(result.body[0]["id"]).to eq(model_id)
+
+        # fetch updated model
+        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+
+        expect(resp.body[0]["images"].count).to eq(0)
+        expect(resp.body[0]["attachments"].count).to eq(0)
+        expect(resp.body[0]["entitlement_groups"].count).to eq(0)
+        expect(resp.body[0]["entitlement_groups"].count).to eq(0)
+        expect(resp.body[0]["compatibles"].count).to eq(0)
+        expect(resp.body[0]["categories"].count).to eq(0)
+        expect(result.status).to eq(200)
+      end
+      end
+
     context "create model" do
       it "creates a model with all available attributes" do
         compatibles = @form_models_compatibles
@@ -151,5 +242,10 @@ feature "Inventory Model Management" do
         expect(result.status).to eq(200)
       end
     end
+
+
+
+
+
   end
 end
