@@ -3,7 +3,30 @@ require "pry"
 require_relative "../../_shared"
 require "faker"
 
+def add_delete_flag(map)
+  map["delete"] = true
+  map
+end
+
 post_response = {
+  "type" => String,
+  "rental_price" => [NilClass, Numeric], # TODO: has to be reomoved?
+  "cover_image_id" => [NilClass, String],
+  "hand_over_note" => String,
+  "updated_at" => String,
+  "internal_description" => String,
+  "product" => String,
+  "info_url" => [NilClass, String],
+  "id" => String,
+  "manufacturer" => String,
+  "version" => String,
+  "created_at" => String,
+  "technical_detail" => String
+}
+
+put_response = {
+  "description" => String,
+  "is_package" => [TrueClass, FalseClass], # Handle boolean correctly
   "type" => String,
   "rental_price" => [NilClass, Numeric], # Allow nil or Numeric
   "cover_image_id" => [NilClass, String],
@@ -16,6 +39,26 @@ post_response = {
   "manufacturer" => String,
   "version" => String,
   "created_at" => String,
+  "technical_detail" => String
+}
+
+get_response = {
+  "description" => String,
+  "properties" => Array,
+  "is_package" => [TrueClass, FalseClass],
+  "accessories" => Array,
+  "entitlement_groups" => Array,
+  "images" => Array,
+  "attachments" => Array,
+  "type" => String,
+  "hand_over_note" => String,
+  "internal_description" => String,
+  "product" => String,
+  "categories" => Array,
+  "id" => String,
+  "compatibles" => Array,
+  "manufacturer" => String,
+  "version" => String,
   "technical_detail" => String
 }
 
@@ -260,7 +303,7 @@ feature "Inventory Model Management" do
         form_data = {
           "product" => Faker::Commerce.product_name,
           "version" => "v1.0",
-          "manufacturer" => @form_manufacturer.first, # Use fetched manufacturer name
+          "manufacturer" => @form_manufacturer.first,
           "description" => "A sample product",
           "technicalDetails" => "Specs go here",
           "internalDescription" => "Internal notes",
@@ -276,8 +319,7 @@ feature "Inventory Model Management" do
           "compatibles" => [compatibles.first, compatibles.second].to_json,
 
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
-          # "importantNotes" => "Important usage notes",
-          "isPackage" => "true",
+          "isPackage" => "true"
         }
 
         result = http_multipart_client(
@@ -287,60 +329,72 @@ feature "Inventory Model Management" do
         )
 
         expect(result.status).to eq(200)
-
         validate_map_structure(result.body["data"], post_response)
 
-        binding.pry
         # fetch created model
         model_id = result.body["data"]["id"]
-        resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+        result = client.get "/inventory/#{pool_id}/model/#{model_id}"
+        validate_map_structure(result.body.first, get_response)
 
-        expect(resp.body[0]["images"].count).to eq(1)
-        expect(resp.body[0]["attachments"].count).to eq(2)
+        images = result.body[0]["images"]
+        attachments = result.body[0]["attachments"]
 
-        expect(resp.body[0]["entitlement_groups"].count).to eq(2)
-        expect(resp.body[0]["compatibles"].count).to eq(2)
-        expect(resp.body[0]["categories"].count).to eq(2)
+        expect(result.body[0]["images"].count).to eq(1)
+        expect(result.body[0]["attachments"].count).to eq(2)
+
+        expect(result.body[0]["entitlement_groups"].count).to eq(2)
+        expect(result.body[0]["compatibles"].count).to eq(2)
+        expect(result.body[0]["categories"].count).to eq(2)
         expect(result.status).to eq(200)
-
         expect(Image.where(target_id: model_id).count).to eq(2)
 
-        # update model request
+        # create model request
         form_data = {
-          "product" => "updated product",
-          "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-          "attachments" => [File.open(path_test_pdf, "rb")],
-          "version" => "updated v1.0",
-          "manufacturer" => "updated manufacturer",
-          "isPackage" => "true",
-          "description" => "updated description",
-          "technicalDetails" => "updated techDetail",
-          "internalDescription" => "updated internalDesc",
-          "importantNotes" => "updated notes",
-          "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11 }].to_json,
-          "compatibles" => [compatibles.first, compatibles.second].to_json,
-          "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+          "product" => Faker::Commerce.product_name,
+          "version" => "v1.0",
+          "manufacturer" => @form_manufacturer.first,
+          "description" => "A sample product",
+          "technicalDetails" => "Specs go here",
+          "internalDescription" => "Internal notes",
+          "handOverNote" => "Hand over notes",
+
+          "properties" => [{ key: "prop-1", value: "bar1" }, add_delete_flag({ key: "prop-2", value: "bar2" })].to_json,
+          "accessories" => [{ name: "acc1", inventory_pool: false }, add_delete_flag({ name: "acc2", inventory_pool: true })].to_json,
+          "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33 },
+                             add_delete_flag({ entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55 })].to_json,
+          "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)].to_json,
+          "compatibles" => [compatibles.first, add_delete_flag(compatibles.second)].to_json,
+
+          "attachments" => [],
+          "images" => [],
+          "attachments-to-delete" => [attachments.first["id"]].to_json,
+          "images-to-delete" => [images.first["id"]].to_json,
+          "isPackage" => "false"
         }
 
         result = http_multipart_client(
           "/inventory/#{pool_id}/model/#{model_id}",
           form_data,
           method: :put,
-          headers: cookie_header
-        )
+          headers: cookie_header)
+
+        validate_map_structure(result.body.first, put_response)
+
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
-        #
-        # # fetch updated model
-        # resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-        #
-        # expect(resp.body[0]["images"].count).to eq(2)
-        # expect(resp.body[0]["attachments"].count).to eq(2)
-        # expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-        # expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-        # expect(resp.body[0]["compatibles"].count).to eq(2)
-        # expect(resp.body[0]["categories"].count).to eq(2)
-        # expect(result.status).to eq(200)
+
+        # fetch updated model
+        result = client.get "/inventory/#{pool_id}/model/#{model_id}"
+
+        validate_map_structure(result.body.first, get_response)
+
+        expect(result.body[0]["images"].count).to eq(0)
+        expect(result.body[0]["attachments"].count).to eq(1)
+        expect(result.body[0]["entitlement_groups"].count).to eq(1)
+        expect(result.body[0]["compatibles"].count).to eq(1)
+        expect(result.body[0]["categories"].count).to eq(1)
+        expect(result.status).to eq(200)
+
       end
     end
 
