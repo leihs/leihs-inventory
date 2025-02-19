@@ -125,8 +125,8 @@ shared_context :generate_session_header do
   end
 end
 
-shared_context :setup_models_api_model do
-  include_context :setup_models_api, "inventory_manager"
+shared_context :setup_models_api_model do | role |
+  include_context :setup_models_api, role
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
@@ -143,6 +143,7 @@ shared_context :setup_models_api_model do
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model3)
 
+    @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end
 end

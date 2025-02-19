@@ -62,8 +62,12 @@ get_response = {
 }
 
 feature "Inventory Model Management" do
+
+  # ["group_manager", "customer"].each do |role|
+  ["inventory_manager", "lending_manager"].each do |role|
+
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api_model
+    include_context :setup_models_api_model, role
     include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
@@ -369,5 +373,6 @@ feature "Inventory Model Management" do
       end
     end
 
+  end
   end
 end
