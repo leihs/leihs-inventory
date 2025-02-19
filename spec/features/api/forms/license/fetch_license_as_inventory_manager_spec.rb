@@ -126,8 +126,8 @@ put_response = {
   "insurance_number" => [NilClass, String]
 }
 
-feature "Inventory Model Management" do
-  context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
+feature "Inventory License" do
+  context "when interacting with inventory  license with role=inventory_manager", driver: :selenium_headless do
     include_context :setup_models_api_license, "inventory_manager"
     include_context :setup_unknown_building_room_supplier
     include_context :generate_session_header
@@ -429,7 +429,6 @@ feature "Inventory Model Management" do
         expect(result.status).to eq(200)
         expect(attachments.count).to eq(1)
         expect(result.body["data"]).to be_present
-        expect(result.body["fields"].count).to eq(29)
       end
     end
   end

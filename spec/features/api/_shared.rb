@@ -99,7 +99,7 @@ shared_context :setup_category_model_linked_all_to_pool do
   end
 end
 
-shared_context :setup_models_api do |role|
+shared_context :setup_models_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)

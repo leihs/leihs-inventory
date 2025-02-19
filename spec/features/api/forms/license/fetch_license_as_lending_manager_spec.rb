@@ -99,8 +99,8 @@ put_response = {
   "insurance_number" => [NilClass, String]
 }
 
-feature "Inventory Model Management" do
-  context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
+feature "Inventory License" do
+  context "when interacting with inventory license with role=lending_manager", driver: :selenium_headless do
     include_context :setup_models_api_license, "lending_manager"
     include_context :setup_unknown_building_room_supplier
     include_context :generate_session_header
