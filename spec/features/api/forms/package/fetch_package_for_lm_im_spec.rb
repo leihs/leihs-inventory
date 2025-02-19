@@ -3,9 +3,10 @@ require "pry"
 require_relative "../../_shared"
 require "faker"
 
-feature "Inventory Model Management" do
-  context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api_model
+["inventory_manager", "lending_manager"].each do |role|
+feature "Inventory package" do
+  context "when interacting with inventory package with role=#{role}", driver: :selenium_headless do
+    include_context :setup_models_api_model, role
     include_context :setup_unknown_building_room_supplier
     include_context :generate_session_header
 
@@ -146,4 +147,5 @@ feature "Inventory Model Management" do
       end
     end
   end
+end
 end
