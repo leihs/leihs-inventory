@@ -156,8 +156,8 @@ shared_context :setup_unknown_building_room_supplier do
   end
 end
 
-shared_context :setup_models_api_license do
-  include_context :setup_models_api, "inventory_manager"
+shared_context :setup_models_api_license do | role = "inventory_manager" |
+  include_context :setup_models_api, role
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
