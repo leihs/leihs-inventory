@@ -13,7 +13,7 @@ FactoryBot.define do
             :package_item_with_parts,
             # inventory_pool: evaluator.inventory_pool
             inventory_pool_id: evaluator.inventory_pool.id,
-          owner: evaluator.inventory_pool
+            owner: evaluator.inventory_pool
           )
         end
       end
@@ -22,7 +22,6 @@ FactoryBot.define do
 
   factory :package_item, parent: :item do
     factory :package_item_with_parts do
-
       # after(:create) do |item, evaluator|
       #   # 3.times do
       #   #   item.children << FactoryBot.create(

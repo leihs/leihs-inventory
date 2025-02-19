@@ -4,7 +4,7 @@ require_relative "../../_shared"
 require "faker"
 
 ["group_manager", "customer"].each do |role|
-# ["inventory_manager"].each do |role|
+  # ["inventory_manager"].each do |role|
   feature "Inventory package" do
     context "when interacting with inventory package with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
@@ -17,23 +17,14 @@ require "faker"
       let(:pool_id) { @inventory_pool.id }
 
       let(:model) {
-
         # model = FactoryBot.create(:package_model)
         # model = FactoryBot.create(:package_model_with_items)
         model = FactoryBot.create(:package_model_with_items, pool)
 
-        binding.pry
-
         model
-
       }
 
-
-
-
       # let(:model_id) { model.id }
-
-
 
       # let(:model) { @model }
       # let(:models) {
@@ -54,8 +45,6 @@ require "faker"
       #   puts "?????? id: #{id}"
       #   id
       # }
-
-
 
       # let(:item_id) { FactoryBot.create(:package_model, parent: model_id inventory_pool_id: pool_id).id }
 
@@ -82,8 +71,6 @@ require "faker"
       end
 
       it "create, fetch & update by form data" do
-
-
         # # model = FactoryBot.create(:package_model_with_items, @inventory_pool)
         # # package = FactoryBot.create(:package_model_with_items, inventory_pool: pool, inventory_pool_id: pool.id)
         # pool = FactoryBot.create(:inventory_pool)
@@ -95,10 +82,6 @@ require "faker"
         # # package_id = package.items.first.id
         # item_id = package.items.first.id
         # pool_id = package.items.first.inventory_pool_id
-
-
-
-
 
         # binding.pry
 
@@ -131,11 +114,6 @@ require "faker"
         expect(result.status).to eq(401)
         # expect(result.status).to eq(200)
 
-
-
-
-
-
         package = FactoryBot.create(:package_model_with_items, inventory_pool: pool)
         model_id = package.id
         item_id = package.items.first.id
@@ -150,9 +128,6 @@ require "faker"
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
         # binding.pry
         expect(result.status).to eq(401)
-
-
-
 
         # # FIXME: this should work with factory ??
         # # # create package
@@ -183,8 +158,6 @@ require "faker"
         #
         # expect(result.status).to eq(401)
 
-
-
         # # expect(result.body["data"]).to be_present
         # # expect(result.body["validation"].count).to eq(0)
         # #
@@ -212,5 +185,5 @@ require "faker"
       end
     end
   end
-# end
+  # end
 end

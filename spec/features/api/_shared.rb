@@ -131,12 +131,11 @@ shared_context :setup_models_api_model do |role|
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
 
-    @models =[]
+    @models = []
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model1)
-
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
