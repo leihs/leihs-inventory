@@ -14,10 +14,9 @@ response = {
   "price" => Numeric
 }
 
-# ["inventory_manager", "lending_manager"].each do |role|
 ["group_manager", "customer"].each do |role|
   feature "Inventory option" do
-    context "when interacting with inventory  option with role=#{role}", driver: :selenium_headless do
+    context "when interacting with inventory option with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :setup_unknown_building_room_supplier
       include_context :generate_session_header

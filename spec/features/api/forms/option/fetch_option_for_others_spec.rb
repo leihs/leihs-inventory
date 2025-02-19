@@ -4,19 +4,9 @@ require_relative "../../_shared"
 require "faker"
 require_relative "../_common"
 
-response = {
-  "id" => String,
-  "inventory_pool_id" => String,
-  "inventory_code" => String, # TODO: remove
-  "manufacturer" => [NilClass, String], # TODO: remove
-  "product" => String,
-  "version" => [NilClass, String],
-  "price" => Numeric
-}
-
 ["group_manager", "customer"].each do |role|
   feature "Inventory option" do
-    context "when interacting with inventory  option with role=#{role}", driver: :selenium_headless do
+    context "when interacting with inventory option with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :setup_unknown_building_room_supplier
       include_context :generate_session_header
