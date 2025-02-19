@@ -5,36 +5,34 @@ require_relative "../_common"
 require "faker"
 
 expected_lm_fields = ["serial_number",
-                      "note",
-                      "properties_activation_type",
-                      "properties_dongle_id",
-                      "properties_license_type",
-                      "properties_total_quantity",
-                      "properties_quantity_allocations",
-                      "properties_operating_system",
-                      "properties_installation",
-                      "properties_license_expiration",
-                      "attachments",
-                      "owner_id",
-                      "inventory_pool_id",
-                      "properties_reference",
-                      "properties_project_number",
-                      "invoice_date",
-                      "price",
-                      "supplier_id",
-                      "properties_procured_by",
-                      "properties_maintenance_contract",
-                      "properties_maintenance_expiration",
-                      "properties_maintenance_currency",
-                      "properties_maintenance_price",
-                      "retired",
-                      "retired_reason",
-                      "is_borrowable",
-                      "inventory_code",
-                      "software_model_id",
-                      "license_version"]
-
-
+  "note",
+  "properties_activation_type",
+  "properties_dongle_id",
+  "properties_license_type",
+  "properties_total_quantity",
+  "properties_quantity_allocations",
+  "properties_operating_system",
+  "properties_installation",
+  "properties_license_expiration",
+  "attachments",
+  "owner_id",
+  "inventory_pool_id",
+  "properties_reference",
+  "properties_project_number",
+  "invoice_date",
+  "price",
+  "supplier_id",
+  "properties_procured_by",
+  "properties_maintenance_contract",
+  "properties_maintenance_expiration",
+  "properties_maintenance_currency",
+  "properties_maintenance_price",
+  "retired",
+  "retired_reason",
+  "is_borrowable",
+  "inventory_code",
+  "software_model_id",
+  "license_version"]
 
 post_response = {
   "properties" => Hash,
@@ -333,7 +331,7 @@ feature "Inventory License" do
             "maintenance_currency" => "CHF",
             "maintenance_price" => "20",
             "quantity_allocations" => [
-              { "quantity" => "your-key", "room" => "your-value" }
+              {"quantity" => "your-key", "room" => "your-value"}
             ]
           }.to_json
         }
@@ -359,7 +357,7 @@ feature "Inventory License" do
 
         # fetch license
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields= result.body["fields"]
+        fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
         validate_map_structure(result.body["data"], get_response)
@@ -420,7 +418,7 @@ feature "Inventory License" do
 
         # fetch license
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields= result.body["fields"]
+        fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
         validate_map_structure(result.body["data"], get_response)

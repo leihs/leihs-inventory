@@ -71,7 +71,6 @@
         is-fetch-item-request (-> request :path-params :item_id boolean)
         p (println ">o> abc.is-fetch-item-request" is-fetch-item-request)
 
-
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
         item-id (to-uuid (get-in request [:path-params :item_id]))
@@ -88,25 +87,25 @@
             ;; TODO: is quantity not defined in db?
             fields (if is-fetch-item-request
                      fields
-                                             (conj fields {:active true
-                                 :data {:type "text"
-                                        :group "Inventory"
-                                        :label "Anzahl"
-                                        :values "1"
-                                        :value "1"}
-                                 :attribute "quantity"
-                                 :default false
-                                 :forPackage true
-                                 :group "Inventory"
-                                 :group_default "Inventory"
-                                 :id "quantity"
-                                 :label "Anzahl"
-                                 :owner nil
-                                 :position 13
-                                 :role nil
-                                 :role_default ""
-                                 :target nil
-                                 :target_default ""}))
+                     (conj fields {:active true
+                                   :data {:type "text"
+                                          :group "Inventory"
+                                          :label "Anzahl"
+                                          :values "1"
+                                          :value "1"}
+                                   :attribute "quantity"
+                                   :default false
+                                   :forPackage true
+                                   :group "Inventory"
+                                   :group_default "Inventory"
+                                   :id "quantity"
+                                   :label "Anzahl"
+                                   :owner nil
+                                   :position 13
+                                   :role nil
+                                   :role_default ""
+                                   :target nil
+                                   :target_default ""}))
 
             model-result (if model-id
                            ;; Fetch model data

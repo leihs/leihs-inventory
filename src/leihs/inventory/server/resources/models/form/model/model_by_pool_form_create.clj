@@ -8,12 +8,12 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]

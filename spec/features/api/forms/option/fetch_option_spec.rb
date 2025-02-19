@@ -119,10 +119,5 @@ feature "Inventory Model Management2" do
         expect(result.status).to eq(200)
       end
     end
-
-
-
-
-
   end
 end

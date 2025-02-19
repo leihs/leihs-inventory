@@ -5,9 +5,7 @@ require_relative "../_common"
 require "faker"
 
 expected_lm_fields = ["serial_number", "note", "attachments", "invoice_date", "price", "supplier_id", "retired",
-                      "retired_reason", "is_borrowable", "inventory_code", "software_model_id"]
-
-
+  "retired_reason", "is_borrowable", "inventory_code", "software_model_id"]
 
 post_response = {
   "properties" => Hash,
@@ -306,7 +304,7 @@ feature "Inventory License" do
             "maintenance_currency" => "CHF",
             "maintenance_price" => "20",
             "quantity_allocations" => [
-              { "quantity" => "your-key", "room" => "your-value" }
+              {"quantity" => "your-key", "room" => "your-value"}
             ]
           }.to_json
         }
@@ -332,7 +330,7 @@ feature "Inventory License" do
 
         # fetch license
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields= result.body["fields"]
+        fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
         validate_map_structure(result.body["data"], get_response)
@@ -393,7 +391,7 @@ feature "Inventory License" do
 
         # fetch license
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields= result.body["fields"]
+        fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
         validate_map_structure(result.body["data"], get_response)
@@ -406,4 +404,3 @@ feature "Inventory License" do
     end
   end
 end
-

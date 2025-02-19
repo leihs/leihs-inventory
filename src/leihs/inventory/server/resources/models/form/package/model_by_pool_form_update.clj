@@ -38,8 +38,7 @@
         prepared-package-data (prepare-package-data multipart)
         split-items (split-items items_attributes)
 
-        p (println ">o> abc.prepared-package-data" prepared-package-data)
-        ]
+        p (println ">o> abc.prepared-package-data" prepared-package-data)]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
                                    (sql/set prepared-package-data)

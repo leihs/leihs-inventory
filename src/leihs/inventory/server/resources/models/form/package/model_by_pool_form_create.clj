@@ -50,8 +50,8 @@
         data (assoc data :updated_at created-ts
                     :created_at created-ts :invoice_date invoice-date :price price)
 
-        data (remove-nil-entries data [:invoice_date :price :room_id  :last_check :user_name :shelf :status_note :note])
-        data (remove-empty-entries data [ :room_id :last_check :user_name :shelf :status_note :note])
+        data (remove-nil-entries data [:invoice_date :price :room_id :last_check :user_name :shelf :status_note :note])
+        data (remove-empty-entries data [:room_id :last_check :user_name :shelf :status_note :note])
         data (dissoc data :items_attributes)
         data (convert-map-if-exist data)]
 

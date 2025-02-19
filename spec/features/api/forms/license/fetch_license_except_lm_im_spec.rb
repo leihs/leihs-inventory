@@ -6,7 +6,6 @@ require "faker"
 
 feature "Inventory License" do
   ["group_manager", "customer"].each do |role|
-
     context "when interacting with inventory license with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_license, role
       include_context :setup_unknown_building_room_supplier
@@ -109,7 +108,7 @@ feature "Inventory License" do
               "maintenance_currency" => "CHF",
               "maintenance_price" => "20",
               "quantity_allocations" => [
-                { "quantity" => "your-key", "room" => "your-value" }
+                {"quantity" => "your-key", "room" => "your-value"}
               ]
             }.to_json
           }
@@ -169,10 +168,8 @@ feature "Inventory License" do
           # fetch license
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
           expect(result.status).to eq(401)
-
         end
       end
     end
   end
 end
-

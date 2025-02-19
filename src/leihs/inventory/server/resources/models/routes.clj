@@ -548,8 +548,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :technical_detail (sa/nilable string?)
 
                                             :manufacturer any?
-                                            :created_at any?
-                             }
+                                            :created_at any?}
                                      :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]

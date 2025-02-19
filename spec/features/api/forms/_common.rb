@@ -1,5 +1,4 @@
 def validate_map_structure(map, required_keys)
-
   errors = []
 
   required_keys.each do |key, expected_classes|
@@ -12,7 +11,7 @@ def validate_map_structure(map, required_keys)
     expected_classes = Array(expected_classes)
 
     unless expected_classes.any? { |cls| value.is_a?(cls) }
-      errors << "Invalid type for key '#{key}': expected #{expected_classes.join(' or ')}, got #{value.class}"
+      errors << "Invalid type for key '#{key}': expected #{expected_classes.join(" or ")}, got #{value.class}"
     end
   end
 
