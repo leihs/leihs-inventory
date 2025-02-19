@@ -330,15 +330,15 @@ feature "Inventory Model Management" do
         expect(result.body["data"]["inventory_pool_id"]).to be
 
         # fetch license
-        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
 
         validate_map_structure(result.body["data"], get_response)
 
-        attachments = resp.body["data"]["attachments"]
-        expect(resp.status).to eq(200)
+        attachments = result.body["data"]["attachments"]
+        expect(result.status).to eq(200)
         expect(attachments.count).to eq(2)
-        expect(resp.body["data"]).to be_present
-        expect(resp.body["fields"].count).to eq(29)
+        expect(result.body["data"]).to be_present
+        expect(result.body["fields"].count).to eq(29)
 
         # update license
         form_data = {
@@ -379,11 +379,11 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        validate_map_structure(result.body.first, put_response)
+        validate_map_structure(result.body.first, put_resultonse)
 
         expect(result.status).to eq(200)
 
-        # TODO: revise to use data/validation response-format
+        # TODO: revise to use data/validation resultonse-format
         expect(result.body[0]["id"]).to be
 
         # item_id = result.body[0]["id"]
@@ -394,16 +394,16 @@ feature "Inventory Model Management" do
 
 
         # fetch license
-        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
 
         binding.pry
-        validate_map_structure(resp.body["data"], get_response)
+        validate_map_structure(result.body["data"], get_response)
 
-        attachments = resp.body["data"]["attachments"]
-        expect(resp.status).to eq(200)
+        attachments = result.body["data"]["attachments"]
+        expect(result.status).to eq(200)
         expect(attachments.count).to eq(1)
-        expect(resp.body["data"]).to be_present
-        expect(resp.body["fields"].count).to eq(29)
+        expect(result.body["data"]).to be_present
+        expect(result.body["fields"].count).to eq(29)
       end
     end
   end
