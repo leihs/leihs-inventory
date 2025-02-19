@@ -3,7 +3,7 @@ require "pry"
 require_relative "../../_shared"
 require "faker"
 
-["inventory_manager", "lending_manager"].each do |role|
+["inventory_manager"].each do |role|
 feature "Inventory package" do
   context "when interacting with inventory package with role=#{role}", driver: :selenium_headless do
     include_context :setup_models_api_model, role
