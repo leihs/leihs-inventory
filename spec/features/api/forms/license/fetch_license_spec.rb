@@ -4,7 +4,6 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-
 post_response = {
   "properties" => Hash,
   "inventory_code" => String,
@@ -94,7 +93,6 @@ put_response = {
   "created_at" => String,
   "insurance_number" => [NilClass, String]
 }
-
 
 feature "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
@@ -303,7 +301,7 @@ feature "Inventory Model Management" do
             "maintenance_currency" => "CHF",
             "maintenance_price" => "20",
             "quantity_allocations" => [
-              {"quantity" => "your-key", "room" => "your-value"}
+              { "quantity" => "your-key", "room" => "your-value" }
             ]
           }.to_json
         }
@@ -315,8 +313,6 @@ feature "Inventory Model Management" do
         )
 
         validate_map_structure(result.body["data"], post_response)
-
-
         expect(result.status).to eq(200)
 
         expect(result.body["data"]["item_id"]).to be
@@ -379,19 +375,14 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
-        validate_map_structure(result.body.first, put_resultonse)
-
+        validate_map_structure(result.body.first, put_response)
         expect(result.status).to eq(200)
 
         # TODO: revise to use data/validation resultonse-format
         expect(result.body[0]["id"]).to be
-
-        # item_id = result.body[0]["id"]
-
         expect(result.body[0]["room_id"]).to be
         expect(result.body[0]["owner_id"]).to be
         expect(result.body[0]["inventory_pool_id"]).to be
-
 
         # fetch license
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
