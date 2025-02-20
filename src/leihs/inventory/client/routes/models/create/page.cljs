@@ -16,10 +16,12 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn on-submit [data]
+(defn on-submit [data event]
+  (.. event (preventDefault))
   (js/console.debug "is valid: " data))
 
-(defn- on-invalid [data]
+(defn- on-invalid [data event]
+
   (js/console.debug "is invalid: " data))
 
 (defn fetch-entitlement-groups [params]
@@ -36,6 +38,7 @@
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
                            :defaultValues {:product ""
+                                           :is_package false
                                            :version ""}}))
         params (router/useParams)
         handleSubmit (:handleSubmit (jc form))
@@ -44,6 +47,9 @@
                                               :queryFn #(fetch-entitlement-groups params)})))
         categories (jc (useQuery (cj {:queryKey ["categorories"]
                                       :queryFn #(fetch-categories)})))]
+
+    ;; without this, form data is stale 
+    (.. form (watch))
 
     (cond
       (and (:isLoading entitlement-groups) (:isLoading categories))

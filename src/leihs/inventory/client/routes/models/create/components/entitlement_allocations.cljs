@@ -32,11 +32,7 @@
         handle-quantity-change
         (fn [index val]
 
-          (set-value (str "entitlements" index ".quantity")
-                     val
-                     (cj {:shouldValidate true
-                          :shouldDirty true
-                          :shouldTouch true})))]
+          (set-value (str "entitlements." index ".quantity") val))]
 
     (uix/use-effect
      (fn []
@@ -97,16 +93,6 @@
                                                                (js/parseInt allocations))
                                                           " bg-green-500"
                                                           " bg-red-500"))})
-
-                         ($ TableCell {:class-name "hidden"}
-                            ($ FormField
-                               {:control (cj control)
-                                :name (str "entitlements." index ".entitlement_group_id")
-                                :render #($ FormItem
-                                            ($ FormControl
-                                               ($ Input (merge
-                                                         {:className ""}
-                                                         (:field (jc %))))))}))
 
                          ($ TableCell {:class-name "w-[70%]"}
                             (find-name-by-id

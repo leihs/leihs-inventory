@@ -98,6 +98,8 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
     },
   })
 
+  // console.debug(dropzone.getInputProps())
+
   return (
     <div
       {...dropzone.getRootProps()}

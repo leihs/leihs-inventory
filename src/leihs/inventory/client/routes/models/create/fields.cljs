@@ -35,7 +35,9 @@
                            :props (:props block)})
 
     (-> block :component (= "image-dropzone"))
-    ($ ImageUpload {:control control :props (:props block)})
+    ($ ImageUpload {:control control
+                    :form form
+                    :props (:props block)})
 
     (-> block :component (= "model-properties"))
     ($ ModelProperties {:control control

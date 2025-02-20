@@ -126,16 +126,6 @@
 
                          ($ TableCell {:class-name ""} (:path field))
 
-                         ($ TableCell {:class-name "hidden"}
-                            ($ FormField
-                               {:control (cj control)
-                                :name (str "categories." index ".category_id")
-                                :render #($ FormItem
-                                            ($ FormControl
-                                               ($ Input (merge
-                                                         {:className ""}
-                                                         (:field (jc %))))))}))
-
                          ($ TableCell {:class-name "flex gap-2 justify-end"}
                             ($ Button {:variant "outline"
                                        :type "button"

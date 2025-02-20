@@ -1,18 +1,19 @@
 (ns leihs.inventory.client.routes.models.create.components.image-upload
   (:require
    ["@@/button" :refer [Button]]
-   ["@@/dropzone" :refer [Dropzone Item DropzoneArea DropzoneFiles]]
-   ["@@/form" :refer [FormField FormLabel FormItem FormControl FormMessage]]
-   ["@@/radio-group" :refer [RadioGroup, RadioGroupItem]]
-   ["@@/table" :refer [Table TableHeader TableRow TableHead TableBody TableCell]]
+   ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles Item]]
+   ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
+                       TableRow]]
    ["lucide-react" :refer [Trash]]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [defui $]]
+   [leihs.inventory.client.lib.utils :refer [cj]]
+   [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [control props]}]
+(defui main [{:keys [control form props]}]
   (let [[files set-files!] (uix.core/use-state nil)
         [error set-error!] (uix.core/use-state nil)
+        set-value (aget form "setValue")
         handle-drop (fn [files rejections event]
                       (if (seq rejections)
                         (set-error! (str "Error Uploading Files"))
@@ -36,50 +37,46 @@
                                     (do (aset file "isCover" false) file)))
                                 prev)))))]
 
+    (uix/use-effect
+     (fn []
+       (set-value "images" (cj (vec files)))
+       [set-value files]))
+
     ($ RadioGroup {:defaultValue nil
                    :onValueChange #(handle-cover %)}
 
-       ($ FormField
-          {:control (cj control)
-           :name "images"
-           :render #($ FormItem {:class-name "mt-6"}
-                       ($ FormLabel "Upload Image")
-                       ($ FormControl
-                          ($ Dropzone
-                             ($ DropzoneArea (merge
-                                              {:multiple (:multiple props)
-                                               :filetypes (:filetypes props)
-                                               :onDrop (fn [files rej ev] (handle-drop files rej ev))}
-                                              (:field (jc %))))
+       ($ Dropzone
+          ($ DropzoneArea (merge
+                           {:multiple (:multiple props)
+                            :filetypes (:filetypes props)
+                            :onDrop (fn [files rej ev] (handle-drop files rej ev))}))
 
-                             (when error ($ :span {:className "text-xs text-red-600 mt-3"} error))
+          (when error ($ :span {:className "text-xs text-red-600 mt-3"} error))
 
-                             (when (seq files)
-                               ($ DropzoneFiles
-                                  ($ Table
-                                     ($ TableHeader
-                                        ($ TableRow
-                                           ($ TableHead "Bezeichnung")
-                                           ($ TableHead "Coverbild")
-                                           ($ TableHead "")))
-                                     ($ TableBody
-                                        (for [[index file] (map-indexed vector files)]
-                                          ($ TableRow {:key (.. file -name)}
+          (when (seq files)
+            ($ DropzoneFiles
+               ($ Table
+                  ($ TableHeader
+                     ($ TableRow
+                        ($ TableHead "Bezeichnung")
+                        ($ TableHead "Coverbild")
+                        ($ TableHead "")))
+                  ($ TableBody
+                     (for [[index file] (map-indexed vector files)]
+                       ($ TableRow {:key (.. file -name)}
 
-                                             ($ Item {:file file}
-                                                ($ TableCell
-                                                   ($ RadioGroupItem {:value index}))
-                                                ($ TableCell
-                                                   ($ :div {:className "flex justify-end"}
-                                                      ($ Button {:variant "outline"
-                                                                 :size "icon"
-                                                                 :type "button"
-                                                                 :onClick (fn [] (handle-delete index))
-                                                                 :className "select-none cursor-pointer"}
+                          ($ Item {:file file}
+                             ($ TableCell
+                                ($ RadioGroupItem {:value index}))
+                             ($ TableCell
+                                ($ :div {:className "flex justify-end"}
+                                   ($ Button {:variant "outline"
+                                              :size "icon"
+                                              :type "button"
+                                              :onClick (fn [] (handle-delete index))
+                                              :className "select-none cursor-pointer"}
 
-                                                         ($ Trash {:className "w-4 h-4"})))))))))))))
-
-                       ($ FormMessage))}))))
+                                      ($ Trash {:className "w-4 h-4"})))))))))))))))
 
 (def ImageUpload
   (uix/as-react
