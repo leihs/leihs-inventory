@@ -4,8 +4,12 @@ require_relative "../../_shared"
 require "faker"
 
 feature "Inventory Item" do
+
+  # ["inventory_manager", "lending_manager"].each do |role|
+
+
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api_model
+    include_context :setup_models_api_model, "lending_manager"
     include_context :generate_session_header
 
     let(:pool_id) { @inventory_pool.id }
@@ -57,7 +61,7 @@ feature "Inventory Item" do
         expect(result.status).to be(200)
 
         expect(@form_entitlement_groups["data"]["inventory_pool_id"]).to eq(pool_id)
-        expect(@form_entitlement_groups["fields"].count).to eq(32)
+        expect(@form_entitlement_groups["fields"].count).to eq(26)
 
         expect(@form_entitlement_groups).not_to be_nil
         expect(@form_entitlement_groups.count).to eq(2)
@@ -122,7 +126,7 @@ feature "Inventory Item" do
 
         expect(result.status).to eq(200)
         expect(@form_entitlement_groups["data"]).to be_present
-        expect(@form_entitlement_groups["fields"].count).to eq(31)
+        expect(@form_entitlement_groups["fields"].count).to eq(25)
 
         # update item request
         form_data = {
@@ -230,7 +234,7 @@ feature "Inventory Item" do
 
           expect(result.status).to eq(200)
           expect(@form_entitlement_groups["data"]).to be_present
-          expect(@form_entitlement_groups["fields"].count).to eq(31)
+          expect(@form_entitlement_groups["fields"].count).to eq(25)
 
           # update item request
           form_data = {
@@ -283,4 +287,5 @@ feature "Inventory Item" do
     end
   end
 end
+# end
 
