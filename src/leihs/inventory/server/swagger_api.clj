@@ -12,10 +12,12 @@
             [leihs.core.routing.back :as core-routing]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.constants :as consts]
+            [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
+            [leihs.inventory.server.utils.session-dev-mode :as dm]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
             [reitit.coercion.spec]
@@ -31,6 +33,7 @@
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
+            [ring.util.codec :as codec]
             [ring.util.response :as response]))
 
 (defn valid-image-or-thumbnail-uri? [uri]
@@ -89,6 +92,7 @@
                                      session/wrap-authenticate
                                      wrap-cookies
                                      csrf/wrap-csrf
+                                     dm/extract-dev-cookie-params
 
                                       ;locale/wrap
                                       ;settings/wrap

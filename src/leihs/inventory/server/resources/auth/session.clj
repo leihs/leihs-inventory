@@ -55,9 +55,13 @@
         res (jdbc/execute-one! tx sql-query)]
     res))
 
-(defn get-cookie-value [request]
-  (-> request keywordize-keys :cookies
-      LEIHS_SESSION_COOKIE_NAME :value))
+(defn get-cookie-value
+  ([request]
+   (-> request keywordize-keys :cookies
+       LEIHS_SESSION_COOKIE_NAME :value))
+  ([request key]
+   (-> request keywordize-keys :cookies
+       key :value)))
 
 (defn find-user-by-id [tx user-id]
   (jdbc/execute-one! tx ["SELECT * FROM users WHERE id = ?" user-id]))
