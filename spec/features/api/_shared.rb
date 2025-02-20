@@ -101,6 +101,20 @@ shared_context :setup_category_model_linked_all_to_pool do
   end
 end
 
+shared_context :setup_user_with_direct_access_right do
+  before :each do
+    @user = FactoryBot.create(:user, login: "user", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+  end
+end
+
+shared_context :setup_admin_with_direct_access_right do
+  before :each do
+    @user = FactoryBot.create(:admin, login: "admin", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+  end
+end
+
 shared_context :setup_models_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
@@ -119,15 +133,21 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
-shared_context :generate_session_header do
+shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
     resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
     expect(resp.status).to eq(200)
 
     cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+    cookies = [CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)]
+    cookie_attributes.each do |cookie_hash|
+      cookies << CGI::Cookie.new(cookie_hash)
+    end
 
-    @cookie_header = {"Accept" => "application/json", "Cookie" => cookie.to_s}
+    @cookie_header = {
+      "Accept" => accept,
+      "Cookie" => cookies.map(&:to_s).join("; ")
+    }
   end
 end
 

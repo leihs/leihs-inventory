@@ -1,16 +1,21 @@
 (ns leihs.inventory.server.utils.ressource-handler
   (:require
+   [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [clojure.walk :refer [keywordize-keys]]
    [leihs.core.auth.session :as session]
    [leihs.core.db :as db]
+   [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
    [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
+   [leihs.inventory.server.utils.session-dev-mode :as dm]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [ring.util.codec :as codec]
    [ring.util.response :as response]))
 
 (def SESSION_HANDLING_ACTIVATED? true)
@@ -96,27 +101,22 @@
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
         request ((session/wrap-authenticate (fn [request] request)) request)
+        request ((dm/extract-dev-cookie-params (fn [request] request)) request)
         uri (:uri request)
         file (extract-filename uri)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)
-
-        ;; TODO: remove DEV-FORMS-HANDLING if not used anymore
-        uri-parts (str/split uri #"/")
-        uuid (nth uri-parts 2 nil)
-        dev-file (nth uri-parts 4 nil)
-        valid-files #{"model" "software" "license" "item" "option" "package"}]
+        asset (fetch-file-entry uri assets)]
 
     (cond
       (= uri "/") (create-root-page)
 
       ;; TODO: DEV-ENDPOINT
-      (and (str/starts-with? uri "/inventory/dev/") (not (nil? file))) ;; true
+      (and (dm/has-admin-permission request) (str/starts-with? uri "/inventory/dev/") (not (nil? file)))
       {:status 200
        :headers {"Content-Type" (generate-content-type (extract-filetype uri))}
        :body (slurp (io/resource (str "public/dev/" file)))}
 
-      (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri)
+      (and (dm/has-admin-permission request) (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))
       (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
         (if (allowed-types type)
           {:status 200
