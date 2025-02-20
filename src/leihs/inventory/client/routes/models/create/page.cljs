@@ -16,11 +16,12 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn on-submit [data]
-  (js/console.debug "is valid: " data))
+(defn on-submit [data event]
+  (.. event (preventDefault))
+  (js/console.debug "is valid: " event data))
 
-(defn- on-invalid [data]
-  (js/console.debug "is invalid: " data))
+(defn- on-invalid [data event]
+  (js/console.debug "is invalid: " data event))
 
 (defn fetch-entitlement-groups [params]
   (let [path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)]
@@ -45,6 +46,7 @@
         categories (jc (useQuery (cj {:queryKey ["categorories"]
                                       :queryFn #(fetch-categories)})))]
 
+    (.. form (watch))
     (cond
       (and (:isLoading entitlement-groups) (:isLoading categories))
       ($ :div "Loading...")

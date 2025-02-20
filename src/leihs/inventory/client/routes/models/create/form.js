@@ -15,23 +15,29 @@ const modelProperties = z.object({
 })
 
 export const schema = z.object({
-  is_package: z.boolean().default(false),
-  product: z.string().min(5, "Produktname muss mindestens 5 Zeichen lang sein"),
-  version: z.coerce.number().positive("Version musss positiv sein"),
-  manufacturer: z.string(),
-  description: z.string(),
-  technical_detail: z.string(),
-  internal_description: z.string(),
-  hand_over_note: z.string(),
-  entitlements: z.array(
-    z.object({ entitlement_group_id: z.string(), quantity: z.number() }),
-  ),
-  categories: z.string().array(),
-  images: z.array(fileSchema).nonempty("Bitte mindestens ein Bild hochladen"),
-  attachments: z.string().array(),
-  accessories: z.array(z.object({ accessory: z.string() })),
-  model_links: z.string().array(),
-  properties: z.array(modelProperties),
+  is_package: z.boolean().optional(),
+  product: z
+    .string()
+    .min(5, "Produktname muss mindestens 5 Zeichen lang sein")
+    .max(255),
+  version: z.string().optional(),
+  manufacturer: z.string().optional(),
+  description: z.string().optional(),
+  technical_detail: z.string().optional(),
+  internal_description: z.string().optional(),
+  hand_over_note: z.string().optional(),
+  entitlements: z
+    .array(z.object({ entitlement_group_id: z.string(), quantity: z.string() }))
+    .optional(),
+  categories: z.string().array().optional(),
+  images: z
+    .array(fileSchema)
+    .nonempty("Bitte mindestens ein Bild hochladen")
+    .optional(),
+  attachments: z.string().array().optional(),
+  accessories: z.array(z.object({ accessory: z.string() })).optional(),
+  model_links: z.string().array().optional(),
+  properties: z.array(modelProperties).optional(),
 })
 
 export const structure = [
@@ -60,7 +66,7 @@ export const structure = [
         // description: "Welche Version hat das Produkt?",
         input: "input",
         props: {
-          type: "number",
+          type: "text",
           placeholder: "Version eingeben",
           "auto-complete": "off",
         },
