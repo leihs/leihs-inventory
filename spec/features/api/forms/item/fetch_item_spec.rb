@@ -163,7 +163,6 @@ feature "Inventory Item" do
         )
         expect(result.status).to eq(200)
 
-
         # fetch created item
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
         @form_entitlement_groups = result.body
@@ -272,7 +271,6 @@ feature "Inventory Item" do
           )
           expect(result.status).to eq(200)
 
-
           # fetch created item
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
           @form_entitlement_groups = result.body
@@ -280,6 +278,9 @@ feature "Inventory Item" do
           expect(attachments.count).to be(1)
           expect(result.status).to be(200)
 
-        end    end
+        end
+      end
+    end
   end
 end
+
