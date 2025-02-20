@@ -71,7 +71,10 @@
         quantity (-> multipart :quantity (or 1))
 
         prepared-model-data (prepare-item-data multipart properties)
-        attachments (normalize-files request :attachments)]
+        attachments (normalize-files request :attachments)
+
+        p (println ">o> abc.attachments" attachments)
+        ]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)

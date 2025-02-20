@@ -127,6 +127,8 @@
                                                                                      (sql/from :attachments)
                                                                                      (sql/where [:= :item_id item-id])
                                                                                      sql-format))
+
+                                                      p (println ">o> abc.attachments" attachments)
                                                       model-result (assoc model-result :attachments attachments)
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))

@@ -125,7 +125,7 @@ shared_context :generate_session_header do
   end
 end
 
-shared_context :setup_models_api_model do |role|
+shared_context :setup_models_api_model do |role = "inventory_manager"|
   include_context :setup_models_api, role
 
   before :each do
