@@ -5,8 +5,8 @@ require_relative "../_common"
 require "faker"
 
 expected_lm_fields = ["note", "last_check", "price", "building_id", "room_id", "shelf", "inventory_code", "model_id",
-                      "retired", "retired_reason", "is_broken", "is_incomplete", "is_borrowable", "status_note",
-                      "add-item-group"]
+  "retired", "retired_reason", "is_broken", "is_incomplete", "is_borrowable", "status_note",
+  "add-item-group"]
 
 put_post_response = {
   "properties" => Hash,

@@ -186,7 +186,6 @@ feature "Inventory Software" do
           result = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
           validate_map_structure(result.body.first, get_response)
-
           expect(result.body[0]["product"]).to eq("updated product")
           expect(result.body[0]["attachments"].count).to eq(0)
           expect(result.status).to eq(200)
