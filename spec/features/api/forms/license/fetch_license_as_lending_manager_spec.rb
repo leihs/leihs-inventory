@@ -47,7 +47,6 @@ get_response = {
   "properties" => Hash,
   "inventory_code" => String,
   "supplier" => [NilClass, String],
-  "owner_id" => String,
   "is_borrowable" => [TrueClass, FalseClass],
   "retired" => [TrueClass, FalseClass],
   "attachments" => Array,
@@ -58,8 +57,7 @@ get_response = {
   "inventory_pool_id" => String,
   "version" => String,
   "serial_number" => String,
-  "price" => Numeric,
-  "fields" => Array
+  "price" => Numeric
 }
 
 put_response = {
@@ -315,7 +313,7 @@ feature "Inventory License" do
           headers: cookie_header
         )
 
-        validate_map_structure(result.body["data"], post_response)
+        expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
         expect(result.status).to eq(200)
 
         expect(result.body["data"]["item_id"]).to be
@@ -333,7 +331,7 @@ feature "Inventory License" do
         fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
-        validate_map_structure(result.body["data"], get_response)
+        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
 
         attachments = result.body["data"]["attachments"]
         expect(result.status).to eq(200)
@@ -380,7 +378,7 @@ feature "Inventory License" do
           headers: cookie_header
         )
 
-        validate_map_structure(result.body.first, put_response)
+        expect(validate_map_structure(result.body.first, put_response)).to eq(true)
         expect(result.status).to eq(200)
 
         # TODO: revise to use data/validation resultonse-format
@@ -394,7 +392,7 @@ feature "Inventory License" do
         fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
-        validate_map_structure(result.body["data"], get_response)
+        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
 
         attachments = result.body["data"]["attachments"]
         expect(result.status).to eq(200)
