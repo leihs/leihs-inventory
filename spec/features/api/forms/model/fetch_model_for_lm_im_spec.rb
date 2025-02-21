@@ -9,7 +9,27 @@ def add_delete_flag(map)
   map
 end
 
-post_response = {
+post_response =  {
+  "description" => String,
+  "is_package" => [TrueClass, FalseClass],
+  "maintenance_period" => Numeric,
+  "type" => String,
+  "cover_image_id" => [NilClass, String],
+  "hand_over_note" => String,
+  "updated_at" => String,
+  "internal_description" => String,
+  "product" => String,
+  "info_url" => [NilClass, String],
+  "id" => String,
+  "manufacturer" => String,
+  "version" => String,
+  "created_at" => String,
+  "technical_detail" => String
+}
+put_response = {
+  "description" => String,
+  "is_package" => [TrueClass, FalseClass],
+  "maintenance_period" => Numeric,
   "type" => String,
   "cover_image_id" => [NilClass, String],
   "hand_over_note" => String,
@@ -24,22 +44,7 @@ post_response = {
   "technical_detail" => String
 }
 
-put_response = {
-  "description" => String,
-  "is_package" => [TrueClass, FalseClass], # Handle boolean correctly
-  "type" => String,
-  "cover_image_id" => [NilClass, String],
-  "hand_over_note" => String,
-  "updated_at" => String,
-  "internal_description" => String,
-  "product" => String,
-  "info_url" => [NilClass, String],
-  "id" => String,
-  "manufacturer" => String,
-  "version" => String,
-  "created_at" => String,
-  "technical_detail" => String
-}
+
 
 get_response = {
   "description" => String,
@@ -304,7 +309,7 @@ feature "Inventory Model Management" do
           )
 
           expect(result.status).to eq(200)
-          expect(validate_map_structure(result.body.first, post_response)).to eq(true)
+          expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
 
 
           # fetch created model
@@ -356,7 +361,8 @@ feature "Inventory Model Management" do
             headers: cookie_header
           )
 
-          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
+          binding.pry
+          expect(validate_map_structure(result.body.first, put_response)).to eq(true)
 
           expect(result.status).to eq(200)
           expect(result.body[0]["id"]).to eq(model_id)
