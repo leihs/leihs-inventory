@@ -1,7 +1,10 @@
 require "spec_helper"
 require "pry"
 require_relative "../../_shared"
+require_relative "../_common"
 require "faker"
+
+expected_fields = ["test"]
 
 feature "Inventory Item" do
   # ["inventory_manager", "lending_manager"].each do |role|
@@ -114,6 +117,8 @@ feature "Inventory Item" do
         attachment_id = attachments[0]["id"]
         expect(attachments.count).to be(2)
         expect(result.status).to be(200)
+
+        expected_form_fields(result.body["fields"], expected_fields)
 
         expect(response_body).not_to be_nil
         expect(response_body.count).to eq(2)
