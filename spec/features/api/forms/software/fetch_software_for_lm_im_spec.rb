@@ -56,9 +56,9 @@ put_response = {
   "technical_detail" => [NilClass, String]
 }
 
-feature "Inventory Model Management" do
+feature "Inventory Software" do
   ["inventory_manager", "lending_manager"].each do |role|
-    context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
+    context "when interacting with inventory software with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
 

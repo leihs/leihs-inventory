@@ -4,7 +4,6 @@ require_relative "../../_shared"
 require "faker"
 
 ["group_manager", "customer"].each do |role|
-  # ["inventory_manager"].each do |role|
   feature "Inventory package" do
     context "when interacting with inventory package with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
@@ -16,37 +15,7 @@ require "faker"
       let(:pool) { @inventory_pool }
       let(:pool_id) { @inventory_pool.id }
 
-      let(:model) {
-        # model = FactoryBot.create(:package_model)
-        # model = FactoryBot.create(:package_model_with_items)
-        model = FactoryBot.create(:package_model_with_items, pool)
-
-        model
-      }
-
-      # let(:model_id) { model.id }
-
-      # let(:model) { @model }
-      # let(:models) {
-      #
-      #   puts "?????? @models: #{@models.size}"
-      #   @models }
-      # let(:model_id) { @model.id }
-
-      # let(:software_model) { @software_model }
-      # let(:license_item) { @license_item }
-      # let(:model_id) { @software_model.id }
-      # let(:item_id) {
-      #
-      #   puts "?????? model_id: #{model_id}"
-      #   id = FactoryBot.create(:package_model, parent: @model).id
-      #   id = FactoryBot.create(:package_model).id
-      #
-      #   puts "?????? id: #{id}"
-      #   id
-      # }
-
-      # let(:item_id) { FactoryBot.create(:package_model, parent: model_id inventory_pool_id: pool_id).id }
+      let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: pool) }
 
       before do
         resp = client.get "/inventory/owners"
@@ -71,20 +40,6 @@ require "faker"
       end
 
       it "create, fetch & update by form data" do
-        # # model = FactoryBot.create(:package_model_with_items, @inventory_pool)
-        # # package = FactoryBot.create(:package_model_with_items, inventory_pool: pool, inventory_pool_id: pool.id)
-        # pool = FactoryBot.create(:inventory_pool)
-        # # package = FactoryBot.create(:package_model) # ok
-        # # package = FactoryBot.create(:package_model, inventory_pool: pool) # error
-        # package = FactoryBot.create(:package_model_with_items, inventory_pool: pool)
-        #
-        # model_id = package.id
-        # # package_id = package.items.first.id
-        # item_id = package.items.first.id
-        # pool_id = package.items.first.inventory_pool_id
-
-        # binding.pry
-
         # # create package, works
         form_data = {
           is_inventory_relevant: true,
@@ -110,68 +65,18 @@ require "faker"
           form_data,
           headers: cookie_header
         )
-
         expect(result.status).to eq(401)
-        # expect(result.status).to eq(200)
 
-        package = FactoryBot.create(:package_model_with_items, inventory_pool: pool)
-        model_id = package.id
-        item_id = package.items.first.id
-        pool_id = package.items.first.inventory_pool_id
-
-        old_pool_id = pool_id
-        puts "?????? old_pool_id: #{old_pool_id}"
-
-        puts "?????? pool_id: #{pool_id}"
+        model_id = fake_package.id
+        item_id = fake_package.items.first.id
+        pool_id = fake_package.items.first.inventory_pool_id
 
         # fetch package
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        # binding.pry
         expect(result.status).to eq(401)
 
-        # # FIXME: this should work with factory ??
-        # # # create package
-        # form_data = {
-        #   is_inventory_relevant: true,
-        #   last_check: nil,
-        #   user_name: nil,
-        #   price: 12.33,
-        #   shelf: nil,
-        #   inventory_code: "P-AUS00002",
-        #   retired: false,
-        #   is_broken: false,
-        #   is_incomplete: false,
-        #   is_borrowable: false,
-        #   status_note: nil,
-        #   note: nil,
-        #   room_id: @form_rooms[0]["id"],
-        #   model_id: model_id,
-        #   owner_id: pool_id,
-        #   items_attributes: []
-        # }.transform_values { |v| v.nil? ? "" : v.to_s }
-        #
-        # result = http_multipart_client(
-        #   "/inventory/#{pool_id}/package",
-        #   form_data,
-        #   headers: cookie_header
-        # )
-        #
-        # expect(result.status).to eq(401)
-
-        # # expect(result.body["data"]).to be_present
-        # # expect(result.body["validation"].count).to eq(0)
-        # #
-        # # item_id = result.body["data"]["id"]
-        # # model_id = result.body["data"]["model_id"]
-        #
-        #
-        # # # puts "?????? item_id: #{item_id}"
-        #
-        # binding.pry
-        #
         # fetch package
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        # binding.pry
         expect(result.status).to eq(401)
 
         # update package
@@ -185,5 +90,4 @@ require "faker"
       end
     end
   end
-  # end
 end
