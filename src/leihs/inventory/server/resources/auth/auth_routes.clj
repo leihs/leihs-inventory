@@ -127,6 +127,50 @@
       (response/status
        (response/response {:message (.getMessage e)}) 400))))
 
+(defn update-role-handler [request]
+  (try
+    (let [[login password] (extract-basic-auth-from-header request)
+          user (verify-password-entry request login password)
+          default-pool-id #uuid "8bd16d45-056d-5590-bc7f-12849f034351"
+          pool-id (or (-> request :parameters :query :pool_id) default-pool-id)
+          role (or (-> request :parameters :query :role))
+          auth (-> request :authenticated-entity)]
+      (if (-> auth boolean)
+        (let [access-rights (-> auth :access-rights)
+              access-right (vec (filter #(= (:inventory_pool_id %) pool-id) access-rights))
+              result {:inventory_pool_id pool-id
+                      :role-before (-> access-right first :role)
+                      :role-after role}]
+          (if (nil? access-right)
+            (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)
+            (let [query (-> (sql/select :direct_access_rights.*)
+                            (sql/from :direct_access_rights)
+                            (sql/join :users [:= :users.id :direct_access_rights.user_id])
+                            (sql/join :inventory_pools [:= :inventory_pools.id :direct_access_rights.inventory_pool_id])
+                            (sql/where [:= :users.login (-> auth :login)]
+                                       [:= :users.is_admin true]
+                                       [:= :inventory_pools.id pool-id])
+                            sql-format)
+                  query-result (jdbc/execute! (:tx request) query)
+                  count-of-query-should-be-one (count query-result)
+                  dar-id (-> (first query-result) :id)
+                  result (assoc result :count-of-direct-access-right-should-be-one count-of-query-should-be-one)
+                  result (when (= count-of-query-should-be-one 1)
+                           (let [update-query (-> (sql/update :direct_access_rights)
+                                                  (sql/set {:role (-> result :role-after)})
+                                                  (sql/where [:= :id dar-id])
+                                                  (sql/returning :*)
+                                                  sql-format)
+                                 update-result (jdbc/execute! (:tx request) update-query)]
+                             (assoc result :update-result update-result)))]
+              (if (= count-of-query-should-be-one 1)
+                (response/response result)
+                (response/status (response/response result) 409)))))
+        (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)))
+    (catch Exception e
+      (println "Error in authenticate-handler:" (.getMessage e))
+      (response/status (response/response {:message (.getMessage e)}) 400))))
+
 (defn logout-handler [request]
   (let [token (get-in request [:cookies "leihs-user-session" :value])
         hashed-token (sha256-hash token)]

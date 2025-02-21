@@ -1,11 +1,103 @@
 require "spec_helper"
 require "pry"
 require_relative "../../_shared"
+require_relative "../_common"
 require "faker"
 
-feature "Inventory Model Management" do
-  context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
-    include_context :setup_models_api_license
+expected_lm_fields = ["serial_number", "note", "attachments", "invoice_date", "price", "supplier_id", "retired",
+  "retired_reason", "is_borrowable", "inventory_code", "software_model_id"]
+
+post_response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => String,
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "shelf" => [NilClass, String],
+  "status_note" => [NilClass, String],
+  "item_id" => String,
+  "name" => [NilClass, String],
+  "attachments" => Array,
+  "invoice_number" => [NilClass, String],
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => String,
+  "updated_at" => String,
+  "retired_reason" => String,
+  "responsible" => [NilClass, String],
+  "invoice_date" => String,
+  "model_id" => String,
+  "supplier_id" => [NilClass, String],
+  "parent_id" => [NilClass, String],
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "item_version" => String,
+  "needs_permission" => [TrueClass, FalseClass],
+  "user_name" => [NilClass, String],
+  "room_id" => String,
+  "serial_number" => String,
+  "price" => Numeric,
+  "created_at" => String,
+  "insurance_number" => [NilClass, String]
+}
+
+get_response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "supplier" => [NilClass, String],
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [TrueClass, FalseClass],
+  "attachments" => Array,
+  "note" => String,
+  "retired_reason" => String,
+  "invoice_date" => String,
+  "product" => Hash,
+  "inventory_pool_id" => String,
+  "version" => String,
+  "serial_number" => String,
+  "price" => Numeric
+}
+
+put_response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [NilClass, TrueClass, FalseClass],
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "shelf" => [NilClass, String],
+  "status_note" => [NilClass, String],
+  "name" => [NilClass, String],
+  "attachments" => Array,
+  "invoice_number" => [NilClass, String],
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => String,
+  "updated_at" => String,
+  "retired_reason" => [NilClass, String],
+  "responsible" => [NilClass, String],
+  "invoice_date" => String,
+  "model_id" => String,
+  "supplier_id" => [NilClass, String],
+  "parent_id" => [NilClass, String],
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "item_version" => String,
+  "needs_permission" => [TrueClass, FalseClass],
+  "user_name" => [NilClass, String],
+  "room_id" => String,
+  "serial_number" => String,
+  "price" => Numeric,
+  "created_at" => String,
+  "insurance_number" => [NilClass, String]
+}
+
+feature "Inventory License" do
+  context "when interacting with inventory license with role=lending_manager", driver: :selenium_headless do
+    include_context :setup_models_api_license, "lending_manager"
     include_context :setup_unknown_building_room_supplier
     include_context :generate_session_header
 
@@ -31,14 +123,14 @@ feature "Inventory Model Management" do
         result = client.get "/inventory/#{pool_id}/license"
 
         expect(result.status).to eq(200)
-        expect(result.body["fields"].count).to eq(29)
+        expect(result.body["fields"].count).to eq(11)
       end
 
       it "fetch default" do
         result = client.get "/inventory/#{pool_id}/entitlement-groups"
 
         expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(result.body.count).to eq(2)
       end
 
       it "fetch default" do
@@ -183,7 +275,7 @@ feature "Inventory Model Management" do
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
-          "attachments" => [File.open(path_test_pdf, "rb")],
+          "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test_txt, "rb")],
           "invoice_date" => "2024-12-19",
           "price" => "100",
           "retired" => true.to_s,
@@ -221,6 +313,7 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
+        expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
         expect(result.status).to eq(200)
 
         expect(result.body["data"]["item_id"]).to be
@@ -234,11 +327,17 @@ feature "Inventory Model Management" do
         expect(result.body["data"]["inventory_pool_id"]).to be
 
         # fetch license
-        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        fields = result.body["fields"]
+        expected_form_fields(fields, expected_lm_fields)
 
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"]).to be_present
-        expect(resp.body["fields"].count).to eq(29)
+        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
+
+        attachments = result.body["data"]["attachments"]
+        expect(result.status).to eq(200)
+        expect(attachments.count).to eq(2)
+        expect(result.body["data"]).to be_present
+        expect(result.body["fields"].count).to eq(11)
 
         # update license
         form_data = {
@@ -252,6 +351,7 @@ feature "Inventory Model Management" do
           "item_version" => "your-version",
           "supplier_id" => nil.to_s,
           "owner_id" => pool_id,
+          "attachments-to-delete" => [attachments[0]["id"]].to_json,
           "properties" => {
             "activation_type" => "none",
             "license_type" => "single_workplace",
@@ -263,7 +363,7 @@ feature "Inventory Model Management" do
             "reference" => "investment",
             "project_number" => "your-project-number",
             "procured_by" => "your-procured-person",
-            "maintenance_contract" => "true",
+            "maintenance_contract" => true.to_s,
             "maintenance_expiration" => "2024-12-20",
             "maintenance_currency" => "CHF",
             "maintenance_price" => "20",
@@ -278,16 +378,25 @@ feature "Inventory Model Management" do
           headers: cookie_header
         )
 
+        expect(validate_map_structure(result.body.first, put_response)).to eq(true)
         expect(result.status).to eq(200)
 
-        # TODO: revise to use data/validation response-format
+        # TODO: revise to use data/validation resultonse-format
         expect(result.body[0]["id"]).to be
-
-        # item_id = result.body[0]["id"]
-
         expect(result.body[0]["room_id"]).to be
         expect(result.body[0]["owner_id"]).to be
         expect(result.body[0]["inventory_pool_id"]).to be
+
+        # fetch license
+        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        fields = result.body["fields"]
+        expected_form_fields(fields, expected_lm_fields)
+        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
+
+        attachments = result.body["data"]["attachments"]
+        expect(result.status).to eq(200)
+        expect(attachments.count).to eq(1)
+        expect(result.body["data"]).to be_present
       end
     end
   end

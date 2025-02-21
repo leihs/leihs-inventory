@@ -535,7 +535,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :is_package boolean?
                                             :maintenance_period int?
                                             :type string?
-                                            :rental_price (sa/nilable any?)
                                             :cover_image_id (sa/nilable any?)
                                             :hand_over_note (sa/nilable any?)
                                             :updated_at any?
@@ -543,10 +542,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                             :product string?
                                             :info_url (sa/nilable any?)
                                             :id uuid?
+                                            :version (sa/nilable string?)
+                                            :technical_detail (sa/nilable string?)
                                             :manufacturer any?
-                                            :version string?
-                                            :created_at any?
-                                            :technical_detail string?}
+                                            :created_at any?}
                                      :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
@@ -612,18 +611,18 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                       :is_package boolean?
                                       :maintenance_period int?
                                       :type string?
-                                      :rental_price (sa/nilable any?)
+                                      ;:rental_price (sa/nilable any?)
                                       :cover_image_id (sa/nilable any?)
                                       :hand_over_note (sa/nilable any?)
                                       :updated_at any?
                                       :internal_description (sa/nilable any?)
                                       :product string?
                                       :info_url (sa/nilable any?)
+                                      :version (sa/nilable string?)
+                                      :technical_detail (sa/nilable string?)
                                       :id uuid?
                                       :manufacturer any?
-                                      :version string?
-                                      :created_at any?
-                                      :technical_detail string?}]}
+                                      :created_at any?}]}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
@@ -650,7 +649,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                               ;:body :res2/request ;; FIXME: shows key-prefixes
                               :body {:data {:product string?
                                             :inventory_pool_id uuid?
-                                            :version string?
+                                            :version (sa/nilable string?)
                                             :price any?
                                             :id uuid?
                                             :inventory_code string?}

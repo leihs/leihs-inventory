@@ -14,41 +14,113 @@
             const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/models/${softwareId}/edit?return_url=/manage/${poolId}/inventory`;
             const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/models/${softwareId}/edit?return_url=/manage/${poolId}/inventory`;
 
+            const stagingAdminLink = `https://staging.leihs.zhdk.ch/admin/users`;
+            const testAdminLink = `https://test.leihs.zhdk.ch/admin/users`;
+
             document.getElementById('stagingLink').href = stagingLink;
-            document.getElementById('stagingLink').innerText = stagingLink;
+            document.getElementById('stagingLink').innerText = "*/staging/manage/-Link to Edit";
 
             document.getElementById('testLink').href = testLink;
-            document.getElementById('testLink').innerText = testLink;
+            document.getElementById('testLink').innerText = "*/test/manage/-Link to Edit";
+
+
+            document.getElementById('stagingAdminLink').href = stagingAdminLink;
+            document.getElementById('stagingAdminLink').innerText = "Staging-Admin";
+
+            document.getElementById('testAdminLink').href = testAdminLink;
+            document.getElementById('testAdminLink').innerText = "Test-Admin";
         }
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .file-list { margin-top: 10px; }
-        .myBtn{ margin-top: 10px;}
-        .file-item { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
-        .file-item span { flex-grow: 1; }
-        .remove-file-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
-        .remove-file-btn:hover { background-color: #a71d2a; }
+        .links {
+            padding: 0.5em 1em 1em 1em;
+            margin-top: 1em;
+            background-color: #f4f4f4;
+            border-style: dashed;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="file"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .myBtn {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .file-item span {
+            flex-grow: 1;
+        }
+
+        .remove-file-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .remove-file-btn:hover {
+            background-color: #a71d2a;
+        }
 
         body.save-success {
             border: 1em solid #b8f4b8;
             transition: border 0.3s ease-in-out;
         }
+
         body.no-result-success {
             border: 1em solid #BFBFBF1C;
             transition: border 0.3s ease-in-out;
         }
+
         body.save-failed {
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
-        .colored-row{
+
+        .colored-row {
             background-color: navajowhite;
         }
     </style>
@@ -95,19 +167,23 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
-    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
 </ul>
 
+<div class="links">
+    <h3>Links to Test/Staging <h5>(generated by Options-Attributes)</h5></h3>
 
-<h3>Links to Test/Staging</h3>
-
-<div>
-    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
-    <br/>
-    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+    <div>
+        <p><a id="testLink" href="#" target="_blank"></a></p>
+        <p><a id="testAdminLink" href="https://test.leihs.zhdk.ch/admin/users" target="_blank">Test-Admin</a></p>
+        <br/>
+        <p><a id="stagingLink" href="#" target="_blank"></a></p>
+        <p><a id="stagingAdminLink" href="https://staging.leihs.zhdk.ch/admin/users" target="_blank">Staging-Admin</a>
+        </p>
+    </div>
+    <button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
 </div>
-<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
-
 
 <br/><br/>
 <br/><br/>
@@ -120,7 +196,9 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchSoftwareId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a></label>
+    <label for="fetchSoftwareId"><a target="_blank"
+                                    href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Software
+        ID (model_id)</a></label>
 
     <input type="text" id="fetchSoftwareId" name="fetchSoftwareId" value="4ba376ff-5c55-4bac-b7af-2b4d6015e3a8">
     <button id="fetchSoftwareBtn" class="myBtn">Fetch Software</button>
@@ -152,7 +230,7 @@
     </div>
 
     <div class="form-group">
-        <button type="submit"  class="myBtn">Save Software</button>
+        <button type="submit" class="myBtn">Save Software</button>
     </div>
 </form>
 
@@ -174,12 +252,12 @@
 
         const getApiConfig = (poolId, softwareId) => {
             return CONST_IS_CREATE_FORM
-                ? { url: `/inventory/${poolId}/software`, method: 'POST' }
-                : { url: `/inventory/${poolId}/software/${softwareId}`, method: 'PUT' };
+                ? {url: `/inventory/${poolId}/software`, method: 'POST'}
+                : {url: `/inventory/${poolId}/software/${softwareId}`, method: 'PUT'};
         };
 
         function fetchOptions(url, selectId) {
-            fetch(url, { headers: { Accept: "application/json" } })
+            fetch(url, {headers: {Accept: "application/json"}})
                 .then((response) => response.json())
                 .then((data) => {
                     const select = document.getElementById(selectId);
@@ -210,7 +288,7 @@
             $.ajax({
                 url: `/inventory/${poolId}/software/${softwareId}?type=Software`,
                 method: "GET",
-                headers: { Accept: "application/json" },
+                headers: {Accept: "application/json"},
                 success: function (response) {
                     if (response && response.length > 0) {
                         const data = response[0];
@@ -284,15 +362,15 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                headers: { Accept: "application/json" },
+                headers: {Accept: "application/json"},
                 success: function (response) {
                     console.log("Software saved successfully!", response);
 
                     clearForm();
 
-                    if( CONST_IS_CREATE_FORM) {
+                    if (CONST_IS_CREATE_FORM) {
                         $('#fetchSoftwareId').val(response.data.id)
-                    }else{
+                    } else {
                         $('#fetchSoftwareId').val(response[0].id)
                         $('#fetchSoftwareBtn').click()
                     }

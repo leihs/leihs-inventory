@@ -14,52 +14,127 @@
             const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/models/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
             const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/models/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
 
+            const stagingAdminLink = `https://staging.leihs.zhdk.ch/admin/users`;
+            const testAdminLink = `https://test.leihs.zhdk.ch/admin/users`;
+
             document.getElementById('stagingLink').href = stagingLink;
-            document.getElementById('stagingLink').innerText = stagingLink;
+            document.getElementById('stagingLink').innerText = "*/staging/manage/-Link to Edit";
 
             document.getElementById('testLink').href = testLink;
-            document.getElementById('testLink').innerText = testLink;
+            document.getElementById('testLink').innerText = "*/test/manage/-Link to Edit";
+
+
+            document.getElementById('stagingAdminLink').href = stagingAdminLink;
+            document.getElementById('stagingAdminLink').innerText = "Staging-Admin";
+
+            document.getElementById('testAdminLink').href = testAdminLink;
+            document.getElementById('testAdminLink').innerText = "Test-Admin";
         }
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        .links {
+            padding: 0.5em 1em 1em 1em;
+            margin-top: 1em;
+            background-color: #f4f4f4;
+            border-style: dashed;
+        }
 
-        .myBtn{ margin-top: 10px;}
-        .btn-danger, .remove-file-btn{
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="file"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .myBtn {
+            margin-top: 10px;
+        }
+
+        .btn-danger, .remove-file-btn {
             background-color: #dc3545;
         }
+
         .entitlement-row {
-            display: flex       ;
+            display: flex;
             align-items: center;
             column-gap: 3rem;
             justify-content: space-around;
             margin-top: 0.5rem;
         }
 
-        button:hover { background-color: #0056b3; }
-        .dynamic-list { margin-top: 10px; }
-        .dynamic-item { display: flex; gap: 10px; margin-bottom: 10px; }
-        .remove-btn { background-color: #dc3545; }
-        .file-list { margin-top: 10px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .dynamic-list {
+            margin-top: 10px;
+        }
+
+        .dynamic-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
         body.save-success {
             border: 1em solid #b8f4b8;
             transition: border 0.3s ease-in-out;
         }
+
         body.no-result-success {
             border: 1em solid #BFBFBF1C;
             transition: border 0.3s ease-in-out;
         }
+
         body.save-failed {
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
-        #addAccessory, #addProperty { background-color: #dedede; color: black;        }
+
+        #addAccessory, #addProperty {
+            background-color: #dedede;
+            color: black;
+        }
+
         .image-group {
             display: flex;
             gap: 10px;
@@ -119,7 +194,7 @@
     </style>
 
     <style>
-    ul.dev-page-menu {
+        ul.dev-page-menu {
             list-style-type: none; /* Remove default bullets */
             padding: 0; /* Remove default padding */
             margin: 0; /* Remove default margin */
@@ -150,7 +225,6 @@
             color: white; /* Change text color on hover */
         }
     </style>
-
 </head>
 <body>
 <ul class="dev-page-menu">
@@ -161,7 +235,8 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
-    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
 </ul>
 
 <script>
@@ -183,7 +258,7 @@
     </div>
     <div class="image-container">
         <img id="testImage" alt="Lights">
-        <p class="image-footer">Image  by ajax-Request<br/>response to blob() with temporary URL</p>
+        <p class="image-footer">Image by ajax-Request<br/>response to blob() with temporary URL</p>
     </div>
 </div>
 
@@ -191,19 +266,24 @@
 <br/><br/>
 
 
-<h3>Links to Test/Staging</h3>
+<div class="links">
+    <h3>Links to Test/Staging <h5>(generated by Options-Attributes)</h5></h3>
 
-<div>
-    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
-    <br/>
-    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+    <div>
+        <p><a id="testLink" href="#" target="_blank"></a></p>
+        <p><a id="testAdminLink" href="https://test.leihs.zhdk.ch/admin/users" target="_blank">Test-Admin</a></p>
+        <br/>
+        <p><a id="stagingLink" href="#" target="_blank"></a></p>
+        <p><a id="stagingAdminLink" href="https://staging.leihs.zhdk.ch/admin/users" target="_blank">Staging-Admin</a>
+        </p>
+    </div>
+    <button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
 </div>
-<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
-
 
 <br/><br/>
 <br/><br/>
 
+<h1 id="formTitle">Create New Model</h1>
 
 <h3>Options</h3>
 
@@ -212,9 +292,11 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="fetchModelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Model-ID (API)</a></label>
+    <label for="fetchModelId"><a target="_blank"
+                                 href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Model-ID
+        (API)</a></label>
     <input type="text" id="fetchModelId" name="fetchModelId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
-    <button id="fetchModelBtn" class="myBtn" >Fetch model</button>
+    <button id="fetchModelBtn" class="myBtn">Fetch model</button>
 </div>
 
 <br/><br/><br/><br/>
@@ -245,7 +327,8 @@
     <div class="form-group">
         <label for="internalDescription">Internal Description</label>
         <textarea id="internalDescription" name="internalDescription"></textarea>
-    </div>    <div class="form-group">
+    </div>
+    <div class="form-group">
         <label for="handOverNote">Important notes for hand over</label>
         <textarea id="handOverNote" name="handOverNote"></textarea>
     </div>
@@ -257,13 +340,13 @@
     <div class="form-group">
         <b><label for="images">Bilder</label></b>
         <input type="file" id="images" name="images" multiple accept="image/*">
-        <input type="hidden" id="images-to-delete" name="images-to-delete" />
+        <input type="hidden" id="images-to-delete" name="images-to-delete"/>
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
         <b><label for="attachments">Anhänge</label></b>
         <input type="file" id="attachments" name="attachments" multiple>
-        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
+        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete"/>
         <div id="attachmentsList" class="file-list"></div>
     </div>
     <div class="form-group">
@@ -274,11 +357,10 @@
     </div>
 
 
-
-<!--    <div class="form-group">-->
-<!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
-<!--        <select id="entitlements" name="entitlements" multiple></select>-->
-<!--    </div>-->
+    <!--    <div class="form-group">-->
+    <!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
+    <!--        <select id="entitlements" name="entitlements" multiple></select>-->
+    <!--    </div>-->
 
     <div class="form-group row">
         <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
@@ -307,25 +389,25 @@
 </form>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
 
         var CONST_IS_CREATE_FORM = true;
 
         var FNC_CONFIG = (poolId, modelId) => {
 
             // create
-            if(CONST_IS_CREATE_FORM) {
-                return  {
-                        url: '/inventory/' + poolId + '/model',
-                        method: 'POST'
-                    }
+            if (CONST_IS_CREATE_FORM) {
+                return {
+                    url: '/inventory/' + poolId + '/model',
+                    method: 'POST'
                 }
+            }
 
             // update
-            return  {
-                    url:  '/inventory/' + poolId + '/model/' + modelId,
-                    method: 'PUT'
-                }
+            return {
+                url: '/inventory/' + poolId + '/model/' + modelId,
+                method: 'PUT'
+            }
         };
 
         function initSelect2(selectId, type) {
@@ -341,19 +423,19 @@
             const selectedContainer = $('#selected-entitlements');
             selectedContainer.empty();
 
-            $('#entitlements option:selected').each(function() {
+            $('#entitlements option:selected').each(function () {
                 const entitlement = $(this).data('entitlement_group');
 
-                if(entitlement== undefined){
+                if (entitlement == undefined) {
                     return;
                 }
 
                 const data = $('#entitlements').data('entitlement-groups')
                 let matchingEntry;
-                if(data ==undefined){
+                if (data == undefined) {
                     matchingEntry = {quantity: 1}
-                }    else {
-                        matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
+                } else {
+                    matchingEntry = data.find(entry => entry.group_id === entitlement.id) || {quantity: 1};
                 }
 
 
@@ -365,12 +447,12 @@
                             class: 'form-control form-control-sm d-inline-block ml-2',
                             style: 'width: 60px;',
                             uuid: entitlement.id
-                        // }).val(1)
+                            // }).val(1)
                         }).val(matchingEntry.quantity)
                     )
                     .append(
                         $('<button class="btn btn-sm btn-danger ml-2">Remove</button>')
-                            .on('click', function() {
+                            .on('click', function () {
                                 $(this).parent().remove();
                                 $('#entitlements option[value="' + entitlement.id + '"]').prop('selected', false);
                                 $('#entitlements').trigger('change');
@@ -381,14 +463,14 @@
         }
 
         // Handle selection of entitlements
-        $('#entitlements').on('change', function() {
+        $('#entitlements').on('change', function () {
             updateSelectedEntitlements();
         });
 
 
         // let previousSelection = [];
         function fetchOptions(url, selectId) {
-            fetch(url, { headers: { 'Accept': 'application/json' } })
+            fetch(url, {headers: {'Accept': 'application/json'}})
                 .then(response => response.json())
                 .then(data => {
                     const select = document.getElementById(selectId);
@@ -419,7 +501,6 @@
                             select.appendChild(option);
 
 
-
                             return;
                         }
 
@@ -438,7 +519,7 @@
                         option.value = item.id;
                         option.textContent = item.name;
 
-                        if(selectId === 'categories'){
+                        if (selectId === 'categories') {
                             $(option).data('categories', item);
                         }
 
@@ -452,16 +533,16 @@
                     console.log(">>> INIT SELECT2 / " + selectId)
                     initSelect2(selectId);
 
-                    if(selectId === 'entitlements'){
-                        $("#cache").data(`prev-${selectId}`,  $('#entitlements').val());
+                    if (selectId === 'entitlements') {
+                        $("#cache").data(`prev-${selectId}`, $('#entitlements').val());
                     }
 
-                    if(selectId === 'compatibles'){
-                        $("#cache").data(`prev-${selectId}`,  $('#compatibles').val());
+                    if (selectId === 'compatibles') {
+                        $("#cache").data(`prev-${selectId}`, $('#compatibles').val());
                     }
 
-                    if(selectId === 'categories'){
-                        $("#cache").data(`prev-${selectId}`,  $('#categories').val());
+                    if (selectId === 'categories') {
+                        $("#cache").data(`prev-${selectId}`, $('#categories').val());
                     }
 
 
@@ -495,7 +576,7 @@
         //     updateDropdowns(newPoolId);
         // });
 
-        $('#fetchModelBtn').click(function() {
+        $('#fetchModelBtn').click(function () {
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
@@ -506,17 +587,17 @@
                 headers: {
                     'Accept': 'application/json'
                 },
-                success: function(response) {
+                success: function (response) {
                     console.log('Model fetched successfully!');
                     console.log(response);
 
                     $("#cache").removeData();
 
-                    response= response[0];
+                    response = response[0];
 
-                    if(response == undefined){
+                    if (response == undefined) {
                         $('body').addClass('no-result-success');
-                        setTimeout(function() {
+                        setTimeout(function () {
                             $('body').removeClass('no-result-success');
                         }, 3000);
 
@@ -541,8 +622,8 @@
 
                     // Populate properties
                     $('#propertiesList').empty();
-                        response.properties.forEach(function(prop) {
-                            var ab = $('#propertiesList').append(`
+                    response.properties.forEach(function (prop) {
+                        var ab = $('#propertiesList').append(`
                             <div class="dynamic-item">
                                 <input type="text" type="key" id="${prop.id}" name="propertyKey[]" value="${prop.key}" required>
                                 <input type="text" type="value" id="${prop.id}" name="propertyValue[]" value="${prop.value}" required>
@@ -553,7 +634,7 @@
 
                     // Populate accessories
                     $('#accessoriesList').empty();
-                    response.accessories.forEach(function(acc) {
+                    response.accessories.forEach(function (acc) {
                         $('#accessoriesList').append(`
                             <div class="dynamic-item">
                                 <input type="text"   id="${acc.id}" name="accessoryName[]" value="${acc.name}" required>
@@ -586,27 +667,26 @@
                             id: obj.siblings('input[name="accessoryName[]"]').attr('id'),
                             delete: true,
                             name: obj.siblings('input[name="accessoryName[]"]').val(),
-                            is_inventory:  obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
+                            is_inventory: obj.closest('.dynamic-item').find('input[name="accessoryInventory[]"]').val() == 'on'
                         })
                         return data
                     }
 
 
-
                     // Add event listener for remove button to delete only the clicked item
-                    $(document).on('click', '.remove-btn', function() {
+                    $(document).on('click', '.remove-btn', function () {
                         const type = $(this).attr("ftype")
-                        var data=[];
+                        var data = [];
                         console.log(">o> remove-btn > !!!!", type)
                         if (type === 'properties') {
                             data = cacheDeletedProperties(type, $(this))
                         } else if (type === 'accessories') {
                             data = cacheDeletedAccessories(type, $(this))
-                        } else  {
-                            console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type,  data)
+                        } else {
+                            console.log(">o> NOT YET IMPLEMENTED >> remove-btn >> ", type, data)
                         }
 
-                        console.log(">o> remove-btn > ", type,  data)
+                        console.log(">o> remove-btn > ", type, data)
                         $("#cache").data(`deleted-${type}`, data)
 
                         $(this).closest('.dynamic-item').remove();
@@ -616,7 +696,7 @@
                     // Populate entitlements (entitlement groups)
                     $('#entitlements').data('entitlement-groups', response.entitlement_groups)
                     $('#entitlements').val(response.entitlement_groups.map(eg => eg.group_id)).trigger('change');
-                    $('#entitlements').find('option:selected').each(function(index, option, a, b) {
+                    $('#entitlements').find('option:selected').each(function (index, option, a, b) {
                         const groupId = $(option).val();
                         const entitlementData = response.entitlement_groups.find(eg => eg.group_id === groupId);
                         if (entitlementData) {
@@ -624,7 +704,7 @@
                             console.log('Updated option data:', $(option).data('entitlement'));
                         }
                     });
-                    $('#entitlements').on('change', function() {
+                    $('#entitlements').on('change', function () {
                         const currentSelection = $(this).val() || [];
                         const previousSelection = $("#cache").data("prev-entitlements") || [];
                         const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
@@ -633,33 +713,29 @@
                         removedOptions.forEach(id => {
                             const removedOption = $(this).find(`option[value="${id}"]`);
                             var removedEntitlementData = removedOption.data('entitlement')
-                            if(removedEntitlementData == undefined){
+                            if (removedEntitlementData == undefined) {
                                 return;
                             }
 
                             removedEntitlementData.delete = true;
 
                             console.log('Removed option data:', removedEntitlementData);
-                            var keyMapa = { id: "entitlement_id", group_id: "entitlement_group_id" };
+                            var keyMapa = {id: "entitlement_id", group_id: "entitlement_group_id"};
                             removedEntitlementData = renameKeys(removedEntitlementData, keyMapa);
                             deleted_data.push(removedEntitlementData)
                         });
 
-                        $("#cache").data("deleted-entitlements",  deleted_data);
+                        $("#cache").data("deleted-entitlements", deleted_data);
                         // $("#cache").data("deleted-categories",  deleted_data);
 
-                        $("#cache").data("prev-entitlements",  currentSelection);
+                        $("#cache").data("prev-entitlements", currentSelection);
                     });
-
-
-
-
 
 
                     // Populate categories (assuming it's part of the response)
                     if (response.categories) {
                         $('#categories').val(response.categories.map(c => c.id)).trigger('change');
-                        $('#categories').find('option:selected').each(function(index, option, a, b) {
+                        $('#categories').find('option:selected').each(function (index, option, a, b) {
                             const categoryId = $(option).val();
                             const entitlementData = response.categories.find(eg => eg.id === categoryId);
                             if (entitlementData) {
@@ -667,9 +743,9 @@
                                 console.log('Updated option data:', $(option).data('categories'));
                             }
                         });
-                        $("#cache").data("prev-categories",  $('#categories').val())
+                        $("#cache").data("prev-categories", $('#categories').val())
 
-                        $('#categories').on('change', function() {
+                        $('#categories').on('change', function () {
                             const currentSelection = $(this).val() || [];
                             const previousSelection = $("#cache").data("prev-categories") || [];
                             const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
@@ -678,7 +754,7 @@
                             removedOptions.forEach(id => {
                                 const removedOption = $(this).find(`option[value="${id}"]`);
                                 var removedEntitlementData = removedOption.data('categories')
-                                if(removedEntitlementData == undefined){
+                                if (removedEntitlementData == undefined) {
                                     return;
                                 }
 
@@ -686,54 +762,55 @@
                                 deleted_data.push(removedEntitlementData)
                             });
 
-                            $("#cache").data("deleted-categories",  deleted_data);
-                            $("#cache").data("prev-categories",  currentSelection);
+                            $("#cache").data("deleted-categories", deleted_data);
+                            $("#cache").data("prev-categories", currentSelection);
                         });
                     }
 
                     if (response.compatibles) {
 
 
-                    // Populate compatibles
-                    $('#compatibles').val(response.compatibles
-                        .filter(c => c && c.id != null)
-                        .map(c => c.id)).trigger('change');
+                        // Populate compatibles
+                        $('#compatibles').val(response.compatibles
+                            .filter(c => c && c.id != null)
+                            .map(c => c.id)).trigger('change');
 
-                    $('#compatibles').find('option:selected').each(function(index, option, a, b) {
-                        const categoryId = $(option).val();
-                        var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
-                        if (entitlementData) {
-                            $(option).data('compatible', entitlementData);
-                            console.log('Updated option data:', $(option).data('compatible'));
-                        }
-                    });
-                    $("#cache").data("prev-compatibles",  $('#compatibles').val())
-
-                    $('#compatibles').on('change', function() {
-                        const currentSelection = $(this).val() || [];
-                        const previousSelection = $("#cache").data("prev-compatibles") || [];
-                        const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-
-                        var deleted_data = $("#cache").data("deleted-compatibles") || []
-                        removedOptions.forEach(id => {
-                            const removedOption = $(this).find(`option[value="${id}"]`);
-                            var removedEntitlementData = removedOption.data('compatible')
-                            if(removedEntitlementData == undefined){
-                                return;
+                        $('#compatibles').find('option:selected').each(function (index, option, a, b) {
+                            const categoryId = $(option).val();
+                            var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
+                            if (entitlementData) {
+                                $(option).data('compatible', entitlementData);
+                                console.log('Updated option data:', $(option).data('compatible'));
                             }
-
-                            removedEntitlementData.delete = true;
-                            deleted_data.push(removedEntitlementData)
                         });
+                        $("#cache").data("prev-compatibles", $('#compatibles').val())
 
-                        $("#cache").data("deleted-compatibles",  deleted_data);
-                        $("#cache").data("prev-compatibles",  currentSelection);
-                    });
-                    };
+                        $('#compatibles').on('change', function () {
+                            const currentSelection = $(this).val() || [];
+                            const previousSelection = $("#cache").data("prev-compatibles") || [];
+                            const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
+
+                            var deleted_data = $("#cache").data("deleted-compatibles") || []
+                            removedOptions.forEach(id => {
+                                const removedOption = $(this).find(`option[value="${id}"]`);
+                                var removedEntitlementData = removedOption.data('compatible')
+                                if (removedEntitlementData == undefined) {
+                                    return;
+                                }
+
+                                removedEntitlementData.delete = true;
+                                deleted_data.push(removedEntitlementData)
+                            });
+
+                            $("#cache").data("deleted-compatibles", deleted_data);
+                            $("#cache").data("prev-compatibles", currentSelection);
+                        });
+                    }
+                    ;
 
                     // Populate existing images
                     $('#imagesList').empty();
-                    response.images.forEach(function(image, index) {
+                    response.images.forEach(function (image, index) {
                         $('#imagesList').append(`
                             <div class="file-item">
                                 <div class="image-container">
@@ -755,7 +832,7 @@
 
                     // Populate existing attachments
                     $('#attachmentsList').empty();
-                    response.attachments.forEach(function(attachment, index) {
+                    response.attachments.forEach(function (attachment, index) {
                         $('#attachmentsList').append(`
                             <div class="file-item">
                                 <a href="/inventory/attachments/${attachment["id"]}" target="_blank">${attachment.filename}</a>
@@ -765,26 +842,24 @@
                     });
 
                     $('body').addClass('save-success');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('body').removeClass('save-success');
                     }, 3000);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error('Error fetching model: ' + error);
                     $('body').addClass('save-failed');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('body').removeClass('save-failed');
                     }, 3000);
                 }
             });
 
 
-
-
         });
 
 
-        $('#testImage').ready(function() {
+        $('#testImage').ready(function () {
             // alert('fetchModelBtn');
 
             var modelId = $('#fetchModelId').val();
@@ -803,10 +878,10 @@
                     throw new Error('Network response was not ok.');
                 })
                 .then(blob => {
-                        console.log("todo: imgUrl create")
+                    console.log("todo: imgUrl create")
                     const imgUrl = URL.createObjectURL(blob);
                     document.getElementById('testImage').src = imgUrl; // Assumes you have an <img id="myImage">
-                        console.log("imgUrl created")
+                    console.log("imgUrl created")
                 })
                 .catch(error => {
                     console.error('There has been a problem with your fetch operation:', error);
@@ -816,7 +891,7 @@
 
 
         // Add Property
-        $('#addProperty').click(function() {
+        $('#addProperty').click(function () {
             $('#propertiesList').append(`
                 <div class="dynamic-item">
                     <input type="text" name="propertyKey[]" placeholder="Key" required>
@@ -829,7 +904,7 @@
         });
 
         // Add Accessory
-        $('#addAccessory').click(function() {
+        $('#addAccessory').click(function () {
             $('#accessoriesList').append(`
                 <div class="dynamic-item">
                     <input type="text" name="accessoryName[]" placeholder="Accessory name" required>
@@ -843,17 +918,17 @@
         });
 
         // Remove dynamic item
-        $(document).on('click', '.remove-btn', function() {
+        $(document).on('click', '.remove-btn', function () {
             $(this).parent().remove();
         });
 
         // Handle file selection for images
-        $('#images').change(function() {
+        $('#images').change(function () {
             updateFileList(this, '#imagesList', 'images');
         });
 
         // Handle file selection for attachments
-        $('#attachments').change(function() {
+        $('#attachments').change(function () {
             updateFileList(this, '#attachmentsList', 'attachments');
         });
 
@@ -883,10 +958,10 @@
                     var file = input.files[i];
                     var fileName = file.name;
                     var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
-                    file.nameThumb= fileNameThumb
+                    file.nameThumb = fileNameThumb
 
 
-                        // Create a file item container
+                    // Create a file item container
                     var fileItem = $(`
                         <div class="file-item">
                             <span>${fileName}</span>
@@ -945,7 +1020,7 @@
         // });
 
         // Remove file from list
-        $(document).on('click', '.remove-file-btn', function() {
+        $(document).on('click', '.remove-file-btn', function () {
             var fileId = $(this).data('fileId')
             var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
 
@@ -965,7 +1040,9 @@
 
             // Create a new FileList object
             var dataTransfer = new DataTransfer();
-            files.forEach(file => { dataTransfer.items.add(file); });
+            files.forEach(file => {
+                dataTransfer.items.add(file);
+            });
             input.files = dataTransfer.files;
 
             // Update the file list display
@@ -987,13 +1064,13 @@
 
 
         // Form submission
-        $('#modelForm').submit(function(e) {
+        $('#modelForm').submit(function (e) {
             e.preventDefault();
             var formData = new FormData(this);
 
             // Prepare properties
             var properties = [];
-            $('input[name="propertyKey[]"]').each(function(index) {
+            $('input[name="propertyKey[]"]').each(function (index) {
                 properties.push({
                     key: $(this).val(),
                     value: $('input[name="propertyValue[]"]').eq(index).val(),
@@ -1007,9 +1084,9 @@
 
             // Prepare accessories
             var accessories = [];
-            $('input[name="accessoryName[]"]').each(function(index, option) {
+            $('input[name="accessoryName[]"]').each(function (index, option) {
 
-                if(option.textContent === 'Select an option'){
+                if (option.textContent === 'Select an option') {
                     return;
                 }
 
@@ -1025,11 +1102,10 @@
             formData.append('accessories', JSON.stringify(mergedProperties));
 
 
-
             // Prepare entitlements
             const entitlements = [];
-            $('#entitlements').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
+            $('#entitlements').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
                     return;
                 }
 
@@ -1040,9 +1116,8 @@
                 const entitlement_group_id = entitlementData.entitlement_group.id
 
 
-
-                var quantity = parseInt($("#selected-entitlements").find("input[uuid="+ entitlement_group_id +"]").val(), 10)
-                if(isNaN(quantity)){
+                var quantity = parseInt($("#selected-entitlements").find("input[uuid=" + entitlement_group_id + "]").val(), 10)
+                if (isNaN(quantity)) {
                     console.error("Quantity is not a number, setting to 1")
                     quantity = 1
                 }
@@ -1063,11 +1138,10 @@
             formData.append('entitlements', JSON.stringify(mergedProperties));
 
 
-
             // Prepare categories
             const categories = [];
-            $('#categories').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
+            $('#categories').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
                     return;
                 }
 
@@ -1091,12 +1165,10 @@
             formData.append('categories', JSON.stringify(mergedProperties));
 
 
-
-
             // Prepare compatibles
             const compatibles = [];
-            $('#compatibles').find('option:selected').each(function(index, option) {
-                if(option.textContent === 'Select an option'){
+            $('#compatibles').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
                     return;
                 }
 
@@ -1111,14 +1183,13 @@
 
             console.log(">o> compatibles 1> ", mergedProperties)
 
-            var keyMapa = { model_id: "id" };
-            mergedProperties.forEach(function(item, index) {
+            var keyMapa = {model_id: "id"};
+            mergedProperties.forEach(function (item, index) {
                 mergedProperties[index] = renameKeys(item, keyMapa);
-            } );
+            });
 
             console.log(">o> compatibles 2> ", mergedProperties)
             formData.append('compatibles', JSON.stringify(mergedProperties));
-
 
 
             formData.delete('images-to-delete');
@@ -1128,7 +1199,6 @@
             formData.delete('attachments-to-delete');
             var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
             formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
-
 
 
             formData.delete('isPackage');
@@ -1153,7 +1223,7 @@
                     canvas.toBlob(function (blob) {
                         if (blob) {
                             const fileInfo = $(canvas).data("file");
-                            const file = new File([blob], fileInfo.nameThumb, { type: fileInfo.type });
+                            const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
 
                             console.log(">>> Canvas processed to file: ", file);
                             resolve(file);
@@ -1182,28 +1252,28 @@
                         headers: {
                             'Accept': 'application/json'
                         },
-                        success: function(response) {
+                        success: function (response) {
                             console.log('Model created successfully!');
                             clearForm(); // Clear the form after successful save
                             $("#cache").removeData();
 
-                            if( CONST_IS_CREATE_FORM) {
+                            if (CONST_IS_CREATE_FORM) {
                                 $('#fetchModelId').val(response.data.id)
-                            }else{
+                            } else {
                                 $('#fetchModelId').val(response[0].id)
                                 $('#fetchModelBtn').click()
                             }
 
 
                             $('body').addClass('save-success');
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $('body').removeClass('save-success');
                             }, 3000);
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             console.error('Error creating model: ' + error);
                             $('body').addClass('save-failed');
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $('body').removeClass('save-failed');
                             }, 3000);
                         }
