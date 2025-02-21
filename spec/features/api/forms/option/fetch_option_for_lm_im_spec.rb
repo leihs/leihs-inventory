@@ -11,7 +11,7 @@ response = {
   "manufacturer" => [NilClass, String], # TODO: remove
   "product" => String,
   "version" => [NilClass, String],
-  "price" => Numeric
+  "price" => [NilClass, Numeric]
 }
 
 ["inventory_manager", "lending_manager"].each do |role|
@@ -44,7 +44,8 @@ response = {
             form_data,
             headers: cookie_header
           )
-          validate_map_structure(result.body["data"], response)
+          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+
 
           expect(result.status).to eq(200)
           expect(result.body["data"]["id"]).to be_present
@@ -54,7 +55,7 @@ response = {
           # fetch option
           result = client.get "/inventory/#{pool_id}/option/#{option_id}"
           expect(result.body.count).to eq(1)
-          validate_map_structure(result.body.first, response)
+          expect(validate_map_structure(result.body.first, response)).to eq(true)
 
           # update option
           form_data = {
@@ -70,7 +71,8 @@ response = {
             method: :put,
             headers: cookie_header
           )
-          validate_map_structure(result.body.first, response)
+          expect(validate_map_structure(result.body.first, response)).to eq(true)
+
 
           expect(result.status).to eq(200)
           expect(result.body[0]["version"]).to eq("v2")
@@ -91,7 +93,8 @@ response = {
             form_data,
             headers: cookie_header
           )
-          validate_map_structure(result.body["data"], response)
+          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+
 
           expect(result.status).to eq(200)
           expect(result.body["data"]["id"]).to be_present
@@ -101,7 +104,7 @@ response = {
           # fetch option
           result = client.get "/inventory/#{pool_id}/option/#{option_id}"
           expect(result.body.count).to eq(1)
-          validate_map_structure(result.body.first, response)
+          expect(validate_map_structure(result.body.first, response)).to eq(true)
 
           # update option
           form_data = {
@@ -115,7 +118,7 @@ response = {
             method: :put,
             headers: cookie_header
           )
-          validate_map_structure(result.body.first, response)
+          expect(validate_map_structure(result.body.first, response)).to eq(true)
 
           expect(result.status).to eq(200)
         end

@@ -391,7 +391,6 @@ feature "Inventory License" do
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
         fields = result.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
-
         expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
 
         attachments = result.body["data"]["attachments"]

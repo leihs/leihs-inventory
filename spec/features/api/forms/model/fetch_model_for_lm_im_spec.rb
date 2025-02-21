@@ -304,12 +304,14 @@ feature "Inventory Model Management" do
           )
 
           expect(result.status).to eq(200)
-          validate_map_structure(result.body["data"], post_response)
+          expect(validate_map_structure(result.body.first, post_response)).to eq(true)
+
 
           # fetch created model
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          validate_map_structure(result.body.first, get_response)
+          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
+
 
           images = result.body[0]["images"]
           attachments = result.body[0]["attachments"]
@@ -354,7 +356,7 @@ feature "Inventory Model Management" do
             headers: cookie_header
           )
 
-          validate_map_structure(result.body.first, put_response)
+          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
 
           expect(result.status).to eq(200)
           expect(result.body[0]["id"]).to eq(model_id)
@@ -362,7 +364,8 @@ feature "Inventory Model Management" do
           # fetch updated model
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          validate_map_structure(result.body.first, get_response)
+          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
+
 
           expect(result.body[0]["images"].count).to eq(0)
           expect(result.body[0]["attachments"].count).to eq(1)
