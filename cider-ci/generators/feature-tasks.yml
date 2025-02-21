@@ -844,69 +844,84 @@
     FEATURE_NAME: "Inventory package when interacting with inventory package with role=customer 01"
     FEATURE: './spec/features/api/forms/package/fetch_package_for_others_spec.rb[2:1:1]'
 './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:2]':
+  name: "Inventory Software when interacting with inventory software with role=inventory_manager 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=inventory_manager 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:2]'
+'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:1:1]':
+  name: "Inventory Software when interacting with inventory software with role=inventory_manager fetch form data 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=inventory_manager fetch form data 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:1:1]'
+'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:3:1]':
+  name: "Inventory Software when interacting with inventory software with role=inventory_manager create software (min) 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=inventory_manager create software (min) 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:3:1]'
+'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:2]':
+  name: "Inventory Software when interacting with inventory software with role=lending_manager 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=lending_manager 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:2]'
+'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:1:1]':
+  name: "Inventory Software when interacting with inventory software with role=lending_manager fetch form data 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=lending_manager fetch form data 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:1:1]'
+'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:3:1]':
+  name: "Inventory Software when interacting with inventory software with role=lending_manager create software (min) 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=lending_manager create software (min) 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:3:1]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:2]':
+  name: "Inventory Software when interacting with inventory software with role=group_manager 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=group_manager 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:2]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:1:1]':
+  name: "Inventory Software when interacting with inventory software with role=group_manager fetch form data 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=group_manager fetch form data 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:1:1]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:3:1]':
+  name: "Inventory Software when interacting with inventory software with role=group_manager create software (min) 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=group_manager create software (min) 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:3:1]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:2]':
+  name: "Inventory Software when interacting with inventory software with role=customer 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=customer 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:2]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:1:1]':
+  name: "Inventory Software when interacting with inventory software with role=customer fetch form data 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=customer fetch form data 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:1:1]'
+'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:3:1]':
+  name: "Inventory Software when interacting with inventory software with role=customer create software (min) 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Software when interacting with inventory software with role=customer create software (min) 01"
+    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:2:3:1]'
+'./spec/features/api/forms/software/save_software_spec.rb[1:1:1]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 01"
   environment_variables:
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 01"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:2]'
-'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:1:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 17"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 17"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:1:1]'
-'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:3:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 01"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 01"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:1:3:1]'
-'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:2]':
+    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:1]'
+'./spec/features/api/forms/software/save_software_spec.rb[1:1:2]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 02"
   environment_variables:
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 02"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:2]'
-'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:1:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 18"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 18"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:1:1]'
-'./spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:3:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 02"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 02"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_lm_im_spec.rb[1:2:3:1]'
-'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:2]':
+    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:2]'
+'./spec/features/api/forms/software/save_software_spec.rb[1:1:3]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 03"
   environment_variables:
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 03"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:2]'
-'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:1:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 19"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool fetch form data 19"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:1:1]'
-'./spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:3:1]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 03"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool create software (min) 03"
-    FEATURE: './spec/features/api/forms/software/fetch_software_for_others_spec.rb[1:1:3:1]'
-'./spec/features/api/forms/software/save_software_spec.rb[1:1:1]':
+    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:3]'
+'./spec/features/api/forms/software/save_software_spec.rb[1:1:4]':
   name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 04"
   environment_variables:
     FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 04"
-    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:1]'
-'./spec/features/api/forms/software/save_software_spec.rb[1:1:2]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 05"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 05"
-    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:2]'
-'./spec/features/api/forms/software/save_software_spec.rb[1:1:3]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 06"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 06"
-    FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:3]'
-'./spec/features/api/forms/software/save_software_spec.rb[1:1:4]':
-  name: "Inventory Model Management when interacting with inventory models in a specific inventory pool 07"
-  environment_variables:
-    FEATURE_NAME: "Inventory Model Management when interacting with inventory models in a specific inventory pool 07"
     FEATURE: './spec/features/api/forms/software/save_software_spec.rb[1:1:4]'
 './spec/features/api/groups_spec.rb[1:1:1:1]':
   name: "Inventory API Endpoints - Group Links when fetching group links for a specific inventory pool GET /inventory/groups 01"
