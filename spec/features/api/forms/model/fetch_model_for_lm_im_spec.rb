@@ -88,7 +88,7 @@ feature "Inventory Model Management" do
 
         # Fetch shared data and set global instance variables
         resp = client.get "/inventory/manufacturers?type=Model"
-        @form_manufacturer = resp.body
+        @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/entitlement-groups"
@@ -106,8 +106,8 @@ feature "Inventory Model Management" do
 
       context "fetch form data" do
         it "ensures form manufacturer data is fetched" do
-          expect(@form_manufacturer).not_to be_nil
-          expect(@form_manufacturer.count).to eq(2)
+          expect(@form_manufacturers).not_to be_nil
+          expect(@form_manufacturers.count).to eq(2)
         end
 
         it "ensures entitlement groups data is fetched" do
@@ -197,7 +197,7 @@ feature "Inventory Model Management" do
             "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
             "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
-            "manufacturer" => @form_manufacturer.first, # Use fetched manufacturer name
+            "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
             "isPackage" => "true",
             "description" => "A sample product",
             "technicalDetails" => "Specs go here",
@@ -278,7 +278,7 @@ feature "Inventory Model Management" do
           form_data = {
             "product" => Faker::Commerce.product_name,
             "version" => "v1.0",
-            "manufacturer" => @form_manufacturer.first,
+            "manufacturer" => @form_manufacturers.first,
             "description" => "A sample product",
             "technicalDetails" => "Specs go here",
             "internalDescription" => "Internal notes",
@@ -327,7 +327,7 @@ feature "Inventory Model Management" do
           form_data = {
             "product" => Faker::Commerce.product_name,
             "version" => "v1.0",
-            "manufacturer" => @form_manufacturer.first,
+            "manufacturer" => @form_manufacturers.first,
             "description" => "A sample product",
             "technicalDetails" => "Specs go here",
             "internalDescription" => "Internal notes",
