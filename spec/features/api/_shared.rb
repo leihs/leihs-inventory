@@ -83,6 +83,7 @@ shared_context :setup_accessory_entitlements do
     create_accessory(@inventory_pool.id, first_model)
     create_and_add_property_to_model(first_model)
     create_and_add_entitlements(@inventory_pool, first_model)
+    create_and_add_entitlements(@inventory_pool, first_model)
   end
 end
 
@@ -98,7 +99,7 @@ shared_context :setup_category_model_linked_all_to_pool do
   end
 end
 
-shared_context :setup_models_api do |role|
+shared_context :setup_models_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
@@ -124,24 +125,29 @@ shared_context :generate_session_header do
   end
 end
 
-shared_context :setup_models_api_model do
-  include_context :setup_models_api, "inventory_manager"
+shared_context :setup_models_api_model do |role = "inventory_manager"|
+  include_context :setup_models_api, role
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
 
+    @models = []
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    @models << model
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model1)
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    @models << model
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model2)
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
+    @models << model
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model3)
 
+    @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end
 end
@@ -155,8 +161,8 @@ shared_context :setup_unknown_building_room_supplier do
   end
 end
 
-shared_context :setup_models_api_license do
-  include_context :setup_models_api, "inventory_manager"
+shared_context :setup_models_api_license do |role = "inventory_manager"|
+  include_context :setup_models_api, role
 
   before :each do
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]

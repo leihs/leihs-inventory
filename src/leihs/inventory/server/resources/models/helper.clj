@@ -161,6 +161,8 @@
 
   ([tx attachments col_name id]
    (doseq [entry attachments]
+     (println ">o> abc.process-attachments.entry" entry)
+     (println ">o> abc.process-attachments.attachments" attachments)
      (let [id (to-uuid id)
            file-content (file-to-base64 (:tempfile entry))
            data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)]

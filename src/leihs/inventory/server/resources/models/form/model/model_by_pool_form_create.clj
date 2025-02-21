@@ -8,6 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -176,6 +177,7 @@
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
+            res (filter-response res [:rental_price])
             model-id (:id res)]
 
         (process-attachments tx attachments "model_id" model-id)

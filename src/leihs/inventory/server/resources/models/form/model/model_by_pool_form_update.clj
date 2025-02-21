@@ -183,6 +183,10 @@
                             [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
                             {:inventory_pool_id pool-id :model_group_id category-id}))))))
 
+(defn filter-response [model keys]
+  (let [updated-model (apply dissoc model keys)]
+    updated-model))
+
 (defn update-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -196,10 +200,13 @@
                                    (sql/returning :*)
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
+            updated-model (filter-response updated-model [:rental_price])
+
             compatibles (parse-json-array request :compatibles)
             categories (parse-json-array request :categories)
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
+            ;; TODO: revise to use images-attributes that contains delete flag
             images (normalize-files request :images)
             images-to-delete (parse-json-array request :images-to-delete)
             properties (parse-json-array request :properties)
