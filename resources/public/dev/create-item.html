@@ -18,10 +18,10 @@
             const testAdminLink = `https://test.leihs.zhdk.ch/admin/users`;
 
             document.getElementById('stagingLink').href = stagingLink;
-            document.getElementById('stagingLink').innerText = "*/staging/manage/-Link to Edit Software";
+            document.getElementById('stagingLink').innerText = "*/staging/manage/-Link to Edit";
 
             document.getElementById('testLink').href = testLink;
-            document.getElementById('testLink').innerText = "*/test/manage/-Link to Edit Software";
+            document.getElementById('testLink').innerText = "*/test/manage/-Link to Edit";
 
 
             document.getElementById('stagingAdminLink').href = stagingAdminLink;
@@ -34,7 +34,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
 
-        .links{
+        .links {
             padding: 0.5em 1em 1em 1em;
             margin-top: 1em;
             background-color: #f4f4f4;
@@ -378,7 +378,8 @@
         <p><a id="testAdminLink" href="https://test.leihs.zhdk.ch/admin/users" target="_blank">Test-Admin</a></p>
         <br/>
         <p><a id="stagingLink" href="#" target="_blank"></a></p>
-        <p><a id="stagingAdminLink" href="https://staging.leihs.zhdk.ch/admin/users" target="_blank">Staging-Admin</a></p>
+        <p><a id="stagingAdminLink" href="https://staging.leihs.zhdk.ch/admin/users" target="_blank">Staging-Admin</a>
+        </p>
     </div>
     <button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
 </div>
