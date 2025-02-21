@@ -14,41 +14,114 @@
             const stagingLink = `https://staging.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
             const testLink = `https://test.leihs.zhdk.ch/manage/${poolId}/items/${modelId}/edit?return_url=/manage/${poolId}/inventory`;
 
+            const stagingAdminLink = `https://staging.leihs.zhdk.ch/admin/users`;
+            const testAdminLink = `https://test.leihs.zhdk.ch/admin/users`;
+
             document.getElementById('stagingLink').href = stagingLink;
-            document.getElementById('stagingLink').innerText = stagingLink;
+            document.getElementById('stagingLink').innerText = "*/staging/manage/-Link to Edit Software";
 
             document.getElementById('testLink').href = testLink;
-            document.getElementById('testLink').innerText = testLink;
+            document.getElementById('testLink').innerText = "*/test/manage/-Link to Edit Software";
+
+
+            document.getElementById('stagingAdminLink').href = stagingAdminLink;
+            document.getElementById('stagingAdminLink').innerText = "Staging-Admin";
+
+            document.getElementById('testAdminLink').href = testAdminLink;
+            document.getElementById('testAdminLink').innerText = "Test-Admin";
         }
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="file"], textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        .myBtn{ margin-top: 10px;}
-        button:hover { background-color: #0056b3; }
-        .file-list { margin-top: 10px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .file-item span { flex-grow: 1; }
-        .remove-file-btn, .remove-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 5px 10px; }
-        .remove-file-btn:hover, .remove-btn:hover { background-color: #a71d2a; }
+
+        .links{
+            padding: 0.5em 1em 1em 1em;
+            margin-top: 1em;
+            background-color: #f4f4f4;
+            border-style: dashed;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], input[type="file"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .myBtn {
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .file-item span {
+            flex-grow: 1;
+        }
+
+        .remove-file-btn, .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .remove-file-btn:hover, .remove-btn:hover {
+            background-color: #a71d2a;
+        }
 
         body.save-success {
             border: 1em solid #b8f4b8;
             transition: border 0.3s ease-in-out;
         }
+
         body.no-result-success {
             border: 1em solid #BFBFBF1C;
             transition: border 0.3s ease-in-out;
         }
+
         body.save-failed {
             border: 1em solid red;
             transition: border 0.3s ease-in-out;
         }
-        .colored-row{
+
+        .colored-row {
             background-color: navajowhite;
         }
     </style>
@@ -59,8 +132,8 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f9f9f9;
         }
+
         .form-group {
             margin-bottom: 25px;
             padding: 15px;
@@ -68,20 +141,24 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .form-group h3 {
             margin-bottom: 15px;
             font-size: 1.25em;
             border-bottom: 1px solid #ddd;
             padding-bottom: 5px;
         }
+
         .form-item {
             margin-bottom: 15px;
         }
+
         .form-item label {
             display: block;
             font-weight: bold;
             margin-bottom: 8px;
         }
+
         .form-item input[type="text"],
         .form-item input[type="date"],
         .form-item textarea,
@@ -94,6 +171,7 @@
             box-sizing: border-box;
             transition: all 0.3s;
         }
+
         .form-item input[type="text"]:focus,
         .form-item input[type="date"]:focus,
         .form-item textarea:focus,
@@ -101,23 +179,29 @@
             border-color: #007bff;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
+
         .form-item .radio-item {
             display: flex;
             align-items: center;
             margin-bottom: 8px;
         }
+
         .form-item input[type="radio"] {
             margin-right: 10px;
         }
+
         .form-item input[type="radio"]:focus {
             outline: 2px solid #007bff;
         }
+
         .form-item label[for^="is_borrowable_"] {
             margin: 0;
         }
+
         .form-item input[type="radio"]:checked + label {
             color: #007bff;
         }
+
         button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -127,6 +211,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         button:hover {
             background-color: #0056b3;
         }
@@ -164,13 +249,16 @@
             background-color: #f9f9f9;
             border-radius: 8px;
         }
+
         .form-group h3 {
             font-size: 1.2em;
             margin-bottom: 10px;
         }
+
         .form-item {
             margin-bottom: 15px;
         }
+
         .checkbox-item {
             display: flex;
             align-items: center;
@@ -278,20 +366,22 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
-    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
 </ul>
 
+<div class="links">
+    <h3>Links to Test/Staging <h5>(generated by Options-Attributes)</h5></h3>
 
-
-<h3>Links to Test/Staging</h3>
-
-<div>
-    <p><a id="testLink" href="#" target="_blank">Test Link</a></p>
-    <br/>
-    <p><a id="stagingLink" href="#" target="_blank">Staging Link</a></p>
+    <div>
+        <p><a id="testLink" href="#" target="_blank"></a></p>
+        <p><a id="testAdminLink" href="https://test.leihs.zhdk.ch/admin/users" target="_blank">Test-Admin</a></p>
+        <br/>
+        <p><a id="stagingLink" href="#" target="_blank"></a></p>
+        <p><a id="stagingAdminLink" href="https://staging.leihs.zhdk.ch/admin/users" target="_blank">Staging-Admin</a></p>
+    </div>
+    <button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
 </div>
-<button class="myBtn" style="background-color: orange" onclick="generateLinks()">Generate Links</button>
-
 
 <br/><br/>
 <br/><br/>
@@ -304,14 +394,16 @@
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
 </div>
 <div class="form-group">
-    <label for="modelId"><a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models" >Software ID (model_id)</a>  [modelId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
+    <label for="modelId"><a target="_blank"
+                            href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Software
+        ID (model_id)</a> [modelId] 70693141-92c2-5c8f-b5ae-59221da1e027</label>
 
     <input type="text" id="modelId" name="modelId" value="2ed6f881-c7ac-5c9a-8109-10c22814b59b">
 </div>
 
 <div class="form-group">
     <label for="itemId">Item ID (item_id) [itemId] 57f02a40-c047-4132-ad3b-ced9b398e104</label>
-    <input type="text" id="itemId"  value="8623dc67-cdbe-5c2b-9b16-1cc647d8ad36">
+    <input type="text" id="itemId" value="8623dc67-cdbe-5c2b-9b16-1cc647d8ad36">
 
     <button id="fetchItemBtn">Fetch Item</button>
 </div>
@@ -425,7 +517,7 @@
     }
 
 
-    function renameFormKeys(formData){
+    function renameFormKeys(formData) {
 
         formData.delete("myBuilding");
         // renameFormDataKey(formData, "myBuilding", "building_id");
@@ -482,7 +574,7 @@
         // Handle files from response.data.attachments
         if (attachments.length > 0) {
             console.log(">> updateFileList2 > Attachments:", attachments);
-                    // <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" data-attachment-index="${index}">Remove</button>
+            // <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" data-attachment-index="${index}">Remove</button>
             attachments.forEach((attachment, index) => {
                 fileList.append(`
                 <div class="file-item" id="attachments-to-delete">
@@ -496,7 +588,7 @@
 
 
     // Remove file from list
-    $(document).on('click', '.remove-file-btn', function() {
+    $(document).on('click', '.remove-file-btn', function () {
         var fileId = $(this).data('fileId')
         var inputId = $(this).closest('.file-list').attr('id') === 'imagesList' ? 'images' : 'attachments';
 
@@ -509,20 +601,20 @@
     });
 
     // Remove file from list
-    $(document).on('click', '.remove-attachment-btn', function() {
+    $(document).on('click', '.remove-attachment-btn', function () {
         let attachmentsList = $(this).closest("#attachmentsList")
         let id = $(this).attr("data-attachment-id")
 
-        if(id != undefined){
+        if (id != undefined) {
             let data = attachmentsList.data("to-delete") || []
             data.push(id)
-            attachmentsList.data("to-delete", data )
+            attachmentsList.data("to-delete", data)
         }
 
         $(this).parent().remove();
     });
 
-    function deleteParamsFromPutPostFormData(formData){
+    function deleteParamsFromPutPostFormData(formData) {
         // formData.delete("model_id");
         formData.delete("inventory_pool_id");
         formData.delete("myOldSoftware");
@@ -530,15 +622,15 @@
 
 
     function checkFormDataOrThrow(formData, modelId, requestType) {
-        if(formData == undefined){
+        if (formData == undefined) {
             throw new Error("formData is undefined")
         }
 
-        if (requestType=="post" && (formData.get("quantity") == undefined || formData.get("quantity") < 1)) {
+        if (requestType == "post" && (formData.get("quantity") == undefined || formData.get("quantity") < 1)) {
             throw new Error("Quantity is required");
         }
 
-        if (requestType=="put" && formData.has("quantity") ) {
+        if (requestType == "put" && formData.has("quantity")) {
             throw new Error("Quantity is not allowed");
         }
 
@@ -579,7 +671,7 @@
     function getQuantityAllocationAsJsonArray() {
         let propertiesArray = [];
 
-        $('#propertiesList .dynamic-item').each(function() {
+        $('#propertiesList .dynamic-item').each(function () {
             let quantity = $(this).find('input[_name="quantityAllocationQuantity[]"]').val();
             let name = $(this).find('input[_name="quantityAllocationRoom[]"]').val();
 
@@ -620,8 +712,8 @@
                 case 'autocomplete-search':
 
 
-                    oldField=""
-                    if(data.label == "Software"){
+                    oldField = ""
+                    if (data.label == "Software") {
                         oldField = `<input type="hidden" id="myOld${data.label}" name="myOld${data.label}"></input>`
                     }
 
@@ -674,7 +766,7 @@
 
                     // Check if `data.default` exists and is not in `values`
                     if (data.default && !values.some(option => option.value === data.default)) {
-                        values.unshift({ value: data.default, label: `Default (${data.default})` }); // Add default as the first option
+                        values.unshift({value: data.default, label: `Default (${data.default})`}); // Add default as the first option
                     }
 
                     const options = values.map(option => `
@@ -682,7 +774,7 @@
                             ${option.label}
                         </option>`).join("");
 
-                                    field = $(`
+                    field = $(`
                         <div class="form-item">
                             <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
                             <select id="${fieldId}" name="${data.attribute}" ${data.required ? "required" : ""}>
@@ -751,12 +843,12 @@
 
                 case 'attachment':
                     // Multiple file upload
-                //     field = $(`
-                //     <div class="form-item">
-                //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
-                //         <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
-                //     </div>
-                // `);
+                    //     field = $(`
+                    //     <div class="form-item">
+                    //         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
+                    //         <input type="file" id="${fieldId}" name="${data.attribute}" multiple ${data.required ? "required" : ""}>
+                    //     </div>
+                    // `);
 
                     field = $(`
                     <div class="form-group">
@@ -791,22 +883,22 @@
 
 
         // Add Property Button Click Event
-        $('#addProperty').click(function() {
+        $('#addProperty').click(function () {
             addQuantityAllocationElement(); // Add an empty row when the button is clicked
         });
 
         // Trigger Click with Parameters
-        $('#triggerAddProperty').click(function() {
+        $('#triggerAddProperty').click(function () {
             addQuantityAllocationElement('DefaultKey', 'DefaultValue'); // Pass parameters to pre-fill the fields
         });
 
 
-        $(document).on('click', '.remove-btn', function() {
+        $(document).on('click', '.remove-btn', function () {
             $(this).closest('.dynamic-item').remove();
         });
 
         // Handle file selection for attachments
-        $('#attachments').change(function() {
+        $('#attachments').change(function () {
             updateFileList(this, '#attachmentsList', 'attachments');
         });
 
@@ -819,7 +911,7 @@
     }
 
 
-    function setupDongleAndRetiredHandler(data){
+    function setupDongleAndRetiredHandler(data) {
         // project handling
         let reference = $('[name="properties,reference"]:checked').val();
         $(`[name="properties,reference"][value="${reference}"]`).prop('checked', true);
@@ -830,62 +922,63 @@
         //     $("#properties_dongle_id").prop("disabled", true)
         // }
 
-        function handleReferenceSwitch(){
+        function handleReferenceSwitch() {
             let reference = $('[name="properties,reference"]:checked').val();
             console.log("reference", reference)
-            if(reference=="invoice"){
+            if (reference == "invoice") {
                 $("#properties_project_number").prop("disabled", true)
                 $("#properties_project_number").val("")
-            }else{
+            } else {
                 $("#properties_project_number").prop("disabled", false)
             }
         }
+
         handleReferenceSwitch()
 
-        $('[name="properties,reference"][value="investment"]').off("change").on("change",handleReferenceSwitch)
-        $('[name="properties,reference"][value="invoice"]').off("change").on("change",handleReferenceSwitch)
+        $('[name="properties,reference"][value="investment"]').off("change").on("change", handleReferenceSwitch)
+        $('[name="properties,reference"][value="invoice"]').off("change").on("change", handleReferenceSwitch)
 
 
         // dongle handling
-        if($("#properties_activation_type").val()=="dongle"){
+        if ($("#properties_activation_type").val() == "dongle") {
             $("#properties_dongle_id").prop("disabled", false)
-        }else{
+        } else {
             $("#properties_dongle_id").prop("disabled", true)
         }
 
         $("#properties_activation_type").off("change").on("change", function () {
-            if($("#properties_activation_type").val()=="dongle"){
+            if ($("#properties_activation_type").val() == "dongle") {
                 $("#properties_dongle_id").prop("disabled", false)
-            }else{
+            } else {
                 $("#properties_dongle_id").prop("disabled", true)
             }
         })
 
         // retired handling
-        if(data != undefined){
+        if (data != undefined) {
             $("#retired").data("retired", data.retired)
             $("#retired").val(String(data.retired))
         }
-        if($("#retired").val()=='false'){
+        if ($("#retired").val() == 'false') {
             $("#retired_reason").prop("disabled", true)
             $("#retired_reason").val("")
-        }else{
+        } else {
             $("#retired_reason").prop("disabled", false)
         }
 
         $("#retired").off("change").on("change", function () {
-            if($("#retired").val()=='false'){
+            if ($("#retired").val() == 'false') {
                 // if($("#retired").val()== undefined){
                 $("#retired_reason").prop("disabled", true)
                 $("#retired_reason").val("")
-            }else{
+            } else {
                 $("#retired_reason").prop("disabled", false)
             }
         })
 
 
         // relevant_for_inventory handling
-        if(data != undefined){
+        if (data != undefined) {
             $("#is_inventory_relevant").data("is_inventory_relevant", data.is_inventory_relevant)
             $("#is_inventory_relevant").val(String(data.is_inventory_relevant))
         }
@@ -926,14 +1019,14 @@
                 const propertyName = key.split(",")[1];
                 properties[propertyName] = value; // Add to properties object
 
-                if(key == 'properties,operating_system'){
+                if (key == 'properties,operating_system') {
                     const value = Array.from(
                         document.querySelectorAll('input[type="checkbox"][name="properties,operating_system"]:checked')
                     ).map(checkbox => checkbox.value);
                     properties[propertyName] = value; // Add to properties object
                 }
 
-                if(key == 'properties,installation'){
+                if (key == 'properties,installation') {
                     const value = Array.from(
                         document.querySelectorAll('input[type="checkbox"][name="properties,installation"]:checked')
                     ).map(checkbox => checkbox.value);
@@ -960,16 +1053,16 @@
     }
 
 
-    function fetchBuildingHandler ()  {
+    function fetchBuildingHandler() {
         const selectedBuildingId = $(this).val();
         const $roomDropdown = $('#myRoom');
         $roomDropdown.empty().append('<option value="">Select Room</option>').prop('disabled', true);
 
         if (selectedBuildingId) {
             $.ajax({
-                url: `http://localhost:3260/inventory/rooms?building_id=${selectedBuildingId}`,
+                url: `/inventory/rooms?building_id=${selectedBuildingId}`,
                 method: 'GET',
-                headers: { 'accept': 'application/json' },
+                headers: {'accept': 'application/json'},
                 success: function (rooms) {
                     rooms.forEach(function (room) {
                         $roomDropdown.append(
@@ -1002,9 +1095,9 @@
 
         // Fetch buildings and populate the dropdown
         $.ajax({
-            url: 'http://localhost:3260/inventory/buildings',
+            url: '/inventory/buildings',
             method: 'GET',
-            headers: { 'accept': 'application/json' },
+            headers: {'accept': 'application/json'},
             success: function (buildings) {
                 const $buildingDropdown = $('#myBuilding');
                 $buildingDropdown.empty().append('<option value="">Select Building</option>');
@@ -1016,7 +1109,6 @@
                             .text(building.name)
                     );
                 });
-
 
 
                 // $buildingDropdown.data("initValue", buildingId)
@@ -1042,7 +1134,7 @@
 
 
     function fetchOptions(url, selectId) {
-        fetch(url, { headers: { Accept: "application/json" } })
+        fetch(url, {headers: {Accept: "application/json"}})
             .then((response) => response.json())
             .then((data) => {
                 const select = document.getElementById(selectId);
@@ -1072,7 +1164,7 @@
     });
 
 
-    function initResponsibleData(init_data){
+    function initResponsibleData(init_data) {
         // set responsible department
         const poolId = $("#poolId").val();
         const apiUrl = `/inventory/${poolId}/entitlement-groups`;
@@ -1081,8 +1173,8 @@
         $.ajax({
             url: apiUrl,
             method: "GET",
-            headers: { Accept: "application/json" },
-            success: function(data) {
+            headers: {Accept: "application/json"},
+            success: function (data) {
                 // Assuming `data` is an array of objects with `id` and `name` properties
                 const $select = $("#myResponsibleDepartment");
                 $select.empty(); // Clear any existing options
@@ -1097,13 +1189,13 @@
 
                 $select.val(init_data.responsible_department)
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error fetching data:", error);
             }
         });
     }
 
-    function initOwnersData(init_data){
+    function initOwnersData(init_data) {
         // set responsible department
         const poolId = $("#poolId").val();
         const apiUrl = `/inventory/owners`;
@@ -1112,8 +1204,8 @@
         $.ajax({
             url: apiUrl,
             method: "GET",
-            headers: { Accept: "application/json" },
-            success: function(data) {
+            headers: {Accept: "application/json"},
+            success: function (data) {
                 // Assuming `data` is an array of objects with `id` and `name` properties
                 const $select = $("#myOwner");
                 $select.empty(); // Clear any existing options
@@ -1128,14 +1220,11 @@
 
                 $select.val(init_data.inventory_pool_id)
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error("Error fetching data:", error);
             }
         });
     }
-
-
-
 
 
     $(document).ready(function () {
@@ -1186,8 +1275,6 @@
         };
 
 
-
-
         function formatDateForInput(dateString) {
             if (!dateString) return null;
             const date = new Date(dateString);
@@ -1212,12 +1299,12 @@
                 if (value !== null && value !== undefined) {
                     const inputField = $(`#${fieldId}`);
 
-                    console.log("inputField", inputField,value, fieldId)
+                    console.log("inputField", inputField, value, fieldId)
 
                     if (inputField.length) {
                         if (inputField.is("select") || inputField.is("input[type='text']") || inputField.is("textarea")) {
 
-                            console.log("inputField2", inputField,value, fieldId)
+                            console.log("inputField2", inputField, value, fieldId)
 
                             inputField.val(value);
                         } else if (inputField.is("input[type='date']")) {
@@ -1248,7 +1335,7 @@
             $.ajax({
                 url: `/inventory/${poolId}/models/${modelId}/item/${itemId}`,
                 method: "GET",
-                headers: { Accept: "application/json" },
+                headers: {Accept: "application/json"},
                 success: function (response) {
                     if (response && response.data) {
                         const data = response.data;
@@ -1281,7 +1368,7 @@
                         $("#myOldSoftware").val(swId)
 
                         // supplier
-                        if(data.supplier != undefined){
+                        if (data.supplier != undefined) {
                             var supplierName = data.supplier.name;
                             var supplierId = data.supplier.supplier_id;
                             var newOption = new Option(supplierName, supplierId, true, true);
@@ -1295,31 +1382,30 @@
                         console.log("fetch.item")
                         initializeDropdowns(data.building_id, data.room_id);
 
-                        if(data.is_broken){
-                         $("[name=is_broken][value=true]").prop("checked", true)
-                        }else{
-                         $("[name=is_broken][value=false]").prop("checked", true)
+                        if (data.is_broken) {
+                            $("[name=is_broken][value=true]").prop("checked", true)
+                        } else {
+                            $("[name=is_broken][value=false]").prop("checked", true)
                         }
 
-                        if(data.is_incomplete){
-                         $("[name=is_incomplete][value=true]").prop("checked", true)
-                        }else{
-                         $("[name=is_incomplete][value=false]").prop("checked", true)
+                        if (data.is_incomplete) {
+                            $("[name=is_incomplete][value=true]").prop("checked", true)
+                        } else {
+                            $("[name=is_incomplete][value=false]").prop("checked", true)
                         }
 
-                        if(data.is_borrowable){
-                         $("[name=is_borrowable][value=true]").prop("checked", true)
-                        }else{
-                         $("[name=is_borrowable][value=false]").prop("checked", true)
+                        if (data.is_borrowable) {
+                            $("[name=is_borrowable][value=true]").prop("checked", true)
+                        } else {
+                            $("[name=is_borrowable][value=false]").prop("checked", true)
                         }
 
 
-                        if(data.reference == "invoice"){
-                         $("[name='properties,reference'][value=invoice]").prop("checked", true)
-                        }else{
-                         $("[name='properties,reference'][value=investment]").prop("checked", true)
+                        if (data.reference == "invoice") {
+                            $("[name='properties,reference'][value=invoice]").prop("checked", true)
+                        } else {
+                            $("[name='properties,reference'][value=investment]").prop("checked", true)
                         }
-
 
 
                         // ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
@@ -1349,7 +1435,7 @@
                         $("#attachmentsList").empty();
                         attachments.forEach(attachment => {
 
-                               let entry= $("#attachmentsList").append(`
+                            let entry = $("#attachmentsList").append(`
                                     <div class="file-item" withData>
                                         <span>${attachment.filename} (${attachment.content_type})</span>
                                         <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
@@ -1357,7 +1443,7 @@
                                 `);
 
                             entry.data("raw", attachment)
-                            });
+                        });
 
                         setupDongleAndRetiredHandler(data)
 
@@ -1393,12 +1479,12 @@
                             let model_id = formData.get('model_id')
                             // let old_model_id = formData.get('old_model_id')
                             let old_model_id = modelId
-                            if(model_id != old_model_id){
+                            if (model_id != old_model_id) {
                                 console.log("model_id != old_model_id")
                                 formData.delete('old_model_id')
                                 formData.delete('model_id')
                                 formData.append('model_id', model_id)
-                            }else{
+                            } else {
                                 console.log("model_id == old_model_id")
                                 formData.delete('old_model_id')
                                 formData.delete('model_id')
@@ -1408,7 +1494,7 @@
                             for (let [key, value] of formData.entries()) {
                                 console.log(key, value);
                             }
-                                formData.delete('quantity')
+                            formData.delete('quantity')
 
                             checkFormDataOrThrow(formData, modelId, "put")
 
@@ -1485,7 +1571,7 @@
         $.ajax({
             url: `/inventory/${poolId}/item`,
             method: "GET",
-            headers: { Accept: "application/json" },
+            headers: {Accept: "application/json"},
             success: function (response) {
                 if (response && response.fields) {
                     // if (response && response.data) {
@@ -1504,9 +1590,9 @@
 
 
                     $.ajax({
-                        url: 'http://localhost:3260/inventory/buildings',
+                        url: '/inventory/buildings',
                         method: 'GET',
-                        headers: { 'accept': 'application/json' },
+                        headers: {'accept': 'application/json'},
                         success: function (buildings) {
                             const $buildingDropdown = $('#myBuilding');
                             // Populate the buildings dropdown
@@ -1522,7 +1608,6 @@
                             // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
 
 
-
                             // Remove any previously bound handlers and attach the new one
                             $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
 
@@ -1535,7 +1620,7 @@
                     });
 
                     $("#saveButton").text("Save Item");
-                    $("#saveButton").off('click').click(function(e) {
+                    $("#saveButton").off('click').click(function (e) {
                         e.preventDefault(); // Prevent default form submission
                         console.log("Update button clicked");
 
@@ -1554,14 +1639,12 @@
                         formData = renameFormKeys(formData);
 
 
-
-
                         // for (let [key, value] of formData.entries()) {
                         //     console.log(key, value);
                         // }
 
                         formData = appendQuantityAllocationToFormData(formData);
-                        let modelId=formData.get("model_id")
+                        let modelId = formData.get("model_id")
 
                         deleteParamsFromPutPostFormData(formData);
                         checkFormDataOrThrow(formData, modelId, "post")
@@ -1579,7 +1662,7 @@
                             data: formData,
                             processData: false,
                             contentType: false,
-                            headers: { Accept: "application/json" },
+                            headers: {Accept: "application/json"},
                             success: function (response) {
                                 console.log("Item create successfully!", response);
                                 console.info("UPDATING ITEM-ID")
@@ -1608,7 +1691,6 @@
                             },
                         });
                     });
-
 
 
                     // Populate field values
