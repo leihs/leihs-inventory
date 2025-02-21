@@ -16,8 +16,6 @@ feature "Inventory Item" do
       let(:form_categories) { @form_categories }
       let(:form_compatible_models) { @form_compatible_models }
 
-      # let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
-      # let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
       let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
       let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
@@ -69,7 +67,6 @@ feature "Inventory Item" do
           form_data = {
             serial_number: "",
             note: "",
-            # attachments: [File.open(path_test_txt, "rb"), File.open(path_test_pdf, "rb")],
             is_inventory_relevant: "true",
             last_check: "",
             user_name: "",
@@ -115,11 +112,6 @@ feature "Inventory Item" do
           form_data = {
             serial_number: nil,
             note: nil,
-            # # attachments: [], # binary data
-            # # "attachments-to-delete" => [attachment_id],
-            # is_inventory_relevant: "true",
-            # last_check: nil,
-            # user_name: nil,
             invoice_date: nil,
             invoice_number: nil,
             price: nil,
@@ -131,8 +123,6 @@ feature "Inventory Item" do
             is_borrowable: "false",
             status_note: nil,
             room_id: @form_rooms[0]["id"],
-            # model_id: @form_model_data[0]["id"],
-            # owner_id: @form_owners[0]["id"],
             properties: {
               electrical_power: "",
               imei_number: "",

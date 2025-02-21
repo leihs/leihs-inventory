@@ -55,14 +55,14 @@ feature "Inventory Item" do
     context "fetch of form" do
       it "ensures form manufacturer data is fetched" do
         result = client.get "/inventory/#{pool_id}/item"
-        @form_entitlement_groups = result.body
+        response_body = result.body
         expect(result.status).to be(200)
 
-        expect(@form_entitlement_groups["data"]["inventory_pool_id"]).to eq(pool_id)
-        expect(@form_entitlement_groups["fields"].count).to eq(32)
+        expect(response_body["data"]["inventory_pool_id"]).to eq(pool_id)
+        expect(response_body["fields"].count).to eq(32)
 
-        expect(@form_entitlement_groups).not_to be_nil
-        expect(@form_entitlement_groups.count).to eq(2)
+        expect(response_body).not_to be_nil
+        expect(response_body.count).to eq(2)
       end
     end
 
@@ -113,18 +113,18 @@ feature "Inventory Item" do
 
         # fetch created item
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        @form_entitlement_groups = result.body
+        response_body = result.body
         attachments = result.body["data"]["attachments"]
         attachment_id = attachments[0]["id"]
         expect(attachments.count).to be(2)
         expect(result.status).to be(200)
 
-        expect(@form_entitlement_groups).not_to be_nil
-        expect(@form_entitlement_groups.count).to eq(2)
+        expect(response_body).not_to be_nil
+        expect(response_body.count).to eq(2)
 
         expect(result.status).to eq(200)
-        expect(@form_entitlement_groups["data"]).to be_present
-        expect(@form_entitlement_groups["fields"].count).to eq(31)
+        expect(response_body["data"]).to be_present
+        expect(response_body["fields"].count).to eq(31)
 
         # update item request
         form_data = {
@@ -167,7 +167,6 @@ feature "Inventory Item" do
 
         # fetch created item
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        @form_entitlement_groups = result.body
         attachments = result.body["data"]["attachments"]
         expect(attachments.count).to be(1)
         expect(result.status).to be(200)
@@ -220,18 +219,18 @@ feature "Inventory Item" do
 
           # fetch created item
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          @form_entitlement_groups = result.body
+          response_body = result.body
           attachments = result.body["data"]["attachments"]
           attachment_id = attachments[0]["id"]
           expect(attachments.count).to be(2)
           expect(result.status).to be(200)
 
-          expect(@form_entitlement_groups).not_to be_nil
-          expect(@form_entitlement_groups.count).to eq(2)
+          expect(response_body).not_to be_nil
+          expect(response_body.count).to eq(2)
 
           expect(result.status).to eq(200)
-          expect(@form_entitlement_groups["data"]).to be_present
-          expect(@form_entitlement_groups["fields"].count).to eq(31)
+          expect(response_body["data"]).to be_present
+          expect(response_body["fields"].count).to eq(31)
 
           # update item request
           form_data = {
@@ -274,7 +273,6 @@ feature "Inventory Item" do
 
           # fetch created item
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          @form_entitlement_groups = result.body
           attachments = result.body["data"]["attachments"]
           expect(attachments.count).to be(1)
           expect(result.status).to be(200)
