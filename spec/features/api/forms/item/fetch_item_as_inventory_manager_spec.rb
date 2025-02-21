@@ -4,9 +4,7 @@ require_relative "../../_shared"
 require "faker"
 
 feature "Inventory Item" do
-
   # ["inventory_manager", "lending_manager"].each do |role|
-
 
   context "when interacting with inventory models in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api_model, "inventory_manager"
@@ -130,27 +128,27 @@ feature "Inventory Item" do
 
         # update item request
         form_data = {
-          serial_number: nil,
-          note: nil,
-          attachments: [], # binary data
+          :serial_number => nil,
+          :note => nil,
+          :attachments => [], # binary data
           "attachments-to-delete" => [attachment_id],
-          is_inventory_relevant: "true",
-          last_check: nil,
-          user_name: nil,
-          invoice_number: nil,
-          invoice_date: nil,
-          price: nil,
-          shelf: nil,
-          inventory_code: "AUS45859",
-          retired: "false",
-          is_broken: "false",
-          is_incomplete: "false",
-          is_borrowable: "false",
-          status_note: nil,
-          room_id: @form_rooms[0]["id"],
-          model_id: @form_model_data[0]["id"],
-          owner_id: @form_owners[0]["id"],
-          properties: {
+          :is_inventory_relevant => "true",
+          :last_check => nil,
+          :user_name => nil,
+          :invoice_number => nil,
+          :invoice_date => nil,
+          :price => nil,
+          :shelf => nil,
+          :inventory_code => "AUS45859",
+          :retired => "false",
+          :is_broken => "false",
+          :is_incomplete => "false",
+          :is_borrowable => "false",
+          :status_note => nil,
+          :room_id => @form_rooms[0]["id"],
+          :model_id => @form_model_data[0]["id"],
+          :owner_id => @form_owners[0]["id"],
+          :properties => {
             electrical_power: "",
             imei_number: "",
             p4u: "",
@@ -173,7 +171,6 @@ feature "Inventory Item" do
         attachments = result.body["data"]["attachments"]
         expect(attachments.count).to be(1)
         expect(result.status).to be(200)
-
       end
 
       context "create item" do
@@ -238,27 +235,27 @@ feature "Inventory Item" do
 
           # update item request
           form_data = {
-            serial_number: nil,
-            note: nil,
-            attachments: [], # binary data
+            :serial_number => nil,
+            :note => nil,
+            :attachments => [], # binary data
             "attachments-to-delete" => [attachment_id],
-            is_inventory_relevant: "true",
-            last_check: nil,
-            user_name: nil,
-            invoice_number: nil,
-            invoice_date: nil,
-            price: nil,
-            shelf: nil,
-            inventory_code: "AUS45859",
-            retired: "false",
-            is_broken: "false",
-            is_incomplete: "false",
-            is_borrowable: "false",
-            status_note: nil,
-            room_id: @form_rooms[0]["id"],
-            model_id: @form_model_data[0]["id"],
-            owner_id: @form_owners[0]["id"],
-            properties: {
+            :is_inventory_relevant => "true",
+            :last_check => nil,
+            :user_name => nil,
+            :invoice_number => nil,
+            :invoice_date => nil,
+            :price => nil,
+            :shelf => nil,
+            :inventory_code => "AUS45859",
+            :retired => "false",
+            :is_broken => "false",
+            :is_incomplete => "false",
+            :is_borrowable => "false",
+            :status_note => nil,
+            :room_id => @form_rooms[0]["id"],
+            :model_id => @form_model_data[0]["id"],
+            :owner_id => @form_owners[0]["id"],
+            :properties => {
               electrical_power: "",
               imei_number: "",
               p4u: "",
@@ -281,11 +278,9 @@ feature "Inventory Item" do
           attachments = result.body["data"]["attachments"]
           expect(attachments.count).to be(1)
           expect(result.status).to be(200)
-
         end
       end
     end
   end
 end
 # end
-
