@@ -4,7 +4,85 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-expected_fields = ["test"]
+expected_fields = ["serial_number", "properties_mac_address", "properties_imei_number", "name", "note", "attachments",
+  "last_check", "responsible", "invoice_number", "invoice_date", "price", "supplier_id",
+  "properties_warranty_expiration", "properties_contract_expiration", "building_id", "room_id",
+  "shelf", "inventory_code", "model_id", "retired", "retired_reason", "is_broken", "is_incomplete",
+  "is_borrowable", "status_note"]
+
+fetch_response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "supplier" => [NilClass, String],
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [TrueClass, FalseClass],
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "building_id" => String,
+  "shelf" => String,
+  "status_note" => String,
+  "name" => [NilClass, String],
+  "attachments" => Array,
+  "invoice_number" => String,
+  "supplier_name" => [NilClass, String],
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => String,
+  "updated_at" => String,
+  "retired_reason" => [NilClass, String],
+  "responsible" => [NilClass, String],
+  "invoice_date" => [NilClass, String],
+  "product" => Hash,
+  "model_id" => String,
+  "supplier_id" => [NilClass, String],
+  "parent_id" => [NilClass, String],
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "needs_permission" => [TrueClass, FalseClass],
+  "user_name" => String,
+  "version" => [NilClass, String],
+  "room_id" => String,
+  "serial_number" => String,
+  "price" => [NilClass, Numeric],
+  "created_at" => String,
+  "product_name" => String,
+  "insurance_number" => [NilClass, String]
+}
+
+put_post_response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [NilClass, TrueClass, FalseClass],
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "shelf" => String,
+  "status_note" => String,
+  "name" => [NilClass, String],
+  "invoice_number" => String,
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => String,
+  "updated_at" => String,
+  "retired_reason" => [NilClass, String],
+  "responsible" => [NilClass, String],
+  "invoice_date" => [NilClass, String],
+  "model_id" => String,
+  "supplier_id" => [NilClass, String],
+  "parent_id" => [NilClass, String],
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "item_version" => [NilClass, String],
+  "needs_permission" => [TrueClass, FalseClass],
+  "user_name" => String,
+  "room_id" => String,
+  "serial_number" => String,
+  "price" => [NilClass, Numeric],
+  "created_at" => String,
+  "insurance_number" => [NilClass, String]
+}
 
 feature "Inventory Item" do
   # ["inventory_manager", "lending_manager"].each do |role|
@@ -20,8 +98,6 @@ feature "Inventory Item" do
     let(:form_categories) { @form_categories }
     let(:form_compatible_models) { @form_compatible_models }
 
-    # let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
-    # let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
     let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
     let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
@@ -119,6 +195,7 @@ feature "Inventory Item" do
         expect(result.status).to be(200)
 
         expected_form_fields(result.body["fields"], expected_fields)
+        expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
 
         expect(response_body).not_to be_nil
         expect(response_body.count).to eq(2)
@@ -165,12 +242,14 @@ feature "Inventory Item" do
           headers: cookie_header
         )
         expect(result.status).to eq(200)
+        expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
 
         # fetch created item
         result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
         attachments = result.body["data"]["attachments"]
         expect(attachments.count).to be(1)
         expect(result.status).to be(200)
+        expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
       end
 
       context "create item" do
@@ -217,6 +296,7 @@ feature "Inventory Item" do
           expect(result.status).to eq(200)
           model_id = result.body["data"]["model_id"]
           item_id = result.body["data"]["id"]
+          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
 
           # fetch created item
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
@@ -225,6 +305,7 @@ feature "Inventory Item" do
           attachment_id = attachments[0]["id"]
           expect(attachments.count).to be(2)
           expect(result.status).to be(200)
+          expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
 
           expect(response_body).not_to be_nil
           expect(response_body.count).to eq(2)
@@ -271,12 +352,14 @@ feature "Inventory Item" do
             headers: cookie_header
           )
           expect(result.status).to eq(200)
+          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
 
           # fetch created item
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
           attachments = result.body["data"]["attachments"]
           expect(attachments.count).to be(1)
           expect(result.status).to be(200)
+          expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
         end
       end
     end
