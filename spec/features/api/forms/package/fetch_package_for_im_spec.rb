@@ -8,7 +8,7 @@ expected_lm_fields = ["note", "is_inventory_relevant", "owner_id", "last_check",
   "user_name", "price", "building_id", "room_id", "shelf", "inventory_code", "model_id", "retired",
   "retired_reason", "is_broken", "is_incomplete", "is_borrowable", "status_note", "add-item-group"]
 
-response = {
+put_post_response = {
   "properties" => Hash,
   "inventory_code" => String,
   "owner_id" => String,
@@ -42,7 +42,7 @@ response = {
   "insurance_number" => [NilClass, String]
 }
 
-response2 = {
+get_response = {
   "inventory_code" => String,
   "owner_id" => String,
   "is_borrowable" => [TrueClass, FalseClass],
@@ -190,7 +190,7 @@ feature "Inventory package" do
           expect(result.status).to eq(200)
           expect(result.body["data"]).to be_present
           expect(result.body["validation"].count).to eq(0)
-          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
 
           item_id = result.body["data"]["id"]
           model_id = result.body["data"]["model_id"]
@@ -199,7 +199,7 @@ feature "Inventory package" do
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
           expect(result.body["data"]).to be_present
           expect(result.body["fields"].count).to eq(20)
-          expect(validate_map_structure(result.body["data"], response2)).to eq(true)
+          expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
           expected_form_fields(result.body["fields"], expected_lm_fields)
 
           # update package
@@ -210,7 +210,7 @@ feature "Inventory package" do
             headers: cookie_header
           )
 
-          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
           expect(result.status).to eq(200)
           expect(result.body["data"]).to be_present
           expect(result.body["validation"].count).to eq(0)
