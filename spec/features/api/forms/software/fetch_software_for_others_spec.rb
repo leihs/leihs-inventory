@@ -5,7 +5,7 @@ require_relative "../_common"
 require "faker"
 
 feature "Inventory Software" do
-  ["groups_manager", "customer"].each do |role|
+  ["group_manager", "customer"].each do |role|
     context "when interacting with inventory software with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header

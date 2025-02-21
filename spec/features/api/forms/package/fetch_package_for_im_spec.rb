@@ -1,7 +1,73 @@
 require "spec_helper"
 require "pry"
 require_relative "../../_shared"
+require_relative "../_common"
 require "faker"
+
+expected_lm_fields = ["note", "is_inventory_relevant", "owner_id", "last_check", "inventory_pool_id", "responsible",
+  "user_name", "price", "building_id", "room_id", "shelf", "inventory_code", "model_id", "retired",
+  "retired_reason", "is_broken", "is_incomplete", "is_borrowable", "status_note", "add-item-group"]
+
+response = {
+  "properties" => Hash,
+  "inventory_code" => String,
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [NilClass, TrueClass, FalseClass],
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "shelf" => [NilClass, String],
+  "status_note" => [NilClass, String],
+  "name" => [NilClass, String],
+  "invoice_number" => [NilClass, String],
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => [NilClass, String],
+  "updated_at" => String,
+  "retired_reason" => [NilClass, String],
+  "responsible" => [NilClass, String],
+  "invoice_date" => [NilClass, String],
+  "model_id" => String,
+  "supplier_id" => [NilClass, String],
+  "parent_id" => [NilClass, String],
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "item_version" => [NilClass, String],
+  "needs_permission" => [TrueClass, FalseClass],
+  "user_name" => [NilClass, String],
+  "room_id" => String,
+  "serial_number" => [NilClass, String],
+  "price" => [NilClass, Numeric],
+  "created_at" => String,
+  "insurance_number" => [NilClass, String]
+}
+
+response2 = {
+  "inventory_code" => String,
+  "owner_id" => String,
+  "is_borrowable" => [TrueClass, FalseClass],
+  "retired" => [TrueClass, FalseClass],
+  "is_inventory_relevant" => [TrueClass, FalseClass],
+  "last_check" => [NilClass, String],
+  "building_id" => String,
+  "shelf" => [NilClass, String],
+  "status_note" => [NilClass, String],
+  "items_attributes" => Array,
+  "is_broken" => [TrueClass, FalseClass],
+  "note" => [NilClass, String],
+  "updated_at" => String,
+  "retired_reason" => [NilClass, String],
+  "product" => Hash,
+  "model_id" => String,
+  "id" => String,
+  "inventory_pool_id" => String,
+  "is_incomplete" => [TrueClass, FalseClass],
+  "user_name" => [NilClass, String],
+  "room_id" => String,
+  "price" => [NilClass, Numeric],
+  "created_at" => String,
+  "product_name" => String
+}
 
 feature "Inventory package" do
   ["inventory_manager"].each do |role|
@@ -124,6 +190,7 @@ feature "Inventory package" do
           expect(result.status).to eq(200)
           expect(result.body["data"]).to be_present
           expect(result.body["validation"].count).to eq(0)
+          expect(validate_map_structure(result.body["data"], response)).to eq(true)
 
           item_id = result.body["data"]["id"]
           model_id = result.body["data"]["model_id"]
@@ -132,6 +199,8 @@ feature "Inventory package" do
           result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
           expect(result.body["data"]).to be_present
           expect(result.body["fields"].count).to eq(20)
+          expect(validate_map_structure(result.body["data"], response2)).to eq(true)
+          expected_form_fields(result.body["fields"], expected_lm_fields)
 
           # update package
           result = http_multipart_client(
@@ -141,6 +210,7 @@ feature "Inventory package" do
             headers: cookie_header
           )
 
+          expect(validate_map_structure(result.body["data"], response)).to eq(true)
           expect(result.status).to eq(200)
           expect(result.body["data"]).to be_present
           expect(result.body["validation"].count).to eq(0)
