@@ -46,7 +46,6 @@ response = {
           )
           expect(validate_map_structure(result.body["data"], response)).to eq(true)
 
-
           expect(result.status).to eq(200)
           expect(result.body["data"]["id"]).to be_present
           expect(result.body["validation"].count).to eq(0)
@@ -73,7 +72,6 @@ response = {
           )
           expect(validate_map_structure(result.body.first, response)).to eq(true)
 
-
           expect(result.status).to eq(200)
           expect(result.body[0]["version"]).to eq("v2")
           expect(result.body[0]["price"]).to eq(222.0)
@@ -94,7 +92,6 @@ response = {
             headers: cookie_header
           )
           expect(validate_map_structure(result.body["data"], response)).to eq(true)
-
 
           expect(result.status).to eq(200)
           expect(result.body["data"]["id"]).to be_present
