@@ -8,7 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -169,6 +169,7 @@
         attachments (normalize-files request :attachments)
         images (normalize-files request :images)
         properties (parse-json-array request :properties)
+        image-attributes (parse-json-array request :image_attributes)
         accessories (parse-json-array request :accessories)
         entitlements (parse-json-array request :entitlements)]
 
@@ -184,6 +185,7 @@
         (process-images tx images model-id validation-result)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
+        (process-image-attributes tx image-attributes model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)

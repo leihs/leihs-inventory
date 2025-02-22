@@ -137,7 +137,7 @@
                       :none nil?))
 
 (sa/def ::compatible (sa/keys :opt-un [::delete]
-                              :req-un [::id ::product]))
+                              :req-un [:nil/id :nil/product]))
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
@@ -158,7 +158,9 @@
                                        :str string?)
                         :none nil?))
 (sa/def ::inventory_bool boolean?)
-(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::inventory_bool]))
+(sa/def ::has_inventory_pool boolean?)
+(sa/def ::entitlement_groups any?)
+(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::has_inventory_pool]))
 (sa/def ::accessories (sa/or
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
@@ -209,6 +211,11 @@
 (sa/def ::value string?)
 (sa/def :simple/properties string?)
 (sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
+(sa/def ::image_attribute (sa/keys :req-opt [:image/filename
+                                             :image/content_type
+                                             :image/url
+                                             :image/to_delete
+                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
 
 (sa/def :license/properties (sa/keys :req-opt [::activation_type
                                                ::dongle_id
@@ -451,6 +458,55 @@
 ;                           :opt-un [:res/validation :res/items_attributes])
 ;            :description "Complete inventory response"}))
 
+(sa/def :model-get-put-response/inventory-model
+  (st/spec {:spec (sa/keys :req-un [::properties
+                                    ::is_package
+                                    ::accessories
+                                    ::entitlement_groups
+                                    ::attachments
+                                    :model/type
+                                    :nil/hand_over_note
+                                    :nil/internal_description
+                                    ::product
+                                    ::categories
+                                    ::id
+                                    ;FIXME: nil values?
+                                    ::compatibles
+                                    ;"compatibles"=>[{"id"=>"09993961-3b5c-4ed2-add4-d79a44c0f43e", "product"=>"Enormous Steel Shoes"}, {"id"=>nil, "product"=>nil}],
+                                    ])
+            :description "Complete inventory response"}))
+
+(sa/def :model-optional-response/inventory-model
+  (st/spec {:spec (sa/keys :req-un [::is_package
+                                    :model/type
+                                    :nil/hand_over_note
+                                    :nil/internal_description
+                                    ::product
+                                    ::id
+
+                                    ::manufacturer
+                                    :nil/version
+                                    :nil/technical_detail
+                                    :nil/description]
+                           :opt-un [::properties
+                                    ::accessories
+                                    ::entitlement_groups
+                                    ::attachments
+                                    ::categories
+                                    :model2/image_attributes
+
+                                    ;FIXME: nil values?
+                                    ::compatibles
+                                    ;"compatibles"=>[{"id"=>"09993961-3b5c-4ed2-add4-d79a44c0f43e", "product"=>"Enormous Steel Shoes"}, {"id"=>nil, "product"=>nil}],
+                                    ])
+            :description "Complete inventory response"}))
+
+(sa/def :model-strict-response/inventory-models (sa/or :multiple (sa/coll-of :model-get-put-response/inventory-model :kind vector?)
+                                                       :single :model-get-put-response/inventory-model))
+
+(sa/def :model-optional-response/inventory-models (sa/or :multiple (sa/coll-of :model-optional-response/inventory-model :kind vector?)
+                                                         :single :model-optional-response/inventory-model))
+
 (sa/def :package-put-response2/inventory-item
   (st/spec {:spec (sa/keys :req-un [:res/data]
                            :opt-un [:res/validation])
@@ -460,6 +516,16 @@
                               :single (sa/or :coll (sa/coll-of ::property)
                                              :str string?)
                               :none nil?))
+
+(sa/def :model/image_attributes (sa/or
+                                 :single (sa/or :coll (sa/coll-of ::image_attribute)
+                                                :str string?)
+                                 :none nil?))
+
+(sa/def :model2/image_attributes
+  (sa/or :multiple (sa/or :coll (sa/coll-of ::image_attribute)
+                          :str string?)
+         :none empty?))
 
 (sa/def :option/multipart (sa/keys :req-un [::product
                                             ::inventory_code]
@@ -477,6 +543,7 @@
                                               ::categories
                                               ::attachments-to-delete
                                               ::images-to-delete
+                                              :model/image_attributes
                                               ::owner
                                               ::compatibles
                                               ::images
@@ -549,6 +616,7 @@
   (sa/keys :req-un [::role ::owner]))
 
 (sa/def ::type string?)
+(sa/def :model/type string?)
 (sa/def ::group string?)
 (sa/def ::label string?)
 (sa/def ::attribute any?)
@@ -571,6 +639,7 @@
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
 
 (sa/def :nil/id (sa/nilable uuid?))
+(sa/def :nil/product (sa/nilable string?))
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
 (sa/def :nil/name (sa/nilable string?))
@@ -639,6 +708,13 @@
 (sa/def ::updated_at any?)
 (sa/def ::product string?)
 (sa/def ::id uuid?) ;; UUID spec
+(sa/def :image/id uuid?)
+(sa/def :image/is_cover (sa/nilable boolean?))
+(sa/def :image/filename (sa/nilable string?))
+(sa/def :image/content_type (sa/nilable string?))
+(sa/def :image/url (sa/nilable string?))
+(sa/def :image/thumbnail_url (sa/nilable string?))
+(sa/def :image/to_delete (sa/nilable boolean?))
 (sa/def ::manufacturer any?)
 (sa/def ::version string?)
 (sa/def ::created_at any?)

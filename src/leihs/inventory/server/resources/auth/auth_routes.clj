@@ -104,8 +104,7 @@
                                    ;:expires_at expires-at
                                     }])
                                  sql-format)
-                insert-res (jdbc/execute! (:tx request) insert-query)]
-            (println "Inserted new session:" insert-res))
+                insert-res (jdbc/execute! (:tx request) insert-query)])
 
           (let [max-age 3600
                 cookie {:http-only true

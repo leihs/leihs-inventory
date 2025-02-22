@@ -34,7 +34,7 @@
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
-(defn handle-base64-image-request [result]
+(defn convert-base64-to-byte-stream [result]
   (try
     (let [content-type (:content_type result)
           base64-str (:content result)
@@ -66,7 +66,7 @@
       (cond
         (and json-request? image_id) (response result)
         (and json-request? (nil? image_id)) (response {:data result})
-        (and (not json-request?) image_id) (handle-base64-image-request (first result))))
+        (and (not json-request?) image_id) (convert-base64-to-byte-stream (first result))))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

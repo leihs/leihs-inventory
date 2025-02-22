@@ -29,8 +29,13 @@
 (defn fetch-attachments [tx model-id]
   (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
 
-(defn fetch-images [tx model-id]
-  (let [query (-> (sql/select :m.cover_image_id :i.id :i.filename :i.content_type)
+(defn fetch-image-attributes [tx model-id]
+  (let [query (-> (sql/select
+                   :i.id
+                   :i.filename
+                   :i.content_type
+                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
+                    :is_cover])
                   (sql/from [:models :m])
                   (sql/right-join [:images :i] [:= :i.target_id :m.id])
                   (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
@@ -97,7 +102,7 @@
             model-result (jdbc/execute-one! tx model-query)
 
             attachments (fetch-attachments tx model-id)
-            images (fetch-images tx model-id)
+            image-attributes (fetch-image-attributes tx model-id)
             accessories (fetch-accessories tx model-id)
             compatibles (fetch-compatibles tx model-id)
             properties (fetch-properties tx model-id)
@@ -109,7 +114,7 @@
                              :accessories accessories
                              :compatibles compatibles
                              :properties properties
-                             :images images
+                             :image_attributes image-attributes
                              :entitlement_groups entitlements
                              :categories categories)]
                      [])]

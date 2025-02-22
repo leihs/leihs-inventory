@@ -418,6 +418,32 @@
             });
         }
 
+        function extractImageData() {
+            let imagesData = [];
+            let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
+            let fileItems = $('#imagesList .file-item');
+
+            fileItems.each(function() {
+                let fileId = $(this).find('.remove-file-btn').data('file-id');
+                let isCover = $(this).find('input[name="is_cover"]').is(':checked');
+                let toDelete = imagesToDelete.includes(fileId);
+
+                imagesData.push({
+                    id: fileId,
+                    is_cover: isCover,
+                    to_delete: toDelete
+                });
+            });
+
+                imagesToDelete.forEach(fileId => {
+                    imagesData.push({
+                        id: fileId,
+                        is_cover: false,
+                        to_delete: true
+                    });
+                });
+            return imagesData;
+        }
 
         function updateSelectedEntitlements() {
             const selectedContainer = $('#selected-entitlements');
@@ -810,7 +836,7 @@
 
                     // Populate existing images
                     $('#imagesList').empty();
-                    response.images.forEach(function (image, index) {
+                    response.image_attributes.forEach(function (image, index) {
                         $('#imagesList').append(`
                             <div class="file-item">
                                 <div class="image-container">
@@ -825,6 +851,7 @@
                                         <div class="hover-text">original</div>
                                     </a>
                                 </div>
+                                <input type="radio" name="is_cover" value="${image.id}" ${image.is_cover === true ? 'checked' : ''}>
                                 <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}" data-file-index="${index}">Remove</button>
                             </div>
                         `);
@@ -946,6 +973,7 @@
             return name + postfix + extension;
         }
 
+        // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
             fileList.empty();
@@ -1192,9 +1220,12 @@
             formData.append('compatibles', JSON.stringify(mergedProperties));
 
 
+            // Example usage
+            let imageAttributes = extractImageData();
+            console.log(imageAttributes);
+            formData.append('image_attributes', JSON.stringify(imageAttributes));
+            formData.delete('is_cover');
             formData.delete('images-to-delete');
-            var imagesToDelete = $(`#images-to-delete`).data('to-delete') || []
-            formData.append('images-to-delete', JSON.stringify(imagesToDelete));
 
             formData.delete('attachments-to-delete');
             var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
@@ -1216,6 +1247,7 @@
             var poolId = $('#poolId').val();
             var modelId = $('#fetchModelId').val();
 
+            // Create image-thumbnail from canvas
             var config = FNC_CONFIG(poolId, modelId);
             let canvasPromises = [];
             $("#imagesList").find("canvas").each(function (index, canvas) {
@@ -1238,7 +1270,7 @@
             Promise.all(canvasPromises)
                 .then(files => {
                     files.forEach(file => {
-                        // formData.append('previews', file);
+                        // Add image-thumbnails
                         formData.append('images', file);
                     });
 

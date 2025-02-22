@@ -531,21 +531,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart :software/multipart}
              :handler create-model-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body {:data {:description (sa/nilable string?)
-                                            :is_package boolean?
-                                            :maintenance_period int?
-                                            :type string?
-                                            :cover_image_id (sa/nilable any?)
-                                            :hand_over_note (sa/nilable any?)
-                                            :updated_at any?
-                                            :internal_description (sa/nilable any?)
-                                            :product string?
-                                            :info_url (sa/nilable any?)
-                                            :id uuid?
-                                            :version (sa/nilable string?)
-                                            :technical_detail (sa/nilable string?)
-                                            :manufacturer any?
-                                            :created_at any?}
+                              :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
@@ -560,39 +546,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-model-handler-by-pool-form-fetch
              :responses {200 {:description "OK"
-                              :body [{:description (sa/nilable string?)
-                                      :properties any?
-                                      :is_package boolean?
-                                      :accessories any?
-                                      :entitlement_groups any?
-
-                                      ;; FIXME: causes error
-                                      :images any?
-                                      ;:images [{
-                                      ;          :id (sa/nilable any?)
-                                      ;          :filename (sa/nilable string?)
-                                      ;          :content_type (sa/nilable string?)
-                                      ;          :url (sa/nilable string?)
-                                      ;          :thumbnail_url (sa/nilable string?)
-                                      ;          :cover_image_id (sa/nilable string?)
-                                      ;          }]
-
-                                      :attachments [{:id (sa/nilable any?)
-                                                     :filename (sa/nilable string?)
-                                                     :content_type (sa/nilable string?)}]
-                                      :type string?
-                                      :hand_over_note (sa/nilable any?)
-                                      :internal_description (sa/nilable any?)
-                                      :product string?
-                                      :categories [{:id (sa/nilable any?)
-                                                    :type (sa/nilable string?)
-                                                    :name (sa/nilable string?)}]
-                                      :id uuid?
-                                      :compatibles [{:id (sa/nilable any?)
-                                                     :product (sa/nilable string?)}]
-                                      :manufacturer any?
-                                      :version (sa/nilable string?)
-                                      :technical_detail (sa/nilable string?)}]}
+                              :body :model-strict-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -607,22 +561,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                           :multipart :software/multipart}
              :handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body [{:description (sa/nilable string?)
-                                      :is_package boolean?
-                                      :maintenance_period int?
-                                      :type string?
-                                      ;:rental_price (sa/nilable any?)
-                                      :cover_image_id (sa/nilable any?)
-                                      :hand_over_note (sa/nilable any?)
-                                      :updated_at any?
-                                      :internal_description (sa/nilable any?)
-                                      :product string?
-                                      :info_url (sa/nilable any?)
-                                      :version (sa/nilable string?)
-                                      :technical_detail (sa/nilable string?)
-                                      :id uuid?
-                                      :manufacturer any?
-                                      :created_at any?}]}
+                              :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 

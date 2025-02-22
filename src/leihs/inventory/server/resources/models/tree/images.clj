@@ -51,11 +51,3 @@
     (assoc data
            :img256_url img256-data-url
            :img32_url img32-data-url)))
-
-(defn process-images [data]
-  (if-let [img-data-url (-> data :img256_url presence)]
-    (set-images data img-data-url)
-    (if (and (contains? data :img256_url)
-             (not (-> data :img256_url presence)))
-      (remove-images data)
-      data)))
