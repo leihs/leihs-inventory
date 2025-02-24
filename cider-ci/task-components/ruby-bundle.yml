@@ -1,5 +1,6 @@
 traits:
   asdf: true
+  ci-ax101-07: true
 
 scripts:
   inventory-ruby-bundle:
