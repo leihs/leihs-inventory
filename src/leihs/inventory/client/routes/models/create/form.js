@@ -227,13 +227,8 @@ export const structure = [
       {
         name: "model_links",
         label: "Modell-Links",
-        // description: "Listen Sie die Modell-Links auf",
-        input: "input",
-        props: {
-          type: "file",
-          placeholder: "Modell-Links eingeben",
-          "auto-complete": "off",
-        },
+        component: "compatible-models",
+        props: {},
       },
     ],
   },

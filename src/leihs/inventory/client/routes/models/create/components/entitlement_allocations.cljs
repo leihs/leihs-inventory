@@ -8,7 +8,7 @@
    ["@@/input" :refer [Input]]
    ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
-   ["lucide-react" :refer [ChevronsUpDown Trash]]
+   ["lucide-react" :refer [ChevronsUpDown Trash Check]]
    ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
@@ -18,10 +18,22 @@
 (defn find-name-by-id [vec id]
   (some #(when (= (:id %) id) (:name %)) vec))
 
+(defn check-path-existing [entitlement items]
+  (some (fn [item]
+          (= entitlement (:entitlement_group_id item)))
+        items))
+
+(defn find-index-from-path [path items]
+  (some (fn [[idx item]]
+          (when (= path item)
+            idx))
+        (map-indexed vector items)))
+
 (defui main [{:keys [control items form props]}]
   (let [{:keys [entitlements]} (uix/use-context state-context)
         [allocations set-allocations!] (uix/use-state 0)
         [width set-width!] (uix/use-state nil)
+        [open set-open!] (uix/use-state false)
         buttonRef (uix/use-ref nil)
         set-value (aget form "setValue")
         get-values (aget form "getValues")
@@ -54,9 +66,11 @@
     ($ :div {:class-name "flex flex-col gap-2"}
        ($ Label "Zuteilungen (max. " (str items) ")")
 
-       ($ Popover
+       ($ Popover {:open open
+                   :on-open-change #(set-open! %)}
           ($ PopoverTrigger {:as-child true}
              ($ Button {:ref buttonRef
+                        :on-click #(set-open! (not open))
                         :variant "outline"
                         :role "combobox"
                         :class-name (str "justify-between w-full")}
@@ -72,10 +86,20 @@
                    ($ CommandGroup
                       (for [entitlement entitlements]
                         ($ CommandItem {:value (:name entitlement)
-                                        :onSelect #(append (cj {:entitlement_group_id (:id entitlement)
-                                                                :entitlement_id nil
-                                                                :quantity "0"}))
+                                        :onSelect #(do (set-open! false)
+                                                       (if
+                                                        (not (check-path-existing (:id entitlement) fields))
+                                                         (append (cj {:entitlement_group_id (:id entitlement)
+                                                                      :entitlement_id nil
+                                                                      :quantity "0"}))
+                                                         (remove (find-index-from-path (:id entitlement) fields))))
                                         :key (:id entitlement)}
+
+                           ($ Check
+                              {:class-name (str "mr-2 h-4 w-4 "
+                                                (if (check-path-existing (:id entitlement) fields)
+                                                  "visible"
+                                                  "invisible"))})
                            (:name entitlement))))))))
 
        (when (not-empty fields)

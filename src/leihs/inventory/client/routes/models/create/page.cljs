@@ -21,7 +21,6 @@
   (js/console.debug "is valid: " data))
 
 (defn- on-invalid [data event]
-
   (js/console.debug "is invalid: " data))
 
 (defn fetch-entitlement-groups [params]
@@ -35,6 +34,11 @@
       (then #(.json %))
       (then #(jc %))))
 
+(defn fetch-models [params]
+  (.. (js/fetch "/inventory/models-compatibles" (cj {:headers {"Accept" "application/json"}}))
+      (then #(.json %))
+      (then #(jc %))))
+
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
                            :defaultValues {:product ""
@@ -45,10 +49,15 @@
         control (:control (jc form))
         entitlement-groups (jc (useQuery (cj {:queryKey ["entitlement-groups"]
                                               :queryFn #(fetch-entitlement-groups params)})))
+
+        models (jc (useQuery (cj {:queryKey ["models"]
+                                  :queryFn #(fetch-models params)})))
+
         categories (jc (useQuery (cj {:queryKey ["categorories"]
                                       :queryFn #(fetch-categories)})))]
 
-    ;; without this, form data is stale 
+    ;; without this, form data is stale.
+    ;; But this also means the form is evaluated every render
     (.. form (watch))
 
     (cond
@@ -59,7 +68,8 @@
       ($ :div "Error!")
 
       (and (:isSuccess entitlement-groups) (:isSuccess categories))
-      ($ (.-Provider state-context) {:value {:entitlements (:data entitlement-groups)
+      ($ (.-Provider state-context) {:value {:models (:data models)
+                                             :entitlements (:data entitlement-groups)
                                              :categories (:data categories)}}
          ($ :article
             ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
