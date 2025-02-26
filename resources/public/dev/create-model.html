@@ -341,6 +341,7 @@
         <b><label for="images">Bilder</label></b>
         <input type="file" id="images" name="images" multiple accept="image/*">
         <input type="hidden" id="images-to-delete" name="images-to-delete"/>
+<!--        <input type="hidden" id="images_order[]" name="images_order[]"/>-->
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
@@ -423,19 +424,43 @@
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
 
-            debugger
-            fileItems.each(function() {
+
+            // debugger
+
+            let rawFiles=$("#images")[0].files
+
+            fileItems.each(function(index) { // Add index as parameter
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
-                let image_id= $(this).find('input[name="is_cover"]').attr("image_id")
+                let image_id = $(this).find('input[name="is_cover"]').attr("image_id");
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
                 let toDelete = imagesToDelete.includes(fileId);
 
-                imagesData.push({
-                    id: fileId||image_id,
+
+
+
+                var data = {
+                    // index: index + 1, // 1-based index (change to 'index' for 0-based)
+                    id: fileId || image_id,
                     is_cover: isCover,
-                    to_delete: toDelete
-                });
+                    to_delete: toDelete,
+                    // checksum: `${index}:${file.name}:${file.size}`
+                }
+
+                if(CONST_IS_CREATE_FORM){
+                    let file = rawFiles[index]
+                    data["checksum"]=`${index}:${file.name}:${file.size}`
+                }
+
+                imagesData.push(data);
+                // imagesData.push({
+                //     // index: index + 1, // 1-based index (change to 'index' for 0-based)
+                //     id: fileId || image_id,
+                //     is_cover: isCover,
+                //     to_delete: toDelete,
+                //     checksum: `${index}:${file.name}:${file.size}`
+                // });
             });
+
 
                 imagesToDelete.forEach(fileId => {
                     imagesData.push({
@@ -1285,10 +1310,39 @@
 
             Promise.all(canvasPromises)
                 .then(files => {
-                    files.forEach(file => {
-                        // Add image-thumbnails
-                        formData.append('images', file);
-                    });
+                    // var index=1
+                    // debugger
+                    // files.forEach(file => {
+                    //     debugger
+                    //     // Add image-thumbnails
+                    //     formData.append('images', file);
+                    //     formData.append('images_order[]', index);
+                    //     index++
+                    // });
+
+                    files = formData.getAll("images")
+
+                    // formData.delete("images")
+                    //
+                    // let orderedFiles = files.map((file, index) => {
+                    //     return {
+                    //         file: file,
+                    //         order: index + 1, // Assign a custom order
+                    //         checksum: `${index+1}:${file.name}:${file.size}`, // Assign a custom order
+                    //         // nameThumb: "thumb_" + file.name // Custom param (Example)
+                    //     };
+                    // });
+                    //
+                    //
+                    // var orderInfo=[]
+                    // // Append files and metadata to FormData
+                    // orderedFiles.forEach(({ file, checksum, order, nameThumb }) => {
+                    //     formData.append("images", file); // Append actual file
+                    //     orderInfo.push(checksum)
+                    //     // formData.append("image_nameThumb[]", nameThumb); // Append custom name
+                    // });
+                    //     formData.append("images_order[]", orderInfo); // Append order separately
+
 
                     // Send form data to API
                     $.ajax({

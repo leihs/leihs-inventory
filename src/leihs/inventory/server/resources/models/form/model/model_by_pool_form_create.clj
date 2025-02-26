@@ -8,7 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
+
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -169,13 +170,22 @@
       (let [[name ext] (clojure.string/split filename #"\.(?=[^.]+$)")] ;; Split on last dot
         (str name "_thumb." ext)))))
 
+(defn get-uploaded-file-size [tempfile]
+  (.length tempfile))
+
+
 (defn process-images [tx images model-id validation-result]
   (reduce
     (fn [acc image]
       (println ">o> Processing image:" (:filename image))
 
       ;; Convert main image to base64
-      (let [file-content-main (file-to-base64 (:tempfile image))
+      (let [
+
+            tempfile (:tempfile image)
+            p (println ">o> abc.tmp-file.size?" (get-uploaded-file-size tempfile))
+
+            file-content-main (file-to-base64 tempfile)
             main-image-data (-> (set/rename-keys image {:content-type :content_type})
                               (dissoc :tempfile)
                               (assoc :content file-content-main
@@ -191,64 +201,75 @@
             p (println ">o> main-image-data:" (dissoc main-image-data :content))
             p (println ">o> main-image-result:" main-image-result)
 
-            result (assoc main-image-result :size (:size main-image-data))
+            image-result (assoc main-image-result :size (:size main-image-data))
 
-            p (println ">o> main-image-result.ab:" result)
-            ]
+            p (println ">o> main-image-result.ab:" image-result)
 
 
+        ;    ]
+        ;
+        ;
         ;;; Generate thumbnail content from the main image
-        ;(let [file-content-thumb (generate-thumbnail file-content-main) ;; Function to create thumbnail from image content
-        ;
-        ;      p (println ">o> abc1")
-        ;      p (println ">o> abc1.file-content-thumb" file-content-thumb)
-        ;      p (println ">o> abc1.main-image-result" main-image-result)
-        ;
-        ;      ;thumbnail-data (-> main-image-data
-        ;      ;                 ;add-thumb-to-filename
-        ;      ;                 (assoc :content file-content-thumb
-        ;      ;                   :thumbnail
-        ;      ;                   :parent_id (:id main-image-result)))
-        ;
-        ;      thumbnail-data (assoc main-image-data
-        ;                       :content file-content-thumb
-        ;                       :filename (add-thumb-to-filename main-image-data)
-        ;                       :thumbnail true              ; <-- Assign an actual value
-        ;                       :parent_id (:id main-image-result))
-        ;
-        ;
-        ;      p (println ">o> abc1")
-        ;
-        ;      p (println ">o> thumbnail-data1:" (dissoc thumbnail-data :content))
-        ;
-        ;      p (println ">o> abc2")
-        ;
-        ;      ;; Insert thumbnail into the database
-        ;      thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-        ;                                               (sql/values [thumbnail-data])
-        ;                                               (sql/returning :id :filename :thumbnail)
-        ;                                               sql-format))
-        ;      p (println ">o> abc3")
-        ;
-        ;      p (println ">o> thumbnail-data2:" (dissoc thumbnail-data :content))
-        ;      ]
-        ;
-        ;  (println ">o> Inserted thumbnail:" thumbnail-result)
-        ;
-        ;  ;; Accumulate results
-        ;  (conj acc {:image main-image-result
-        ;             :thumbnail thumbnail-result})
-        ;  )
+        ;(let [
+
+
+              file-content-thumb (generate-thumbnail file-content-main) ;; Function to create thumbnail from image content
+
+              p (println ">o> abc1")
+              ;p (println ">o> abc1.file-content-thumb" file-content-thumb)
+              p (println ">o> abc1.main-image-result" main-image-result)
+
+              ;thumbnail-data (-> main-image-data
+              ;                 ;add-thumb-to-filename
+              ;                 (assoc :content file-content-thumb
+              ;                   :thumbnail
+              ;                   :parent_id (:id main-image-result)))
+
+            main-image-data (add-thumb-to-filename main-image-data)
+              thumbnail-data (assoc main-image-data
+                               :content file-content-thumb
+                               ;:filename (add-thumb-to-filename main-image-data)
+                               :thumbnail true              ; <-- Assign an actual value
+                               :parent_id (:id main-image-result))
+
+
+              p (println ">o> abc1")
+
+              p (println ">o> thumbnail-data1:" (dissoc thumbnail-data :content))
+
+              p (println ">o> abc2")
+
+              ;; Insert thumbnail into the database
+              thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                       (sql/values [thumbnail-data])
+                                                       (sql/returning :id :filename :thumbnail)
+                                                       sql-format))
+              p (println ">o> abc3")
+
+              p (println ">o> thumbnail-data2:" (dissoc thumbnail-data :content))
+
+            thumb-result (assoc thumbnail-result :size (:size thumbnail-result))
+
+            p (println ">o> thumb-result-result.ab:" thumb-result)
+
+              ]
+
+          ;(println ">o> Inserted thumbnail:" thumbnail-result)
+          ;
+          ;;; Accumulate results
+          ;(conj acc {:image main-image-result
+          ;           :thumbnail thumbnail-result})
+          ;)
 
         ;(conj acc {:image main-image-result
         ;           ;:thumbnail thumbnail-result
         ;           })
         ;
         ;
-        ;(into (or acc []) [{:image main-image-result
-        ;                    :thumbnail thumbnail-result}])
+        (into (or acc []) [{:image main-image-result
+                            :thumbnail thumbnail-result}])
 
-        (into (or acc []) [result])
+        ;(into (or acc []) [image-result thumb-result])
 
 
 
@@ -324,6 +345,53 @@
       {:inventory_pool_id pool-id
        :model_group_id (to-uuid (:id category))})))
 
+
+(defn sort-images-by-attributes [images image-attributes]
+  (let [attr-map (into {} (map (fn [{:keys [checksum] :as attr}]
+                                 (let [[_ filename size] (clojure.string/split checksum #":")]
+                                   [(str filename ":" size) attr]))
+                            image-attributes))]
+    (sort-by (fn [image]
+               (let [key (str (:filename image) ":" (:size image))
+                     attr (attr-map key)]
+                 [(or (:is_cover attr) false) ;; Sort by is_cover first (true first)
+                  (:size image)              ;; Then by size (ascending)
+                  (:filename image)]))       ;; Then by filename (ascending)
+      images)))
+
+
+(defn sort-images-by-attributes [images image-attributes]
+  (let [attr-map (into {} (map (fn [{:keys [checksum] :as attr}]
+                                 (let [[_ filename size] (clojure.string/split checksum #":")]
+                                   [(str filename ":" size) attr]))
+                            image-attributes))]
+    ;; Ensure all images have a corresponding checksum entry
+    (doseq [image images]
+      (let [key (str (:filename image) ":" (:size image))]
+        (when-not (contains? attr-map key)
+          (throw (Exception. (str "Missing checksum for image: " key))))))
+
+    ;; Sort images based on attributes
+    (sort-by (fn [image]
+               (let [key (str (:filename image) ":" (:size image))
+                     attr (attr-map key)]
+                 [(or (:is_cover attr) false) ;; Sort by is_cover first (true first)
+                  (:size image)              ;; Then by size (ascending)
+                  (:filename image)]))       ;; Then by filename (ascending)
+      (vec images))))
+
+
+(defn update-image-attributes [image-attributes created-images]
+  (let [id-map (into {} (map (fn [{:keys [image]}]
+                               [(:filename image) (:id image)])
+                          created-images))]
+    (map (fn [attr]
+           (let [[_ filename size] (clojure.string/split (:checksum attr) #":")]
+             (if-let [new-id (id-map filename)]
+               (assoc attr :id new-id)  ;; Replace id with the new one
+               (throw (Exception. (str "No matching image found for: " filename))))))
+      image-attributes)))
+
 (defn create-model-handler-by-pool-form [request]
   (let [validation-result (atom [])
         p (println ">o> abc.create-model-handler-by-pool-form")
@@ -336,11 +404,20 @@
         categories (parse-json-array request :categories)
         compatibles (parse-json-array request :compatibles)
         attachments (normalize-files request :attachments)
-        images (normalize-files request :images)
         properties (parse-json-array request :properties)
 
+        images (normalize-files request :images)
         image-attributes (parse-json-array request :image_attributes)
-        p (println ">o> abc.create-model-handler-by-pool-form.image-attributes" image-attributes)
+
+        images (try (sort-images-by-attributes images image-attributes)
+                    (catch Exception e
+                      (println ">> No additional image-sorting due missing 'checksum'")
+                      images))
+
+
+
+        p (println ">o> abc.images" images)
+        p (println ">o> abc.image-attributes" image-attributes)
 
         accessories (parse-json-array request :accessories)
         entitlements (parse-json-array request :entitlements)]
@@ -356,13 +433,21 @@
             model-id (:id res)
 
             created-images (process-images tx images model-id validation-result)
+
+
+
+            image-attributes (update-image-attributes image-attributes created-images)
+
             p (println ">o> abc.created-images" created-images)
+            p (println ">o> abc.created-images.image.size" (count created-images))
             ]
 
         (process-attachments tx attachments "model_id" model-id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
-        ;(process-image-attributes tx image-attributes model-id)
+
+        (process-image-attributes tx image-attributes model-id)
+
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
