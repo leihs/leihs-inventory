@@ -301,8 +301,6 @@
 
 <br/><br/><br/><br/>
 
-<h1 id="formTitle">Create New Model</h1>
-
 <form id="modelForm">
     <div class="form-group">
         <label for="product">Product *</label>
@@ -878,6 +876,7 @@
                                         <div class="hover-text">original</div>
                                     </a>
                                 </div>
+                                <p>${image["filename"]}</p>
                                 <input type="radio" name="is_cover" value="${image.id}" ${image.is_cover === true ? 'checked' : ''}>
                                 <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}" data-file-index="${index}">Remove</button>
                             </div>
