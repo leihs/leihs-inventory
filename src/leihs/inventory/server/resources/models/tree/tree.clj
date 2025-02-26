@@ -6,10 +6,6 @@
    [leihs.inventory.server.resources.models.tree.shared :refer [base-query sql-add-metadata]]
    [next.jdbc.sql :as jdbc]))
 
-(defn pr [fnc]
-  (println ">oo> query >>> " fnc)
-  fnc)
-
 (defn roots
   [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]
   (-> base-query
@@ -22,7 +18,6 @@
              (sql/from :model_group_links)
              (sql/where [:= :model_group_links.child_id :model_groups.id]))]])
       sql-format
-      pr
       (->> (jdbc/query tx))))
 
 (defn tree [tx & {:keys [with-metadata exclude] :or {with-metadata false}}]

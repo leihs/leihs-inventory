@@ -1123,6 +1123,26 @@
   environment_variables:
     FEATURE_NAME: "Inventory API Endpoints - Compatible Models when fetching compatible models for an inventory pool GET /inventory/models-compatibles 02"
     FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:2]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:1:1:3]':
+  name: "Inventory API Endpoints - Compatible Models when fetching compatible models for an inventory pool GET /inventory/models-compatibles 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Compatible Models when fetching compatible models for an inventory pool GET /inventory/models-compatibles 03"
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:1:1:3]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:2:1]':
+  name: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 01"
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:2:1]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:2:2]':
+  name: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 02"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 02"
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:2:2]'
+'./spec/features/api/models/models_compatibles_spec.rb[1:2:3]':
+  name: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 03"
+  environment_variables:
+    FEATURE_NAME: "Inventory API Endpoints - Compatible Models when fetching specific compatible models 03"
+    FEATURE: './spec/features/api/models/models_compatibles_spec.rb[1:2:3]'
 './spec/features/api/models/models_entitlements_spec.rb[1:1:1:1]':
   name: "Inventory API Endpoints - Entitlements when fetching entitlements for a specific model in an inventory pool GET /inventory/models/:id/entitlements for a model with entitlements 01"
   environment_variables:

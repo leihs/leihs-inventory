@@ -56,7 +56,7 @@
           merged-data (merge multipart2 multipart2b)]
       (remove-empty-or-nil merged-data))
     (catch Exception e
-      (println ">o> EXCEPTION-DETAIL:: " e))))
+      (println ">> EXCEPTION-DETAIL:: " e))))
 
 (defn create-license-handler-by-pool-form [request]
   (let [validation-result (atom [])

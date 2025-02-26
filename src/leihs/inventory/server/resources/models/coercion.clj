@@ -92,7 +92,8 @@
 
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
-(sa/def ::product (sa/nilable string?))
+(sa/def :nil/product (sa/nilable string?))
+(sa/def ::product string?)
 (sa/def ::item_version (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
@@ -119,6 +120,8 @@
 
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
+(sa/def ::cover_image_id (sa/nilable uuid?))
+(sa/def ::cover_image_url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
 (sa/def ::id-or-nil (sa/nilable uuid?))
@@ -136,8 +139,12 @@
                                      :str string?)
                       :none nil?))
 
-(sa/def ::compatible (sa/keys :opt-un [::delete]
-                              :req-un [:nil/id :nil/product]))
+(sa/def :nil/compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+                                 :req-un [:nil/id :nil/product]))
+
+(sa/def ::compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+                              :req-un [::id ::product]))
+
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
@@ -467,7 +474,7 @@
                                     :model/type
                                     :nil/hand_over_note
                                     :nil/internal_description
-                                    ::product
+                                    :nil/product
                                     ::categories
                                     ::id
                                     ;FIXME: nil values?
@@ -481,7 +488,7 @@
                                     :model/type
                                     :nil/hand_over_note
                                     :nil/internal_description
-                                    ::product
+                                    :nil/product
                                     ::id
 
                                     ::manufacturer
@@ -706,9 +713,8 @@
 (sa/def :nil/cover_image_id (sa/nilable any?))
 
 (sa/def ::updated_at any?)
-(sa/def ::product string?)
 (sa/def ::id uuid?) ;; UUID spec
-(sa/def :image/id uuid?)
+(sa/def :image/id any?)
 (sa/def :image/is_cover (sa/nilable boolean?))
 (sa/def :image/filename (sa/nilable string?))
 (sa/def :image/content_type (sa/nilable string?))

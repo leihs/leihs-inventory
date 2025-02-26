@@ -14,6 +14,8 @@ def create_models(count = 3)
   @models = count.times.map do
     FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
   end
+  add_image_to_model(@models.first)
+  @models
 end
 
 def create_and_add_items_to_all_existing_models(inventory_pool)
@@ -108,6 +110,10 @@ shared_context :setup_models_api do |role = "inventory_manager"|
 
     @models = create_models
     create_and_add_items_to_models(@inventory_pool, [@models.first])
+
+    model = @models.first
+    image = add_image_to_model(model)
+    update_cover_image(model, image)
   end
 
   include_context :setup_accessory_entitlements
@@ -125,6 +131,16 @@ shared_context :generate_session_header do
   end
 end
 
+def add_image_to_model(model)
+  image = FactoryBot.create(:image, :for_leihs_model)
+  model.add_image(image)
+  image
+end
+
+def update_cover_image(model, image)
+  model.update(cover_image_id: image.id)
+end
+
 shared_context :setup_models_api_model do |role = "inventory_manager"|
   include_context :setup_models_api, role
 
@@ -137,6 +153,9 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model1)
 
+    image = add_image_to_model(compatible_model1)
+    update_cover_image(compatible_model1, image)
+
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -146,6 +165,9 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     @models << model
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model3)
+
+    image = add_image_to_model(compatible_model3)
+    update_cover_image(compatible_model3, image)
 
     @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]

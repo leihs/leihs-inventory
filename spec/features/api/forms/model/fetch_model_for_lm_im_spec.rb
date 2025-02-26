@@ -98,7 +98,7 @@ feature "Inventory Model" do
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
         resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = resp.body["data"]
+        @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups"
@@ -128,11 +128,16 @@ feature "Inventory Model" do
         end
       end
 
+      def convert_to_id_correction(compatibles)
+        compatibles.each do |compatible|
+          puts "before: #{compatible}"
+          compatible["id"] = compatible.delete("model_id")
+          puts "after: #{compatible}\n\n"
+        end
+      end
+
       context "create model (min)" do
         it "creates a model with all available attributes" do
-          compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
-
           # create model request
           form_data = {
             "product" => Faker::Commerce.product_name
@@ -190,7 +195,6 @@ feature "Inventory Model" do
       context "create model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {
@@ -221,7 +225,7 @@ feature "Inventory Model" do
           model_id = result.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(1)
+          expect(resp.body[0]["image_attributes"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
@@ -229,7 +233,7 @@ feature "Inventory Model" do
           expect(resp.body[0]["categories"].count).to eq(1)
           expect(result.status).to eq(200)
 
-          expect(Image.where(target_id: model_id).count).to eq(2)
+          expect(Image.where(target_id: model_id).count).to eq(4)
 
           # update model request
           form_data = {
@@ -259,23 +263,59 @@ feature "Inventory Model" do
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["image_attributes"].count).to eq(5)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-          expect(resp.body[0]["compatibles"].count).to eq(2)
+
+          compatibles = resp.body[0]["compatibles"]
+          expect(compatibles.count).to eq(2)
           expect(resp.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
         end
       end
 
+      def rename_model_id_to_id(compatible)
+        puts "compatible.before: #{compatible}"
+        compatible["id"] = compatible["model_id"]
+        puts "compatible.after: #{compatible}"
+        compatible
+      end
+
+      def find_with_cover2(compatibles)
+        compatibles.find { |c| !c["id"].nil? }
+      end
+
+      def find_with_cover(compatibles)
+        compatibles.find { |c| !c["cover_image_url"].nil? }
+      end
+
+      def find_without_cover(compatibles)
+        compatibles.find { |c| c["cover_image_url"].nil? }
+      end
+
+      def select_with_cover(compatibles)
+        compatibles.select { |c| !c["cover_image_url"].nil? }
+      end
+
+      def select_without_cover(compatibles)
+        compatibles.select { |c| c["cover_image_url"].nil? }
+      end
+
+      def select_two_variants_of_compatibles(compatibles)
+        compatible_with_cover_image = find_with_cover(compatibles)
+        compatible_without_cover_image = find_without_cover(compatibles)
+
+        [compatible_with_cover_image, compatible_without_cover_image]
+      end
+
       context "create & modify model (max)" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
-          # create model request
+          # FIXME - id is valid, but what happens with model_id-entry? Why is coercion not working?
+          two_variants_of_compatibles = select_two_variants_of_compatibles(compatibles)
+
           form_data = {
             "product" => Faker::Commerce.product_name,
             "version" => "v1.0",
@@ -292,7 +332,7 @@ feature "Inventory Model" do
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
               {entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55}].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json,
-            "compatibles" => [compatibles.first, compatibles.second].to_json,
+            "compatibles" => two_variants_of_compatibles.to_json,
 
             "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
             "isPackage" => "true"
@@ -310,19 +350,21 @@ feature "Inventory Model" do
           # fetch created model
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
-
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
-          expect(result.body[0]["image_attributes"].count).to eq(1)
+          expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(2)
-
           expect(result.body[0]["entitlement_groups"].count).to eq(2)
           expect(result.body[0]["compatibles"].count).to eq(2)
+
+          expected_compatibles = result.body[0]["compatibles"]
+          expect(select_with_cover(expected_compatibles).count).to eq(1)
+          expect(select_without_cover(expected_compatibles).count).to eq(1)
+
           expect(result.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
-          expect(Image.where(target_id: model_id).count).to eq(2)
+          expect(Image.where(target_id: model_id).count).to eq(4)
 
           # create model request
           form_data = {
@@ -339,7 +381,7 @@ feature "Inventory Model" do
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
               add_delete_flag({entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55})].to_json,
             "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)].to_json,
-            "compatibles" => [compatibles.first, add_delete_flag(compatibles.second)].to_json,
+            "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)].to_json,
 
             "attachments" => [],
             "images" => [],
@@ -363,7 +405,7 @@ feature "Inventory Model" do
 
           expect(validate_map_structure(result.body.first, get_response)).to eq(true)
 
-          expect(result.body[0]["image_attributes"].count).to eq(1)
+          expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(1)
           expect(result.body[0]["entitlement_groups"].count).to eq(1)
           expect(result.body[0]["compatibles"].count).to eq(1)

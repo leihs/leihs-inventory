@@ -8,17 +8,12 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
+                                                                      create-images-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
-   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
-                                                           file-to-base64 base-filename process-attachments]]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
-                                                            entitlements-query item-query
-                                                            model-links-query properties-query]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
+                                                           parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :refer [bad-request response status]]
@@ -31,7 +26,8 @@
 (defn prepare-model-data
   [data]
   (let [normalize-data (normalize-model-data data)
-        created-ts (LocalDateTime/now)]
+        created-ts (LocalDateTime/now)
+        normalize-data (dissoc normalize-data :id)]
     (assoc normalize-data
            :type "Model"
            :created_at created-ts
@@ -55,6 +51,8 @@
   {:data data
    :validation validation})
 
+;; TODO: use or remove if decision has been made regarding who(FE or BE) is responsible for thumbnail-creation
+;; Following code expects that FE passes image & thumbnail
 (defn process-images [tx images model-id validation-result]
   (let [image-groups (group-by #(base-filename (:filename %)) images)
         CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
@@ -167,9 +165,9 @@
         categories (parse-json-array request :categories)
         compatibles (parse-json-array request :compatibles)
         attachments (normalize-files request :attachments)
-        images (normalize-files request :images)
         properties (parse-json-array request :properties)
-        image-attributes (parse-json-array request :image_attributes)
+        {:keys [images image-attributes new-images-attr existing-images-attr]}
+        (create-images-and-prepare-image-attributes request)
         accessories (parse-json-array request :accessories)
         entitlements (parse-json-array request :entitlements)]
 
@@ -179,13 +177,14 @@
                                           (sql/returning :*)
                                           sql-format))
             res (filter-response res [:rental_price])
-            model-id (:id res)]
+            model-id (:id res)
+            {:keys [created-images-attr all-image-attributes]}
+            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
 
         (process-attachments tx attachments "model_id" model-id)
-        (process-images tx images model-id validation-result)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
-        (process-image-attributes tx image-attributes model-id)
+        (process-image-attributes tx all-image-attributes model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)

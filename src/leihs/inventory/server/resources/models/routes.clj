@@ -567,7 +567,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
 
    ["/option"
     {:swagger {:conflicting true
-               :tags ["form / model"] :security []}}
+               :tags ["form / option"] :security []}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
