@@ -9,7 +9,9 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-image-url]]
+
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -53,15 +55,34 @@
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
-          base-query (-> (sql/select-distinct [:m.id :model_id] :m.product)
+          base-query (-> (sql/select-distinct [:m.id :model_id] :m.product
+
+                           ;[[[:raw "CASE
+                           ;            WHEN m.cover_image_id IS NOT NULL
+                           ;            THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
+                           ;            ELSE NULL
+                           ;         END"]]
+                           ; :cover_image_url]
+
+
+                           (create-image-url :cover_image_url)
+
+
+                           :m.cover_image_id
+                           )
                          (sql/from [:models_compatibles :mc])
                          (sql/join [:models :m] [:= :mc.model_id :m.id])
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                         (cond-> model_id (sql/where [:= :m.id model_id]))
-                         (sql/order-by [:m.product :asc]))]
-      (if model_id
-        (response (jdbc/execute! tx (-> base-query sql-format))))
-      (let [{:keys [page size]} (fetch-pagination-params request)]
+                       (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
+
+                       (cond-> model_id (sql/where [:= :m.id model_id]))
+                         (sql/order-by [:m.product :asc]))
+
+          {:keys [page size]} (fetch-pagination-params-raw request)
+          p (println ">o> abc.pagi" page size)
+          ]
+      (if (or model_id (and (nil? page) (nil? size) ))
+        (response (jdbc/execute! tx (-> base-query sql-format)))
         (response (create-paginated-response base-query tx size page))))
     (catch Exception e
       (error "Failed to get models-compatible" e)

@@ -56,13 +56,39 @@
                   sql-format)]
     (jdbc/execute! tx query)))
 
+
+(defn create-image-url [col-name-keyword]
+  [[[:raw "CASE
+                                       WHEN m.cover_image_id IS NOT NULL
+                                       THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
+                                       ELSE NULL
+                                    END"]]
+   col-name-keyword]
+  )
+
 (defn fetch-compatibles [tx model-id]
-  (let [query (-> (sql/select :mm.id :mm.product)
+  (let [query (-> (sql/select :mm.id :mm.product
+                    ;[[[:raw "CASE
+                    ;                   WHEN m.cover_image_id IS NOT NULL
+                    ;                   THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
+                    ;                   ELSE NULL
+                    ;                END"]]
+                    ; :cover_image_url]
+
+
+                    (create-image-url :cover_image_url)
+                    :m.cover_image_id
+                    )
                   (sql/from [:models_compatibles :mc])
                   (sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
+                  (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
+
                   (sql/where [:= :mc.model_id model-id])
-                  sql-format)]
+                  sql-format)
+
+        p (println ">o> abc.query" query)
+        ]
     (jdbc/execute! tx query)))
 
 (defn fetch-properties [tx model-id]
