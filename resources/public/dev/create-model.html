@@ -423,13 +423,15 @@
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
 
+            debugger
             fileItems.each(function() {
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
+                let image_id= $(this).find('input[name="is_cover"]').attr("image_id")
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
                 let toDelete = imagesToDelete.includes(fileId);
 
                 imagesData.push({
-                    id: fileId,
+                    id: fileId||image_id,
                     is_cover: isCover,
                     to_delete: toDelete
                 });
@@ -502,10 +504,10 @@
                     const select = document.getElementById(selectId);
                     select.innerHTML = '<option value="">Select an option</option>';
 
-                    // Adjust data for `compatibles`
-                    if (selectId === 'compatibles') {
-                        data = data.data;
-                    }
+                    // // Adjust data for `compatibles`
+                    // if (selectId === 'compatibles') {
+                    //     data = data.data;
+                    // }
 
                     data.forEach(item => {
                         var option = document.createElement('option');
@@ -982,7 +984,7 @@
             console.log(">> updateFileList2 > ", listSelector);
 
             if (input.files && input.files.length > 0) {
-                for (var i = 0; i < input.files.length; i++) {
+                for (var i = 0, image_id=1; i < input.files.length; i++, image_id++) {
                     var file = input.files[i];
                     var fileName = file.name;
                     var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
@@ -990,13 +992,26 @@
 
 
                     // Create a file item container
-                    var fileItem = $(`
+                    var fileItem
+                    if(listSelector === "#imagesList"){
+                     fileItem = $(`
+                        <div class="file-item">
+                            <span>${fileName}</span>
+                            <button type="button" ftpye="${inputId}" image_id="${image_id}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                            <input type="radio" name="is_cover" image_id="${image_id}">
+                            <canvas id="canvas-${inputId}-${i}" image_id="${image_id}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+                        </div>
+                    `);
+
+                    }else{
+                     fileItem = $(`
                         <div class="file-item">
                             <span>${fileName}</span>
                             <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
                             <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
                         </div>
                     `);
+                    }
 
                     fileList.append(fileItem);
                     fileItem.find("canvas").data("file", file)
@@ -1250,22 +1265,23 @@
             // Create image-thumbnail from canvas
             var config = FNC_CONFIG(poolId, modelId);
             let canvasPromises = [];
-            $("#imagesList").find("canvas").each(function (index, canvas) {
-                const promise = new Promise((resolve, reject) => {
-                    canvas.toBlob(function (blob) {
-                        if (blob) {
-                            const fileInfo = $(canvas).data("file");
-                            const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
-
-                            console.log(">>> Canvas processed to file: ", file);
-                            resolve(file);
-                        } else {
-                            reject(new Error("Blob creation failed for canvas."));
-                        }
-                    }, 'image/jpeg');
-                });
-                canvasPromises.push(promise);
-            });
+            // TODO: avoid thumbnail upload
+            // $("#imagesList").find("canvas").each(function (index, canvas) {
+            //     const promise = new Promise((resolve, reject) => {
+            //         canvas.toBlob(function (blob) {
+            //             if (blob) {
+            //                 const fileInfo = $(canvas).data("file");
+            //                 const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
+            //
+            //                 console.log(">>> Canvas processed to file: ", file);
+            //                 resolve(file);
+            //             } else {
+            //                 reject(new Error("Blob creation failed for canvas."));
+            //             }
+            //         }, 'image/jpeg');
+            //     });
+            //     canvasPromises.push(promise);
+            // });
 
             Promise.all(canvasPromises)
                 .then(files => {
