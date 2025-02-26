@@ -12,9 +12,10 @@
 
 (defui main [{:keys [control form props]}]
   (let [[files set-files!] (uix.core/use-state nil)
+        [img-attributes set-img-attributes!] (uix.core/use-state nil)
         [error set-error!] (uix.core/use-state nil)
         set-value (aget form "setValue")
-        handle-drop (fn [files rejections event]
+        handle-drop (fn [files rejections _event]
                       (if (seq rejections)
                         (set-error! (str "Error Uploading Files"))
                         (set-files!
@@ -49,7 +50,7 @@
           ($ DropzoneArea (merge
                            {:multiple (:multiple props)
                             :filetypes (:filetypes props)
-                            :onDrop (fn [files rej ev] (handle-drop files rej ev))}))
+                            :onDrop handle-drop}))
 
           (when error ($ :span {:className "text-xs text-red-600 mt-3"} error))
 

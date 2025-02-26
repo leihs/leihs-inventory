@@ -17,8 +17,37 @@
    [uix.dom]))
 
 (defn on-submit [data event]
-  (.. event (preventDefault))
-  (js/console.debug "is valid: " data))
+  (let [form-data (js/FormData.)]
+    (.. event (preventDefault))
+    (js/console.debug "is valid " data)
+
+    (doseq [[k v] (js/Object.entries data)]
+      (cond
+        ;; add images as binary data
+        (= k "images")
+        (if (js/Array.isArray v)
+          (doseq [v v]
+            (.. form-data (append "images" v)))
+          (.. form-data (append "images" v)))
+
+        ;; add attachments as binary data
+        (= k "attachments")
+        (if (js/Array.isArray v)
+          (doseq [v v]
+            (.. form-data (append "attachments" v)))
+          (.. form-data (append "attachments" v)))
+
+        ;; add fields as text data
+        :else (.. form-data (append k v))))
+
+    #_(js/fetch "http://localhost:5002/api/sample"
+                (cj {:method "POST"
+                     :body form-data}))
+
+    (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+              (cj {:method "POST"
+                   :headers {"Accept" "application/json"}
+                   :body form-data}))))
 
 (defn- on-invalid [data event]
   (js/console.debug "is invalid: " data))
@@ -42,8 +71,17 @@
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
                            :defaultValues {:product ""
-                                           :is_package false
-                                           :version ""}}))
+                                           :isPackage false
+                                           :manufacturer ""
+                                           :description ""
+                                           :internalDescription ""
+                                           :technicalDetails ""
+                                           :handOverNote ""
+                                           :version ""
+                                           :categories []
+                                           :entitlements []
+                                           :properties []
+                                           :accessories []}}))
         params (router/useParams)
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))

@@ -1,29 +1,12 @@
 import { z } from "zod"
 
-const image = z.object({
-  name: z.string(),
-  size: z.number().max(5 * 1024 * 1024, "File size should not exceed 5MB"), // Example: max 5MB
-  type: z
-    .string()
-    .regex(/^image\/(jpeg|png)$/, "Only JPEG and PNG files are allowed"),
-  is_cover: z.boolean().default(false),
-})
-
-const attachement = z.object({
-  name: z.string(),
-  size: z.number().max(5 * 1024 * 1024, "File size should not exceed 5MB"), // Example: max 5MB
-  type: z
-    .string()
-    .regex(/^image\/(jpeg|png)$/, "Only JPEG and PNG files are allowed"),
-})
-
 const modelProperties = z.object({
-  name: z.string().min(5, "Eigenschaft muss mindestens 5 Zeichen lang sein"),
-  value: z.string().min(5, "Wert muss mindestens 5 Zeichen lang sein"),
+  key: z.string(),
+  value: z.string(),
 })
 
 export const schema = z.object({
-  is_package: z.boolean().optional(),
+  isPackage: z.boolean().optional(),
   product: z
     .string()
     .min(5, "Produktname muss mindestens 5 Zeichen lang sein")
@@ -31,9 +14,9 @@ export const schema = z.object({
   version: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
-  technical_detail: z.string().optional(),
-  internal_description: z.string().optional(),
-  hand_over_note: z.string().optional(),
+  technicalDetails: z.string().optional(),
+  internalDescription: z.string().optional(),
+  handOverNote: z.string().optional(),
   entitlements: z
     .array(z.object({ entitlement_group_id: z.string(), quantity: z.string() }))
     .optional(),
@@ -50,8 +33,8 @@ export const schema = z.object({
     )
     .optional(),
   attachments: z.array(z.instanceof(File)).optional(),
-  accessories: z.array(z.object({ accessory: z.string() })).optional(),
-  model_links: z.string().array().optional(),
+  accessories: z.array(z.object({ name: z.string() })).optional(),
+  compatibles: z.array(z.object({ product: z.string() })).optional(),
   properties: z.array(modelProperties).optional(),
 })
 
@@ -60,7 +43,7 @@ export const structure = [
     title: "Produkt",
     blocks: [
       {
-        name: "is_package",
+        name: "isPackage",
         label: "dies ist ein Paket?",
         input: "checkbox",
         props: { defaultChecked: false },
@@ -107,7 +90,7 @@ export const structure = [
         },
       },
       {
-        name: "technical_detail",
+        name: "technicalDetails",
         label: "Technische Details",
         // description: "Geben Sie technische Details an",
         input: "textarea",
@@ -117,7 +100,7 @@ export const structure = [
         },
       },
       {
-        name: "internal_description",
+        name: "internalDescription",
         label: "Interne Beschreibung",
         // description: "Geben Sie eine interne Beschreibung an",
         input: "textarea",
@@ -127,7 +110,7 @@ export const structure = [
         },
       },
       {
-        name: "hand_over_note",
+        name: "handOverNote",
         label: "Übergabevermerk",
         // description: "Geben Sie einen Übergabevermerk an",
         input: "textarea",
@@ -170,7 +153,7 @@ export const structure = [
     title: "Bilder",
     blocks: [
       {
-        name: "image-dropzone",
+        name: "images",
         label: "Bilder",
         // description: "Listen Sie die Bild-URLs auf",
         component: "image-dropzone",
@@ -193,7 +176,6 @@ export const structure = [
         props: {
           multiple: true,
           sortable: false,
-          filetypes: "pdf",
         },
       },
     ],
@@ -202,12 +184,12 @@ export const structure = [
     title: "Zubehör",
     blocks: [
       {
-        name: "accessory-list",
+        name: "accessories",
         component: "accessory-list",
         props: {
           inputs: [
             {
-              name: "accessory",
+              name: "name",
               label: "Artikel",
               // description: "Listen Sie das Zubehör auf",
               component: "input",
@@ -225,7 +207,7 @@ export const structure = [
     title: "Ergänzende Modelle",
     blocks: [
       {
-        name: "model_links",
+        name: "compatibles",
         label: "Modell-Links",
         component: "compatible-models",
         props: {},
@@ -236,12 +218,12 @@ export const structure = [
     title: "Eigenschaften",
     blocks: [
       {
-        name: "model-properties",
+        name: "properties",
         component: "model-properties",
         props: {
           inputs: [
             {
-              name: "name",
+              name: "key",
               label: "Eigenschaft",
               component: "textarea",
               props: {

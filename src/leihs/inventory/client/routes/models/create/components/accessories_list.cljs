@@ -89,7 +89,7 @@
           ($ Button {:type "button"
                      :className ""
                      :variant "outline"
-                     :on-click #(append (cj {:accessory ""}))}
+                     :on-click #(append (cj {:name ""}))}
 
              ($ CirclePlus {:className "p-1"}) "Zubehör hinzufügen")))))
 
