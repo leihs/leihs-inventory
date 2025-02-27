@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-create
+(ns leihs.inventory.server.resources.models.form.model.common
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
@@ -9,7 +9,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
+   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
 
 
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
@@ -415,77 +415,3 @@
                (throw (Exception. (str "No matching image found for: " filename))))))
       image-attributes)))
 
-(defn create-model-handler-by-pool-form [request]
-  (let [validation-result (atom [])
-        p (println ">o> abc.create-model-handler-by-pool-form")
-        created-ts (LocalDateTime/now)
-        tx (:tx request)
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
-        prepared-model-data (-> (prepare-model-data multipart)
-                              (assoc :is_package (str-to-bool (:is_package multipart))))
-        categories (parse-json-array request :categories)
-        compatibles (parse-json-array request :compatibles)
-        attachments (normalize-files request :attachments)
-        properties (parse-json-array request :properties)
-
-        ;; Process persisting of images and updating id
-        images (normalize-files request :images)
-        image-attributes (parse-json-array request :image_attributes)
-        new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
-        existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
-
-        p (println ">o> ?? abc.new-images-attr" (count new-images-attr) new-images-attr)
-        p (println ">o> ?? abc.existing-images-attr" (count existing-images-attr) existing-images-attr)
-
-        p (println ">o> abc.images" images)
-        p (println ">o> abc.image-attributes" image-attributes)
-
-        accessories (parse-json-array request :accessories)
-        entitlements (parse-json-array request :entitlements)]
-
-    (try
-      (let [
-
-            res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                        (sql/values [prepared-model-data])
-                                        (sql/returning :*)
-                                        sql-format))
-            res (filter-response res [:rental_price])
-            model-id (:id res)
-
-            ;; Process persisting of images and updating id
-            created-images-attr (process-persist-images tx images model-id validation-result)
-            created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
-            all-image-attributes (into existing-images-attr created-images-attr)
-            p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
-            p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
-            ]
-
-        (process-attachments tx attachments "model_id" model-id)
-        (process-entitlements tx entitlements model-id)
-        (process-properties tx properties model-id)
-
-        (process-image-attributes tx all-image-attributes model-id)
-
-        (process-accessories tx accessories model-id pool-id)
-        (process-compatibles tx compatibles model-id)
-        (process-categories tx categories model-id pool-id)
-
-        (if res
-          (response (create-validation-response res @validation-result))
-          (bad-request {:error "Failed to create model"})))
-      (catch Exception e
-        (error "Failed to create model" (.getMessage e))
-        (cond
-          (str/includes? (.getMessage e) "unique_model_name_idx")
-          (-> (response {:status "failure"
-                         :message "Model already exists"
-                         :detail {:product (:product prepared-model-data)}})
-            (status 409))
-          (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
-          (-> (response {:status "failure"
-                         :message "Modification of models_compatibles failed"
-                         :detail {:product (:product prepared-model-data)}})
-            (status 409))
-          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
