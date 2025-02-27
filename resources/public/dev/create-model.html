@@ -339,7 +339,6 @@
         <b><label for="images">Bilder</label></b>
         <input type="file" id="images" name="images" multiple accept="image/*">
         <input type="hidden" id="images-to-delete" name="images-to-delete"/>
-<!--        <input type="hidden" id="images_order[]" name="images_order[]"/>-->
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
@@ -421,10 +420,6 @@
             let imagesData = [];
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
-
-
-            // debugger
-
             let rawFiles=$("#images")[0].files
 
             fileItems.each(function(index) { // Add index as parameter
@@ -433,32 +428,22 @@
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
                 let toDelete = imagesToDelete.includes(fileId);
 
-
-
-
                 var data = {
                     // index: index + 1, // 1-based index (change to 'index' for 0-based)
-                    id: fileId || image_id,
+                    // id: fileId || image_id,
+                    id: fileId,
                     is_cover: isCover,
                     to_delete: toDelete,
-                    // checksum: `${index}:${file.name}:${file.size}`
                 }
 
                 if(CONST_IS_CREATE_FORM){
                     let file = rawFiles[index]
-                    data["checksum"]=`${index}:${file.name}:${file.size}`
+                    data["checksum"]=`${file.name}:${file.size}`
+                    delete data["id"]
                 }
 
                 imagesData.push(data);
-                // imagesData.push({
-                //     // index: index + 1, // 1-based index (change to 'index' for 0-based)
-                //     id: fileId || image_id,
-                //     is_cover: isCover,
-                //     to_delete: toDelete,
-                //     checksum: `${index}:${file.name}:${file.size}`
-                // });
             });
-
 
                 imagesToDelete.forEach(fileId => {
                     imagesData.push({
@@ -526,11 +511,6 @@
                 .then(data => {
                     const select = document.getElementById(selectId);
                     select.innerHTML = '<option value="">Select an option</option>';
-
-                    // // Adjust data for `compatibles`
-                    // if (selectId === 'compatibles') {
-                    //     data = data.data;
-                    // }
 
                     data.forEach(item => {
                         var option = document.createElement('option');

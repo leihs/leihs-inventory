@@ -174,7 +174,19 @@
   (.length tempfile))
 
 
-(defn process-images [tx images model-id validation-result]
+(defn update-image-attribute-ids [new-images-attr created-images]
+  (vec (map (fn [image]
+         (let [matching-entry (some #(when (= (:checksum image)
+                                             (str (:filename %) ":" (:size %)))
+                                       %)
+                                created-images)]
+           (if matching-entry
+             (assoc image :id (:id matching-entry))
+             image)))
+    new-images-attr)))
+
+
+(defn process-persist-images [tx images model-id validation-result]
   (reduce
     (fn [acc image]
       (println ">o> Processing image:" (:filename image))
@@ -183,7 +195,8 @@
       (let [
 
             tempfile (:tempfile image)
-            p (println ">o> abc.tmp-file.size?" (get-uploaded-file-size tempfile))
+            filesize (get-uploaded-file-size tempfile)
+            p (println ">o> abc.tmp-file.size?" filesize)
 
             file-content-main (file-to-base64 tempfile)
             main-image-data (-> (set/rename-keys image {:content-type :content_type})
@@ -196,14 +209,14 @@
             ;; Insert main image into the database
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                       (sql/values [main-image-data])
-                                                      (sql/returning :id :filename :thumbnail)
+                                                      (sql/returning :id :filename :thumbnail :size)
                                                       sql-format))
             p (println ">o> main-image-data:" (dissoc main-image-data :content))
             p (println ">o> main-image-result:" main-image-result)
 
-            image-result (assoc main-image-result :size (:size main-image-data))
+            ;image-result (assoc main-image-result :size (:size main-image-data))
 
-            p (println ">o> main-image-result.ab:" image-result)
+            p (println ">o> main-image-result.ab:" main-image-result)
 
 
         ;    ]
@@ -242,15 +255,15 @@
               ;; Insert thumbnail into the database
               thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                        (sql/values [thumbnail-data])
-                                                       (sql/returning :id :filename :thumbnail)
+                                                       (sql/returning :id :filename :thumbnail :size)
                                                        sql-format))
               p (println ">o> abc3")
 
-              p (println ">o> thumbnail-data2:" (dissoc thumbnail-data :content))
+            ;  p (println ">o> thumbnail-data2:" (dissoc thumbnail-data :content))
+            ;
+            ;thumb-result (assoc thumbnail-result :size (:size thumbnail-result))
 
-            thumb-result (assoc thumbnail-result :size (:size thumbnail-result))
-
-            p (println ">o> thumb-result-result.ab:" thumb-result)
+            p (println ">o> thumb-result-result.thumbnail-result:" thumbnail-result)
 
               ]
 
@@ -266,10 +279,10 @@
         ;           })
         ;
         ;
-        (into (or acc []) [{:image main-image-result
-                            :thumbnail thumbnail-result}])
+        ;(into (or acc []) [{:image main-image-result
+        ;                    :thumbnail thumbnail-result}])
 
-        ;(into (or acc []) [image-result thumb-result])
+        (into (or acc []) [main-image-result thumbnail-result])
 
 
 
@@ -409,6 +422,14 @@
         images (normalize-files request :images)
         image-attributes (parse-json-array request :image_attributes)
 
+
+        new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
+        existing-images (vec (filter #(not (contains? % :checksum))          image-attributes))
+
+        p (println ">o> ?? abc.new-images-attr" (count new-images-attr) new-images-attr)
+        p (println ">o> ?? abc.existing-images" (count existing-images) existing-images)
+
+
         images (try (sort-images-by-attributes images image-attributes)
                     (catch Exception e
                       (println ">> No additional image-sorting due missing 'checksum'")
@@ -432,21 +453,27 @@
             res (filter-response res [:rental_price])
             model-id (:id res)
 
-            created-images (process-images tx images model-id validation-result)
+            ;;
+            created-images-attr (process-persist-images tx images model-id validation-result)
+            created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
+            p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
 
 
+            all-image-attributes (into existing-images created-images-attr)
 
-            image-attributes (update-image-attributes image-attributes created-images)
+            p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
 
-            p (println ">o> abc.created-images" created-images)
-            p (println ">o> abc.created-images.image.size" (count created-images))
+            ;image-attributes (update-image-attributes image-attributes created-images)
+
+            ;p (println ">o> ?? abc.created-images" created-images)
+            ;p (println ">o> abc.created-images.image.size" (count created-images))
             ]
 
         (process-attachments tx attachments "model_id" model-id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
 
-        (process-image-attributes tx image-attributes model-id)
+        (process-image-attributes tx all-image-attributes model-id)
 
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
