@@ -27,7 +27,7 @@
         (= k "images")
         (if (js/Array.isArray v)
           (doseq [v v]
-            (.. form-data (append "images" v)))
+            (.. form-data (append (str "images") v)))
           (.. form-data (append "images" v)))
 
         ;; add attachments as binary data
@@ -54,17 +54,26 @@
 
 (defn fetch-entitlement-groups [params]
   (let [path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)]
-    (.. (js/fetch path (cj {:headers {"Accept" "application/json"}}))
+    (.. (js/fetch path
+                  (cj {:headers {"Accept" "application/json"}}))
         (then #(.json %))
         (then #(jc %)))))
 
 (defn fetch-categories []
-  (.. (js/fetch "/inventory/tree" (cj {:headers {"Accept" "application/json"}}))
+  (.. (js/fetch "/inventory/tree"
+                (cj {:headers {"Accept" "application/json"}}))
       (then #(.json %))
       (then #(jc %))))
 
-(defn fetch-models [params]
-  (.. (js/fetch "/inventory/models-compatibles" (cj {:headers {"Accept" "application/json"}}))
+(defn fetch-models []
+  (.. (js/fetch "/inventory/models-compatibles"
+                (cj {:headers {"Accept" "application/json"}}))
+      (then #(.json %))
+      (then #(jc %))))
+
+(defn fetch-manufacturers []
+  (.. (js/fetch "/inventory/manufacturers?type=Model"
+                (cj {:headers {"Accept" "application/json"}}))
       (then #(.json %))
       (then #(jc %))))
 
@@ -89,10 +98,13 @@
                                               :queryFn #(fetch-entitlement-groups params)})))
 
         models (jc (useQuery (cj {:queryKey ["models"]
-                                  :queryFn #(fetch-models params)})))
+                                  :queryFn fetch-models})))
+
+        manufacturers (jc (useQuery (cj {:queryKey ["manufacturers"]
+                                         :queryFn fetch-manufacturers})))
 
         categories (jc (useQuery (cj {:queryKey ["categorories"]
-                                      :queryFn #(fetch-categories)})))]
+                                      :queryFn fetch-categories})))]
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
@@ -108,6 +120,7 @@
       (and (:isSuccess entitlement-groups) (:isSuccess categories))
       ($ (.-Provider state-context) {:value {:models (:data models)
                                              :entitlements (:data entitlement-groups)
+                                             :manufacturers (:data manufacturers)
                                              :categories (:data categories)}}
          ($ :article
             ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}

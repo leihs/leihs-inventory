@@ -51,7 +51,6 @@ export const structure = [
       {
         name: "product",
         label: "Produkt",
-        // description: "Wie soll das Produkt heissen?",
         input: "input",
         props: {
           placeholder: "Produktnamen eingeben",
@@ -61,7 +60,6 @@ export const structure = [
       {
         name: "version",
         label: "Version",
-        // description: "Welche Version hat das Produkt?",
         input: "input",
         props: {
           type: "text",
@@ -70,14 +68,9 @@ export const structure = [
         },
       },
       {
-        name: "manufacturer",
+        name: "manufacturers",
         label: "Hersteller",
-        // description: "Wer ist der Hersteller?",
-        input: "input",
-        props: {
-          placeholder: "Hersteller eingeben",
-          "auto-complete": "off",
-        },
+        component: "manufacturers",
       },
       {
         name: "description",
@@ -94,7 +87,7 @@ export const structure = [
         label: "Technische Details",
         // description: "Geben Sie technische Details an",
         input: "textarea",
-        porps: {
+        props: {
           placeholder: "Technische Details eingeben",
           "auto-complete": "off",
         },

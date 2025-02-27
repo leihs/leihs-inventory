@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.create.components.category-assignment
+(ns leihs.inventory.client.routes.models.components.forms.category-assignment
   (:require
    ["@@/button" :refer [Button]]
    ["@@/command" :refer [Command CommandEmpty CommandInput CommandItem
@@ -82,12 +82,16 @@
                         :ref buttonRef
                         :on-click #(set-open! (not open))
                         :class-name "w-full justify-between"}
-                "Select categories ..."
+                "Select categories"
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
              ($ Command
+                {:filter (fn [value search]
+                           (let [lSearch (str/lower-case search)
+                                 lValue (str/lower-case value)]
+                             (if (str/includes? lValue lSearch) 1 0)))}
                 ($ CommandInput {:placeholder "Search item..."})
                 ($ CommandList
 

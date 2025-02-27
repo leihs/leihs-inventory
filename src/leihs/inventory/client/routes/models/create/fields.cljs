@@ -6,12 +6,13 @@
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
-   [leihs.inventory.client.routes.models.create.components.category-assignment :refer [CategoryAssignment]]
-   [leihs.inventory.client.routes.models.create.components.compatible-models :refer [CompatibleModels]]
-   [leihs.inventory.client.routes.models.create.components.entitlement-allocations :refer [EntitlementAllocations]]
-   [leihs.inventory.client.routes.models.create.components.image-upload :refer [ImageUpload]]
-   [leihs.inventory.client.routes.models.create.components.model-properties :refer [ModelProperties]]
+   [leihs.inventory.client.routes.models.components.forms.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.components.forms.category-assignment :refer [CategoryAssignment]]
+   [leihs.inventory.client.routes.models.components.forms.compatible-models :refer [CompatibleModels]]
+   [leihs.inventory.client.routes.models.components.forms.entitlement-allocations :refer [EntitlementAllocations]]
+   [leihs.inventory.client.routes.models.components.forms.image-upload :refer [ImageUpload]]
+   [leihs.inventory.client.routes.models.components.forms.manufacturer :refer [Manufacturer]]
+   [leihs.inventory.client.routes.models.components.forms.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
 (def fields-map
@@ -47,6 +48,11 @@
     (-> block :component (= "model-properties"))
     ($ ModelProperties {:control control
                         :props (:props block)})
+
+    (-> block :component (= "manufacturers"))
+    ($ Manufacturer {:control control
+                     :form form
+                     :props (:props block)})
 
     (-> block :input (= "checkbox"))
     ($ FormField {:control (cj control)

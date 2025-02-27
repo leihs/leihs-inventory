@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.create.components.entitlement-allocations
+(ns leihs.inventory.client.routes.models.components.forms.entitlement-allocations
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup
                                       CommandInput CommandItem CommandList]]
@@ -8,8 +8,9 @@
    ["@@/input" :refer [Input]]
    ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
-   ["lucide-react" :refer [ChevronsUpDown Trash Check]]
+   ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [$ defui]]
@@ -74,12 +75,16 @@
                         :variant "outline"
                         :role "combobox"
                         :class-name (str "justify-between w-full")}
-                "Select Entitlement Group"
+                "Select entitlement group"
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
              ($ Command
+                {:filter (fn [value search]
+                           (let [lSearch (str/lower-case search)
+                                 lValue (str/lower-case value)]
+                             (if (str/includes? lValue lSearch) 1 0)))}
                 ($ CommandInput {:placeholder "Search entitlement groups"})
                 ($ CommandList
                    ($ CommandEmpty "No Entitlement Group Found")
