@@ -4,14 +4,16 @@
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
+
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
 
+
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
-                                                           parse-json-array process-attachments str-to-bool]]
+                                                           parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
@@ -419,23 +421,19 @@
         attachments (normalize-files request :attachments)
         properties (parse-json-array request :properties)
 
+        ;; Process persisting of images and updating id
         images (normalize-files request :images)
+
+        ;(file-sha256 file)
+        _ (doseq [file images]
+          (println ">o> !!!!!! SHA-256:" (file-sha256 file)))
+
         image-attributes (parse-json-array request :image_attributes)
-
-
         new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
-        existing-images (vec (filter #(not (contains? % :checksum))          image-attributes))
+        existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
 
         p (println ">o> ?? abc.new-images-attr" (count new-images-attr) new-images-attr)
-        p (println ">o> ?? abc.existing-images" (count existing-images) existing-images)
-
-
-        images (try (sort-images-by-attributes images image-attributes)
-                    (catch Exception e
-                      (println ">> No additional image-sorting due missing 'checksum'")
-                      images))
-
-
+        p (println ">o> ?? abc.existing-images-attr" (count existing-images-attr) existing-images-attr)
 
         p (println ">o> abc.images" images)
         p (println ">o> abc.image-attributes" image-attributes)
@@ -453,14 +451,13 @@
             res (filter-response res [:rental_price])
             model-id (:id res)
 
-            ;;
+            ;; Process persisting of images and updating id
             created-images-attr (process-persist-images tx images model-id validation-result)
             created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
             p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
 
 
-            all-image-attributes (into existing-images created-images-attr)
-
+            all-image-attributes (into existing-images-attr created-images-attr)
             p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
 
             ;image-attributes (update-image-attributes image-attributes created-images)

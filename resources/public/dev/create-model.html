@@ -6,6 +6,7 @@
     <title>Create New Model</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
     <script>
         function generateLinks() {
             const poolId = document.getElementById('poolId').value;
@@ -33,6 +34,15 @@
     </script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
+        .limited-text {
+            width: 200px;  /* Set a fixed width */
+            white-space: nowrap;  /* Prevent wrapping */
+            overflow: hidden;  /* Hide overflow text */
+            text-overflow: ellipsis;  /* Show "..." at the end */
+            display: block; /* Ensure it's a block element */
+        }
+
+
         .links {
             padding: 0.5em 1em 1em 1em;
             margin-top: 1em;
@@ -422,10 +432,11 @@
             let fileItems = $('#imagesList .file-item');
             let rawFiles=$("#images")[0].files
 
-            fileItems.each(function(index) { // Add index as parameter
+            fileItems.each( function (index) { // Add index as parameter
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
                 let image_id = $(this).find('input[name="is_cover"]').attr("image_id");
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
+                let hash = $(this).find('#hash').html()
                 let toDelete = imagesToDelete.includes(fileId);
 
                 var data = {
@@ -436,9 +447,15 @@
                     to_delete: toDelete,
                 }
 
-                if(CONST_IS_CREATE_FORM){
+                if (CONST_IS_CREATE_FORM) {
                     let file = rawFiles[index]
-                    data["checksum"]=`${file.name}:${file.size}`
+                    // const hash = await hashFile(file);
+                    // const hash =  hashFileSync(file);
+
+                    data["checksum"] = `${file.name}:${file.size}`
+                    data["sha"] = hash // TODO: create sha by file
+
+                    // debugger
                     delete data["id"]
                 }
 
@@ -979,6 +996,15 @@
             return name + postfix + extension;
         }
 
+
+        async function computeSHA256(file) {
+            const buffer = await file.arrayBuffer(); // Read file as ArrayBuffer
+            const hashBuffer = await crypto.subtle.digest("SHA-256", buffer); // Generate SHA-256
+            return Array.from(new Uint8Array(hashBuffer)) // Convert buffer to hex string
+                .map(b => b.toString(16).padStart(2, "0"))
+                .join("");
+        }
+
         // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
@@ -988,37 +1014,44 @@
             console.log(">> updateFileList2 > ", listSelector);
 
             if (input.files && input.files.length > 0) {
-                for (var i = 0, image_id=1; i < input.files.length; i++, image_id++) {
-                    var file = input.files[i];
-                    var fileName = file.name;
-                    var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
-                    file.nameThumb = fileNameThumb
-
+                for (var i = 0, image_id = 1; i < input.files.length; i++, image_id++) {
+                    let file = input.files[i];
+                    let fileName = file.name;
+                    let fileNameThumb = addPostfixToFilename(fileName, "_thumb");
+                    file.nameThumb = fileNameThumb;
 
                     // Create a file item container
-                    var fileItem
-                    if(listSelector === "#imagesList"){
-                     fileItem = $(`
-                        <div class="file-item">
-                            <span>${fileName}</span>
-                            <button type="button" ftpye="${inputId}" image_id="${image_id}" class="remove-file-btn" data-file-index="${i}">Remove</button>
-                            <input type="radio" name="is_cover" image_id="${image_id}">
-                            <canvas id="canvas-${inputId}-${i}" image_id="${image_id}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
-                        </div>
-                    `);
-
-                    }else{
-                     fileItem = $(`
-                        <div class="file-item">
-                            <span>${fileName}</span>
-                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
-                            <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
-                        </div>
-                    `);
+                    let fileItem;
+                    if (listSelector === "#imagesList") {
+                        fileItem = $(`
+                    <div class="file-item">
+                        <span>${fileName}</span>
+                        <div id="hash" class="sha-hash limited-text">Calculating...</div> <!-- SHA Placeholder -->
+                        <button type="button" ftpye="${inputId}" image_id="${image_id}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        <input type="radio" name="is_cover" image_id="${image_id}">
+                        <canvas id="canvas-${inputId}-${i}" image_id="${image_id}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+                    </div>
+                `);
+                    } else {
+                        fileItem = $(`
+                    <div class="file-item">
+                        <span>${fileName}</span>
+                        <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+                    </div>
+                `);
                     }
 
                     fileList.append(fileItem);
                     fileItem.find("canvas").data("file", file)
+
+                    // Compute and insert SHA hash
+                    computeSHA256(file).then((hash) => {
+                        fileItem.find(".sha-hash").text(hash);
+                    }).catch((err) => {
+                        fileItem.find(".sha-hash").text("Error calculating hash");
+                        console.error("SHA calculation error:", err);
+                    });
 
                     if (file.type.startsWith('image/')) {
                         var reader = new FileReader();
@@ -1240,7 +1273,7 @@
 
 
             // Example usage
-            let imageAttributes = extractImageData();
+            let imageAttributes =  extractImageData();
             console.log(imageAttributes);
             formData.append('image_attributes', JSON.stringify(imageAttributes));
             formData.delete('is_cover');
