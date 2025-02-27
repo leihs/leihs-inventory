@@ -177,9 +177,14 @@
 
 
 (defn update-image-attribute-ids [new-images-attr created-images]
+
+  (println ">o> update-image-attribute-ids.new-images-attr" new-images-attr)
+  (println ">o> update-image-attribute-ids.created-images" created-images)
+
   (vec (map (fn [image]
          (let [matching-entry (some #(when (= (:checksum image)
-                                             (str (:filename %) ":" (:size %)))
+                                             ;(str (:filename %) ":" (:size %)))
+                                             (:checksum %))
                                        %)
                                 created-images)]
            (if matching-entry
@@ -198,7 +203,10 @@
 
             tempfile (:tempfile image)
             filesize (get-uploaded-file-size tempfile)
-            p (println ">o> abc.tmp-file.size?" filesize)
+
+            checksum (file-sha256 image)
+            p (println ">o> !!!?? abc.checksum" checksum)
+            ;p (println ">o> abc.tmp-file.size?" filesize)
 
             file-content-main (file-to-base64 tempfile)
             main-image-data (-> (set/rename-keys image {:content-type :content_type})
@@ -216,7 +224,7 @@
             p (println ">o> main-image-data:" (dissoc main-image-data :content))
             p (println ">o> main-image-result:" main-image-result)
 
-            ;image-result (assoc main-image-result :size (:size main-image-data))
+            main-image-result (assoc main-image-result :checksum checksum)
 
             p (println ">o> main-image-result.ab:" main-image-result)
 
@@ -227,7 +235,7 @@
         ;;; Generate thumbnail content from the main image
         ;(let [
 
-
+            ;; FIXME: creates a fake thumbnail for now (should be created by FE?)
               file-content-thumb (generate-thumbnail file-content-main) ;; Function to create thumbnail from image content
 
               p (println ">o> abc1")
@@ -263,7 +271,7 @@
 
             ;  p (println ">o> thumbnail-data2:" (dissoc thumbnail-data :content))
             ;
-            ;thumb-result (assoc thumbnail-result :size (:size thumbnail-result))
+            ;thumbnail-result (assoc thumbnail-result :checksum (:size thumbnail-result))
 
             p (println ">o> thumb-result-result.thumbnail-result:" thumbnail-result)
 

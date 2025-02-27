@@ -348,7 +348,7 @@
     <div class="form-group">
         <b><label for="images">Bilder</label></b>
         <input type="file" id="images" name="images" multiple accept="image/*">
-        <input type="hidden" id="images-to-delete" name="images-to-delete"/>
+<!--        <input type="hidden" id="images-to-delete" name="images-to-delete"/>-->
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
@@ -440,24 +440,16 @@
                 let toDelete = imagesToDelete.includes(fileId);
 
                 var data = {
-                    // index: index + 1, // 1-based index (change to 'index' for 0-based)
-                    // id: fileId || image_id,
                     id: fileId,
                     is_cover: isCover,
-                    to_delete: toDelete,
+                    to_delete: toDelete
                 }
 
-                if (CONST_IS_CREATE_FORM) {
+                // if (CONST_IS_CREATE_FORM) {
                     let file = rawFiles[index]
-                    // const hash = await hashFile(file);
-                    // const hash =  hashFileSync(file);
-
-                    data["checksum"] = `${file.name}:${file.size}`
-                    data["sha"] = hash // TODO: create sha by file
-
-                    // debugger
-                    delete data["id"]
-                }
+                    data["checksum"] = hash // TODO: create sha by file
+                    // delete data["id"]
+                // }
 
                 imagesData.push(data);
             });
@@ -856,6 +848,7 @@
                     }
                     ;
 
+                    
                     // Populate existing images
                     $('#imagesList').empty();
                     response.image_attributes.forEach(function (image, index) {
@@ -1008,7 +1001,7 @@
         // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
-            fileList.empty();
+            // fileList.empty();
 
             console.log(">> updateFileList1 > ", input.files);
             console.log(">> updateFileList2 > ", listSelector);
@@ -1135,6 +1128,7 @@
             $('#modelForm')[0].reset();
             $('#propertiesList').empty();
             $('#accessoriesList').empty();
+            
             $('#imagesList').empty();
             $('#attachmentsList').empty();
             $('#images-to-delete').empty();
@@ -1323,9 +1317,9 @@
             Promise.all(canvasPromises)
                 .then(files => {
                     // var index=1
-                    // debugger
+                    // 
                     // files.forEach(file => {
-                    //     debugger
+                    //     
                     //     // Add image-thumbnails
                     //     formData.append('images', file);
                     //     formData.append('images_order[]', index);
