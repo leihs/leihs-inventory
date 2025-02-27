@@ -238,15 +238,13 @@
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
-
-            ;; Process persisting of images and updating id
+;; Process persisting of images and updating id
             images (normalize-files request :images)
             image-attributes (parse-json-array request :image_attributes)
-            new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
-            existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
+            new-images-attr (vec (filter #(contains? % :checksum) image-attributes))
+            existing-images-attr (vec (filter #(not (contains? % :checksum)) image-attributes))
 
-
-            ;;; TODO: revise to use images-attributes that contains delete flag
+;;; TODO: revise to use images-attributes that contains delete flag
             ;images (normalize-files request :images)
             ;images-to-delete (parse-json-array request :images-to-delete)
             ;image-attributes (parse-json-array request :image_attributes)
@@ -254,14 +252,12 @@
             accessories (parse-json-array request :accessories)
             entitlements (parse-json-array request :entitlements)
 
-
-            ;; Process persisting of images and updating id
+;; Process persisting of images and updating id
             created-images-attr (process-persist-images tx images model-id validation-result)
             created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
             all-image-attributes (into existing-images-attr created-images-attr)
             p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
-            p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
-            ]
+            p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)]
 
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)

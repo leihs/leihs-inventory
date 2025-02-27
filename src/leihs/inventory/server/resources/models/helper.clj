@@ -9,8 +9,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc])
   (:import (java.security MessageDigest)
-   (java.util Base64))
-  )
+           (java.util Base64)))
 
 (defn str-to-bool
   [s]
@@ -126,7 +125,6 @@
                 parsed-vector)
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
-
 
 (defn file-sha256 [file]
   (let [actual-file (if (instance? java.io.File file)

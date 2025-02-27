@@ -221,7 +221,6 @@ feature "Inventory Model" do
           model_id = result.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          binding.pry
           expect(resp.body[0]["image_attributes"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
 
@@ -316,7 +315,6 @@ feature "Inventory Model" do
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
-          binding.pry
           expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(2)
 

@@ -5,12 +5,12 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-image-url]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-image-url]]
 
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -64,24 +64,20 @@
                            ;         END"]]
                            ; :cover_image_url]
 
+                                              (create-image-url :cover_image_url)
 
-                           (create-image-url :cover_image_url)
-
-
-                           :m.cover_image_id
-                           )
+                                              :m.cover_image_id)
                          (sql/from [:models_compatibles :mc])
                          (sql/join [:models :m] [:= :mc.model_id :m.id])
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                       (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
+                         (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
 
-                       (cond-> model_id (sql/where [:= :m.id model_id]))
+                         (cond-> model_id (sql/where [:= :m.id model_id]))
                          (sql/order-by [:m.product :asc]))
 
           {:keys [page size]} (fetch-pagination-params-raw request)
-          p (println ">o> abc.pagi" page size)
-          ]
-      (if (or model_id (and (nil? page) (nil? size) ))
+          p (println ">o> abc.pagi" page size)]
+      (if (or model_id (and (nil? page) (nil? size)))
         (response (jdbc/execute! tx (-> base-query sql-format)))
         (response (create-paginated-response base-query tx size page))))
     (catch Exception e
