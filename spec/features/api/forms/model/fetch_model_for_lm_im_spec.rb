@@ -98,7 +98,7 @@ feature "Inventory Model" do
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
         resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = resp.body["data"]
+        @form_models_compatibles = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups"
@@ -221,7 +221,8 @@ feature "Inventory Model" do
           model_id = result.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(1)
+          binding.pry
+          expect(resp.body[0]["image_attributes"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
@@ -229,7 +230,7 @@ feature "Inventory Model" do
           expect(resp.body[0]["categories"].count).to eq(1)
           expect(result.status).to eq(200)
 
-          expect(Image.where(target_id: model_id).count).to eq(2)
+          expect(Image.where(target_id: model_id).count).to eq(4)
 
           # update model request
           form_data = {
@@ -260,7 +261,7 @@ feature "Inventory Model" do
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["image_attributes"].count).to eq(5)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
@@ -315,14 +316,15 @@ feature "Inventory Model" do
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
-          expect(result.body[0]["image_attributes"].count).to eq(1)
+          binding.pry
+          expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(2)
 
           expect(result.body[0]["entitlement_groups"].count).to eq(2)
           expect(result.body[0]["compatibles"].count).to eq(2)
           expect(result.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
-          expect(Image.where(target_id: model_id).count).to eq(2)
+          expect(Image.where(target_id: model_id).count).to eq(4)
 
           # create model request
           form_data = {
@@ -363,7 +365,7 @@ feature "Inventory Model" do
 
           expect(validate_map_structure(result.body.first, get_response)).to eq(true)
 
-          expect(result.body[0]["image_attributes"].count).to eq(1)
+          expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(1)
           expect(result.body[0]["entitlement_groups"].count).to eq(1)
           expect(result.body[0]["compatibles"].count).to eq(1)

@@ -24,7 +24,7 @@ feature "Inventory API Endpoints" do
       it "retrieves all compatible models and returns status 200 with no results" do
         resp = client.get "/inventory/models-compatibles"
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(0)
+        expect(resp.body).to eq(0)
       end
 
       it "retrieves paginated results with status 200 and no models" do
