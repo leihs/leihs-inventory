@@ -4,7 +4,6 @@
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
-
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -79,7 +78,7 @@
    []
    images))
 
-(defn create-image-and-prepare-image-attributes [request]
+(defn create-images-and-prepare-image-attributes "Create image-entry and update image-attributes" [request]
   (let [images (normalize-files request :images)
         image-attributes (parse-json-array request :image_attributes)
         new-images-attr (vec (filter #(contains? % :checksum) image-attributes))

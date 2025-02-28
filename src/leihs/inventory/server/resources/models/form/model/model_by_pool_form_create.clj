@@ -9,7 +9,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
-                                                                      create-image-and-prepare-image-attributes]]
+                                                                      create-images-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
@@ -50,6 +50,42 @@
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
+
+;; TODO: use or remove if decision has been made regarding who(FE or BE) is responsible for thumbnail-creation
+;; Following code expects that FE passes image & thumbnail
+(defn process-images [tx images model-id validation-result]
+  (let [image-groups (group-by #(base-filename (:filename %)) images)
+        CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
+    (doseq [[_ entries] image-groups]
+      (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
+        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
+                                   [(second entries) (first entries)]
+                                   [(first entries) (second entries)])
+              file-content-main (file-to-base64 (:tempfile main-image))
+              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
+                                  (dissoc :tempfile)
+                                  (assoc :content file-content-main
+                                         :target_id model-id
+                                         :target_type "Model"
+                                         :thumbnail false))
+              main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                          (sql/values [main-image-data])
+                                                          (sql/returning :*)
+                                                          sql-format))
+              file-content-thumb (file-to-base64 (:tempfile thumb))
+              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
+                                 (dissoc :tempfile)
+                                 (assoc :content file-content-thumb
+                                        :target_id model-id
+                                        :target_type "Model"
+                                        :thumbnail true
+                                        :parent_id (:id main-image-result)))]
+          (jdbc/execute! tx (-> (sql/insert-into :images)
+                                (sql/values [thumbnail-data])
+                                (sql/returning :*)
+                                sql-format)))
+        (swap! validation-result conj {:error "Either image or thumbnail is missing"
+                                       :uploaded-file (:filename (first entries))})))))
 
 (defn process-entitlements [tx entitlements model-id]
   (doseq [entry entitlements]
@@ -130,7 +166,8 @@
         compatibles (parse-json-array request :compatibles)
         attachments (normalize-files request :attachments)
         properties (parse-json-array request :properties)
-        {:keys [images image-attributes new-images-attr existing-images-attr]} (create-image-and-prepare-image-attributes request)
+        {:keys [images image-attributes new-images-attr existing-images-attr]}
+        (create-images-and-prepare-image-attributes request)
         accessories (parse-json-array request :accessories)
         entitlements (parse-json-array request :entitlements)]
 
@@ -141,7 +178,8 @@
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
-            {:keys [created-images-attr all-image-attributes]} (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
+            {:keys [created-images-attr all-image-attributes]}
+            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
 
         (process-attachments tx attachments "model_id" model-id)
         (process-entitlements tx entitlements model-id)

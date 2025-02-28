@@ -429,7 +429,6 @@
             let imagesData = [];
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
-            let rawFiles = $("#images")[0].files
 
             fileItems.each(function (index) {
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
@@ -442,8 +441,6 @@
                     is_cover: isCover,
                     to_delete: toDelete
                 }
-
-                let file = rawFiles[index]
                 data["checksum"] = hash // TODO: create sha by file
                 imagesData.push(data);
             });

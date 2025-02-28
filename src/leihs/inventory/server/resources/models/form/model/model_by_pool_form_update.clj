@@ -8,7 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.common :refer [create-image-and-prepare-image-attributes
+   [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
                                                                       prepare-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
@@ -64,7 +64,7 @@
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
 
-(defn process-image-attributes [tx image-attributes model-id]
+(defn process-image-attributes "Process update/delete of images by image-attributes" [tx image-attributes model-id]
   (let [images-to-delete (map :id (filter :to_delete image-attributes))
         images-to-update (remove #(or (:to_delete %) (not (:is_cover %))) image-attributes)]
     (doseq [id images-to-delete]
@@ -218,7 +218,7 @@
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
             {:keys [images image-attributes new-images-attr existing-images-attr]}
-            (create-image-and-prepare-image-attributes request)
+            (create-images-and-prepare-image-attributes request)
 
             properties (parse-json-array request :properties)
             accessories (parse-json-array request :accessories)
