@@ -8,8 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.common :refer [    create-image-and-prepare-image-attributes
-                                                                      prepare-image-attributes        ]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [create-image-and-prepare-image-attributes
+                                                                      prepare-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -225,7 +225,7 @@
             entitlements (parse-json-array request :entitlements)
 
             {:keys [created-images-attr all-image-attributes]}
-            (prepare-image-attributes  tx images model-id validation-result new-images-attr existing-images-attr)            ]
+            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
 
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)

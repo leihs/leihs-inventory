@@ -21,19 +21,16 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
-
 (defn update-image-attribute-ids [new-images-attr created-images]
   (vec (map (fn [image]
               (let [matching-entry (some #(when (= (:checksum image)
-                                                  (:checksum %))
+                                                   (:checksum %))
                                             %)
-                                     created-images)]
+                                         created-images)]
                 (if matching-entry
                   (assoc image :id (:id matching-entry))
                   image)))
-         new-images-attr)))
-
-
+            new-images-attr)))
 
 (defn create-image-url [col-name-keyword]
   [[[:raw "CASE
@@ -43,16 +40,13 @@
                                     END"]]
    col-name-keyword])
 
-
 (defn generate-thumbnail [a] a)
 
 (defn add-thumb-to-filename [image-map]
   (update image-map :filename
           (fn [filename]
-            (let [[name ext] (clojure.string/split filename #"\.(?=[^.]+$)")] ;; Split on last dot
+            (let [[name ext] (clojure.string/split filename #"\.(?=[^.]+$)")]
               (str name "_thumb." ext)))))
-
-
 
 (defn process-persist-images [tx images model-id validation-result]
   (reduce
@@ -85,27 +79,20 @@
    []
    images))
 
-
-
-(defn create-image-and-prepare-image-attributes [ request]
-  (let [ images (normalize-files request :images)
+(defn create-image-and-prepare-image-attributes [request]
+  (let [images (normalize-files request :images)
         image-attributes (parse-json-array request :image_attributes)
-        new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
-        existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))   ]
+        new-images-attr (vec (filter #(contains? % :checksum) image-attributes))
+        existing-images-attr (vec (filter #(not (contains? % :checksum)) image-attributes))]
     {:images images
      :image-attributes image-attributes
      :new-images-attr new-images-attr
-     :existing-images-attr existing-images-attr
-     }  )  )
-
+     :existing-images-attr existing-images-attr}))
 
 (defn prepare-image-attributes [tx images model-id validation-result new-images-attr existing-images-attr]
-  (let [ created-images-attr (process-persist-images tx images model-id validation-result)
+  (let [created-images-attr (process-persist-images tx images model-id validation-result)
         created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
 
-        all-image-attributes (into existing-images-attr created-images-attr)
-        p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
-        p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes) ]
-    {       :created-images-attr created-images-attr
-     :all-image-attributes all-image-attributes}
-    ) )
+        all-image-attributes (into existing-images-attr created-images-attr)]
+    {:created-images-attr created-images-attr
+     :all-image-attributes all-image-attributes}))

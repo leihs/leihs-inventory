@@ -5,10 +5,10 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.common :refer [create-image-url]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
-   [leihs.inventory.server.resources.models.form.model.common :refer [     create-image-url       ]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]

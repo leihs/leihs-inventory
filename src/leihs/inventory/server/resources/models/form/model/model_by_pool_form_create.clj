@@ -8,8 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.common :refer [        prepare-image-attributes
-                                                                      create-image-and-prepare-image-attributes     ]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
+                                                                      create-image-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
@@ -50,8 +50,6 @@
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
-
-
 
 (defn process-entitlements [tx entitlements model-id]
   (doseq [entry entitlements]
@@ -143,7 +141,7 @@
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
-            {:keys [created-images-attr all-image-attributes]}   (prepare-image-attributes  tx images model-id validation-result new-images-attr existing-images-attr)]
+            {:keys [created-images-attr all-image-attributes]} (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
 
         (process-attachments tx attachments "model_id" model-id)
         (process-entitlements tx entitlements model-id)
