@@ -51,12 +51,13 @@
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))
 
 (defn get-models-compatible-handler [request]
+  (println ">o> abc.get-models-compatible-handler.x2")
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
           base-query (-> (sql/select-distinct [:m.id :model_id] :m.product
-                                              (create-image-url :cover_image_url)
-                                              :m.cover_image_id)
+                                              (create-image-url :m2 :cover_image_url)
+                                              :m2.cover_image_id)
                          (sql/from [:models_compatibles :mc])
                          (sql/join [:models :m] [:= :mc.model_id :m.id])
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])

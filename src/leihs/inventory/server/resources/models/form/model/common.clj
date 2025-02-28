@@ -31,13 +31,15 @@
                   image)))
             new-images-attr)))
 
-(defn create-image-url [col-name-keyword]
-  [[[:raw "CASE
-                                       WHEN m.cover_image_id IS NOT NULL
-                                       THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
+(defn create-image-url [col-name col-name-keyword]
+  (let [col-name (name col-name)]
+
+    [[[:raw (str "CASE
+                                       WHEN " col-name ".cover_image_id IS NOT NULL
+                                       THEN CONCAT('/inventory/images/', " col-name ".cover_image_id, '/thumbnail')
                                        ELSE NULL
-                                    END"]]
-   col-name-keyword])
+                                    END")]]
+   col-name-keyword]))
 
 (defn generate-thumbnail [a] a)
 

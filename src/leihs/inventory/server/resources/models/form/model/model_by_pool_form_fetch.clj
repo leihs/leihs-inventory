@@ -58,15 +58,21 @@
     (jdbc/execute! tx query)))
 
 (defn fetch-compatibles [tx model-id]
+  (println ">o> abc.fetch-compatibles.x1")
   (let [query (-> (sql/select :mm.id :mm.product
-                              (create-image-url :cover_image_url)
-                              :m.cover_image_id)
+                              (create-image-url :mm :cover_image_url)
+                              :mm.cover_image_id
+                              ;:m.cover_image_id
+                    )
                   (sql/from [:models_compatibles :mc])
                   (sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
-                  (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
+                  (sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
                   (sql/where [:= :mc.model_id model-id])
-                  sql-format)]
+                  sql-format)
+
+        p (println ">o> ??? comp.query" query)
+        ]
     (jdbc/execute! tx query)))
 
 (defn fetch-properties [tx model-id]
@@ -109,6 +115,9 @@
             image-attributes (fetch-image-attributes tx model-id)
             accessories (fetch-accessories tx model-id)
             compatibles (fetch-compatibles tx model-id)
+
+            p (println ">o> abc.???.comp" compatibles)
+
             properties (fetch-properties tx model-id)
             entitlements (fetch-entitlements tx model-id)
             categories (fetch-categories tx model-id)

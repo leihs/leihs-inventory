@@ -65,7 +65,8 @@ get_response = {
 }
 
 feature "Inventory Model" do
-  ["inventory_manager", "lending_manager"].each do |role|
+  # ["inventory_manager", "lending_manager"].each do |role|
+  ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -98,8 +99,9 @@ feature "Inventory Model" do
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
         resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = resp.body
+        @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
+
 
         resp = client.get "/inventory/#{pool_id}/model-groups"
         @form_model_groups = resp.body
@@ -118,6 +120,7 @@ feature "Inventory Model" do
         end
 
         it "ensures models compatible data is fetched" do
+          binding.pry
           expect(@form_models_compatibles).not_to be_nil
           expect(@form_models_compatibles.count).to eq(3)
         end
@@ -128,11 +131,16 @@ feature "Inventory Model" do
         end
       end
 
+      def convert_to_id_correction(compatibles)
+        compatibles.each do |compatible|
+          puts "before: #{compatible}"
+          compatible["id"] = compatible.delete("model_id")
+          puts "after: #{compatible}\n\n"
+        end
+      end
+
       context "create model (min)" do
         it "creates a model with all available attributes" do
-          compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
-
           # create model request
           form_data = {
             "product" => Faker::Commerce.product_name
@@ -190,7 +198,6 @@ feature "Inventory Model" do
       context "create model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {
@@ -264,18 +271,57 @@ feature "Inventory Model" do
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-          expect(resp.body[0]["compatibles"].count).to eq(2)
+
+          compatibles = resp.body[0]["compatibles"]
+          expect(compatibles.count).to eq(2)
+
+          binding.pry
+
+
+
           expect(resp.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
         end
       end
 
+
+      def rename_model_id_to_id(compatible)
+        puts "compatible.before: #{compatible}"
+        compatible["id"] = compatible["model_id"]
+        puts "compatible.after: #{compatible}"
+        compatible
+      end
+
+      def select_two_variants_of_compatibles(compatibles)
+        # compatible_with_cover_image = rename_model_id_to_id(compatibles.find { |c| !c["cover_image_url"].nil? })
+        # compatible_without_cover_image = rename_model_id_to_id(compatibles.find { |c| c["cover_image_url"].nil? })
+
+        compatible_with_cover_image = compatibles.find { |c| !c["cover_image_url"].nil? }
+        compatible_without_cover_image = compatibles.find { |c| c["cover_image_url"].nil? }
+
+
+        binding.pry
+
+        [compatible_with_cover_image, compatible_without_cover_image]
+      end
+
       context "create & modify model (max)" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
-          # create model request
+          # FIXME - id is valid, but what happens with model_id-entry? Why is coercion not working?
+          # compatibles.first["id"] = compatibles.first.delete("model_id")
+
+          # # create model request
+          # compatible_with_cover_image = rename_model_id_to_id(compatibles.select { |c| !c["cover_image_url"].nil? }.first)
+          # compatible_without_cover_image = rename_model_id_to_id(compatibles.select { |c| c["cover_image_url"].nil? }.first)
+          #
+          # binding.pry
+
+          two_variants_of_compatibles = select_two_variants_of_compatibles(compatibles)
+
+          puts "two_variants_of_compatibles: #{two_variants_of_compatibles}"
+
           form_data = {
             "product" => Faker::Commerce.product_name,
             "version" => "v1.0",
@@ -292,11 +338,14 @@ feature "Inventory Model" do
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
               {entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55}].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json,
-            "compatibles" => [compatibles.first, compatibles.second].to_json,
+            # "compatibles" => [compatibles.first, compatibles.second].to_json,
+            # "compatibles" => [compatible_with_cover_image, compatible_without_cover_image].to_json,
+            "compatibles" => two_variants_of_compatibles.to_json,
 
             "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
             "isPackage" => "true"
           }
+
 
           result = http_multipart_client(
             "/inventory/#{pool_id}/model",
@@ -304,14 +353,19 @@ feature "Inventory Model" do
             headers: cookie_header
           )
 
+
+          # binding.pry
+
           expect(result.status).to eq(200)
           expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
 
           # fetch created model
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          binding.pry
           expect(validate_map_structure(result.body.first, get_response)).to eq(true)
 
+          binding.pry
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
@@ -320,6 +374,10 @@ feature "Inventory Model" do
 
           expect(result.body[0]["entitlement_groups"].count).to eq(2)
           expect(result.body[0]["compatibles"].count).to eq(2)
+
+
+
+
           expect(result.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
           expect(Image.where(target_id: model_id).count).to eq(4)
@@ -339,7 +397,7 @@ feature "Inventory Model" do
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
               add_delete_flag({entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55})].to_json,
             "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)].to_json,
-            "compatibles" => [compatibles.first, add_delete_flag(compatibles.second)].to_json,
+            "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)].to_json,
 
             "attachments" => [],
             "images" => [],

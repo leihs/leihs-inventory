@@ -35,11 +35,18 @@
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
+
+
   (let [select-query (-> (sql/select :*)
                          (sql/from table)
                          (sql/where where-values)
                          sql-format)
-        existing-entry (first (jdbc/execute! tx select-query))]
+        existing-entry (first (jdbc/execute! tx select-query))
+
+        _ (if existing-entry
+            (println ">o> create-or-use-existing.1.exits!!      " existing-entry)
+            (println ">o> create-or-use-existing.2.not_exist!!  " existing-entry))
+        ]
     (if existing-entry
       existing-entry
       (jdbc/execute-one! tx (-> (sql/insert-into table)
@@ -127,15 +134,28 @@
                                 {:accessory_id accessory-id
                                  :inventory_pool_id pool-id})))))
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> ?? " str fnc)
+  fnc
+  )
+
 (defn process-compatibles [tx compatibles model-id]
   (doseq [compatible compatibles]
-    (create-or-use-existing tx
+    (println ">o> process-compatibles1.model-id    ->" model-id)
+    (println ">o> process-compatibles2.compatibles ->" compatibles)
+
+    (    pr "process-compatibles.result -> " (create-or-use-existing tx
                             :models_compatibles
                             [:and
                              [:= :model_id model-id]
                              [:= :compatible_id (to-uuid (:id compatible))]]
                             {:model_id model-id
-                             :compatible_id (to-uuid (:id compatible))})))
+                             :compatible_id (to-uuid (:id compatible))}))
+
+
+
+    ))
 
 (defn process-categories [tx categories model-id pool-id]
   (doseq [category categories]
@@ -164,6 +184,9 @@
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
         categories (parse-json-array request :categories)
         compatibles (parse-json-array request :compatibles)
+
+        p (println ">o> abc.compatibles -> " compatibles)
+
         attachments (normalize-files request :attachments)
         properties (parse-json-array request :properties)
         {:keys [images image-attributes new-images-attr existing-images-attr]}
