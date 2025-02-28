@@ -154,6 +154,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
 
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model1)
+
     image = add_image_to_model(compatible_model1)
     update_cover_image(compatible_model1, image)
 
@@ -168,7 +169,6 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_recommend(compatible_model3)
 
-    # add_image_to_model(compatible_model3)
     image = add_image_to_model(compatible_model3)
     update_cover_image(compatible_model3, image)
 
