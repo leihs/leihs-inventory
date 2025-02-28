@@ -8,12 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.common :refer [
-                                                                      ;process-persist-images update-image-attribute-ids
-                                                                      create-image-and-prepare-image-attributes
-                                                                      prepare-image-attributes
-                                                                      ;update-image-attribute-ids
-                                                                      ]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [    create-image-and-prepare-image-attributes
+                                                                      prepare-image-attributes        ]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
                                                            file-to-base64 base-filename process-attachments]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
@@ -67,26 +63,6 @@
     (jdbc/execute! tx (-> (sql/delete-from table)
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
-
-(defn process-image-deletions [tx images-to-delete model-id]
-  (doseq [id images-to-delete]
-    (let [id (to-uuid id)
-          row (jdbc/execute-one! tx (-> (sql/select :*)
-                                        (sql/from :models)
-                                        (sql/where [:= :id model-id])
-                                        sql-format))]
-      (when (= (:cover_image_id row) id)
-        (jdbc/execute! tx (-> (sql/update :models)
-                              (sql/set {:cover_image_id nil})
-                              (sql/where [:= :id model-id])
-                              sql-format)))
-      (jdbc/execute! tx (sql-format {:with [[:ordered_images
-                                             {:select [:id]
-                                              :from [:images]
-                                              :where [:or [:= :parent_id id] [:= :id id]]
-                                              :order-by [[:parent_id :asc]]}]]
-                                     :delete-from :images
-                                     :where [:in :id {:select [:id] :from [:ordered_images]}]})))))
 
 (defn process-image-attributes [tx image-attributes model-id]
   (let [images-to-delete (map :id (filter :to_delete image-attributes))
@@ -241,32 +217,15 @@
             attachments (normalize-files request :attachments)
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
-
-;;; TODO: revise to use images-attributes that contains delete flag
-            ;images (normalize-files request :images)
-            ;images-to-delete (parse-json-array request :images-to-delete)
-            ;image-attributes (parse-json-array request :image_attributes)
-            ;new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
-            ;existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
-
-            {:keys [images image-attributes new-images-attr existing-images-attr]} (create-image-and-prepare-image-attributes request)
-
+            {:keys [images image-attributes new-images-attr existing-images-attr]}
+            (create-image-and-prepare-image-attributes request)
 
             properties (parse-json-array request :properties)
             accessories (parse-json-array request :accessories)
             entitlements (parse-json-array request :entitlements)
 
-
-            ;; Process persisting of images and updating id
-
-            {:keys [created-images-attr all-image-attributes]}   (prepare-image-attributes  tx images model-id validation-result new-images-attr existing-images-attr)
-
-            ;created-images-attr (process-persist-images tx images model-id validation-result)
-            ;created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
-            ;all-image-attributes (into existing-images-attr created-images-attr)
-            p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
-            p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
-            ]
+            {:keys [created-images-attr all-image-attributes]}
+            (prepare-image-attributes  tx images model-id validation-result new-images-attr existing-images-attr)            ]
 
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)

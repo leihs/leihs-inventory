@@ -8,13 +8,7 @@
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
-   [leihs.inventory.server.resources.models.form.model.common :refer [
-                                                                      ;process-persist-images update-image-attribute-ids
-                                                                      ;create-image-and-prepare-image-attributes
-                                                                      ;prepare-image-attributes
-                                                                      create-image-url
-                                                                      ;update-image-attribute-ids
-                                                                      ]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [     create-image-url       ]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -62,14 +56,6 @@
                   (sql/order-by :a.name)
                   sql-format)]
     (jdbc/execute! tx query)))
-
-;(defn create-image-url [col-name-keyword]
-;  [[[:raw "CASE
-;                                       WHEN m.cover_image_id IS NOT NULL
-;                                       THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
-;                                       ELSE NULL
-;                                    END"]]
-;   col-name-keyword])
 
 (defn fetch-compatibles [tx model-id]
   (let [query (-> (sql/select :mm.id :mm.product
