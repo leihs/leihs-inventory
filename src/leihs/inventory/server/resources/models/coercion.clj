@@ -708,11 +708,7 @@
 (sa/def ::updated_at any?)
 (sa/def ::product string?)
 (sa/def ::id uuid?) ;; UUID spec
-;(sa/def :image/id uuid?)
 (sa/def :image/id any?)
-;(sa/def :image/id (sa/or uuid? string?))
-;(s/def :image/id (s/or :uuid uuid? :string string?))
-
 (sa/def :image/is_cover (sa/nilable boolean?))
 (sa/def :image/filename (sa/nilable string?))
 (sa/def :image/content_type (sa/nilable string?))

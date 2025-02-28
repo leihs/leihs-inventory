@@ -4,13 +4,17 @@
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
    [clojure.java.io :as io]
-
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.common :refer [
+                                                                      ;process-persist-images update-image-attribute-ids
+                                                                      prepare-image-attributes
+                                                                      create-image-and-prepare-image-attributes
+                                                                      ;update-image-attribute-ids
+                                                                      ]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
-
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -27,7 +31,6 @@
   [data]
   (let [normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)
-
         normalize-data (dissoc normalize-data :id)]
     (assoc normalize-data
            :type "Model"
@@ -70,11 +73,8 @@
                                          :thumbnail false))
               main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                           (sql/values [main-image-data])
-                                                        ;(sql/returning :*)
                                                           (sql/returning :id :filename :thumbnail)
                                                           sql-format))
-              p (println ">o> abc.img" main-image-result)
-
               file-content-thumb (file-to-base64 (:tempfile thumb))
               thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
                                  (dissoc :tempfile)
@@ -86,11 +86,8 @@
 
               thumbnail-result (jdbc/execute! tx (-> (sql/insert-into :images)
                                                      (sql/values [thumbnail-data])
-                                                   ;(sql/returning :*)
                                                      (sql/returning :id :filename :thumbnail)
-                                                     sql-format))
-
-              p (println ">o> abc.thumb" thumbnail-result)]
+                                                     sql-format))]
 
 ;; TODO: how to gather results and return it
           {:general entries
@@ -162,24 +159,24 @@
             (let [[name ext] (clojure.string/split filename #"\.(?=[^.]+$)")] ;; Split on last dot
               (str name "_thumb." ext)))))
 
-(defn get-uploaded-file-size [tempfile]
-  (.length tempfile))
-
-(defn update-image-attribute-ids [new-images-attr created-images]
-
-  (println ">o> update-image-attribute-ids.new-images-attr" new-images-attr)
-  (println ">o> update-image-attribute-ids.created-images" created-images)
-
-  (vec (map (fn [image]
-              (let [matching-entry (some #(when (= (:checksum image)
-                                             ;(str (:filename %) ":" (:size %)))
-                                                   (:checksum %))
-                                            %)
-                                         created-images)]
-                (if matching-entry
-                  (assoc image :id (:id matching-entry))
-                  image)))
-            new-images-attr)))
+;(defn get-uploaded-file-size [tempfile]
+;  (.length tempfile))
+;
+;(defn update-image-attribute-ids [new-images-attr created-images]
+;
+;  (println ">o> update-image-attribute-ids.new-images-attr" new-images-attr)
+;  (println ">o> update-image-attribute-ids.created-images" created-images)
+;
+;  (vec (map (fn [image]
+;              (let [matching-entry (some #(when (= (:checksum image)
+;                                             ;(str (:filename %) ":" (:size %)))
+;                                                   (:checksum %))
+;                                            %)
+;                                         created-images)]
+;                (if matching-entry
+;                  (assoc image :id (:id matching-entry))
+;                  image)))
+;            new-images-attr)))
 
 (defn process-persist-images [tx images model-id validation-result]
   (reduce
@@ -188,11 +185,9 @@
 
       ;; Convert main image to base64
      (let [tempfile (:tempfile image)
-           filesize (get-uploaded-file-size tempfile)
 
            checksum (file-sha256 image)
            p (println ">o> !!!?? abc.checksum" checksum)
-            ;p (println ">o> abc.tmp-file.size?" filesize)
 
            file-content-main (file-to-base64 tempfile)
            main-image-data (-> (set/rename-keys image {:content-type :content_type})
@@ -404,11 +399,14 @@
         attachments (normalize-files request :attachments)
         properties (parse-json-array request :properties)
 
-        ;; Process persisting of images and updating id
-        images (normalize-files request :images)
-        image-attributes (parse-json-array request :image_attributes)
-        new-images-attr (vec (filter #(contains? % :checksum) image-attributes))
-        existing-images-attr (vec (filter #(not (contains? % :checksum)) image-attributes))
+        ;;; Process persisting of images and updating id
+        ;images (normalize-files request :images)
+        ;image-attributes (parse-json-array request :image_attributes)
+        ;new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
+        ;existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
+
+        {:keys [images image-attributes new-images-attr existing-images-attr]} (create-image-and-prepare-image-attributes request)
+
 
         p (println ">o> ?? abc.new-images-attr" (count new-images-attr) new-images-attr)
         p (println ">o> ?? abc.existing-images-attr" (count existing-images-attr) existing-images-attr)
@@ -428,9 +426,12 @@
             model-id (:id res)
 
             ;; Process persisting of images and updating id
-            created-images-attr (process-persist-images tx images model-id validation-result)
-            created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
-            all-image-attributes (into existing-images-attr created-images-attr)
+
+            {:keys [created-images-attr all-image-attributes]}   (prepare-image-attributes  tx images model-id validation-result new-images-attr existing-images-attr)
+
+            ;created-images-attr (process-persist-images tx images model-id validation-result)
+            ;created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
+            ;all-image-attributes (into existing-images-attr created-images-attr)
             p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
             p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)]
 

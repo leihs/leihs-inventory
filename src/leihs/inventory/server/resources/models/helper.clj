@@ -138,7 +138,6 @@
             (when (pos? bytes-read)
               (.update digest buffer 0 bytes-read)
               (recur buffer (.read input-stream buffer))))
-          ;; Convert hash bytes to hex string
           (str/join (map #(format "%02x" %) (.digest digest))))))))
 
 (defn normalize-files

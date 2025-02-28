@@ -23,6 +23,60 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
+
+(defn update-image-attribute-ids [new-images-attr created-images]
+
+  (println ">o> update-image-attribute-ids.new-images-attr" new-images-attr)
+  (println ">o> update-image-attribute-ids.created-images" created-images)
+
+  (vec (map (fn [image]
+              (let [matching-entry (some #(when (= (:checksum image)
+                                                  ;(str (:filename %) ":" (:size %)))
+                                                  (:checksum %))
+                                            %)
+                                     created-images)]
+                (if matching-entry
+                  (assoc image :id (:id matching-entry))
+                  image)))
+         new-images-attr)))
+
+(defn process-image-attributes [tx image-attributes model-id]
+  (let [images-to-delete (map :id (filter :to_delete image-attributes))
+        images-to-update (remove #(or (:to_delete %) (not (:is_cover %))) image-attributes)]
+    (doseq [id images-to-delete]
+      (let [id (to-uuid id)
+            row (jdbc/execute-one! tx (-> (sql/select :*)
+                                        (sql/from :models)
+                                        (sql/where [:= :id model-id])
+                                        sql-format))]
+        (when (= (:cover_image_id row) id)
+          (jdbc/execute! tx (-> (sql/update :models)
+                              (sql/set {:cover_image_id nil})
+                              (sql/where [:= :id model-id])
+                              sql-format)))
+        (jdbc/execute! tx (sql-format {:with [[:ordered_images
+                                               {:select [:id]
+                                                :from [:images]
+                                                :where [:or [:= :parent_id id] [:= :id id]]
+                                                :order-by [[:parent_id :asc]]}]]
+                                       :delete-from :images
+                                       :where [:in :id {:select [:id] :from [:ordered_images]}]}))))
+    (doseq [{:keys [id is_cover]} images-to-update]
+      (when is_cover
+        (jdbc/execute! tx (-> (sql/update :models)
+                            (sql/set {:cover_image_id (to-uuid id)})
+                            (sql/where [:= :id model-id])
+                            sql-format))))))
+
+
+(defn create-image-url [col-name-keyword]
+  [[[:raw "CASE
+                                       WHEN m.cover_image_id IS NOT NULL
+                                       THEN CONCAT('/inventory/images/', m.cover_image_id, '/thumbnail')
+                                       ELSE NULL
+                                    END"]]
+   col-name-keyword])
+
 (defn prepare-model-data
   [data]
   (let [normalize-data (normalize-model-data data)
@@ -165,21 +219,6 @@
 (defn get-uploaded-file-size [tempfile]
   (.length tempfile))
 
-(defn update-image-attribute-ids [new-images-attr created-images]
-
-  (println ">o> update-image-attribute-ids.new-images-attr" new-images-attr)
-  (println ">o> update-image-attribute-ids.created-images" created-images)
-
-  (vec (map (fn [image]
-              (let [matching-entry (some #(when (= (:checksum image)
-                                             ;(str (:filename %) ":" (:size %)))
-                                                   (:checksum %))
-                                            %)
-                                         created-images)]
-                (if matching-entry
-                  (assoc image :id (:id matching-entry))
-                  image)))
-            new-images-attr)))
 
 (defn process-persist-images [tx images model-id validation-result]
   (reduce
@@ -389,4 +428,47 @@
                (assoc attr :id new-id) ;; Replace id with the new one
                (throw (Exception. (str "No matching image found for: " filename))))))
          image-attributes)))
+
+
+
+
+(defn create-image-and-prepare-image-attributes [ request]
+  (let [
+        ;; Process persisting of images and updating id
+        images (normalize-files request :images)
+        image-attributes (parse-json-array request :image_attributes)
+        new-images-attr (vec (filter #(contains? % :checksum)          image-attributes))
+        existing-images-attr (vec (filter #(not (contains? % :checksum))          image-attributes))
+        ]
+    {:images images
+     :image-attributes image-attributes
+     :new-images-attr new-images-attr
+     :existing-images-attr existing-images-attr
+     }
+    )
+  )
+
+
+(defn prepare-image-attributes [tx images model-id validation-result new-images-attr existing-images-attr]
+
+  (let [
+
+        ;; Process persisting of images and updating id
+        ;created-images-attr (-> (process-persist-images tx images model-id validation-result)
+        ;      (update-image-attribute-ids new-images-attr created-images-attr))
+
+        created-images-attr (process-persist-images tx images model-id validation-result)
+        created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
+
+        all-image-attributes (into existing-images-attr created-images-attr)
+        p (println ">o> ?? abc.created-images-attr" (count created-images-attr) created-images-attr)
+        p (println ">o> ?? abc.all-image-attributes" (count all-image-attributes) all-image-attributes)
+        ]
+    {       :created-images-attr created-images-attr
+     :all-image-attributes all-image-attributes}
+    )
+
+
+  )
+
 
