@@ -291,12 +291,24 @@ feature "Inventory Model" do
       end
 
 
+      def find_with_cover2(compatibles)
+        compatibles.find { |c| !c["id"].nil? }
+      end
+
       def find_with_cover(compatibles)
         compatibles.find { |c| !c["cover_image_url"].nil? }
         end
 
       def find_without_cover(compatibles)
         compatibles.find { |c| c["cover_image_url"].nil? }
+      end
+
+      def select_with_cover(compatibles)
+        compatibles.select { |c| !c["cover_image_url"].nil? }
+        end
+
+      def select_without_cover(compatibles)
+        compatibles.select { |c| c["cover_image_url"].nil? }
       end
 
       def select_two_variants_of_compatibles(compatibles)
@@ -388,8 +400,9 @@ feature "Inventory Model" do
 
           expected_compatibles = result.body[0]["compatibles"]
           # compatible_with_cover_image = find_with_cover(compatibles).count
-          expect(find_with_cover(expected_compatibles).count).to eq(1)
-          expect(find_without_cover(expected_compatibles).count).to eq(1)
+          # binding.pry
+          expect(select_with_cover(expected_compatibles).count).to eq(1)
+          expect(select_without_cover(expected_compatibles).count).to eq(1)
 
 
           expect(result.body[0]["categories"].count).to eq(2)
