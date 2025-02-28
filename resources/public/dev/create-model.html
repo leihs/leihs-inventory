@@ -35,11 +35,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
         .limited-text {
-            width: 200px;  /* Set a fixed width */
-            white-space: nowrap;  /* Prevent wrapping */
-            overflow: hidden;  /* Hide overflow text */
-            text-overflow: ellipsis;  /* Show "..." at the end */
-            display: block; /* Ensure it's a block element */
+            width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
         }
 
         .links {
@@ -429,11 +429,10 @@
             let imagesData = [];
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
-            let rawFiles=$("#images")[0].files
+            let rawFiles = $("#images")[0].files
 
-            fileItems.each( function (index) { // Add index as parameter
+            fileItems.each(function (index) {
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
-                let image_id = $(this).find('input[name="is_cover"]').attr("image_id");
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
                 let hash = $(this).find('#hash').html()
                 let toDelete = imagesToDelete.includes(fileId);
@@ -444,22 +443,18 @@
                     to_delete: toDelete
                 }
 
-                // if (CONST_IS_CREATE_FORM) {
-                    let file = rawFiles[index]
-                    data["checksum"] = hash // TODO: create sha by file
-                    // delete data["id"]
-                // }
-
+                let file = rawFiles[index]
+                data["checksum"] = hash // TODO: create sha by file
                 imagesData.push(data);
             });
 
-                imagesToDelete.forEach(fileId => {
-                    imagesData.push({
-                        id: fileId,
-                        is_cover: false,
-                        to_delete: true
-                    });
+            imagesToDelete.forEach(fileId => {
+                imagesData.push({
+                    id: fileId,
+                    is_cover: false,
+                    to_delete: true
                 });
+            });
             return imagesData;
         }
 
@@ -999,8 +994,6 @@
         // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
-            // fileList.empty();
-
             console.log(">> updateFileList1 > ", input.files);
             console.log(">> updateFileList2 > ", listSelector);
 
@@ -1264,7 +1257,7 @@
 
 
             // Example usage
-            let imageAttributes =  extractImageData();
+            let imageAttributes = extractImageData();
             console.log(imageAttributes);
             formData.append('image_attributes', JSON.stringify(imageAttributes));
             formData.delete('is_cover');
