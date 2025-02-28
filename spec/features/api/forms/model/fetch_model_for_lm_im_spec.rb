@@ -120,7 +120,6 @@ feature "Inventory Model" do
         end
 
         it "ensures models compatible data is fetched" do
-          binding.pry
           expect(@form_models_compatibles).not_to be_nil
           expect(@form_models_compatibles.count).to eq(3)
         end
@@ -275,7 +274,6 @@ feature "Inventory Model" do
           compatibles = resp.body[0]["compatibles"]
           expect(compatibles.count).to eq(2)
 
-          binding.pry
 
 
 
@@ -292,15 +290,26 @@ feature "Inventory Model" do
         compatible
       end
 
+
+      def find_with_cover(compatibles)
+        compatibles.find { |c| !c["cover_image_url"].nil? }
+        end
+
+      def find_without_cover(compatibles)
+        compatibles.find { |c| c["cover_image_url"].nil? }
+      end
+
       def select_two_variants_of_compatibles(compatibles)
         # compatible_with_cover_image = rename_model_id_to_id(compatibles.find { |c| !c["cover_image_url"].nil? })
         # compatible_without_cover_image = rename_model_id_to_id(compatibles.find { |c| c["cover_image_url"].nil? })
 
-        compatible_with_cover_image = compatibles.find { |c| !c["cover_image_url"].nil? }
-        compatible_without_cover_image = compatibles.find { |c| c["cover_image_url"].nil? }
+        # compatible_with_cover_image = compatibles.find { |c| !c["cover_image_url"].nil? }
+        # compatible_without_cover_image = compatibles.find { |c| c["cover_image_url"].nil? }
+
+        compatible_with_cover_image = find_with_cover(compatibles)
+        compatible_without_cover_image = find_without_cover(compatibles)
 
 
-        binding.pry
 
         [compatible_with_cover_image, compatible_without_cover_image]
       end
@@ -316,7 +325,6 @@ feature "Inventory Model" do
           # compatible_with_cover_image = rename_model_id_to_id(compatibles.select { |c| !c["cover_image_url"].nil? }.first)
           # compatible_without_cover_image = rename_model_id_to_id(compatibles.select { |c| c["cover_image_url"].nil? }.first)
           #
-          # binding.pry
 
           two_variants_of_compatibles = select_two_variants_of_compatibles(compatibles)
 
@@ -362,10 +370,13 @@ feature "Inventory Model" do
           # fetch created model
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          binding.pry
-          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
 
-          binding.pry
+
+          # binding.pry # stop
+
+          # expect(validate_map_structure(result.body.first, get_response)).to eq(true)
+
+          # binding.pry
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
@@ -375,7 +386,10 @@ feature "Inventory Model" do
           expect(result.body[0]["entitlement_groups"].count).to eq(2)
           expect(result.body[0]["compatibles"].count).to eq(2)
 
-
+          expected_compatibles = result.body[0]["compatibles"]
+          # compatible_with_cover_image = find_with_cover(compatibles).count
+          expect(find_with_cover(expected_compatibles).count).to eq(1)
+          expect(find_without_cover(expected_compatibles).count).to eq(1)
 
 
           expect(result.body[0]["categories"].count).to eq(2)

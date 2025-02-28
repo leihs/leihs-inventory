@@ -55,7 +55,7 @@
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
-          base-query (-> (sql/select-distinct [:m.id :model_id] :m.product
+          base-query (-> (sql/select-distinct [:m2.id :model_id] :m2.product
                                               (create-image-url :m2 :cover_image_url)
                                               :m2.cover_image_id)
                          (sql/from [:models_compatibles :mc])
@@ -63,7 +63,7 @@
                          (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
                          (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
                          (cond-> model_id (sql/where [:= :m.id model_id]))
-                         (sql/order-by [:m.product :asc]))
+                         (sql/order-by [:m2.product :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
         (response (jdbc/execute! tx (-> base-query sql-format)))
