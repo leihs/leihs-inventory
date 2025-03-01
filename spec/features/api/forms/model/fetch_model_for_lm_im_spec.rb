@@ -65,7 +65,6 @@ get_response = {
 }
 
 feature "Inventory Model" do
-  # ["inventory_manager", "lending_manager"].each do |role|
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
@@ -101,7 +100,6 @@ feature "Inventory Model" do
         resp = client.get "/inventory/models-compatibles"
         @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
-
 
         resp = client.get "/inventory/#{pool_id}/model-groups"
         @form_model_groups = resp.body
@@ -274,9 +272,6 @@ feature "Inventory Model" do
           compatibles = resp.body[0]["compatibles"]
           expect(compatibles.count).to eq(2)
 
-
-
-
           expect(resp.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
         end
@@ -312,16 +307,8 @@ feature "Inventory Model" do
       end
 
       def select_two_variants_of_compatibles(compatibles)
-        # compatible_with_cover_image = rename_model_id_to_id(compatibles.find { |c| !c["cover_image_url"].nil? })
-        # compatible_without_cover_image = rename_model_id_to_id(compatibles.find { |c| c["cover_image_url"].nil? })
-
-        # compatible_with_cover_image = compatibles.find { |c| !c["cover_image_url"].nil? }
-        # compatible_without_cover_image = compatibles.find { |c| c["cover_image_url"].nil? }
-
         compatible_with_cover_image = find_with_cover(compatibles)
         compatible_without_cover_image = find_without_cover(compatibles)
-
-
 
         [compatible_with_cover_image, compatible_without_cover_image]
       end
@@ -331,13 +318,6 @@ feature "Inventory Model" do
           compatibles = @form_models_compatibles
 
           # FIXME - id is valid, but what happens with model_id-entry? Why is coercion not working?
-          # compatibles.first["id"] = compatibles.first.delete("model_id")
-
-          # # create model request
-          # compatible_with_cover_image = rename_model_id_to_id(compatibles.select { |c| !c["cover_image_url"].nil? }.first)
-          # compatible_without_cover_image = rename_model_id_to_id(compatibles.select { |c| c["cover_image_url"].nil? }.first)
-          #
-
           two_variants_of_compatibles = select_two_variants_of_compatibles(compatibles)
 
           puts "two_variants_of_compatibles: #{two_variants_of_compatibles}"
@@ -358,23 +338,17 @@ feature "Inventory Model" do
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
               {entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55}].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json,
-            # "compatibles" => [compatibles.first, compatibles.second].to_json,
-            # "compatibles" => [compatible_with_cover_image, compatible_without_cover_image].to_json,
             "compatibles" => two_variants_of_compatibles.to_json,
 
             "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
             "isPackage" => "true"
           }
 
-
           result = http_multipart_client(
             "/inventory/#{pool_id}/model",
             form_data,
             headers: cookie_header
           )
-
-
-          # binding.pry
 
           expect(result.status).to eq(200)
           expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
@@ -383,12 +357,6 @@ feature "Inventory Model" do
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-
-          # binding.pry # stop
-
-          # expect(validate_map_structure(result.body.first, get_response)).to eq(true)
-
-          # binding.pry
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
@@ -399,11 +367,8 @@ feature "Inventory Model" do
           expect(result.body[0]["compatibles"].count).to eq(2)
 
           expected_compatibles = result.body[0]["compatibles"]
-          # compatible_with_cover_image = find_with_cover(compatibles).count
-          # binding.pry
           expect(select_with_cover(expected_compatibles).count).to eq(1)
           expect(select_without_cover(expected_compatibles).count).to eq(1)
-
 
           expect(result.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)

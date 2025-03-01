@@ -138,7 +138,6 @@ def add_image_to_model(model)
 end
 
 def update_cover_image(model, image)
-  # image = FactoryBot.create(:image, :for_leihs_model)
   model.update(cover_image_id: image.id)
 end
 
@@ -157,7 +156,6 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
 
     image = add_image_to_model(compatible_model1)
     update_cover_image(compatible_model1, image)
-
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
