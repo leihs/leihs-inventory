@@ -51,7 +51,6 @@
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))
 
 (defn get-models-compatible-handler [request]
-  (println ">o> abc.get-models-compatible-handler.x2")
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)

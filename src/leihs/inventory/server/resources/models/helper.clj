@@ -65,7 +65,7 @@
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]
-                (println ">o> INFO: no inventory_code found, use default: " (:next-code default))
+                (println ">> INFO: no inventory_code found, use default: " (:next-code default))
                 default)
               (let [shortname-and-number (extract-shortname-and-number (:inventory_code res))]
                 (if shortname-and-number

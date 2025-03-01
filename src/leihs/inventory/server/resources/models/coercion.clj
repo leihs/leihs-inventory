@@ -120,10 +120,8 @@
 
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
-
-(sa/def ::cover_image_id (sa/nilable string?))
+(sa/def ::cover_image_id (sa/nilable uuid?))
 (sa/def ::cover_image_url (sa/nilable string?))
-
 (sa/def ::position int?)
 (sa/def ::id uuid?)
 (sa/def ::id-or-nil (sa/nilable uuid?))
@@ -150,8 +148,6 @@
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
-                       :multiple (sa/or :coll (sa/coll-of ::compatible)
-                                        :str string?)
                        :none nil?))
 (sa/def ::images-to-delete string?)
 (sa/def ::attachments-to-delete string?)

@@ -263,7 +263,6 @@ feature "Inventory Model" do
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
           expect(resp.body[0]["image_attributes"].count).to eq(5)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
@@ -354,7 +353,6 @@ feature "Inventory Model" do
           # fetch created model
           model_id = result.body["data"]["id"]
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
           images = result.body[0]["image_attributes"]
           attachments = result.body[0]["attachments"]
 
