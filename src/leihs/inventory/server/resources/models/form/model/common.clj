@@ -39,7 +39,7 @@
                                        THEN CONCAT('/inventory/images/', " col-name ".cover_image_id, '/thumbnail')
                                        ELSE NULL
                                     END")]]
-   col-name-keyword]))
+     col-name-keyword]))
 
 (defn generate-thumbnail [a] a)
 

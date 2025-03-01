@@ -277,7 +277,6 @@ feature "Inventory Model" do
         end
       end
 
-
       def rename_model_id_to_id(compatible)
         puts "compatible.before: #{compatible}"
         compatible["id"] = compatible["model_id"]
@@ -285,14 +284,13 @@ feature "Inventory Model" do
         compatible
       end
 
-
       def find_with_cover2(compatibles)
         compatibles.find { |c| !c["id"].nil? }
       end
 
       def find_with_cover(compatibles)
         compatibles.find { |c| !c["cover_image_url"].nil? }
-        end
+      end
 
       def find_without_cover(compatibles)
         compatibles.find { |c| c["cover_image_url"].nil? }
@@ -300,7 +298,7 @@ feature "Inventory Model" do
 
       def select_with_cover(compatibles)
         compatibles.select { |c| !c["cover_image_url"].nil? }
-        end
+      end
 
       def select_without_cover(compatibles)
         compatibles.select { |c| c["cover_image_url"].nil? }

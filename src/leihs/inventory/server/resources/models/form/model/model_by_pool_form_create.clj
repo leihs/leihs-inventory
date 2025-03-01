@@ -36,7 +36,6 @@
 (defn create-or-use-existing
   [tx table where-values insert-values]
 
-
   (let [select-query (-> (sql/select :*)
                          (sql/from table)
                          (sql/where where-values)
@@ -45,8 +44,7 @@
 
         _ (if existing-entry
             (println ">o> create-or-use-existing.1.exits!!      " existing-entry)
-            (println ">o> create-or-use-existing.2.not_exist!!  " existing-entry))
-        ]
+            (println ">o> create-or-use-existing.2.not_exist!!  " existing-entry))]
     (if existing-entry
       existing-entry
       (jdbc/execute-one! tx (-> (sql/insert-into table)
@@ -137,25 +135,20 @@
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> ?? " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn process-compatibles [tx compatibles model-id]
   (doseq [compatible compatibles]
     (println ">o> process-compatibles1.model-id    ->" model-id)
     (println ">o> process-compatibles2.compatibles ->" compatibles)
 
-    (    pr "process-compatibles.result -> " (create-or-use-existing tx
-                            :models_compatibles
-                            [:and
-                             [:= :model_id model-id]
-                             [:= :compatible_id (to-uuid (:id compatible))]]
-                            {:model_id model-id
-                             :compatible_id (to-uuid (:id compatible))}))
-
-
-
-    ))
+    (pr "process-compatibles.result -> " (create-or-use-existing tx
+                                                                 :models_compatibles
+                                                                 [:and
+                                                                  [:= :model_id model-id]
+                                                                  [:= :compatible_id (to-uuid (:id compatible))]]
+                                                                 {:model_id model-id
+                                                                  :compatible_id (to-uuid (:id compatible))}))))
 
 (defn process-categories [tx categories model-id pool-id]
   (doseq [category categories]

@@ -111,7 +111,7 @@ shared_context :setup_models_api do |role = "inventory_manager"|
     @models = create_models
     create_and_add_items_to_models(@inventory_pool, [@models.first])
 
-    model=@models.first
+    model = @models.first
     image = add_image_to_model(model)
     update_cover_image(model, image)
   end

@@ -30,6 +30,5 @@ end
 
 def expected_form_fields(fields, expected_fields)
   form_field_ids = fields.map { |field| field["id"] }
-  puts "Form field IDs: #{form_field_ids}"
   expect(form_field_ids).to eq(expected_fields)
 end

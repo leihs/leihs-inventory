@@ -63,7 +63,7 @@
                               (create-image-url :mm :cover_image_url)
                               :mm.cover_image_id
                               ;:m.cover_image_id
-                    )
+                              )
                   (sql/from [:models_compatibles :mc])
                   (sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
@@ -71,8 +71,7 @@
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)
 
-        p (println ">o> ??? comp.query" query)
-        ]
+        p (println ">o> ??? comp.query" query)]
     (jdbc/execute! tx query)))
 
 (defn fetch-properties [tx model-id]

@@ -93,7 +93,7 @@
 (sa/def ::file multipart/temp-file-part)
 (sa/def ::name (sa/nilable string?))
 (sa/def :nil/product (sa/nilable string?))
-(sa/def ::product  string?)
+(sa/def ::product string?)
 (sa/def ::item_version (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
@@ -142,7 +142,7 @@
                       :none nil?))
 
 (sa/def :nil/compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
-                              :req-un [:nil/id :nil/product]))
+                                 :req-un [:nil/id :nil/product]))
 
 (sa/def ::compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
                               :req-un [::id ::product]))
@@ -150,8 +150,8 @@
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
-                        :multiple (sa/or :coll (sa/coll-of ::compatible)
-                                      :str string?)
+                       :multiple (sa/or :coll (sa/coll-of ::compatible)
+                                        :str string?)
                        :none nil?))
 (sa/def ::images-to-delete string?)
 (sa/def ::attachments-to-delete string?)
