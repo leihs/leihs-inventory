@@ -6,6 +6,7 @@
     <title>Create New Model</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
     <script>
         function generateLinks() {
             const poolId = document.getElementById('poolId').value;
@@ -33,6 +34,14 @@
     </script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
+        .limited-text {
+            width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
         .links {
             padding: 0.5em 1em 1em 1em;
             margin-top: 1em;
@@ -301,8 +310,6 @@
 
 <br/><br/><br/><br/>
 
-<h1 id="formTitle">Create New Model</h1>
-
 <form id="modelForm">
     <div class="form-group">
         <label for="product">Product *</label>
@@ -423,25 +430,28 @@
             let imagesToDelete = $('#images-to-delete').data('to-delete') || [];
             let fileItems = $('#imagesList .file-item');
 
-            fileItems.each(function() {
+            fileItems.each(function (index) {
                 let fileId = $(this).find('.remove-file-btn').data('file-id');
                 let isCover = $(this).find('input[name="is_cover"]').is(':checked');
+                let hash = $(this).find('#hash').html()
                 let toDelete = imagesToDelete.includes(fileId);
 
-                imagesData.push({
+                var data = {
                     id: fileId,
                     is_cover: isCover,
                     to_delete: toDelete
-                });
+                }
+                data["checksum"] = hash // TODO: create sha by file
+                imagesData.push(data);
             });
 
-                imagesToDelete.forEach(fileId => {
-                    imagesData.push({
-                        id: fileId,
-                        is_cover: false,
-                        to_delete: true
-                    });
+            imagesToDelete.forEach(fileId => {
+                imagesData.push({
+                    id: fileId,
+                    is_cover: false,
+                    to_delete: true
                 });
+            });
             return imagesData;
         }
 
@@ -501,11 +511,6 @@
                 .then(data => {
                     const select = document.getElementById(selectId);
                     select.innerHTML = '<option value="">Select an option</option>';
-
-                    // Adjust data for `compatibles`
-                    if (selectId === 'compatibles') {
-                        data = data.data;
-                    }
 
                     data.forEach(item => {
                         var option = document.createElement('option');
@@ -851,6 +856,7 @@
                                         <div class="hover-text">original</div>
                                     </a>
                                 </div>
+                                <p>${image["filename"]}</p>
                                 <input type="radio" name="is_cover" value="${image.id}" ${image.is_cover === true ? 'checked' : ''}>
                                 <button type="button" ftype="images" class="remove-file-btn" data-file-id="${image.id}" data-file-index="${index}">Remove</button>
                             </div>
@@ -973,33 +979,60 @@
             return name + postfix + extension;
         }
 
+
+        async function computeSHA256(file) {
+            const buffer = await file.arrayBuffer(); // Read file as ArrayBuffer
+            const hashBuffer = await crypto.subtle.digest("SHA-256", buffer); // Generate SHA-256
+            return Array.from(new Uint8Array(hashBuffer)) // Convert buffer to hex string
+                .map(b => b.toString(16).padStart(2, "0"))
+                .join("");
+        }
+
         // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
-            fileList.empty();
-
             console.log(">> updateFileList1 > ", input.files);
             console.log(">> updateFileList2 > ", listSelector);
 
             if (input.files && input.files.length > 0) {
-                for (var i = 0; i < input.files.length; i++) {
-                    var file = input.files[i];
-                    var fileName = file.name;
-                    var fileNameThumb = addPostfixToFilename(fileName, "_thumb")
-                    file.nameThumb = fileNameThumb
-
+                for (var i = 0, image_id = 1; i < input.files.length; i++, image_id++) {
+                    let file = input.files[i];
+                    let fileName = file.name;
+                    let fileNameThumb = addPostfixToFilename(fileName, "_thumb");
+                    file.nameThumb = fileNameThumb;
 
                     // Create a file item container
-                    var fileItem = $(`
-                        <div class="file-item">
-                            <span>${fileName}</span>
-                            <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
-                            <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
-                        </div>
-                    `);
+                    let fileItem;
+                    if (listSelector === "#imagesList") {
+                        fileItem = $(`
+                    <div class="file-item">
+                        <span>${fileName}</span>
+                        <div id="hash" class="sha-hash limited-text">Calculating...</div> <!-- SHA Placeholder -->
+                        <button type="button" ftpye="${inputId}" image_id="${image_id}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        <input type="radio" name="is_cover" image_id="${image_id}">
+                        <canvas id="canvas-${inputId}-${i}" image_id="${image_id}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+                    </div>
+                `);
+                    } else {
+                        fileItem = $(`
+                    <div class="file-item">
+                        <span>${fileName}</span>
+                        <button type="button" ftpye="${inputId}" class="remove-file-btn" data-file-index="${i}">Remove</button>
+                        <canvas id="canvas-${inputId}-${i}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
+                    </div>
+                `);
+                    }
 
                     fileList.append(fileItem);
                     fileItem.find("canvas").data("file", file)
+
+                    // Compute and insert SHA hash
+                    computeSHA256(file).then((hash) => {
+                        fileItem.find(".sha-hash").text(hash);
+                    }).catch((err) => {
+                        fileItem.find(".sha-hash").text("Error calculating hash");
+                        console.error("SHA calculation error:", err);
+                    });
 
                     if (file.type.startsWith('image/')) {
                         var reader = new FileReader();
@@ -1250,29 +1283,59 @@
             // Create image-thumbnail from canvas
             var config = FNC_CONFIG(poolId, modelId);
             let canvasPromises = [];
-            $("#imagesList").find("canvas").each(function (index, canvas) {
-                const promise = new Promise((resolve, reject) => {
-                    canvas.toBlob(function (blob) {
-                        if (blob) {
-                            const fileInfo = $(canvas).data("file");
-                            const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
-
-                            console.log(">>> Canvas processed to file: ", file);
-                            resolve(file);
-                        } else {
-                            reject(new Error("Blob creation failed for canvas."));
-                        }
-                    }, 'image/jpeg');
-                });
-                canvasPromises.push(promise);
-            });
+            // TODO: avoid thumbnail upload
+            // $("#imagesList").find("canvas").each(function (index, canvas) {
+            //     const promise = new Promise((resolve, reject) => {
+            //         canvas.toBlob(function (blob) {
+            //             if (blob) {
+            //                 const fileInfo = $(canvas).data("file");
+            //                 const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
+            //
+            //                 console.log(">>> Canvas processed to file: ", file);
+            //                 resolve(file);
+            //             } else {
+            //                 reject(new Error("Blob creation failed for canvas."));
+            //             }
+            //         }, 'image/jpeg');
+            //     });
+            //     canvasPromises.push(promise);
+            // });
 
             Promise.all(canvasPromises)
                 .then(files => {
-                    files.forEach(file => {
-                        // Add image-thumbnails
-                        formData.append('images', file);
-                    });
+                    // var index=1
+                    // 
+                    // files.forEach(file => {
+                    //     
+                    //     // Add image-thumbnails
+                    //     formData.append('images', file);
+                    //     formData.append('images_order[]', index);
+                    //     index++
+                    // });
+
+                    files = formData.getAll("images")
+
+                    // formData.delete("images")
+                    //
+                    // let orderedFiles = files.map((file, index) => {
+                    //     return {
+                    //         file: file,
+                    //         order: index + 1, // Assign a custom order
+                    //         checksum: `${index+1}:${file.name}:${file.size}`, // Assign a custom order
+                    //         // nameThumb: "thumb_" + file.name // Custom param (Example)
+                    //     };
+                    // });
+                    //
+                    //
+                    // var orderInfo=[]
+                    // // Append files and metadata to FormData
+                    // orderedFiles.forEach(({ file, checksum, order, nameThumb }) => {
+                    //     formData.append("images", file); // Append actual file
+                    //     orderInfo.push(checksum)
+                    //     // formData.append("image_nameThumb[]", nameThumb); // Append custom name
+                    // });
+                    //     formData.append("images_order[]", orderInfo); // Append order separately
+
 
                     // Send form data to API
                     $.ajax({

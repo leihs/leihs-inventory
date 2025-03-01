@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.model.common :refer [create-image-url]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query]]
@@ -57,10 +58,13 @@
     (jdbc/execute! tx query)))
 
 (defn fetch-compatibles [tx model-id]
-  (let [query (-> (sql/select :mm.id :mm.product)
+  (let [query (-> (sql/select :mm.id :mm.product
+                              (create-image-url :mm :cover_image_url)
+                              :mm.cover_image_id)
                   (sql/from [:models_compatibles :mc])
                   (sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
+                  (sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)]
     (jdbc/execute! tx query)))

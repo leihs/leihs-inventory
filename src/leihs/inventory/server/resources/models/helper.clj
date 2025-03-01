@@ -7,7 +7,9 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc]))
+   [next.jdbc :as jdbc])
+  (:import (java.security MessageDigest)
+           (java.util Base64)))
 
 (defn str-to-bool
   [s]
@@ -63,7 +65,7 @@
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]
-                (println ">o> INFO: no inventory_code found, use default: " (:next-code default))
+                (println ">> INFO: no inventory_code found, use default: " (:next-code default))
                 default)
               (let [shortname-and-number (extract-shortname-and-number (:inventory_code res))]
                 (if shortname-and-number
@@ -123,6 +125,20 @@
                 parsed-vector)
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
+
+(defn file-sha256 [file]
+  (let [actual-file (if (instance? java.io.File file)
+                      file
+                      (:tempfile file))]
+    (when actual-file
+      (with-open [input-stream (io/input-stream actual-file)]
+        (let [digest (MessageDigest/getInstance "SHA-256")]
+          (loop [buffer (byte-array 8192)
+                 bytes-read (.read input-stream buffer)]
+            (when (pos? bytes-read)
+              (.update digest buffer 0 bytes-read)
+              (recur buffer (.read input-stream buffer))))
+          (str/join (map #(format "%02x" %) (.digest digest))))))))
 
 (defn normalize-files
   [request key]

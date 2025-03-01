@@ -44,7 +44,7 @@ feature "Inventory Model" do
         raise "Failed to fetch entitlement groups" unless result.status == 200
 
         result = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = result.body["data"]
+        @form_models_compatibles = result.body
         raise "Failed to fetch compatible models" unless result.status == 200
 
         result = client.get "/inventory/#{pool_id}/model-groups"
