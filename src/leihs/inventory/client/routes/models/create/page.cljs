@@ -26,19 +26,20 @@
         ;; add images as binary data
         (= k "images")
         (if (js/Array.isArray v)
-          (doseq [v v]
-            (.. form-data (append (str "images") v)))
+          (doseq [val v]
+            (.. form-data (append (str "images") val)))
           (.. form-data (append "images" v)))
 
         ;; add attachments as binary data
         (= k "attachments")
         (if (js/Array.isArray v)
-          (doseq [v v]
-            (.. form-data (append "attachments" v)))
+          (doseq [val v]
+            (.. form-data (append "attachments" val)))
           (.. form-data (append "attachments" v)))
 
         ;; add fields as text data
-        :else (.. form-data (append k v))))
+        :else (let [value (js/JSON.stringify v)]
+                (.. form-data (append k value)))))
 
     #_(js/fetch "http://localhost:5002/api/sample"
                 (cj {:method "POST"
