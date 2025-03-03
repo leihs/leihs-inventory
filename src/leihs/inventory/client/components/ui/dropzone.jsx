@@ -38,7 +38,7 @@ function Item({ children, className, file }) {
             {file.type.startsWith("image/") ? (
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <img
                       src={preview}
                       className="w-10 h-10 rounded object-cover"
