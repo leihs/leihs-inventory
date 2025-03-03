@@ -44,7 +44,6 @@
                                                  :name "entitlements"})))
         handle-quantity-change
         (fn [index val]
-
           (set-value (str "entitlements." index ".quantity") val))]
 
     (uix/use-effect

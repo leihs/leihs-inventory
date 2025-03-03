@@ -7,50 +7,77 @@
    ["@@/card" :refer [Card CardContent]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["@tanstack/react-query" :as react-query :refer [useMutation useQuery]]
+   ["@tanstack/react-query" :as react-query :refer [useQuery]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
+   [cljs.core.async :as async :refer [<! go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [leihs.inventory.client.routes.models.create.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn on-submit [data event]
-  (let [form-data (js/FormData.)]
-    (.. event (preventDefault))
-    (js/console.debug "is valid " data)
+;; +        async function computeSHA256(file) {
+;; +            const buffer = await file.arrayBuffer(); // Read file as ArrayBuffer
+;; +            const hashBuffer = await crypto.subtle.digest("SHA-256", buffer); // Generate SHA-256
+;; +            return Array.from(new Uint8Array(hashBuffer)) // Convert buffer to hex string
+;; +                .map(b => b.toString(16).padStart(2, "0"))
+;; +                .join("");
+;; +        }
 
-    (doseq [[k v] (js/Object.entries data)]
-      (cond
+(defn compute-sha256-hash [file]
+  (go
+    (let [buffer (<p! (.arrayBuffer file)) ; Read file as ArrayBuffer
+          hash-buffer (<p! (.digest (.-subtle js/crypto) "SHA-256" buffer)) ; Generate SHA-256
+          hash-array (js/Uint8Array. hash-buffer)
+          hash-hex (map #(-> %
+                             (.. (toString 16))
+                             (.. (padStart 2 "0")))
+                        (js/Array.from hash-array))
+          hash (str/join "" hash-hex)]
+      hash)))
+
+(defn on-submit [data event]
+  (go
+    (let [form-data (js/FormData.)]
+      (.. event (preventDefault))
+      (js/console.debug "is valid " data)
+
+      (doseq [[k v] (js/Object.entries data)]
+        (cond
         ;; add images as binary data
-        (= k "images")
-        (if (js/Array.isArray v)
-          (doseq [val v]
-            (.. form-data (append (str "images") val)))
-          (.. form-data (append "images" v)))
+          (= k "images")
+          (if (js/Array.isArray v)
+            (doseq [val v]
+              (let [hash (<! (compute-sha256-hash val))]
+                (js/console.debug "hash-bla" hash)
+                (.. form-data (append (str "images") val))))
+
+            (.. form-data (append "images" v)))
 
         ;; add attachments as binary data
-        (= k "attachments")
-        (if (js/Array.isArray v)
-          (doseq [val v]
-            (.. form-data (append "attachments" val)))
-          (.. form-data (append "attachments" v)))
+          (= k "attachments")
+          (if (js/Array.isArray v)
+            (doseq [val v]
+              (.. form-data (append "attachments" val)))
+            (.. form-data (append "attachments" v)))
 
         ;; add fields as text data
-        :else (let [value (js/JSON.stringify v)]
-                (.. form-data (append k value)))))
+          :else (let [value (js/JSON.stringify v)]
+                  (.. form-data (append k value)))))
 
-    #_(js/fetch "http://localhost:5002/api/sample"
+      #_(js/fetch "http://localhost:5002/api/sample"
+                  (cj {:method "POST"
+                       :body form-data}))
+
+      (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
                 (cj {:method "POST"
-                     :body form-data}))
+                     :headers {"Accept" "application/json"}
+                     :body form-data})))))
 
-    (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
-              (cj {:method "POST"
-                   :headers {"Accept" "application/json"}
-                   :body form-data}))))
-
-(defn- on-invalid [data event]
+(defn- on-invalid [data]
   (js/console.debug "is invalid: " data))
 
 (defn fetch-entitlement-groups [params]

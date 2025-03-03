@@ -18,7 +18,12 @@ export const schema = z.object({
   internalDescription: z.string().optional(),
   handOverNote: z.string().optional(),
   entitlements: z
-    .array(z.object({ entitlement_group_id: z.string(), quantity: z.string() }))
+    .array(
+      z.object({
+        entitlement_group_id: z.string(),
+        quantity: z.coerce.number(),
+      }),
+    )
     .optional(),
   categories: z.array(z.object({ id: z.string() })).optional(),
   images: z
