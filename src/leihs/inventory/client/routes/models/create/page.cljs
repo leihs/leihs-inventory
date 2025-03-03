@@ -7,9 +7,10 @@
    ["@@/card" :refer [Card CardContent]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["@tanstack/react-query" :as react-query :refer [useMutation useQuery]]
+   ["@tanstack/react-query" :as react-query :refer [useQuery]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link]]
+   [cljs.core.async :as async :refer [go]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [leihs.inventory.client.routes.models.create.fields :as form-fields]
@@ -17,39 +18,41 @@
    [uix.dom]))
 
 (defn on-submit [data event]
-  (let [form-data (js/FormData.)]
-    (.. event (preventDefault))
-    (js/console.debug "is valid " data)
+  (go
+    (let [form-data (js/FormData.)]
+      (.. event (preventDefault))
+      (js/console.debug "is valid " data)
 
-    (doseq [[k v] (js/Object.entries data)]
-      (cond
+      (doseq [[k v] (js/Object.entries data)]
+        (cond
         ;; add images as binary data
-        (= k "images")
-        (if (js/Array.isArray v)
-          (doseq [v v]
-            (.. form-data (append (str "images") v)))
-          (.. form-data (append "images" v)))
+          (= k "images")
+          (if (js/Array.isArray v)
+            (doseq [val v]
+              (.. form-data (append (str "images") val)))
+            (.. form-data (append "images" v)))
 
         ;; add attachments as binary data
-        (= k "attachments")
-        (if (js/Array.isArray v)
-          (doseq [v v]
+          (= k "attachments")
+          (if (js/Array.isArray v)
+            (doseq [val v]
+              (.. form-data (append "attachments" val)))
             (.. form-data (append "attachments" v)))
-          (.. form-data (append "attachments" v)))
 
         ;; add fields as text data
-        :else (.. form-data (append k v))))
+          :else (let [value (js/JSON.stringify v)]
+                  (.. form-data (append k value)))))
 
-    #_(js/fetch "http://localhost:5002/api/sample"
+      #_(js/fetch "http://localhost:5002/api/sample"
+                  (cj {:method "POST"
+                       :body form-data}))
+
+      (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
                 (cj {:method "POST"
-                     :body form-data}))
+                     :headers {"Accept" "application/json"}
+                     :body form-data})))))
 
-    (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
-              (cj {:method "POST"
-                   :headers {"Accept" "application/json"}
-                   :body form-data}))))
-
-(defn- on-invalid [data event]
+(defn- on-invalid [data]
   (js/console.debug "is invalid: " data))
 
 (defn fetch-entitlement-groups [params]
@@ -87,6 +90,7 @@
                                            :technicalDetails ""
                                            :handOverNote ""
                                            :version ""
+                                           :image_attributes []
                                            :categories []
                                            :entitlements []
                                            :properties []
@@ -111,13 +115,22 @@
     (.. form (watch))
 
     (cond
-      (and (:isLoading entitlement-groups) (:isLoading categories))
+      (or (:isLoading entitlement-groups)
+          (:isLoading categories)
+          (:isLoading models)
+          (:isLoading manufacturers))
       ($ :div "Loading...")
 
-      (or (:isError entitlement-groups) (:isError categories))
+      (or (:isError entitlement-groups)
+          (:isError categories)
+          (:isError models)
+          (:isError manufacturers))
       ($ :div "Error!")
 
-      (and (:isSuccess entitlement-groups) (:isSuccess categories))
+      (and (:isSuccess entitlement-groups)
+           (:isSuccess categories)
+           (:isSuccess models)
+           (:isSuccess manufacturers))
       ($ (.-Provider state-context) {:value {:models (:data models)
                                              :entitlements (:data entitlement-groups)
                                              :manufacturers (:data manufacturers)
@@ -162,6 +175,7 @@
 
                         ($ Button {:type "submit"
                                    :form "create-model"
+                                   ;; :on-click #(.. form (watch))
                                    :className "self-center"}
                            "Submit"))))))))))
 

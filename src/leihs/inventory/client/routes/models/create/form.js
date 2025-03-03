@@ -18,7 +18,12 @@ export const schema = z.object({
   internalDescription: z.string().optional(),
   handOverNote: z.string().optional(),
   entitlements: z
-    .array(z.object({ entitlement_group_id: z.string(), quantity: z.string() }))
+    .array(
+      z.object({
+        entitlement_group_id: z.string(),
+        quantity: z.coerce.number(),
+      }),
+    )
     .optional(),
   categories: z.array(z.object({ id: z.string() })).optional(),
   images: z
@@ -30,6 +35,15 @@ export const schema = z.object({
             ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
           { message: "Invalid image file type" },
         ),
+    )
+    .optional(),
+  image_attributes: z
+    .array(
+      z.object({
+        is_cover: z.boolean(),
+        checksum: z.string(),
+        to_delete: z.boolean(),
+      }),
     )
     .optional(),
   attachments: z.array(z.instanceof(File)).optional(),

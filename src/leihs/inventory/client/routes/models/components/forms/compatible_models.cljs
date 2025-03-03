@@ -64,7 +64,7 @@
 
                    ($ CommandEmpty "No item found.")
 
-                   (for [model (:data models)]
+                   (for [model models]
                      ($ CommandItem {:key (:model_id model)
                                      :value (:product model)
                                      :on-select #(do (set-open! false)
