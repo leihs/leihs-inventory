@@ -6,9 +6,24 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash]]
+   [cljs.core.async :as async :refer [go <!]]
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
+
+(defn compute-sha256 [file]
+  (go
+    (let [buffer (<p! (.arrayBuffer file)) ; Read file as ArrayBuffer
+          hash-buffer (<p! (.digest (.-subtle js/crypto) "SHA-256" buffer)) ; Generate SHA-256
+          hash-array (js/Uint8Array. hash-buffer)
+          hash-hex (map #(-> %
+                             (.. (toString 16))
+                             (.. (padStart 2 "0")))
+                        (js/Array.from hash-array))
+          hash (str/join "" hash-hex)]
+      hash)))
 
 (defui main [{:keys [control form props]}]
   (let [[files set-files!] (uix.core/use-state nil)
@@ -40,7 +55,24 @@
 
     (uix/use-effect
      (fn []
+       (go
+         (when (seq files)
+           (doseq [file files]
+             (let [hash (<! (compute-sha256 file))]
+
+               #_(js/console.log "hash" hash)))))
+
+       ;; (let [imgattr (map (fn [el] (go (hash-map :is-cover false
+       ;;                                           :checksum (<! (compute-sha256 el))
+       ;;                                           :is-delete false)))
+       ;;                    (vec files))]
+       ;;   (js/console.log imgattr))
+
        (set-value "images" (cj (vec files)))
+       ;; (set-value "image-attributes" (cj (map #(hash-map :is-cover false
+       ;;                                                   :checksum (<! (compute-sha256 %))
+       ;;                                                   :is-delete false)
+       ;;                                        (vec files))))
        [set-value files]))
 
     ($ RadioGroup {:defaultValue nil

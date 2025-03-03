@@ -16,6 +16,7 @@
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [leihs.inventory.client.routes.models.create.fields :as form-fields]
+   [shadow.cljs.modern :refer (js-await)]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -27,55 +28,75 @@
 ;; +                .join("");
 ;; +        }
 
+;; (defn my-async-fn [foo]
+;;   (-> (promise-producing-call foo)
+;;       (.then (fn [the-result]
+;;                (do-something-with-the-result the-result)))
+;;       (.catch (fn [failure]
+                ;; (prn [:oh-oh failure])))))
+
+(defn get-buffer [file]
+  (-> (.. file (arrayBuffer))
+      (.then (fn [buffer] buffer))
+      (.catch (fn [err] (js/console.error err)))))
+
+(defn get-hash-buffer [buffer]
+  (-> (.digest (.-subtle js/crypto) "SHA-256" buffer)
+      (.then (fn [hash-buffer] hash-buffer))
+      (.catch (fn [err] (js/console.error err)))))
+
 (defn compute-sha256-hash [file]
-  (go
-    (let [buffer (<p! (.arrayBuffer file)) ; Read file as ArrayBuffer
-          hash-buffer (<p! (.digest (.-subtle js/crypto) "SHA-256" buffer)) ; Generate SHA-256
-          hash-array (js/Uint8Array. hash-buffer)
-          hash-hex (map #(-> %
-                             (.. (toString 16))
-                             (.. (padStart 2 "0")))
-                        (js/Array.from hash-array))
-          hash (str/join "" hash-hex)]
-      hash)))
+  (let [buffer (get-buffer file) ; Read file as ArrayBuffer
+        hash-buffer (get-hash-buffer buffer) ; Generate SHA-256
+        hash-array (js/Uint8Array. hash-buffer)
+        hash-hex (map #(-> %
+                           (.. (toString 16))
+                           (.. (padStart 2 "0")))
+                      (js/Array.from hash-array))
+        hash (str/join "" hash-hex)]
+
+    (js/console.debug "hash" buffer)
+
+    (js/Promise.
+     (fn [resolve _reject]
+       (resolve hash)))))
 
 (defn on-submit [data event]
-  (go
-    (let [form-data (js/FormData.)]
-      (.. event (preventDefault))
-      (js/console.debug "is valid " data)
+  (let [form-data (js/FormData.)]
+    (.. event (preventDefault))
+    (js/console.debug "is valid " data)
 
-      (doseq [[k v] (js/Object.entries data)]
-        (cond
+    (doseq [[k v] (js/Object.entries data)]
+      (cond
         ;; add images as binary data
-          (= k "images")
-          (if (js/Array.isArray v)
-            (doseq [val v]
-              (let [hash (<! (compute-sha256-hash val))]
-                (js/console.debug "hash-bla" hash)
-                (.. form-data (append (str "images") val))))
+        (= k "images")
+        (if (js/Array.isArray v)
+          (doseq [val v]
+            (js-await [hash (compute-sha256-hash val)]
+                      (js/console.debug "hash-bla" hash)
+                      (.. form-data (append (str "images") val))))
 
-            (.. form-data (append "images" v)))
+          (.. form-data (append "images" v)))
 
         ;; add attachments as binary data
-          (= k "attachments")
-          (if (js/Array.isArray v)
-            (doseq [val v]
-              (.. form-data (append "attachments" val)))
-            (.. form-data (append "attachments" v)))
+        (= k "attachments")
+        (if (js/Array.isArray v)
+          (doseq [val v]
+            (.. form-data (append "attachments" val)))
+          (.. form-data (append "attachments" v)))
 
         ;; add fields as text data
-          :else (let [value (js/JSON.stringify v)]
-                  (.. form-data (append k value)))))
+        :else (let [value (js/JSON.stringify v)]
+                (.. form-data (append k value)))))
 
-      #_(js/fetch "http://localhost:5002/api/sample"
-                  (cj {:method "POST"
-                       :body form-data}))
-
-      (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+    #_(js/fetch "http://localhost:5002/api/sample"
                 (cj {:method "POST"
-                     :headers {"Accept" "application/json"}
-                     :body form-data})))))
+                     :body form-data}))
+
+    (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+              (cj {:method "POST"
+                   :headers {"Accept" "application/json"}
+                   :body form-data}))))
 
 (defn- on-invalid [data]
   (js/console.debug "is invalid: " data))
