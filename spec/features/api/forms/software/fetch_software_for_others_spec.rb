@@ -65,7 +65,7 @@ feature "Inventory Software" do
         form_data = {
           "product" => "updated product",
           "attachments" => [],
-          "attachments-to-delete" => [],
+          "attachments_to_delete" => [],
           "version" => "updated v2.0",
           "manufacturer" => "updated manufacturer",
           "technicalDetails" => "updated techDetail"

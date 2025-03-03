@@ -6,7 +6,7 @@ const modelProperties = z.object({
 })
 
 export const schema = z.object({
-  isPackage: z.boolean().optional(),
+  is_package: z.boolean().optional(),
   product: z
     .string()
     .min(5, "Produktname muss mindestens 5 Zeichen lang sein")
@@ -14,9 +14,9 @@ export const schema = z.object({
   version: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
-  technicalDetails: z.string().optional(),
-  internalDescription: z.string().optional(),
-  handOverNote: z.string().optional(),
+  technical_details: z.string().optional(),
+  internal_description: z.string().optional(),
+  hand_over_note: z.string().optional(),
   entitlements: z
     .array(
       z.object({
@@ -57,7 +57,7 @@ export const structure = [
     title: "Produkt",
     blocks: [
       {
-        name: "isPackage",
+        name: "is_package",
         label: "dies ist ein Paket?",
         input: "checkbox",
         props: { defaultChecked: false },
@@ -97,7 +97,7 @@ export const structure = [
         },
       },
       {
-        name: "technicalDetails",
+        name: "technical_detail",
         label: "Technische Details",
         // description: "Geben Sie technische Details an",
         input: "textarea",
@@ -107,7 +107,7 @@ export const structure = [
         },
       },
       {
-        name: "internalDescription",
+        name: "internal_description",
         label: "Interne Beschreibung",
         // description: "Geben Sie eine interne Beschreibung an",
         input: "textarea",
@@ -117,7 +117,7 @@ export const structure = [
         },
       },
       {
-        name: "handOverNote",
+        name: "hand_over_note",
         label: "Übergabevermerk",
         // description: "Geben Sie einen Übergabevermerk an",
         input: "textarea",

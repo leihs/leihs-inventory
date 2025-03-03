@@ -95,7 +95,7 @@ feature "Inventory Software" do
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-          "technicalDetails" => "Specs go here"
+          "technical_detail" => "Specs go here"
         }
 
         result = http_multipart_client(
@@ -105,6 +105,7 @@ feature "Inventory Software" do
         )
         expect(result.status).to eq(200)
         validate_map_structure(result.body["data"], post_response)
+        expect(compare_values(result.body["data"], form_data, ["product", "version", "technical_detail"])).to eq(true)
 
         # fetch created software
         model_id = result.body["data"]["id"]
@@ -120,10 +121,10 @@ feature "Inventory Software" do
         form_data = {
           "product" => "updated product",
           "attachments" => [],
-          "attachments-to-delete" => [attachments[0]["id"]].to_json,
+          "attachments_to_delete" => [attachments[0]["id"]].to_json,
           "version" => "updated v2.0",
           "manufacturer" => "updated manufacturer",
-          "technicalDetails" => "updated techDetail"
+          "technical_detail" => "updated techDetail"
         }
 
         result = http_multipart_client(
@@ -135,6 +136,7 @@ feature "Inventory Software" do
         validate_map_structure(result.body.first, put_response)
         expect(result.status).to eq(200)
         expect(result.body[0]["id"]).to eq(model_id)
+        expect(compare_values(result.body[0], form_data, ["product", "version", "manufacturer", "technical_detail"])).to eq(true)
 
         # fetch updated model
         result = client.get "/inventory/#{pool_id}/software/#{model_id}"

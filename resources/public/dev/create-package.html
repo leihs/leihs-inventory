@@ -960,7 +960,7 @@
 <!--                        <b><label for="attachments">Anhänge</label></b>-->
                         <label for="${fieldId}">${data.label}${data.required ? " *" : ""}</label>
                         <input type="file" id="attachments" name="attachments" multiple>
-                        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete" />
+                        <input type="hidden" id="attachments-to-delete" name="attachments_to_delete" />
                         <div id="attachmentsList" class="file-list"></div>
                     </div>
                 `);
@@ -1831,9 +1831,9 @@
 
                             checkFormDataOrThrow(formData, modelId)
 
-                            formData.delete('attachments-to-delete');
+                            formData.delete('attachments_to_delete');
                             var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
-                            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+                            formData.append('attachments_to_delete', JSON.stringify(attachmentsToDelete));
 
 
                             // formData = appendQuantityAllocationToFormData(formData);
@@ -1863,7 +1863,7 @@
 
 
                             formData.delete('undefined')
-                            formData.delete('attachments-to-delete')
+                            formData.delete('attachments_to_delete')
 
 
                             // // debugger

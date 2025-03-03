@@ -171,7 +171,7 @@ feature "Inventory License" do
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
-          "attachments-to-delete" => [],
+          "attachments_to_delete" => [],
           "invoice_date" => "2024-12-06",
           "price" => "123.45",
           "retired" => false.to_s,
@@ -217,7 +217,7 @@ feature "Inventory License" do
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
-          "attachments-to-delete" => [],
+          "attachments_to_delete" => [],
           "invoice_date" => "2024-12-06",
           "price" => "123.45",
           "retired" => false.to_s,
@@ -351,7 +351,7 @@ feature "Inventory License" do
           "item_version" => "your-version",
           "supplier_id" => nil.to_s,
           "owner_id" => pool_id,
-          "attachments-to-delete" => [attachments[0]["id"]].to_json,
+          "attachments_to_delete" => [attachments[0]["id"]].to_json,
           "properties" => {
             "activation_type" => "none",
             "license_type" => "single_workplace",

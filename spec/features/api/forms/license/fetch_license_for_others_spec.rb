@@ -137,7 +137,7 @@ feature "Inventory License" do
             "item_version" => "your-version",
             "supplier_id" => nil.to_s,
             "owner_id" => pool_id,
-            "attachments-to-delete" => [],
+            "attachments_to_delete" => [],
             "properties" => {
               "activation_type" => "none",
               "license_type" => "single_workplace",

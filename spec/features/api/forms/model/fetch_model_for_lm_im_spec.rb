@@ -130,9 +130,7 @@ feature "Inventory Model" do
 
       def convert_to_id_correction(compatibles)
         compatibles.each do |compatible|
-          puts "before: #{compatible}"
           compatible["id"] = compatible.delete("model_id")
-          puts "after: #{compatible}\n\n"
         end
       end
 
@@ -203,11 +201,11 @@ feature "Inventory Model" do
             "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-            "isPackage" => "true",
+            "is_package" => "true",
             "description" => "A sample product",
-            "technicalDetails" => "Specs go here",
-            "internalDescription" => "Internal notes",
-            "importantNotes" => "Important usage notes",
+            "technical_detail" => "Specs go here",
+            "internal_description" => "Internal notes",
+            "important_notes" => "Important usage notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json
@@ -242,11 +240,11 @@ feature "Inventory Model" do
             "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "updated v1.0",
             "manufacturer" => "updated manufacturer",
-            "isPackage" => "true",
+            "is_package" => "true",
             "description" => "updated description",
-            "technicalDetails" => "updated techDetail",
-            "internalDescription" => "updated internalDesc",
-            "importantNotes" => "updated notes",
+            "technical_detail" => "updated techDetail",
+            "internal_description" => "updated internalDesc",
+            "important_notes" => "updated notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
             "compatibles" => [compatibles.first, compatibles.second].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
@@ -273,17 +271,6 @@ feature "Inventory Model" do
           expect(resp.body[0]["categories"].count).to eq(2)
           expect(result.status).to eq(200)
         end
-      end
-
-      def rename_model_id_to_id(compatible)
-        puts "compatible.before: #{compatible}"
-        compatible["id"] = compatible["model_id"]
-        puts "compatible.after: #{compatible}"
-        compatible
-      end
-
-      def find_with_cover2(compatibles)
-        compatibles.find { |c| !c["id"].nil? }
       end
 
       def find_with_cover(compatibles)
@@ -321,9 +308,9 @@ feature "Inventory Model" do
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first,
             "description" => "A sample product",
-            "technicalDetails" => "Specs go here",
-            "internalDescription" => "Internal notes",
-            "handOverNote" => "Hand over notes",
+            "technical_detail" => "Specs go here",
+            "internal_description" => "Internal notes",
+            "hand_over_note" => "Hand over notes",
 
             "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
 
@@ -335,7 +322,7 @@ feature "Inventory Model" do
             "compatibles" => two_variants_of_compatibles.to_json,
 
             "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
-            "isPackage" => "true"
+            "is_package" => "true"
           }
 
           result = http_multipart_client(
@@ -343,6 +330,9 @@ feature "Inventory Model" do
             form_data,
             headers: cookie_header
           )
+          expect(compare_values(result.body["data"], form_data,
+            ["version", "description", "technical_detail", "internal_description", "hand_over_note",
+              "is_package"])).to eq(true)
 
           expect(result.status).to eq(200)
           expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
@@ -372,9 +362,9 @@ feature "Inventory Model" do
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first,
             "description" => "A sample product",
-            "technicalDetails" => "Specs go here",
-            "internalDescription" => "Internal notes",
-            "handOverNote" => "Hand over notes",
+            "technical_detail" => "Specs go here",
+            "internal_description" => "Internal notes",
+            "hand_over_note" => "Hand over notes",
 
             "properties" => [{key: "prop-1", value: "bar1"}, add_delete_flag({key: "prop-2", value: "bar2"})].to_json,
             "accessories" => [{name: "acc1", inventory_pool: false}, add_delete_flag({name: "acc2", inventory_pool: true})].to_json,
@@ -385,9 +375,9 @@ feature "Inventory Model" do
 
             "attachments" => [],
             "images" => [],
-            "attachments-to-delete" => [attachments.first["id"]].to_json,
-            "images-to-delete" => [images.first["id"]].to_json,
-            "isPackage" => "false"
+            "attachments_to_delete" => [attachments.first["id"]].to_json,
+            "images_to_delete" => [images.first["id"]].to_json,
+            "is_package" => "false"
           }
 
           result = http_multipart_client(
@@ -396,6 +386,11 @@ feature "Inventory Model" do
             method: :put,
             headers: cookie_header
           )
+
+          expect(compare_values(result.body[0], form_data,
+            ["product", "version", "manufacturer", "description", "technical_detail",
+              "internal_description", "hand_over_note", "is_package"])).to eq(true)
+
           expect(validate_map_structure(result.body.first, put_response)).to eq(true)
           expect(result.status).to eq(200)
           expect(result.body[0]["id"]).to eq(model_id)
@@ -404,6 +399,9 @@ feature "Inventory Model" do
           result = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
           expect(validate_map_structure(result.body.first, get_response)).to eq(true)
+          expect(compare_values(result.body[0], form_data,
+            ["product", "version", "manufacturer", "description", "technical_detail",
+              "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
           expect(result.body[0]["image_attributes"].count).to eq(2)
           expect(result.body[0]["attachments"].count).to eq(1)

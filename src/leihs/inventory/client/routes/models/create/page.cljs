@@ -86,9 +86,9 @@
                                            :isPackage false
                                            :manufacturer ""
                                            :description ""
-                                           :internalDescription ""
-                                           :technicalDetails ""
-                                           :handOverNote ""
+                                           :internal_description ""
+                                           :technical_detail ""
+                                           :hand_over_note ""
                                            :version ""
                                            :image_attributes []
                                            :categories []

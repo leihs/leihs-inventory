@@ -41,7 +41,7 @@
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)]
+            attachments-to-delete (parse-json-array request :attachments_to_delete)]
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)
         (if updated-model

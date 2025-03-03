@@ -35,7 +35,7 @@
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
-        data (dissoc data :attachments :attachments-to-delete)
+        data (dissoc data :attachments :attachments_to_delete)
         properties [:cast (jsonc/generate-string properties) :jsonb]
 
         data (assoc data :properties properties)
@@ -68,7 +68,7 @@
 
             updated-model (jdbc/execute-one! tx update-model-query)
             attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)]
+            attachments-to-delete (parse-json-array request :attachments_to_delete)]
 
         (process-attachments tx attachments "item_id" item-id)
         (process-deletions tx attachments-to-delete :attachments :id)

@@ -32,7 +32,7 @@
           invoice-date (parse-local-date-or-nil (:invoice_date multipart))
           price (double-to-numeric-or-nil (:price multipart))
           supplier-id (cast-to-uuid-or-nil (:supplier_id multipart))
-          merged-data (merge (dissoc multipart :attachments :properties :retired :price :supplier_id :invoice_date :attachments-to-delete)
+          merged-data (merge (dissoc multipart :attachments :properties :retired :price :supplier_id :invoice_date :attachments_to_delete)
                              {:updated_at now-ts
                               :properties [:cast (jsonc/generate-string properties) :jsonb]
                               :inventory_pool_id pool-id
@@ -64,7 +64,7 @@
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
+            attachments-to-delete (parse-json-array request :attachments_to_delete)
             _ (do
                 (process-attachments tx attachments "item_id" (:id updated-model))
                 (process-deletions tx attachments-to-delete :attachments :id))

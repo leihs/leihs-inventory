@@ -207,7 +207,7 @@ feature "Inventory Item" do
           :serial_number => nil,
           :note => nil,
           :attachments => [], # binary data
-          "attachments-to-delete" => [attachment_id],
+          "attachments_to_delete" => [attachment_id],
           :is_inventory_relevant => "true",
           :last_check => nil,
           :user_name => nil,
@@ -317,7 +317,7 @@ feature "Inventory Item" do
             :serial_number => nil,
             :note => nil,
             :attachments => [], # binary data
-            "attachments-to-delete" => [attachment_id],
+            "attachments_to_delete" => [attachment_id],
             :is_inventory_relevant => "true",
             :last_check => nil,
             :user_name => nil,

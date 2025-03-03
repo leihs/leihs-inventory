@@ -97,12 +97,12 @@
 (sa/def ::item_version (sa/nilable string?))
 (sa/def ::version (sa/nilable string?))
 (sa/def ::manufacturer (sa/nilable string?))
-(sa/def ::isPackage (sa/nilable string?))
+(sa/def ::is_package (sa/nilable string?))
 (sa/def ::description (sa/nilable string?))
-(sa/def ::technicalDetails (sa/nilable string?))
-(sa/def ::internalDescription (sa/nilable string?))
+(sa/def ::technical_detail (sa/nilable string?))
+(sa/def ::internal_description (sa/nilable string?))
 (sa/def ::importantNotes (sa/nilable string?))
-(sa/def ::handOverNote (sa/nilable string?))
+(sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
 
 (sa/def ::compatible_ids (sa/or
@@ -149,8 +149,8 @@
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
                        :none nil?))
-(sa/def ::images-to-delete string?)
-(sa/def ::attachments-to-delete string?)
+(sa/def ::images_to_delete string?)
+(sa/def ::attachments_to_delete string?)
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
@@ -239,7 +239,7 @@
 
 (sa/def :license/multipart (sa/keys :opt-un [::model_id
                                              ::supplier_id
-                                             ::attachments-to-delete
+                                             ::attachments_to_delete
                                              ::attachments
                                              ::retired_reason
                                              :simple/properties
@@ -255,7 +255,7 @@
 
 (sa/def :item/multipart (sa/keys :opt-un [::model_id
                                           ::supplier_id
-                                          ::attachments-to-delete
+                                          ::attachments_to_delete
                                           ::attachments
                                           ::retired_reason
                                           ::quantity ;; TODO: used for POST only
@@ -278,7 +278,7 @@
 
 (sa/def :package/multipart (sa/keys :opt-un [::model_id
                                              ::supplier_id
-                                             ::attachments-to-delete
+                                             ::attachments_to_delete
                                              ::attachments
                                              ::retired_reason
                                              ::owner_id
@@ -542,14 +542,14 @@
 (sa/def :software/multipart (sa/keys :req-un [::product]
                                      :opt-un [::version
                                               ::manufacturer
-                                              ::isPackage
+                                              ::is_package
                                               ::description
-                                              ::technicalDetails
-                                              ::internalDescription
-                                              ::handOverNote
+                                              ::technical_detail
+                                              ::internal_description
+                                              ::hand_over_note
                                               ::categories
-                                              ::attachments-to-delete
-                                              ::images-to-delete
+                                              ::attachments_to_delete
+                                              ::images_to_delete
                                               :model/image_attributes
                                               ::owner
                                               ::compatibles

@@ -329,15 +329,15 @@
     </div>
     <div class="form-group">
         <label for="technicalDetails">Technical Details</label>
-        <textarea id="technicalDetails" name="technicalDetails"></textarea>
+        <textarea id="technicalDetails" name="technical_details"></textarea>
     </div>
     <div class="form-group">
         <label for="internalDescription">Internal Description</label>
-        <textarea id="internalDescription" name="internalDescription"></textarea>
+        <textarea id="internalDescription" name="internal_description"></textarea>
     </div>
     <div class="form-group">
         <label for="handOverNote">Important notes for hand over</label>
-        <textarea id="handOverNote" name="handOverNote"></textarea>
+        <textarea id="handOverNote" name="hand_over_note"></textarea>
     </div>
     <div class="form-group">
         <label>Eigenschaften</label>
@@ -347,18 +347,18 @@
     <div class="form-group">
         <b><label for="images">Bilder</label></b>
         <input type="file" id="images" name="images" multiple accept="image/*">
-        <input type="hidden" id="images-to-delete" name="images-to-delete"/>
+        <input type="hidden" id="images-to-delete" name="images_to_delete"/>
         <div id="imagesList" class="file-list"></div>
     </div>
     <div class="form-group">
         <b><label for="attachments">Anhänge</label></b>
         <input type="file" id="attachments" name="attachments" multiple>
-        <input type="hidden" id="attachments-to-delete" name="attachments-to-delete"/>
+        <input type="hidden" id="attachments-to-delete" name="attachments_to_delete"/>
         <div id="attachmentsList" class="file-list"></div>
     </div>
     <div class="form-group">
         <label>
-            <input type="checkbox" id="isPackage" name="isPackage">
+            <input type="checkbox" id="isPackage" name="is_package">
             This is a package
         </label>
     </div>
@@ -1258,18 +1258,19 @@
             console.log(imageAttributes);
             formData.append('image_attributes', JSON.stringify(imageAttributes));
             formData.delete('is_cover');
-            formData.delete('images-to-delete');
+            formData.delete('images_to_delete');
 
-            formData.delete('attachments-to-delete');
+            // FIXME
+            formData.delete('attachments_to_delete');
             var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
-            formData.append('attachments-to-delete', JSON.stringify(attachmentsToDelete));
+            formData.append('attachments_to_delete', JSON.stringify(attachmentsToDelete));
 
 
-            formData.delete('isPackage');
+            formData.delete('is_package');
             // $('#isPackage').prop('checked', false);
             // $('#isPackageFlag').val($('#isPackage').is(':checked'))
             const isPackage = $('#isPackage').is(':checked')
-            formData.append('isPackage', isPackage);
+            formData.append('is_package', isPackage);
 
             formData.delete('accessoryName[]');
             formData.delete('propertyKey[]');

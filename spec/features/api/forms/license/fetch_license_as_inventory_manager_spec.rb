@@ -199,7 +199,7 @@ feature "Inventory License" do
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
-          "attachments-to-delete" => [],
+          "attachments_to_delete" => [],
           "invoice_date" => "2024-12-06",
           "price" => "123.45",
           "retired" => false.to_s,
@@ -245,7 +245,7 @@ feature "Inventory License" do
         form_data = {
           "serial_number" => "your-serial-number",
           "note" => "your-note",
-          "attachments-to-delete" => [],
+          "attachments_to_delete" => [],
           "invoice_date" => "2024-12-06",
           "price" => "123.45",
           "retired" => false.to_s,
@@ -302,7 +302,7 @@ feature "Inventory License" do
           "note" => "your-note",
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test_txt, "rb")],
           "invoice_date" => "2024-12-19",
-          "price" => "100",
+          "price" => "100.0",
           "retired" => true.to_s,
           "retired_reason" => "your-reason-retired",
           "is_borrowable" => false.to_s,
@@ -338,6 +338,10 @@ feature "Inventory License" do
           headers: cookie_header
         )
 
+        expect(compare_values(result.body["data"], form_data,
+          ["serial_number", "note", "price", "retired_reason", "is_borrowable",
+            "inventory_code", "item_version"])).to eq(true)
+
         expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
         expect(result.status).to eq(200)
 
@@ -366,17 +370,17 @@ feature "Inventory License" do
 
         # update license
         form_data = {
-          "serial_number" => "your-serial-number",
-          "note" => "your-note",
+          "serial_number" => "your-new-serial-number",
+          "note" => "your-new-note",
           "invoice_date" => "2024-12-19",
-          "price" => "100",
+          "price" => "200.0",
           "retired" => false.to_s,
           "is_borrowable" => false.to_s,
           "inventory_code" => "AUS45863",
-          "item_version" => "your-version",
+          "item_version" => "your-new-version",
           "supplier_id" => nil.to_s,
           "owner_id" => pool_id,
-          "attachments-to-delete" => [attachments[0]["id"]].to_json,
+          "attachments_to_delete" => [attachments[0]["id"]].to_json,
           "properties" => {
             "activation_type" => "none",
             "license_type" => "single_workplace",
@@ -402,6 +406,10 @@ feature "Inventory License" do
           method: :put,
           headers: cookie_header
         )
+
+        expect(compare_values(result.body[0], form_data,
+          ["serial_number", "note", "price", "is_borrowable",
+            "inventory_code", "item_version", "supplier_id", "owner_id"])).to eq(true)
 
         expect(validate_map_structure(result.body.first, put_response)).to eq(true)
         expect(result.status).to eq(200)

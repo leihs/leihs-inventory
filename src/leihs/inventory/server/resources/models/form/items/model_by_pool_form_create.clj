@@ -44,7 +44,7 @@
         supplier-id (cast-to-uuid-or-nil (:supplier_id data))
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
-        data (dissoc data :attachments :attachments-to-delete :quantity)
+        data (dissoc data :attachments :attachments_to_delete :quantity)
         properties [:cast (jsonc/generate-string properties) :jsonb]
 
         data (assoc data :properties properties)

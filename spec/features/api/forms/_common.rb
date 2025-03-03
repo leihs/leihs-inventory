@@ -32,3 +32,16 @@ def expected_form_fields(fields, expected_fields)
   form_field_ids = fields.map { |field| field["id"] }
   expect(form_field_ids).to eq(expected_fields)
 end
+
+def compare_values(hash1, hash2, keys)
+  keys.all? do |key|
+    if !hash1.key?(key) || !hash2.key?(key)
+      # puts "Key #{key} is missing in one of the hashes"
+      false
+    else
+      # puts "\nComparing key: #{key}, values: #{hash1[key]} == #{hash2[key]}"
+      # puts "Comparing key-type: #{key}, values: #{hash1[key].class} == #{hash2[key].class}"
+      hash1[key].to_s == hash2[key]
+    end
+  end
+end

@@ -215,7 +215,7 @@
             compatibles (parse-json-array request :compatibles)
             categories (parse-json-array request :categories)
             attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments-to-delete)
+            attachments-to-delete (parse-json-array request :attachments_to_delete)
 
             {:keys [images image-attributes new-images-attr existing-images-attr]}
             (create-images-and-prepare-image-attributes request)
