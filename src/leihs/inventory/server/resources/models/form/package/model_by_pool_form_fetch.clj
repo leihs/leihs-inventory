@@ -170,9 +170,9 @@
                                                       model-result (assoc model-result :retired retired)]
                                                   model-result))]
                              model-result)
-                           ;; Fetch default
-                           (let [responsible_department "b582d569-05c1-5d60-aeb8-b67a10bb2957"
-                                 {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)]
+                           ;; TODO: Fetch default, fixed version?
+                           (let [responsible_department pool-id
+                                 {:keys [next-code]} (fetch-latest-inventory-code tx nil)]
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
                               :inventory_code next-code}))]

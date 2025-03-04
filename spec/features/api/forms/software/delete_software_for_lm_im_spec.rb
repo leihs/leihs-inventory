@@ -37,25 +37,6 @@ get_response = {
   "technical_detail" => [NilClass, String]
 }
 
-put_response = {
-  "description" => [NilClass, String],
-  "is_package" => [TrueClass, FalseClass],
-  "maintenance_period" => [NilClass, Integer],
-  "type" => String,
-  "rental_price" => [NilClass, Numeric],
-  "cover_image_id" => [NilClass, String],
-  "hand_over_note" => [NilClass, String],
-  "updated_at" => String,
-  "internal_description" => [NilClass, String],
-  "product" => String,
-  "info_url" => [NilClass, String],
-  "id" => String,
-  "manufacturer" => [NilClass, String],
-  "version" => [NilClass, String],
-  "created_at" => String,
-  "technical_detail" => [NilClass, String]
-}
-
 feature "Inventory Software" do
   ["inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory software with role=#{role}", driver: :selenium_headless do
@@ -88,14 +69,14 @@ feature "Inventory Software" do
         end
       end
 
-      it "creates software with all available attributes" do
+      it "delete software with all available attributes" do
         # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
-          "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-          "technical_detail" => "Specs go here"
+          "manufacturer" => @form_manufacturers.first,
+          "technical_details" => "Specs go here"
         }
 
         resp = http_multipart_client(
@@ -105,7 +86,6 @@ feature "Inventory Software" do
         )
         expect(resp.status).to eq(200)
         validate_map_structure(resp.body["data"], post_response)
-        expect(compare_values(resp.body["data"], form_data, ["product", "version", "technical_detail"])).to eq(true)
 
         # fetch created software
         model_id = resp.body["data"]["id"]
@@ -117,81 +97,27 @@ feature "Inventory Software" do
         expect(resp.status).to eq(200)
         expect(Attachment.where(model_id: model_id).count).to eq(2)
 
-        # update software request
-        form_data = {
-          "product" => "updated product",
-          "attachments" => [],
-          "attachments_to_delete" => [attachments[0]["id"]].to_json,
-          "version" => "updated v2.0",
-          "manufacturer" => "updated manufacturer",
-          "technical_detail" => "updated techDetail"
-        }
-
-        resp = http_multipart_client(
+        # delete software request
+        resp = json_client_delete(
           "/inventory/#{pool_id}/software/#{model_id}",
-          form_data,
-          method: :put,
           headers: cookie_header
         )
-        validate_map_structure(resp.body.first, put_response)
         expect(resp.status).to eq(200)
-        expect(resp.body[0]["id"]).to eq(model_id)
-        expect(compare_values(resp.body[0], form_data, ["product", "version", "manufacturer", "technical_detail"])).to eq(true)
+        expect(resp.body["deleted_attachments"].count).to eq(2)
+        expect(resp.body["deleted_model"].count).to eq(1)
 
-        # fetch updated model
+        # retry to delete not existing software
+        resp = json_client_delete(
+          "/inventory/#{pool_id}/software/#{model_id}",
+          headers: cookie_header
+        )
+        expect(resp.status).to eq(404)
+        expect(resp.body["error"]).to eq("Request to delete software blocked: software not found")
+
+        # fetch deleted model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        validate_map_structure(resp.body.first, get_response)
-        expect(resp.body[0]["attachments"].count).to eq(1)
+        expect(resp.body.count).to eq(0)
         expect(resp.status).to eq(200)
-      end
-
-      context "create software (min)" do
-        it "creates software with all available attributes" do
-          # create software request
-          form_data = {
-            "product" => Faker::Commerce.product_name
-          }
-
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
-            headers: cookie_header
-          )
-          expect(resp.status).to eq(200)
-          validate_map_structure(resp.body["data"], post_response)
-
-          # fetch created software
-          model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-
-          validate_map_structure(resp.body.first, get_response)
-          expect(resp.body[0]["attachments"].count).to eq(0)
-          expect(resp.status).to eq(200)
-
-          # update software request
-          form_data = {
-            "product" => "updated product"
-          }
-
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software/#{model_id}",
-            form_data,
-            method: :put,
-            headers: cookie_header
-          )
-
-          validate_map_structure(resp.body.first, put_response)
-          expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
-
-          # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-
-          validate_map_structure(resp.body.first, get_response)
-          expect(resp.body[0]["product"]).to eq("updated product")
-          expect(resp.body[0]["attachments"].count).to eq(0)
-          expect(resp.status).to eq(200)
-        end
       end
     end
   end

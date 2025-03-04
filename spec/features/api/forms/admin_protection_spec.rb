@@ -16,8 +16,8 @@ feature "Admin protection for dev-endpoints" do
 
       ["model", "software", "license", "item", "option", "package"].each do |type|
         it "returns 404 for non-existent #{type}" do
-          result = client.get "/inventory/#{pool_id}/dev/#{type}"
-          expect(result.status).to eq(404)
+          resp = client.get "/inventory/#{pool_id}/dev/#{type}"
+          expect(resp.status).to eq(404)
         end
       end
     end
@@ -36,8 +36,8 @@ feature "Admin protection for dev-endpoints" do
 
       ["model", "software", "license", "item", "option", "package"].each do |type|
         it "returns 200 for existing #{type}" do
-          result = client.get "/inventory/#{pool_id}/dev/#{type}"
-          expect(result.status).to eq(200)
+          resp = client.get "/inventory/#{pool_id}/dev/#{type}"
+          expect(resp.status).to eq(200)
         end
       end
     end
@@ -54,8 +54,8 @@ feature "Admin protection for dev-endpoints" do
 
       ["model", "software", "license", "item", "option", "package"].each do |type|
         it "returns 200 for existing #{type}" do
-          result = client.get "/inventory/#{pool_id}/dev/#{type}"
-          expect(result.status).to eq(200)
+          resp = client.get "/inventory/#{pool_id}/dev/#{type}"
+          expect(resp.status).to eq(200)
         end
       end
     end

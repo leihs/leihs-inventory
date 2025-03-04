@@ -39,22 +39,22 @@ response = {
             inventory_code: "O-1001"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option",
             form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
 
-          expect(result.status).to eq(200)
-          expect(result.body["data"]["id"]).to be_present
-          expect(result.body["validation"].count).to eq(0)
-          option_id = result.body["data"]["id"]
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"]["id"]).to be_present
+          expect(resp.body["validation"].count).to eq(0)
+          option_id = resp.body["data"]["id"]
 
           # fetch option
-          result = client.get "/inventory/#{pool_id}/option/#{option_id}"
-          expect(result.body.count).to eq(1)
-          expect(validate_map_structure(result.body.first, response)).to eq(true)
+          resp = client.get "/inventory/#{pool_id}/option/#{option_id}"
+          expect(resp.body.count).to eq(1)
+          expect(validate_map_structure(resp.body.first, response)).to eq(true)
 
           # update option
           form_data = {
@@ -64,17 +64,17 @@ response = {
             price: "222"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option/#{option_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(validate_map_structure(result.body.first, response)).to eq(true)
+          expect(validate_map_structure(resp.body.first, response)).to eq(true)
 
-          expect(result.status).to eq(200)
-          expect(result.body[0]["version"]).to eq("v2")
-          expect(result.body[0]["price"]).to eq(222.0)
+          expect(resp.status).to eq(200)
+          expect(resp.body[0]["version"]).to eq("v2")
+          expect(resp.body[0]["price"]).to eq(222.0)
         end
       end
 
@@ -86,22 +86,22 @@ response = {
             inventory_code: "O-1001"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option",
             form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(result.body["data"], response)).to eq(true)
+          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
 
-          expect(result.status).to eq(200)
-          expect(result.body["data"]["id"]).to be_present
-          expect(result.body["validation"].count).to eq(0)
-          option_id = result.body["data"]["id"]
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"]["id"]).to be_present
+          expect(resp.body["validation"].count).to eq(0)
+          option_id = resp.body["data"]["id"]
 
           # fetch option
-          result = client.get "/inventory/#{pool_id}/option/#{option_id}"
-          expect(result.body.count).to eq(1)
-          expect(validate_map_structure(result.body.first, response)).to eq(true)
+          resp = client.get "/inventory/#{pool_id}/option/#{option_id}"
+          expect(resp.body.count).to eq(1)
+          expect(validate_map_structure(resp.body.first, response)).to eq(true)
 
           # update option
           form_data = {
@@ -109,15 +109,15 @@ response = {
             inventory_code: "INV-1001"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option/#{option_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(validate_map_structure(result.body.first, response)).to eq(true)
+          expect(validate_map_structure(resp.body.first, response)).to eq(true)
 
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
         end
       end
     end

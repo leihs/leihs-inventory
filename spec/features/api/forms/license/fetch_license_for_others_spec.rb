@@ -30,52 +30,52 @@ feature "Inventory License" do
 
       context "create model" do
         it "fetch default" do
-          result = client.get "/inventory/#{pool_id}/license"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/license"
+          expect(resp.status).to eq(401)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/#{pool_id}/entitlement-groups"
+          resp = client.get "/inventory/#{pool_id}/entitlement-groups"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(2)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/owners"
+          resp = client.get "/inventory/owners"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(2)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/supplier?search-term=a"
+          resp = client.get "/inventory/supplier?search-term=a"
 
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
         end
 
         it "fetch default" do
-          result = client.get "inventory/manufacturers?type=Software&in-detail=true&search-term=b"
+          resp = client.get "inventory/manufacturers?type=Software&in-detail=true&search-term=b"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(1)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
         end
 
         it "fetch default" do
-          result = client.get "inventory/manufacturers?type=Software&in-detail=true"
+          resp = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(1)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
         end
 
         it "creates and update license with attachment" do
           # fetch supplier
-          result = client.get "inventory/manufacturers?type=Software&in-detail=true"
+          resp = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(1)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
 
-          supplier_id = result.body[0]["id"]
+          supplier_id = resp.body[0]["id"]
 
           # create license
           form_data = {
@@ -113,17 +113,17 @@ feature "Inventory License" do
             }.to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/models/#{model_id}/licenses",
             form_data,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
           item_id = license_item.id
 
           # fetch license
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+          expect(resp.status).to eq(401)
 
           # update license
           form_data = {
@@ -157,17 +157,17 @@ feature "Inventory License" do
             }.to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           # fetch license
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+          expect(resp.status).to eq(401)
         end
       end
     end

@@ -31,16 +31,16 @@ require_relative "../_common"
             inventory_code: "O-1001"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option",
             form_data,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           # fetch option
-          result = client.get "/inventory/#{pool_id}/option/#{option_id}"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/option/#{option_id}"
+          expect(resp.status).to eq(401)
 
           # update option
           form_data = {
@@ -50,13 +50,13 @@ require_relative "../_common"
             price: "222"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/option/#{option_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
         end
       end
     end

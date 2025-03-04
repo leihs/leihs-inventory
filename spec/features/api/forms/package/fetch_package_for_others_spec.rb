@@ -60,33 +60,33 @@ require "faker"
           items_attributes: []
         }.transform_values { |v| v.nil? ? "" : v.to_s }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/package",
           form_data,
           headers: cookie_header
         )
-        expect(result.status).to eq(401)
+        expect(resp.status).to eq(401)
 
         model_id = fake_package.id
         item_id = fake_package.items.first.id
         pool_id = fake_package.items.first.inventory_pool_id
 
         # fetch package
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        expect(result.status).to eq(401)
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
+        expect(resp.status).to eq(401)
 
         # fetch package
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        expect(result.status).to eq(401)
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
+        expect(resp.status).to eq(401)
 
         # update package
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
-        expect(result.status).to eq(400)
+        expect(resp.status).to eq(400)
       end
     end
   end

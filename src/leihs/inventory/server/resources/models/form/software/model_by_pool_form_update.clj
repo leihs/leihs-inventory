@@ -8,6 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-files
                                                            process-attachments parse-json-array]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -50,3 +51,31 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+
+(defn delete-software-handler-by-pool-form [request]
+  (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        model-id (to-uuid (get-in request [:path-params :model_id]))
+        tx (:tx request)
+        where-clause-model [:and [:= :id model-id] [:= :type "Software"]]
+        models (db-operation tx :select :models where-clause-model)
+        _ (when-not (seq models)
+            (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))
+
+        items (db-operation tx :select :items [:and [:= :model_id model-id]])
+        attachments (db-operation tx :select :attachments [:= :model_id model-id])
+        _ (when (seq items)
+            (throw (ex-info "Request to delete software blocked: referenced item(s) exist" {:status 403})))
+
+        deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
+                                            (sql/where where-clause-model)
+                                            (sql/returning :*)
+                                            sql-format))
+        remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
+        _ (when (seq remaining-attachments)
+            (throw (ex-info "Request to delete software blocked: referenced attachments or images still exist" {:status 403})))
+
+        result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+    (if (= 1 (count deleted-model))
+      (response result)
+      (throw (ex-info "Request to delete software failed" {:status 403})))))

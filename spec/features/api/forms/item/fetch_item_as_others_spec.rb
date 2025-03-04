@@ -24,36 +24,36 @@ feature "Inventory Item" do
       }
 
       before do
-        result = client.get "/inventory/#{pool_id}/entitlement-groups"
-        @form_entitlement_groups = result.body
-        raise "Failed to fetch entitlement groups" unless result.status == 200
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+        @form_entitlement_groups = resp.body
+        raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        result = client.get "/inventory/owners"
-        @form_owners = result.body
-        raise "Failed to fetch manufacturers" unless result.status == 200
+        resp = client.get "/inventory/owners"
+        @form_owners = resp.body
+        raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        result = client.get "/inventory/buildings"
-        @form_buildings = result.body
-        raise "Failed to fetch entitlement groups" unless result.status == 200
+        resp = client.get "/inventory/buildings"
+        @form_buildings = resp.body
+        raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        result = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
-        @form_rooms = result.body
-        raise "Failed to fetch entitlement groups" unless result.status == 200
+        resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
+        @form_rooms = resp.body
+        raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        result = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-        @form_model_names = result.body
-        raise "Failed to fetch compatible models" unless result.status == 200
+        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+        @form_model_names = resp.body
+        raise "Failed to fetch compatible models" unless resp.status == 200
 
-        result = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
-        @form_model_data = result.body
-        raise "Failed to fetch compatible models" unless result.status == 200
+        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
+        @form_model_data = resp.body
+        raise "Failed to fetch compatible models" unless resp.status == 200
       end
 
       context "fetch of form" do
         it "ensures form manufacturer data is fetched" do
-          result = client.get "/inventory/#{pool_id}/item"
-          @form_entitlement_groups = result.body
-          expect(result.status).to be(401)
+          resp = client.get "/inventory/#{pool_id}/item"
+          @form_entitlement_groups = resp.body
+          expect(resp.status).to be(401)
         end
       end
 
@@ -89,20 +89,20 @@ feature "Inventory Item" do
             }.to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/item",
             form_data,
             method: :post,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           model_id = fake_item.model_id
           item_id = fake_item.id
 
           # fetch created item
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          expect(result.status).to be(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+          expect(resp.status).to be(401)
 
           # update item request
           form_data = {
@@ -128,17 +128,17 @@ feature "Inventory Item" do
               quantity_allocations: []
             }.to_json
           }.transform_values { |v| v.nil? ? "" : v.to_s }
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           # fetch created item
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          expect(result.status).to be(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+          expect(resp.status).to be(401)
         end
       end
     end

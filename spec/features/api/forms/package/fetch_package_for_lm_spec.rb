@@ -108,56 +108,56 @@ get_response = {
 
       context "create model" do
         it "fetch default" do
-          result = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal"
+          resp = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal"
 
-          # FIXME: no result handling
-          # result = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal&search_term=podest"
+          # FIXME: no resp handling
+          # resp = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal&search_term=podest"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(1)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/#{pool_id}/package"
+          resp = client.get "/inventory/#{pool_id}/package"
 
-          expect(result.status).to eq(200)
-          expect(result.body["data"]["inventory_pool_id"]).to eq(pool_id)
-          expect(result.body["fields"].count).to eq(15)
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
+          expect(resp.body["fields"].count).to eq(15)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/#{pool_id}/entitlement-groups"
+          resp = client.get "/inventory/#{pool_id}/entitlement-groups"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(2)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/owners"
+          resp = client.get "/inventory/owners"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(2)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/buildings"
+          resp = client.get "/inventory/buildings"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(3)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(3)
         end
 
         it "fetch default" do
-          result = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+          resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
 
-          expect(result.status).to eq(200)
-          expect(result.body.count).to eq(2)
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(2)
         end
 
         it "fetch by form data" do
-          result = client.get "/inventory/#{pool_id}/package"
+          resp = client.get "/inventory/#{pool_id}/package"
 
-          expect(result.body["data"]["inventory_pool_id"]).to eq(pool_id)
-          expect(result.body["fields"].count).to eq(15)
+          expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
+          expect(resp.body["fields"].count).to eq(15)
         end
 
         it "create, fetch & update by form data" do
@@ -181,39 +181,39 @@ get_response = {
             items_attributes: []
           }.transform_values { |v| v.nil? ? "" : v.to_s }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/package",
             form_data,
             headers: cookie_header
           )
 
-          expect(result.status).to eq(200)
-          expect(result.body["data"]).to be_present
-          expect(result.body["validation"].count).to eq(0)
-          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"]).to be_present
+          expect(resp.body["validation"].count).to eq(0)
+          expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
 
-          item_id = result.body["data"]["id"]
-          model_id = result.body["data"]["model_id"]
+          item_id = resp.body["data"]["id"]
+          model_id = resp.body["data"]["model_id"]
 
           # fetch package
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-          expect(result.body["data"]).to be_present
-          expect(result.body["fields"].count).to eq(15)
-          expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
-          expected_form_fields(result.body["fields"], expected_lm_fields)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
+          expect(resp.body["data"]).to be_present
+          expect(resp.body["fields"].count).to eq(15)
+          expect(validate_map_structure(resp.body["data"], get_response)).to eq(true)
+          expected_form_fields(resp.body["fields"], expected_lm_fields)
 
           # update package
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
 
-          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
-          expect(result.status).to eq(200)
-          expect(result.body["data"]).to be_present
-          expect(result.body["validation"].count).to eq(0)
+          expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"]).to be_present
+          expect(resp.body["validation"].count).to eq(0)
         end
       end
     end

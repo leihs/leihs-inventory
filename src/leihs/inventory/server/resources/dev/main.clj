@@ -1,14 +1,76 @@
 (ns leihs.inventory.server.resources.dev.main
   (:require
+   [cheshire.core :as json]
    [clojure.set]
    [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.helper :refer [parse-json-array]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
+
+(def get-views-query
+  (sql-format
+   (-> (sql/select :table_schema :table_name)
+       (sql/from :information_schema.views)
+       (sql/where [:= :table_schema "information_schema"]))))
+
+(defn get-views [tx]
+  (jdbc/execute! tx get-views-query))
+
+(defn run-get-views [request]
+  (doseq [{:keys [table_schema table_name]} (get-views (:tx request))]
+    (println (format "✅ %s.%s" table_schema table_name)))
+  (response {:status 200 :body "Search completed."}))
+
+(defn get-columns-query [columns]
+  (sql-format
+   {:select [:table_name :column_name]
+    :from [:information_schema.columns]
+    :where [:and
+            [:= :table_schema "public"]
+             ;[:in :table_name tables-to-search]
+            [:in :table_name columns]
+            [:= :data_type "uuid"]]}))
+
+(defn get-uuid-columns [tx columns]
+  (jdbc/execute! tx (get-columns-query columns)))
+
+(defn build-search-query [table column value]
+  (sql-format
+   [:raw (format "SELECT COUNT(*) FROM \"%s\" WHERE \"%s\" = '%s'"
+                 table column value)]))
+
+(defn search-in-columns [tx table column value results]
+  (let [query (build-search-query table column value)
+        result (first (jdbc/execute! tx query))
+        count (:count result 0)]
+    (if (> count 0)
+      (do
+        (println (format "✅ Found %d occurrences in table: %s, column: %s"
+                         count table column))
+        (conj results {:table table :column column :count count}))
+      results)))
+
+(defn search-in-tables [request]
+  (let [tx (:tx request)
+        tables-to-search ["models" "items" "images" "attachments"]
+        query-params (query-params request)
+        query-columns (:columns query-params)
+        search-value (or (:id query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
+        columns (or query-columns tables-to-search)]
+    (println "🔍 Starting search for UUID:" search-value)
+    (let [results (reduce (fn [acc {:keys [table_name column_name]}]
+                            (search-in-columns tx table_name column_name search-value acc))
+                          []
+                          (get-uuid-columns tx columns))]
+      (println "✅ Search completed.")
+      (response {:status 200 :body {:id search-value
+                                    :columns columns
+                                    :result results}}))))
 
 (defn update-and-fetch-accounts [request]
   (try

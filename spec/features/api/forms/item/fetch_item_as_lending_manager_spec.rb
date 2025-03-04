@@ -100,36 +100,36 @@ feature "Inventory Item" do
     let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
     before do
-      result = client.get "/inventory/#{pool_id}/entitlement-groups"
-      @form_entitlement_groups = result.body
-      raise "Failed to fetch entitlement groups" unless result.status == 200
+      resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+      @form_entitlement_groups = resp.body
+      raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-      result = client.get "/inventory/owners"
-      @form_owners = result.body
-      raise "Failed to fetch manufacturers" unless result.status == 200
+      resp = client.get "/inventory/owners"
+      @form_owners = resp.body
+      raise "Failed to fetch manufacturers" unless resp.status == 200
 
-      result = client.get "/inventory/buildings"
-      @form_buildings = result.body
-      raise "Failed to fetch entitlement groups" unless result.status == 200
+      resp = client.get "/inventory/buildings"
+      @form_buildings = resp.body
+      raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-      result = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
-      @form_rooms = result.body
-      raise "Failed to fetch entitlement groups" unless result.status == 200
+      resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
+      @form_rooms = resp.body
+      raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-      result = client.get "/inventory/manufacturers?type=Model&in-detail=true"
-      @form_model_names = result.body
-      raise "Failed to fetch compatible models" unless result.status == 200
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+      @form_model_names = resp.body
+      raise "Failed to fetch compatible models" unless resp.status == 200
 
-      result = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
-      @form_model_data = result.body
-      raise "Failed to fetch compatible models" unless result.status == 200
+      resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
+      @form_model_data = resp.body
+      raise "Failed to fetch compatible models" unless resp.status == 200
     end
 
     context "fetch of form" do
       it "ensures form manufacturer data is fetched" do
-        result = client.get "/inventory/#{pool_id}/item"
-        response_body = result.body
-        expect(result.status).to be(200)
+        resp = client.get "/inventory/#{pool_id}/item"
+        response_body = resp.body
+        expect(resp.status).to be(200)
 
         expect(response_body["data"]["inventory_pool_id"]).to eq(pool_id)
         expect(response_body["fields"].count).to eq(26)
@@ -172,7 +172,7 @@ feature "Inventory Item" do
           }.to_json
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/item",
           form_data,
           method: :post,
@@ -180,25 +180,25 @@ feature "Inventory Item" do
         )
         # binding.pry
 
-        expect(result.status).to eq(200)
-        model_id = result.body["data"]["model_id"]
-        item_id = result.body["data"]["id"]
+        expect(resp.status).to eq(200)
+        model_id = resp.body["data"]["model_id"]
+        item_id = resp.body["data"]["id"]
 
         # fetch created item
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        response_body = result.body
-        attachments = result.body["data"]["attachments"]
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+        response_body = resp.body
+        attachments = resp.body["data"]["attachments"]
         attachment_id = attachments[0]["id"]
         expect(attachments.count).to be(2)
-        expect(result.status).to be(200)
+        expect(resp.status).to be(200)
 
-        expected_form_fields(result.body["fields"], expected_fields)
-        expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
+        expected_form_fields(resp.body["fields"], expected_fields)
+        expect(validate_map_structure(resp.body["data"], fetch_response)).to eq(true)
 
         expect(response_body).not_to be_nil
         expect(response_body.count).to eq(2)
 
-        expect(result.status).to eq(200)
+        expect(resp.status).to eq(200)
         expect(response_body["data"]).to be_present
         expect(response_body["fields"].count).to eq(25)
 
@@ -233,21 +233,21 @@ feature "Inventory Item" do
             quantity_allocations: []
           }.to_json
         }.transform_values { |v| v.nil? ? "" : v.to_s }
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
-        expect(result.status).to eq(200)
-        expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
+        expect(resp.status).to eq(200)
+        expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
 
         # fetch created item
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-        attachments = result.body["data"]["attachments"]
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+        attachments = resp.body["data"]["attachments"]
         expect(attachments.count).to be(1)
-        expect(result.status).to be(200)
-        expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
+        expect(resp.status).to be(200)
+        expect(validate_map_structure(resp.body["data"], fetch_response)).to eq(true)
       end
 
       context "create item" do
@@ -283,7 +283,7 @@ feature "Inventory Item" do
             }.to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/item",
             form_data,
             method: :post,
@@ -291,24 +291,24 @@ feature "Inventory Item" do
           )
           # binding.pry
 
-          expect(result.status).to eq(200)
-          model_id = result.body["data"]["model_id"]
-          item_id = result.body["data"]["id"]
-          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          model_id = resp.body["data"]["model_id"]
+          item_id = resp.body["data"]["id"]
+          expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
 
           # fetch created item
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          response_body = result.body
-          attachments = result.body["data"]["attachments"]
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+          response_body = resp.body
+          attachments = resp.body["data"]["attachments"]
           attachment_id = attachments[0]["id"]
           expect(attachments.count).to be(2)
-          expect(result.status).to be(200)
-          expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
+          expect(resp.status).to be(200)
+          expect(validate_map_structure(resp.body["data"], fetch_response)).to eq(true)
 
           expect(response_body).not_to be_nil
           expect(response_body.count).to eq(2)
 
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
           expect(response_body["data"]).to be_present
           expect(response_body["fields"].count).to eq(25)
 
@@ -343,21 +343,21 @@ feature "Inventory Item" do
               quantity_allocations: []
             }.to_json
           }.transform_values { |v| v.nil? ? "" : v.to_s }
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(200)
-          expect(validate_map_structure(result.body["data"], put_post_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
 
           # fetch created item
-          result = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
-          attachments = result.body["data"]["attachments"]
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/item/#{item_id}"
+          attachments = resp.body["data"]["attachments"]
           expect(attachments.count).to be(1)
-          expect(result.status).to be(200)
-          expect(validate_map_structure(result.body["data"], fetch_response)).to eq(true)
+          expect(resp.status).to be(200)
+          expect(validate_map_structure(resp.body["data"], fetch_response)).to eq(true)
         end
       end
     end

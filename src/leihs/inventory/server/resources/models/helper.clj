@@ -54,14 +54,22 @@
         (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
         nil))))
 
+;; TODO: this should be the fixed one
 (defn fetch-latest-inventory-code [tx owner-id]
-  (let [res (jdbc/execute-one! tx
-                               (-> (sql/select :items.inventory_code)
-                                   (sql/from :items)
-                                   (cond-> owner-id (sql/where [:= :items.owner_id owner-id]))
-                                   (sql/order-by [:created_at :desc])
-                                   (sql/limit 1)
-                                   sql-format))
+  (let [res (-> (sql/select :items.inventory_code
+                            [(sq/call :cast
+                                      (sq/call :nullif
+                                               (sq/call :regexp_replace :items.inventory_code "^[^0-9]*" "")
+                                               "")
+                                      :integer)
+                             :inventory_number])
+                (sql/from :items)
+                (sql/where [:not= :items.inventory_code nil])
+                (sql/where [:ilike :items.inventory_code "P-%"]) ;; Match only inventory codes starting with 'P-'
+                (sql/order-by [:inventory_number :desc] [:items.inventory_code :desc])
+                (sql/limit 1)
+                sql-format)
+        res (jdbc/execute-one! tx res)
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]

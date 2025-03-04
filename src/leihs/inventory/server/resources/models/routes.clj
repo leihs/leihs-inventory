@@ -11,7 +11,8 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form
+                                                                                         delete-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -20,7 +21,8 @@
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
+                                                                                            delete-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -60,10 +62,14 @@
     {:get {:conflicting true
            :summary "Get manufacturers [v0]"
            :accept "application/json"
-           :description "'search-term' starts working with at least one character, considers:\n
-- manufacturer\n
-- product\n\n
-HINT: 'in-detail'-option works for models with set 'search-term' only\n"
+           :description "'search-term' works with at least one character, considers:\n
+- manufacturer
+- product
+\nEXCLUDES manufacturers
+- .. starting with space
+- .. with empty string
+\nHINT
+- 'in-detail'-option works for models with set 'search-term' only\n"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
@@ -518,7 +524,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE??? [v0]"
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              :description (str
                            " - Upload images and attachments \n"
                            " - Save data \n"
@@ -533,6 +539,24 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]
+
+    ["/"
+     {:post {:accept "application/json"
+             :summary "(DEV) | New JSON Endpoint (fake-version) | [v1]"
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?}
+                          :body {:product string?}}
+             :handler (fn [request]
+                        (let [content-type (get-in request [:headers "content-type"])
+                              _ (println ">o> content-type" content-type)
+                              body (-> request :parameters :body)]
+                          (cond
+                            (= content-type "application/json") (response/response {:foo "bar" :body body})
+                            :else {:status 400 :body "Unsupported Content-Type"})))
+             :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -563,7 +587,28 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+                         500 {:description "Internal Server Error"}}}
+
+       :delete {:accept "application/json"
+                :summary "(DEV) | Form-Handler: Delete form data [v0]"
+                :swagger {:consumes ["multipart/form-data"]
+                          :produces "application/json"}
+                :coercion spec/coercion
+                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                :parameters {:path {:pool_id uuid?
+                                    :model_id uuid?}}
+                :handler delete-model-handler-by-pool-form
+                :responses {200 {:description "OK"
+                                 :body {:deleted_attachments [{:id uuid?
+                                                               :model_id uuid?
+                                                               :filename string?
+                                                               :size number?}]
+                                        :deleted_images [any?]
+                                        :deleted_model [{:id uuid?
+                                                         :product string?
+                                                         :manufacturer any?}]}}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]]
 
    ["/option"
     {:swagger {:conflicting true
@@ -732,7 +777,27 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body [:software/response]}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+                         500 {:description "Internal Server Error"}}}
+
+       :delete {:accept "application/json"
+                :swagger {:consumes ["multipart/form-data"]
+                          :produces "application/json"}
+                :summary "(DEV) | Form-Handler: Delete form data [v0]"
+                :coercion spec/coercion
+                :parameters {:path {:pool_id uuid?
+                                    :model_id uuid?}}
+                :handler delete-software-handler-by-pool-form
+                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                :responses {200 {:description "OK"
+                                 :body {:deleted_attachments [{:id uuid?
+                                                               :model_id uuid?
+                                                               :filename string?
+                                                               :size number?}]
+                                        :deleted_model [{:id uuid?
+                                                         :product string?
+                                                         :manufacturer any?}]}}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]]
 
    ["/models"
     [""
@@ -768,7 +833,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                  :category_ids [s/Uuid]
                                  :version s/Str
                                  (s/optional-key :type) (s/enum "Software" "Model")
-                                 ;;default: Model
                                  (s/optional-key :is_package) s/Bool}}
 
              :handler create-model-handler-by-pool
@@ -816,12 +880,10 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
+                                     :model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
+                                  ;:body (s/->Either [s/Any schema])} ;;FIXME
                                   :body s/Any}
 
                              404 {:description "Not Found"}
@@ -837,7 +899,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                                   :item_id s/Uuid}}
               :handler get-models-of-pool-with-pagination-handler
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
+                               ;:body (s/->Either [s/Any schema])} ;;FIXME
                                :body s/Any}
 
                           404 {:description "Not Found"}
@@ -1038,12 +1100,9 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
+                                     :model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
 
                              404 {:description "Not Found"}
@@ -1060,7 +1119,6 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
               :handler get-models-of-pool-with-pagination-handler
 
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
 
                           404 {:description "Not Found"}

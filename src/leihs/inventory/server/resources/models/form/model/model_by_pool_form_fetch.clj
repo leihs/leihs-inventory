@@ -6,16 +6,9 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-image-url]]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query
-                                                            entitlements-query item-query
-                                                            model-links-query properties-query]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]
            [java.util UUID]))
@@ -124,7 +117,8 @@
                      [])]
         (if result
           (response result)
-          (bad-request {:error "Failed to fetch model"})))
+          (status
+           (response {:status "failure" :message "No entry found ???"}) 404)))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))

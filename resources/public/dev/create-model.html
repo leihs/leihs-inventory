@@ -83,7 +83,7 @@
             margin-top: 10px;
         }
 
-        .btn-danger, .remove-file-btn {
+        .btn-danger, .remove-file-btn, .deleteStyle {
             background-color: #dc3545;
         }
 
@@ -328,8 +328,8 @@
         <textarea id="description" name="description"></textarea>
     </div>
     <div class="form-group">
-        <label for="technicalDetails">Technical Details</label>
-        <textarea id="technicalDetails" name="technical_details"></textarea>
+        <label for="technicalDetail">Technical Details</label>
+        <textarea id="technicalDetail" name="technical_detail"></textarea>
     </div>
     <div class="form-group">
         <label for="internalDescription">Internal Description</label>
@@ -392,6 +392,7 @@
     </div>
     <div class="form-group">
         <button type="submit" class="myBtn">Save Model</button>
+        <button type="button" id="delete-model" class="myBtn deleteStyle">Delete Model</button>
     </div>
 </form>
 
@@ -399,6 +400,47 @@
     $(document).ready(function () {
 
         var CONST_IS_CREATE_FORM = true;
+
+        $('#delete-model').hide()
+        $('#delete-model').click(function () {
+            var modelId = $('#fetchModelId').val();
+            var poolId = $('#poolId').val();
+
+            $.ajax({
+                url: '/inventory/' + poolId + '/model/' + modelId,
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function (response, textStatus, xhr) {
+                    console.log('Model deleted successfully!', response);
+
+                    $("#cache").removeData();
+
+                    if (xhr.status === 200) {
+                        $('body').addClass('save-success');
+                        setTimeout(function () {
+                            $('body').removeClass('save-success');
+                        }, 3000);
+                    } else {
+                        $('body').addClass('save-failed');
+                        setTimeout(function () {
+                            $('body').removeClass('save-failed');
+                        }, 3000);
+                    }
+
+                    $('#delete-model').hide();
+                },
+                error: function (xhr) {
+                    console.error('Error deleting model:', xhr.responseText);
+
+                    $('body').addClass('save-failed');
+                    setTimeout(function () {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+        })
 
         var FNC_CONFIG = (poolId, modelId) => {
 
@@ -611,6 +653,8 @@
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
+            $('#delete-model').show()
+
             // Send request to API
             $.ajax({
                 url: '/inventory/' + poolId + '/model/' + modelId,
@@ -640,7 +684,7 @@
                     $('#version').val(response.version);
                     $('#manufacturer').val(response.manufacturer).trigger('change');
                     $('#description').val(response.description);
-                    $('#technicalDetails').val(response.technical_detail);
+                    $('#technicalDetail').val(response.technical_detail);
                     $('#internalDescription').val(response.internal_description);
                     $('#handOverNote').val(response.hand_over_note);
                     // $('#isPackage').prop('checked', response.type === 'Package');
@@ -1355,11 +1399,12 @@
 
                             if (CONST_IS_CREATE_FORM) {
                                 $('#fetchModelId').val(response.data.id)
+                                $('#delete-model').hide()
                             } else {
                                 $('#fetchModelId').val(response[0].id)
                                 $('#fetchModelBtn').click()
+                                $('#delete-model').show()
                             }
-
 
                             $('body').addClass('save-success');
                             setTimeout(function () {

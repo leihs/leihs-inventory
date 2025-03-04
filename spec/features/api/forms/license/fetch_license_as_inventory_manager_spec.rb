@@ -148,53 +148,53 @@ feature "Inventory License" do
 
     context "create model" do
       it "fetch default" do
-        result = client.get "/inventory/#{pool_id}/license"
+        resp = client.get "/inventory/#{pool_id}/license"
 
-        expect(result.status).to eq(200)
-        expect(result.body["fields"].count).to eq(29)
+        expect(resp.status).to eq(200)
+        expect(resp.body["fields"].count).to eq(29)
       end
 
       it "fetch default" do
-        result = client.get "/inventory/#{pool_id}/entitlement-groups"
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(2)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(2)
       end
 
       it "fetch default" do
-        result = client.get "/inventory/owners"
+        resp = client.get "/inventory/owners"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(2)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(2)
       end
 
       it "fetch default" do
-        result = client.get "/inventory/supplier?search-term=a"
+        resp = client.get "/inventory/supplier?search-term=a"
 
-        expect(result.status).to eq(200)
+        expect(resp.status).to eq(200)
       end
 
       it "fetch default" do
-        result = client.get "inventory/manufacturers?type=Software&in-detail=true&search-term=b"
+        resp = client.get "inventory/manufacturers?type=Software&in-detail=true&search-term=b"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
       end
 
       it "fetch default" do
-        result = client.get "inventory/manufacturers?type=Software&in-detail=true"
+        resp = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
       end
 
       it "creates and update license (simple)" do
-        result = client.get "inventory/manufacturers?type=Software&in-detail=true"
+        resp = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
 
-        supplier_id = result.body[0]["id"]
+        supplier_id = resp.body[0]["id"]
 
         form_data = {
           "serial_number" => "your-serial-number",
@@ -225,22 +225,22 @@ feature "Inventory License" do
           }.to_json
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses",
           form_data,
           headers: cookie_header
         )
 
-        expect(result.status).to eq(200)
-        expect(result.body["data"]["item_id"]).to be
-        expect(result.body["data"]["id"]).to be
-        expect(result.body["data"]["id"]).to eq(result.body["data"]["item_id"])
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"]["item_id"]).to be
+        expect(resp.body["data"]["id"]).to be
+        expect(resp.body["data"]["id"]).to eq(resp.body["data"]["item_id"])
 
-        item_id = result.body["data"]["id"]
+        item_id = resp.body["data"]["id"]
 
-        expect(result.body["data"]["room_id"]).to be
-        expect(result.body["data"]["owner_id"]).to be
-        expect(result.body["data"]["inventory_pool_id"]).to be
+        expect(resp.body["data"]["room_id"]).to be
+        expect(resp.body["data"]["owner_id"]).to be
+        expect(resp.body["data"]["inventory_pool_id"]).to be
 
         form_data = {
           "serial_number" => "your-serial-number",
@@ -271,30 +271,30 @@ feature "Inventory License" do
           }.to_json
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
 
-        expect(result.status).to eq(200)
+        expect(resp.status).to eq(200)
 
         # TODO: revise to use data/validation response-format
-        expect(result.body[0]["id"]).to be
-        expect(result.body[0]["room_id"]).to be
-        expect(result.body[0]["owner_id"]).to be
-        expect(result.body[0]["inventory_pool_id"]).to be
+        expect(resp.body[0]["id"]).to be
+        expect(resp.body[0]["room_id"]).to be
+        expect(resp.body[0]["owner_id"]).to be
+        expect(resp.body[0]["inventory_pool_id"]).to be
       end
 
       it "creates and update license with attachment" do
         # fetch supplier
-        result = client.get "inventory/manufacturers?type=Software&in-detail=true"
+        resp = client.get "inventory/manufacturers?type=Software&in-detail=true"
 
-        expect(result.status).to eq(200)
-        expect(result.body.count).to eq(1)
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
 
-        supplier_id = result.body[0]["id"]
+        supplier_id = resp.body[0]["id"]
 
         # create license
         form_data = {
@@ -332,41 +332,41 @@ feature "Inventory License" do
           }.to_json
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses",
           form_data,
           headers: cookie_header
         )
 
-        expect(compare_values(result.body["data"], form_data,
+        expect(compare_values(resp.body["data"], form_data,
           ["serial_number", "note", "price", "retired_reason", "is_borrowable",
             "inventory_code", "item_version"])).to eq(true)
 
-        expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
-        expect(result.status).to eq(200)
+        expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
+        expect(resp.status).to eq(200)
 
-        expect(result.body["data"]["item_id"]).to be
-        expect(result.body["data"]["id"]).to be
-        expect(result.body["data"]["id"]).to eq(result.body["data"]["item_id"])
+        expect(resp.body["data"]["item_id"]).to be
+        expect(resp.body["data"]["id"]).to be
+        expect(resp.body["data"]["id"]).to eq(resp.body["data"]["item_id"])
 
-        item_id = result.body["data"]["id"]
+        item_id = resp.body["data"]["id"]
 
-        expect(result.body["data"]["room_id"]).to be
-        expect(result.body["data"]["owner_id"]).to be
-        expect(result.body["data"]["inventory_pool_id"]).to be
+        expect(resp.body["data"]["room_id"]).to be
+        expect(resp.body["data"]["owner_id"]).to be
+        expect(resp.body["data"]["inventory_pool_id"]).to be
 
         # fetch license
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields = result.body["fields"]
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        fields = resp.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
 
-        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
+        expect(validate_map_structure(resp.body["data"], get_response)).to eq(true)
 
-        attachments = result.body["data"]["attachments"]
-        expect(result.status).to eq(200)
+        attachments = resp.body["data"]["attachments"]
+        expect(resp.status).to eq(200)
         expect(attachments.count).to eq(2)
-        expect(result.body["data"]).to be_present
-        expect(result.body["fields"].count).to eq(29)
+        expect(resp.body["data"]).to be_present
+        expect(resp.body["fields"].count).to eq(29)
 
         # update license
         form_data = {
@@ -400,36 +400,36 @@ feature "Inventory License" do
           }.to_json
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
 
-        expect(compare_values(result.body[0], form_data,
+        expect(compare_values(resp.body[0], form_data,
           ["serial_number", "note", "price", "is_borrowable",
             "inventory_code", "item_version", "supplier_id", "owner_id"])).to eq(true)
 
-        expect(validate_map_structure(result.body.first, put_response)).to eq(true)
-        expect(result.status).to eq(200)
+        expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
+        expect(resp.status).to eq(200)
 
         # TODO: revise to use data/validation resultonse-format
-        expect(result.body[0]["id"]).to be
-        expect(result.body[0]["room_id"]).to be
-        expect(result.body[0]["owner_id"]).to be
-        expect(result.body[0]["inventory_pool_id"]).to be
+        expect(resp.body[0]["id"]).to be
+        expect(resp.body[0]["room_id"]).to be
+        expect(resp.body[0]["owner_id"]).to be
+        expect(resp.body[0]["inventory_pool_id"]).to be
 
         # fetch license
-        result = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
-        fields = result.body["fields"]
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/licenses/#{item_id}"
+        fields = resp.body["fields"]
         expected_form_fields(fields, expected_lm_fields)
-        expect(validate_map_structure(result.body["data"], get_response)).to eq(true)
+        expect(validate_map_structure(resp.body["data"], get_response)).to eq(true)
 
-        attachments = result.body["data"]["attachments"]
-        expect(result.status).to eq(200)
+        attachments = resp.body["data"]["attachments"]
+        expect(resp.status).to eq(200)
         expect(attachments.count).to eq(1)
-        expect(result.body["data"]).to be_present
+        expect(resp.body["data"]).to be_present
       end
     end
   end

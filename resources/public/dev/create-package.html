@@ -84,6 +84,10 @@
             margin-top: 10px;
         }
 
+        .myBtn {
+            margin-top: 10px;
+        }
+
         .file-item {
             display: flex;
             justify-content: space-between;
@@ -400,9 +404,7 @@
     <label for="softwareId"><a target="_blank"
                                href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Software
         ID (model_id)</a></label>
-
     <input type="text" id="softwareId" name="softwareId" value="6a41eb48-331a-4f58-b6b3-e83e28ba5e03">
-    <!--    <input type="text" id="softwareId"  value="25c09512-a854-5325-88f4-77aa43b2a0a4">-->
 </div>
 
 <div class="form-group">
@@ -411,7 +413,6 @@
 
     <button id="fetchPackageBtn" class="myBtn">Fetch Package</button>
 </div>
-
 
 <div class="warning-title">
     <i class="fas fa-exclamation-triangle"></i>
@@ -422,21 +423,56 @@
 
 <form id="softwareForm">
     <div id="dynamicFields"></div>
-
-    <!--    <div class="multi-select-container">-->
-    <!--        <div name="multi-select" class="selected-items"></div>-->
-    <!--        <input type="text" id="searchBox" placeholder="Start typing..." autocomplete="off">-->
-    <!--        <div class="suggestions"></div>-->
-    <!--    </div>-->
 </form>
-
-<!--<div class="form-group">-->
-<!--    <label for="items">Add Items</label>-->
-<!--    <select id="items" name="items" multiple></select>-->
-<!--</div>-->
 
 
 <script>
+
+    $(document).ready(function () {
+        window.CONST_IS_CREATE_FORM = true;
+
+        $('#delete-model').hide()
+        window.onDeletePackage = function () {
+            const modelId = $("#softwareId").val();
+            const itemId = $("#itemId").val();
+            var poolId = $('#poolId').val();
+
+            $.ajax({
+                url: `/inventory/${poolId}/models/${modelId}/package/${itemId}`,
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function (response, textStatus, xhr) {
+                    console.log('Package deleted successfully!', response);
+
+                    $("#cache").removeData();
+
+                    if (xhr.status === 200) {
+                        $('body').addClass('save-success');
+                        setTimeout(function () {
+                            $('body').removeClass('save-success');
+                        }, 3000);
+                    } else {
+                        $('body').addClass('save-failed');
+                        setTimeout(function () {
+                            $('body').removeClass('save-failed');
+                        }, 3000);
+                    }
+
+                    $('#delete-model').hide();
+                },
+                error: function (xhr) {
+                    console.error('Error deleting model:', xhr.responseText);
+
+                    $('body').addClass('save-failed');
+                    setTimeout(function () {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+        }
+    });
 
     const initSoftwareConfig = {
         placeholder: "Type to search software...",
@@ -472,48 +508,6 @@
                         return {
                             id: item.id,   // Unique ID (value)
                             text: item.product  // Display text in the dropdown
-                        };
-                    })
-                };
-            },
-            cache: true // Cache the results to avoid unnecessary network requests
-        }
-    }
-
-    const initSupplierConfig = {
-        placeholder: "Type to search software...",
-        allowClear: true,           // Allow users to clear the selection
-        minimumInputLength: 1,      // Only start searching after typing at least 1 character
-        ajax: {
-            url: function (params) {
-                const searchTerm = params.term ? encodeURIComponent(params.term) : '';
-                return `/inventory/supplier?search-term=${searchTerm}`;
-            },
-            data: function () {
-                return {};
-            },
-            transport: function (params, success, failure) {
-                // Abort the previous request if it exists
-                if (currentRequest) {
-                    currentRequest.abort();
-                }
-
-                // Set up the new request
-                currentRequest = $.ajax(params)
-                    .done(success)
-                    .fail(failure);
-
-                return currentRequest;
-            },
-            dataType: 'json',
-            delay: 250, // Delay in ms to prevent too many requests
-            processResults: function (data) {
-                // Format the results for Select2
-                return {
-                    results: data.map(function (item) {
-                        return {
-                            id: item.id,   // Unique ID (value)
-                            text: item.name  // Display text in the dropdown
                         };
                     })
                 };
@@ -567,7 +561,6 @@
 
     function updateFileList(input, listSelector, inputId) {
         var fileList = $(listSelector);
-        // fileList.empty();
 
         console.log(">> updateFileList1 > ", input.files);
         console.log(">> updateFileList2 > ", listSelector);
@@ -606,7 +599,6 @@
         // Handle files from response.data.attachments
         if (attachments.length > 0) {
             console.log(">> updateFileList2 > Attachments:", attachments);
-            // <button type="button" ftype="${inputId}" class="remove-file-btn" data-attachment-id="${attachment.id}" data-attachment-index="${index}">Remove</button>
             attachments.forEach((attachment, index) => {
                 fileList.append(`
                 <div class="file-item" id="attachments-to-delete">
@@ -659,14 +651,7 @@
             throw new Error("formData is undefined")
         }
 
-        // if (['null', undefined, null].includes(formData.get("supplier_id"))) {
-        //     // formData.delete("supplier_id");
-        //     throw new Error("Supplier is required");
-        // }
-
-        // for url
         if (['null', undefined, null].includes(modelId)) {
-            // formData.delete("supplier_id");
             throw new Error("Model is required");
         }
 
@@ -676,39 +661,6 @@
             throw new Error("Room is required");
         }
     }
-
-    // function renameFormDataKey(formData, oldKey, newKey) {
-    //     if (formData.has(oldKey)) {
-    //         // Get the value of the old key
-    //         const value = formData.get(oldKey);
-    //
-    //         // Add the value to the new key
-    //         formData.append(newKey, value);
-    //
-    //         // Delete the old key
-    //         formData.delete(oldKey);
-    //     }
-    // }
-
-    // function prepareItemsAndMarkDeletedItems(formData) {
-    //     // Get selected items
-    //     let items = window.getSelectedItems();
-    //
-    //     // Ensure deletedItems exists
-    //     let deletedItems = window.deletedItems || [];
-    //
-    //     // Add `delete: true` to items that are in deletedItems
-    //     items = items.map(item => {
-    //         const isDeleted = deletedItems.some(deletedItem =>
-    //             deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
-    //         );
-    //
-    //         return isDeleted ? { ...item, delete: true } : item;
-    //     });
-    //
-    //     // Append modified items to formData
-    //     formData.append('items_attributes', JSON.stringify(items));
-    // }
 
     function prepareItemsAndMarkDeletedItems(formData) {
         // Get selected items
@@ -750,23 +702,6 @@
         return data
     }
 
-    function getQuantityAllocationAsJsonArray() {
-        let propertiesArray = [];
-
-        $('#propertiesList .dynamic-item').each(function () {
-            let quantity = $(this).find('input[_name="quantityAllocationQuantity[]"]').val();
-            let name = $(this).find('input[_name="quantityAllocationRoom[]"]').val();
-
-            // Push the key-value pair into the array as a map
-            propertiesArray.push({
-                quantity: quantity,
-                room: name
-            });
-        });
-
-        return propertiesArray;
-    }
-
 
     function nstr(str) {
         return str.replace(/\s+/g, '');
@@ -798,11 +733,7 @@
             switch (data.type) {
                 case 'autocomplete':
                 case 'autocomplete-search':
-
-
                     if (data.label == "Add Item") {
-                        // oldField = `<input type="hidden" id="myOld${nstr(data.label)}" name="myOld${nstr(data.label)}"></input>`
-// debugger
                         field = $(`
                              <div class="multi-select-container">
                                  <div name="multi-select" class="selected-items"></div>
@@ -810,11 +741,8 @@
                                      <div class="suggestions"></div>
                              </div>
                             `);
-
-
                         break;
                     }
-
 
                     oldField = ""
                     if (data.label == "Software") {
@@ -829,8 +757,6 @@
                             ${oldField}
                         </div>
                     `);
-
-
                     break;
 
                 case 'text':
@@ -978,88 +904,14 @@
         // After generating form fields, add the save button if not already present
         if ($("#saveButton").length === 0) {
             form.append('<button type="submit" id="saveButton">Save Package</button>');
+            if (window.CONST_IS_CREATE_FORM) {
+                $('#delete-model').hide()
+                $('#delete-model').click(window.onDeletePackage)
+            }
         }
 
         // TODO: define/trigger init
         $("#myModel").select2(initSoftwareConfig)
-
-
-        // debugger
-
-        // $("#myAddItem").select2({
-        //     placeholder: 'Search items',
-        //     minimumInputLength: 1, // Start searching after typing 1 character
-        //     ajax: {
-        //         delay: 300, // Delay to reduce request frequency
-        //         transport: function (params, success, failure) {
-        //             // Retrieve the poolId value
-        //             const poolId = $("#poolId").val();
-        //
-        //             if (!poolId) {
-        //                 console.error("Pool ID is not set.");
-        //                 failure({ message: "Pool ID is required to perform the request." });
-        //                 return;
-        //             }
-        //
-        //             console.log("Fetching items from pool ID:", poolId);
-        //
-        //             // First request to fetch items
-        //             $.ajax({
-        //                 url: `/inventory/${poolId}/items`,
-        //                 dataType: 'json',
-        //                 data: {
-        //                     not_packaged: true,
-        //                     packages: false,
-        //                     retired: false,
-        //                     result_type: 'Min',
-        //                     search: params.data.term // Pass user input
-        //                 },
-        //                 success: function (itemResponse) {
-        //                     const modelIds = itemResponse.data.map(item => item.model_id);
-        //
-        //                     if (modelIds.length === 0) {
-        //                         console.warn("No model IDs found in the first request response.");
-        //                         success({ results: [] });
-        //                         return;
-        //                     }
-        //
-        //                     console.log("Fetched items, Model IDs:", modelIds);
-        //
-        //                     // Second request to fetch models
-        //                     $.ajax({
-        //                         url: `/inventory/${poolId}/models`,
-        //                         data: {
-        //                             filter_ids: modelIds
-        //                         },
-        //                         dataType: 'json',
-        //                         success: function (modelResponse) {
-        //                             // debugger
-        //                             const results = modelResponse.data.map(model => ({
-        //                                 id: model.id,
-        //                                 text: `${model.product} | ${model.product}` // Customize display text
-        //                             }));
-        //
-        //                             console.log("Fetched models:", results);
-        //                             success({ results });
-        //                         },
-        //                         error: function (err) {
-        //                             console.error("Error in second request (models):", err);
-        //                             failure(err);
-        //                         }
-        //                     });
-        //                 },
-        //                 error: function (err) {
-        //                     console.error("Error in first request (items):", err);
-        //                     failure(err);
-        //                 }
-        //             });
-        //         },
-        //         processResults: function (data) {
-        //             return { results: data.results };
-        //         }
-        //     }
-        // });
-
         $("#myAddItem").select2({
             placeholder: 'Search items',
             minimumInputLength: 1, // Start searching after typing 1 character
@@ -1073,7 +925,6 @@
                         failure({message: "Pool ID is required to perform the request."});
                         return;
                     }
-
                     console.log("Fetching items for pool ID:", poolId);
 
                     // First request to fetch items
@@ -1089,13 +940,11 @@
                         },
                         success: function (itemResponse) {
                             const modelIds = itemResponse.data.map(item => item.model_id);
-
                             if (modelIds.length === 0) {
                                 console.warn("No model IDs found in the first request response.");
                                 success({results: []});
                                 return;
                             }
-
                             console.log("Fetched items, Model IDs:", modelIds);
 
                             // Second request to fetch models
@@ -1104,9 +953,6 @@
                                 data: {
                                     filter_ids: modelIds
                                 },
-                                // data: $.param({
-                                //     filter_ids: modelIds // Pass array, jQuery formats it as repeated parameters
-                                // }, true), // Ensures proper array serialization
                                 dataType: 'json',
                                 success: function (modelResponse) {
                                     console.log("Fetched models:", modelResponse);
@@ -1155,7 +1001,6 @@
             addQuantityAllocationElement('DefaultKey', 'DefaultValue'); // Pass parameters to pre-fill the fields
         });
 
-
         $(document).on('click', '.remove-btn', function () {
             $(this).closest('.dynamic-item').remove();
         });
@@ -1164,7 +1009,6 @@
         $('#attachments').change(function () {
             updateFileList(this, '#attachmentsList', 'attachments');
         });
-
     }
 
 
@@ -1178,12 +1022,6 @@
         // project handling
         let reference = $('[name="properties,reference"]:checked').val();
         $(`[name="properties,reference"][value="${reference}"]`).prop('checked', true);
-        // $('[name="properties,reference"][value="invoice"]').prop('checked', true);
-        // if(reference=="dongle"){
-        //     $("#properties_dongle_id").prop("disabled", false)
-        // }else{
-        //     $("#properties_dongle_id").prop("disabled", true)
-        // }
 
         function handleReferenceSwitch() {
             let reference = $('[name="properties,reference"]:checked').val();
@@ -1231,7 +1069,6 @@
 
         $("#retired").off("change").on("change", function () {
             if ($("#retired").val() == 'false') {
-                // if($("#retired").val()== undefined){
                 $("#retired_reason").prop("disabled", true)
                 $("#retired_reason").val("")
             } else {
@@ -1239,80 +1076,11 @@
             }
         })
 
-
         // relevant_for_inventory handling
         if (data != undefined) {
             $("#is_inventory_relevant").data("is_inventory_relevant", data.is_inventory_relevant)
             $("#is_inventory_relevant").val(String(data.is_inventory_relevant))
         }
-        // if($("#retired").val()=='false'){
-        //     $("#retired_reason").prop("disabled", true)
-        //     $("#retired_reason").val("")
-        // }else{
-        //     $("#retired_reason").prop("disabled", false)
-        // }
-
-        // $("#is_inventory_relevant").off("change").on("change", function () {
-        //     if($("#is_inventory_relevant").val()=='false'){
-        //         // if($("#retired").val()== undefined){
-        //         $("#retired_reason").prop("disabled", true)
-        //         $("#retired_reason").val("")
-        //     }else{
-        //         $("#retired_reason").prop("disabled", false)
-        //     }
-        // })
-
-    }
-
-    function appendQuantityAllocationToFormData(formData) {
-        const properties = {}; // Object to hold extracted properties
-        const keysToDelete = []; // To keep track of keys to be deleted
-
-        // Iterate through formData entries
-        for (const [key, value] of formData.entries()) {
-            if (key.startsWith("properties,")) {
-                // Extract the property name after "properties,"
-
-                //     console.log("key???", key, value)
-                // if(key == 'properties,operating_system'){
-                //     console.log("key", key, value)
-                //     // debugger
-                // }
-
-                const propertyName = key.split(",")[1];
-                properties[propertyName] = value; // Add to properties object
-
-                if (key == 'properties,operating_system') {
-                    const value = Array.from(
-                        document.querySelectorAll('input[type="checkbox"][name="properties,operating_system"]:checked')
-                    ).map(checkbox => checkbox.value);
-                    properties[propertyName] = value; // Add to properties object
-                }
-
-                if (key == 'properties,installation') {
-                    const value = Array.from(
-                        document.querySelectorAll('input[type="checkbox"][name="properties,installation"]:checked')
-                    ).map(checkbox => checkbox.value);
-                    properties[propertyName] = value; // Add to properties object
-                }
-
-                // Mark the key for deletion
-                keysToDelete.push(key);
-            }
-        }
-
-
-        let quantityAllocation = getQuantityAllocationAsJsonArray()
-        properties["quantity_allocations"] = quantityAllocation
-
-
-        // Remove all keys marked for deletion
-        keysToDelete.forEach(key => formData.delete(key));
-
-        // Add the JSON stringified properties object back into formData
-        // formData.append("properties", JSON.stringify(properties));
-
-        return formData;
     }
 
 
@@ -1353,7 +1121,6 @@
 
 
     function initializeDropdowns(buildingId, roomId) {
-
         console.log("initializeDropdowns ???", buildingId, roomId)
 
         // Fetch buildings and populate the dropdown
@@ -1373,21 +1140,13 @@
                     );
                 });
 
-
-                // $buildingDropdown.data("initValue", buildingId)
                 $("#myRoom").data("initValue", roomId)
-
-                // After building dropdown is initialized, fetch and set rooms
-
-                // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
                 $buildingDropdown.off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
-
 
                 // Set the initial value for the building and trigger change
                 if (buildingId) {
                     $buildingDropdown.val(buildingId).trigger('change');
                 }
-
             },
             error: function () {
                 alert('Failed to load buildings.');
@@ -1396,85 +1155,8 @@
     }
 
 
-    function fetchOptions(url, selectId) {
-        fetch(url, {headers: {Accept: "application/json"}})
-            .then((response) => response.json())
-            .then((data) => {
-
-
-                // debugger
-
-                // if (response.compatibles) {
-                //
-                //
-                //     // Populate compatibles
-                //     $('#compatibles').val(response.compatibles
-                //         .filter(c => c && c.id != null)
-                //         .map(c => c.id)).trigger('change');
-                //
-                //     $('#compatibles').find('option:selected').each(function(index, option, a, b) {
-                //         const categoryId = $(option).val();
-                //         var entitlementData = response.compatibles.find(eg => eg.id === categoryId);
-                //         if (entitlementData) {
-                //             $(option).data('compatible', entitlementData);
-                //             console.log('Updated option data:', $(option).data('compatible'));
-                //         }
-                //     });
-                //     $("#cache").data("prev-compatibles",  $('#compatibles').val())
-                //
-                //     $('#compatibles').on('change', function() {
-                //         const currentSelection = $(this).val() || [];
-                //         const previousSelection = $("#cache").data("prev-compatibles") || [];
-                //         const removedOptions = previousSelection.filter(id => !currentSelection.includes(id));
-                //
-                //         var deleted_data = $("#cache").data("deleted-compatibles") || []
-                //         removedOptions.forEach(id => {
-                //             const removedOption = $(this).find(`option[value="${id}"]`);
-                //             var removedEntitlementData = removedOption.data('compatible')
-                //             if(removedEntitlementData == undefined){
-                //                 return;
-                //             }
-                //
-                //             removedEntitlementData.delete = true;
-                //             deleted_data.push(removedEntitlementData)
-                //         });
-                //
-                //         $("#cache").data("deleted-compatibles",  deleted_data);
-                //         $("#cache").data("prev-compatibles",  currentSelection);
-                //     });
-                // };
-
-                // debugger
-
-
-                // FIXME: add items to select
-                // const select = document.getElementById(selectId);
-                // select.innerHTML = '<option value="">Select an option</option>';
-                // data.forEach((item) => {
-                //     const option = document.createElement("option");
-                //     option.value = item.id;
-                //     option.textContent = item.inventory_code + " | " + item.product;
-                //     $(option).data('item', item);
-                //
-                //     select.appendChild(option);
-                // });
-                // initSelect2(selectId);
-                //
-                // if(selectId === 'item'){
-                //     $("#cache").data(`prev-${selectId}`,  $('#item').val());
-                // }
-
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-
-    const initialPoolId = $("#poolId").val();
-
     let currentRequest = null;
-    // $("#myModel").on("change", function () {
-
     $("#myModel").select2(initSoftwareConfig)
-    // $("#myAdd Item").select2(initSoftwareConfig)
 
     // Optional: Adding an onchange event listener to log the selected value
     $("#myModel").on("change", function () {
@@ -1497,8 +1179,6 @@
                 // Assuming `data` is an array of objects with `id` and `name` properties
                 const $select = $("#myResponsibleDepartment");
                 $select.empty(); // Clear any existing options
-                // window.clearMulti()
-
 
                 // Populate the <select> with options
                 data.forEach(item => {
@@ -1549,8 +1229,6 @@
 
 
     $(document).ready(function () {
-        let CONST_IS_CREATE_FORM = true;
-
         // data .. html-field
         const fieldMapping = {
             "serial_number": "serial_number",
@@ -1595,31 +1273,8 @@
 
         };
 
-        // function initSelect2(selectId, type) {
-        //     $(`#${selectId}`).select2({
-        //         width: "100%",
-        //         placeholder: "Select an option",
-        //         allowClear: true
-        //     });
-        // }
-
-        // function updateDropdowns(poolId) {
-        //     // fetchOptions(`/inventory/manufacturers`, 'manufacturer');
-        //     // fetchOptions(`/inventory/${poolId}/entitlement-groups`, 'entitlements');
-        //
-        //     // fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=podest`, 'items');
-        //
-        //     const searchTerm = $("#searchBox").val()
-        //     fetchOptions(`/inventory/${poolId}/items-with-model-info?result_type=Normal&search_term=${searchTerm}`, 'items');
-        //
-        //     // fetchOptions(`/inventory/models-compatibles`, 'compatibles');
-        //     // fetchOptions(`/inventory/${poolId}/model-groups`, 'categories');
-        // }
-
         // Initialize dropdowns on page load
         var initialPoolId = $('#poolId').val();
-
-        // updateDropdowns(initialPoolId);
 
         function formatDateForInput(dateString) {
             if (!dateString) return null;
@@ -1676,7 +1331,6 @@
                 return;
             }
 
-
             // FETCH PACKAGE
             $.ajax({
                 url: `/inventory/${poolId}/models/${modelId}/package/${itemId}`,
@@ -1686,11 +1340,12 @@
                     if (response && response.data) {
                         const data = response.data;
 
+                        $('#delete-model').show()
+
                         // flatten
                         Object.assign(data, data.properties);
                         delete data.properties;
                         window.clearMulti()
-
 
                         // Populate field values
                         populateFieldValues(data, fieldMapping);
@@ -1711,30 +1366,15 @@
                             `);
                         });
 
-
-                        CONST_IS_CREATE_FORM = false;
+                        window.CONST_IS_CREATE_FORM = false;
                         $("#formTitle").text("Update Package");
-                        // $("#saveButton").show(); // Ensure save button is visible after fetching data // Ensure save button is visible
 
                         // software
                         var swValue = data.product.name;
                         var swId = data.product.model_id;
                         var newOption = new Option(swValue, swId, true, true);
-                        // $("#myAdd Item").append(newOption).trigger('change');
                         $("#myModel").append(newOption).trigger('change');
                         $("#myOldSoftware").val(swId)
-
-                        // // supplier
-                        // if(data.supplier != undefined){
-                        //     var supplierName = data.supplier.name;
-                        //     var supplierId = data.supplier.supplier_id;
-                        //     var newOption = new Option(supplierName, supplierId, true, true);
-                        //     $("#mySupplier").append(newOption).trigger('change');
-                        // }
-                        // var supplierName = data.supplier.name;
-                        // var supplierId = data.supplier.supplier_id;
-                        // var newOption = new Option(supplierName, supplierId, true, true);
-                        // $("#mySupplier").append(newOption).trigger('change');
 
                         console.log("fetch.item")
                         initializeDropdowns(data.building_id, data.room_id);
@@ -1758,57 +1398,12 @@
                         }
 
 
-                        // if(data.reference == "invoice"){
-                        //  $("[name='properties,reference'][value=invoice]").prop("checked", true)
-                        // }else{
-                        //  $("[name='properties,reference'][value=investment]").prop("checked", true)
-                        // }
-
-
-                        // ["windows", "linux", "mac_os_x", "ios"].forEach(os =>{
-                        //     if(data.operating_system != undefined && data.operating_system.includes(os)){
-                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", true)
-                        //     }else{
-                        //      $(`[name='properties,operating_system'][value=${os}]`).prop("checked", false)
-                        //     }
-                        // })
-                        //
-                        // const installationList = data.installation || []; // Default to an empty array
-                        // ["citrix", "local", "web"].forEach(os => {
-                        //     if (installationList.includes(os)) {
-                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", true);
-                        //     } else {
-                        //         $(`[name='properties,installation'][value=${os}]`).prop("checked", false);
-                        //     }
-                        // });
-
-                        // const quantity_allocations = data.quantity_allocations || []; // Default to an empty array
-                        // $('#propertiesList').empty()
-                        // quantity_allocations.forEach(entry => {
-                        //     addQuantityAllocationElement(entry.quantity, entry.room); // Pass parameters to pre-fill the fields
-                        // });
-
-                        // const attachments = data.attachments || []; // Default to an empty array
-                        // $("#attachmentsList").empty();
-                        // attachments.forEach(attachment => {
-                        //
-                        //        let entry= $("#attachmentsList").append(`
-                        //             <div class="file-item" withData>
-                        //                 <span>${attachment.filename} (${attachment.content_type})</span>
-                        //                 <button type="button" class="remove-attachment-btn" data-attachment-id="${attachment.id}" >Remove</button>
-                        //             </div>
-                        //         `);
-                        //
-                        //     entry.data("raw", attachment)
-                        //     });
-
                         setupDongleAndRetiredHandler(data)
 
                         $("#saveButton").text("Update Package");
                         $("#saveButton").off('click').click(function (e) {
 
                             // UPDATE LICENSE
-
                             e.preventDefault(); // Prevent default form submission
                             console.log("Update button clicked");
 
@@ -1817,14 +1412,7 @@
                             const itemId = $("#itemId").val();
                             let formData = new FormData($("#softwareForm")[0]);
 
-
-                            // renameFormDataKey(formData, "mySoftware", "model_id");
-                            // renameFormDataKey(formData, "myOldSoftware", "old_model_id");
-                            // renameFormDataKey(formData, "mySupplier", "supplier_id");
-                            // renameFormDataKey(formData, "myOwner", "owner_id");
-                            // renameFormDataKey(formData, "myResponsibleDepartment", "inventory_pool_id");
                             formData = renameFormKeys(formData);
-
                             for (let [key, value] of formData.entries()) {
                                 console.log(key, value);
                             }
@@ -1835,38 +1423,11 @@
                             var attachmentsToDelete = $(`#attachmentsList`).data('to-delete') || []
                             formData.append('attachments_to_delete', JSON.stringify(attachmentsToDelete));
 
-
-                            // formData = appendQuantityAllocationToFormData(formData);
                             deleteParamsFromPutPostFormData(formData);
-
-
-                            // PUT
-                            // let items = window.getSelectedItems()
-                            //
-                            // let deletedItems = window.deletedItems || []
-                            //
-                            // // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
-                            // // Add `delete: true` to items that are in deletedItems
-                            // items = items.map(item => {
-                            //     const isDeleted = deletedItems.some(deletedItem =>
-                            //         deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
-                            //     );
-                            //
-                            //     return isDeleted ? { ...item, delete: true } : item;
-                            // });
-                            //
-                            //
-                            // formData.append('items_attributes', JSON.stringify(items));
-                            // // debugger
-
                             prepareItemsAndMarkDeletedItems(formData)
-
 
                             formData.delete('undefined')
                             formData.delete('attachments_to_delete')
-
-
-                            // // debugger
 
                             // If it's in update mode, make a PUT request
                             $.ajax({
@@ -1895,7 +1456,6 @@
                                 },
                             });
                         });
-
 
                         console.log("Package data fetched successfully!", response);
                         showResultEffect("save-success");
@@ -1935,17 +1495,6 @@
                     initResponsibleData(data);
                     initOwnersData(data);
 
-
-                    // // TODO: add items
-                    // // Handle `items`
-                    // if (selectId === 'items') {
-                    //     option.value = item.model_id;
-                    //     option.textContent = item.product;
-                    //     $(option).data('compatible', item);
-                    //     select.appendChild(option);
-                    //     return;
-                    // }
-
                     // Generate fields dynamically
                     generateFormFields(fields, "#softwareForm");
 
@@ -1969,10 +1518,6 @@
                                 );
                             });
 
-                            // Handle building selection and load rooms
-                            // $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
-
-
                             // Remove any previously bound handlers and attach the new one
                             $('#myBuilding').off('change', fetchBuildingHandler).on('change', fetchBuildingHandler);
 
@@ -1990,54 +1535,19 @@
                         console.log("Update button clicked");
 
                         const poolId = $("#poolId").val();
-                        // const modelId = $("#softwareId").val();
                         let formData = new FormData($("#softwareForm")[0]);
-
-
                         formData = renameFormKeys(formData);
-
                         for (let [key, value] of formData.entries()) {
                             console.log(key, value);
                         }
 
-                        // formData = appendQuantityAllocationToFormData(formData);
                         let modelId = formData.get("model_id")
-
                         deleteParamsFromPutPostFormData(formData);
                         checkFormDataOrThrow(formData, modelId)
-
-                        // POST
-                        // let items = window.getSelectedItems()
-                        // // items = items_attributes.map(({ id, inventory_code }) => ({ id, inventory_code }));
-                        //
-                        //
-                        // let deletedItems = window.deletedItems || []
-                        //
-                        // // TODO: if items contains elements from deletedItems then add attribute delete=true to the item
-                        // // Add `delete: true` to items that are in deletedItems
-                        // items = items.map(item => {
-                        //     const isDeleted = deletedItems.some(deletedItem =>
-                        //         deletedItem.id === item.id && deletedItem.inventory_code === item.inventory_code
-                        //     );
-                        //
-                        //     return isDeleted ? { ...item, delete: true } : item;
-                        // });
-                        //
-                        // formData.append('items_attributes', JSON.stringify(items));
-
                         prepareItemsAndMarkDeletedItems(formData)
-
-                        // debugger
-
-                        // // Debugging: log all keys and values in the FormData
-                        // for (let [key, value] of formData.entries()) {
-                        //     console.log(key, value);
-                        // }
 
                         // If it's in update mode, make a PUT request
                         $.ajax({
-                            // url: `/inventory/${poolId}/item`,
-                            // url: `/inventory/${poolId}/models/${modelId}/package`,
                             url: `/inventory/${poolId}/package`,
                             method: "POST",
                             data: formData,
@@ -2050,19 +1560,22 @@
 
                                 window.clearMulti()
 
-
                                 $('#softwareId').val(response.data.model_id)
-                                // $('#itemId').val(response.data.item_id)
                                 $('#itemId').val(response.data.id)
-
                                 $(`#attachmentsList`).data('to-delete', [])
                                 $('#attachments').val('');
-
-
                                 $('#fetchPackageBtn').trigger('click');
 
                                 showResultEffect("save-success");
 
+                                if (window.CONST_IS_CREATE_FORM) {
+                                    $('#itemId').val(response.data.id)
+                                    $('#delete-model').hide()
+                                } else {
+                                    $('#itemId').val(response[0].id)
+                                    $('#fetchPackageBtn').click()
+                                    $('#delete-model').show()
+                                }
 
                                 // TODO: fetch data by response id's
                             },
@@ -2073,17 +1586,8 @@
                         });
                     });
 
-
-                    // Populate field values
-                    // populateFieldValues(data, fieldMapping);
-
-                    // CONST_IS_CREATE_FORM = false;
-                    // $("#formTitle").text("Update Package");
-
                     setupDongleAndRetiredHandler()
-
                     console.log("Package fields fetched successfully!", response);
-                    // showResultEffect("save-success");
                 } else {
                     showResultEffect("no-result-success");
                 }
@@ -2094,7 +1598,6 @@
             },
         });
     });
-
 </script>
 </body>
 </html>

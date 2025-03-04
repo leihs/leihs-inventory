@@ -27,9 +27,9 @@ feature "Inventory Software" do
           raise "File not found: #{path}" unless File.exist?(path)
         end
 
-        result = client.get "/inventory/manufacturers?type=Software"
-        @form_manufacturers = result.body
-        raise "Failed to fetch manufacturers" unless result.status == 200
+        resp = client.get "/inventory/manufacturers?type=Software"
+        @form_manufacturers = resp.body
+        raise "Failed to fetch manufacturers" unless resp.status == 200
       end
 
       context "fetch form data" do
@@ -46,20 +46,20 @@ feature "Inventory Software" do
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first,
-          "technicalDetails" => "Specs go here"
+          "technical_details" => "Specs go here"
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/software",
           form_data,
           headers: cookie_header
         )
-        expect(result.status).to eq(401)
+        expect(resp.status).to eq(401)
 
         # fetch created software
         model_id = fake_software.id
-        result = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(result.status).to eq(401)
+        resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+        expect(resp.status).to eq(401)
 
         # update software request
         form_data = {
@@ -68,20 +68,20 @@ feature "Inventory Software" do
           "attachments_to_delete" => [],
           "version" => "updated v2.0",
           "manufacturer" => "updated manufacturer",
-          "technicalDetails" => "updated techDetail"
+          "technical_details" => "updated techDetail"
         }
 
-        result = http_multipart_client(
+        resp = http_multipart_client(
           "/inventory/#{pool_id}/software/#{model_id}",
           form_data,
           method: :put,
           headers: cookie_header
         )
-        expect(result.status).to eq(401)
+        expect(resp.status).to eq(401)
 
         # fetch updated model
-        result = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(result.status).to eq(401)
+        resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+        expect(resp.status).to eq(401)
       end
 
       context "create software (min)" do
@@ -91,34 +91,34 @@ feature "Inventory Software" do
             "product" => Faker::Commerce.product_name
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/software",
             form_data,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           # fetch created software
           model_id = fake_software.id
-          result = client.get "/inventory/#{pool_id}/software/#{model_id}"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+          expect(resp.status).to eq(401)
 
           # update software request
           form_data = {
             "product" => "updated product"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/software/#{model_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(401)
+          expect(resp.status).to eq(401)
 
           # fetch updated model
-          result = client.get "/inventory/#{pool_id}/software/#{model_id}"
-          expect(result.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
+          expect(resp.status).to eq(401)
         end
       end
     end

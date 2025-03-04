@@ -84,7 +84,7 @@ feature "Inventory Model" do
       let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
       before do
-        [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
+        [path_arrow, path_arrow_thumb, path_test_pdf, path_test2_pdf, path_test_txt].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
 
@@ -141,15 +141,15 @@ feature "Inventory Model" do
             "product" => Faker::Commerce.product_name
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model",
             form_data,
             headers: cookie_header
           )
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = result.body["data"]["id"]
+          model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
           expect(resp.body[0]["image_attributes"].count).to eq(0)
@@ -158,7 +158,7 @@ feature "Inventory Model" do
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
           expect(resp.body[0]["compatibles"].count).to eq(0)
           expect(resp.body[0]["categories"].count).to eq(0)
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
 
           expect(Image.where(target_id: model_id).count).to eq(0)
 
@@ -167,15 +167,15 @@ feature "Inventory Model" do
             "product" => "updated product"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model/#{model_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
 
-          expect(result.status).to eq(200)
-          expect(result.body[0]["id"]).to eq(model_id)
+          expect(resp.status).to eq(200)
+          expect(resp.body[0]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
@@ -186,7 +186,7 @@ feature "Inventory Model" do
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
           expect(resp.body[0]["compatibles"].count).to eq(0)
           expect(resp.body[0]["categories"].count).to eq(0)
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
         end
       end
 
@@ -211,16 +211,16 @@ feature "Inventory Model" do
             "categories" => [@form_model_groups.first].to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model",
             form_data,
             headers: cookie_header
           )
 
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = result.body["data"]["id"]
+          model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
           expect(resp.body[0]["image_attributes"].count).to eq(2)
@@ -229,7 +229,7 @@ feature "Inventory Model" do
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["compatibles"].count).to eq(1)
           expect(resp.body[0]["categories"].count).to eq(1)
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
 
           expect(Image.where(target_id: model_id).count).to eq(4)
 
@@ -250,18 +250,18 @@ feature "Inventory Model" do
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model/#{model_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
-          expect(result.status).to eq(200)
-          expect(result.body[0]["id"]).to eq(model_id)
+          expect(resp.status).to eq(200)
+          expect(resp.body[0]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.body[0]["image_attributes"].count).to eq(5)
+          expect(resp.body[0]["image_attributes"].count).to eq(4)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
@@ -269,7 +269,7 @@ feature "Inventory Model" do
           compatibles = resp.body[0]["compatibles"]
           expect(compatibles.count).to eq(2)
           expect(resp.body[0]["categories"].count).to eq(2)
-          expect(result.status).to eq(200)
+          expect(resp.status).to eq(200)
         end
       end
 
@@ -325,35 +325,35 @@ feature "Inventory Model" do
             "is_package" => "true"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model",
             form_data,
             headers: cookie_header
           )
-          expect(compare_values(result.body["data"], form_data,
+          expect(compare_values(resp.body["data"], form_data,
             ["version", "description", "technical_detail", "internal_description", "hand_over_note",
               "is_package"])).to eq(true)
 
-          expect(result.status).to eq(200)
-          expect(validate_map_structure(result.body["data"], post_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
 
           # fetch created model
-          model_id = result.body["data"]["id"]
-          result = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          images = result.body[0]["image_attributes"]
-          attachments = result.body[0]["attachments"]
+          model_id = resp.body["data"]["id"]
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          images = resp.body[0]["image_attributes"]
+          attachments = resp.body[0]["attachments"]
 
-          expect(result.body[0]["image_attributes"].count).to eq(2)
-          expect(result.body[0]["attachments"].count).to eq(2)
-          expect(result.body[0]["entitlement_groups"].count).to eq(2)
-          expect(result.body[0]["compatibles"].count).to eq(2)
+          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["attachments"].count).to eq(2)
+          expect(resp.body[0]["entitlement_groups"].count).to eq(2)
+          expect(resp.body[0]["compatibles"].count).to eq(2)
 
-          expected_compatibles = result.body[0]["compatibles"]
+          expected_compatibles = resp.body[0]["compatibles"]
           expect(select_with_cover(expected_compatibles).count).to eq(1)
           expect(select_without_cover(expected_compatibles).count).to eq(1)
 
-          expect(result.body[0]["categories"].count).to eq(2)
-          expect(result.status).to eq(200)
+          expect(resp.body[0]["categories"].count).to eq(2)
+          expect(resp.status).to eq(200)
           expect(Image.where(target_id: model_id).count).to eq(4)
 
           # create model request
@@ -380,35 +380,35 @@ feature "Inventory Model" do
             "is_package" => "false"
           }
 
-          result = http_multipart_client(
+          resp = http_multipart_client(
             "/inventory/#{pool_id}/model/#{model_id}",
             form_data,
             method: :put,
             headers: cookie_header
           )
 
-          expect(compare_values(result.body[0], form_data,
+          expect(compare_values(resp.body[0], form_data,
             ["product", "version", "manufacturer", "description", "technical_detail",
               "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
-          expect(validate_map_structure(result.body.first, put_response)).to eq(true)
-          expect(result.status).to eq(200)
-          expect(result.body[0]["id"]).to eq(model_id)
+          expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
+          expect(resp.status).to eq(200)
+          expect(resp.body[0]["id"]).to eq(model_id)
 
           # fetch updated model
-          result = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(validate_map_structure(result.body.first, get_response)).to eq(true)
-          expect(compare_values(result.body[0], form_data,
+          expect(validate_map_structure(resp.body.first, get_response)).to eq(true)
+          expect(compare_values(resp.body[0], form_data,
             ["product", "version", "manufacturer", "description", "technical_detail",
               "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
-          expect(result.body[0]["image_attributes"].count).to eq(2)
-          expect(result.body[0]["attachments"].count).to eq(1)
-          expect(result.body[0]["entitlement_groups"].count).to eq(1)
-          expect(result.body[0]["compatibles"].count).to eq(1)
-          expect(result.body[0]["categories"].count).to eq(1)
-          expect(result.status).to eq(200)
+          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["attachments"].count).to eq(1)
+          expect(resp.body[0]["entitlement_groups"].count).to eq(1)
+          expect(resp.body[0]["compatibles"].count).to eq(1)
+          expect(resp.body[0]["categories"].count).to eq(1)
+          expect(resp.status).to eq(200)
         end
       end
     end

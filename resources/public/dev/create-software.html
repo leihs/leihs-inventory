@@ -70,6 +70,10 @@
             cursor: pointer;
         }
 
+        .myBtn {
+            margin-top: 10px;
+        }
+
         button:hover {
             background-color: #0056b3;
         }
@@ -231,6 +235,7 @@
 
     <div class="form-group">
         <button type="submit" class="myBtn">Save Software</button>
+        <button type="button" id="delete-model" class="myBtn deleteStyle">Delete Software</button>
     </div>
 </form>
 
@@ -250,6 +255,47 @@
 
     $(document).ready(function () {
         let CONST_IS_CREATE_FORM = true;
+
+        $('#delete-model').hide()
+        $('#delete-model').click(function () {
+            var modelId = $('#fetchSoftwareId').val();
+            var poolId = $('#poolId').val();
+
+            $.ajax({
+                url: '/inventory/' + poolId + '/software/' + modelId,
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function (response, textStatus, xhr) {
+                    console.log('Software deleted successfully!', response);
+
+                    $("#cache").removeData();
+
+                    if (xhr.status === 200) {
+                        $('body').addClass('save-success');
+                        setTimeout(function () {
+                            $('body').removeClass('save-success');
+                        }, 3000);
+                    } else {
+                        $('body').addClass('save-failed');
+                        setTimeout(function () {
+                            $('body').removeClass('save-failed');
+                        }, 3000);
+                    }
+
+                    $('#delete-model').hide();
+                },
+                error: function (xhr) {
+                    console.error('Error deleting model:', xhr.responseText);
+
+                    $('body').addClass('save-failed');
+                    setTimeout(function () {
+                        $('body').removeClass('save-failed');
+                    }, 3000);
+                }
+            });
+        })
 
         const getApiConfig = (poolId, softwareId) => {
             return CONST_IS_CREATE_FORM
@@ -280,6 +326,8 @@
         $("#fetchSoftwareBtn").click(function () {
             const softwareId = $("#fetchSoftwareId").val();
             const poolId = $("#poolId").val();
+
+            $('#delete-model').show()
 
             if (!softwareId) {
                 alert("Please enter a software ID.");
@@ -371,9 +419,11 @@
 
                     if (CONST_IS_CREATE_FORM) {
                         $('#fetchSoftwareId').val(response.data.id)
+                        $('#delete-model').hide()
                     } else {
                         $('#fetchSoftwareId').val(response[0].id)
                         $('#fetchSoftwareBtn').click()
+                        $('#delete-model').show()
                     }
 
                     showResultEffect("save-success");
