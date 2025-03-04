@@ -9,9 +9,9 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   ;[ring.util.response :as response]
-
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [error]])
+  (:import [java.time LocalDateTime]
+           [java.util UUID]))
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx
