@@ -92,7 +92,7 @@
                               (sql/where [:= :id model-id])
                               sql-format))))))
 
-(defn process-images [tx images model-id]
+(defn process-images [tx images model-id] "DEPR: logic to handle passed images & thumbnails"
   (let [image-groups (group-by #(base-filename (:filename %)) images)]
     (doseq [[_ entries] image-groups]
       (when (= 2 (count entries))
@@ -229,13 +229,65 @@
 
         (process-attachments tx attachments model-id)
         (process-deletions tx attachments-to-delete :attachments :id)
-        (process-images tx images model-id)
+        ;(process-images tx images model-id)
         (process-image-attributes tx all-image-attributes model-id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
+
+        (if updated-model
+          (response [updated-model])
+          (bad-request {:error "Failed to update model"})))
+      (catch Exception e
+        (error "Failed to update model" (.getMessage e))
+        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+
+
+(defn delete-model-handler-by-pool-form [request]
+  (let [validation-result (atom [])
+        model-id (to-uuid (get-in request [:path-params :model_id]))
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        ;multipart (get-in request [:parameters :multipart])
+        tx (:tx request)
+        ;prepared-model-data (prepare-model-data multipart)
+        ]
+    (try
+      (let [deleted-model-query (->
+                                 ;(sql/update :models)
+                                 ;  (sql/set prepared-model-data)
+                                 (sql/delete-from :models)
+                                   (sql/where [:= :id model-id])
+                                   (sql/returning :*)
+                                   sql-format)
+
+
+
+            p (println ">o> deleted-model-query" deleted-model-query)
+
+
+
+            _ (throw (ex-info "delete-model-handler-by-pool-form" {:deleted-model-query deleted-model-query}))
+
+            attachments-to-delete (parse-json-array request :attachments-to-delete)
+
+            {:keys [images image-attributes new-images-attr existing-images-attr]}
+            (create-images-and-prepare-image-attributes request)
+
+
+
+            {:keys [created-images-attr all-image-attributes]}
+            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
+
+
+            updated-model nil
+
+            ]
+
+        (process-deletions tx attachments-to-delete :attachments :id)
+        (process-image-attributes tx all-image-attributes model-id)
+
 
         (if updated-model
           (response [updated-model])
