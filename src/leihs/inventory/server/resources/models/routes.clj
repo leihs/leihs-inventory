@@ -12,8 +12,7 @@
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form
-                                                                                         delete-model-handler-by-pool-form
-                                                                                         ]]
+                                                                                         delete-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -568,25 +567,21 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                          500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-             :summary "(DEV) | [v0]"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
+                :summary "(DEV) | [v0]"
+                :swagger {:consumes ["multipart/form-data"]
+                          :produces "application/json"}
+                :coercion spec/coercion
+                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                :parameters {:path {:pool_id uuid?
+                                    :model_id uuid?}
                           ;:multipart :software/multipart
-                          }
+                             }
              ;:handler update-model-handler-by-pool-form
-             :handler delete-model-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :body :model-optional-response/inventory-models}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-
-
-       }]]]
+                :handler delete-model-handler-by-pool-form
+                :responses {200 {:description "OK"
+                                 :body :model-optional-response/inventory-models}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]]
 
    ["/option"
     {:swagger {:conflicting true
