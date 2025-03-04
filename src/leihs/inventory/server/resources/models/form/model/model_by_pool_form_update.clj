@@ -245,6 +245,29 @@
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 
+
+;(ns myapp.db
+;  (:require [clojure.java.jdbc :as jdbc]))
+
+(defn db-operation
+  "Executes a SELECT or DELETE operation on the given table based on the operation keyword."
+  [db-spec operation table where-clause]
+  (let [where-str (str " WHERE " (clojure.string/join " AND "
+                                   (map (fn [[k v]] (str (name k) " = ?")) where-clause)))
+        values (vals where-clause)]
+    (case operation
+      :select (jdbc/query db-spec [(str "SELECT * FROM " table where-str) values])
+      :delete (jdbc/execute! db-spec [(str "DELETE FROM " table where-str) values])
+      (throw (IllegalArgumentException. "Unsupported operation")))))
+
+
+
+
+
+
+
+
+
 (defn delete-model-handler-by-pool-form [request]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
@@ -261,14 +284,27 @@
                                    (sql/where [:= :id model-id])
                                    (sql/returning :*)
                                    sql-format)
+            deleted-model (jdbc/execute! tx deleted-model-query)
 
 
 
-            p (println ">o> deleted-model-query" deleted-model-query)
+            p (println ">o> deleted-model" deleted-model)
 
 
 
-            _ (throw (ex-info "delete-model-handler-by-pool-form" {:deleted-model-query deleted-model-query}))
+            res-attachments (db-operation db-spec :select "attachments" {:model_id model-id})
+p (println ">o> res-attachments" res-attachments)
+
+            res-images (db-operation db-spec :select "images" {:target_id model-id})
+p (println ">o> res-images" res-images)
+
+
+
+            _ (throw (ex-info "delete-model-handler-by-pool-form" {:deleted-model deleted-model}))
+
+
+
+
 
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
