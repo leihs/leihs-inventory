@@ -10,20 +10,12 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
                                                                       prepare-image-attributes]]
-   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
-                                                           file-to-base64 base-filename process-attachments]]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
-                                                            entitlements-query item-query
-                                                            model-links-query properties-query]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
+                                                           parse-json-array process-attachments str-to-bool]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util UUID]))
+   [taoensso.timbre :refer [error]]))
 
 (defn prepare-model-data
   [data]
@@ -244,8 +236,6 @@
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
-
-
 ;(ns myapp.db
 ;  (:require [clojure.java.jdbc :as jdbc]))
 
@@ -253,20 +243,12 @@
   "Executes a SELECT or DELETE operation on the given table based on the operation keyword."
   [db-spec operation table where-clause]
   (let [where-str (str " WHERE " (clojure.string/join " AND "
-                                   (map (fn [[k v]] (str (name k) " = ?")) where-clause)))
+                                                      (map (fn [[k v]] (str (name k) " = ?")) where-clause)))
         values (vals where-clause)]
     (case operation
       :select (jdbc/execute! db-spec [(str "SELECT * FROM " table where-str) values])
       :delete (jdbc/execute! db-spec [(str "DELETE FROM " table where-str) values])
       (throw (IllegalArgumentException. "Unsupported operation")))))
-
-
-
-
-
-
-
-
 
 (defn delete-model-handler-by-pool-form [request]
   (let [validation-result (atom [])
@@ -278,52 +260,37 @@
         ]
     (try
       (let [deleted-model-query (->
-                                 ;(sql/update :models)
-                                 ;  (sql/set prepared-model-data)
+                                  ;(sql/update :models)
+                                  ;  (sql/set prepared-model-data)
                                  (sql/delete-from :models)
-                                   (sql/where [:= :id model-id])
-                                   (sql/returning :*)
-                                   sql-format)
+                                 (sql/where [:= :id model-id])
+                                 (sql/returning :*)
+                                 sql-format)
             deleted-model (jdbc/execute! tx deleted-model-query)
-
-
 
             p (println ">o> deleted-model" deleted-model)
 
-
-
             res-attachments (db-operation tx :select "attachments" {:model_id model-id})
-p (println ">o> res-attachments" res-attachments)
+            p (println ">o> res-attachments" res-attachments)
 
             res-images (db-operation tx :select "images" {:target_id model-id})
-p (println ">o> res-images" res-images)
+            p (println ">o> res-images" res-images)
 
-
-
+;; FIXME: delete images and attachments
             _ (throw (ex-info "delete-model-handler-by-pool-form" {:deleted-model deleted-model}))
-
-
-
-
 
             attachments-to-delete (parse-json-array request :attachments-to-delete)
 
             {:keys [images image-attributes new-images-attr existing-images-attr]}
             (create-images-and-prepare-image-attributes request)
 
-
-
             {:keys [created-images-attr all-image-attributes]}
             (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
 
-
-            updated-model nil
-
-            ]
+            updated-model nil]
 
         (process-deletions tx attachments-to-delete :attachments :id)
         (process-image-attributes tx all-image-attributes model-id)
-
 
         (if updated-model
           (response [updated-model])
