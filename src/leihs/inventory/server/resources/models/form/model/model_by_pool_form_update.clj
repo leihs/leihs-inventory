@@ -256,7 +256,7 @@
                                    (map (fn [[k v]] (str (name k) " = ?")) where-clause)))
         values (vals where-clause)]
     (case operation
-      :select (jdbc/query db-spec [(str "SELECT * FROM " table where-str) values])
+      :select (jdbc/execute! db-spec [(str "SELECT * FROM " table where-str) values])
       :delete (jdbc/execute! db-spec [(str "DELETE FROM " table where-str) values])
       (throw (IllegalArgumentException. "Unsupported operation")))))
 
@@ -292,10 +292,10 @@
 
 
 
-            res-attachments (db-operation db-spec :select "attachments" {:model_id model-id})
+            res-attachments (db-operation tx :select "attachments" {:model_id model-id})
 p (println ">o> res-attachments" res-attachments)
 
-            res-images (db-operation db-spec :select "images" {:target_id model-id})
+            res-images (db-operation tx :select "images" {:target_id model-id})
 p (println ">o> res-images" res-images)
 
 
