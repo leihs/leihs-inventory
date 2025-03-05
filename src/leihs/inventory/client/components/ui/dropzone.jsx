@@ -104,7 +104,7 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
     <div
       {...dropzone.getRootProps()}
       className={cn(
-        "flex justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
+        "flex shadow-sm justify-center items-center w-full h-32 border-dashed border-2 border-gray-200 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all select-none cursor-pointer",
         className,
       )}
     >
@@ -120,7 +120,9 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
       />
 
       {dropzone.isDragAccept ? (
-        <div className="text-sm font-medium">Drop your files here!</div>
+        <div className="text-sm font-medium shadow-sm">
+          Drop your files here!
+        </div>
       ) : (
         <div className="flex items-center flex-col gap-1.5">
           <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
