@@ -579,7 +579,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              ;:handler update-model-handler-by-pool-form
                 :handler delete-model-handler-by-pool-form
                 :responses {200 {:description "OK"
-                                 :body :model-optional-response/inventory-models}
+                                 ;:body :model-optional-response/inventory-models
+                                 }
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]]
 
