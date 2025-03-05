@@ -270,12 +270,6 @@
 (defn db-operation
   "Executes a SELECT or DELETE operation on the given table based on the operation keyword using next.jdbc and HoneySQL."
   [tx operation table where-clause]
-
-  ;(println ">o> db-operation1")
-  ;(println ">o> db-operation2" operation  )
-  ;(println ">o> db-operation3"  table )
-  ;(println ">o> db-operation4"   where-clause)
-
   (let [query (case operation
                 :select
                           (-> (sql/select :*)
@@ -289,10 +283,6 @@
                             (sql/where where-clause)
                             sql-format))
                 (throw (IllegalArgumentException. "Unsupported operation")))]
-
-    ;(println ">o> query1" query)
-    ;(println ">o> query2" (jdbc/execute! tx query))
-    ;(pr "op.res=" (jdbc/execute! tx query))))
     (jdbc/execute! tx query)))
 
 
@@ -307,108 +297,25 @@
   [vec-of-maps keys-to-keep]
   (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
-(defn delete-model-handler-by-pool-form [request] "Delete a model (and attachments) by pool form but no images"
-  (let [validation-result (atom [])
-        model-id (to-uuid (get-in request [:path-params :model_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        ;multipart (get-in request [:parameters :multipart])
-        tx (:tx request)
-        ;prepared-model-data (prepare-model-data multipart)
-        ]
+(defn delete-model-handler-by-pool-form [request]
+  "Delete a model (and attachments) by pool form but no images"
+  (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+        tx (:tx request)]
     (try
-      (let [
-
-
-            result {}
-
-            res (db-operation tx :select :attachments [:= :model_id model-id])
-            p (println ">o> before.del.att" (count (remove-content-key res)) (remove-content-key res))
-
-
-            ;p (println ">o> abc2.filter" (filter-keys res [:id :model_id :filename :size ]))
-
-            result (assoc result :deleted_attachments (filter-keys res [:id :model_id :filename :size ]))
-
-            res (db-operation tx :select :images [:= :target_id model-id])
-            p (println ">o> before.del.image" (count (remove-content-key res)) (remove-content-key res))
-
-            result (assoc result :deleted_images (filter-keys res  [:id :target_id :filename :size :thumbnail]))
-
-
-            deleted-model-query (->
-                                  ;(sql/update :models)
-                                  ;  (sql/set prepared-model-data)
-                                  (sql/delete-from :models)
-                                  (sql/where [:= :id model-id])
-                                  (sql/returning :*)
-                                  sql-format)
+      (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
+            images (db-operation tx :select :images [:= :target_id model-id])
+            deleted-model-query (-> (sql/delete-from :models)
+                                    (sql/where [:= :id model-id])
+                                    (sql/returning :*)
+                                    sql-format)
             deleted-model (jdbc/execute! tx deleted-model-query)
-
-
-            result (assoc result :deleted_model (filter-keys deleted-model [:id :product :manufacturer]))
-
-
-            p (println ">o> deleted-model" (count deleted-model) deleted-model)
-            ;
-
-
-            res (db-operation tx :select :attachments [:= :model_id model-id])
-            p (println ">o> before.del.att2" (count (remove-content-key res)) (remove-content-key res))
-
-            res (db-operation tx :select :images [:= :target_id model-id])
-            p (println ">o> before.del.image2" (count (remove-content-key res)) (remove-content-key res))
-
-
-
-            ;p (println ">o> model-id" model-id)
-            ;
-            ;att (jdbc/execute! tx (-> (sql/select :*)
-            ;                                (sql/from :attachments)
-            ;                                (sql/where [:= :model_id model-id])
-            ;                                sql-format))
-            ;p (println ">o> att" att)
-            ;
-            ;;res-attachments (db-operation tx :select :attachments {:model_id model-id})
-            ;res-attachments (db-operation tx :select :attachments [:= :model_id model-id])
-            ;;p (println ">o> res-attachments" (dissoc :content (first res-attachments)))
-            ;p (println ">o> res-attachments" res-attachments)
-
-            res-images (db-operation tx :delete :images [:= :target_id model-id])
-            p (println ">o> deleted.image2" (count (remove-content-key res-images)) (remove-content-key res-images))
-            ;p (println ">o> abc.res-images" res-images)
-
-            ;
-            ;;res-images (db-operation tx :select :images [:= :target_id model-id])
-            ;;p (println ">o> res-images" (dissoc :content res-images))
-            ;
-            ;;; FIXME: delete images and attachments
-            ;_ (throw (ex-info "delete-model-handler-by-pool-form" {:deleted-model deleted-model}))
-
-            ;    attachments-to-delete (parse-json-array request :attachments-to-delete)
-            ;
-            ;    {:keys [images image-attributes new-images-attr existing-images-attr]}
-            ;    (create-images-and-prepare-image-attributes request)
-            ;
-            ;    {:keys [created-images-attr all-image-attributes]}
-            ;    (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
-            ;
-            ;    updated-model nil
-            ]
-        ;
-        ;(process-deletions tx attachments-to-delete :attachments :id)
-        ;(process-image-attributes tx all-image-attributes model-id)
-        ;
+            result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                    :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
+                    :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+        (db-operation tx :delete :images [:= :target_id model-id])
         (if (= 1 (count deleted-model))
           (response result)
-          ;(response [deleted-model])
-          ;(bad-request {:error "Failed1 to update model"}))
-          (throw (ex-info "deleted-model" deleted-model))
-
-
-        )     )
-
-
+          (throw (ex-info "deleted-model" deleted-model))))
       (catch Exception e
-        ;(error "Failed to update model" (.getMessage e))
         (error "Failed to update model" e)
-        (bad-request {:error "Failed2 to update model" :details (.getMessage e)})))))
+        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
