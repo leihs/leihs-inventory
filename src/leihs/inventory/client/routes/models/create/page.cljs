@@ -78,12 +78,12 @@
   (.. (js/fetch "/inventory/manufacturers?type=Model"
                 (cj {:headers {"Accept" "application/json"}}))
       (then #(.json %))
-      (then #(jc %))))
+      (then #(remove (fn [el] (= "" el)) (jc %)))))
 
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
                            :defaultValues {:product ""
-                                           :isPackage false
+                                           :is_package false
                                            :manufacturer ""
                                            :description ""
                                            :internal_description ""
@@ -135,6 +135,7 @@
                                              :entitlements (:data entitlement-groups)
                                              :manufacturers (:data manufacturers)
                                              :categories (:data categories)}}
+
          ($ :article
             ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
                "Inventarliste - Ausleihe Toni Areal")

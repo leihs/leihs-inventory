@@ -82,16 +82,15 @@
                                                 :size "icon"
                                                 :className "cursor-pointer"
                                                 :on-click #(remove index)}
-                                        ($ Trash {:className "p-1"})))))))
+                                        ($ Trash {:className "w-4 h-4"})))))))
                        fields)))))))
 
        ($ :div {:className "flex"}
           ($ Button {:type "button"
-                     :className ""
                      :variant "outline"
                      :on-click #(append (cj {:name ""}))}
 
-             ($ CirclePlus {:className "p-1"}) "Zubehör hinzufügen")))))
+             ($ CirclePlus {:className "w-4 h-4"}) "Zubehör hinzufügen")))))
 
 (def AccessoryList
   (uix/as-react

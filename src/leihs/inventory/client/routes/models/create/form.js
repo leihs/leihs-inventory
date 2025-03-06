@@ -14,7 +14,7 @@ export const schema = z.object({
   version: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
-  technical_details: z.string().optional(),
+  technical_detail: z.string().optional(),
   internal_description: z.string().optional(),
   hand_over_note: z.string().optional(),
   entitlements: z
@@ -67,7 +67,6 @@ export const structure = [
         label: "Produkt",
         input: "input",
         props: {
-          placeholder: "Produktnamen eingeben",
           "auto-complete": "off",
         },
       },
@@ -77,7 +76,6 @@ export const structure = [
         input: "input",
         props: {
           type: "text",
-          placeholder: "Version eingeben",
           "auto-complete": "off",
         },
       },
@@ -89,40 +87,32 @@ export const structure = [
       {
         name: "description",
         label: "Beschreibung",
-        // description: "Beschreiben Sie das Produkt",
         input: "textarea",
         props: {
-          placeholder: "Beschreibung eingeben",
           "auto-complete": "off",
         },
       },
       {
         name: "technical_detail",
         label: "Technische Details",
-        // description: "Geben Sie technische Details an",
         input: "textarea",
         props: {
-          placeholder: "Technische Details eingeben",
           "auto-complete": "off",
         },
       },
       {
         name: "internal_description",
         label: "Interne Beschreibung",
-        // description: "Geben Sie eine interne Beschreibung an",
         input: "textarea",
         props: {
-          placeholder: "Interne Beschreibung eingeben",
           "auto-complete": "off",
         },
       },
       {
         name: "hand_over_note",
         label: "Übergabevermerk",
-        // description: "Geben Sie einen Übergabevermerk an",
         input: "textarea",
         props: {
-          placeholder: "Übergabevermerk eingeben",
           "auto-complete": "off",
         },
       },

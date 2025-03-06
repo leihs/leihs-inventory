@@ -96,7 +96,7 @@
                                              :size "icon"
                                              :className "cursor-pointer"
                                              :on-click #(remove index)}
-                                     ($ Trash {:className "p-1"})))))))
+                                     ($ Trash {:className "w-4 h-4"})))))))
                     fields))))))
 
        ($ :div {:className "flex"}
@@ -106,7 +106,7 @@
                      :on-click #(append (cj {:key ""
                                              :value ""}))}
 
-             ($ CirclePlus {:className "p-1"}) "Eigenschaft hinzufügen")))))
+             ($ CirclePlus {:className "w-4 h-4"}) "Eigenschaft hinzufügen")))))
 
 (def ModelProperties
   (uix/as-react
