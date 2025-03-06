@@ -5,6 +5,9 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
+
+   [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
+
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -238,57 +241,6 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
-
-;(ns myapp.db
-;  (:require [clojure.java.jdbc :as jdbc]))
-
-(defn db-operation
-  "Executes a SELECT or DELETE operation on the given table based on the operation keyword."
-  [tx operation table where-clause]
-
-  (println ">o> db-operation")
-
-  (let [where-str (str " WHERE " (clojure.string/join " AND "
-                                   (map (fn [[k v]] (str (name k) " = ?")) where-clause)))
-        values (vals where-clause)
-
-        p (println ">o> abc.where-str" where-str)
-        p (println ">o> abc.values" values)
-        ]
-    (case operation
-      :select (jdbc/execute! tx [(str "SELECT * FROM " table where-str) values])
-      :delete (jdbc/execute! tx [(str "DELETE FROM " table where-str) values])
-      (throw (IllegalArgumentException. "Unsupported operation")))))
-
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
-(defn db-operation
-  "Executes a SELECT or DELETE operation on the given table based on the operation keyword using next.jdbc and HoneySQL."
-  [tx operation table where-clause]
-  (let [query (case operation
-                :select
-                (-> (sql/select :*)
-                  (sql/from (keyword table))
-                  (sql/where where-clause)
-                  sql-format)
-                :delete (do
-                          (println ">o> abc" operation)
-
-                          (-> (sql/delete-from table)
-                            (sql/where where-clause)
-                            sql-format))
-                (throw (IllegalArgumentException. "Unsupported operation")))]
-    (jdbc/execute! tx query)))
-
-(defn filter-keys
-  "Filters the keys of each map in the vector, keeping only the specified keys."
-  [vec-of-maps keys-to-keep]
-  (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
 (defn delete-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))

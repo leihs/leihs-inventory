@@ -21,7 +21,8 @@
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
+                                                                                            delete-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -567,7 +568,7 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                          500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-                :summary "(DEV) | [v0]"
+                :summary "(DEV) | Form-Handler: Delete form data [v0]"
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
                 :coercion spec/coercion
@@ -751,7 +752,27 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
              :responses {200 {:description "OK"
                               :body [:software/response]}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+                         500 {:description "Internal Server Error"}}}
+
+       :delete {:accept "application/json"
+             :swagger {:consumes ["multipart/form-data"]
+                       :produces "application/json"}
+             :summary "(DEV) | Form-Handler: Delete form data [v0]"
+             :coercion spec/coercion
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          ;:multipart :software/multipart
+                          }
+             :handler delete-software-handler-by-pool-form
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :responses {200 {:description "OK"
+                              ;:body [:software/response]
+                              }
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+
+       }]]]
 
    ["/models"
     [""
