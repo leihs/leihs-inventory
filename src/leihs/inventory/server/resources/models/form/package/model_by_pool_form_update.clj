@@ -7,6 +7,10 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
+
+   [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
+
+
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -93,3 +97,40 @@
     (if res
       (update-package-handler {:item_id item-id :model_id model-id :pool_id pool-id :tx tx :request request :item-entry res})
       (bad-request {:error "Failed to update item" :details "No data found"}))))
+
+
+(defn delete-package-handler-by-pool-form [request]
+    (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+          tx (:tx request)
+
+          models (db-operation tx :select :models [:= :id model-id])
+          _ (when-not (seq models)
+              (throw (ex-info "Request to delete package blocked: package not found" {:status 404})))
+
+          items (db-operation tx :select :items [:= :model_id model-id])
+          attachments (db-operation tx :select :attachments [:= :model_id model-id])
+          images (db-operation tx :select :images [:= :target_id model-id])
+
+          _ (when (seq items)
+              (throw (ex-info "Request to delete package blocked: referenced item(s) exist" {:status 403})))
+
+          deleted-model (jdbc/execute! tx
+                          (-> (sql/delete-from :models)
+                            (sql/where [:= :id model-id])
+                            (sql/returning :*)
+                            sql-format))
+          _ (db-operation tx :delete :images [:= :target_id model-id])
+
+          remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
+          remaining-images (db-operation tx :select :images [:= :target_id model-id])
+
+          _ (when (or (seq remaining-attachments) (seq remaining-images))
+              (throw (ex-info "Request to delete package blocked: referenced attachments or images still exist" {:status 403})))
+
+          result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                  :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
+                  :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+
+      (if (= 1 (count deleted-model))
+        (response result)
+        (throw (ex-info "Request to delete package failed"  {:status 403})))))

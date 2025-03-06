@@ -59,14 +59,12 @@
   (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         tx (:tx request)
-        ;where-clause-model [:and [:= :id model-id] [:= :inventory_pool_id pool-id] [:= :type "Software"]]
         where-clause-model [:and [:= :id model-id]  [:= :type "Software"]]
 
         models (db-operation tx :select :models where-clause-model)
         _ (when-not (seq models)
             (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))
 
-        ;items (db-operation tx :select :items [:and [:= :model_id model-id] [:= :inventory_pool_id pool-id]])
         items (db-operation tx :select :items [:and [:= :model_id model-id]])
         attachments (db-operation tx :select :attachments [:= :model_id model-id])
 

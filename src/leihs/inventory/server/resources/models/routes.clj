@@ -18,7 +18,8 @@
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form
+                                                                                           delete-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
@@ -62,10 +63,14 @@
     {:get {:conflicting true
            :summary "Get manufacturers [v0]"
            :accept "application/json"
-           :description "'search-term' starts working with at least one character, considers:\n
-- manufacturer\n
-- product\n\n
-HINT: 'in-detail'-option works for models with set 'search-term' only\n"
+           :description "'search-term' works with at least one character, considers:\n
+- manufacturer
+- product
+\nEXCLUDES manufacturers
+- .. starting with space
+- .. with empty string
+\nHINT
+- 'in-detail'-option works for models with set 'search-term' only\n"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
@@ -483,7 +488,8 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
                :tags ["form / package"] :security []}}
 
     ["/:item_id"
-     {:put {:accept "application/json"
+     {
+      :put {:accept "application/json"
             :swagger {:consumes ["multipart/form-data"]
                       :produces "application/json"}
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
@@ -495,6 +501,25 @@ HINT: 'in-detail'-option works for models with set 'search-term' only\n"
             :handler update-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
+                        ;; FIXME
+                             ;:body :package-put-response/inventory-item}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}
+
+      :delete {:accept "application/json"
+            ;:swagger {:consumes ["multipart/form-data"]
+            ;          :produces "application/json"}
+            :summary "(DEV) | Dynamic-Form-Handler: Delete form data | Fetch fields by Role [v0]"
+            :coercion spec/coercion
+            :parameters {:path {:pool_id uuid?
+                                :model_id uuid?
+                                :item_id uuid?}
+                         ;:multipart :package/payload
+                         }
+            :handler delete-package-handler-by-pool-form
+            :responses {200 {:description "OK"
+                             ;:body :package-put-response2/inventory-item
+                             }
                         ;; FIXME
                              ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
