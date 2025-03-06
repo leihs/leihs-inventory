@@ -44,6 +44,7 @@
 
 
     ["/used-by" {:get {:conflicting true
+                               :summary "Used to determine appearance of uuid in tables"
                                :accept "application/json"
                                :middleware [wrap-check-authenticated-admin]
                                :coercion reitit.coercion.schema/coercion
