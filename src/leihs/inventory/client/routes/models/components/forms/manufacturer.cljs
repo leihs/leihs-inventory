@@ -5,7 +5,7 @@
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
-   ["lucide-react" :refer [ChevronsUpDown]]
+   ["lucide-react" :refer [ChevronsUpDown Check]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
@@ -16,8 +16,11 @@
   (let [{:keys [manufacturers]} (uix/use-context state-context)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
+        get-values (aget form "getValues")
         set-value (aget form "setValue")
         buttonRef (uix/use-ref nil)]
+
+    ;; (js/console.debug (first manufacturers))
 
     (uix/use-effect
      (fn []
@@ -41,7 +44,7 @@
                                            :on-click (fn [] (set-open! (not open)))
                                            :class-name "w-full justify-between"}
 
-                                   (if (str/blank? (str (.. ^js % -field -value)))
+                                   (if (= (.. ^js % -field -value) nil)
                                      "Select manufacturer"
                                      (.. ^js % -field -value))
 
@@ -60,13 +63,21 @@
                                    ($ CommandEmpty "No item found.")
 
                                    (for [manufacturer manufacturers]
-                                     ($ CommandItem {:key manufacturer
-                                                     :value manufacturer
-                                                     :on-select (fn []
-                                                                  (set-open! false)
-                                                                  (set-value "manufacturer" manufacturer))}
+                                     (when (not (= manufacturer nil))
+                                       ($ CommandItem {:key manufacturer
+                                                       :value manufacturer
+                                                       :on-select (fn []
+                                                                    (set-open! false)
+                                                                    (if (= (str (get-values "manufacturer")) manufacturer)
+                                                                      (set-value "manufacturer" nil)
+                                                                      (set-value "manufacturer" manufacturer)))}
 
-                                        ($ :span manufacturer))))))))}))))
+                                          ($ Check
+                                             {:class-name (str "mr-2 h-4 w-4 "
+                                                               (if (= manufacturer (get-values "manufacturer"))
+                                                                 "visible"
+                                                                 "invisible"))})
+                                          ($ :span manufacturer)))))))))}))))
 
 (def Manufacturer
   (uix/as-react

@@ -78,17 +78,17 @@
   (.. (js/fetch "/inventory/manufacturers?type=Model"
                 (cj {:headers {"Accept" "application/json"}}))
       (then #(.json %))
-      (then #(jc %))))
+      (then #(remove (fn [el] (= "" el)) (jc %)))))
 
 (defui page []
   (let [form (useForm (cj {:resolver (zodResolver schema)
                            :defaultValues {:product ""
                                            :isPackage false
-                                           :manufacturer ""
+                                           :manufacturer nil
                                            :description ""
-                                           :internal_description ""
-                                           :technical_detail ""
-                                           :hand_over_note ""
+                                           :internalDescription ""
+                                           :technicalDetails ""
+                                           :handOverNote ""
                                            :version ""
                                            :image_attributes []
                                            :categories []
@@ -112,7 +112,7 @@
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
-    (.. form (watch))
+    ;; (.. form (watch))
 
     (cond
       (or (:isLoading entitlement-groups)
@@ -135,6 +135,8 @@
                                              :entitlements (:data entitlement-groups)
                                              :manufacturers (:data manufacturers)
                                              :categories (:data categories)}}
+
+         (js/console.debug manufacturers)
          ($ :article
             ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
                "Inventarliste - Ausleihe Toni Areal")
