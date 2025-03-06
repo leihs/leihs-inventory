@@ -67,7 +67,6 @@
               _ (when-not has-scope?
                   (throw (ex-info "Unauthorized: invalid scope for the requested method" {:status 401})))
 
-
               roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
               request (if requested-pool-id
                         (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
@@ -75,5 +74,5 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized:" (.getMessage e))
-          (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
+          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized:"   (.getMessage e))
+          (status (response {:error  (.getMessage e)}) (:status (.getData e))))))))
