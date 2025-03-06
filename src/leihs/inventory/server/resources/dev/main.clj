@@ -6,6 +6,17 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [next.jdbc :as jdbc]
+
+   [cheshire.core :as json]
+
+
+
+   [leihs.inventory.server.resources.models.helper :refer [
+                                                           ;base-filename file-to-base64 normalize-files normalize-model-data
+                                                           parse-json-array
+                                                           ;process-attachments str-to-bool file-sha256
+                                                           ]]
+
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
@@ -226,24 +237,25 @@
 
 
 ;; Define the UUID or value to search for
-(def search-value "956d5b71-a458-408d-9052-8cf8a68313a1") ;; Change as needed
+;(def search-value "956d5b71-a458-408d-9052-8cf8a68313a1") ;; Change as needed
 
 ;; Define specific tables to search in
-(def tables-to-search ["models" "items" "images" "attachments"]) ;; Specify tables
+;(def tables-to-search ["models" "items" "images" "attachments"]) ;; Specify tables
 
 ;; Generate SQL query to retrieve all UUID columns from the specified tables
-(def get-columns-query
+(defn get-columns-query [columns]
   (sql-format
     {:select [:table_name :column_name]
      :from [:information_schema.columns]
      :where [:and
              [:= :table_schema "public"]
-             [:in :table_name tables-to-search]
+             ;[:in :table_name tables-to-search]
+             [:in :table_name columns]
              [:= :data_type "uuid"]]}))
 
 ;; Function to retrieve all UUID columns in the specified tables
-(defn get-uuid-columns [tx]
-  (jdbc/execute! tx get-columns-query))
+(defn get-uuid-columns [tx columns]
+  (jdbc/execute! tx (get-columns-query columns)))
 
 ;; Function to dynamically generate the search query for each column
 (defn build-search-query [table column value]
@@ -265,14 +277,27 @@
 
 ;; Main function to loop over tables and columns, searching for the UUID
 (defn search-in-tables [request]
-  (let [tx (:tx request)]
+  (let [tx (:tx request)
+                tables-to-search ["models" "items" "images" "attachments"] ;; Specify tables
+
+                query-params (query-params request)
+
+        query-columns (:columns query-params)
+
+
+        id (or (:id query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
+                columns (or query-columns tables-to-search)
+        ]
     (println "🔍 Starting search for UUID:" search-value)
     (let [results (reduce (fn [acc {:keys [table_name column_name]}]
                             (search-in-columns tx table_name column_name search-value acc))
                     [] ;; Start with an empty list
-                    (get-uuid-columns tx))]
+                    (get-uuid-columns tx columns))]
       (println "✅ Search completed.")
-      (response {:status 200 :body results})))) ;; Return results in HTTP response
+      (response {:status 200 :body {
+                                    :id id
+                                    :columns columns
+                                    :result results}})))) ;; Return results in HTTP response
 
 
 
@@ -280,6 +305,36 @@
 
 
 
+
+
+
+;;; Main function to loop over tables and columns, searching for the UUID
+;(defn search-in-tables [request]
+;  (let [tx (:tx request)
+;        ;query-params (query-params request)
+;        ;search-value (get-query-param request :id "956d5b71-a458-408d-9052-8cf8a68313a1")
+;        tables-to-search ["models" "items" "images" "attachments"] ;; Specify tables
+;        ;search-value (get-query-param request :columns tables-to-search)
+;        ;search-value (or (:search-value query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
+;        id (or (parse-id request) "956d5b71-a458-408d-9052-8cf8a68313a1")
+;        columns (or (parse-columns request) tables-to-search)
+;
+;
+;
+;        ] ;; Extract columns if provided
+;
+;    (println "🔍 Starting search for UUID:" search-value "with ID:" id)
+;
+;    (let [results (reduce (fn [acc {:keys [table_name column_name]}]
+;                            (search-in-columns tx table_name column_name search-value acc))
+;                    [] ;; Start with an empty list
+;                    (get-uuid-columns tx tables-to-search columns))]
+;
+;      (println "✅ Search completed.")
+;      (response {:status 200
+;                 :body {:id id
+;                        :search-value search-value
+;                        :results results}})))) ;; Return results in HTTP response
 
 
 
