@@ -36,6 +36,7 @@
                          (sql/from [:models :m])
                          (sql/where [:is-not-null :m.manufacturer])
                          (sql/where [:not-like :m.manufacturer " %"])
+                         (sql/where [:not-in :m.manufacturer [""]])
                          (sql/order-by [:m.manufacturer :asc])
                          (cond-> (not (str/blank? search-term))
                            (sql/where [:or [:ilike :m.manufacturer (str "%" search-term "%")]
