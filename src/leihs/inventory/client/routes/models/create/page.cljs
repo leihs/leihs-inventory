@@ -112,7 +112,7 @@
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
-    ;; (.. form (watch))
+    (.. form (watch))
 
     (cond
       (or (:isLoading entitlement-groups)
@@ -136,7 +136,6 @@
                                              :manufacturers (:data manufacturers)
                                              :categories (:data categories)}}
 
-         (js/console.debug manufacturers)
          ($ :article
             ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
                "Inventarliste - Ausleihe Toni Areal")
