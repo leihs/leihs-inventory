@@ -516,7 +516,9 @@
                                 :item_id uuid?}
                          ;:multipart :package/payload
                          }
-            :handler delete-package-handler-by-pool-form
+               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
+               :handler delete-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              ;:body :package-put-response2/inventory-item
                              }

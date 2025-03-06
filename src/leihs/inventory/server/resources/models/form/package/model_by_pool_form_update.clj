@@ -100,37 +100,75 @@
 
 
 (defn delete-package-handler-by-pool-form [request]
-    (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+    (let [
+          p (println ">o> abc1" )
+
+          model-id (to-uuid (get-in request [:path-params :model_id]))
+          item-id (to-uuid (get-in request [:path-params :item_id]))
           tx (:tx request)
 
+          p (println ">o> abc2" )
           models (db-operation tx :select :models [:= :id model-id])
           _ (when-not (seq models)
               (throw (ex-info "Request to delete package blocked: package not found" {:status 404})))
 
+          p (println ">o> abc3a" )
           items (db-operation tx :select :items [:= :model_id model-id])
           attachments (db-operation tx :select :attachments [:= :model_id model-id])
           images (db-operation tx :select :images [:= :target_id model-id])
+          p (println ">o> abc3b" )
 
+
+
+          ;deleted-model (try
+
+               ;(let [
           _ (when (seq items)
+          ;
+          ; (println ">o> abc3b -> throw" )
               (throw (ex-info "Request to delete package blocked: referenced item(s) exist" {:status 403})))
+
+          ;_ (throw (ex-info "Request to delete package blocked: referenced item(s) exist" {:status 403}))
+          p (println ">o> abc3x" )
 
           deleted-model (jdbc/execute! tx
                           (-> (sql/delete-from :models)
                             (sql/where [:= :id model-id])
                             (sql/returning :*)
                             sql-format))
+          p (println ">o> abc3y" )
           _ (db-operation tx :delete :images [:= :target_id model-id])
+          p (println ">o> abc3z" )
+
+
+                        ;]deleted-model)
+
+          ;(catch Exception e  (println e))
+          ;  )
+
+          p (println ">o> abc4" )
 
           remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
+          p (println ">o> abc4a" )
           remaining-images (db-operation tx :select :images [:= :target_id model-id])
+          p (println ">o> abc4b" )
 
           _ (when (or (seq remaining-attachments) (seq remaining-images))
               (throw (ex-info "Request to delete package blocked: referenced attachments or images still exist" {:status 403})))
 
           result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
                   :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
-                  :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+                  :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}
+
+          p (println ">o> abc5" )
+
+          ]
 
       (if (= 1 (count deleted-model))
         (response result)
         (throw (ex-info "Request to delete package failed"  {:status 403})))))
+
+
+
+;(defn delete-package-handler-by-pool-form [request]
+;        (throw (ex-info "Request to delete package failed"  {:status 403})))
