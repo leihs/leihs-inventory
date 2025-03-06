@@ -50,6 +50,15 @@
                                :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
                        ;:swagger {:security [{:basicAuth []}] :produces ["text/plain"]}
 
+
+
+                       :parameters {:query {
+                                            (s/optional-key :id) s/Str
+                                            ;(s/optional-key :columns) s/Any
+                                            (s/optional-key :columns) [s/Str]
+
+                                            }}
+
                        :handler search-in-tables
                        ;:handler search-in-views
                        ;:handler run-get-views
