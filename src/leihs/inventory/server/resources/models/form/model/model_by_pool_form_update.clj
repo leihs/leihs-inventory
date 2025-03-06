@@ -294,6 +294,10 @@
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         tx (:tx request)
 
+        models (db-operation tx :select :models [:= :id model-id])
+        _ (when-not (seq models)
+            (throw (ex-info "Request to delete model blocked: model not found" {:status 404})))
+
         items (db-operation tx :select :items [:= :model_id model-id])
         attachments (db-operation tx :select :attachments [:= :model_id model-id])
         images (db-operation tx :select :images [:= :target_id model-id])
@@ -320,5 +324,5 @@
 
     (if (= 1 (count deleted-model))
       (response result)
-      (throw (ex-info "Request to delete model failed")))))
+      (throw (ex-info "Request to delete model failed"  {:status 403})))))
 

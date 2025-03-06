@@ -402,49 +402,45 @@
         var CONST_IS_CREATE_FORM = true;
 
         $('#delete-model').hide()
-
         $('#delete-model').click(function () {
             var modelId = $('#fetchModelId').val();
             var poolId = $('#poolId').val();
 
-            // $('#delete-model').show()
-
-
-            // Send request to API
             $.ajax({
                 url: '/inventory/' + poolId + '/model/' + modelId,
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json'
                 },
-                success: function (response) {
-                    console.log('Model deleted successfully!');
-                    console.log(response);
+                success: function (response, textStatus, xhr) {
+                    console.log('Model deleted successfully!', response);
 
                     $("#cache").removeData();
 
-                    response = response[0];
-
-                    // FIXME: correct?
-                    if (response == undefined) {
-                        $('body').addClass('no-result-success');
+                    if (xhr.status === 200) {
+                        $('body').addClass('save-success');
                         setTimeout(function () {
-                            $('body').removeClass('no-result-success');
+                            $('body').removeClass('save-success');
                         }, 3000);
-                        return
+                    } else {
+                        $('body').addClass('save-failed');
+                        setTimeout(function () {
+                            $('body').removeClass('save-failed');
+                        }, 3000);
                     }
 
+                    $('#delete-model').hide();
+                },
+                error: function (xhr) {
+                    console.error('Error deleting model:', xhr.responseText);
 
-                    $('#delete-model').hide()
-
-                    $('body').addClass('save-success');
+                    $('body').addClass('save-failed');
                     setTimeout(function () {
-                        $('body').removeClass('save-success');
+                        $('body').removeClass('save-failed');
                     }, 3000);
                 }
-            })
+            });
         })
-
 
         var FNC_CONFIG = (poolId, modelId) => {
 
@@ -658,7 +654,6 @@
             var poolId = $('#poolId').val();
 
             $('#delete-model').show()
-
 
             // Send request to API
             $.ajax({
