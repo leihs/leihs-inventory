@@ -56,7 +56,8 @@
         (let [user (get-in request [:authenticated-entity])
               auth-entity (:access-rights user)
               _ (when (nil? auth-entity)
-                  (throw (Exception. "unknown user")))
+                  (throw (ex-info "Unauthorized: unknown user" {:status 401})))
+
               method (get request :request-method)
               uri (get request :uri)
               requested-pool-id (get-in request [:parameters :path :pool_id])
@@ -64,7 +65,8 @@
               has-scope? (or (get user required-scope)
                              (validate-admin-scopes user required-scope))
               _ (when-not has-scope?
-                  (throw (Exception. "invalid scope for the requested method")))
+                  (throw (ex-info "Unauthorized: invalid scope for the requested method" {:status 401})))
+
 
               roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
               request (if requested-pool-id
@@ -74,4 +76,4 @@
 
         (catch Exception e
           (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized:" (.getMessage e))
-          (status (response {:error (str "Unauthorized: " (.getMessage e))}) 401))))))
+          (status (response {:error (.getMessage e)}) (:status (.getData e))))))))

@@ -272,10 +272,10 @@
   [tx operation table where-clause]
   (let [query (case operation
                 :select
-                          (-> (sql/select :*)
-                            (sql/from (keyword table))
-                            (sql/where where-clause)
-                            sql-format)
+                (-> (sql/select :*)
+                  (sql/from (keyword table))
+                  (sql/where where-clause)
+                  sql-format)
                 :delete (do
                           (println ">o> abc" operation)
 
@@ -285,37 +285,40 @@
                 (throw (IllegalArgumentException. "Unsupported operation")))]
     (jdbc/execute! tx query)))
 
-
-(defn remove-content-key
-  "Removes the :content key from each map in the given vector."
-  [vec-of-maps]
-  (mapv #(dissoc % :content) vec-of-maps))
-
-
 (defn filter-keys
   "Filters the keys of each map in the vector, keeping only the specified keys."
   [vec-of-maps keys-to-keep]
   (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
 (defn delete-model-handler-by-pool-form [request]
-  "Delete a model (and attachments) by pool form but no images"
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
-        tx (:tx request)]
-    (try
-      (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
-            images (db-operation tx :select :images [:= :target_id model-id])
-            deleted-model-query (-> (sql/delete-from :models)
-                                    (sql/where [:= :id model-id])
-                                    (sql/returning :*)
-                                    sql-format)
-            deleted-model (jdbc/execute! tx deleted-model-query)
-            result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
-                    :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
-                    :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
-        (db-operation tx :delete :images [:= :target_id model-id])
-        (if (= 1 (count deleted-model))
-          (response result)
-          (throw (ex-info "deleted-model" deleted-model))))
-      (catch Exception e
-        (error "Failed to update model" e)
-        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+        tx (:tx request)
+
+        items (db-operation tx :select :items [:= :model_id model-id])
+        attachments (db-operation tx :select :attachments [:= :model_id model-id])
+        images (db-operation tx :select :images [:= :target_id model-id])
+
+        _ (when (seq items)
+            (throw (ex-info "Request to delete model blocked: referenced item(s) exist" {:status 403})))
+
+        deleted-model (jdbc/execute! tx
+                        (-> (sql/delete-from :models)
+                          (sql/where [:= :id model-id])
+                          (sql/returning :*)
+                          sql-format))
+        _ (db-operation tx :delete :images [:= :target_id model-id])
+
+        remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
+        remaining-images (db-operation tx :select :images [:= :target_id model-id])
+
+        _ (when (or (seq remaining-attachments) (seq remaining-images))
+            (throw (ex-info "Request to delete model blocked: referenced attachments or images still exist" {:status 403})))
+
+        result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
+                :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+
+    (if (= 1 (count deleted-model))
+      (response result)
+      (throw (ex-info "Request to delete model failed")))))
+
