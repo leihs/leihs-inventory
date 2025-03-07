@@ -54,14 +54,30 @@
         (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
         nil))))
 
+;; TODO: this should be the fixed one
 (defn fetch-latest-inventory-code [tx owner-id]
-  (let [res (jdbc/execute-one! tx
-                               (-> (sql/select :items.inventory_code)
-                                   (sql/from :items)
-                                   (cond-> owner-id (sql/where [:= :items.owner_id owner-id]))
-                                   (sql/order-by [:created_at :desc])
-                                   (sql/limit 1)
-                                   sql-format))
+  (let [
+
+        _ (println ">o> fetch-latest-inventory-code" owner-id)
+
+        res (-> (sql/select :items.inventory_code
+                  [(sq/call :cast
+                     (sq/call :nullif
+                       (sq/call :regexp_replace :items.inventory_code "^[^0-9]*" "") ;; Remove leading non-numeric characters
+                       "")
+                     :integer)
+                   :inventory_number]) ;; Convert only valid numbers to integer
+              (sql/from :items)
+              (sql/where [:not= :items.inventory_code nil]) ;; Ensure inventory_code is not NULL
+              (sql/where [:ilike :items.inventory_code "P-%"]) ;; Match only inventory codes starting with 'P-'
+              (sql/order-by [:inventory_number :desc] [:items.inventory_code :desc]) ;; Order correctly
+              (sql/limit 1)
+              sql-format)
+
+        _ (println ">o> abc.res1" res)
+        res (jdbc/execute-one! tx res) ;; Execute the query correctly
+
+        _ (println ">o> abc.res2" res)
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]
@@ -72,6 +88,9 @@
                   (assoc res :next-code (str (:shortname shortname-and-number) (+ (:number shortname-and-number) 1)))
                   {:error "No valid inventory code found"})))]
     res))
+
+
+
 
 (defn normalize-license-data
   [data]

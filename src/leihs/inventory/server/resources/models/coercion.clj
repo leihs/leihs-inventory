@@ -794,10 +794,8 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-(sa/def :package/payload (sa/keys :req-un [
-                                           ::room_id
-                                           ::model_id
-                                           ]
+(sa/def :package/payload (sa/keys :req-un [::room_id
+                                           ::model_id]
                                   :opt-un [::owner_id
                                            :nil/price
                                            :nil/shelf

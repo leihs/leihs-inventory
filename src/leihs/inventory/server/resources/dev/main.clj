@@ -1,100 +1,23 @@
 (ns leihs.inventory.server.resources.dev.main
   (:require
+   [cheshire.core :as json]
    [clojure.set]
    [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.helper :refer [parse-json-array]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [next.jdbc :as jdbc]
-
-   [cheshire.core :as json]
-
-
-
-   [leihs.inventory.server.resources.models.helper :refer [
-                                                           ;base-filename file-to-base64 normalize-files normalize-model-data
-                                                           parse-json-array
-                                                           ;process-attachments str-to-bool file-sha256
-                                                           ]]
-
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
-
-
-
-
-
-(def search-uuid "956d5b71-a458-408d-9052-8cf8a68313a1") ;; UUID to search
-(def search-tables ["models" "items" "images" "attachments"]) ;; Tables to search
-
-;; 🔹 Function to retrieve all relevant (UUID) columns
-;(defn get-uuid-columns [db]
-;  (jdbc/execute! db
-;    (sql-format
-;      (sql/select :table_name :column_name)
-;      (sql/from :views.information_schema.columns)
-;      (sql/where [:and
-;                [:= :table_schema "public"]
-;                [:in :table_name search-tables]
-;                [:= :data_type "uuid"]]))))
-;
-;
-;(defn get-uuid-columns [db]
-;  (with-open [conn (jdbc/get-connection db)]
-;    (let [metadata (.getMetaData conn)]
-;      (with-open [rs (.getColumns metadata nil "public" nil nil)]
-;        (doall
-;          (for [table search-tables
-;                :let [columns (filter #(= (.getString % "TYPE_NAME") "uuid")
-;                                (resultset-seq rs))]
-;                column columns]
-;            {:table_name (.getString column "TABLE_NAME")
-;             :column_name (.getString column "COLUMN_NAME")}))))))
-;
-;
-;;; 🔹 Function to safely generate a count query
-;(defn build-count-query [table column uuid]
-;  (sql-format
-;    {:select [[[:count "*"]]]
-;     :from [(keyword table)]  ;; Ensures table names are properly formatted
-;     :where [:= (keyword column) uuid]}))
-;
-;;; 🔹 Function to count UUID occurrences in a given table & column
-;(defn count-uuid-occurrences [db table column uuid]
-;  (let [query (build-count-query table column uuid)]
-;    (get (first (jdbc/execute! db query)) :count 0)))
-;
-;;; 🔹 Main function to search for UUID in the database
-;(defn search-uuid-in-db [db]
-;  (try
-;    (println "🔍 Starting search for UUID:" search-uuid)
-;    (doseq [{:keys [table_name column_name]} (get-uuid-columns db)]
-;      (when table_name  ;; Prevent NULL errors
-;        (let [count (count-uuid-occurrences db table_name column_name search-uuid)]
-;          (when (> count 0)
-;            (println (format "✅ Found %d occurrences in table: %s, column: %s"
-;                       count table_name column_name))))))
-;    (println "✅ Search completed.")
-;    (catch Exception e
-;      (println "❌ Error in search:" (.getMessage e)))))
-;
-;;; 🔹 Run the search function with properly managed database connection
-;(defn run-search [request]
-;  (jdbc/with-transaction [tx (:tx request)]
-;    (search-uuid-in-db tx))
-;  (response {:status 200 :body "Search completed."}))
-
-
-
 ;; Generate SQL query to retrieve all view names
 (def get-views-query
   (sql-format
-    (-> (sql/select :table_schema :table_name)
-      (sql/from :information_schema.views)
-      (sql/where [:= :table_schema "information_schema"]))))
+   (-> (sql/select :table_schema :table_name)
+       (sql/from :information_schema.views)
+       (sql/where [:= :table_schema "information_schema"]))))
 
 ;; Function to retrieve all views
 (defn get-views [tx]
@@ -103,155 +26,23 @@
 ;; Example usage
 (defn run-get-views [request]
   ;(with-open [db (jdbc/get-datasource (:tx request))]
-    (println "📊 Available Views:")
-    (doseq [{:keys [table_schema table_name]} (get-views (:tx request))]
-      (println (format "✅ %s.%s" table_schema table_name)))
+  (println "📊 Available Views:")
+  (doseq [{:keys [table_schema table_name]} (get-views (:tx request))]
+    (println (format "✅ %s.%s" table_schema table_name)))
 
-    (response {:status 200 :body "Search completed."})
-
-
-  )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;;; Define the value to search for (can be UUID or any string)
-;(def search-value "956d5b71-a458-408d-9052-8cf8a68313a1") ;; Change as needed
-;
-;;; Generate SQL query to retrieve all view names in the `public` schema
-;(def get-views-query
-;  (sql-format
-;    {:select [:table_schema :table_name]
-;     :from [:information_schema.views]
-;     :where [:= :table_schema "public"]})) ;; Change schema if needed
-;
-;;; Function to retrieve all views
-;(defn get-views [tx]
-;  (jdbc/execute! tx get-views-query))
-;
-;;; Define specific columns to search (modify as needed)
-;(def columns-to-search ["id" "user_id" "customer_uuid" "target_id"]) ;; Specify column names
-;
-;;; Function to dynamically search for a value inside a given view
-;(defn build-search-query [view-name column value]
-;  (sql-format
-;    {:select [[[:count "*"]]]
-;     :from [(keyword view-name)]
-;     :where [:ilike (keyword column) (str "%" value "%")]}))
-;
-;;; Function to search for a value inside each view
-;(defn search-in-view [tx view-name columns value]
-;  (doseq [column columns]
-;    (let [query (build-search-query view-name column value)
-;          result (first (jdbc/execute! tx query))
-;          count (:count result 0)]
-;      (when (> count 0)
-;        (println (format "✅ Found %d occurrences in view: %s, column: %s"
-;                   count view-name column))))))
-;
-;;; Main function to search for a value inside all views
-;(defn search-in-views [request]
-;  (let [tx (:tx request)]
-;    (println "🔍 Searching for value in views:" search-value)
-;    (doseq [{:keys [table_schema table_name]} (get-views tx)]
-;      (search-in-view tx table_name columns-to-search search-value)))
-;  (println "✅ Search completed.")
-;  (response {:status 200 :body "Search completed."}))
-
-
-
-
-
-
-
-
-
-;; Define the UUID or value to search for
-(def search-value "956d5b71-a458-408d-9052-8cf8a68313a1") ;; Change as needed
-
-;; Define specific tables to search in
-(def tables-to-search ["models" "items" "images" "attachments"]) ;; Specify tables
-
-;; Generate SQL query to retrieve all UUID columns from the specified tables
-(def get-columns-query
-  (sql-format
-    {:select [:table_name :column_name]
-     :from [:information_schema.columns]
-     :where [:and
-             [:= :table_schema "public"]
-             ;[:= :table_schema "information_schema"]
-             [:in :table_name tables-to-search]
-             [:= :data_type "uuid"]]}))
-
-;; Function to retrieve all UUID columns in the specified tables
-(defn get-uuid-columns [tx]
-  (jdbc/execute! tx get-columns-query))
-
-;; Function to dynamically generate the search query for each column
-(defn build-search-query [table column value]
-  (sql-format
-    {:select [[[:count "*"]]]
-     :from [(keyword table)]
-     :where [:= (keyword column) value]}))
-
-;; Function to execute the search on each column of the specified tables
-(defn search-in-columns [tx table column value]
-  (let [query (build-search-query table column value)
-        result (first (jdbc/execute! tx query))
-        count (:count result 0)]
-    (when (> count 0)
-      (println (format "✅ Found %d occurrences in table: %s, column: %s"
-                 count table column)))))
-
-;; Main function to loop over tables and columns, searching for the UUID
-(defn search-in-tables [request]
-  (let [tx (:tx request)]
-    (println "🔍 Starting search for UUID:" search-value)
-    (doseq [{:keys [table_name column_name]} (get-uuid-columns tx)]
-      (search-in-columns tx table_name column_name search-value)))
-  (println "✅ Search completed.")
   (response {:status 200 :body "Search completed."}))
 
-
-
-
-
-
-
-
-
-;; Define the UUID or value to search for
-;(def search-value "956d5b71-a458-408d-9052-8cf8a68313a1") ;; Change as needed
-
-;; Define specific tables to search in
-;(def tables-to-search ["models" "items" "images" "attachments"]) ;; Specify tables
 
 ;; Generate SQL query to retrieve all UUID columns from the specified tables
 (defn get-columns-query [columns]
   (sql-format
-    {:select [:table_name :column_name]
-     :from [:information_schema.columns]
-     :where [:and
-             [:= :table_schema "public"]
+   {:select [:table_name :column_name]
+    :from [:information_schema.columns]
+    :where [:and
+            [:= :table_schema "public"]
              ;[:in :table_name tables-to-search]
-             [:in :table_name columns]
-             [:= :data_type "uuid"]]}))
+            [:in :table_name columns]
+            [:= :data_type "uuid"]]}))
 
 ;; Function to retrieve all UUID columns in the specified tables
 (defn get-uuid-columns [tx columns]
@@ -260,8 +51,8 @@
 ;; Function to dynamically generate the search query for each column
 (defn build-search-query [table column value]
   (sql-format
-    [:raw (format "SELECT COUNT(*) FROM \"%s\" WHERE \"%s\" = '%s'"
-            table column value)]))
+   [:raw (format "SELECT COUNT(*) FROM \"%s\" WHERE \"%s\" = '%s'"
+                 table column value)]))
 
 ;; Function to execute the search on each column of the specified tables
 (defn search-in-columns [tx table column value results]
@@ -271,75 +62,30 @@
     (if (> count 0)
       (do
         (println (format "✅ Found %d occurrences in table: %s, column: %s"
-                   count table column))
+                         count table column))
         (conj results {:table table :column column :count count}))
       results))) ;; Ensure results is always returned correctly
 
 ;; Main function to loop over tables and columns, searching for the UUID
 (defn search-in-tables [request]
   (let [tx (:tx request)
-                tables-to-search ["models" "items" "images" "attachments"] ;; Specify tables
+        tables-to-search ["models" "items" "images" "attachments"] ;; Specify tables
 
-                query-params (query-params request)
+        query-params (query-params request)
 
         query-columns (:columns query-params)
 
-
-        id (or (:id query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
-                columns (or query-columns tables-to-search)
-        ]
+        search-value (or (:id query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
+        columns (or query-columns tables-to-search)]
     (println "🔍 Starting search for UUID:" search-value)
     (let [results (reduce (fn [acc {:keys [table_name column_name]}]
                             (search-in-columns tx table_name column_name search-value acc))
-                    [] ;; Start with an empty list
-                    (get-uuid-columns tx columns))]
+                          [] ;; Start with an empty list
+                          (get-uuid-columns tx columns))]
       (println "✅ Search completed.")
-      (response {:status 200 :body {
-                                    :id id
+      (response {:status 200 :body {:id search-value
                                     :columns columns
                                     :result results}})))) ;; Return results in HTTP response
-
-
-
-
-
-
-
-
-
-
-;;; Main function to loop over tables and columns, searching for the UUID
-;(defn search-in-tables [request]
-;  (let [tx (:tx request)
-;        ;query-params (query-params request)
-;        ;search-value (get-query-param request :id "956d5b71-a458-408d-9052-8cf8a68313a1")
-;        tables-to-search ["models" "items" "images" "attachments"] ;; Specify tables
-;        ;search-value (get-query-param request :columns tables-to-search)
-;        ;search-value (or (:search-value query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
-;        id (or (parse-id request) "956d5b71-a458-408d-9052-8cf8a68313a1")
-;        columns (or (parse-columns request) tables-to-search)
-;
-;
-;
-;        ] ;; Extract columns if provided
-;
-;    (println "🔍 Starting search for UUID:" search-value "with ID:" id)
-;
-;    (let [results (reduce (fn [acc {:keys [table_name column_name]}]
-;                            (search-in-columns tx table_name column_name search-value acc))
-;                    [] ;; Start with an empty list
-;                    (get-uuid-columns tx tables-to-search columns))]
-;
-;      (println "✅ Search completed.")
-;      (response {:status 200
-;                 :body {:id id
-;                        :search-value search-value
-;                        :results results}})))) ;; Return results in HTTP response
-
-
-
-
-
 
 (defn update-and-fetch-accounts [request]
   (try

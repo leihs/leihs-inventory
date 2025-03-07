@@ -42,32 +42,16 @@
                                            404 {:description "Not Found"}
                                            500 {:description "Internal Server Error"}}}}]
 
-
     ["/used-by" {:get {:conflicting true
-                               :summary "Used to determine appearance of uuid in tables"
-                               :accept "application/json"
-                               :middleware [wrap-check-authenticated-admin]
-                               :coercion reitit.coercion.schema/coercion
-                               :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
-                       ;:swagger {:security [{:basicAuth []}] :produces ["text/plain"]}
-
-
-
-                       :parameters {:query {
-                                            (s/optional-key :id) s/Str
-                                            ;(s/optional-key :columns) s/Any
-                                            (s/optional-key :columns) [s/Str]
-
-                                            }}
-
+                       :summary "Used to determine appearance of uuid in tables"
+                       :accept "application/json"
+                       :middleware [wrap-check-authenticated-admin]
+                       :coercion reitit.coercion.schema/coercion
+                       :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
+                       :parameters {:query {(s/optional-key :id) s/Str
+                                            (s/optional-key :columns) [s/Str]}}
                        :handler search-in-tables
-                       ;:handler search-in-views
-                       ;:handler run-get-views
-                       ;:handler run-search
-                               :responses {200 {:description "OK"
-                                                :body s/Any}
-                                           404 {:description "Not Found"}
-                                           500 {:description "Internal Server Error"}}}}]
-
-
-    ]])
+                       :responses {200 {:description "OK"
+                                        :body s/Any}
+                                   404 {:description "Not Found"}
+                                   500 {:description "Internal Server Error"}}}}]]])

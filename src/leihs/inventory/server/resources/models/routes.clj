@@ -18,8 +18,7 @@
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form
-                                                                                           delete-package-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
@@ -488,8 +487,7 @@
                :tags ["form / package"] :security []}}
 
     ["/:item_id"
-     {
-      :put {:accept "application/json"
+     {:put {:accept "application/json"
             :swagger {:consumes ["multipart/form-data"]
                       :produces "application/json"}
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
@@ -501,27 +499,6 @@
             :handler update-package-handler-by-pool-form
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
-                        ;; FIXME
-                             ;:body :package-put-response/inventory-item}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      :delete {:accept "application/json"
-            ;:swagger {:consumes ["multipart/form-data"]
-            ;          :produces "application/json"}
-            :summary "(DEV) | Dynamic-Form-Handler: Delete form data | Fetch fields by Role [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                :model_id uuid?
-                                :item_id uuid?}
-                         ;:multipart :package/payload
-                         }
-               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-
-               :handler delete-package-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             ;:body :package-put-response2/inventory-item
-                             }
                         ;; FIXME
                              ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
@@ -782,24 +759,21 @@
                          500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Delete form data [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
+                :swagger {:consumes ["multipart/form-data"]
+                          :produces "application/json"}
+                :summary "(DEV) | Form-Handler: Delete form data [v0]"
+                :coercion spec/coercion
+                :parameters {:path {:pool_id uuid?
+                                    :model_id uuid?}
                           ;:multipart :software/multipart
-                          }
-             :handler delete-software-handler-by-pool-form
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :responses {200 {:description "OK"
+                             }
+                :handler delete-software-handler-by-pool-form
+                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                :responses {200 {:description "OK"
                               ;:body [:software/response]
-                              }
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-
-       }]]]
+                                 }
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]]
 
    ["/models"
     [""
@@ -1106,11 +1080,9 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid
-                                     ;:item_id s/Uuid
                                      }}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
 
                              404 {:description "Not Found"}
@@ -1127,7 +1099,6 @@
               :handler get-models-of-pool-with-pagination-handler
 
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
 
                           404 {:description "Not Found"}
