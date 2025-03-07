@@ -32,7 +32,6 @@
 
   (response {:status 200 :body "Search completed."}))
 
-
 ;; Generate SQL query to retrieve all UUID columns from the specified tables
 (defn get-columns-query [columns]
   (sql-format
