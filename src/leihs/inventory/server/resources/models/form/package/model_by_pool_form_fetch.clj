@@ -173,8 +173,7 @@
                            ;; TODO: Fetch default, fixed version?
                            (let [responsible_department pool-id ;; TODO: possible fix
                                  {:keys [next-code]} (fetch-latest-inventory-code tx nil)
-                                 p (println ">o> abc.next-code" next-code)
-                                 ]
+                                 p (println ">o> abc.next-code" next-code)]
                              {:inventory_pool_id pool-id
                               :responsible_department responsible_department
                               :inventory_code next-code}))]
