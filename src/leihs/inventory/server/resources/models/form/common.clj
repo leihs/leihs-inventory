@@ -15,16 +15,10 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]
-   )
+   [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util UUID]
-   )
-  )
-
-
-
+           (java.time LocalDateTime)
+           [java.util UUID]))
 
 (defn db-operation
   "Executes a SELECT or DELETE operation on the given table based on the operation keyword using next.jdbc and HoneySQL."
@@ -32,15 +26,15 @@
   (let [query (case operation
                 :select
                 (-> (sql/select :*)
-                  (sql/from (keyword table))
-                  (sql/where where-clause)
-                  sql-format)
+                    (sql/from (keyword table))
+                    (sql/where where-clause)
+                    sql-format)
                 :delete (do
                           (println ">o> abc" operation)
 
                           (-> (sql/delete-from table)
-                            (sql/where where-clause)
-                            sql-format))
+                              (sql/where where-clause)
+                              sql-format))
                 (throw (IllegalArgumentException. "Unsupported operation")))]
     (jdbc/execute! tx query)))
 
