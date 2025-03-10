@@ -78,7 +78,7 @@ feature "Inventory Software" do
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first,
-          "technicalDetails" => "Specs go here"
+          "technical_details" => "Specs go here"
         }
 
         result = http_multipart_client(

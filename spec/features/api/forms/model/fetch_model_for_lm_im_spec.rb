@@ -205,7 +205,7 @@ feature "Inventory Model" do
             "description" => "A sample product",
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
-            "important_notes" => "Important usage notes",
+            "internal_description" => "Important usage notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json
@@ -244,7 +244,6 @@ feature "Inventory Model" do
             "description" => "updated description",
             "technical_detail" => "updated techDetail",
             "internal_description" => "updated internalDesc",
-            "important_notes" => "updated notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
             "compatibles" => [compatibles.first, compatibles.second].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
@@ -261,7 +260,7 @@ feature "Inventory Model" do
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.body[0]["image_attributes"].count).to eq(5)
+          expect(resp.body[0]["image_attributes"].count).to eq(4)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)

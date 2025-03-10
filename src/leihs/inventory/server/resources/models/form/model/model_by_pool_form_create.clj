@@ -155,7 +155,9 @@
                              :model_group_id (to-uuid (:id category))})))
 
 (defn create-model-handler-by-pool-form [request]
+  (println ">o> abc.create-model-handler-by-pool-form")
   (let [validation-result (atom [])
+
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))

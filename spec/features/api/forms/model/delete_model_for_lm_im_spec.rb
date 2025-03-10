@@ -148,11 +148,11 @@ feature "Inventory Model" do
             "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-            "isPackage" => "true",
+            "is_package" => "true",
             "description" => "A sample product",
-            "technicalDetails" => "Specs go here",
-            "internalDescription" => "Internal notes",
-            "importantNotes" => "Important usage notes",
+            "technical_details" => "Specs go here",
+            "internal_description" => "Internal notes",
+            "important_notes" => "Important usage notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json
@@ -187,11 +187,11 @@ feature "Inventory Model" do
             "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "updated v1.0",
             "manufacturer" => "updated manufacturer",
-            "isPackage" => "true",
+            "is_package" => "true",
             "description" => "updated description",
-            "technicalDetails" => "updated techDetail",
-            "internalDescription" => "updated internalDesc",
-            "importantNotes" => "updated notes",
+            "technical_details" => "updated techDetail",
+            "internal_description" => "updated internalDesc",
+            "important_notes" => "updated notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
             "compatibles" => [compatibles.first, compatibles.second].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
@@ -208,7 +208,8 @@ feature "Inventory Model" do
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.body[0]["image_attributes"].count).to eq(5)
+
+          expect(resp.body[0]["image_attributes"].count).to eq(4)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)

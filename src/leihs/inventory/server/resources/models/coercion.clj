@@ -101,7 +101,7 @@
 (sa/def ::description (sa/nilable string?))
 (sa/def ::technical_detail (sa/nilable string?))
 (sa/def ::internal_description (sa/nilable string?))
-(sa/def ::importantNotes (sa/nilable string?))
+(sa/def ::important_notes (sa/nilable string?))
 (sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
 

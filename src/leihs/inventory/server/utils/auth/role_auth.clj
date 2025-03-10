@@ -44,7 +44,10 @@
                               (map (comp keyword :role))
                               set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
-      (throw (Exception. "invalid role for the requested pool or method")))
+      ;(throw (Exception. "invalid role for the requested pool or method"))
+      (throw (ex-info "invalid role for the requested pool or method" {:status 401}))
+
+    )
     roles-for-pool))
 
 (defn permission-by-role-and-pool
@@ -53,24 +56,35 @@
   (fn [handler]
     (fn [request]
       (try
-        (let [user (get-in request [:authenticated-entity])
+        (let [
+              p (println ">o> abc1a")
+
+              user (get-in request [:authenticated-entity])
               auth-entity (:access-rights user)
               _ (when (nil? auth-entity)
                   (throw (ex-info "Unauthorized: unknown user" {:status 401})))
 
+              p (println ">o> abc2b")
               method (get request :request-method)
               uri (get request :uri)
               requested-pool-id (get-in request [:parameters :path :pool_id])
               required-scope (determine-required-scope method uri)
+              p (println ">o> abc2c")
               has-scope? (or (get user required-scope)
                              (validate-admin-scopes user required-scope))
+              p (println ">o> abc2d")
               _ (when-not has-scope?
                   (throw (ex-info "Unauthorized: invalid scope for the requested method" {:status 401})))
 
+              p (println ">o> abc2e")
               roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
+              p (println ">o> abc2f")
               request (if requested-pool-id
                         (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
-                        request)]
+                        request)
+
+              p (println ">o> abc2c")
+              ]
           (handler request))
 
         (catch Exception e

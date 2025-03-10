@@ -62,7 +62,6 @@ feature "Inventory Software" do
             form_data,
             headers: cookie_header
           )
-          binding.pry
           expect(result.status).to eq(409)
           expect(result.body["message"]).to eq("Model already exists")
 
@@ -113,7 +112,6 @@ feature "Inventory Software" do
             form_data,
             headers: cookie_header
           )
-          binding.pry
           expect(result.status).to eq(409)
           expect(result.body["message"]).to eq("Model already exists")
 
