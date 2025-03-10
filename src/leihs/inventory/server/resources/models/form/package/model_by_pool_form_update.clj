@@ -7,9 +7,12 @@
    [clojure.data.json :as json]
    [clojure.java.io :as io]
    [clojure.set :as set]
+
    [clojure.string :as str]
+
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
    [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-or-nil remove-entries-by-keys]]
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-create :refer [prepare-package-data split-items]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data normalize-files

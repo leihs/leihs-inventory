@@ -46,7 +46,7 @@ feature "Inventory Software" do
           "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first,
-          "technicalDetails" => "Specs go here"
+          "technical_details" => "Specs go here"
         }
 
         result = http_multipart_client(
@@ -68,7 +68,7 @@ feature "Inventory Software" do
           "attachments_to_delete" => [],
           "version" => "updated v2.0",
           "manufacturer" => "updated manufacturer",
-          "technicalDetails" => "updated techDetail"
+          "technical_details" => "updated techDetail"
         }
 
         result = http_multipart_client(

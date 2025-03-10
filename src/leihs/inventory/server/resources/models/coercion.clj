@@ -101,7 +101,7 @@
 (sa/def ::description (sa/nilable string?))
 (sa/def ::technical_detail (sa/nilable string?))
 (sa/def ::internal_description (sa/nilable string?))
-(sa/def ::importantNotes (sa/nilable string?))
+(sa/def ::important_notes (sa/nilable string?))
 (sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
 
@@ -658,7 +658,7 @@
 (sa/def :nil2/item_version (sa/nilable any?))
 (sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
-(sa/def :nil/price (sa/nilable number?))
+(sa/def :nil/price (sa/nilable string?))
 (sa/def :nil/invoice_date (sa/nilable any?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
@@ -794,7 +794,10 @@
                                                 ::created_at
                                                 :nil/insurance_number]))
 
-(sa/def :package/payload (sa/keys :req-un [:nil/price
+(sa/def :package/payload (sa/keys :req-un [::room_id
+                                           ::model_id]
+                                  :opt-un [::owner_id
+                                           :nil/price
                                            :nil/shelf
                                            :nil/status_note
                                            :nil/note
@@ -804,10 +807,7 @@
                                            ::is_broken
                                            ::is_incomplete
                                            ::is_borrowable
-                                           ::room_id
-                                           ::model_id
-                                           :any/items_attributes]
-                                  :opt-un [::owner_id
+                                           :any/items_attributes
                                            :nil/retired_reason
                                            ::is_inventory_relevant
                                            :nil/user_name]))

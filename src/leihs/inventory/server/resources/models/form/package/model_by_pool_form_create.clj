@@ -98,7 +98,7 @@
 
             split-items (split-items items_attributes)
 
-;; Link items from package
+            ;; Link items from package
             link-res (let [ids-to-link (get split-items :ids-to-link)]
                        (when (seq ids-to-link)
                          (let [update-link-items-query (-> (sql/update :items)

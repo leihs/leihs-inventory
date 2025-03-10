@@ -79,14 +79,7 @@ feature "Inventory Model Management" do
         "attachments" => [File.open(path_test_pdf, "rb")],
         "version" => "v1.0",
         "manufacturer" => "Example Corp",
-        # "isPackage" => "true",
-        # "description" => "A sample product",
-        "technicalDetails" => "Specs go here"
-        # "internalDescription" => "Internal notes",
-        # "importantNotes" => "Important usage notes",
-        # "entitlements" => [],
-        # "compatibles" => [],
-        # "categories" => []
+        "technical_details" => "Specs go here"
       }
 
       result = http_multipart_client(
