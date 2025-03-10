@@ -114,11 +114,11 @@
                              :image_attributes image-attributes
                              :entitlement_groups entitlements
                              :categories categories)]
-                     nil)]
+                     [])]
         (if result
           (response result)
           (status
-           (response {:status "failure" :message "No entry found"}) 404)))
+           (response {:status "failure" :message "No entry found ???"}) 404)))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
