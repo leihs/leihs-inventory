@@ -299,8 +299,6 @@ feature "Inventory Model" do
           expect(resp.body.count).to eq(0)
         end
       end
-
-
     end
   end
 end

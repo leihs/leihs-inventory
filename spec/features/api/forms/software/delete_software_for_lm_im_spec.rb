@@ -37,7 +37,6 @@ get_response = {
   "technical_detail" => [NilClass, String]
 }
 
-
 feature "Inventory Software" do
   # ["inventory_manager", "lending_manager"].each do |role|
   ["inventory_manager"].each do |role|
@@ -108,7 +107,6 @@ feature "Inventory Software" do
         expect(result.body["deleted_attachments"].count).to eq(2)
         expect(result.body["deleted_model"].count).to eq(1)
 
-
         # retry to delete not existing software
         result = json_client_delete(
           "/inventory/#{pool_id}/software/#{model_id}",
@@ -117,14 +115,11 @@ feature "Inventory Software" do
         expect(result.status).to eq(404)
         expect(result.body["error"]).to eq("Request to delete software blocked: software not found")
 
-
         # fetch deleted model
         result = client.get "/inventory/#{pool_id}/software/#{model_id}"
         expect(result.body.count).to eq(0)
         expect(result.status).to eq(200)
       end
-
-
     end
   end
 end

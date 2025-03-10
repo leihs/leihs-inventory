@@ -205,7 +205,6 @@ feature "Inventory Model" do
             "description" => "A sample product",
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
-            "internal_description" => "Important usage notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json

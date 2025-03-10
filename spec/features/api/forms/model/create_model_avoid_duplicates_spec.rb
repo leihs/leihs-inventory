@@ -96,7 +96,6 @@ feature "Inventory Model" do
           )
           expect(result.status).to eq(200)
 
-
           # retry to create model request
           result = http_multipart_client(
             "/inventory/#{pool_id}/model",
@@ -105,7 +104,6 @@ feature "Inventory Model" do
           )
           expect(result.status).to eq(409)
           expect(result.body["message"]).to eq("Model already exists")
-
 
           # create model with different version
           form_data = {
@@ -121,7 +119,6 @@ feature "Inventory Model" do
           expect(result.status).to eq(200)
         end
       end
-
 
       context "create model (min)" do
         it "blocks creation of model when already exists (product_name & version)" do
@@ -139,7 +136,6 @@ feature "Inventory Model" do
           )
           expect(result.status).to eq(200)
 
-
           # retry to create model request
           result = http_multipart_client(
             "/inventory/#{pool_id}/model",
@@ -148,7 +144,6 @@ feature "Inventory Model" do
           )
           expect(result.status).to eq(409)
           expect(result.body["message"]).to eq("Model already exists")
-
 
           # create model with different version
           form_data = {
@@ -164,8 +159,6 @@ feature "Inventory Model" do
           expect(result.status).to eq(200)
         end
       end
-
-
     end
   end
 end

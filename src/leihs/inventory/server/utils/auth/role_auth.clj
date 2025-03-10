@@ -45,9 +45,8 @@
                               set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
       ;(throw (Exception. "invalid role for the requested pool or method"))
-      (throw (ex-info "invalid role for the requested pool or method" {:status 401}))
+      (throw (ex-info "invalid role for the requested pool or method" {:status 401})))
 
-    )
     roles-for-pool))
 
 (defn permission-by-role-and-pool
@@ -56,8 +55,7 @@
   (fn [handler]
     (fn [request]
       (try
-        (let [
-              p (println ">o> abc1a")
+        (let [p (println ">o> abc1a")
 
               user (get-in request [:authenticated-entity])
               auth-entity (:access-rights user)
@@ -83,8 +81,7 @@
                         (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
                         request)
 
-              p (println ">o> abc2c")
-              ]
+              p (println ">o> abc2c")]
           (handler request))
 
         (catch Exception e

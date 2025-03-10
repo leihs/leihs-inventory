@@ -30,7 +30,6 @@ feature "Inventory Software" do
       end
 
       context "create software (avoid duplicate name)" do
-
         it "blocks creation of software when already exists (product_name)" do
           # create software request
           product = Faker::Commerce.product_name
@@ -77,7 +76,6 @@ feature "Inventory Software" do
             headers: cookie_header
           )
           expect(result.status).to eq(200)
-
         end
 
         it "blocks creation of software when already exists (product_name & version)" do
@@ -105,7 +103,8 @@ feature "Inventory Software" do
           # send same create-software-request
           form_data = {
             "product" => product,
-            "version" => "1.0" }
+            "version" => "1.0"
+          }
 
           result = http_multipart_client(
             "/inventory/#{pool_id}/software",
@@ -127,7 +126,6 @@ feature "Inventory Software" do
             headers: cookie_header
           )
           expect(result.status).to eq(200)
-
         end
       end
     end
