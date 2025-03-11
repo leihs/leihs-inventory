@@ -10,9 +10,9 @@
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -31,7 +31,7 @@
         (map-indexed vector items)))
 
 (defui main [{:keys [control items form props]}]
-  (let [{:keys [entitlements]} (uix/use-context state-context)
+  (let [{:keys [entitlement-groups]} (useLoaderData)
         [allocations set-allocations!] (uix/use-state 0)
         [width set-width!] (uix/use-state nil)
         [open set-open!] (uix/use-state false)
@@ -88,7 +88,7 @@
                 ($ CommandList
                    ($ CommandEmpty "No Entitlement Group Found")
                    ($ CommandGroup
-                      (for [entitlement entitlements]
+                      (for [entitlement entitlement-groups]
                         ($ CommandItem {:value (:name entitlement)
                                         :onSelect #(do (set-open! false)
                                                        (if
@@ -124,7 +124,7 @@
 
                          ($ TableCell {:class-name "w-[70%]"}
                             (find-name-by-id
-                             entitlements
+                             entitlement-groups
                              (:entitlement_group_id field)))
 
                          ($ TableCell

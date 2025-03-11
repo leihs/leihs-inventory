@@ -2,16 +2,16 @@
   (:require
    ["react-router-dom" :as router :refer [createBrowserRouter]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
+   [leihs.inventory.client.routes.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
-   [leihs.inventory.client.routes.models.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.models.create.page :rename {page models-create-page}]
-   [leihs.inventory.client.routes.models.entitlement-groups.page :rename {page entitlement-groups-page}]
    [leihs.inventory.client.routes.models.layout :rename {layout models-layout}]
    [leihs.inventory.client.routes.models.page :rename {page models-page}]
-   [leihs.inventory.client.routes.models.statistics.page :rename {page statistics-page}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
+   [leihs.inventory.client.routes.statistics.page :rename {page statistics-page}]
    [uix.core :as uix :refer [$]]
    [uix.dom]))
 
@@ -62,9 +62,10 @@
                                         :manufacturers manufacturers
                                         :entitlement-groups entitlement-groups
                                         :models models})))))
+
                :element ($ models-create-page)}
 
-              {:path "models/edit"
+              {:path "models/:model-id/delete?"
                :element ($ models-create-page)}
 
               {:element ($ models-layout)

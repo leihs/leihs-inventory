@@ -3,12 +3,11 @@
    ["@@/button" :refer [Button]]
    ["@@/command" :refer [Command CommandEmpty CommandInput CommandItem
                          CommandList]]
-   ["@@/form" :refer [FormControl FormField FormItem]]
-   ["@@/input" :refer [Input]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.context :refer [state-context]]
@@ -32,7 +31,7 @@
         (map-indexed vector items)))
 
 (defui main [{:keys [control props]}]
-  (let [{:keys [categories]} (uix/use-context state-context)
+  (let [{:keys [categories]} (useLoaderData)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         buttonRef (uix/use-ref nil)

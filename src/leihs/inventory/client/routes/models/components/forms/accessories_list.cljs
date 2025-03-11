@@ -29,14 +29,6 @@
 
         (move old-index new-index)))))
 
-(defui properties-table [{:keys [children inputs]}]
-  ($ Table
-     ($ TableHeader
-        ($ TableRow
-           ($ TableHead (-> inputs (nth 0) :label))
-           ($ TableHead "")))
-     ($ TableBody children)))
-
 (defui main [{:keys [control props]}]
   (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
                                                  (cj {:control control

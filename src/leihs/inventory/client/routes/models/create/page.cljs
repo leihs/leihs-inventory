@@ -11,7 +11,6 @@
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    [cljs.core.async :as async :refer [go]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [leihs.inventory.client.routes.models.create.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -69,7 +68,6 @@
                                            :entitlements []
                                            :properties []
                                            :accessories []}}))
-        data (useLoaderData)
         params (router/useParams)
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
@@ -78,50 +76,47 @@
     ;; But this also means the form is evaluated every render
     (.. form (watch))
 
-    ($ (.-Provider state-context) {:value data}
+    ($ :article
+       ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
+          "Inventarliste - Ausleihe Toni Areal")
 
-       ($ :article
-          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
-             "Inventarliste - Ausleihe Toni Areal")
+       ($ :h3 {:className "text-sm mt-12 mb-6 text-gray-500"}
+          "Nehmen Sie Änderungen vor und speichern Sie anschliessend")
 
-          ($ :h3 {:className "text-sm mt-12 mb-6 text-gray-500"}
-             "Nehmen Sie Änderungen vor und speichern Sie anschliessend")
+       ($ Card {:className "py-8 mb-12"}
+          ($ CardContent
+             ($ Scrollspy {:className "flex gap-4"}
+                ($ ScrollspyMenu)
 
-          ($ Card {:className "py-8 mb-12"}
-             ($ CardContent
-                ($ Scrollspy {:className "flex gap-4"}
-                   ($ ScrollspyMenu)
+                ($ Form (merge form)
+                   ($ :form {:id "create-model"
+                             :className "space-y-12 w-3/5"
+                             :on-submit (handleSubmit on-submit on-invalid)}
 
-                   ($ Form (merge form)
-                      ($ :form {:id "create-model"
-                                :className "space-y-12 w-3/5"
-                                :on-submit (handleSubmit on-submit on-invalid)}
+                      (for [section (jc structure)]
+                        ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                          :key (:title section)
+                                          :id (:title section)
+                                          :name (:title section)}
 
-                         (for [section (jc structure)]
-                           ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                             :key (:title section)
-                                             :id (:title section)
-                                             :name (:title section)}
+                           ($ :h2 {:className "text-lg"} (:title section))
+                           ($ :hr {:className "mb-4"})
 
-                              ($ :h2 {:className "text-lg"} (:title section))
-                              ($ :hr {:className "mb-4"})
+                           (for [block (:blocks section)]
+                             ($ form-fields/field {:key (:name block)
+                                                   :control control
+                                                   :form form
+                                                   :block block}))))))
 
-                              (for [block (:blocks section)]
-                                ($ form-fields/field {:key (:name block)
-                                                      :control control
-                                                      :form form
-                                                      :block block}))))))
+                ($ :div {:className "h-max flex space-x-6 sticky top-[43vh] ml-auto"}
 
-                   ($ :div {:className "h-max flex space-x-6 sticky top-[43vh] ml-auto"}
+                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models" params)
+                            :className "self-center hover:underline"}
+                      "Abbrechen")
 
-                      ($ Link {:to (router/generatePath "/inventory/:pool-id/models" params)
-                               :className "self-center hover:underline"}
-                         "Abbrechen")
-
-                      ($ Button {:type "submit"
-                                 :form "create-model"
-                                   ;; :on-click #(.. form (watch))
-                                 :className "self-center"}
-                         "Submit")))))))))
+                   ($ Button {:type "submit"
+                              :form "create-model"
+                              :className "self-center"}
+                      "Submit"))))))))
 
 
