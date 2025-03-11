@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.create.page
+(ns leihs.inventory.client.routes.models.crud.page
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
@@ -8,7 +8,7 @@
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["react-hook-form" :refer [useForm]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router-dom" :as router :refer [Link useLoaderData]]
    [cljs.core.async :as async :refer [go]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
@@ -72,9 +72,11 @@
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
 
+    ;; (js/console.debug (useLoaderData) params)
+
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
-    (.. form (watch))
+    ;; (.. form (watch))
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}

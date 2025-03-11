@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.create.fields
+(ns leihs.inventory.client.routes.models.components.forms.fields
   (:require
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]

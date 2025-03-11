@@ -8,7 +8,6 @@
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
