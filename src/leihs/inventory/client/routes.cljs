@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.routes
   (:require
    ["react-router-dom" :as router :refer [createBrowserRouter]]
-   [leihs.inventory.client.lib.utils :refer [cj]]
+   [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.models.advanced-search.page :rename {page advanced-search-page}]
@@ -35,6 +35,33 @@
         {:path ":pool-id"
          :children
          (cj [{:path "models/create"
+               :loader (fn [route-data]
+                         (let [params (.. ^js route-data -params)
+                               path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
+                               entitlement-groups (.. (js/fetch path
+                                                                (cj {:headers {"Accept" "application/json"}}))
+                                                      (then #(.json %))
+                                                      (then #(jc %)))
+
+                               categories (.. (js/fetch "/inventory/tree"
+                                                        (cj {:headers {"Accept" "application/json"}}))
+                                              (then #(.json %))
+                                              (then #(jc %)))
+                               models (.. (js/fetch "/inventory/models-compatibles"
+                                                    (cj {:headers {"Accept" "application/json"}}))
+                                          (then #(.json %))
+                                          (then #(jc %)))
+                               manufacturers (.. (js/fetch "/inventory/manufacturers?type=Model"
+                                                           (cj {:headers {"Accept" "application/json"}}))
+                                                 (then #(.json %))
+                                                 (then #(remove (fn [el] (= "" el)) (jc %))))]
+
+                           (.. (js/Promise.all [categories models manufacturers entitlement-groups])
+                               (then (fn [[categories models manufacturers entitlement-groups]]
+                                       {:categories categories
+                                        :manufacturers manufacturers
+                                        :entitlement-groups entitlement-groups
+                                        :models models})))))
                :element ($ models-create-page)}
 
               {:path "models/edit"
