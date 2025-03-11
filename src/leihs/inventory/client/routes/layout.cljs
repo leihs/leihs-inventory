@@ -1,5 +1,6 @@
 (ns leihs.inventory.client.routes.layout
   (:require
+   ["@@/sonner" :refer [Toaster]]
    ["react-router-dom" :as router :refer [Outlet]]
    [leihs.inventory.client.routes.components.header :as header]
    [uix.core :as uix :refer [defui $]]
@@ -9,4 +10,6 @@
   ($ :<>
      ($ header/main)
      ($ :main {:className "container"}
-        ($ Outlet))))
+        ($ Outlet)
+        ($ Toaster {:position "top-center"
+                    :richColors true}))))

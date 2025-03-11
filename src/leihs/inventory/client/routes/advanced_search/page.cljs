@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.statistics.page
+(ns leihs.inventory.client.routes.advanced-search.page
   (:require
    [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -6,4 +6,4 @@
 
 (defui page []
   ($ :div
-     ($ :h1 {:class-name "text-2xl"} "hello statistics")))
+     ($ :h1 {:class-name "text-2xl"} "hello advanced search")))

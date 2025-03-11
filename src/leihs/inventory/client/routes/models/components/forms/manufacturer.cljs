@@ -5,14 +5,14 @@
    ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [Check]]
+   ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui main [{:keys [form control]}]
-  (let [{:keys [manufacturers]} (uix/use-context state-context)
+  (let [{:keys [manufacturers]} (useLoaderData)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         get-values (aget form "getValues")

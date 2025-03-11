@@ -3,15 +3,13 @@
    ["@@/button" :refer [Button]]
    ["@@/command" :refer [Command CommandEmpty CommandInput CommandItem
                          CommandList]]
-   ["@@/form" :refer [FormControl FormField FormItem]]
-   ["@@/input" :refer [Input]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.create.context :refer [state-context]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -31,15 +29,22 @@
             idx))
         (map-indexed vector items)))
 
+(defn find-by-id [list id]
+  (when (seq list)
+    (some #(when (= id (:id %)) %) list)))
+
 (defui main [{:keys [control props]}]
-  (let [{:keys [categories]} (uix/use-context state-context)
+  (let [{:keys [categories]} (useLoaderData)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         buttonRef (uix/use-ref nil)
 
         {:keys [fields append remove]} (jc (hook-form/useFieldArray
                                             (cj {:control control
+                                                 :keyName "field_id"
                                                  :name "categories"})))
+
+        [flat-categories set-flat-categories!] (uix/use-state [])
 
         items (uix/use-memo
                (fn []
@@ -65,7 +70,10 @@
                                    (recur (rest remaining-items))))))]
 
                      (flatten-categories nil (:children categories) 1)
-                     @flattened-categories*))) [categories])]
+                     @flattened-categories*)
+
+                   (set-flat-categories! @flattened-categories*)))
+               [categories])]
 
     (uix/use-effect
      (fn []
@@ -128,7 +136,9 @@
                     (fn [index field]
                       ($ TableRow {:class-name "" :key index}
 
-                         ($ TableCell {:class-name ""} (:path field))
+                         ($ TableCell {:class-name ""} (if (:path field)
+                                                         (:path field)
+                                                         (:path (find-by-id flat-categories (:id field)))))
 
                          ($ TableCell {:class-name "flex gap-2 justify-end"}
                             ($ Button {:variant "outline"
