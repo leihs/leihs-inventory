@@ -72,7 +72,7 @@
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
 
-    ;; (js/console.debug (useLoaderData) params)
+    (js/console.debug (useLoaderData) params)
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render

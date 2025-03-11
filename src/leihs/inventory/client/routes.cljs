@@ -55,16 +55,16 @@
                                                            (cj {:headers {"Accept" "application/json"}}))
                                                  (then #(.json %))
                                                  (then #(remove (fn [el] (= "" el)) (jc %))))
-                               model (if (.. params -model-id)
-                                       (.. (js/fetch "/inventory/manufacturers?type=Model"
+                               model-path (when (:model-id (jc params)) (router/generatePath "/inventory/:pool-id/model/:model-id" params))
+                               model (when model-path
+                                       (.. (js/fetch model-path
                                                      (cj {:headers {"Accept" "application/json"}}))
                                            (then #(.json %))
-                                           (then #(remove (fn [el] (= "" el)) (jc %))))
-                                       nil)]
+                                           (then #(remove (fn [el] (= "" el)) (jc %)))))]
 
-                           (js/console.debug params (.. params -pool-id))
-                           (.. (js/Promise.all [categories models manufacturers entitlement-groups])
-                               (then (fn [[categories models manufacturers entitlement-groups]]
+                           (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
+                                                 model (conj model)))
+                               (then (fn [[categories models manufacturers entitlement-groups & [model]]]
                                        {:categories categories
                                         :manufacturers manufacturers
                                         :entitlement-groups entitlement-groups
