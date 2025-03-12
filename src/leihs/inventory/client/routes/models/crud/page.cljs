@@ -17,42 +17,42 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn on-submit [data event]
-  (go
-    (let [form-data (js/FormData.)]
-      (.. event (preventDefault))
-      (js/console.debug "is valid " data)
-
-      (doseq [[k v] (js/Object.entries data)]
-        (cond
-        ;; add images as binary data
-          (= k "images")
-          (if (js/Array.isArray v)
-            (doseq [val v]
-              (.. form-data (append (str "images") val)))
-            (.. form-data (append "images" v)))
-
-        ;; add attachments as binary data
-          (= k "attachments")
-          (if (js/Array.isArray v)
-            (doseq [val v]
-              (.. form-data (append "attachments" val)))
-            (.. form-data (append "attachments" v)))
-
-        ;; add fields as text data
-          :else (let [value (js/JSON.stringify v)]
-                  (.. form-data (append k value)))))
-
-      #_(js/fetch "http://localhost:5002/api/sample"
-                  (cj {:method "POST"
-                       :body form-data}))
-
-      (.. (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
-                    (cj {:method "POST"
-                         :headers {"Accept" "application/json"}
-                         :body form-data}))
-          (then (js/console.debug "success"))
-          (catch (js/console.debug "error"))))))
+;; (defn on-submit [data event]
+;;   (go
+;;     (let [form-data (js/FormData.)]
+;;       (.. event (preventDefault))
+;;       (js/console.debug "is valid " data)
+;;
+;;       (doseq [[k v] (js/Object.entries data)]
+;;         (cond
+;;         ;; add images as binary data
+;;           (= k "images")
+;;           (if (js/Array.isArray v)
+;;             (doseq [val v]
+;;               (.. form-data (append (str "images") val)))
+;;             (.. form-data (append "images" v)))
+;;
+;;         ;; add attachments as binary data
+;;           (= k "attachments")
+;;           (if (js/Array.isArray v)
+;;             (doseq [val v]
+;;               (.. form-data (append "attachments" val)))
+;;             (.. form-data (append "attachments" v)))
+;;
+;;         ;; add fields as text data
+;;           :else (let [value (js/JSON.stringify v)]
+;;                   (.. form-data (append k value)))))
+;;
+;;       #_(js/fetch "http://localhost:5002/api/sample"
+;;                   (cj {:method "POST"
+;;                        :body form-data}))
+;;
+;;       (.. (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+;;                     (cj {:method "POST"
+;;                          :headers {"Accept" "application/json"}
+;;                          :body form-data}))
+;;           (then (js/console.debug "success"))
+;;           (catch (fn [err] (js/console.debug "error" err)))))))
 
 (defn- on-invalid [data]
   (js/console.debug "is invalid: " data))
@@ -82,18 +82,63 @@
 
         params (router/useParams)
         handleSubmit (:handleSubmit (jc form))
-        control (:control (jc form))]
+        control (:control (jc form))
+        on-submit (fn [event data]
+                    (go
+                      (let [form-data (js/FormData.)]
+                        (.. event (preventDefault))
+                        (js/console.debug "is valid " data)
 
-    (uix/use-effect
-     (fn []
-       (when (and (not is-create) model)
-         (js/console.debug "set model values" (into {} model))))
+                        (doseq [[k v] (js/Object.entries data)]
+                          (cond
+                          ;; add images as binary data
+                            (= k "images")
+                            (if (js/Array.isArray v)
+                              (doseq [val v]
+                                (.. form-data (append (str "images") val)))
+                              (.. form-data (append "images" v)))
 
-     [is-create model])
+                          ;; add attachments as binary data
+                            (= k "attachments")
+                            (if (js/Array.isArray v)
+                              (doseq [val v]
+                                (.. form-data (append "attachments" val)))
+                              (.. form-data (append "attachments" v)))
+
+                          ;; add fields as text data
+                            :else (let [value (js/JSON.stringify v)]
+                                    (.. form-data (append k value)))))
+
+                        #_(js/fetch "http://localhost:5002/api/sample"
+                                    (cj {:method "POST"
+                                         :body form-data}))
+
+                        (if is-create
+
+                          (.. (js/fetch (router/generatePath "/inventory/:pool-id" params)
+                                        (cj {:method "POST"
+                                             :headers {"Accept" "application/json"}
+                                             :body form-data}))
+                              (then (js/console.debug "success"))
+                              (catch (fn [err] (js/console.debug "error" err))))
+
+                          (.. (js/fetch (router/generatePath "/inventory/:pool-id/model/:model-id" params)
+                                        (cj {:method "PUT"
+                                             :headers {"Accept" "application/json"}
+                                             :body form-data}))
+                              (then (js/console.debug "success"))
+                              (catch (fn [err] (js/console.debug "error" err))))))))]
+
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (when (and (not is-create) model)
+    ;;      (js/console.debug "set model values" (into {} model))))
+    ;;
+    ;;  [is-create model])
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
-    ;; (.. form (watch))
+    (.. form (watch))
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
@@ -136,7 +181,7 @@
                    ($ Button {:type "submit"
                               :form "create-model"
                               :className "self-center"}
-                      "Erstellen")
+                      (if is-create "Erstellen" "Speichern"))
 
                    (when (not is-create)
                      ($ Button {:variant "destructive"
