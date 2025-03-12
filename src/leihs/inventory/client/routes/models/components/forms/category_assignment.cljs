@@ -9,6 +9,7 @@
    ["react-hook-form" :as hook-form]
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
+   [leihs.inventory.client.lib.tree :as tree]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -29,6 +30,13 @@
             idx))
         (map-indexed vector items)))
 
+(defn find-by-id [list target-id]
+  (when (seq list)
+    (do
+      (js/console.debug "debug function" list target-id)
+      (js/console.debug "matches" (some #(when (= "3d55ff62-c920-5218-80f5-af0187fcfcb0" (:id %)) %) list))
+      (some #(when (= target-id (:id %)) %) list))))
+
 (defui main [{:keys [control props]}]
   (let [{:keys [categories]} (useLoaderData)
         [open set-open!] (uix/use-state false)
@@ -37,7 +45,10 @@
 
         {:keys [fields append remove]} (jc (hook-form/useFieldArray
                                             (cj {:control control
+                                                 :keyName "field_id"
                                                  :name "categories"})))
+
+        [flat-categories set-flat-categories!] (uix/use-state [])
 
         items (uix/use-memo
                (fn []
@@ -63,7 +74,13 @@
                                    (recur (rest remaining-items))))))]
 
                      (flatten-categories nil (:children categories) 1)
-                     @flattened-categories*))) [categories])]
+                     @flattened-categories*)
+
+                   (set-flat-categories! @flattened-categories*)))
+               [categories])]
+
+    ;; (uix/use-effect
+    ;;  (fn [] (js/console.debug flat-categories)) [flat-categories])
 
     (uix/use-effect
      (fn []
@@ -126,7 +143,9 @@
                     (fn [index field]
                       ($ TableRow {:class-name "" :key index}
 
-                         ($ TableCell {:class-name ""} (:path field))
+                         ($ TableCell {:class-name ""} (if (:path field)
+                                                         (:path field)
+                                                         (:path (find-by-id flat-categories (:id field)))))
 
                          ($ TableCell {:class-name "flex gap-2 justify-end"}
                             ($ Button {:variant "outline"

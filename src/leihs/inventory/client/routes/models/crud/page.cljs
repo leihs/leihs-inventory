@@ -7,9 +7,11 @@
    ["@@/card" :refer [Card CardContent]]
    ["@@/form" :refer [Form]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
+   ["lucide-react" :refer [Trash]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    [cljs.core.async :as async :refer [go]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
@@ -45,34 +47,51 @@
                   (cj {:method "POST"
                        :body form-data}))
 
-      (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
-                (cj {:method "POST"
-                     :headers {"Accept" "application/json"}
-                     :body form-data})))))
+      (.. (js/fetch "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model"
+                    (cj {:method "POST"
+                         :headers {"Accept" "application/json"}
+                         :body form-data}))
+          (then (js/console.debug "success"))
+          (catch (js/console.debug "error"))))))
 
 (defn- on-invalid [data]
   (js/console.debug "is invalid: " data))
 
+(def default-values {:product ""
+                     :is_package false
+                     :manufacturer ""
+                     :description ""
+                     :internal_description ""
+                     :technical_detail ""
+                     :hand_over_note ""
+                     :version ""
+                     :image_attributes []
+                     :categories []
+                     :entitlements []
+                     :properties []
+                     :accessories []})
+
 (defui page []
-  (let [form (useForm (cj {:resolver (zodResolver schema)
-                           :defaultValues {:product ""
-                                           :is_package false
-                                           :manufacturer ""
-                                           :description ""
-                                           :internal_description ""
-                                           :technical_detail ""
-                                           :hand_over_note ""
-                                           :version ""
-                                           :image_attributes []
-                                           :categories []
-                                           :entitlements []
-                                           :properties []
-                                           :accessories []}}))
+  (let [location (router/useLocation)
+        is-create (str/includes? (:pathname (jc location)) "create")
+        is-delete (str/includes? (:pathname (jc location)) "delete")
+        model (into {} (:model (jc (router/useLoaderData))))
+
+        form (useForm (cj {:resolver (zodResolver schema)
+                           :defaultValues model}
+                          #_(when (not is-create) (cj model))))
+
         params (router/useParams)
+        set-value (aget form "setValue")
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
 
-    (js/console.debug (useLoaderData) params)
+    (uix/use-effect
+     (fn []
+       (when (and (not is-create) model)
+         (js/console.debug "set model values" (into {} model))))
+
+     [is-create model])
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
@@ -119,6 +138,12 @@
                    ($ Button {:type "submit"
                               :form "create-model"
                               :className "self-center"}
-                      "Submit"))))))))
+                      "Erstellen")
+
+                   (when (not is-create)
+                     ($ Button {:variant "destructive"
+                                :size "icon"
+                                :className "self-center"}
+                        ($ Trash {:className "w-4 h-4"}))))))))))
 
 
