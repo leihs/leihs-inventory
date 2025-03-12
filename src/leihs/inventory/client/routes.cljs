@@ -34,7 +34,22 @@
 
         {:path ":pool-id"
          :children
-         (cj [{:path "models/create?/:model-id?/delete?"
+         (cj [{:element ($ models-layout)
+               :children
+               (cj
+                [{:path "models"
+                  :element ($ models-page)}
+
+                 {:path "advanced-search"
+                  :element ($ advanced-search-page)}
+
+                 {:path "statistics"
+                  :element ($ statistics-page)}
+
+                 {:path "entitlement-groups"
+                  :element ($ entitlement-groups-page)}])}
+
+              {:path "models/create?/:model-id?/delete?"
                :loader (fn [route-data]
                          (let [params (.. ^js route-data -params)
                                path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
@@ -81,18 +96,4 @@
 
               ;; {:path "models/:model-id/delete?"
               ;;  :element ($ models-create-page)}
-
-              {:element ($ models-layout)
-               :children
-               (cj
-                [{:path "models"
-                  :element ($ models-page)}
-
-                 {:path "advanced-search"
-                  :element ($ advanced-search-page)}
-
-                 {:path "statistics"
-                  :element ($ statistics-page)}
-
-                 {:path "entitlement-groups"
-                  :element ($ entitlement-groups-page)}])}])}])}])))
+              ])}])}])))

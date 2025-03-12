@@ -3,6 +3,10 @@
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
    ["@/routes/models/components/form" :refer [schema structure]]
+   ["@@/alert-dialog" :refer [AlertDialog AlertDialogContent AlertDialogFooter
+                              AlertDialogAction AlertDialogHeader
+                              AlertDialogTitle AlertDialogDescription
+                              AlertDialogCancel]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/form" :refer [Form]]
@@ -10,6 +14,7 @@
    ["lucide-react" :refer [Trash]]
    ["react-hook-form" :refer [useForm]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
+   ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -83,11 +88,15 @@
         params (router/useParams)
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))
-        on-submit (fn [event data]
+        on-submit (fn [data event]
                     (go
                       (let [form-data (js/FormData.)]
+
+                        ;; (.. form ())
+
                         (.. event (preventDefault))
                         (js/console.debug "is valid " data)
+                        (.. toast (error "ERROR"))
 
                         (doseq [[k v] (js/Object.entries data)]
                           (cond
@@ -98,7 +107,7 @@
                                 (.. form-data (append (str "images") val)))
                               (.. form-data (append "images" v)))
 
-                          ;; add attachments as binary data
+                            ;; add attachments as binary data
                             (= k "attachments")
                             (if (js/Array.isArray v)
                               (doseq [val v]
@@ -109,27 +118,25 @@
                             :else (let [value (js/JSON.stringify v)]
                                     (.. form-data (append k value)))))
 
-                        #_(js/fetch "http://localhost:5002/api/sample"
-                                    (cj {:method "POST"
-                                         :body form-data}))
+                        (js/console.debug "data" (js/JSON.stringify data))
 
-                        (if is-create
+                        #_(if is-create
 
-                          (.. (js/fetch (router/generatePath "/inventory/:pool-id" params)
-                                        (cj {:method "POST"
-                                             :headers {"Accept" "application/json"}
-                                             :body form-data}))
-                              (then (js/console.debug "success"))
-                              (catch (fn [err] (js/console.debug "error" err))))
+                            (.. (js/fetch (router/generatePath "/inventory/:pool-id" params)
+                                          (cj {:method "POST"
+                                               :headers {"Accept" "application/json"}
+                                               :body form-data}))
+                                (then (js/console.debug "success"))
+                                (catch (fn [err] (js/console.debug "error" err))))
 
-                          (.. (js/fetch (router/generatePath "/inventory/:pool-id/model/:model-id" params)
-                                        (cj {:method "PUT"
-                                             :headers {"Accept" "application/json"}
-                                             :body form-data}))
-                              (then (js/console.debug "success"))
-                              (catch (fn [err] (js/console.debug "error" err))))))))]
+                            (.. (js/fetch (router/generatePath "/inventory/:pool-id/model/:model-id" params)
+                                          (cj {:method "PUT"
+                                               :headers {"Accept" "application/json"}
+                                               :body form-data}))
+                                (then (js/console.debug "success"))
+                                (catch (fn [err] (js/console.debug "error" err))))))))]
 
-    ;; (uix/use-effect
+;; (uix/use-effect
     ;;  (fn []
     ;;    (when (and (not is-create) model)
     ;;      (js/console.debug "set model values" (into {} model))))
@@ -138,7 +145,7 @@
 
     ;; without this, form data is stale.
     ;; But this also means the form is evaluated every render
-    (.. form (watch))
+    ;; (.. form (watch))
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-6"}
@@ -184,9 +191,28 @@
                       (if is-create "Erstellen" "Speichern"))
 
                    (when (not is-create)
-                     ($ Button {:variant "destructive"
+                     ($ Button {:asChild true
+                                :variant "destructive"
                                 :size "icon"
                                 :className "self-center"}
-                        ($ Trash {:className "w-4 h-4"}))))))))))
+                        ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)}
+                           ($ Trash {:className "w-4 h-4"}))))
+
+                   ;; Dialog when deleting a model
+                   (when (not is-create)
+                     ($ AlertDialog {:open is-delete}
+                        ($ AlertDialogContent
+
+                           ($ AlertDialogHeader
+                              ($ AlertDialogTitle "Modell löschen")
+                              ($ AlertDialogDescription "Sind Sie sicher, dass Sie dieses Modell löschen möchten?"))
+
+                           ($ AlertDialogFooter
+                              ($ AlertDialogAction
+                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models" params)}
+                                    "Löschen"))
+                              ($ AlertDialogCancel
+                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)}
+                                    "Abbrechen")))))))))))))
 
 

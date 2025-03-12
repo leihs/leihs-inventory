@@ -18,6 +18,7 @@
 
 (defn fetch-inventory [params]
   (let [path (router/generatePath "/inventory/:pool-id/models" params)]
+    (js/console.debug path)
     (.. (js/fetch path
                   (cj {:headers {"Accept" "application/json"}}))
         (then #(.json %))
