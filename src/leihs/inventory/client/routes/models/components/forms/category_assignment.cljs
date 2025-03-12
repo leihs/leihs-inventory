@@ -9,7 +9,6 @@
    ["react-hook-form" :as hook-form]
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
-   [leihs.inventory.client.lib.tree :as tree]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -30,12 +29,9 @@
             idx))
         (map-indexed vector items)))
 
-(defn find-by-id [list target-id]
+(defn find-by-id [list id]
   (when (seq list)
-    (do
-      (js/console.debug "debug function" list target-id)
-      (js/console.debug "matches" (some #(when (= "3d55ff62-c920-5218-80f5-af0187fcfcb0" (:id %)) %) list))
-      (some #(when (= target-id (:id %)) %) list))))
+    (some #(when (= id (:id %)) %) list)))
 
 (defui main [{:keys [control props]}]
   (let [{:keys [categories]} (useLoaderData)
@@ -78,9 +74,6 @@
 
                    (set-flat-categories! @flattened-categories*)))
                [categories])]
-
-    ;; (uix/use-effect
-    ;;  (fn [] (js/console.debug flat-categories)) [flat-categories])
 
     (uix/use-effect
      (fn []
