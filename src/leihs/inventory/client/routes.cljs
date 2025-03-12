@@ -56,11 +56,17 @@
                                                  (then #(.json %))
                                                  (then #(remove (fn [el] (= "" el)) (jc %))))
                                model-path (when (:model-id (jc params)) (router/generatePath "/inventory/:pool-id/model/:model-id" params))
+
                                model (when model-path
                                        (.. (js/fetch model-path
                                                      (cj {:headers {"Accept" "application/json"}}))
                                            (then #(.json %))
-                                           (then #(remove (fn [el] (= "" el)) (jc %)))))]
+                                           (then (fn [res]
+                                                   (let [kv (first (jc res))]
+                                                     (->> kv
+                                                          (vals)
+                                                          (map (fn [el] (if (nil? el) "" el)))
+                                                          (zipmap (keys kv))))))))]
 
                            (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
                                                  model (conj model)))

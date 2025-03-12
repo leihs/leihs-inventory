@@ -78,11 +78,9 @@
         model (into {} (:model (jc (router/useLoaderData))))
 
         form (useForm (cj {:resolver (zodResolver schema)
-                           :defaultValues model}
-                          #_(when (not is-create) (cj model))))
+                           :defaultValues (if is-create default-values model)}))
 
         params (router/useParams)
-        set-value (aget form "setValue")
         handleSubmit (:handleSubmit (jc form))
         control (:control (jc form))]
 
