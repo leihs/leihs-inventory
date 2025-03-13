@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.coercion :as mc]
+
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
@@ -11,8 +11,8 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form
-                                                                                         delete-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
+                                                                                         update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -21,8 +21,10 @@
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
-                                                                                            delete-software-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
+                                                                                            update-software-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.inventory-list :refer [inventory-list-handler
+                                                                   get-paginated-data]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -32,7 +34,6 @@
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
-                                                                   get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
@@ -560,6 +561,31 @@
                                      :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
+
+    ["/inventory-list"
+     {:get {:accept "application/json"
+            :summary "(DEV) | Inventory-List [v0]"
+            :description "- Default: process_grouping=true page=1 size=300\n- Format: last_check='2025-03-21'"
+            :coercion reitit.coercion.schema/coercion
+             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+            :parameters {:path {:pool_id s/Uuid}
+                         :query {:entry_type (s/enum "Model" "Package" "Option" "Software" "All")
+                                 (s/optional-key :page) s/Int
+                                 (s/optional-key :size) s/Int
+                                 (s/optional-key :process_grouping) (s/enum "true" "false")
+
+                                 (s/optional-key :inventory_pool_id) s/Uuid
+                                 (s/optional-key :search_term) s/Str
+                                 (s/optional-key :last_check) s/Str}}
+            :handler inventory-list-handler
+            :responses {200 {:description "OK"
+                             :body {:data [s/Any]
+                                    :pagination {:page s/Int
+                                                 :size s/Int
+                                                 :total_rows s/Int
+                                                 :total_pages s/Int}}}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
 
     ["/"
      {:post {:accept "application/json"

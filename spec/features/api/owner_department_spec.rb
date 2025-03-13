@@ -19,7 +19,8 @@ feature "Inventory API Endpoints - Departments and Owners" do
         it "retrieves paginated results and returns status 200" do
           resp = client.get "#{url}?page=3&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(4)
+          expect(resp.body["pagination"]["total_rows"]).to eq(4)
+          expect(resp.body["data"].count).to eq(1)
 
           id = resp.body["data"][0]["id"]
           resp = client.get "#{url}/#{id}"

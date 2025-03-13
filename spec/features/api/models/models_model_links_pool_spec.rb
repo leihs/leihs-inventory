@@ -21,13 +21,13 @@ feature "Inventory API Endpoints - model-links" do
         it "retrieves all model-links for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves paginated model-link results and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves specific model-link details and returns status 200" do
@@ -52,13 +52,13 @@ feature "Inventory API Endpoints - model-links" do
         it "retrieves no model-links for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
 
         it "retrieves paginated results with no model-links and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
       end
       # end

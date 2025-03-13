@@ -19,7 +19,7 @@ def validate_map_structure(map, required_keys)
   end
 
   if errors.empty?
-    puts "✅ Map structure is valid."
+    # puts "✅ Map structure is valid."
     true
   else
     puts "❌ Validation failed with errors:"

@@ -8,9 +8,7 @@
    [ring.util.response :refer [response status]]
    [schema.core :as s]))
 
-(def pagination {:total_records s/Int
-                 :current_page s/Int
-                 :per_page s/Int
-                 :total_pages s/Int
-                 :next_page (s/maybe s/Int)
-                 :prev_page (s/maybe s/Int)})
+(def pagination {:size s/Int
+                 :page s/Int
+                 :total_rows s/Int
+                 :total_pages s/Int})

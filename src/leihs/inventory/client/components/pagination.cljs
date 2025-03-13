@@ -17,13 +17,20 @@
         search-params (js/URLSearchParams. (.-search location))
         [pages set-pages!] (uix/use-state (js/parseInt (.. search-params (get "size"))))
 
+        ;; derived values from simplified pagination map
+        current-page (:page pagination)
+        per-page (:size pagination)
+        total-pages (:total_pages pagination)
+        prev-page (when (> current-page 1) (dec current-page))
+        next-page (when (< current-page total-pages) (inc current-page))
+
         gen-page-number-str (fn [number]
                               (.. search-params (set "page" number))
                               (.. search-params (toString)))
 
         gen-page-size-str (fn [value]
                             (.. search-params (set "size" value))
-                            (.. search-params (set "page" (:current_page pagination)))
+                            (.. search-params (set "page" current-page))
                             (.. search-params (toString)))
 
         handle-size-change (fn [value]
@@ -36,19 +43,19 @@
     ($ :div {:class-name (str "flex " class-name)}
        ($ Pagination {:class-name "justify-start"}
 
-          ;; previous link
-          (if (:prev_page pagination)
+        ;; previous link
+          (if prev-page
             ($ PaginationPrevious {:href (str (.. location -pathname)
                                               "?"
-                                              (gen-page-number-str (:prev_page pagination)))})
+                                              (gen-page-number-str prev-page))})
             ($ Button {:variant "link"
                        :disabled true}
                ($ ChevronLeft) "Previous"))
 
           ($ PaginationContent
 
-             ;; first page when current page is greater than 2
-             (when (> (:current_page pagination) 2)
+          ;; first page and ellipsis if current > 2
+             (when (> current-page 2)
                ($ :<>
                   ($ PaginationItem
                      ($ PaginationLink {:href (str (.. location -pathname)
@@ -57,59 +64,56 @@
                         "1"))
                   ($ PaginationEllipsis)))
 
-             ;; previous link
-             (when (:prev_page pagination)
+          ;; previous link
+             (when prev-page
                ($ PaginationItem
                   ($ PaginationLink {:href (str (.. location -pathname)
                                                 "?"
-                                                (gen-page-number-str (:prev_page pagination)))}
-                     (:prev_page pagination))))
+                                                (gen-page-number-str prev-page))}
+                     prev-page)))
 
-             ;; current active page
+          ;; current page
              ($ PaginationItem
                 ($ PaginationLink {:is-active true
                                    :href (str (.. location -pathname)
                                               "?"
-                                              (gen-page-number-str (:current_page pagination)))}
-                   (:current_page pagination)))
+                                              (gen-page-number-str current-page))}
+                   current-page))
 
-             ;; next page when not last page
-             (when (and (not= (:next_page pagination)
-                              (:total_pages pagination))
-                        (:next_page pagination))
+          ;; next page (number)
+             (when (and (not= next-page total-pages)
+                        next-page)
                ($ PaginationItem
                   ($ PaginationLink {:href (str (.. location -pathname)
                                                 "?"
-                                                (gen-page-number-str (:next_page pagination)))}
-                     (:next_page pagination))))
+                                                (gen-page-number-str next-page))}
+                     next-page)))
 
-             ;; ellipsis between next page and last page, when not last page
-             (when (not= (:current_page pagination)
-                         (:total_pages pagination))
+          ;; ellipsis if not on last page
+             (when (not= current-page total-pages)
                ($ PaginationEllipsis))
 
-             ;; last page
-             (when (not= (:current_page pagination)
-                         (:total_pages pagination))
+          ;; last page if not current
+             (when (not= current-page total-pages)
                ($ PaginationItem
                   ($ PaginationLink {:href (str (.. location -pathname)
                                                 "?"
-                                                (gen-page-number-str (:total_pages pagination)))}
-                     (:total_pages pagination))))
+                                                (gen-page-number-str total-pages))}
+                     total-pages)))
 
-             ;; next link
-             (if (:next_page pagination)
-               ($ PaginationNext {:disabled (not (:next_page pagination))
-                                  :href (str (.. location -pathname)
+          ;; next link
+             (if next-page
+               ($ PaginationNext {:href (str (.. location -pathname)
                                              "?"
-                                             (gen-page-number-str (:next_page pagination)))})
+                                             (gen-page-number-str next-page))})
                ($ Button {:variant "link"
                           :disabled true}
                   "Next" ($ ChevronRight)))))
 
+      ;; page size dropdown
        ($ DropdownMenu
           ($ DropdownMenuTrigger {:asChild "true"}
-             ($ Button {:variant "outline"} "Items per page "))
+             ($ Button {:variant "outline"} "Items per page"))
           ($ DropdownMenuContent {:align "start"}
              ($ DropdownMenuRadioGroup {:value pages
                                         :onValueChange handle-size-change}

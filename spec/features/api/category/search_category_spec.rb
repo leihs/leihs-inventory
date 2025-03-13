@@ -18,7 +18,7 @@ feature "Inventory API Endpoints - Models" do
         resp = client.get url
 
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(0)
+        expect(resp.body["pagination"]["total_rows"]).to eq(0)
         expect(resp.body["data"].count).to eq(0)
       end
 
@@ -28,7 +28,7 @@ feature "Inventory API Endpoints - Models" do
         it "returns one item and status 200 when model_group_link exists" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
           expect(resp.body["data"].count).to eq(1)
         end
       end
@@ -40,7 +40,7 @@ feature "Inventory API Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(9)
+          expect(resp.body["pagination"]["total_rows"]).to eq(9)
           expect(resp.body["data"].count).to eq(9)
         end
 
@@ -48,7 +48,7 @@ feature "Inventory API Endpoints - Models" do
           resp = client.get "#{url}?type=Software"
 
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
           expect(resp.body["data"].count).to eq(0)
         end
 
@@ -57,7 +57,7 @@ feature "Inventory API Endpoints - Models" do
 
           # TODO: improve test assertions if needed
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(9)
+          expect(resp.body["pagination"]["total_rows"]).to eq(9)
           expect(resp.body["data"].count).to eq(9)
         end
       end

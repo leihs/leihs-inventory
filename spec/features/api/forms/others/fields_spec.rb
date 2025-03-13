@@ -22,7 +22,7 @@ feature "Fetching Fields" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(expected_count)
+          expect(resp.body["pagination"]["total_rows"]).to eq(expected_count)
           expect(resp.body["data"].count).to eq(10)
         end
       end
@@ -35,7 +35,8 @@ feature "Fetching Fields" do
         resp = client.get url
 
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(46)
+        expect(resp.body["pagination"]["total_rows"]).to eq(46)
+        expect(resp.body["pagination"]["size"]).to eq(10)
         expect(resp.body["data"].count).to eq(10)
       end
     end

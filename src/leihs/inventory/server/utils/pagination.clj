@@ -31,16 +31,14 @@
    (create-paginated-response base-query tx size page nil))
 
   ([base-query tx size page post-data-fnc]
-   (let [total_records (fetch-total-count base-query tx)
-         total-pages (int (Math/ceil (/ total_records (float size))))
+   (let [total-rows (fetch-total-count base-query tx)
+         total-pages (int (Math/ceil (/ total-rows (float size))))
          offset (* (dec page) size)
          paginated-products (fetch-paginated-rows base-query tx size offset)
-         pagination-info {:total_records total_records
-                          :current_page page
-                          :per_page size
+         pagination-info {:total_rows total-rows
                           :total_pages total-pages
-                          :next_page (when (< page total-pages) (inc page))
-                          :prev_page (when (> page 1) (dec page))}
+                          :page page
+                          :size size}
 
          paginated-products (if (nil? post-data-fnc) paginated-products
                                 (post-data-fnc paginated-products))]
