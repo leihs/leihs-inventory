@@ -807,15 +807,17 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :query {(s/optional-key :page) s/Int
+                         :query {
+                                 (s/optional-key :page) s/Int
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                  (s/optional-key :filter_manufacturer) s/Str
                                  (s/optional-key :filter_product) s/Str
+                                 (s/optional-key :mode) (s/enum "full" "min")
                                  (s/optional-key :filter_ids) [s/Uuid]}}
 
-;:handler get-models-of-pool-handler
-            :handler get-models-of-pool-with-pagination-handler
+            :handler get-models-of-pool-handler
+            ;:handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"
                              :body (s/->Either [s/Any mc/models-response-payload])}

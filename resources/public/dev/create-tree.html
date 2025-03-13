@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Expandable Model-Item Table</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .expand-btn {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        .child-row {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Model List</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Children</th>
+    </tr>
+    </thead>
+    <tbody id="model-body">
+    <!-- Rows will be populated via AJAX -->
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+        // Fetch initial model data
+        $.ajax({
+            url: '/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models',
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            success: function(models) {
+                models.forEach(function(model) {
+                    const row = $(
+                        `<tr data-model-id="${model.id}">
+                        <td>${model.id}</td>
+                        <td>${model.product}</td>
+                        <td>${model.is_package}</td>
+                        <td>${model.type}</td>
+                        <td>${model.children}</td>
+                        <td><span class="expand-btn">Expand (${model.children.length})</span></td>
+                    </tr>`
+                    );
+                        // <td>${model.children.empty()}</td>
+                    $('#model-body').append(row);
+                });
+            }
+        });
+
+        // Expand/collapse child items
+        $('#model-body').on('click', '.expand-btn', function() {
+            const btn = $(this);
+            const parentRow = btn.closest('tr');
+            const modelId = parentRow.data('model-id');
+
+            if (btn.data('expanded')) {
+                // Collapse
+                $(`.child-of-${modelId}`).remove();
+                btn.text(btn.text().replace('Collapse', 'Expand'));
+                btn.data('expanded', false);
+            } else {
+                // Expand
+                $.ajax({
+                    url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/items?model_id=${modelId}`,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    success: function(items) {
+                        items.forEach(function(item) {
+                            const childRow = $(
+                                `<tr class="child-row child-of-${modelId}">
+                                <td>${item.id}</td>
+                                <td>${item.product || ''}</td>
+                                <td></td>
+                            </tr>`
+                            );
+                            parentRow.after(childRow);
+                        });
+                        btn.text(btn.text().replace('Expand', 'Collapse'));
+                        btn.data('expanded', true);
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

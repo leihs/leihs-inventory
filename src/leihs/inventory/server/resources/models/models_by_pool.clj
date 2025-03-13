@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.models.models-by-pool
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql :as sq :refer [format] :rename {format sql-format}]
+
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
@@ -65,8 +66,88 @@
                           (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                         (cond-> model_id (sql/where [:= :m.id model_id]))
                         (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))]
+                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
+
+         p (println ">o> abc" (-> base-query sql-format))
+         ]
      (create-pagination-response request base-query with-pagination?))))
+
+
+
+
+;(ns your.namespace
+;  (:require [next.jdbc.sql :as sql]
+;   [next.jdbc :as jdbc]))
+
+(defn get-models-handler
+  ([request]
+   (get-models-handler request false))
+  ([request with-pagination?]
+   (let [tx (:tx request)
+         {:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
+         option-type (extract-option-type-from-uri (:uri request))
+         query-params (query-params request)
+         {:keys [filter_ids]} query-params
+         {:keys [page size]} (fetch-pagination-params request)
+         sort-by (case (:sort_by query-params)
+                   :manufacturer-asc [:m.manufacturer :asc]
+                   :manufacturer-desc [:m.manufacturer :desc]
+                   :product-asc [:m.product :asc]
+                   :product-desc [:m.product :desc]
+                   nil)
+         filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
+         filter-product (if-not model_id (:filter_product query-params) nil)
+
+         ;; Define base query with real_type column
+         base-query (-> (sql/select
+                          :m.id
+                          :m.product
+                          :m.version
+                          :m.is_package
+                          :m.type
+                          [(sq/call :array_agg :i.id) :children]
+                          [(sq/call :case
+                             [:and [:= :m.type "Model"] [:= :m.is_package false]] "Model"
+                             [:and [:= :m.type "Model"] [:= :m.is_package true]] "Package"
+                             [:= :m.type "Software"] "Software"
+                             :else "Unknown")
+                           :real_type]
+
+                      ;[(sq/call :case
+                      ;   [(sq/call := (sq/call :array_length (sq/call :array_agg :i.id) 1) nil) true]
+                      ;   :else false)
+                      ; :deletable]
+
+                          ;[(sq/call :case
+                          ;   [(sq/call := (sq/call :count :i.id) 0) true]
+                          ;   :else false)
+                          ; :deletable]
+
+                          ;[(sq/call :case
+                          ;   [(sq/call := (sq/call :count [:raw "i.id"] :filter [:raw "WHERE i.id IS NOT NULL"]) 0) true]
+                          ;   :else false)
+                          ; :deletable]
+
+                          )
+                      (sql/from [:models :m])
+                      (sql/join [:items :i] [:= :m.id :i.model_id])
+                      (sql/group-by :m.id :m.product :m.version :m.is_package :m.type)
+                      (cond-> filter-manufacturer
+                        (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
+                      (cond-> filter-product
+                        (sql/where [:ilike :m.product (str "%" filter-product "%")]))
+                      (cond-> model_id (sql/where [:= :m.id model_id]))
+                      (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
+                      (cond-> (and sort-by model_id) (sql/order-by sort-by))
+                      (sql/limit 20)
+                      )
+
+         p (println ">o> abc" (-> base-query sql-format))]
+
+     (create-pagination-response request base-query with-pagination?))))
+
+
+
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (response (get-models-handler request true)))
