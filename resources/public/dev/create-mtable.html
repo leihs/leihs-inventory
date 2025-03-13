@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Expandable Model-Item Table</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .expand-btn {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        .child-row {
+            background-color: #f9f9f9;
+        }
+        .Package {
+            background-color: #f9f9f9;
+        }
+        .PackageItem {
+            background-color: #eaeaea;
+        }
+        .Item {
+            background-color: #d7d7d7;
+        }
+    </style>
+
+
+    <style>
+        ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
+    </style>
+</head>
+<body>
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item">Item (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
+</ul>
+
+<h2>Inventory List</h2>
+
+<div class="form-group">
+    <label for="poolId">Pool ID</label>
+    <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
+</div>
+
+
+<h2>Model List (DEPRECATED)</h2>
+<table>
+
+
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Children</th>
+    </tr>
+    </thead>
+    <tbody id="model-body">
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function() {
+
+        function createLink(model) {
+
+            const poolId=$("#poolId").val();
+
+            const baseUrl = `/inventory/${poolId}/dev/model?model_id=${model.id}&pool_id=${poolId}`;
+
+
+            const entry_type = model.entry_type;
+            // debugger
+            if(entry_type=="Model" || entry_type=="Package"){
+
+            return `<a href="${baseUrl}">${model.id}</a>`;
+                // return ""
+            }
+
+            // if (poolId) params.set('pool_id', poolId);
+            // if (modelId) params.set('model_id', modelId);
+            //
+            // const queryString = params.toString();
+
+            // return `<button onclick="window.open('${baseUrl}')">${model.id}</button>`;
+            return model.id;
+        }
+        
+        $.ajax({
+            url: '/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models',
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            },
+            success: function(models) {
+                models.forEach(function(model) {
+                    const canDelete = ["Item", "Model", "Package"].includes(model.entry_type);
+                    const hasChildren = (model.children?.length ?? 0) > 0;
+
+                        // <td>${model.id}</td>
+                    const row = $(`
+                      <tr data-model-id="${model.id}" class="${model.entry_type}">
+                        <td>${createLink(model)}</td>
+                        <td>${model.entry_type}</td>
+                        <td>${model.product}</td>
+                        <td>${model.is_package}</td>
+                        <td>${model.real_type}</td>
+                        <td>${model.children}</td>
+                        <td>
+                          ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : (canDelete ? `<button class="delete-btn">Delete ${model.entry_type}</button>` : '')}
+                        </td>
+                      </tr>`
+                    );
+
+                    row.data("raw", model);
+                    $('#model-body').append(row);
+                });
+            }
+        });
+
+        $('#model-body').on('click', '.expand-btn', function() {
+            const btn = $(this);
+            const parentRow = btn.closest('tr');
+            const modelId = parentRow.data('model-id');
+            const model = parentRow.data('raw');
+
+            const url = model.entry_type.includes("Item")
+                ? `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${model.model_id}/items/${model.id}?entry_type=${model.entry_type}`
+                : `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.entry_type}`;
+
+            if (btn.data('expanded')) {
+                $(`.child-of-${modelId}`).remove();
+                btn.text(btn.text().replace('Collapse', 'Expand'));
+                btn.data('expanded', false);
+            } else {
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    success: function(items) {
+                        items.forEach(function(item) {
+                            const hasChildren = (item.children?.length ?? 0) > 0;
+
+                            const childRow = $(`
+                                <tr class="child-row child-of-${modelId} ${item.entry_type}">
+<!--                                  <td>${item.id}</td>-->
+                                  <td>${createLink(item)}</td>
+                                  <td>${item.entry_type}</td>
+                                  <td>${item.inventory_code ?? ''}</td>
+                                  <td>${item.inventory_pool_id ?? ''}</td>
+                                  <td>${item.model_id ?? ''}</td>
+                                  <td>${item.product ?? ''}</td>
+                                  <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
+                                  <td></td>
+                                </tr>`
+                            );
+
+                            childRow.data("raw", item);
+                            parentRow.after(childRow);
+                        });
+                        btn.text(btn.text().replace('Expand', 'Collapse'));
+                        btn.data('expanded', true);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

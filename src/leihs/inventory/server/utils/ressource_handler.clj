@@ -33,7 +33,7 @@
                              "public/inventory/assets"])
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
 (def RESOURCE_FILES (apply concat (map list-files-in-dir ALLOWED_RESOURCE_PATHS)))
-(def SUPPORTED_LOCALES ["/en/" "/de/" "/es/" "/fr/"])
+(def CONST_SUPPORTED_LOCALES ["/en/" "/de/" "/es/" "/fr/"])
 
 (defn file-request?
   [uri]
@@ -89,7 +89,7 @@
       filename
       nil)))
 
-(def allowed-types #{"model" "software" "license" "item" "option" "package"})
+(def CONST_ALLOWED_TYPES #{"model" "software" "license" "item" "option" "package" "stable" "mtable"})
 
 (defn generate-content-type [filetype]
   (let [charset "; charset=utf-8"]
@@ -118,7 +118,7 @@
 
       (and (dm/has-admin-permission request) (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))
       (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
-        (if (allowed-types type)
+        (if (CONST_ALLOWED_TYPES type)
           {:status 200
            :headers {"Content-Type" "text/html"}
            :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
@@ -126,7 +126,7 @@
            :body "Invalid type"}))
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-           (contains-one-of? uri SUPPORTED_LOCALES))
+           (contains-one-of? uri CONST_SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")]
         {:status 200
          :headers {"Content-Type" "application/json"}

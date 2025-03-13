@@ -17,13 +17,13 @@ feature "Inventory API Endpoints - Model Properties" do
         it "retrieves all properties for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves paginated property results and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves specific property details and returns status 200" do
@@ -50,13 +50,13 @@ feature "Inventory API Endpoints - Model Properties" do
         it "retrieves no properties for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
 
         it "retrieves paginated results with no properties and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
       end
     end

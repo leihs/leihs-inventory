@@ -17,13 +17,13 @@ feature "Inventory API Endpoints - Accessories" do
         it "retrieves all accessories for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "returns paginated accessory results and status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves details of a specific accessory and returns status 200" do
@@ -50,13 +50,13 @@ feature "Inventory API Endpoints - Accessories" do
         it "retrieves no accessories for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
 
         it "returns paginated empty results with status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
       end
     end
