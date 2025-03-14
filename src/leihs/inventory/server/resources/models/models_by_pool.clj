@@ -355,48 +355,40 @@
          _ (println ">o> abc.model_id" model_id (type model_id))
          _ (println ">o> abc.type" entry_type (type entry_type))
 
-         ;{:keys [page size]} (fetch-pagination-params request)
-         ;{:keys [search_term not_packaged packages retired result_type]} (query-params request)
-
          ;; HoneySQL query
+         ;base-query (-> (sql/select :i.id
+         ;                 :i.inventory_code
+         ;                 :i.inventory_pool_id
+         ;                 :i.model_id
+         ;
+         ;                 :m.product
+         ;                 ;[:m.is_package :is_part_of_package]
+         ;
+         ;                 )
+         ;             (sql/from [:items :i])
+         ;             (sql/left-join [:items :it] [:= :i.id :it.parent_id])
+         ;             (sql/join [:models :m] [:= :it.model_id :m.id])
+         ;
+         ;             (cond-> item_id (sql/where  [:= :i.parent_id item_id]))
+         ;
+         ;             )
+
          base-query (-> (sql/select :i.id
                           :i.inventory_code
                           :i.inventory_pool_id
                           :i.model_id
-                          ;:r.name
-                          ;:r.description
-                          ;:b.name
-                          ;:b.code
-
-                          ;; this breaks the calculation
-                          ;[(sq/call :coalesce
-                          ;   (sq/call :array_agg
-                          ;     (sq/call :filter :it.parent_id [:is-not :it.parent_id nil]))
-                          ;   "{}")
-                          ; :children]
-
-                          ;[(sq/call :array_agg :it.parent_id) :children]
-
-
+                          ;[:m.product :product1]
+                          ;[:m2.product :product2]
+                          :m2.product
+                          :m2.manufacturer
+                          [:m2.is_package :is_part_of_package]
                           )
                       (sql/from [:items :i])
-                      (sql/left-join [:items :it] [:= :i.id :it.parent_id])
-                      ;(sql/left-join [:rooms :r] [:= :r.id :i.room_id])
-                      ;(sql/left-join [:buildings :b] [:= :b.id :r.building_id])
-                      ;(cond-> item_id (sql/where [:= :i.id item_id]))
+                      (sql/left-join [:items :it] [:= :i.id :it.parent_id])  ; "it" first
+                      ;(sql/left-join [:models :m] [:= :it.model_id :m.id])        ; "m" after
+                      (sql/left-join [:models :m2] [:= :i.model_id :m2.id])        ; "m" after
+                      (cond-> item_id (sql/where [:= :i.parent_id item_id])))
 
-                      (cond-> item_id (sql/where  [:= :i.parent_id item_id]))
-                      ;(cond-> pool_id (sql/where [:= :i.inventory_pool_id pool_id]))
-
-                      ;(sql/group-by :i.id
-                      ;  :i.inventory_code
-                      ;  :i.inventory_pool_id
-                      ;  :r.name
-                      ;  :r.description
-                      ;  :b.name
-                      ;  :b.code)
-
-                      )
 
          _ (println ">o> abc.query" (-> base-query sql-format))
 
@@ -406,6 +398,7 @@
 
 
          result (replace-null-children result)
+         result (mapv #(assoc % :entry_type  "Item") result)
 
          ]
 

@@ -33,6 +33,19 @@
         .child-row {
             background-color: #f9f9f9;
         }
+
+        .Package {
+            background-color: #d7d7d7;
+        }
+        .PackageItem {
+            background-color: #eaeaea;
+        }
+        .Item {
+            background-color: #f9f9f9;
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -62,16 +75,24 @@
             },
             success: function(models) {
                 models.forEach(function(model) {
-                    const hasChildren = model.children.length > 0;
+                    // const hasChildren = model.children.length > 0;
+
+                    const canDelete = ["Item", "Model", "Package"].includes(model.entry_type);
+                    const hasChildren = (model.children?.length ?? 0) > 0;
+
 
                     const row = $(
-                        `<tr data-model-id="${model.id}">
+                        `<tr data-model-id="${model.id} class="${model.entry_type}">
                             <td>${model.id}</td>
                             <td>${model.product}</td>
                             <td>${model.is_package}</td>
                             <td>${model.entry_type}</td>
                             <td>${model.children}</td>
-                            <td>${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}</td>
+                            <td>
+                              ${hasChildren
+                                                    ? `<span class="expand-btn">Expand (${model.children.length})</span>`
+                                                    : (canDelete ? `<button class="delete-btn">Delete ${model.entry_type}</button>` : '')}
+                            </td>
                           </tr>`
                     );
 
@@ -94,10 +115,13 @@
             const modelId = parentRow.data('model-id');
             const model = parentRow.data('raw');
 
-
+            // const is_item =!model.entry_type.includes("Item")
+            var isRealItemResponse=false;
             if (model.entry_type.includes("Item")) {
-                debugger
-                url =  `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${model.model_id}/item/${model.id}?entry_type=${model.entry_type}`
+            // if (is_item) {
+                // debugger
+                url =  `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${model.model_id}/items/${model.id}?entry_type=${model.entry_type}`
+                isRealItemResponse=true;
             }else{
                 url =  `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.entry_type}`
 
@@ -123,15 +147,34 @@
                     },
                     success: function(items) {
                         items.forEach(function(item) {
-                            const hasChildren = item.children.length > 0;
+                            const hasChildren = (item.children?.length ?? 0) > 0;
+// <!--                                <td></td>-->
 
-
-
-                            const childRow = $(
-                                `<tr class="child-row child-of-${modelId}">
+                            var childRow;
+                            if(isRealItemResponse){
+                                childRow = $(
+                                    `<tr class="child-row child-of-${modelId} ${item.entry_type}">
                                 <td>${item.id}</td>
                                 <td>${item.inventory_code}</td>
                                 <td>${item.product || ''}</td>
+
+                                <td>${item.entry_type}</td>
+
+                                <td>${item.model_id}</td>
+                                <td>${item.is_part_of_package}</td>
+                                <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
+                                <td></td>
+                            </tr>`
+                                );
+                            }else{
+
+                            childRow = $(
+                                `<tr class="child-row child-of-${modelId} ${item.entry_type}">
+                                <td>${item.id}</td>
+                                <td>${item.inventory_code}</td>
+                                <td>${item.product || ''}</td>
+                                 <td>${item.entry_type}</td>
+
                                 <td>${item.name}</td>
                                 <td>${item.description}</td>
                                 <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
@@ -139,6 +182,7 @@
                             </tr>`
                             );
 
+                            }
                             // if(model.product == "Intercom-Case ALTAiR"){
                             //     debugger
                             // }
