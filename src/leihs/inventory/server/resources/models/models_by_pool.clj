@@ -9,9 +9,8 @@
                                                             model-links-query properties-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -22,8 +21,8 @@
 (defn- extract-option-type-from-uri [input-str]
   (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
         last-segment (-> input-str
-                         (clojure.string/split #"/")
-                         last)]
+                       (clojure.string/split #"/")
+                       last)]
     (if (some #(= last-segment %) valid-segments)
       last-segment
       nil)))
@@ -47,26 +46,26 @@
          filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          filter-product (if-not model_id (:filter_product query-params) nil)
          base-query (-> (sql/select-distinct :m.*)
-                        ((fn [query] (base-pool-query query pool_id option-type)))
-                        (cond-> (or item_id (= option-type "items"))
-                          ((fn [q] (item-query q item_id))))
-                        (cond-> (or properties_id (= option-type "properties"))
-                          ((fn [q] (properties-query q properties_id))))
-                        (cond-> (or accessories_id (= option-type "accessories"))
-                          ((fn [q] (accessories-query q accessories_id option-type))))
-                        (cond-> (or attachments_id (= option-type "attachments"))
-                          ((fn [q] (attachments-query q attachments_id option-type))))
-                        (cond-> (or entitlement_id (= option-type "entitlements"))
-                          ((fn [q] (entitlements-query q entitlement_id))))
-                        (cond-> (or model_link_id (= option-type "model-links"))
-                          ((fn [q] (model-links-query q model_link_id pool_id))))
-                        (cond-> filter-manufacturer
-                          (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
-                        (cond-> filter-product
-                          (sql/where [:ilike :m.product (str "%" filter-product "%")]))
-                        (cond-> model_id (sql/where [:= :m.id model_id]))
-                        (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
+                      ((fn [query] (base-pool-query query pool_id option-type)))
+                      (cond-> (or item_id (= option-type "items"))
+                        ((fn [q] (item-query q item_id))))
+                      (cond-> (or properties_id (= option-type "properties"))
+                        ((fn [q] (properties-query q properties_id))))
+                      (cond-> (or accessories_id (= option-type "accessories"))
+                        ((fn [q] (accessories-query q accessories_id option-type))))
+                      (cond-> (or attachments_id (= option-type "attachments"))
+                        ((fn [q] (attachments-query q attachments_id option-type))))
+                      (cond-> (or entitlement_id (= option-type "entitlements"))
+                        ((fn [q] (entitlements-query q entitlement_id))))
+                      (cond-> (or model_link_id (= option-type "model-links"))
+                        ((fn [q] (model-links-query q model_link_id pool_id))))
+                      (cond-> filter-manufacturer
+                        (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
+                      (cond-> filter-product
+                        (sql/where [:ilike :m.product (str "%" filter-product "%")]))
+                      (cond-> model_id (sql/where [:= :m.id model_id]))
+                      (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
+                      (cond-> (and sort-by model_id) (sql/order-by sort-by)))
 
          p (println ">o> abc" (-> base-query sql-format))
          ]
@@ -118,10 +117,10 @@
                              :else "Unknown")
                            :entry_type]
 
-                      ;[(sq/call :case
-                      ;   [(sq/call := (sq/call :array_length (sq/call :array_agg :i.id) 1) nil) true]
-                      ;   :else false)
-                      ; :deletable]
+                          ;[(sq/call :case
+                          ;   [(sq/call := (sq/call :array_length (sq/call :array_agg :i.id) 1) nil) true]
+                          ;   :else false)
+                          ; :deletable]
 
                           ;[(sq/call :case
                           ;   [(sq/call := (sq/call :count :i.id) 0) true]
@@ -192,7 +191,7 @@
 
 
          ;{:keys [pool_id model_id item_id]} (path-params request)
-         {:keys [pool_id model_id ]} (path-params request)
+         {:keys [pool_id model_id]} (path-params request)
          _ (println ">o> abc.get-items-handler1")
          {:keys [entry_type]} (query-params request)
 
@@ -268,8 +267,18 @@
 
          result (replace-null-children result)
 
-         result (mapv #(assoc % :entry_type (str entry_type "Item")) result)
+         result (if (= entry_type "Package")
+                  (mapv #(assoc % :entry_type (str entry_type "Item")) result)
+                  (mapv #(assoc % :entry_type (str "Item")) result)
 
+                  )
+
+         result (cond
+                  (= entry_type "Package") (mapv #(assoc % :entry_type (str entry_type "Item")) result)
+                  (= entry_type "Software") (mapv #(assoc % :entry_type (str  "License")) result)
+                  :else (mapv #(assoc % :entry_type (str "Item")) result)
+
+                  )
 
          ]
 
@@ -324,9 +333,9 @@
                           [:m2.is_package :is_part_of_package]
                           )
                       (sql/from [:items :i])
-                      (sql/left-join [:items :it] [:= :i.id :it.parent_id])  ; "it" first
+                      (sql/left-join [:items :it] [:= :i.id :it.parent_id]) ; "it" first
                       ;(sql/left-join [:models :m] [:= :it.model_id :m.id])        ; "m" after
-                      (sql/left-join [:models :m2] [:= :i.model_id :m2.id])        ; "m" after
+                      (sql/left-join [:models :m2] [:= :i.model_id :m2.id]) ; "m" after
                       (cond-> item_id (sql/where [:= :i.parent_id item_id])))
 
 
@@ -338,7 +347,7 @@
 
 
          result (replace-null-children result)
-         result (mapv #(assoc % :entry_type  "Item") result)
+         result (mapv #(assoc % :entry_type "Item") result)
 
          ]
 
@@ -358,17 +367,17 @@
         model (dissoc model :category_ids)]
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [model])
-                                          (sql/returning :*)
-                                          sql-format))
+                                        (sql/values [model])
+                                        (sql/returning :*)
+                                        sql-format))
             model-id (:id res)]
         (doseq [category-id categories]
           (jdbc/execute! tx (-> (sql/insert-into :model_links)
-                                (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
-                                sql-format))
+                              (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
+                              sql-format))
           (jdbc/execute! tx (-> (sql/insert-into :inventory_pools_model_groups)
-                                (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
-                                sql-format)))
+                              (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
+                              sql-format)))
         (if res
           (response [res])
           (bad-request {:error "Failed to create model"})))
@@ -382,10 +391,10 @@
         tx (:tx request)]
     (try
       (let [res (jdbc/execute! tx (-> (sql/update :models)
-                                      (sql/set (convert-map-if-exist body-params))
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
+                                    (sql/set (convert-map-if-exist body-params))
+                                    (sql/where [:= :id (to-uuid model-id)])
+                                    (sql/returning :*)
+                                    sql-format))]
         (if (= 1 (count res))
           (response res)
 
@@ -399,9 +408,9 @@
         model-id (get-in request [:path-params :model_id])]
     (try
       (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
+                                    (sql/where [:= :id (to-uuid model-id)])
+                                    (sql/returning :*)
+                                    sql-format))]
         (if (= 1 (count res))
           (response res)
           (bad-request {:error "Failed to delete model" :details "Model not found"})))
