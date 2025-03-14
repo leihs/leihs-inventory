@@ -35,13 +35,13 @@
         }
 
         .Package {
-            background-color: #d7d7d7;
+            background-color: #f9f9f9;
         }
         .PackageItem {
             background-color: #eaeaea;
         }
         .Item {
-            background-color: #f9f9f9;
+            background-color: #d7d7d7;
         }
 
 
@@ -80,21 +80,21 @@
                     const canDelete = ["Item", "Model", "Package"].includes(model.entry_type);
                     const hasChildren = (model.children?.length ?? 0) > 0;
 
+                    const row = $(`
+                      <tr data-model-id="${model.id}" class="${model.entry_type}">
+                        <td>${model.id}</td>
+                        <td>${model.product}</td>
+                        <td>${model.is_package}</td>
+                        <td>${model.real_type}</td>
+                        <td>${model.children}</td>
+                        <td>
+                          ${hasChildren
+                                            ? `<span class="expand-btn">0Expand (${model.children.length})</span>`
+                                            : (canDelete ? `<button class="delete-btn">Delete ${model.entry_type}</button>` : '')}
+                        </td>
+                      </tr>`
+                                        );
 
-                    const row = $(
-                        `<tr data-model-id="${model.id} class="${model.entry_type}">
-                            <td>${model.id}</td>
-                            <td>${model.product}</td>
-                            <td>${model.is_package}</td>
-                            <td>${model.entry_type}</td>
-                            <td>${model.children}</td>
-                            <td>
-                              ${hasChildren
-                                                    ? `<span class="expand-btn">Expand (${model.children.length})</span>`
-                                                    : (canDelete ? `<button class="delete-btn">Delete ${model.entry_type}</button>` : '')}
-                            </td>
-                          </tr>`
-                    );
 
 
                     row.data("raw", model)
@@ -150,39 +150,49 @@
                             const hasChildren = (item.children?.length ?? 0) > 0;
 // <!--                                <td></td>-->
 
+
+                            // Helper function:
+                            const expandBtnOrEmpty = (item) => {
+                                const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+                                return hasChildren
+                                    ? `<span class="expand-btn">Expand (${item.children.length})</span>`
+                                    : '';
+                            };
+
+
                             var childRow;
-                            if(isRealItemResponse){
-                                childRow = $(
-                                    `<tr class="child-row child-of-${modelId} ${item.entry_type}">
-                                <td>${item.id}</td>
-                                <td>${item.inventory_code}</td>
-                                <td>${item.product || ''}</td>
+                            const expandBtn = hasChildren
+                                ? `<span class="expand-btn">Expand (${item.children.length})</span>`
+                                : '';
 
-                                <td>${item.entry_type}</td>
+                            if (isRealItemResponse) {
+                                childRow = $(`
+                                <tr class="child-row child-of-${modelId} ${item.entry_type}">
+                                  <td>${item.id}</td>
+                                  <td>${item.inventory_code ?? ''}</td>
+                                  <td>${item.inventory_pool_id ?? ''}</td>
+                                  <td>${item.model_id ?? ''}</td>
+                                  <td>${item.product ?? ''}</td>
+                                  <td>${expandBtnOrEmpty(item, '1')}</td>
+                                  <td></td>
+                                </tr>
+                              `);
+                                                        } else {
+                                                            childRow = $(`
+                                <tr class="child-row child-of-${modelId} ${item.entry_type}">
+                                  <td>${item.id}</td>
+                                  <td>${item.name ?? ''}</td>
+                                  <td>${item.product ?? ''}</td>
+                                  <td>${item.real_type ?? ''}</td>
+                                  <td>${item.description ?? ''}</td>
+                                  <td>
+                                    ${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}
+                                  </td>
+                                  <td></td>
+                                </tr>
+                              `);
+                                                        }
 
-                                <td>${item.model_id}</td>
-                                <td>${item.is_part_of_package}</td>
-                                <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
-                                <td></td>
-                            </tr>`
-                                );
-                            }else{
-
-                            childRow = $(
-                                `<tr class="child-row child-of-${modelId} ${item.entry_type}">
-                                <td>${item.id}</td>
-                                <td>${item.inventory_code}</td>
-                                <td>${item.product || ''}</td>
-                                 <td>${item.entry_type}</td>
-
-                                <td>${item.name}</td>
-                                <td>${item.description}</td>
-                                <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
-                                <td></td>
-                            </tr>`
-                            );
-
-                            }
                             // if(model.product == "Intercom-Case ALTAiR"){
                             //     debugger
                             // }
