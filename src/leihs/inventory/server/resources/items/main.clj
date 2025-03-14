@@ -46,7 +46,10 @@
    (get-items-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
-         {:keys [pool_id item_id]} (path-params request)
+         {:keys [pool_id model_id item_id]} (path-params request)
+
+         p (println ">o> abc.pool_id" pool_id)
+         p (println ">o> abc.model_id" model_id)
          {:keys [page size]} (fetch-pagination-params request)
          {:keys [search_term not_packaged packages retired result_type]} (query-params request)
          ;sort-by (case (:sort_by query-params)
@@ -84,7 +87,8 @@
                              (base-pool-query-distinct query pool_id)
                              (base-pool-query query pool_id))))
 
-                        (cond-> item_id (sql/where [:= :i.id item_id]))
+                        ;(cond-> item_id (sql/where [:= :i.id item_id]))
+                        (cond-> model_id (sql/where [:= :i.model_id model_id]))
 
                         (cond-> (= true retired) (sql/where [:is-not :i.retired nil]))
                         (cond-> (= false retired) (sql/where [:is :i.retired nil]))
@@ -108,6 +112,37 @@
        (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
        with-pagination? (pagination-response request base-query)
        :else (jdbc/query tx (-> base-query sql-format))))))
+
+
+
+
+(defn get-items-handler
+  ([request]
+   (get-items-handler request false))
+  ([request with-pagination?]
+   (let [tx (:tx request)
+         {:keys [pool_id model_id item_id]} (path-params request)
+
+         ;; Debugging logs
+         _ (println ">o> abc.pool_id" pool_id)
+         _ (println ">o> abc.model_id" model_id)
+
+         {:keys [page size]} (fetch-pagination-params request)
+         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
+
+         ;; Build query dynamically based on `model_id`
+         base-query (-> (sql/select :m.id :i.id)
+                      (sql/from [:models :m])
+                      (sql/join [:items :i] [:= :m.id :i.model_id])
+                      (cond-> model_id (sql/where [:= :m.id model_id])))] ;; Apply filtering if `model_id` is provided
+
+     ;; Execute query based on conditions
+     (cond
+       (= result_type "Distinct") (jdbc/query tx (-> base-query sql-format))
+       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+       with-pagination? (pagination-response request base-query)
+       :else (jdbc/query tx (-> base-query sql-format))))))
+
 
 (defn get-items-of-pool-with-pagination-handler [request]
   (response (get-items-handler request true)))

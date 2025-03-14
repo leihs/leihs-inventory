@@ -67,11 +67,12 @@
                         <td>${model.id}</td>
                         <td>${model.product}</td>
                         <td>${model.is_package}</td>
-                        <td>${model.type}</td>
+                        <td>${model.real_type}</td>
                         <td>${model.children}</td>
                         <td><span class="expand-btn">Expand (${model.children.length})</span></td>
                     </tr>`
                     );
+                        // <td>${model.type}</td>
                         // <td>${model.children.empty()}</td>
                     $('#model-body').append(row);
                 });
@@ -92,7 +93,9 @@
             } else {
                 // Expand
                 $.ajax({
-                    url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/items?model_id=${modelId}`,
+                    url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items`,
+                    // url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/items?model_id=${modelId}`,
+                    // url: `/inventory/models/${modelId}/items`,
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
@@ -102,7 +105,10 @@
                             const childRow = $(
                                 `<tr class="child-row child-of-${modelId}">
                                 <td>${item.id}</td>
+                                <td>${item.inventory_code}</td>
                                 <td>${item.product || ''}</td>
+                                <td>${item.name}</td>
+                                <td>${item.description}</td>
                                 <td></td>
                             </tr>`
                             );

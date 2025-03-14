@@ -34,6 +34,7 @@
                                                                    delete-model-handler-by-pool
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
+                                                                   get-items-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
@@ -192,6 +193,8 @@
      ["/items"
       [""
        {:get {:accept "application/json"
+
+              :summary "wo bini 3333"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
@@ -200,7 +203,9 @@
                            :query {(s/optional-key :page) s/Int
                                    (s/optional-key :size) s/Int}}
 
-              :handler get-models-of-pool-auto-pagination-handler
+              ;:handler get-models-of-pool-auto-pagination-handler
+              :handler get-items-handler
+              ;:handler get-items-handler
               :responses {200 {:description "OK"
                                :body s/Any}
 
@@ -878,12 +883,14 @@
 
      ["/items"
       ["" {:get {:accept "application/json"
+                 :summary "wo bini 444"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
+                 ;:handler get-models-of-pool-handler
+                 :handler get-items-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])} ;;FIXME
                                   :body s/Any}

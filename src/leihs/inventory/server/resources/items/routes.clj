@@ -36,12 +36,14 @@
     ["/items"
      {:get {:conflicting true
             :accept "application/json"
+            :summary "??? wo bini"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
             :parameters {:query {(s/optional-key :page) s/Int
                                  (s/optional-key :size) s/Int}}
-            :handler get-items-of-pool-with-pagination-handler
+            ;:handler get-items-of-pool-with-pagination-handler
+            :handler get-items-of-pool-handler
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
@@ -118,6 +120,7 @@
     ["/items"
      {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
             :conflicting true
+            :summary "wo 2222 bini?"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -130,7 +133,8 @@
                                  (s/optional-key :packages) s/Bool
                                  (s/optional-key :retired) s/Bool
                                  :result_type (s/enum "Min" "Normal" "Distinct")}}
-            :handler get-items-of-pool-with-pagination-handler
+            ;:handler get-items-of-pool-with-pagination-handler
+            :handler get-items-of-pool-handler
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
