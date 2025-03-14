@@ -73,7 +73,12 @@
      (create-pagination-response request base-query with-pagination?))))
 
 
-
+(defn replace-null-children [items]
+  (mapv (fn [item]
+          (if (= (:children item) [nil])
+            (assoc item :children [])
+            item))
+    items))
 
 ;(ns your.namespace
 ;  (:require [next.jdbc.sql :as sql]
@@ -105,7 +110,7 @@
                           :m.version
                           :m.is_package
                           :m.type
-                          [(sq/call :array_agg :i.id) :children]
+                          [(sq/call :array_agg :i.id) :children] ;; fixme: contains results like [null]
                           [(sq/call :case
                              [:and [:= :m.type "Model"] [:= :m.is_package false]] "Model"
                              [:and [:= :m.type "Model"] [:= :m.is_package true]] "Package"
@@ -130,7 +135,7 @@
 
                           )
                       (sql/from [:models :m])
-                      (sql/join [:items :i] [:= :m.id :i.model_id])
+                      (sql/left-join [:items :i] [:= :m.id :i.model_id])
                       (sql/group-by :m.id :m.product :m.version :m.is_package :m.type)
                       (cond-> filter-manufacturer
                         (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
@@ -139,12 +144,27 @@
                       (cond-> model_id (sql/where [:= :m.id model_id]))
                       (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
                       (cond-> (and sort-by model_id) (sql/order-by sort-by))
+
+                      ;(sql/where [:= :m.is_package true])   ;; remove this
+
+
                       ;(sql/limit 20)
                       )
 
-         p (println ">o> abc" (-> base-query sql-format))]
+         p (println ">o> abc" (-> base-query sql-format))
 
-     (create-pagination-response request base-query with-pagination?))))
+
+         result (-> base-query sql-format)
+         result (jdbc/execute! tx result)
+
+         result (replace-null-children result)
+
+         ]
+
+     ;(create-pagination-response request base-query with-pagination?)
+     result
+
+     )))
 
 
 
@@ -162,44 +182,133 @@
 
 
 
+;(defn get-items-handler
+;  ([request]
+;   (get-items-handler request false))
+;  ([request with-pagination?]
+;   (let [tx (:tx request)
+;         {:keys [pool_id model_id item_id]} (path-params request)
+;         {:keys [type]} (query-params request)
+;
+;         ;; Debugging logs
+;         _ (println ">o> abc.pool_id" pool_id)
+;         _ (println ">o> abc.model_id" model_id)
+;         _ (println ">o> abc.type" type)
+;
+;         {:keys [page size]} (fetch-pagination-params request)
+;         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
+;
+;         ;; Build query dynamically based on `model_id`
+;         ;base-query (-> (sql/select :m.id :i.id)
+;         ;base-query (-> (sql/select :m.id :i.* :r.* :b.*
+;         base-query (-> (sql/select :i.id
+;
+;                          :i.inventory_code
+;                          :i.inventory_pool_id
+;
+;                          ;:r.* :b.*
+;                          [(sq/call :array_agg :i.parent_id) :children]
+;
+;                          )
+;                      (sql/from [:models :m])
+;                      (sql/join [:items :i] [:= :m.id :i.model_id])
+;                      (sql/join [:rooms :r] [:= :r.id :i.room_id])
+;                      (sql/join [:buildings :b] [:= :b.id :r.building_id])
+;                      (cond-> model_id (sql/where [:= :m.id model_id]))
+;
+;                      (sql/group-by :i.id )
+;
+;
+;
+;                      )
+;
+;         p (println ">o> abc.query" (-> base-query sql-format))
+;
+;     result (jdbc/execute! tx (-> base-query sql-format))
+;         ] ;; Apply filtering if `model_id` is provided
+;
+;
+;
+;     (response result)
+;
+;     ;;; Execute query based on conditions
+;     ;(cond
+;     ;  (= result_type "Distinct") (jdbc/execute! tx (-> base-query sql-format))
+;     ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+;     ;  with-pagination? (pagination-response request base-query)
+;     ;  :else (jdbc/execute! tx (-> base-query sql-format)))
+;     ))
+;  )
+
+
+
 (defn get-items-handler
   ([request]
    (get-items-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
-         {:keys [pool_id model_id item_id]} (path-params request)
+
+         _ (println ">o> abc.get-items-handler1")
+
+
+         ;{:keys [pool_id model_id item_id]} (path-params request)
+         {:keys [pool_id model_id ]} (path-params request)
+         _ (println ">o> abc.get-items-handler1")
+         {:keys [entry_type]} (query-params request)
 
          ;; Debugging logs
-         _ (println ">o> abc.pool_id" pool_id)
-         _ (println ">o> abc.model_id" model_id)
+         _ (println ">o> abc.pool_id" pool_id (type pool_id))
+         _ (println ">o> abc.model_id" model_id (type model_id))
+         _ (println ">o> abc.type" entry_type (type entry_type))
 
-         {:keys [page size]} (fetch-pagination-params request)
-         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
+         ;{:keys [page size]} (fetch-pagination-params request)
+         ;{:keys [search_term not_packaged packages retired result_type]} (query-params request)
 
-         ;; Build query dynamically based on `model_id`
-         ;base-query (-> (sql/select :m.id :i.id)
-         base-query (-> (sql/select :m.id :i.* :r.* :b.*)
-                      (sql/from [:models :m])
-                      (sql/join [:items :i] [:= :m.id :i.model_id])
-                      (sql/join [:rooms :r] [:= :r.id :i.room_id])
-                      (sql/join [:buildings :b] [:= :b.id :r.building_id])
-                      (cond-> model_id (sql/where [:= :m.id model_id])))
+         ;; HoneySQL query
+         base-query (-> (sql/select :i.id
+                          :i.inventory_code
+                          :i.inventory_pool_id
+                          :r.name
+                          :r.description
+                          :b.name
+                          :b.code
 
-     result (jdbc/execute! tx (-> base-query sql-format))
-         ] ;; Apply filtering if `model_id` is provided
+                          ;; this breaks the calculation
+                          ;[(sq/call :coalesce
+                          ;   (sq/call :array_agg
+                          ;     (sq/call :filter :it.parent_id [:is-not :it.parent_id nil]))
+                          ;   "{}")
+                          ; :children]
+
+                          [(sq/call :array_agg :it.parent_id) :children]
 
 
+                          )
+                      (sql/from [:items :i])
+                      (sql/left-join [:items :it] [:= :i.id :it.parent_id])
+                      (sql/left-join [:rooms :r] [:= :r.id :i.room_id])
+                      (sql/left-join [:buildings :b] [:= :b.id :r.building_id])
+                      ;(cond-> item_id (sql/where [:= :i.id item_id]))
 
-     (response result)
+                      (cond-> model_id (sql/where [:= :i.model_id model_id]))
+                      ;(cond-> pool_id (sql/where [:= :i.inventory_pool_id pool_id]))
 
-     ;;; Execute query based on conditions
-     ;(cond
-     ;  (= result_type "Distinct") (jdbc/execute! tx (-> base-query sql-format))
-     ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-     ;  with-pagination? (pagination-response request base-query)
-     ;  :else (jdbc/execute! tx (-> base-query sql-format)))
-     ))
-  )
+                      (sql/group-by :i.id
+                        :i.inventory_code
+                        :i.inventory_pool_id
+                        :r.name
+                        :r.description
+                        :b.name
+                        :b.code)
+
+                      )
+
+         _ (println ">o> abc.query" (-> base-query sql-format))
+
+         result (jdbc/execute! tx (-> base-query sql-format))]
+
+     (response result))))
+
 
 ;;  ------------
 

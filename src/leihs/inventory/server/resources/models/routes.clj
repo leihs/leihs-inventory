@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
@@ -11,8 +10,8 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [update-model-handler-by-pool-form
-                                                                                         delete-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
+                                                                                         update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -21,8 +20,8 @@
    [leihs.inventory.server.resources.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [update-software-handler-by-pool-form
-                                                                                            delete-software-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
+                                                                                            update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -32,14 +31,11 @@
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
-                                                                   get-models-of-pool-auto-pagination-handler
-                                                                   get-models-of-pool-handler
                                                                    get-items-handler
+                                                                   get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
-                                                                   get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
    [leihs.inventory.server.resources.models.tree.filter :as filter]
-   [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -80,12 +76,12 @@
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             :body [(s/conditional
-                                    map? {:id s/Uuid
-                                          :manufacturer s/Str
-                                          :product s/Str
-                                          :version (s/maybe s/Str)
-                                          :model_id s/Uuid}
-                                    string? s/Str)]}
+                                     map? {:id s/Uuid
+                                           :manufacturer s/Str
+                                           :product s/Str
+                                           :version (s/maybe s/Str)
+                                           :model_id s/Uuid}
+                                     string? s/Str)]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -384,7 +380,7 @@
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
 
-   ["/item" ;; form/item new
+   ["/item"                                                 ;; form/item new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -415,7 +411,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/item" ;; new
+   ["/models/:model_id/item"                                ;; new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -437,7 +433,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json" ;;new
+      :get {:accept "application/json"                      ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -451,7 +447,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/package" ;; new
+   ["/package"                                              ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -487,7 +483,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/package" ;; new
+   ["/models/:model_id/package"                             ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -505,11 +501,11 @@
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
                         ;; FIXME
-                             ;:body :package-put-response/inventory-item}
+                        ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json" ;;new
+      :get {:accept "application/json"                      ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -531,11 +527,11 @@
                        :produces "application/json"}
              :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              :description (str
-                           " - Upload images and attachments \n"
-                           " - Save data \n"
-                           " - images: additional handling needed to process no/one/multiple files \n"
-                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+                            " - Upload images and attachments \n"
+                            " - Save data \n"
+                            " - images: additional handling needed to process no/one/multiple files \n"
+                            " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+                            " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
@@ -677,7 +673,7 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-   ["/license" ;;new
+   ["/license"                                              ;;new
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
 
@@ -881,14 +877,18 @@
                                400 {:description "Bad Request"
                                     :body s/Any}}}}]
 
-     ["/items"
+     ["/items"                                              ;; here we are
       ["" {:get {:accept "application/json"
                  :summary "wo bini 444"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid}}
+                                     :model_id s/Uuid}
+                              :query {
+                                      :entry_type s/Str
+                                      }
+                              }
                  ;:handler get-models-of-pool-handler
                  :handler get-items-handler
                  :responses {200 {:description "OK"
@@ -914,7 +914,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
-     ["/licenses" ;; new
+     ["/licenses"                                           ;; new
       {:swagger {:conflicting true
                  :tags ["form / licenses"] :security []}}
 
@@ -952,7 +952,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
-        :get {:accept "application/json" ;;new
+        :get {:accept "application/json"                    ;;new
               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?

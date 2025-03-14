@@ -17,6 +17,12 @@
       AUTHENTICATED_ENTITY
       boolean not))
 
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn path-params [request]
   (-> request :parameters :path))
 
