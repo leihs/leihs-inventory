@@ -32,6 +32,7 @@
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
                                                                    get-items-handler
+                                                                   get-item-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    update-model-handler-by-pool]]
@@ -905,8 +906,15 @@
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
-                                  :item_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+                                  :item_id s/Uuid}
+
+                           :query {
+                                   :entry_type s/Str
+                                   }
+
+                           }
+              ;:handler get-models-of-pool-with-pagination-handler
+              :handler get-item-handler
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])} ;;FIXME
                                :body s/Any}

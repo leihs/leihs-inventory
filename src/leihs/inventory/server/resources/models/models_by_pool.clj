@@ -103,7 +103,7 @@
          filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          filter-product (if-not model_id (:filter_product query-params) nil)
 
-         ;; Define base query with real_type column
+         ;; Define base query with entry_type column
          base-query (-> (sql/select
                           :m.id
                           :m.product
@@ -116,7 +116,7 @@
                              [:and [:= :m.type "Model"] [:= :m.is_package true]] "Package"
                              [:= :m.type "Software"] "Software"
                              :else "Unknown")
-                           :real_type]
+                           :entry_type]
 
                       ;[(sq/call :case
                       ;   [(sq/call := (sq/call :array_length (sq/call :array_agg :i.id) 1) nil) true]
@@ -145,7 +145,7 @@
                       (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
                       (cond-> (and sort-by model_id) (sql/order-by sort-by))
 
-                      ;(sql/where [:= :m.is_package true])   ;; remove this
+                      (sql/where [:= :m.is_package true])   ;; TODO: remove this
 
 
                       ;(sql/limit 20)
@@ -269,6 +269,7 @@
                           :i.inventory_code
                           :i.inventory_pool_id
                           :r.name
+                          :i.model_id
                           :r.description
                           :b.name
                           :b.code
@@ -282,9 +283,21 @@
 
                           [(sq/call :array_agg :it.parent_id) :children]
 
+                          ;[(sq/call :case
+                          ;   [:and [:= :m.type "Model"] [:= :m.is_package false]] "ModelItem"
+                          ;   [:and [:= :m.type "Model"] [:= :m.is_package true]] "PackageItem"
+                          ;   [:= :m.type "Software"] "SoftwareItem"
+                          ;   :else "Unknown")
+                          ; :entry_type]
+
+
+                          ;[[[:raw (str entry_type "Item")]] :entry_type]
+                          ;[:raw (str entry_type "Item") :as :entry_type]
+                          ;[[:raw (str entry_type "Item") :entry_type]]
 
                           )
                       (sql/from [:items :i])
+                      ;(sql/left-join [:model :m] [:= :m.id :i.model_id])
                       (sql/left-join [:items :it] [:= :i.id :it.parent_id])
                       (sql/left-join [:rooms :r] [:= :r.id :i.room_id])
                       (sql/left-join [:buildings :b] [:= :b.id :r.building_id])
@@ -296,16 +309,105 @@
                       (sql/group-by :i.id
                         :i.inventory_code
                         :i.inventory_pool_id
+                        :i.model_id
                         :r.name
                         :r.description
                         :b.name
-                        :b.code)
+                        :b.code
+
+                        ;:entry_type
+                        ;:m
+
+                        )
 
                       )
 
          _ (println ">o> abc.query" (-> base-query sql-format))
 
-         result (jdbc/execute! tx (-> base-query sql-format))]
+         result (jdbc/execute! tx (-> base-query sql-format))
+
+         result (replace-null-children result)
+
+         result (mapv #(assoc % :entry_type (str entry_type "Item")) result)
+
+
+         ]
+
+     (response result))))
+
+
+(defn get-item-handler
+  ([request]
+   (get-item-handler request false))
+  ([request with-pagination?]
+   (let [tx (:tx request)
+
+         _ (println ">o> abc.get-item-handler2 !!!!")
+
+
+         ;{:keys [pool_id model_id item_id]} (path-params request)
+         {:keys [pool_id model_id item_id]} (path-params request)
+         _ (println ">o> abc.get-items-handler1")
+         {:keys [entry_type]} (query-params request)
+
+         ;; Debugging logs
+         _ (println ">o> abc.pool_id" pool_id (type pool_id))
+         _ (println ">o> abc.model_id" model_id (type model_id))
+         _ (println ">o> abc.type" entry_type (type entry_type))
+
+         ;{:keys [page size]} (fetch-pagination-params request)
+         ;{:keys [search_term not_packaged packages retired result_type]} (query-params request)
+
+         ;; HoneySQL query
+         base-query (-> (sql/select :i.id
+                          :i.inventory_code
+                          :i.inventory_pool_id
+                          :i.model_id
+                          ;:r.name
+                          ;:r.description
+                          ;:b.name
+                          ;:b.code
+
+                          ;; this breaks the calculation
+                          ;[(sq/call :coalesce
+                          ;   (sq/call :array_agg
+                          ;     (sq/call :filter :it.parent_id [:is-not :it.parent_id nil]))
+                          ;   "{}")
+                          ; :children]
+
+                          ;[(sq/call :array_agg :it.parent_id) :children]
+
+
+                          )
+                      (sql/from [:items :i])
+                      (sql/left-join [:items :it] [:= :i.id :it.parent_id])
+                      ;(sql/left-join [:rooms :r] [:= :r.id :i.room_id])
+                      ;(sql/left-join [:buildings :b] [:= :b.id :r.building_id])
+                      ;(cond-> item_id (sql/where [:= :i.id item_id]))
+
+                      (cond-> item_id (sql/where  [:= :i.parent_id item_id]))
+                      ;(cond-> pool_id (sql/where [:= :i.inventory_pool_id pool_id]))
+
+                      ;(sql/group-by :i.id
+                      ;  :i.inventory_code
+                      ;  :i.inventory_pool_id
+                      ;  :r.name
+                      ;  :r.description
+                      ;  :b.name
+                      ;  :b.code)
+
+                      )
+
+         _ (println ">o> abc.query" (-> base-query sql-format))
+
+         result (jdbc/execute! tx (-> base-query sql-format))
+
+
+
+
+         result (replace-null-children result)
+
+         ]
 
      (response result))))
 

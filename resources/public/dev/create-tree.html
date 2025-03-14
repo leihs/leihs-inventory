@@ -69,15 +69,13 @@
                             <td>${model.id}</td>
                             <td>${model.product}</td>
                             <td>${model.is_package}</td>
-                            <td>${model.real_type}</td>
+                            <td>${model.entry_type}</td>
                             <td>${model.children}</td>
                             <td>${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}</td>
                           </tr>`
                     );
 
-if(model.product == "test-pack"){
-    debugger
-}
+
                     row.data("raw", model)
 
 
@@ -96,6 +94,15 @@ if(model.product == "test-pack"){
             const modelId = parentRow.data('model-id');
             const model = parentRow.data('raw');
 
+
+            if (model.entry_type.includes("Item")) {
+                debugger
+                url =  `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${model.model_id}/item/${model.id}?entry_type=${model.entry_type}`
+            }else{
+                url =  `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.entry_type}`
+
+            }
+
             // debugger
 
             if (btn.data('expanded')) {
@@ -106,7 +113,8 @@ if(model.product == "test-pack"){
             } else {
                 // Expand
                 $.ajax({
-                    url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.real_type}`,
+                    // url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.entry_type}`,
+                    url: url,
                     // url: `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/items?model_id=${modelId}`,
                     // url: `/inventory/models/${modelId}/items`,
                     method: 'GET',
@@ -115,6 +123,10 @@ if(model.product == "test-pack"){
                     },
                     success: function(items) {
                         items.forEach(function(item) {
+                            const hasChildren = item.children.length > 0;
+
+
+
                             const childRow = $(
                                 `<tr class="child-row child-of-${modelId}">
                                 <td>${item.id}</td>
@@ -122,9 +134,18 @@ if(model.product == "test-pack"){
                                 <td>${item.product || ''}</td>
                                 <td>${item.name}</td>
                                 <td>${item.description}</td>
+                                <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
                                 <td></td>
                             </tr>`
                             );
+
+                            // if(model.product == "Intercom-Case ALTAiR"){
+                            //     debugger
+                            // }
+
+                            childRow.data("raw", item)
+
+
                             parentRow.after(childRow);
                         });
                         btn.text(btn.text().replace('Expand', 'Collapse'));
