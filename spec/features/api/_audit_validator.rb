@@ -10,7 +10,10 @@ def expect_audit_entries_count(expected_request_count, expected_change_count, ex
   end
 end
 
-def expect_audit_entries(expected_auditedrequest_info, expected_auditchange_list, expected_auditedresponse_status, options = {distinct: false, expected_requested_count: 1, expected_response_count: 1})
+def expect_audit_entries(expected_auditedrequest_info, expected_auditchange_list, expected_auditedresponse_status,
+  options = {distinct: false,
+             expected_requested_count: 1, expected_response_count: 1})
+
   list = AuditedChange.all.map { |a| "#{a.tg_op} #{a.table_name}" }
   if options[:distinct]
     expect(list.uniq.sort).to be == expected_auditchange_list.uniq.sort

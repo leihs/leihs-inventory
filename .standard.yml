@@ -1,3 +1,5 @@
 ignore:
   - "database/**/*"
   - "spec/spec_helper.rb"
+  - "spec/features/api/_audit_validator.rb"
+
