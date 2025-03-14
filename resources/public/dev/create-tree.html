@@ -41,8 +41,16 @@
 </head>
 <body>
 
+<div class="form-group">
+    <label for="poolId">Pool ID</label>
+    <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
+</div>
+
+
 <h2>Model List</h2>
 <table>
+
+
     <thead>
     <tr>
         <th>ID</th>
@@ -56,6 +64,31 @@
 
 <script>
     $(document).ready(function() {
+
+        function createLink(model) {
+
+            const poolId=$("#poolId").val();
+
+            const baseUrl = `/inventory/${poolId}/dev/model?model_id=${model.id}&pool_id=${poolId}`;
+
+
+            const entry_type = model.entry_type;
+            // debugger
+            if(entry_type=="Model" || entry_type=="Package"){
+
+            return `<a href="${baseUrl}">${model.id}</a>`;
+                // return ""
+            }
+
+            // if (poolId) params.set('pool_id', poolId);
+            // if (modelId) params.set('model_id', modelId);
+            //
+            // const queryString = params.toString();
+
+            // return `<button onclick="window.open('${baseUrl}')">${model.id}</button>`;
+            return model.id;
+        }
+        
         $.ajax({
             url: '/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models',
             method: 'GET',
@@ -67,9 +100,11 @@
                     const canDelete = ["Item", "Model", "Package"].includes(model.entry_type);
                     const hasChildren = (model.children?.length ?? 0) > 0;
 
+                        // <td>${model.id}</td>
                     const row = $(`
                       <tr data-model-id="${model.id}" class="${model.entry_type}">
-                        <td>${model.id}</td>
+                        <td>${createLink(model)}</td>
+                        <td>${model.entry_type}</td>
                         <td>${model.product}</td>
                         <td>${model.is_package}</td>
                         <td>${model.real_type}</td>
@@ -113,7 +148,9 @@
 
                             const childRow = $(`
                                 <tr class="child-row child-of-${modelId} ${item.entry_type}">
-                                  <td>${item.id}</td>
+<!--                                  <td>${item.id}</td>-->
+                                  <td>${createLink(item)}</td>
+                                  <td>${item.entry_type}</td>
                                   <td>${item.inventory_code ?? ''}</td>
                                   <td>${item.inventory_pool_id ?? ''}</td>
                                   <td>${item.model_id ?? ''}</td>

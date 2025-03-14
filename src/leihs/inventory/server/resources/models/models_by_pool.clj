@@ -145,7 +145,7 @@
                       (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
                       (cond-> (and sort-by model_id) (sql/order-by sort-by))
 
-                      (sql/where [:= :m.is_package true])   ;; TODO: remove this
+                      ;(sql/where [:= :m.is_package true])   ;; TODO: remove this
 
 
                       ;(sql/limit 20)
@@ -179,66 +179,6 @@
   (let [result (get-models-handler request)]
     (response result)))
 
-
-
-
-;(defn get-items-handler
-;  ([request]
-;   (get-items-handler request false))
-;  ([request with-pagination?]
-;   (let [tx (:tx request)
-;         {:keys [pool_id model_id item_id]} (path-params request)
-;         {:keys [type]} (query-params request)
-;
-;         ;; Debugging logs
-;         _ (println ">o> abc.pool_id" pool_id)
-;         _ (println ">o> abc.model_id" model_id)
-;         _ (println ">o> abc.type" type)
-;
-;         {:keys [page size]} (fetch-pagination-params request)
-;         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
-;
-;         ;; Build query dynamically based on `model_id`
-;         ;base-query (-> (sql/select :m.id :i.id)
-;         ;base-query (-> (sql/select :m.id :i.* :r.* :b.*
-;         base-query (-> (sql/select :i.id
-;
-;                          :i.inventory_code
-;                          :i.inventory_pool_id
-;
-;                          ;:r.* :b.*
-;                          [(sq/call :array_agg :i.parent_id) :children]
-;
-;                          )
-;                      (sql/from [:models :m])
-;                      (sql/join [:items :i] [:= :m.id :i.model_id])
-;                      (sql/join [:rooms :r] [:= :r.id :i.room_id])
-;                      (sql/join [:buildings :b] [:= :b.id :r.building_id])
-;                      (cond-> model_id (sql/where [:= :m.id model_id]))
-;
-;                      (sql/group-by :i.id )
-;
-;
-;
-;                      )
-;
-;         p (println ">o> abc.query" (-> base-query sql-format))
-;
-;     result (jdbc/execute! tx (-> base-query sql-format))
-;         ] ;; Apply filtering if `model_id` is provided
-;
-;
-;
-;     (response result)
-;
-;     ;;; Execute query based on conditions
-;     ;(cond
-;     ;  (= result_type "Distinct") (jdbc/execute! tx (-> base-query sql-format))
-;     ;  (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-;     ;  with-pagination? (pagination-response request base-query)
-;     ;  :else (jdbc/execute! tx (-> base-query sql-format)))
-;     ))
-;  )
 
 
 
