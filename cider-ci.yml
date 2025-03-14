@@ -94,8 +94,7 @@ jobs:
               body: |
                 #!/usr/bin/env bash
                 set -euo pipefail
-                cd ${LEIHS_INVENTORY_DIR}
-                standardrb
+                ./bin/rblint
 
   good-to-merge:
     name: ⚑ Good To Merge
