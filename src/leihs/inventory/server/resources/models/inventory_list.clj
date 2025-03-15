@@ -32,15 +32,17 @@
           END AS entry_type,
           i.id AS item_id,
           i.inventory_pool_id,
-          
+          i.inventory_code,
+
           i.last_check AS item_last_check,
           i.retired AS item_retired,
           i.is_broken AS item_is_broken,
           i.is_incomplete AS item_is_incomplete,
           i.is_borrowable AS item_is_borrowable,
           i.owner_id AS item_owner_id,
-          
-                    
+
+          it.inventory_pool_id AS it_inventory_pool_id,
+          it.inventory_code AS it_inventory_code,
           it.last_check AS it_last_check,
           it.retired AS it_retired,
           it.is_broken AS it_is_broken,
@@ -64,23 +66,27 @@
       UNION
 
       SELECT o.id, o.product, false as is_package, 'Option' as type, 'Option' as entry_type,
-             NULL as item_id, o.inventory_pool_id,
+            NULL as item_id, o.inventory_pool_id, o.inventory_code,
              
-             NULL as item_last_check,
-              NULL as item_retired,
-              NULL as item_is_broken,
-              NULL as item_is_incomplete,
-              NULL as item_is_borrowable,
-              NULL as item_owner_id,
-              
-              NULL as it_last_check,
-              NULL as it_retired,
-              NULL as it_is_broken,
-              NULL as it_is_incomplete,
-              NULL as it_is_borrowable,
-              NULL as it_owner_id,
+            NULL as item_last_check,
+            NULL as item_retired,
+            NULL as item_is_broken,
+            NULL as item_is_incomplete,
+            NULL as item_is_borrowable,
+            NULL as item_owner_id,
 
- NULL as it_id, false as deletable
+
+            NULL as it_inventory_pool_id,
+            NULL as it_inventory_code,
+
+            NULL as it_last_check,
+            NULL as it_retired,
+            NULL as it_is_broken,
+            NULL as it_is_incomplete,
+            NULL as it_is_borrowable,
+            NULL as it_owner_id,
+
+            NULL as it_id, false as deletable
              
       FROM options o
 
