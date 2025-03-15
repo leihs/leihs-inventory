@@ -77,6 +77,99 @@
                         vec)}))
     vec))
 
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        (group-by :item_id)
+                        (mapcat (fn [[item_id subitems]]
+                                  (when (some :it_id subitems) ;; Ensure at least one `it_id` exists
+                                    [{:item_id item_id
+                                      :children (vec (remove #(nil? (:it_id %))
+                                                       (map #(select-keys % [:it_id]) subitems)))}])))
+                        vec)}))
+    vec))
+
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        (group-by :item_id)
+                        (map (fn [[item_id subitems]]
+                               {:item_id item_id
+                                :children (->> subitems
+                                            (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
+                                            vec)}))
+                        ;(remove #(empty? (:children %))) ;; Remove item_id groups with no children
+                        vec)}))
+    vec))
+
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        (group-by :item_id)
+                        (map (fn [[item_id subitems]]
+                               {:item_id item_id
+                                :children (if (nil? item_id)
+                                            [] ;; Set empty children if item_id is nil
+                                            (->> subitems
+                                              (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Remove nil it_id
+                                              vec))}))
+                        vec)}))
+    vec))
+
+
+(defn grouped-data [data]
+  (->> data
+    ;; Remove entries where :item_id is nil
+    (filter :item_id)
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        (group-by :item_id)
+                        (map (fn [[item_id subitems]]
+                               {:item_id item_id
+                                :children (->> subitems
+                                            (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
+                                            vec)}))
+                        (remove #(empty? (:children %))) ;; Remove item_id groups with no children
+                        vec)}))
+    vec))
+
+
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        ;; Separate items with a valid item_id from those without one
+                        (group-by :item_id)
+                        (map (fn [[item_id subitems]]
+                               (if (nil? item_id)
+                                 ;; Keep entries with nil item_id, but no children
+                                 {:item_id nil}
+                                 ;; Process items with a valid item_id
+                                 {:item_id item_id
+                                  :children (->> subitems
+                                              (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
+                                              vec)})))
+                        (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
+                        vec)}))
+    vec))
+
 (defn get-paginated-data
   "Fetches paginated data using keyset pagination.
    - `page-size`: Number of records to return.
