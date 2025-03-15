@@ -38,7 +38,7 @@
               WHEN m.is_package = FALSE and m.type ='Model' and i.id is null and it.id is null THEN true
               WHEN m.is_package = FALSE and m.type ='Software' and i.id is null and it.id is null THEN true
               ELSE false
-          END AS to_delete
+          END AS deletable
       FROM models m
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
@@ -46,7 +46,7 @@
       UNION
 
       SELECT o.id, o.product, false as is_package, 'Option' as type, 'Option' as entry_type,
-             NULL as item_id, o.inventory_pool_id, NULL as it_id, false as to_delete
+             NULL as item_id, o.inventory_pool_id, NULL as it_id, false as deletable
       FROM options o
 
   ) AS x
@@ -63,14 +63,42 @@
   ;WHERE (? IS NULL OR x.id > ?)
   ;WHERE x.id > COALESCE(?::UUID, '00000000-0000-0000-0000-000000000000'::UUID)
 
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           {:id id
+            :children (->> items
+                        (group-by :item_id)
+                        (map (fn [[item_id subitems]]
+                               {:item_id item_id
+                                :children (mapv #(select-keys % [:it_id]) subitems)}))
+                        vec)}))
+    vec))
+
 (defn get-paginated-data
   "Fetches paginated data using keyset pagination.
    - `page-size`: Number of records to return.
    - `cursor-id`: The last seen UUID (or nil for the first page)."
-  [request page-size cursor-id entry-type]
-  (println ">o> abc1" page-size cursor-id entry-type)
+  [request page-size cursor-id entry-type process-grouping]
+  (println ">o> abc1" page-size cursor-id entry-type process-grouping)
+
+
+
+     (let [
+  res (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size])
+
+           res (if (= process-grouping true)
+                 (grouped-data res)
+                 res)
+
+              ]res)
+
   ;(jdbc/execute! (:tx request) [pagination-query nil nil page-size]))
-  (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size]))
+  ;(jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size]))
+
+  )
 
 ;; Example Usage:
 

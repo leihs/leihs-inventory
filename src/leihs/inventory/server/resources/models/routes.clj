@@ -565,6 +565,7 @@
                                   (s/optional-key :last_id) s/Uuid
                                   :entry_type (s/enum "All" "Model" "Package" "Option" "Software")
                                   :size s/Int
+                                  :process_grouping  (s/enum "true" "false")
                                   }
                           }
              ;:handler (fn [request]
@@ -585,8 +586,12 @@
 
                                 entry-type (if (= entry-type "All" )
                                              ["Model" "Package" "Option" "Software"]
-                                              [entry-type]
-                                                                      )
+                                              [entry-type])
+
+                                ;process-grouping (boolean (get-in request [:parameters :query :process_grouping]))
+
+                                process-grouping (= "true" (get-in request [:parameters :query :process_grouping]))
+
 
                                 ;]
 
@@ -596,7 +601,7 @@
 
                        ;(response/response (get-models request))
 
-                       (response/response (get-paginated-data request size last-id entry-type))
+                       (response/response (get-paginated-data request size last-id entry-type process-grouping))
                        ;(response/response (get-paginated-data request 10 nil))
                        ;(response/response {:foo "bar" :data {:size size :last_id last-id :pool_id pool-id}})
 
