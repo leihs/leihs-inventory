@@ -2,7 +2,9 @@
   (:require
    [clojure.spec.alpha :as sa]
 
-   [leihs.inventory.server.resources.models.inventory-list :refer [get-models]]
+   [leihs.inventory.server.resources.models.inventory-list :refer [
+                                                                   ;get-models
+                                                                   get-paginated-data]]
 
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
@@ -550,10 +552,20 @@
     ["/inventory-list"
      {:get {:accept "application/json"
              :summary "(DEV) | Inventory-List"
-             :coercion spec/coercion
+
+             ;:coercion spec/coercion
+            :coercion reitit.coercion.schema/coercion
+
              ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?}
+             :parameters {:path {:pool_id s/Uuid}
                           ;:body {:product string?}
+                          :query {
+                                  ;:last_id (s/maybe s/Uuid)
+                                  ;:last_id (s/->Either [s/Uuid nil])
+                                  (s/optional-key :last_id) s/Uuid
+
+                                  :size s/Int
+                                  }
                           }
              ;:handler (fn [request]
              ;           (let [content-type (get-in request [:headers "content-type"])
@@ -564,7 +576,24 @@
              ;               :else {:status 400 :body "Unsupported Content-Type"})))
 
             :handler (fn [request]
-                       (response/response (get-models request)))
+
+                          (let [
+                                size (get-in request [:parameters :query :size])
+                                last-id (get-in request [:parameters :query :last_id])
+                                 pool-id (get-in request [:parameters :path :pool_id])
+
+                                p (println ">o> abc" size last-id pool-id)
+
+                                   ]
+
+                       ;(response/response (get-models request))
+
+                       (response/response (get-paginated-data request size last-id))
+                       ;(response/response (get-paginated-data request 10 nil))
+                       ;(response/response {:foo "bar" :data {:size size :last_id last-id :pool_id pool-id}})
+
+                            )
+                       )
 
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
