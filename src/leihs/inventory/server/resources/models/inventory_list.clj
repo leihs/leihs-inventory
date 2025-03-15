@@ -21,6 +21,9 @@
           m.product,
           m.version,
           m.is_package,
+
+          im.id AS image_id,
+
           m.type,
           CASE
               WHEN m.is_package = TRUE and m.type ='Model' THEN 'Package'
@@ -81,6 +84,7 @@
           LEFT JOIN buildings b ON b.id = r.building_id
 
           LEFT JOIN models itm ON itm.id = it.model_id
+          LEFT JOIN images im ON m.id = im.target_id AND im.thumbnail = TRUE
 
       UNION
 
@@ -90,6 +94,9 @@
             o.version,
 
             false as is_package,
+
+            NULL as image_id,
+
             'Option' as type,
             'Option' as entry_type,
             NULL as item_id,
@@ -176,6 +183,7 @@
               :deletable (:deletable first-item)
               :product (:product first-item)
               :version (:version first-item)
+              :image_id (:image_id first-item)
               :entry_type (:entry_type first-item)
               :children (->> items
                           (group-by :item_id)
@@ -235,6 +243,7 @@
              {:id id
               :deletable (:deletable first-item)
               :product (:product first-item)
+              :image_id (:image_id first-item)
               :entry_type (:entry_type first-item)
               :children (->> items
                           ;; Separate items with a valid item_id from those without one

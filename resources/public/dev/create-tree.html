@@ -61,6 +61,7 @@
     <thead>
     <tr>
         <th>ID</th>
+        <th>Image</th>
         <th>Product</th>
         <th>Type</th>
         <th></th>
@@ -108,6 +109,7 @@
             const row = $(
                 `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
                     <td>${model.id}</td>
+                    <td><a href="/inventory/images/${model.image_id}/thumbnail">${model.image_id} <img width="100" height="auto" src="/inventory/images/${model.image_id}/thumbnail"></a></td>
                     <td>${model.product || model.inventory_code}</td>
                     <td>${model.entry_type}</td>
                     <td>
