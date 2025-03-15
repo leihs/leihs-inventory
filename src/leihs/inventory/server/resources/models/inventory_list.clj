@@ -19,6 +19,7 @@
       SELECT
           m.id,
           m.product,
+          m.version,
           m.is_package,
           m.type,
           CASE
@@ -71,20 +72,34 @@
               WHEN m.is_package = FALSE and m.type ='Software' and i.id is null and it.id is null THEN true
               ELSE false
           END AS deletable
+
       FROM models m
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
 
-          JOIN rooms r ON r.id = i.room_id
-          JOIN buildings b ON b.id = r.building_id
+          LEFT JOIN rooms r ON r.id = i.room_id
+          LEFT JOIN buildings b ON b.id = r.building_id
 
           LEFT JOIN models itm ON itm.id = it.model_id
 
       UNION
 
-      SELECT o.id, o.product, false as is_package, 'Option' as type, 'Option' as entry_type,
-            NULL as item_id, o.inventory_pool_id, o.inventory_code,
-             
+      SELECT
+            o.id,
+            o.product,
+            o.version,
+
+            false as is_package,
+            'Option' as type,
+            'Option' as entry_type,
+            NULL as item_id,
+
+            o.inventory_pool_id,
+            o.inventory_code,
+
+
+
+
             NULL as item_last_check,
             NULL as item_retired,
             NULL as item_is_broken,
@@ -127,6 +142,7 @@
   LIMIT ?")
 
 
+;o.price,
 
 
 (require '[clojure.string :as str])
@@ -159,6 +175,7 @@
              {:id id
               :deletable (:deletable first-item)
               :product (:product first-item)
+              :version (:version first-item)
               :entry_type (:entry_type first-item)
               :children (->> items
                           (group-by :item_id)

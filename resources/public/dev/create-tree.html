@@ -63,6 +63,8 @@
         <th>ID</th>
         <th>Product</th>
         <th>Type</th>
+        <th></th>
+        <th></th>
         <th>Actions</th>
     </tr>
     </thead>
@@ -94,17 +96,34 @@
             const hasChildren = model.children && model.children.length > 0;
             const deletable = ["Model", "Package", "Software"].includes(model.entry_type) && !hasChildren;
 
+
+            const showLocation = ["ModelItem", "PackageItem", "License"].includes(model.entry_type)
+            const showForItem = ["Item"].includes(model.entry_type)
+            const showForLicense = ["License"].includes(model.entry_type)
+            // debugger
+            //         <td>
+            //          ${showForItem ? `<div>${model.product}</div>` : ''}
+            //         </td>
+
             const row = $(
                 `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
                     <td>${model.id}</td>
                     <td>${model.product || model.inventory_code}</td>
                     <td>${model.entry_type}</td>
                     <td>
-                        ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
+                     ${showLocation ? `<div>${model.building_name} ${model.building_code}  ${model.room_name}</div>` : ''}
+                                         ${showForItem ? `<div>${model.product}</div>` : ''}
                     </td>
                     <td>
+                     ${showForLicense ? `<div>${model.properties?.operating_system} / ${model.properties?.license_type}</div>` : ''}
+                    </td>
+
+
+                    <td>
+                        ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
                         ${deletable ? `<button class="delete-btn" data-id="${model.id}">Delete</button>` : ''}
                     </td>
+
                 </tr>`
             );
             row.data("children", model.children);
