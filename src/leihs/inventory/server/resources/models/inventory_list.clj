@@ -94,86 +94,59 @@
   LIMIT ?")
 
 
-(defn grouped-data [data]
-  (->> data
-    (group-by :id)
-    (map (fn [[id items]]
-           (let [first-item (first items)] ;; Extract first item to get common attributes
-             {:id id
-              :deletable (:deletable first-item)
-              :product (:product first-item)
-              :entry_type (:entry_type first-item)
-              :children (->> items
-                          ;; Separate items with a valid item_id from those without one
-                          (group-by :item_id)
-                          (map (fn [[item_id subitems]]
-                                 (if (nil? item_id)
-                                   ;; Keep entries with nil item_id, but no children
-                                   {:item_id nil}
-                                   ;; Process items with a valid item_id
-                                   {:item_id item_id
-
-                                    :inventory_pool_id (:inventory_pool_id (first subitems))
-                                    :item_last_check (:item_last_check (first subitems))
-                                    :item_retired (:item_retired (first subitems))
-                                    :item_is_broken (:item_is_broken (first subitems))
-                                    :item_is_incomplete (:item_is_incomplete (first subitems))
-                                    :item_is_borrowable (:item_is_borrowable (first subitems))
-                                    :item_owner_id (:item_owner_id (first subitems))
 
 
+(require '[clojure.string :as str])
 
-                                    :children (->> subitems
+(defn rename-keys [m]
+  "Removes `item_` and `it_` prefixes from map keys."
+  (into {} (map (fn [[k v]]
+                  (let [new-k (cond
+                                (str/starts-with? (name k) "item_")
+                                (keyword (subs (name k) 5)) ;; Remove "item_"
 
-                                                ;; todo, how to add it_last_check, it_retired, it_is_broken, it_is_incomplete, it_is_borrowable, it_owner_id
+                                (str/starts-with? (name k) "it_")
+                                (keyword (subs (name k) 3)) ;; Remove "it_"
 
-                                                (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
-                                                vec)})))
-                          (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
-                          vec)})))
-    vec))
-
-
+                                :else k)]
+                    [new-k v]))
+             m)))
 
 (defn grouped-data [data]
   (->> data
     (group-by :id)
     (map (fn [[id items]]
-           (let [first-item (first items)] ;; Extract first item to get common attributes
+           (let [first-item (first items)]
              {:id id
               :deletable (:deletable first-item)
               :product (:product first-item)
               :entry_type (:entry_type first-item)
               :children (->> items
-                          ;; Separate items with a valid item_id from those without one
                           (group-by :item_id)
                           (map (fn [[item_id subitems]]
                                  (if (nil? item_id)
-                                   ;; Keep entries with nil item_id, but no children
                                    {:item_id nil}
-                                   ;; Process items with a valid item_id
-                                   {:item_id item_id
-                                    :inventory_pool_id (:inventory_pool_id (first subitems))
-                                    :item_last_check (:item_last_check (first subitems))
-                                    :item_retired (:item_retired (first subitems))
-                                    :item_is_broken (:item_is_broken (first subitems))
-                                    :item_is_incomplete (:item_is_incomplete (first subitems))
-                                    :item_is_borrowable (:item_is_borrowable (first subitems))
-                                    :item_owner_id (:item_owner_id (first subitems))
-                                    :children (->> subitems
-                                                ;; Include `it_*` attributes while filtering out nil `it_id`
-                                                (keep #(when (:it_id %)
-                                                         (select-keys % [:it_id
-                                                                         :it_last_check
-                                                                         :it_retired
-                                                                         :it_is_broken
-                                                                         :it_is_incomplete
-                                                                         :it_is_borrowable
-                                                                         :it_owner_id]))) ;; Filter out nil it_id
-                                                vec)})))
-                          (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
+                                   ;; Merge renamed keys into the map
+                                   (merge
+                                     {:item_id item_id
+                                      :children (->> subitems
+                                                  (keep #(when (:it_id %)
+                                                           ;; Rename `it_*` attributes inside `children`
+                                                           (rename-keys (select-keys % [:it_id
+                                                                                        :it_last_check
+                                                                                        :it_retired
+                                                                                        :it_is_broken
+                                                                                        :it_is_incomplete
+                                                                                        :it_is_borrowable
+                                                                                        :it_owner_id]))))
+                                                  vec)}
+                                     ;; Rename `item_*` attributes outside children
+                                     (rename-keys (first subitems))))))
+                          (remove #(and (not (:item_id %)) (empty? (:children %))))
                           vec)})))
     vec))
+
+
 
 ;; Example Usage
 (def example-data
