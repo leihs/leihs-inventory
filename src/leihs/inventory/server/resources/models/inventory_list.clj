@@ -40,6 +40,11 @@
           i.is_incomplete AS item_is_incomplete,
           i.is_borrowable AS item_is_borrowable,
           i.owner_id AS item_owner_id,
+          i.properties AS item_properties,
+
+          r.name AS item_room_name,
+          b.name AS item_building_name,
+          b.code AS item_building_code,
 
           it.inventory_pool_id AS it_inventory_pool_id,
           it.inventory_code AS it_inventory_code,
@@ -49,7 +54,8 @@
           it.is_incomplete AS it_is_incomplete,
           it.is_borrowable AS it_is_borrowable,
           it.owner_id AS it_owner_id,
-          
+
+          itm.product AS it_product,
           
           
           it.id AS it_id,
@@ -63,6 +69,11 @@
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
 
+          JOIN rooms r ON r.id = i.room_id
+          JOIN buildings b ON b.id = r.building_id
+
+          LEFT JOIN models itm ON itm.id = it.model_id
+
       UNION
 
       SELECT o.id, o.product, false as is_package, 'Option' as type, 'Option' as entry_type,
@@ -74,6 +85,11 @@
             NULL as item_is_incomplete,
             NULL as item_is_borrowable,
             NULL as item_owner_id,
+            NULL as item_properties,
+
+            NULL as item_room_name,
+            NULL as item_building_name,
+            NULL as item_building_code,
 
 
             NULL as it_inventory_pool_id,
@@ -85,6 +101,8 @@
             NULL as it_is_incomplete,
             NULL as it_is_borrowable,
             NULL as it_owner_id,
+
+            NULL as it_product,
 
             NULL as it_id, false as deletable
              
@@ -118,6 +136,12 @@
                     [new-k v]))
              m)))
 
+(defn rename-keys [m]m)
+
+
+
+
+
 (defn grouped-data [data]
   (->> data
     (group-by :id)
@@ -132,27 +156,87 @@
                           (map (fn [[item_id subitems]]
                                  (if (nil? item_id)
                                    {:item_id nil}
-                                   ;; Merge renamed keys into the map
-                                   (merge
-                                     {:item_id item_id
-                                      :children (->> subitems
-                                                  (keep #(when (:it_id %)
-                                                           ;; Rename `it_*` attributes inside `children`
-                                                           (rename-keys (select-keys % [:it_id
-                                                                                        :it_last_check
-                                                                                        :it_retired
-                                                                                        :it_is_broken
-                                                                                        :it_is_incomplete
-                                                                                        :it_is_borrowable
-                                                                                        :it_owner_id]))))
-                                                  vec)}
-                                     ;; Rename `item_*` attributes outside children
-                                     (rename-keys (first subitems))))))
+                                   (let [item-details (rename-keys (select-keys (first subitems)
+                                                                     [:item_id
+                                                                      :item_retired
+                                                                      :item_is_broken
+                                                                      :item_is_incomplete
+                                                                      :item_is_borrowable
+                                                                      :item_owner_id
+                                                                      :inventory_pool_id
+                                                                      :inventory_code
+
+
+                                                                      :item_room_name
+                                                                      :item_building_name
+                                                                      :item_building_code
+
+                                                                      :item_properties
+
+                                                                      ;:entry_type
+                                                                      ;:product
+                                                                      ]))]
+                                     (merge
+                                       item-details
+                                       {:children (->> subitems
+                                                    (keep #(when (:it_id %)
+                                                             (rename-keys (select-keys % [:it_id
+                                                                                          :it_last_check
+                                                                                          :it_retired
+                                                                                          :it_is_broken
+                                                                                          :it_is_incomplete
+                                                                                          :it_is_borrowable
+                                                                                          :it_owner_id
+                                                                                          :it_product
+
+                                                                                          ]))))
+                                                    vec)})))))
                           (remove #(and (not (:item_id %)) (empty? (:children %))))
                           vec)})))
     vec))
 
 
+
+
+
+(defn grouped-dataX [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           (let [first-item (first items)] ;; Extract first item to get common attributes
+             {:id id
+              :deletable (:deletable first-item)
+              :product (:product first-item)
+              :entry_type (:entry_type first-item)
+              :children (->> items
+                          ;; Separate items with a valid item_id from those without one
+                          (group-by :item_id)
+                          (map (fn [[item_id subitems]]
+                                 (if (nil? item_id)
+                                   ;; Keep entries with nil item_id, but no children
+                                   {:item_id nil}
+                                   ;; Process items with a valid item_id
+                                   {:item_id item_id
+
+                                    :inventory_pool_id (:inventory_pool_id (first subitems))
+                                    :item_last_check (:item_last_check (first subitems))
+                                    :item_retired (:item_retired (first subitems))
+                                    :item_is_broken (:item_is_broken (first subitems))
+                                    :item_is_incomplete (:item_is_incomplete (first subitems))
+                                    :item_is_borrowable (:item_is_borrowable (first subitems))
+                                    :item_owner_id (:item_owner_id (first subitems))
+
+
+
+                                    :children (->> subitems
+
+                                                ;; todo, how to add it_last_check, it_retired, it_is_broken, it_is_incomplete, it_is_borrowable, it_owner_id
+
+                                                (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
+                                                vec)})))
+                          (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
+                          vec)})))
+    vec))
 
 ;; Example Usage
 (def example-data
