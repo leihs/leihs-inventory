@@ -563,7 +563,7 @@
                                   ;:last_id (s/maybe s/Uuid)
                                   ;:last_id (s/->Either [s/Uuid nil])
                                   (s/optional-key :last_id) s/Uuid
-
+                                  :entry_type (s/enum "All" "Model" "Package" "Option" "Software")
                                   :size s/Int
                                   }
                           }
@@ -581,14 +581,22 @@
                                 size (get-in request [:parameters :query :size])
                                 last-id (get-in request [:parameters :query :last_id])
                                  pool-id (get-in request [:parameters :path :pool_id])
+                                entry-type (get-in request [:parameters :query :entry_type])
 
-                                p (println ">o> abc" size last-id pool-id)
+                                entry-type (if (= entry-type "All" )
+                                             ["Model" "Package" "Option" "Software"]
+                                              [entry-type]
+                                                                      )
+
+                                ;]
+
+                                p (println ">o> abc" size last-id pool-id entry-type)
 
                                    ]
 
                        ;(response/response (get-models request))
 
-                       (response/response (get-paginated-data request size last-id))
+                       (response/response (get-paginated-data request size last-id entry-type))
                        ;(response/response (get-paginated-data request 10 nil))
                        ;(response/response {:foo "bar" :data {:size size :last_id last-id :pool_id pool-id}})
 

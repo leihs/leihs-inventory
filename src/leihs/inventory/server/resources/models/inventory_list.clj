@@ -53,8 +53,12 @@
 
     WHERE (?::UUID IS NULL OR x.id > ?::UUID)
 
+    AND x.entry_type = ANY(?::text[])
+
   ORDER BY x.id ASC
   LIMIT ?")
+
+    ;AND x.entry_type in ?
 
   ;WHERE (? IS NULL OR x.id > ?)
   ;WHERE x.id > COALESCE(?::UUID, '00000000-0000-0000-0000-000000000000'::UUID)
@@ -63,10 +67,10 @@
   "Fetches paginated data using keyset pagination.
    - `page-size`: Number of records to return.
    - `cursor-id`: The last seen UUID (or nil for the first page)."
-  [request page-size cursor-id]
-  (println ">o> abc1" page-size cursor-id)
+  [request page-size cursor-id entry-type]
+  (println ">o> abc1" page-size cursor-id entry-type)
   ;(jdbc/execute! (:tx request) [pagination-query nil nil page-size]))
-  (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id page-size]))
+  (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size]))
 
 ;; Example Usage:
 
