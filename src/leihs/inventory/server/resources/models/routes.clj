@@ -1,6 +1,9 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
    [clojure.spec.alpha :as sa]
+
+   [leihs.inventory.server.resources.models.inventory-list :refer [get-models]]
+
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
@@ -541,6 +544,29 @@
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]
+
+    ["/inventory-list"
+     {:get {:accept "application/json"
+             :summary "(DEV) | Inventory-List"
+             :coercion spec/coercion
+             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?}
+                          ;:body {:product string?}
+                          }
+             ;:handler (fn [request]
+             ;           (let [content-type (get-in request [:headers "content-type"])
+             ;                 _ (println ">o> content-type" content-type)
+             ;                 body (-> request :parameters :body)]
+             ;             (cond
+             ;               (= content-type "application/json") (response/response {:foo "bar" :body body})
+             ;               :else {:status 400 :body "Unsupported Content-Type"})))
+
+            :handler (fn [request]
+                       (response/response (get-models request)))
+
+             :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 

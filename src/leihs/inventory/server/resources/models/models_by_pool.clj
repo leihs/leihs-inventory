@@ -207,11 +207,19 @@
          base-query (-> (sql/select :i.id
                           :i.inventory_code
                           :i.inventory_pool_id
-                          :r.name
+                          [:r.name :room_name]
                           :i.model_id
                           :r.description
-                          :b.name
-                          :b.code
+                          [:b.name :building_code]
+                          [:b.code :building_code]
+                          :i.shelf
+                          :i.last_check
+                          :i.retired
+                          :i.is_broken
+                          :i.is_incomplete
+                          :i.is_borrowable
+                          :i.owner_id
+                          :i.properties
 
                           ;; this breaks the calculation
                           ;[(sq/call :coalesce
