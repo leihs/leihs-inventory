@@ -112,6 +112,17 @@
                                    {:item_id nil}
                                    ;; Process items with a valid item_id
                                    {:item_id item_id
+
+                                    :inventory_pool_id (:inventory_pool_id (first subitems))
+                                    :item_last_check (:item_last_check (first subitems))
+                                    :item_retired (:item_retired (first subitems))
+                                    :item_is_broken (:item_is_broken (first subitems))
+                                    :item_is_incomplete (:item_is_incomplete (first subitems))
+                                    :item_is_borrowable (:item_is_borrowable (first subitems))
+                                    :item_owner_id (:item_owner_id (first subitems))
+
+
+
                                     :children (->> subitems
                                                 (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
                                                 vec)})))
