@@ -124,11 +124,123 @@
 
 
                                     :children (->> subitems
+
+                                                ;; todo, how to add it_last_check, it_retired, it_is_broken, it_is_incomplete, it_is_borrowable, it_owner_id
+
                                                 (keep #(when (:it_id %) (select-keys % [:it_id]))) ;; Filter out nil it_id
                                                 vec)})))
                           (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
                           vec)})))
     vec))
+
+
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           (let [first-item (first items)] ;; Extract first item to get common attributes
+             {:id id
+              :deletable (:deletable first-item)
+              :product (:product first-item)
+              :entry_type (:entry_type first-item)
+              :children (->> items
+                          ;; Separate items with a valid item_id from those without one
+                          (group-by :item_id)
+                          (map (fn [[item_id subitems]]
+                                 (if (nil? item_id)
+                                   ;; Keep entries with nil item_id, but no children
+                                   {:item_id nil}
+                                   ;; Process items with a valid item_id
+                                   {:item_id item_id
+                                    :inventory_pool_id (:inventory_pool_id (first subitems))
+                                    :item_last_check (:item_last_check (first subitems))
+                                    :item_retired (:item_retired (first subitems))
+                                    :item_is_broken (:item_is_broken (first subitems))
+                                    :item_is_incomplete (:item_is_incomplete (first subitems))
+                                    :item_is_borrowable (:item_is_borrowable (first subitems))
+                                    :item_owner_id (:item_owner_id (first subitems))
+                                    :children (->> subitems
+                                                ;; Include `it_*` attributes while filtering out nil `it_id`
+                                                (keep #(when (:it_id %)
+                                                         (select-keys % [:it_id
+                                                                         :it_last_check
+                                                                         :it_retired
+                                                                         :it_is_broken
+                                                                         :it_is_incomplete
+                                                                         :it_is_borrowable
+                                                                         :it_owner_id]))) ;; Filter out nil it_id
+                                                vec)})))
+                          (remove #(and (not (:item_id %)) (empty? (:children %)))) ;; Remove empty item groups
+                          vec)})))
+    vec))
+
+;; Example Usage
+(def example-data
+  [{:id "00dc4a77-9ca2-456d-8e14-bd69e18cd016"
+    :deletable false
+    :product "Videoregie SDI / HDMI"
+    :entry_type "Package"
+    :item_id "c060938b-c8a3-48c8-a4c1-34db90c4f6fd"
+    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
+    :item_last_check "2024-03-01"
+    :item_retired false
+    :item_is_broken false
+    :item_is_incomplete false
+    :item_is_borrowable true
+    :item_owner_id "owner-123"
+    :it_id "df03cce3-5f98-4497-8ad0-4813b9732e76"
+    :it_last_check "2024-02-15"
+    :it_retired false
+    :it_is_broken false
+    :it_is_incomplete false
+    :it_is_borrowable true
+    :it_owner_id "it-owner-456"}
+
+   {:id "00dc4a77-9ca2-456d-8e14-bd69e18cd016"
+    :deletable false
+    :product "Videoregie SDI / HDMI"
+    :entry_type "Package"
+    :item_id "c060938b-c8a3-48c8-a4c1-34db90c4f6fd"
+    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
+    :item_last_check "2024-03-01"
+    :item_retired false
+    :item_is_broken false
+    :item_is_incomplete false
+    :item_is_borrowable true
+    :item_owner_id "owner-123"
+    :it_id nil} ;; Should be removed from children
+
+   {:id "02104543-a3d5-5130-8d61-31ab1c856287"
+    :deletable true
+    :product "MS_Foe62_MAF_FC01"
+    :entry_type "Package"
+    :item_id nil
+    :inventory_pool_id nil
+    :item_last_check nil
+    :item_retired nil
+    :item_is_broken nil
+    :item_is_incomplete nil
+    :item_is_borrowable nil
+    :item_owner_id nil
+    :it_id nil} ;; Should be kept but no children
+
+   {:id "02df06bb-6377-4652-83f0-cd35558f2b52"
+    :deletable false
+    :product "Streaming-Rack AVS \" ATEM mini Pro\""
+    :entry_type "Package"
+    :item_id "7d75004a-a25f-400f-b20a-0bfe59b22f9b"
+    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
+    :item_last_check "2024-01-10"
+    :item_retired false
+    :item_is_broken false
+    :item_is_incomplete false
+    :item_is_borrowable true
+    :item_owner_id "owner-789"
+    :it_id nil}]) ;; Should be kept but no children
+
+(prn (grouped-data example-data))
+
 
 (defn get-paginated-data
   "Fetches paginated data using keyset pagination.
