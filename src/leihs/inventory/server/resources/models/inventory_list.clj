@@ -32,6 +32,24 @@
           END AS entry_type,
           i.id AS item_id,
           i.inventory_pool_id,
+          
+          i.last_check AS item_last_check,
+          i.retired AS item_retired,
+          i.is_broken AS item_is_broken,
+          i.is_incomplete AS item_is_incomplete,
+          i.is_borrowable AS item_is_borrowable,
+          i.owner_id AS item_owner_id,
+          
+                    
+          it.last_check AS it_last_check,
+          it.retired AS it_retired,
+          it.is_broken AS it_is_broken,
+          it.is_incomplete AS it_is_incomplete,
+          it.is_borrowable AS it_is_borrowable,
+          it.owner_id AS it_owner_id,
+          
+          
+          
           it.id AS it_id,
           CASE
               WHEN m.is_package = TRUE and m.type ='Model' and i.id is null and it.id is null THEN true
@@ -46,7 +64,24 @@
       UNION
 
       SELECT o.id, o.product, false as is_package, 'Option' as type, 'Option' as entry_type,
-             NULL as item_id, o.inventory_pool_id, NULL as it_id, false as deletable
+             NULL as item_id, o.inventory_pool_id,
+             
+             NULL as item_last_check,
+              NULL as item_retired,
+              NULL as item_is_broken,
+              NULL as item_is_incomplete,
+              NULL as item_is_borrowable,
+              NULL as item_owner_id,
+              
+              NULL as it_last_check,
+              NULL as it_retired,
+              NULL as it_is_broken,
+              NULL as it_is_incomplete,
+              NULL as it_is_borrowable,
+              NULL as it_owner_id,
+
+ NULL as it_id, false as deletable
+             
       FROM options o
 
   ) AS x
