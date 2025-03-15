@@ -8,15 +8,12 @@
    ;                                                         entitlements-query item-query
    ;                                                         model-links-query properties-query]]
    ;[leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
+   [clojure.walk :as walk]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util.jar JarFile]))
+
+)
 (def pagination-query
   "SELECT * FROM (
       SELECT
@@ -40,6 +37,14 @@
           i.is_incomplete AS item_is_incomplete,
           i.is_borrowable AS item_is_borrowable,
           i.owner_id AS item_owner_id,
+
+          CASE
+              WHEN m.is_package = TRUE and m.type ='Model' THEN 'PackageItem'
+              WHEN m.is_package = FALSE and m.type ='Model' THEN 'ModelItem'
+              WHEN m.is_package = FALSE and m.type ='Software' THEN 'License'
+              ELSE 'unknown'
+          END AS item_entry_type,
+
           i.properties AS item_properties,
 
           r.name AS item_room_name,
@@ -54,6 +59,7 @@
           it.is_incomplete AS it_is_incomplete,
           it.is_borrowable AS it_is_borrowable,
           it.owner_id AS it_owner_id,
+          'Item' AS it_entry_type,
 
           itm.product AS it_product,
           
@@ -85,6 +91,8 @@
             NULL as item_is_incomplete,
             NULL as item_is_borrowable,
             NULL as item_owner_id,
+            NULL as item_entry_type,
+
             NULL as item_properties,
 
             NULL as item_room_name,
@@ -101,6 +109,7 @@
             NULL as it_is_incomplete,
             NULL as it_is_borrowable,
             NULL as it_owner_id,
+            NULL as it_entry_type,
 
             NULL as it_product,
 
@@ -136,7 +145,7 @@
                     [new-k v]))
              m)))
 
-(defn rename-keys [m]m)
+(defn rename-keys [m] m)
 
 
 
@@ -163,6 +172,7 @@
                                                                       :item_is_incomplete
                                                                       :item_is_borrowable
                                                                       :item_owner_id
+                                                                      :item_entry_type
                                                                       :inventory_pool_id
                                                                       :inventory_code
 
@@ -188,6 +198,7 @@
                                                                                           :it_is_borrowable
                                                                                           :it_owner_id
                                                                                           :it_product
+                                                                                          :it_entry_type
 
                                                                                           ]))))
                                                     vec)})))))
@@ -203,7 +214,7 @@
   (->> data
     (group-by :id)
     (map (fn [[id items]]
-           (let [first-item (first items)] ;; Extract first item to get common attributes
+           (let [first-item (first items)]                  ;; Extract first item to get common attributes
              {:id id
               :deletable (:deletable first-item)
               :product (:product first-item)
@@ -238,72 +249,18 @@
                           vec)})))
     vec))
 
-;; Example Usage
-(def example-data
-  [{:id "00dc4a77-9ca2-456d-8e14-bd69e18cd016"
-    :deletable false
-    :product "Videoregie SDI / HDMI"
-    :entry_type "Package"
-    :item_id "c060938b-c8a3-48c8-a4c1-34db90c4f6fd"
-    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
-    :item_last_check "2024-03-01"
-    :item_retired false
-    :item_is_broken false
-    :item_is_incomplete false
-    :item_is_borrowable true
-    :item_owner_id "owner-123"
-    :it_id "df03cce3-5f98-4497-8ad0-4813b9732e76"
-    :it_last_check "2024-02-15"
-    :it_retired false
-    :it_is_broken false
-    :it_is_incomplete false
-    :it_is_borrowable true
-    :it_owner_id "it-owner-456"}
-
-   {:id "00dc4a77-9ca2-456d-8e14-bd69e18cd016"
-    :deletable false
-    :product "Videoregie SDI / HDMI"
-    :entry_type "Package"
-    :item_id "c060938b-c8a3-48c8-a4c1-34db90c4f6fd"
-    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
-    :item_last_check "2024-03-01"
-    :item_retired false
-    :item_is_broken false
-    :item_is_incomplete false
-    :item_is_borrowable true
-    :item_owner_id "owner-123"
-    :it_id nil} ;; Should be removed from children
-
-   {:id "02104543-a3d5-5130-8d61-31ab1c856287"
-    :deletable true
-    :product "MS_Foe62_MAF_FC01"
-    :entry_type "Package"
-    :item_id nil
-    :inventory_pool_id nil
-    :item_last_check nil
-    :item_retired nil
-    :item_is_broken nil
-    :item_is_incomplete nil
-    :item_is_borrowable nil
-    :item_owner_id nil
-    :it_id nil} ;; Should be kept but no children
-
-   {:id "02df06bb-6377-4652-83f0-cd35558f2b52"
-    :deletable false
-    :product "Streaming-Rack AVS \" ATEM mini Pro\""
-    :entry_type "Package"
-    :item_id "7d75004a-a25f-400f-b20a-0bfe59b22f9b"
-    :inventory_pool_id "27b7e10b-66ad-5dcc-ae73-4b11551dadfe"
-    :item_last_check "2024-01-10"
-    :item_retired false
-    :item_is_broken false
-    :item_is_incomplete false
-    :item_is_borrowable true
-    :item_owner_id "owner-789"
-    :it_id nil}]) ;; Should be kept but no children
-
-(prn (grouped-data example-data))
-
+(defn clean-keys
+  "Recursively removes 'it_' and 'item_' prefixes from map keys."
+  [data]
+  (walk/postwalk
+    (fn [x]
+      (if (map? x)
+        (into {}
+          (map (fn [[k v]]
+                 [(keyword (clojure.string/replace (name k) #"^(it_|item_)" "")) v]))
+          x)
+        x))
+    data))
 
 (defn get-paginated-data
   "Fetches paginated data using keyset pagination.
@@ -314,24 +271,11 @@
 
 
 
-     (let [
-  res (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size])
+  (let [
+        res (jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id (into-array entry-type) page-size])
+        res (if (= process-grouping true)
+              (clean-keys (grouped-data res))
+              res)
 
-           res (if (= process-grouping true)
-                 (grouped-data res)
-                 res)
+        ] res))
 
-              ]res)
-
-  ;(jdbc/execute! (:tx request) [pagination-query nil nil page-size]))
-  ;(jdbc/execute! (:tx request) [pagination-query cursor-id cursor-id  (into-array entry-type) page-size]))
-
-  )
-
-;; Example Usage:
-
-;; First page (cursor-id = nil, page-size = 10)
-;(prn (get-paginated-data 10 nil))
-
-;; Next page (fetch after given UUID)
-;(prn (get-paginated-data 10 "03f57b2b-070a-56d3-98b5-3a017427ef1d"))

@@ -62,6 +62,7 @@
         function populateTable(models, parentRow = null) {
             models.forEach(function(model) {
                 const hasChildren = model.children && model.children.length > 0;
+                // debugger
                 const row = $(
                     `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
                         <td>${model.id}</td>
