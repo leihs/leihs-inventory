@@ -89,7 +89,7 @@
       filename
       nil)))
 
-(def CONST_ALLOWED_TYPES #{"model" "software" "license" "item" "option" "package" "tree"})
+(def CONST_ALLOWED_TYPES #{"model" "software" "license" "item" "option" "package" "stable" "mtable"})
 
 (defn generate-content-type [filetype]
   (let [charset "; charset=utf-8"]

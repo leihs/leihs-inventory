@@ -41,10 +41,66 @@
             background-color: #f9f9f9;
         }
     </style>
+
+
+
+    <style>
+        ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
+    </style>
 </head>
 <body>
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item">Item (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
+</ul>
 
 <h2>Inventory List</h2>
+
+<h4>TODO</h4>
+<ul>
+    <li>Links to edit</li>
+    <li>Delete-Btn</li>
+    <li>Filter-Section</li>
+    <li>Pagination instead of cursor</li>
+    <li>Reduce response</li>
+</ul></br></br>
+
 
 <form id="filter-form">
     <label for="entry_type">Entry Type:</label>
@@ -58,7 +114,7 @@
     <label for="size">Size:</label>
     <input type="number" id="size" name="size" value="5" min="1">
     <button type="submit">Apply</button>
-</form>
+</form></br>
 
 <table>
     <thead>
