@@ -25,6 +25,15 @@
             color: #007bff;
             text-decoration: underline;
         }
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+            text-decoration: underline;
+            margin-left: 10px;
+            border: none;
+            background: none;
+            font-size: 14px;
+        }
         .child-row {
             background-color: #f9f9f9;
         }
@@ -54,7 +63,7 @@
         <th>ID</th>
         <th>Product</th>
         <th>Type</th>
-        <th>Children</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody id="model-body">
@@ -80,12 +89,11 @@
         });
     }
 
-
-
     function populateTable(models, parentRow = null) {
         models.forEach(function(model) {
             const hasChildren = model.children && model.children.length > 0;
-            const deletable = model.deletable;
+            const deletable = ["Model", "Package", "Software"].includes(model.entry_type) && !hasChildren;
+
             const row = $(
                 `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
                     <td>${model.id}</td>
@@ -95,7 +103,7 @@
                         ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
                     </td>
                     <td>
-                        ${deletable ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
+                        ${deletable ? `<button class="delete-btn" data-id="${model.id}">Delete</button>` : ''}
                     </td>
                 </tr>`
             );
@@ -135,6 +143,26 @@
                 populateTable(children, row);
                 btn.text(btn.text().replace('Expand', 'Collapse'));
                 btn.data('expanded', true);
+            }
+        });
+
+        $('#model-body').on('click', '.delete-btn', function() {
+            const btn = $(this);
+            const modelId = btn.data('id');
+            const url = `http://localhost:3260/inventory/delete/${modelId}`;
+
+            if (confirm("Are you sure you want to delete this item?")) {
+                $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    success: function() {
+                        alert("Item deleted successfully");
+                        fetchData();
+                    },
+                    error: function() {
+                        alert("Failed to delete item");
+                    }
+                });
             }
         });
     });
