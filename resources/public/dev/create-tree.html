@@ -28,33 +28,17 @@
         .child-row {
             background-color: #f9f9f9;
         }
-        .Package {
-            background-color: #f9f9f9;
-        }
-        .PackageItem {
-            background-color: #eaeaea;
-        }
-        .Item {
-            background-color: #d7d7d7;
-        }
     </style>
 </head>
 <body>
 
-<div class="form-group">
-    <label for="poolId">Pool ID</label>
-    <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
-</div>
-
-
-<h2>Model List</h2>
+<h2>Inventory List</h2>
 <table>
-
-
     <thead>
     <tr>
         <th>ID</th>
-        <th>Name</th>
+        <th>Product</th>
+        <th>Type</th>
         <th>Children</th>
     </tr>
     </thead>
@@ -64,109 +48,51 @@
 
 <script>
     $(document).ready(function() {
-
-        function createLink(model) {
-
-            const poolId=$("#poolId").val();
-
-            const baseUrl = `/inventory/${poolId}/dev/model?model_id=${model.id}&pool_id=${poolId}`;
-
-
-            const entry_type = model.entry_type;
-            // debugger
-            if(entry_type=="Model" || entry_type=="Package"){
-
-            return `<a href="${baseUrl}">${model.id}</a>`;
-                // return ""
-            }
-
-            // if (poolId) params.set('pool_id', poolId);
-            // if (modelId) params.set('model_id', modelId);
-            //
-            // const queryString = params.toString();
-
-            // return `<button onclick="window.open('${baseUrl}')">${model.id}</button>`;
-            return model.id;
-        }
-        
         $.ajax({
-            url: '/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models',
+            url: "http://localhost:3260/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model/inventory-list?entry_type=Package&size=5&process_grouping=true",
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
             },
-            success: function(models) {
-                models.forEach(function(model) {
-                    const canDelete = ["Item", "Model", "Package"].includes(model.entry_type);
-                    const hasChildren = (model.children?.length ?? 0) > 0;
-
-                        // <td>${model.id}</td>
-                    const row = $(`
-                      <tr data-model-id="${model.id}" class="${model.entry_type}">
-                        <td>${createLink(model)}</td>
-                        <td>${model.entry_type}</td>
-                        <td>${model.product}</td>
-                        <td>${model.is_package}</td>
-                        <td>${model.real_type}</td>
-                        <td>${model.children}</td>
-                        <td>
-                          ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : (canDelete ? `<button class="delete-btn">Delete ${model.entry_type}</button>` : '')}
-                        </td>
-                      </tr>`
-                    );
-
-                    row.data("raw", model);
-                    $('#model-body').append(row);
-                });
+            success: function(data) {
+                populateTable(data);
             }
         });
 
+        function populateTable(models, parentRow = null) {
+            models.forEach(function(model) {
+                const hasChildren = model.children && model.children.length > 0;
+                const row = $(
+                    `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
+                        <td>${model.id}</td>
+                        <td>${model.product}</td>
+                        <td>${model.entry_type}</td>
+                        <td>
+                            ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
+                        </td>
+                    </tr>`
+                );
+                row.data("children", model.children);
+                if (parentRow) {
+                    parentRow.after(row);
+                } else {
+                    $('#model-body').append(row);
+                }
+            });
+        }
+
         $('#model-body').on('click', '.expand-btn', function() {
             const btn = $(this);
-            const parentRow = btn.closest('tr');
-            const modelId = parentRow.data('model-id');
-            const model = parentRow.data('raw');
-
-            const url = model.entry_type.includes("Item")
-                ? `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${model.model_id}/items/${model.id}?entry_type=${model.entry_type}`
-                : `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/${modelId}/items?entry_type=${model.entry_type}`;
-
+            const row = btn.closest('tr');
+            const children = row.data("children");
             if (btn.data('expanded')) {
-                $(`.child-of-${modelId}`).remove();
+                row.nextUntil(':not(.child-row)').remove();
                 btn.text(btn.text().replace('Collapse', 'Expand'));
                 btn.data('expanded', false);
             } else {
-                $.ajax({
-                    url: url,
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    success: function(items) {
-                        items.forEach(function(item) {
-                            const hasChildren = (item.children?.length ?? 0) > 0;
-
-                            const childRow = $(`
-                                <tr class="child-row child-of-${modelId} ${item.entry_type}">
-<!--                                  <td>${item.id}</td>-->
-                                  <td>${createLink(item)}</td>
-                                  <td>${item.entry_type}</td>
-                                  <td>${item.inventory_code ?? ''}</td>
-                                  <td>${item.inventory_pool_id ?? ''}</td>
-                                  <td>${item.model_id ?? ''}</td>
-                                  <td>${item.product ?? ''}</td>
-                                  <td>${hasChildren ? `<span class="expand-btn">Expand (${item.children.length})</span>` : ''}</td>
-                                  <td></td>
-                                </tr>`
-                            );
-
-                            childRow.data("raw", item);
-                            parentRow.after(childRow);
-                        });
-                        btn.text(btn.text().replace('Expand', 'Collapse'));
-                        btn.data('expanded', true);
-                    }
-                });
+                populateTable(children, row);
+                btn.text(btn.text().replace('Expand', 'Collapse'));
+                btn.data('expanded', true);
             }
         });
     });
