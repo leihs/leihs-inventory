@@ -24,8 +24,6 @@
 
 
 (defn pagination-query [inventory_pool_id search_str last_check]
-  (println ">o> abc.pagination-query1" inventory_pool_id search_str last_check)
-  (println ">o> abc.pagination-query2" last_check (type last_check))
   (str "SELECT * FROM (
       SELECT
           m.id,
@@ -69,13 +67,7 @@
           it.owner_id AS it_owner_id,
           'Item' AS it_entry_type,
           itm.product AS it_product,
-          it.id AS it_id,
-          CASE
-              WHEN m.is_package = TRUE and m.type ='Model' and i.id is null and it.id is null THEN true
-              WHEN m.is_package = FALSE and m.type ='Model' and i.id is null and it.id is null THEN true
-              WHEN m.is_package = FALSE and m.type ='Software' and i.id is null and it.id is null THEN true
-              ELSE false
-          END AS deletable
+          it.id AS it_id
       FROM models m
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
@@ -83,7 +75,9 @@
           LEFT JOIN buildings b ON b.id = r.building_id
           LEFT JOIN models itm ON itm.id = it.model_id
           LEFT JOIN images im ON m.id = im.target_id AND im.thumbnail = TRUE
+
       UNION
+
       SELECT
           o.id,
           o.product,
@@ -116,31 +110,38 @@
           NULL as it_owner_id,
           NULL as it_entry_type,
           NULL as it_product,
-          NULL as it_id, false as deletable
+          NULL as it_id
       FROM options o
   ) AS x
     WHERE x.entry_type = ANY(?::text[])"
-
-    ;; Dynamic conditions
-    (when inventory_pool_id
-      (str " AND x.inventory_pool_id = '" (str inventory_pool_id) "' "))
-
-(when search_str
-  (str " AND x.product ILIKE '%" search_str "%' "))
-
-    ;(when last_check
-    ;  (str " AND x.item_last_check >= " last_check  " "))
-
-
-    (when last_check
-      (str " AND (x.item_last_check IS NULL OR x.item_last_check >= '" last_check  "' ) "))
-
-
-
-
-    ;; Order and Pagination
+    (when inventory_pool_id (str " AND x.inventory_pool_id = '" (str inventory_pool_id) "' "))
+    (when search_str (str " AND x.product ILIKE '%" search_str "%' "))
+    (when last_check (str " AND (x.item_last_check IS NULL OR x.item_last_check >= '" last_check "' ) "))
     " ORDER BY x.id ASC
     LIMIT ? OFFSET ?"))
+
+(defn total-rows-query [inventory_pool_id search_str last_check]
+  (str "SELECT COUNT(*) AS total FROM (
+      SELECT x.id, x.entry_type FROM (  -- Ensure entry_type is included
+          SELECT m.id, 'Model' AS entry_type FROM models m
+          LEFT JOIN items i ON i.model_id = m.id
+          LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
+          LEFT JOIN rooms r ON r.id = i.room_id
+          LEFT JOIN buildings b ON b.id = r.building_id
+          LEFT JOIN models itm ON itm.id = it.model_id
+          LEFT JOIN images im ON m.id = im.target_id AND im.thumbnail = TRUE
+          UNION
+          SELECT o.id, 'Option' AS entry_type FROM options o
+      ) AS x
+      WHERE x.entry_type = ANY(?::text[])"
+
+    ;; Filters applied dynamically
+    (when inventory_pool_id (str " AND x.inventory_pool_id = '" (str inventory_pool_id) "' "))
+    (when search_str (str " AND x.product ILIKE '%" search_str "%' "))
+    (when last_check (str " AND (x.item_last_check IS NULL OR x.item_last_check >= '" last_check "' ) "))
+
+    ") AS count_table"))  ;; Correct closing of the query
+
 
 
 (defn rename-keys [m]
@@ -203,15 +204,17 @@
     vec))
 
 (defn get-paginated-data
-  "Fetches paginated data using offset-based pagination.
-   - `page`: Page number (starting from 1).
-   - `page-size`: Number of records per page."
+  "Fetches paginated data with pagination info."
   [request page page-size entry-type process-grouping inventory_pool_id search_str last_check]
-  (println ">o> abc???1" page page-size entry-type process-grouping inventory_pool_id search_str last_check)
-  (println ">o> abc???2" inventory_pool_id search_str last_check)
   (let [offset (* (dec page) page-size)
-        res (jdbc/execute! (:tx request) [( pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
-        res (if process-grouping
-              (clean-keys (grouped-data res))
-              res)]
-    res))
+        total-rows (-> (jdbc/execute-one! (:tx request) [(total-rows-query inventory_pool_id search_str last_check) (into-array entry-type)])
+                     :total)
+        total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
+        res (jdbc/execute! (:tx request) [(pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
+        res (if process-grouping (clean-keys (grouped-data res)) res)]
+        ;res (if clean-keys (process-grouping res) res)]
+    {:data res
+     :pagination {:total-rows total-rows
+                  :total-pages total-pages
+                  :current-page page
+                  :page-size page-size}}))
