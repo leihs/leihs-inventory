@@ -111,8 +111,15 @@
         <option value="Option">Option</option>
         <option value="Software">Software</option>
     </select>
+
+    <label for="page">Page:</label>
+    <input type="number" id="page" name="page" value="1" min="1">
+
     <label for="size">Size:</label>
     <input type="number" id="size" name="size" value="5" min="1">
+
+
+
     <button type="submit">Apply</button>
 </form></br>
 
@@ -136,7 +143,8 @@
     function fetchData() {
         const entryType = $('#entry_type').val();
         const size = $('#size').val();
-        const url = `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model/inventory-list?entry_type=${entryType}&size=${size}&process_grouping=true`;
+        const page = $('#page').val();
+        const url = `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}&process_grouping=true`;
 
         $.ajax({
             url: url,
@@ -207,6 +215,9 @@
             fetchData();
         });
         $('#size').on('change', function() {
+            fetchData();
+        });
+        $('#page').on('change', function() {
             fetchData();
         });
 

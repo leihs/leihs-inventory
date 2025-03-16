@@ -564,6 +564,7 @@
                                   ;:last_id (s/->Either [s/Uuid nil])
                                   (s/optional-key :last_id) s/Uuid
                                   :entry_type (s/enum "All" "Model" "Package" "Option" "Software")
+                                  :page s/Int
                                   :size s/Int
                                   :process_grouping  (s/enum "true" "false")
                                   }
@@ -579,6 +580,7 @@
             :handler (fn [request]
 
                           (let [
+                                page (get-in request [:parameters :query :page])
                                 size (get-in request [:parameters :query :size])
                                 last-id (get-in request [:parameters :query :last_id])
                                  pool-id (get-in request [:parameters :path :pool_id])
@@ -601,7 +603,7 @@
 
                        ;(response/response (get-models request))
 
-                       (response/response (get-paginated-data request size last-id entry-type process-grouping))
+                       (response/response (get-paginated-data request page size entry-type process-grouping))
                        ;(response/response (get-paginated-data request 10 nil))
                        ;(response/response {:foo "bar" :data {:size size :last_id last-id :pool_id pool-id}})
 
