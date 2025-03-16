@@ -10,9 +10,18 @@
    [taoensso.timbre :refer [error]]))
 
 (defn get-pools-of-user-handler [request]
+  (println ">o> get-pools-of-user-handler")
   (try
     (let [tx (:tx request)
           user_id (-> request path-params :user_id)
+          p (println ">o> abc.user_id" user_id)
+
+          user_id (-> request :authenticated-entity :id)
+          p (println ">o> abc.session.user_id" user_id)
+
+
+
+
           query (-> (sql/select :p.id :p.name :p.description)
                     (sql/from [:direct_access_rights :d])
                     (sql/join [:users :u] [:= :u.id :d.user_id])

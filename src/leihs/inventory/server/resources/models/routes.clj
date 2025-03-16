@@ -567,15 +567,12 @@
                                   :page s/Int
                                   :size s/Int
                                   :process_grouping  (s/enum "true" "false")
+
+                                  (s/optional-key :inventory_pool_id) s/Uuid
+                                  (s/optional-key :search_term) s/Str
+                                  (s/optional-key :last_check) s/Str
                                   }
                           }
-             ;:handler (fn [request]
-             ;           (let [content-type (get-in request [:headers "content-type"])
-             ;                 _ (println ">o> content-type" content-type)
-             ;                 body (-> request :parameters :body)]
-             ;             (cond
-             ;               (= content-type "application/json") (response/response {:foo "bar" :body body})
-             ;               :else {:status 400 :body "Unsupported Content-Type"})))
 
             :handler (fn [request]
 
@@ -585,6 +582,11 @@
                                 last-id (get-in request [:parameters :query :last_id])
                                  pool-id (get-in request [:parameters :path :pool_id])
                                 entry-type (get-in request [:parameters :query :entry_type])
+
+
+                                inventory_pool_id (get-in request [:parameters :query :inventory_pool_id])
+                                search_str (get-in request [:parameters :query :search_term])
+                                last_check (get-in request [:parameters :query :last_check])
 
                                 entry-type (if (= entry-type "All" )
                                              ["Model" "Package" "Option" "Software"]
@@ -597,13 +599,23 @@
 
                                 ;]
 
-                                p (println ">o> abc" size last-id pool-id entry-type)
+                                p (println ">o> abc.params" size last-id pool-id entry-type process-grouping inventory_pool_id search_str last_check)
+
+
+                                inventory_pool_id (if (= inventory_pool_id "")
+                                                    nil
+                                                    inventory_pool_id
+                                                    )
 
                                    ]
 
                        ;(response/response (get-models request))
+                       ;                                 request page page-size entry-type process-grouping inventory_pool_id search_str last_check
 
-                       (response/response (get-paginated-data request page size entry-type process-grouping))
+
+
+
+                       (response/response (get-paginated-data request page size entry-type process-grouping inventory_pool_id search_str last_check))
                        ;(response/response (get-paginated-data request 10 nil))
                        ;(response/response {:foo "bar" :data {:size size :last_id last-id :pool_id pool-id}})
 

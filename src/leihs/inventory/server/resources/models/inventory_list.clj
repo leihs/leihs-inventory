@@ -22,8 +22,11 @@
         x))
     data))
 
-(def pagination-query
-  "SELECT * FROM (
+
+(defn pagination-query [inventory_pool_id search_str last_check]
+  (println ">o> abc.pagination-query1" inventory_pool_id search_str last_check)
+  (println ">o> abc.pagination-query2" last_check (type last_check))
+  (str "SELECT * FROM (
       SELECT
           m.id,
           m.product,
@@ -116,9 +119,29 @@
           NULL as it_id, false as deletable
       FROM options o
   ) AS x
-    WHERE x.entry_type = ANY(?::text[])
-  ORDER BY x.id ASC
-  LIMIT ? OFFSET ?")
+    WHERE x.entry_type = ANY(?::text[])"
+
+    ;; Dynamic conditions
+    (when inventory_pool_id
+      (str " AND x.inventory_pool_id = '" (str inventory_pool_id) "' "))
+
+(when search_str
+  (str " AND x.product ILIKE '%" search_str "%' "))
+
+    ;(when last_check
+    ;  (str " AND x.item_last_check >= " last_check  " "))
+
+
+    (when last_check
+      (str " AND (x.item_last_check IS NULL OR x.item_last_check >= '" last_check  "' ) "))
+
+
+
+
+    ;; Order and Pagination
+    " ORDER BY x.id ASC
+    LIMIT ? OFFSET ?"))
+
 
 (defn rename-keys [m]
   "Removes `item_` and `it_` prefixes from map keys."
@@ -183,9 +206,11 @@
   "Fetches paginated data using offset-based pagination.
    - `page`: Page number (starting from 1).
    - `page-size`: Number of records per page."
-  [request page page-size entry-type process-grouping]
+  [request page page-size entry-type process-grouping inventory_pool_id search_str last_check]
+  (println ">o> abc???1" page page-size entry-type process-grouping inventory_pool_id search_str last_check)
+  (println ">o> abc???2" inventory_pool_id search_str last_check)
   (let [offset (* (dec page) page-size)
-        res (jdbc/execute! (:tx request) [pagination-query (into-array entry-type) page-size offset])
+        res (jdbc/execute! (:tx request) [( pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
         res (if process-grouping
               (clean-keys (grouped-data res))
               res)]

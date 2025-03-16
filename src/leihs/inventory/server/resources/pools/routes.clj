@@ -14,17 +14,18 @@
    {:swagger {:conflicting true
               :tags ["Pool"] :security []}}
 
-   ["pools"
-    {:get {:conflicting true
-           :summary "(DEV)"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:query {:login s/Str}}
-           :handler get-pools-handler
-           :responses {200 {:description "OK"
-                            ;:body (s/->Either [s/Any schema])}
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+   ;["pools"
+   ; {:get {:conflicting true
+   ;        :summary "(DEV)"
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:query {:login s/Str}}
+   ;        :handler get-pools-handler
+   ;        :responses {200 {:description "OK"
+   ;                         ;:body (s/->Either [s/Any schema])}
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+   ])

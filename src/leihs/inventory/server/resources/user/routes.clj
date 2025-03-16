@@ -1,6 +1,8 @@
 (ns leihs.inventory.server.resources.user.routes
   (:require
    [clojure.set]
+   [leihs.core.auth.session :refer [wrap-authenticate]]
+
    [leihs.inventory.server.resources.models.main :refer [get-models-handler
                                                          create-model-handler
                                                          update-model-handler
@@ -28,16 +30,31 @@
    {:swagger {:conflicting true
               :tags ["User"] :security []}}
 
-   ["pools/:user_id"
+   ;["pools/:user_id"
+   ; {:get {:conflicting true
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:path {:user_id s/Uuid}}
+   ;        :handler get-pools-of-user-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body [schema-min]}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+
+   ["pools"
     {:get {:conflicting true
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
+           :middleware [wrap-authenticate accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :parameters {:path {:user_id s/Uuid}}
+           :summary "Get pools of user ???"
+
            :handler get-pools-of-user-handler
            :responses {200 {:description "OK"
-                            :body [schema-min]}
+                            ;:body [schema-min]
+                            }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 

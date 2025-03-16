@@ -75,6 +75,20 @@
             background-color: #007BFF; /* Change background color on hover */
             color: white; /* Change text color on hover */
         }
+
+
+        form {
+            display: inline-grid;
+            padding: 2em;
+        }
+        form label{
+            padding: 0.5em 0 0.2em;
+        }
+
+        [type=submit], [type=reset] {
+            margin-top: 1em;
+        }
+
     </style>
 </head>
 <body>
@@ -118,9 +132,80 @@
     <label for="size">Size:</label>
     <input type="number" id="size" name="size" value="5" min="1">
 
+    <!-- init by request to get inventory-pool-id
+    curl -X 'GET' \
+  '/inventory/pools/a786135f-c159-4618-9dd3-0012ebb3d500' \
+  -H 'accept: application/json'
+    -->
+<!--    <label for="inventoryPoolId">Inventory-Pool:</label>-->
+<!--    <input type="string" id="inventoryPoolId" name="inventoryPoolId" value="1" min="1">-->
+
+
+
+
+
+
+
+
+    <label for="inventoryPoolId">Inventory-Pool:</label>
+    <select id="inventoryPoolId" name="inventoryPoolId">
+        <option value="">Loading...</option>
+    </select>
+
+    <script>
+        $(document).ready(function () {
+            const inventoryPoolsUrl = "/inventory/pools"; // Change if needed
+
+            $.ajax({
+                url: inventoryPoolsUrl,
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                },
+                success: function (data) {
+                    let $select = $("#inventoryPoolId");
+                    $select.empty(); // Clear the existing options
+
+                    if (data.length > 0) {
+                        $select.append('<option value="">All</option>');
+                        data.forEach(pool => {
+                            $select.append(
+                                $("<option></option>")
+                                    .attr("value", pool.id)
+                                    .text(pool.name || `Pool ${pool.id}`)
+                            );
+                        });
+                    } else {
+                        $select.append('<option value="">No Pools Available</option>');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching inventory pools:", error);
+                    $("#inventoryPoolId").html('<option value="">Error Loading</option>');
+                }
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+    <label for="searchTerm">Search-Term:</label>
+    <input type="string" id="searchTerm" name="searchTerm">
+
+    <label for="lastCheck">Last-Check:</label>
+    <input type="date" id="lastCheck" name="lastCheck">
+
 
 
     <button type="submit">Apply</button>
+    <input type="reset" value="Reset">
 </form></br>
 
 <table>
@@ -144,7 +229,23 @@
         const entryType = $('#entry_type').val();
         const size = $('#size').val();
         const page = $('#page').val();
-        const url = `/inventory/8bd16d45-056d-5590-bc7f-12849f034351/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}&process_grouping=true`;
+
+        const inventory_pool_id = $('#inventoryPoolId').val();
+        const searchTerm = $('#searchTerm').val();
+
+        const inventory_pool_id_str = inventory_pool_id ? `&inventory_pool_id=${inventory_pool_id}` : '';
+        const searchTerm_str = searchTerm ? `&search_term=${searchTerm}` : '';
+
+        const lastCheck = $('#lastCheck').val();
+        const lastCheck_str = lastCheck ? `&last_check=${lastCheck}` : '';
+
+
+        const default_inventory_pool_id = "8bd16d45-056d-5590-bc7f-12849f034351"
+
+        // const url = `/inventory/${inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&search_term=${searchTerm}&last_check=${lastCheck}&page=${page}&process_grouping=true`;
+        // const url = `/inventory/${inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&search_term=${searchTerm}&page=${page}&process_grouping=true`;
+        // const url = `/inventory/${default_inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}&inventory_pool_id=${inventory_pool_id}&process_grouping=true`;
+        const url = `/inventory/${default_inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}${inventory_pool_id_str}${searchTerm_str}${lastCheck_str}&process_grouping=true`;
 
         $.ajax({
             url: url,
@@ -211,15 +312,7 @@
     $(document).ready(function() {
         fetchData();
 
-        $('#entry_type').on('change', function() {
-            fetchData();
-        });
-        $('#size').on('change', function() {
-            fetchData();
-        });
-        $('#page').on('change', function() {
-            fetchData();
-        });
+        $('#entry_type, #size, #page, #inventoryPoolId, #searchTerm, #lastCheck').on('change', fetchData);
 
         $('#filter-form').submit(function(event) {
             event.preventDefault();
