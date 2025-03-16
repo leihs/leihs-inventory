@@ -121,15 +121,28 @@
     LIMIT ? OFFSET ?"))
 
 (defn total-rows-query [inventory_pool_id search_str last_check]
+  
+          ;LEFT JOIN rooms r ON r.id = i.room_id
+          ;LEFT JOIN buildings b ON b.id = r.building_id
+          ;LEFT JOIN models itm ON itm.id = it.model_id
+          ;LEFT JOIN images im ON m.id = im.target_id AND im.thumbnail = TRUE
+          ;'Model' AS entry_type
+
   (str "SELECT COUNT(*) AS total FROM (
       SELECT x.id, x.entry_type FROM (  -- Ensure entry_type is included
-          SELECT m.id, 'Model' AS entry_type FROM models m
+          SELECT
+          m.id,
+
+          CASE
+              WHEN m.is_package = TRUE and m.type ='Model' THEN 'Package'
+              WHEN m.is_package = FALSE and m.type ='Model' THEN 'Model'
+              WHEN m.is_package = FALSE and m.type ='Software' THEN 'Software'
+              ELSE 'unknown'
+          END AS entry_type,
+          
+          FROM models m
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
-          LEFT JOIN rooms r ON r.id = i.room_id
-          LEFT JOIN buildings b ON b.id = r.building_id
-          LEFT JOIN models itm ON itm.id = it.model_id
-          LEFT JOIN images im ON m.id = im.target_id AND im.thumbnail = TRUE
           UNION
           SELECT o.id, 'Option' AS entry_type FROM options o
       ) AS x
@@ -206,10 +219,16 @@
 (defn get-paginated-data
   "Fetches paginated data with pagination info."
   [request page page-size entry-type process-grouping inventory_pool_id search_str last_check]
-  (let [offset (* (dec page) page-size)
+  (let [
+        ;; TODO: make separate reduced query for total-rows
+
+
+
+        offset (* (dec page) page-size)
         total-rows (-> (jdbc/execute-one! (:tx request) [(total-rows-query inventory_pool_id search_str last_check) (into-array entry-type)])
                      :total)
         total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
+
         res (jdbc/execute! (:tx request) [(pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
         res (if process-grouping (clean-keys (grouped-data res)) res)]
         ;res (if clean-keys (process-grouping res) res)]
