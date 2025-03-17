@@ -7,7 +7,7 @@ jobs:
       any branch has been updated:
         type: branch
         include_match: ^.*$
-        exclude_match: '^.*(no-ci|hotspot).*$'
+        exclude_match: "^.*(no-ci|hotspot).*$"
     context:
       task_defaults: &INVENTORY_TASK_DEFAULTS
         environment_variables:
@@ -17,7 +17,8 @@ jobs:
           DIST_INVENTORY_IMAGE_NAME: "leihs-inventory"
           DIST_VERSION_NAME: "trial-{{CIDER_CI_TRIAL_ID}}"
       tasks:
-        inventory-build-uberjar: { include: cider-ci/task-components/uberjar.yml }
+        inventory-build-uberjar:
+          { include: cider-ci/task-components/uberjar.yml }
 
   check-feature-tasks:
     name: Check if feature tasks are up to date
@@ -65,7 +66,7 @@ jobs:
       any branch has been updated:
         type: branch
         include_match: ^.*$
-        exclude_match: '^.*(no-ci|hotspot).*$'
+        exclude_match: "^.*(no-ci|hotspot).*$"
     context:
       task_defaults:
         environment_variables:
@@ -88,7 +89,7 @@ jobs:
                 #!/usr/bin/env bash
                 set -euo pipefail
                 ./bin/cljfmt check
-        standardrb-lint:
+        ruby-lint:
           scripts:
             test:
               body: |
