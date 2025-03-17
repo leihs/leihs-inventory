@@ -7,6 +7,8 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-image-url]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool]]
+   [leihs.inventory.server.resources.models.models-by-pool :refer [apply-is_deleted-context-if-valid
+                                                                   apply-is_deleted-where-context-if-valid]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
@@ -85,14 +87,15 @@
                   [:m.product :asc])
         filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
         filter-product (if-not model_id (:filter_product query-params) nil)
-        base-query (-> (sql/select :*)
-                       (sql/from [:models :m])
+        is_deletable (if-not model_id (:is_deletable query-params) nil)
+        base-query (-> (apply-is_deleted-context-if-valid is_deletable)
                        (cond-> filter-manufacturer
                          (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
                        (cond-> filter-product
                          (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                        (cond-> model_id (sql/where [:= :m.id model_id]))
-                       (sql/order-by sort-by))]
+                       (sql/order-by sort-by))
+        base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
     (if model_id
       (response (jdbc/execute! tx (-> base-query sql-format)))
       (let [{:keys [page size]} (fetch-pagination-params request)]

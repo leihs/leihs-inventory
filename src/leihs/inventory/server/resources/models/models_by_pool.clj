@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.models.models-by-pool
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
@@ -27,6 +27,31 @@
       last-segment
       nil)))
 
+(defn apply-is_deleted-context-if-valid
+  "setups base-query for is_deletable and references:
+  - m: models
+  - i: items
+  - it: items (for items that are children of item i)"
+  [is_deletable]
+  (-> (sql/select-distinct :m.* [:i.id :item_id] [:it.id :it_id]
+                           [[:raw "CASE
+                                          WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                          WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                          WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
+                                          ELSE false
+                                          END"]
+                            :is_deletable])
+      (sql/from [:models :m])
+      (sql/left-join [:items :i] [:= :m.id :i.model_id])
+      (sql/left-join [:items :it] [:= :it.parent_id :i.id])))
+
+(defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
+  (if (nil? is_deletable)
+    base-query
+    (-> (sql/select :*)
+        (sql/from [[base-query] :wrapped_query])
+        (sql/where [:= :wrapped_query.is_deletable is_deletable]))))
+
 (defn get-models-handler
   ([request]
    (get-models-handler request false))
@@ -35,8 +60,9 @@
          {:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
          option-type (extract-option-type-from-uri (:uri request))
          query-params (query-params request)
-         {:keys [filter_ids]} query-params
+         {:keys [filter_ids is_deletable]} query-params
          {:keys [page size]} (fetch-pagination-params request)
+
          sort-by (case (:sort_by query-params)
                    :manufacturer-asc [:m.manufacturer :asc]
                    :manufacturer-desc [:m.manufacturer :desc]
@@ -45,7 +71,8 @@
                    nil)
          filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
          filter-product (if-not model_id (:filter_product query-params) nil)
-         base-query (-> (sql/select-distinct :m.*)
+
+         base-query (-> (apply-is_deleted-context-if-valid is_deletable)
                         ((fn [query] (base-pool-query query pool_id option-type)))
                         (cond-> (or item_id (= option-type "items"))
                           ((fn [q] (item-query q item_id))))
@@ -65,7 +92,8 @@
                           (sql/where [:ilike :m.product (str "%" filter-product "%")]))
                         (cond-> model_id (sql/where [:= :m.id model_id]))
                         (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))]
+                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
+         base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
      (create-pagination-response request base-query with-pagination?))))
 
 (defn get-models-of-pool-with-pagination-handler [request]

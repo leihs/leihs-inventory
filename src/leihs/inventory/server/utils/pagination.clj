@@ -10,17 +10,13 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]))
 
-(defn- create-count-query [base-query]
-  (-> base-query
-      (dissoc :order-by :select :select-distinct)
-      (sql/select-distinct :%count.*)))
-
 (defn- fetch-total-count [base-query tx]
-  (let [total-products-query (-> (create-count-query base-query)
-                                 sql-format
-                                 (->> (jdbc/query tx))
-                                 first)]
-    (:count total-products-query)))
+  (-> (sql/select [[:raw "COUNT(*)"] :total_count])
+      (sql/from [[base-query] :subquery])
+      sql-format
+      (->> (jdbc/query tx))
+      first
+      :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
   (let [paginated-query (-> base-query

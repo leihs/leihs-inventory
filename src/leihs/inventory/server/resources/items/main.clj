@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query remove-select]]
+   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query]]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
