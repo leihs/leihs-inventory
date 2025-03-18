@@ -33,7 +33,7 @@
   - i: items
   - it: items (for items that are children of item i)"
   [is_deletable]
-  (-> (sql/select-distinct :m.* [:i.id :item_id] [:it.id :it_id]
+  (-> (sql/select-distinct :m.*
                            [[:raw "CASE
                                           WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
                                           WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
@@ -48,7 +48,7 @@
 (defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
   (if (nil? is_deletable)
     base-query
-    (-> (sql/select :*)
+    (-> (sql/select-distinct :*)
         (sql/from [[base-query] :wrapped_query])
         (sql/where [:= :wrapped_query.is_deletable is_deletable]))))
 

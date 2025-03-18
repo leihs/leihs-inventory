@@ -133,6 +133,28 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
+shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
+
+    @models = create_models
+    create_and_add_items_to_models(@inventory_pool, [@models.first])
+
+    2.times do
+      create_and_add_items_to_models(@inventory_pool, [@models.second])
+    end
+
+    model = @models.first
+    image = add_image_to_model(model)
+    update_cover_image(model, image)
+  end
+
+  include_context :setup_accessory_entitlements
+end
+
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
     resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")

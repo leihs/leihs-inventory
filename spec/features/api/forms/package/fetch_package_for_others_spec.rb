@@ -75,10 +75,6 @@ require "faker"
         resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
         expect(resp.status).to eq(401)
 
-        # fetch package
-        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        expect(resp.status).to eq(401)
-
         # update package
         resp = http_multipart_client(
           "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
