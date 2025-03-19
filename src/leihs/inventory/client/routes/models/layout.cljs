@@ -18,8 +18,9 @@
            {:segment "entitlement-groups" :label "Anspruchsgruppen"}])
 
 (defui layout []
-  (let [tab-route (jc (useResolvedPath))
-        pool-id (:pool-id (jc (useParams)))
+  (let [tab-route (jc (router/useResolvedPath))
+        pool-id (:pool-id (jc (router/useParams)))
+        location (router/useLocation)
         [t] (useTranslation)]
 
     ($ :article
@@ -50,7 +51,8 @@
                    ($ DropdownMenuContent {:align "start"}
 
                       ($ DropdownMenuItem {:asChild true}
-                         ($ Link {:to (generatePath "/inventory/:pool-id/models/create"
+                         ($ Link {:state #js {:searchParams (.. location -search)}
+                                  :to (generatePath "/inventory/:pool-id/models/create"
                                                     (cj {:pool-id pool-id}))}
                             "Neues Modell"))
 

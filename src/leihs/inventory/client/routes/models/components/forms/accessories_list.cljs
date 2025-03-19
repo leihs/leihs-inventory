@@ -1,15 +1,16 @@
 (ns leihs.inventory.client.routes.models.components.forms.accessories-list
   (:require
-   ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
+   ["@/components/react/sortable-list" :refer [Draggable DragHandle
+                                               SortableList]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormField FormItem FormControl FormMessage]]
+   ["@@/form" :refer [FormControl FormField FormItem FormMessage]]
    ["@@/input" :refer [Input]]
-   ["@@/table" :refer [Table TableHeader TableRow TableHead TableBody TableCell]]
+   ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [CirclePlus Trash]]
    ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [defui $]]
-   [uix.dom]))
+   [uix.core :as uix :refer [$ defui]]
+   [uix.dom :as uix-dom]))
 
 (defn find-index-by-id [vec id]
   (some (fn [[idx item]]
@@ -33,7 +34,20 @@
   (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
                                                  (cj {:control control
                                                       :name "accessories"})))
-        inputs (:inputs props)]
+        add-field (fn []
+                    (uix-dom/flush-sync
+                     (append (cj {:name ""})))
+
+                    (let [name (str "input[name='accessories." (count fields) ".name']")
+                          next (js/document.querySelector name)]
+                      (when next (.focus next))))
+
+        handle-enter (fn [ev]
+                       (when (= (.. ev -key) "Enter")
+                         (.. ev (preventDefault))
+                         (add-field)))
+
+        handle-add (fn [] (add-field))]
 
     ($ :div {:className "flex flex-col gap-2"}
 
@@ -56,19 +70,20 @@
                                ($ TableCell
                                   ($ FormField
                                      {:control (cj control)
-                                      :name (str "accessories." index "." (-> inputs (nth 0) :name))
+                                      :name (str "accessories." index ".name")
                                       :render #($ FormItem
                                                   ($ FormControl
                                                      ($ Input (merge
-                                                               (-> inputs (nth 0) :props)
+                                                               {:data-index index
+                                                                :on-key-down handle-enter}
                                                                (:field (jc %))))))}
 
                                      ($ FormMessage)))
 
                                ($ TableCell
                                   ($ :div {:className "flex gap-2 justify-end"}
-                                     ($ DragHandle {:id (:id field)
-                                                    :className "cursor-move"})
+                                     #_($ DragHandle {:id (:id field)
+                                                      :className "cursor-move"})
 
                                      ($ Button {:variant "outline"
                                                 :size "icon"
@@ -80,7 +95,7 @@
        ($ :div {:className "flex"}
           ($ Button {:type "button"
                      :variant "outline"
-                     :on-click #(append (cj {:name ""}))}
+                     :on-click handle-add}
 
              ($ CirclePlus {:className "w-4 h-4"}) "Zubehör hinzufügen")))))
 

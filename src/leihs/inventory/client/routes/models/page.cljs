@@ -3,29 +3,24 @@
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent CardHeader]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent DropdownMenuItem
-                               DropdownMenuLabel DropdownMenuSeparator
-                               DropdownMenuTrigger]]
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+                               DropdownMenuItem DropdownMenuLabel
+                               DropdownMenuSeparator DropdownMenuTrigger]]
    ["@@/input" :refer [Input]]
-   ["@@/pagination" :refer [Pagination PaginationContent PaginationEllipsis
-                            PaginationItem PaginationLink PaginationNext
-                            PaginationPrevious]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["@tanstack/react-query" :as react-query :refer [useMutation useQuery]]
-   ["lucide-react" :refer [Ellipsis Image Tags Download ChevronDown]]
+   ["lucide-react" :refer [ChevronDown Download Ellipsis Image Tags]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.components.pagination :as pagination]
-   [leihs.inventory.client.lib.utils :refer [jc cj]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui page [{:keys [data]}]
-  (let [params (router/useParams)
-        models (:data (router/useLoaderData))
+  (let [models (:data (router/useLoaderData))
+        location (router/useLocation)
         pagination (:pagination (router/useLoaderData))]
 
-    ($ Card {:className "my-4 "}
+    ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
           ($ :div
              ($ :div {:className "flex gap-2"}
@@ -126,12 +121,13 @@
                         ($ TableCell {:className "fit-content"}
                            ($ :div {:className "flex gap-2"}
                               ($ Button {:variant "outline"}
-                                 ($ Link {:to (str (:id model))}
+                                 ($ Link {:state #js {:searchParams (.. location -search)}
+                                          :to (str (:id model))}
                                     "editieren"))
                               ($ Button {:variant "secondary"
                                          :size "icon"}
                                  ($ Ellipsis {:className "h-4 w-4"}))))))))))
 
        ($ pagination/main {:pagination pagination
-                           :class-name "p-6"}))))
+                           :class-name "p-6 pt-0"}))))
 

@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.routes.models.components.forms.image-upload
   (:require
    ["@@/button" :refer [Button]]
-   ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles Item]]
+   ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles Item ErrorMessages]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
@@ -9,7 +9,7 @@
    [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [clojure.string :as str]
-   [leihs.inventory.client.lib.utils :refer [cj]]
+   [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -29,33 +29,50 @@
   (vec (concat (subvec vector 0 index)
                (subvec vector (inc index)))))
 
+(defn error-message [rejections]
+  (let [rej (jc rejections)]
+    (map (fn [el] (let [error (:errors el)]
+                    (do
+                      (js/console.debug "error" error)
+                      (str ((:code error) (:message error))))))
+         rej)
+    (js/console.debug rej)
+    (str "Error Uploading Files" (map :errors rej))))
+
 (defui main [{:keys [control form props]}]
-  (let [[files set-files!] (uix.core/use-state nil)
-        [img-attributes set-img-attributes!] (uix.core/use-state nil)
+  (let [[files set-files!] (uix.core/use-state [])
+        [img-attributes set-img-attributes!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
+        [cover-index set-cover-index!] (uix.core/use-state nil)
+
         set-value (aget form "setValue")
         handle-drop (fn [files rejections _event]
                       (if (seq rejections)
-                        (set-error! (str "Error Uploading Files"))
-                        (set-files!
-                         (fn [prev]
-                             ;; loop through all files and compute the sha256 hash on drop
-                           (let [all-files (vec (concat prev files))]
-                             (go
-                               (let [hashes (atom [])]
-                                 (doseq [file files]
-                                   (let [hash (<! (compute-sha256 file))]
-                                     (swap! hashes conj {:is_cover false
-                                                         :checksum hash
-                                                         :to_delete false})))
+                        (set-error! rejections)
+                        (set-error! nil))
 
-                                 (set-img-attributes! @hashes)))
+                      (set-files!
+                       (fn [prev]
+                           ;; loop through all files and compute the sha256 hash on drop
+                         (let [all-files (vec (concat prev files))]
+                           (go
+                             (let [hashes (atom [])]
+                               (doseq [file all-files]
+                                 (let [hash (<! (compute-sha256 file))]
+                                   (swap! hashes conj {:is_cover false
+                                                       :checksum hash
+                                                       :to_delete false})))
 
-                               ;; then return all files to files state
-                             all-files)))))
+                               (set-img-attributes! @hashes)))
+
+                             ;; then return all files to files state
+                           all-files))))
 
         handle-delete (fn [index]
                         ;; remove img attr by index on delete
+                        (when (-> img-attributes (get index) :is_cover)
+                          (set-cover-index! nil))
+
                         (set-img-attributes!
                          (fn [prev] (delete-by-index index prev)))
 
@@ -64,12 +81,13 @@
                          (fn [prev] (delete-by-index index prev))))
 
         handle-cover (fn [index]
-                       (set-img-attributes! #(map-indexed
-                                              (fn [i attrs]
-                                                (if (= i index)
-                                                  (assoc attrs :is_cover true)
-                                                  (assoc attrs :is_cover false)))
-                                              %)))]
+                       (set-cover-index! index)
+                       (set-img-attributes! #(vec (map-indexed
+                                                   (fn [i attrs]
+                                                     (if (= i index)
+                                                       (assoc attrs :is_cover true)
+                                                       (assoc attrs :is_cover false)))
+                                                   %))))]
 
     (uix/use-effect
      (fn []
@@ -77,8 +95,8 @@
        (set-value "images" (cj (vec files)))
        [set-value files]))
 
-    ($ RadioGroup {:defaultValue nil
-                   :onValueChange #(handle-cover %)}
+    ($ RadioGroup {:value cover-index
+                   :onValueChange handle-cover}
 
        ($ Dropzone
           ($ DropzoneArea (merge
@@ -86,7 +104,7 @@
                             :filetypes (:filetypes props)
                             :onDrop handle-drop}))
 
-          (when error ($ :span {:className "text-xs text-red-600 mt-3"} error))
+          (when error ($ ErrorMessages {:rejections error}))
 
           (when (seq files)
             ($ DropzoneFiles

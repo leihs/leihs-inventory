@@ -15,7 +15,8 @@
   (let [location (router/useLocation)
         navigate (router/useNavigate)
         search-params (js/URLSearchParams. (.-search location))
-        [pages set-pages!] (uix/use-state (js/parseInt (.. search-params (get "size"))))
+        size (js/parseInt (.. search-params (get "size")))
+        [pages set-pages!] (uix/use-state (if (js/isNaN size) 10 size))
 
         gen-page-number-str (fn [number]
                               (.. search-params (set "page" number))
@@ -23,6 +24,7 @@
 
         gen-page-size-str (fn [value]
                             (.. search-params (set "size" value))
+                            ;; need to reset page number since it is an object
                             (.. search-params (set "page" (:current_page pagination)))
                             (.. search-params (toString)))
 
