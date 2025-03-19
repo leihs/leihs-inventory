@@ -133,5 +133,5 @@
                                  ($ Ellipsis {:className "h-4 w-4"}))))))))))
 
        ($ pagination/main {:pagination pagination
-                           :class-name "p-6"}))))
+                           :class-name "p-6 pt-0"}))))
 

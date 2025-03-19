@@ -126,13 +126,6 @@ export const structure = [
         label: "Berechtigungen",
         description: "Listen Sie die Berechtigungen auf",
         component: "entitlement-allocations",
-        // input: {
-        //   component: "combobox",
-        //   props: {
-        //     placeholder: "Berechtigungen eingeben",
-        //     "auto-complete": "off",
-        //   },
-        // },
       },
     ],
   },
@@ -152,7 +145,6 @@ export const structure = [
       {
         name: "images",
         label: "Bilder",
-        // description: "Listen Sie die Bild-URLs auf",
         component: "image-dropzone",
         props: {
           sortable: false,
@@ -168,7 +160,6 @@ export const structure = [
       {
         name: "attachments",
         label: "Anhänge",
-        // description: "Listen Sie die Anhang-URLs auf",
         input: "dropzone",
         props: {
           multiple: true,
@@ -183,20 +174,6 @@ export const structure = [
       {
         name: "accessories",
         component: "accessory-list",
-        props: {
-          inputs: [
-            {
-              name: "name",
-              label: "Artikel",
-              // description: "Listen Sie das Zubehör auf",
-              component: "input",
-              props: {
-                placeholder: "Zubehör eingeben",
-                "auto-complete": "on",
-              },
-            },
-          ],
-        },
       },
     ],
   },
@@ -207,7 +184,6 @@ export const structure = [
         name: "compatibles",
         label: "Modell-Links",
         component: "compatible-models",
-        props: {},
       },
     ],
   },

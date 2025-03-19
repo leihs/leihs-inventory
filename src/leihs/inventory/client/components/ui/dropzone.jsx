@@ -4,6 +4,14 @@ import { arrayMove } from "@dnd-kit/sortable"
 import { Button } from "@@/button"
 import { useDropzone } from "react-dropzone"
 import { cn } from "@/components/ui/utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import SortableList from "@/components/react/sortable-list"
 import {
   Table,
@@ -22,11 +30,17 @@ import {
 
 function Item({ children, className, file }) {
   const [preview, setPreview] = React.useState()
+  const [filename, setFilename] = React.useState()
+  const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
     setPreview(URL.createObjectURL(file))
     return () => URL.revokeObjectURL(preview)
   }, [])
+
+  const handleOpen = () => {
+    setOpen((prev) => !prev)
+  }
 
   return (
     <>
@@ -42,10 +56,11 @@ function Item({ children, className, file }) {
                     <img
                       src={preview}
                       className="w-10 h-10 rounded object-cover"
+                      onClick={handleOpen}
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <img src={preview} className="w-64 h-auto rounded" />
+                    <img src={preview} className="w-96 h-auto rounded" />
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -62,6 +77,14 @@ function Item({ children, className, file }) {
             {file.name.split(".").pop()}, {(file.size / 1024).toFixed(2)} kB
           </div>
         </div>
+        <Dialog open={open} onOpenChange={handleOpen}>
+          <DialogContent className="max-w-fit">
+            <DialogHeader>
+              <DialogTitle>{file.name}</DialogTitle>
+            </DialogHeader>
+            <img src={preview} className="w-fit h-auto rounded" />
+          </DialogContent>
+        </Dialog>
       </TableCell>
 
       {children}
@@ -97,8 +120,6 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
       props.onDrop && props.onDrop(acceptedFiles, fileRejections, event)
     },
   })
-
-  // console.debug(dropzone.getInputProps())
 
   return (
     <div
@@ -147,6 +168,23 @@ function DropzoneFiles({ children }) {
   )
 }
 
+function ErrorMessages({ rejections }) {
+  return (
+    <>
+      {rejections.map((rejection) => (
+        <div key={rejection.file.name} className="text-xs text-red-600 mt-3">
+          <div>{rejection.file.name}</div>
+          <div>
+            {rejection.errors.map((err) => (
+              <div>{err.message}</div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  )
+}
+
 const Dropzone = React.forwardRef(
   (
     {
@@ -189,13 +227,12 @@ const Dropzone = React.forwardRef(
       ])
 
       if (fileRejections.length > 0) {
-        let _errorMessage = `Could not upload ${fileRejections[0].file.name}`
-        if (fileRejections.length > 1)
-          _errorMessage =
-            _errorMessage + `, and ${fileRejections.length - 1} other files.`
-        setErrorMessage(_errorMessage)
+        // const _errorMessage = formatErrorMessage(fileRejections)
+        const { rejections } = fileRejections
+        console.debug("rejections", rejections, fileRejections)
+        setErrorMessage(fileRejections)
       } else {
-        setErrorMessage("")
+        setErrorMessage(null)
       }
     }
 
@@ -220,8 +257,10 @@ const Dropzone = React.forwardRef(
               }
               {...props}
             />
-            {errorMessage && (
-              <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
+            {errorMessage && errorMessage.length > 0 && (
+              <>
+                <ErrorMessages rejections={errorMessage} />
+              </>
             )}
 
             {showFilesList && filesUploaded.length > 0 && (
@@ -280,4 +319,4 @@ const Dropzone = React.forwardRef(
   },
 )
 
-export { Item, DropzoneArea, DropzoneFiles, Dropzone }
+export { Item, DropzoneArea, DropzoneFiles, Dropzone, ErrorMessages }

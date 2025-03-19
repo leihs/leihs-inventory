@@ -97,15 +97,17 @@
                              :style {:width (str width "px")}}
              ($ Command
                 {:filter (fn [value search]
-                           (let [lSearch (str/lower-case search)
-                                 lValue (str/lower-case value)]
-                             (if (str/includes? lValue lSearch) 1 0)))}
+                           (if (str/includes?
+                                (str/lower-case value)
+                                (str/lower-case search))
+                             1 0))}
+
                 ($ CommandInput {:placeholder "Search item..."})
                 ($ CommandList
 
                    ($ CommandEmpty "No item found.")
 
-                   (for [item items]
+                   (for [item flat-categories]
                      ($ CommandItem {:key (:path item)
                                      :value (:label item)
                                      :on-select #(do (set-open! false)

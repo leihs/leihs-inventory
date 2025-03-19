@@ -6,7 +6,7 @@
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [Check]]
    ["react-router-dom" :refer [useLoaderData]]
-   [clojure.string :as str]
+   [clojure.string :as str :refer [lower-case]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -94,7 +94,8 @@
 
                              ($ :ul {:ref list-ref}
                                 (for [manufacturer manufacturers]
-                                  (when (str/includes? manufacturer (get-values "manufacturer"))
+                                  (when (str/includes? (str/lower-case manufacturer)
+                                                       (str/lower-case (get-values "manufacturer")))
                                     ($ :li {:key manufacturer}
                                        ($ Button {:variant "ghost"
                                                   :class-name "w-full justify-start"

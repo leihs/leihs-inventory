@@ -9,7 +9,7 @@
    ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]
-   [uix.dom]))
+   [uix.dom :as uix-dom]))
 
 (defn find-index-by-id [vec id]
   (some (fn [[idx item]]
@@ -33,8 +33,8 @@
   ($ Table
      ($ TableHeader
         ($ TableRow
-           ($ TableHead (-> inputs (nth 0) :label))
-           ($ TableHead (-> inputs (nth 1) :label))
+           ($ TableHead "Eigenschaft")
+           ($ TableHead "Wert")
            ($ TableHead "")))
      ($ TableBody children)))
 
@@ -42,7 +42,14 @@
   (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
                                                  (cj {:control control
                                                       :name "properties"})))
-        inputs (:inputs props)]
+        inputs (:inputs props)
+        handle-add (fn []
+                     (uix-dom/flush-sync
+                      (append (cj {:key ""
+                                   :value ""})))
+                     (let [name (str "textarea[name='properties." (count fields) ".key']")
+                           next (js/document.querySelector name)]
+                       (when next (.focus next))))]
 
     ($ :div {:className "flex flex-col gap-2"}
 
@@ -64,12 +71,13 @@
                             ($ TableCell
                                ($ FormField
                                   {:control (cj control)
-                                   :name (str "properties." index "." (-> inputs (nth 0) :name))
+                                   :name (str "properties." index ".key")
                                    :render #($ FormItem
                                                ($ FormControl
                                                   ($ Textarea (merge
-                                                               {:className "min-h-[2.5rem]"}
-                                                               (-> inputs (nth 0) :props)
+                                                               {:className "min-h-[2.5rem]"
+                                                                :autoscale true
+                                                                :resize true}
                                                                (:field (jc %))))))}
 
                                   ($ FormMessage)))
@@ -77,20 +85,21 @@
                             ($ TableCell
                                ($ FormField
                                   {:control (cj control)
-                                   :name (str "properties." index "." (-> inputs (nth 1) :name))
+                                   :name (str "properties." index ".value")
                                    :render #($ FormItem
                                                ($ FormControl
                                                   ($ Textarea (merge
-                                                               {:className "min-h-[2.5rem]"}
-                                                               (-> inputs (nth 1) :props)
+                                                               {:className "min-h-[2.5rem]"
+                                                                :autoscale true
+                                                                :resize true}
                                                                (:field (jc %))))))}
 
                                   ($ FormMessage)))
 
                             ($ TableCell
                                ($ :div {:className "flex gap-2 justify-end"}
-                                  ($ DragHandle {:id (:id field)
-                                                 :className "cursor-move"})
+                                  #_($ DragHandle {:id (:id field)
+                                                   :className "cursor-move"})
 
                                   ($ Button {:variant "outline"
                                              :size "icon"
@@ -103,8 +112,7 @@
           ($ Button {:type "button"
                      :className ""
                      :variant "outline"
-                     :on-click #(append (cj {:key ""
-                                             :value ""}))}
+                     :on-click handle-add}
 
              ($ CirclePlus {:className "w-4 h-4"}) "Eigenschaft hinzufügen")))))
 
