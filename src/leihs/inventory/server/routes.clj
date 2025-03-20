@@ -36,6 +36,7 @@
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
+   [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
@@ -87,9 +88,6 @@
    (get-images-routes)
    (get-user-routes)
    (token-routes)])
-
-(defn convert-to-map [dict]
-  (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
@@ -158,7 +156,7 @@
        :post {:accept "text/html"
               :swagger {:produces ["application/multipart-form-data"]}
               :handler post-sign-in}
-       :get {:summary "Get sign-in page"
+       :get {:summary "HTML | Get sign-in page"
              :accept "text/html"
              :swagger {:produces ["text/html"]}
 
@@ -170,6 +168,7 @@
               :middleware [wrap-authenticate]
               :handler post-sign-out}
        :get {:accept "text/html"
+             :summary "HTML | Get sign-out page"
              :handler get-sign-out}}]]
 
     ["inventory"
@@ -178,7 +177,7 @@
       {:swagger {:tags ["Auth"] :security []}}
 
       ["login"
-       {:get {:summary "[] OK | DEV | Authenticate user by login ( set cookie with token ) [v0]"
+       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login ( set cookie with token ) [v0]"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :swagger {:security [{:basicAuth []}] :deprecated true}

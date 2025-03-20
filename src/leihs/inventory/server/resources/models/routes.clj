@@ -286,6 +286,22 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
+     ["/images"
+      ["" {:post {:accept "application/json"
+                  :summary "FE v1 | Create images"
+                  :coercion reitit.coercion.schema/coercion
+                  :middleware [accept-json-middleware]
+                  :swagger {:produces ["application/json"]}
+                  :parameters {:path {:model_id s/Uuid}}
+                  :handler (fn [req]
+                             (let [model_id (get-in req [:parameters :path :model_id])
+                                   body (get-in req [:parameters :body])]
+                               (response/status (response/response {:model_id model_id :body body}) 200)))
+                  :responses {200 {:description "OK"
+                                   :body s/Any}
+                              404 {:description "Not Found"}
+                              500 {:description "Internal Server Error"}}}}]]
+
      ["/attachments"
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion
@@ -294,11 +310,24 @@
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
-
                              404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]
+                             500 {:description "Internal Server Error"}}}
+
+           :post {:accept "application/json"
+                  :summary "FE v1 | Create attachments"
+                  :coercion reitit.coercion.schema/coercion
+                  :middleware [accept-json-middleware]
+                  :swagger {:produces ["application/json"]}
+                  :parameters {:path {:model_id s/Uuid}}
+                  :handler (fn [req]
+                             (let [model_id (get-in req [:parameters :path :model_id])
+                                   body (get-in req [:parameters :body])]
+                               (response/status (response/response {:model_id model_id :body body}) 200)))
+                  :responses {200 {:description "OK"
+                                   :body s/Any}
+                              404 {:description "Not Found"}
+                              500 {:description "Internal Server Error"}}}}]
 
       ["/:attachments_id"
        {:get {:accept "application/json"
@@ -308,11 +337,8 @@
               :parameters {:path {:model_id s/Uuid
                                   :attachments_id s/Uuid}}
               :handler get-models-of-pool-handler
-
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
-
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
@@ -324,9 +350,7 @@
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
-
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]
 
@@ -338,11 +362,8 @@
               :parameters {:path {:model_id s/Uuid
                                   :entitlement_id s/Uuid}}
               :handler get-models-of-pool-handler
-
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
-
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
@@ -354,9 +375,7 @@
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
-
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]
 
@@ -368,11 +387,8 @@
               :parameters {:path {:model_id s/Uuid
                                   :model_link_id s/Uuid}}
               :handler get-models-of-pool-handler
-
               :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
                                :body s/Any}
-
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]]]])
 

@@ -6,6 +6,9 @@
             [taoensso.timbre :refer [warn]])
   (:import (java.util UUID)))
 
+(defn convert-to-map [dict]
+  (into {} (map (fn [[k v]] [(clojure.core/keyword k) v]) dict)))
+
 (defn accept-header-html? [request]
   (let [accept-header (get-in request [:headers "accept"])]
     (and accept-header (str/includes? accept-header "text/html"))))

@@ -18,8 +18,15 @@ end
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
-      @login = "test"
-      @user = FactoryBot.create(:user, login: @login, password: "password")
+      # TODO: write test with user (401)
+      # @user = FactoryBot.create(:user, login: "admin", password: "password")
+      @user = FactoryBot.create(:admin, login: "admin", password: "password")
+
+      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      expect(resp.status).to eq(200)
+      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+      @cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
       @models = 3.times.map do
@@ -31,7 +38,11 @@ feature "Call inventory-pool endpoints" do
       end
     end
 
-    let(:client) { plain_faraday_json_client }
+    let(:client) {
+      # TODO: write test with plain (401)
+      # plain_faraday_json_client
+      session_auth_plain_faraday_json_client(@cookie.to_s)
+    }
 
     context "with direct access rights as a group manager" do
       before :each do
@@ -39,7 +50,7 @@ feature "Call inventory-pool endpoints" do
       end
 
       it "returns available models in the pool with a 200 status" do
-        resp = client.get "/inventory/pools?login=#{@login}"
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 1
       end
@@ -47,7 +58,7 @@ feature "Call inventory-pool endpoints" do
 
     context "without any access rights" do
       it "returns no models and a 200 status" do
-        resp = client.get "/inventory/pools?login=#{@login}"
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 0
       end
@@ -61,14 +72,14 @@ feature "Call inventory-pool endpoints" do
       end
 
       it "returns the newly created model with a 200 status" do
-        resp = client.get "/inventory/pools?login=#{@login}"
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 0
       end
 
       it "returns the created model with access rights and a 200 status" do
         FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
-        resp = client.get "/inventory/pools?login=#{@login}"
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 1
       end

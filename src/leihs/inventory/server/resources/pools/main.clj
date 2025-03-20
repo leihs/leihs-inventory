@@ -11,7 +11,10 @@
 
 (defn get-pools-handler [request]
   (let [tx (:tx request)
-        login (:login (query-params request))
+        user-id (-> request :parameters :query :login)
+        _ (when (nil? user-id)
+            (throw (ex-info "Bad Request" {:status 400})))
+
         select (sql/select :ip.*)
         models-query (sql/union-all
           ;; Query for direct_access_rights
@@ -22,7 +25,7 @@
                           (sql/join [:direct_access_rights :dar] [:= :u.id :dar.user_id])
                           (sql/join [:inventory_pools :ip] [:= :dar.inventory_pool_id :ip.id])
                           (sql/where [:and
-                                      [:= :u.login login]
+                                      [:= :u.login user-id]
                                       [:= :ip.is_active true]]))
 
           ;; Query for group_access_rights
@@ -33,7 +36,7 @@
                           (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
                           (sql/join [:inventory_pools :ip] [:= :gar.inventory_pool_id :ip.id])
                           (sql/where [:and
-                                      [:= :u.login login]
+                                      [:= :u.login user-id]
                                       [:= :ip.is_active true]])))
 
         res (jdbc/query tx (sql-format models-query))]
