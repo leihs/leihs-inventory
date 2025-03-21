@@ -88,7 +88,13 @@
           it.owner_id AS it_owner_id,
           'Item' AS it_entry_type,
           itm.product AS it_product,
-          it.id AS it_id
+          it.id AS it_id,
+          CASE
+              WHEN m.is_package = TRUE and m.type ='Model' and i.id is null and it.id is null THEN true
+              WHEN m.is_package = FALSE and m.type ='Model' and i.id is null and it.id is null THEN true
+              WHEN m.is_package = FALSE and m.type ='Software' and i.id is null and it.id is null THEN true
+              ELSE false
+          END AS is_deletable
       FROM models m
           LEFT JOIN items i ON i.model_id = m.id
           LEFT JOIN items it ON i.id = it.parent_id AND i.parent_id IS NULL
@@ -131,7 +137,8 @@
           NULL as it_owner_id,
           NULL as it_entry_type,
           NULL as it_product,
-          NULL as it_id
+          NULL as it_id,
+          NULL as is_deletable
       FROM options o
   ) AS x
   WHERE 1=1
@@ -217,7 +224,7 @@
     (map (fn [[id items]]
            (let [first-item (first items)]
              {:id id
-              :deletable (:deletable first-item)
+              :is_deletable (:is_deletable first-item)
               :product (:product first-item)
               :version (:version first-item)
               :image_id (:image_id first-item)
@@ -282,17 +289,18 @@
         total-query (create-pagination-count inventory_pool_id search_str  last_check entry-type)
         ;p (println ">o> abc.total-query1a" total-query)
 
-        total-rows (jdbc/execute-one! (:tx request) [total-query])
+        total-rows (-> (jdbc/execute-one! (:tx request) [total-query])
+                     :total)
         p (println ">o> abc.total-query1c" total-rows)
 
 
 
-        total-query2 (inject-sql-params (create-pagination-query inventory_pool_id search_str last_check entry-type) [page-size offset])
-        p (println ">o> abc.total-query1b" total-query2)
+        paged-query (inject-sql-params (create-pagination-query inventory_pool_id search_str last_check entry-type) [page-size offset])
+        ;p (println ">o> abc.total-query1b" paged-query)
 
-        total-rows (jdbc/execute! (:tx request) [total-query2])
-        p (println ">o> abc.total-query1d" total-rows)
-        p (println ">o> abc.total-query1e" (count total-rows))
+        paged-result (jdbc/execute! (:tx request) [paged-query])
+        ;p (println ">o> abc.total-query1d" paged-result)
+        p (println ">o> abc.total-query1e" (count paged-result))
 
 
 
@@ -306,22 +314,29 @@
         ;total-rows (-> (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check (into-array entry-type))])
         ;;total-rows (-> (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check) (into-array entry-type)])
         ;             :total)
-        ;p (println ">o> abc.total-rows2" total-rows)
-        ;
-        ;total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
+        ;p (println ">o> abc.paged-result" total-rows)
+
+
+        p (println ">o> abc.total-pages1" total-rows page-size)
+
+
+        total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
+
+        p (println ">o> abc.total-pages2" total-pages)
+
         ;
         ;res (jdbc/execute! (:tx request) [(create-pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
         ;res (jdbc/execute! (:tx request) [(create-pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
         ;p (println ">o> abc.res" res)
         ;
-        ;res (if process-grouping (clean-keys (grouped-data res)) res)
+        paged-result (if process-grouping (clean-keys (grouped-data paged-result)) paged-result)
 
-        res "nix"
+        ;res "nix"
         ]
         ;res (if clean-keys (process-grouping res) res)]
-    {:data res
-     ;:pagination {:total-rows total-rows
-     ;             :total-pages total-pages
-     ;             :current-page page
-     ;             :page-size page-size}
+    {:data paged-result
+     :pagination {:total-rows total-rows
+                  :total-pages total-pages
+                  :current-page page
+                  :page-size page-size}
      }))
