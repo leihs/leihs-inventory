@@ -129,7 +129,7 @@
           ;'Model' AS entry_type
 
   (str "SELECT COUNT(*) AS total FROM (
-      SELECT x.id, x.entry_type FROM (  -- Ensure entry_type is included
+      SELECT x.id, x.entry_type FROM (
           SELECT
           m.id,
 
@@ -138,7 +138,7 @@
               WHEN m.is_package = FALSE and m.type ='Model' THEN 'Model'
               WHEN m.is_package = FALSE and m.type ='Software' THEN 'Software'
               ELSE 'unknown'
-          END AS entry_type,
+          END AS entry_type
           
           FROM models m
           LEFT JOIN items i ON i.model_id = m.id
