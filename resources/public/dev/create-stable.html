@@ -93,6 +93,7 @@
 </head>
 <body>
 <ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/stable">InventoryList</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License (d)</a></li>
@@ -111,7 +112,6 @@
     <li>Links to edit</li>
     <li>Delete-Btn</li>
     <li>Filter-Section</li>
-    <li>Pagination instead of cursor</li>
     <li>Reduce response</li>
 </ul></br></br>
 
@@ -130,21 +130,7 @@
     <input type="number" id="page" name="page" value="1" min="1">
 
     <label for="size">Size:</label>
-    <input type="number" id="size" name="size" value="5" min="1">
-
-    <!-- init by request to get inventory-pool-id
-    curl -X 'GET' \
-  '/inventory/pools/a786135f-c159-4618-9dd3-0012ebb3d500' \
-  -H 'accept: application/json'
-    -->
-<!--    <label for="inventoryPoolId">Inventory-Pool:</label>-->
-<!--    <input type="string" id="inventoryPoolId" name="inventoryPoolId" value="1" min="1">-->
-
-
-
-
-
-
+    <input type="number" id="size" name="size" value="500" min="1">
 
 
     <label for="inventoryPoolId">Inventory-Pool:</label>
@@ -238,13 +224,7 @@
 
         const lastCheck = $('#lastCheck').val();
         const lastCheck_str = lastCheck ? `&last_check=${lastCheck}` : '';
-
-
         const default_inventory_pool_id = "8bd16d45-056d-5590-bc7f-12849f034351"
-
-        // const url = `/inventory/${inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&search_term=${searchTerm}&last_check=${lastCheck}&page=${page}&process_grouping=true`;
-        // const url = `/inventory/${inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&search_term=${searchTerm}&page=${page}&process_grouping=true`;
-        // const url = `/inventory/${default_inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}&inventory_pool_id=${inventory_pool_id}&process_grouping=true`;
         const url = `/inventory/${default_inventory_pool_id}/model/inventory-list?entry_type=${entryType}&size=${size}&page=${page}${inventory_pool_id_str}${searchTerm_str}${lastCheck_str}&process_grouping=true`;
 
         $.ajax({
@@ -264,17 +244,10 @@
         models.forEach(function(model) {
             const hasChildren = model.children && model.children.length > 0;
             const deletable = ["Model", "Package", "Software"].includes(model.entry_type) && !hasChildren;
-
-
             const showLocation = ["ModelItem", "PackageItem", "License"].includes(model.entry_type)
             const showForItem = ["Item"].includes(model.entry_type)
             const showForLicense = ["License"].includes(model.entry_type)
-
             const imageSet = model.image_id != null
-            // debugger
-            //         <td>
-            //          ${showForItem ? `<div>${model.product}</div>` : ''}
-            //         </td>
 
             const row = $(
                 `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
@@ -292,12 +265,10 @@
                      ${showForLicense ? `<div>${model.properties?.operating_system} / ${model.properties?.license_type}</div>` : ''}
                     </td>
 
-
                     <td>
                         ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
                         ${deletable ? `<button class="delete-btn" data-id="${model.id}">Delete</button>` : ''}
                     </td>
-
                 </tr>`
             );
             row.data("children", model.children);
