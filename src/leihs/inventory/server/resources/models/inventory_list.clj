@@ -138,7 +138,7 @@
           NULL as it_entry_type,
           NULL as it_product,
           NULL as it_id,
-          NULL as is_deletable
+          false as is_deletable
       FROM options o
   ) AS x
   WHERE 1=1
@@ -264,6 +264,115 @@
                           (remove #(and (not (:item_id %)) (empty? (:children %))))
                           vec)})))
     vec))
+
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           (let [first-item (first items)]
+             {:id id
+              :is_deletable (:is_deletable first-item)
+              :product (:product first-item)
+              :version (:version first-item)
+              :image_id (:image_id first-item)
+              :entry_type (:entry_type first-item)
+              :children (->> items
+                          (group-by :item_id)
+                          (map (fn [[item_id subitems]]
+                                 (if (nil? item_id)
+                                   {:item_id nil
+                                    :is_deletable false} ;; <- Add here if needed
+                                   (let [item-details (rename-keys (select-keys (first subitems)
+                                                                     [:item_id
+                                                                      :item_retired
+                                                                      :item_is_broken
+                                                                      :item_is_incomplete
+                                                                      :item_is_borrowable
+                                                                      :item_owner_id
+                                                                      :item_entry_type
+                                                                      :inventory_pool_id
+                                                                      :inventory_code
+                                                                      :item_room_name
+                                                                      :item_building_name
+                                                                      :item_building_code
+                                                                      :item_properties]))]
+                                     (merge item-details
+                                       {:is_deletable false ;; <- Add here
+                                        :children (->> subitems
+                                                    (keep #(when (:it_id %)
+                                                             (assoc (rename-keys (select-keys % [:it_id
+                                                                                                 :it_last_check
+                                                                                                 :it_retired
+                                                                                                 :it_is_broken
+                                                                                                 :it_is_incomplete
+                                                                                                 :it_is_borrowable
+                                                                                                 :it_owner_id
+                                                                                                 :it_product
+                                                                                                 :it_entry_type]))
+                                                               :is_deletable false))) ;; <- And here
+                                                    vec)})))))
+                          (remove #(and (not (:item_id %)) (empty? (:children %))))
+                          vec)})))
+    vec))
+
+
+(defn ensure-is-deletable [m]
+  (if (contains? m :is_deletable)
+    (if (nil? (:is_deletable m))
+      (assoc m :is_deletable false)
+      m)
+    (assoc m :is_deletable false)))
+
+(defn grouped-data [data]
+  (->> data
+    (group-by :id)
+    (map (fn [[id items]]
+           (let [first-item (ensure-is-deletable (first items))]
+             {:id id
+              :is_deletable (:is_deletable first-item)
+              :product (:product first-item)
+              :version (:version first-item)
+              :image_id (:image_id first-item)
+              :entry_type (:entry_type first-item)
+              :children (->> items
+                          (group-by :item_id)
+                          (map (fn [[item_id subitems]]
+                                 (if (nil? item_id)
+                                   {:item_id nil}
+                                   (let [item-details (-> (rename-keys (select-keys (first subitems)
+                                                                         [:item_id
+                                                                          :item_retired
+                                                                          :item_is_broken
+                                                                          :item_is_incomplete
+                                                                          :item_is_borrowable
+                                                                          :item_owner_id
+                                                                          :item_entry_type
+                                                                          :inventory_pool_id
+                                                                          :inventory_code
+                                                                          :item_room_name
+                                                                          :item_building_name
+                                                                          :item_building_code
+                                                                          :item_properties]))
+                                                        ensure-is-deletable)]
+                                     (merge item-details
+                                       {:children (->> subitems
+                                                    (keep #(when (:it_id %)
+                                                             (-> (rename-keys (select-keys % [:it_id
+                                                                                              :it_last_check
+                                                                                              :it_retired
+                                                                                              :it_is_broken
+                                                                                              :it_is_incomplete
+                                                                                              :it_is_borrowable
+                                                                                              :it_owner_id
+                                                                                              :it_product
+                                                                                              :it_entry_type]))
+                                                               ensure-is-deletable)))
+                                                    vec)})))))
+                          (remove #(and (not (:item_id %)) (empty? (:children %))))
+                          vec)})))
+    vec))
+
 
 (defn get-paginated-data
   "Fetches paginated data with pagination info."

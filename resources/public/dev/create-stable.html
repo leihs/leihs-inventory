@@ -121,9 +121,11 @@
     <li>Filter-Section</li>
     <li>Reduce response</li>
     <li>Page size is based on all rows, should be first-level</li>
-    <li><a href="/inventory/api-docs/index.html#/form%20%2F%20model/get_inventory__pool_id__model_inventory_list">Api-Endpoint /inventory-list</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Models by pool/get_inventory__pool_id__model_inventory_list">Api-Endpoint
+        /inventory-list</a></li>
 </ul>
 </br></br>
+
 
 
 <form id="filter-form">
@@ -250,8 +252,8 @@
             const imageSet = model.image_id != null
 
 
-            if(model.is_deletable == null || model.is_deletable == undefined){
-                console.error("is_deletable is not set for model with id: " + model.id +  ", value: " + model.is_deletable)
+            if (model.is_deletable == null || model.is_deletable == undefined) {
+                console.error("is_deletable is not set for model with id: " + model.id + " / " + model.entry_type + ", value: " + model.is_deletable)
             }
 
             const row = $(
