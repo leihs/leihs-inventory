@@ -41,8 +41,8 @@
          paginated-products (fetch-paginated-rows base-query tx size offset)
          pagination-info {:total_rows total-rows
                       :total_pages total-pages
-                      :current_page page
-                      :page_size size}
+                      :page page
+                      :size size}
 
          paginated-products (if (nil? post-data-fnc) paginated-products
                                 (post-data-fnc paginated-products))]

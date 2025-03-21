@@ -9,25 +9,31 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .Item {
             background-color: #e9e9e9 !important
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
         }
+
         th {
             background-color: #f4f4f4;
         }
+
         .expand-btn {
             cursor: pointer;
             color: #007bff;
             text-decoration: underline;
         }
+
         .delete-btn {
             cursor: pointer;
             color: red;
@@ -37,11 +43,11 @@
             background: none;
             font-size: 14px;
         }
+
         .child-row {
             background-color: #f9f9f9;
         }
     </style>
-
 
 
     <style>
@@ -81,7 +87,8 @@
             display: inline-grid;
             padding: 2em;
         }
-        form label{
+
+        form label {
             padding: 0.5em 0 0.2em;
         }
 
@@ -113,7 +120,10 @@
     <li>Delete-Btn</li>
     <li>Filter-Section</li>
     <li>Reduce response</li>
-</ul></br></br>
+    <li>Page size is based on all rows, should be first-level</li>
+    <li><a href="/inventory/api-docs/index.html#/form%20%2F%20model/get_inventory__pool_id__model_inventory_list">Api-Endpoint /inventory-list</a></li>
+</ul>
+</br></br>
 
 
 <form id="filter-form">
@@ -173,26 +183,16 @@
         });
     </script>
 
-
-
-
-
-
-
-
-
-
     <label for="searchTerm">Search-Term:</label>
     <input type="string" id="searchTerm" name="searchTerm">
 
     <label for="lastCheck">Last-Check:</label>
     <input type="date" id="lastCheck" name="lastCheck">
 
-
-
     <button type="submit">Apply</button>
     <input type="reset" value="Reset">
-</form></br>
+</form>
+</br>
 
 <table>
     <thead>
@@ -233,7 +233,7 @@
             headers: {
                 'Accept': 'application/json'
             },
-            success: function(data) {
+            success: function (data) {
                 $('#model-body').empty();
                 populateTable(data.data);
             }
@@ -241,13 +241,18 @@
     }
 
     function populateTable(models, parentRow = null) {
-        models.forEach(function(model) {
+        models.forEach(function (model) {
             const hasChildren = model.children && model.children.length > 0;
-            const deletable = ["Model", "Package", "Software"].includes(model.entry_type) && !hasChildren;
+            const isDeleteFeatureAllowed = ["Model", "Package", "Software"].includes(model.entry_type) && !hasChildren;
             const showLocation = ["ModelItem", "PackageItem", "License"].includes(model.entry_type)
             const showForItem = ["Item"].includes(model.entry_type)
             const showForLicense = ["License"].includes(model.entry_type)
             const imageSet = model.image_id != null
+
+
+            if(model.is_deletable == null || model.is_deletable == undefined){
+                console.error("is_deletable is not set for model with id: " + model.id +  ", value: " + model.is_deletable)
+            }
 
             const row = $(
                 `<tr data-id="${model.id}" class="${model.entry_type} ${parentRow ? 'child-row' : ''}">
@@ -267,7 +272,7 @@
 
                     <td>
                         ${hasChildren ? `<span class="expand-btn">Expand (${model.children.length})</span>` : ''}
-                        ${deletable ? `<button class="delete-btn" data-id="${model.id}">Delete</button>` : ''}
+                        ${(isDeleteFeatureAllowed && model.is_deletable) ? `<button class="delete-btn" data-id="${model.id}">Delete</button>` : ''}
                     </td>
                 </tr>`
             );
@@ -280,17 +285,17 @@
         });
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         fetchData();
 
         $('#entry_type, #size, #page, #inventoryPoolId, #searchTerm, #lastCheck').on('change', fetchData);
 
-        $('#filter-form').submit(function(event) {
+        $('#filter-form').submit(function (event) {
             event.preventDefault();
             fetchData();
         });
 
-        $('#model-body').on('click', '.expand-btn', function() {
+        $('#model-body').on('click', '.expand-btn', function () {
             const btn = $(this);
             const row = btn.closest('tr');
             const children = row.data("children");
@@ -305,7 +310,7 @@
             }
         });
 
-        $('#model-body').on('click', '.delete-btn', function() {
+        $('#model-body').on('click', '.delete-btn', function () {
             const btn = $(this);
             const modelId = btn.data('id');
             const url = `/inventory/delete/${modelId}`;
@@ -314,11 +319,11 @@
                 $.ajax({
                     url: url,
                     method: 'DELETE',
-                    success: function() {
+                    success: function () {
                         alert("Item deleted successfully");
                         fetchData();
                     },
-                    error: function() {
+                    error: function () {
                         alert("Failed to delete item");
                     }
                 });

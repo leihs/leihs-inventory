@@ -9,7 +9,7 @@
    [schema.core :as s]))
 
 (def pagination {:total_records s/Int
-                 :current_page s/Int
+                 :page s/Int
                  :per_page s/Int
                  :total_pages s/Int
                  :next_page (s/maybe s/Int)

@@ -551,22 +551,17 @@
 
     ["/inventory-list"
      {:get {:accept "application/json"
-             :summary "(DEV) | Inventory-List"
-
-             ;:coercion spec/coercion
+             :summary "(DEV) | Inventory-List [v0]"
+             :description "- Default: process_grouping=true page=1 size=300\n- Format: last_check='2025-03-21'"
+;- Format: last_check='2025-03-21'"
             :coercion reitit.coercion.schema/coercion
-
              ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id s/Uuid}
-                          ;:body {:product string?}
                           :query {
-                                  ;:last_id (s/maybe s/Uuid)
-                                  ;:last_id (s/->Either [s/Uuid nil])
-                                  (s/optional-key :last_id) s/Uuid
-                                  :entry_type (s/enum "All" "Model" "Package" "Option" "Software")
-                                  :page s/Int
-                                  :size s/Int
-                                  :process_grouping  (s/enum "true" "false")
+                                  :entry_type (s/enum "Model" "Package" "Option" "Software" "All")
+                                  (s/optional-key :page) s/Int
+                                    (s/optional-key :size) s/Int
+                                  (s/optional-key :process_grouping)  (s/enum  "true" "false")
 
                                   (s/optional-key :inventory_pool_id) s/Uuid
                                   (s/optional-key :search_term) s/Str
@@ -577,8 +572,10 @@
             :handler (fn [request]
 
                           (let [
-                                page (get-in request [:parameters :query :page])
-                                size (get-in request [:parameters :query :size])
+                                page (or (get-in request [:parameters :query :page] 1))
+                                size (or (get-in request [:parameters :query :size]) 300)
+
+
                                 last-id (get-in request [:parameters :query :last_id])
                                  pool-id (get-in request [:parameters :path :pool_id])
                                 entry-type (get-in request [:parameters :query :entry_type])
@@ -593,8 +590,9 @@
                                               entry-type)
 
                                 ;process-grouping (boolean (get-in request [:parameters :query :process_grouping]))
-
-                                process-grouping (= "true" (get-in request [:parameters :query :process_grouping]))
+                                process_grouping (get-in request [:parameters :query :process_grouping])
+                                process-grouping (cond (nil? process_grouping) true
+                                                   :else (= "true" (get-in request [:parameters :query :process_grouping])))
 
 
                                 ;]
@@ -622,7 +620,13 @@
                             )
                        )
 
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              :body {:data [s/Any]
+                                     :pagination {:page s/Int
+                                                  :size s/Int
+                                                  :total_rows s/Int
+                                                  :total_pages s/Int}}
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 

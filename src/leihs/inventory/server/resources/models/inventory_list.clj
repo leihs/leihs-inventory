@@ -322,6 +322,12 @@
 
         total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
 
+;; check if total-pages is a number
+total-pages (if (number? total-pages)
+              (int total-pages)
+              (throw (ex-info "The anti-csrf-token cookie value is not set." {:status 409})))
+
+
         p (println ">o> abc.total-pages2" total-pages)
 
         ;
@@ -337,6 +343,6 @@
     {:data paged-result
      :pagination {:total_rows total-rows
                   :total_pages total-pages
-                  :current_page page
-                  :page_size page-size}
+                  :page page
+                  :size page-size}
      }))
