@@ -335,8 +335,8 @@
         ]
         ;res (if clean-keys (process-grouping res) res)]
     {:data paged-result
-     :pagination {:total-rows total-rows
-                  :total-pages total-pages
-                  :current-page page
-                  :page-size page-size}
+     :pagination {:total_rows total-rows
+                  :total_pages total-pages
+                  :current_page page
+                  :page_size page-size}
      }))
