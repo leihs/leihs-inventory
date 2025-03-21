@@ -23,8 +23,29 @@
     data))
 
 
-(defn pagination-query [inventory_pool_id search_str last_check]
-  (str "SELECT * FROM (
+(defn quote-sql-value [v]
+  (cond
+    (string? v) (str "'" (clojure.string/replace v "'" "''") "'")
+    (nil? v) "NULL"
+    :else (str v)))
+
+(defn inject-sql-params [query-str params]
+  (loop [query query-str
+         ps params]
+    (if (empty? ps)
+      query
+      (recur (clojure.string/replace-first query #"\?" (quote-sql-value (first ps)))
+        (rest ps)))))
+
+
+
+
+(defn generic-query-or-count [inventory_pool_id search_str last_check  entry-type process-query]
+
+
+
+  (str (if process-query "SELECT *" "SELECT COUNT(*) AS total")
+    " FROM (
       SELECT
           m.id,
           m.product,
@@ -113,12 +134,33 @@
           NULL as it_id
       FROM options o
   ) AS x
-    WHERE x.entry_type = ANY(?::text[])"
+  WHERE 1=1
+  "
+
+    (if entry-type (str " AND x.entry_type = '" entry-type "' ") "")
+
+
+
+
     (when inventory_pool_id (str " AND x.inventory_pool_id = '" (str inventory_pool_id) "' "))
     (when search_str (str " AND x.product ILIKE '%" search_str "%' "))
     (when last_check (str " AND (x.item_last_check IS NULL OR x.item_last_check >= '" last_check "' ) "))
-    " ORDER BY x.id ASC
-    LIMIT ? OFFSET ?"))
+
+
+    (if process-query " ORDER BY x.id ASC LIMIT ? OFFSET ?" "")
+
+
+    ))
+
+
+(defn create-pagination-count [inventory_pool_id search_str last_check entry-type]
+  (generic-query-or-count inventory_pool_id search_str last_check entry-type  false)
+  )
+
+(defn create-pagination-query [inventory_pool_id search_str last_check entry-type]
+  (generic-query-or-count inventory_pool_id search_str last_check entry-type  true)
+  )
+
 
 (defn total-rows-query [inventory_pool_id search_str last_check]
   
@@ -222,18 +264,64 @@
   (let [
         ;; TODO: make separate reduced query for total-rows
 
+        p (println ">o> abc.total-query0.page" page)
+        p (println ">o> abc.total-query0.page-size" page-size)
+        p (println ">o> abc.total-query0.entry-type" entry-type)
+        p (println ">o> abc.total-query0.process-grouping" process-grouping)
+        p (println ">o> abc.total-query0.inventory_pool_id" inventory_pool_id)
+        p (println ">o> abc.total-query0.search_str" search_str)
+        p (println ">o> abc.total-query0.last_check" last_check)
 
 
         offset (* (dec page) page-size)
-        total-rows (-> (jdbc/execute-one! (:tx request) [(total-rows-query inventory_pool_id search_str last_check) (into-array entry-type)])
-                     :total)
-        total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
 
-        res (jdbc/execute! (:tx request) [(pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
-        res (if process-grouping (clean-keys (grouped-data res)) res)]
+        ;total-query (create-pagination-count inventory_pool_id search_str  last_check entry-type)
+        ;p (println ">o> abc.total-query1a" total-query)
+
+
+        total-query (create-pagination-count inventory_pool_id search_str  last_check entry-type)
+        ;p (println ">o> abc.total-query1a" total-query)
+
+        total-rows (jdbc/execute-one! (:tx request) [total-query])
+        p (println ">o> abc.total-query1c" total-rows)
+
+
+
+        total-query2 (inject-sql-params (create-pagination-query inventory_pool_id search_str last_check entry-type) [page-size offset])
+        p (println ">o> abc.total-query1b" total-query2)
+
+        total-rows (jdbc/execute! (:tx request) [total-query2])
+        p (println ">o> abc.total-query1d" total-rows)
+        p (println ">o> abc.total-query1e" (count total-rows))
+
+
+
+
+        ;;total-rows (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check ) (into-array entry-type)])
+        ;total-rows (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check (into-array entry-type)) ])
+        ;p (println ">o> abc.total-rows1" total-rows)
+        ;
+        ;
+        ;
+        ;total-rows (-> (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check (into-array entry-type))])
+        ;;total-rows (-> (jdbc/execute-one! (:tx request) [(create-pagination-count inventory_pool_id search_str last_check) (into-array entry-type)])
+        ;             :total)
+        ;p (println ">o> abc.total-rows2" total-rows)
+        ;
+        ;total-pages (if (zero? total-rows) 1 (Math/ceil (/ total-rows page-size)))
+        ;
+        ;res (jdbc/execute! (:tx request) [(create-pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
+        ;res (jdbc/execute! (:tx request) [(create-pagination-query inventory_pool_id search_str last_check) (into-array entry-type) page-size offset])
+        ;p (println ">o> abc.res" res)
+        ;
+        ;res (if process-grouping (clean-keys (grouped-data res)) res)
+
+        res "nix"
+        ]
         ;res (if clean-keys (process-grouping res) res)]
     {:data res
-     :pagination {:total-rows total-rows
-                  :total-pages total-pages
-                  :current-page page
-                  :page-size page-size}}))
+     ;:pagination {:total-rows total-rows
+     ;             :total-pages total-pages
+     ;             :current-page page
+     ;             :page-size page-size}
+     }))

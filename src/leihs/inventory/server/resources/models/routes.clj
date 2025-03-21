@@ -589,8 +589,8 @@
                                 last_check (get-in request [:parameters :query :last_check])
 
                                 entry-type (if (= entry-type "All" )
-                                             ["Model" "Package" "Option" "Software"]
-                                              [entry-type])
+                                             nil
+                                              entry-type)
 
                                 ;process-grouping (boolean (get-in request [:parameters :query :process_grouping]))
 
