@@ -3,7 +3,7 @@
    [clojure.set]
    [leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler get-user-details-handler get-user-profile]]
    [leihs.inventory.server.resources.utils.flag :as i]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate! wrap-is-admin!]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

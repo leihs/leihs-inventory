@@ -18,13 +18,13 @@ feature "Inventory API Endpoints - Entitlements" do
         it "retrieves all entitlements for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(2)
+          expect(resp.body["pagination"]["total_rows"]).to eq(2)
         end
 
         it "retrieves paginated entitlements with status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(2)
+          expect(resp.body["pagination"]["total_rows"]).to eq(2)
         end
 
         it "retrieves specific entitlement details and returns status 200" do
@@ -51,13 +51,13 @@ feature "Inventory API Endpoints - Entitlements" do
         it "retrieves no entitlements for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
 
         it "retrieves paginated results with no entitlements and status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
         end
       end
     end

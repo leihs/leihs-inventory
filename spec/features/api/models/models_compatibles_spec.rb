@@ -12,7 +12,7 @@ feature "Inventory API Endpoints - Compatible Models" do
       it "returns status 200 and no compatible models when none exist" do
         resp = client.get "/inventory/models-compatibles?page=1&size=100"
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(0)
+        expect(resp.body["pagination"]["total_rows"]).to eq(0)
       end
 
       it "returns status 200 and an empty list when no compatible models exist" do
@@ -24,7 +24,7 @@ feature "Inventory API Endpoints - Compatible Models" do
       it "returns status 200 and paginated results with no compatible models" do
         resp = client.get "/inventory/models-compatibles?page=1&size=1"
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(0)
+        expect(resp.body["pagination"]["total_rows"]).to eq(0)
       end
     end
   end

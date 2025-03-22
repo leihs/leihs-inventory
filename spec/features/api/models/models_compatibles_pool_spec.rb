@@ -30,7 +30,7 @@ feature "Inventory API Endpoints" do
       it "retrieves paginated results with status 200 and no models" do
         resp = client.get "/inventory/models-compatibles?page=1&size=1"
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_records"]).to eq(0)
+        expect(resp.body["pagination"]["total_rows"]).to eq(0)
       end
 
       context "when compatible models are linked" do
@@ -45,7 +45,7 @@ feature "Inventory API Endpoints" do
           resp = client.get "/inventory/models-compatibles?page=1&size=1"
           expect(resp.status).to eq(200)
           expect(resp.body["data"].count).to eq(1)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves a specific compatible model by ID and returns status 200" do

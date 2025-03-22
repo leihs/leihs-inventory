@@ -23,7 +23,7 @@ feature "Inventory API Endpoints - Items" do
         it "retrieves paginated item results and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves specific item details by ID and returns status 200" do
@@ -46,11 +46,11 @@ feature "Inventory API Endpoints - Items" do
         it "retrieves paginated results for model with items and returns status 200" do
           resp = client.get "#{url}?is_deletable=true&page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(0)
+          expect(resp.body["pagination"]["total_rows"]).to eq(0)
 
           resp = client.get "#{url}?is_deletable=false&page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
       end
 
@@ -60,23 +60,23 @@ feature "Inventory API Endpoints - Items" do
         it "retrieves no items for the model and returns status 200" do
           resp = client.get url
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves paginated results for model with no items and returns status 200" do
           resp = client.get "#{url}?page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
 
         it "retrieves paginated results for model with no items and returns status 200" do
           resp = client.get "#{url}?is_deletable=true&page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
 
           resp = client.get "#{url}?is_deletable=false&page=1&size=1"
           expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_records"]).to eq(1)
+          expect(resp.body["pagination"]["total_rows"]).to eq(1)
         end
       end
     end

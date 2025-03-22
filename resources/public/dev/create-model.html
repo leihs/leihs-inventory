@@ -51,7 +51,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -237,6 +237,7 @@
 </head>
 <body>
 <ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/stable">InventoryList</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License (d)</a></li>
@@ -1424,6 +1425,29 @@
                     console.error("Error processing canvases: ", error);
                 });
         });
+
+
+
+
+
+
+
+        // Extract params from URL
+        const urlParams = new URLSearchParams(window.location.search);
+
+        const poolIdParam = urlParams.get('pool_id');
+        const modelIdParam = urlParams.get('model_id');
+
+// Conditionally set input fields
+        if (poolIdParam) {
+            document.getElementById('poolId').value = poolIdParam;
+        }
+
+        if (modelIdParam) {
+            document.getElementById('fetchModelId').value = modelIdParam;
+        }
+
+            $("#fetchModelBtn").click()
 
 
     });
