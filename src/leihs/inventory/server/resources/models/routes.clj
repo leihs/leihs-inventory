@@ -23,8 +23,7 @@
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
                                                                                             update-software-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.inventory-list :refer [inventory-list-handler
-                                                                   get-paginated-data]]
+   [leihs.inventory.server.resources.models.inventory-list :refer [inventory-list-handler]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
@@ -34,12 +33,11 @@
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
+                                                                   get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
-                                                                   get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
    [leihs.inventory.server.resources.models.tree.filter :as filter]
-   [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -290,17 +288,32 @@
      ["/images"
       ["" {:post {:accept "application/json"
                   :summary "FE v1 | Create images"
+                  :swagger {:consumes ["application/octet-stream"]
+                            :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :swagger {:produces ["application/json"]}
                   :parameters {:path {:model_id s/Uuid}}
                   :handler (fn [req]
-                             (let [model_id (get-in req [:parameters :path :model_id])
+                             (let [content-type (get-in req [:headers "content-type"])
+                                   content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+                                   max-size-bytes (* 80 1024 1024) ; 80MB
+                                   model_id (get-in req [:parameters :path :model_id])
                                    body (get-in req [:parameters :body])]
-                               (response/status (response/response {:model_id model_id :body body}) 200)))
-                  :responses {200 {:description "OK"
-                                   :body s/Any}
+                               (cond
+                                 (nil? content-length)
+                                 (response/status (response/response {:error "Missing Content-Length header"}) 411)
+
+                                 (> content-length max-size-bytes)
+                                 (response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
+
+                                 (or (= content-type "image/png") (= content-type "image/jpeg"))
+                                 (response/status (response/response {:model_id model_id :body body}) 200)
+
+                                 :else (response/status 400))))
+                  :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
+                              411 {:description "Length Required"}
+                              413 {:description "Payload Too Large"}
                               500 {:description "Internal Server Error"}}}}]]
 
      ["/attachments"
@@ -520,7 +533,7 @@
             :responses {200 {:description "OK"
                              :body :package-put-response2/inventory-item}
                         ;; FIXME
-                             ;:body :package-put-response/inventory-item}
+                        ;:body :package-put-response/inventory-item}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -542,7 +555,7 @@
                :tags ["form / model"] :security []}}
     [""
      {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
+             :swagger {:consumes ["multipart/form-data" "application/json"]
                        :produces "application/json"}
              :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              :description (str
@@ -560,14 +573,30 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+                         500 {:description "Internal Server Error"}}}
+
+      :patch {:accept "application/json"
+              :summary "Form-Handler: Used to update image-attributes | [v1]"
+              :coercion spec/coercion
+              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+              :parameters {:path {:pool_id uuid?}
+                           :body any?}
+              :handler (fn [req]
+                         (let [model_id (get-in req [:parameters :path :model_id])
+                               body (get-in req [:parameters :body])]
+                           (response/status (response/response {:model_id model_id :body body}) 200)))
+              :responses {200 {:description "OK"
+                               :body {:data :model-optional-response/inventory-model
+                                      :validation any?}}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}}]
 
     ["/inventory-list"
      {:get {:accept "application/json"
             :summary "(DEV) | Inventory-List [v0]"
             :description "- Default: process_grouping=true page=1 size=300\n- Format: last_check='2025-03-21'"
             :coercion reitit.coercion.schema/coercion
-             ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+            ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :parameters {:path {:pool_id s/Uuid}
                          :query {:entry_type (s/enum "Model" "Package" "Option" "Software" "All")
                                  (s/optional-key :page) s/Int
@@ -661,7 +690,7 @@
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | HERE??? [v0]"
+             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              ;:description (str
              ;              " - Upload images and attachments \n"
              ;              " - Save data \n"
@@ -860,7 +889,7 @@
                                  (s/optional-key :filter_product) s/Str
                                  (s/optional-key :filter_ids) [s/Uuid]}}
 
-             ;; :handler get-models-of-pool-handler
+            ;; :handler get-models-of-pool-handler
             :handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"

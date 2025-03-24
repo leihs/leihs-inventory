@@ -27,7 +27,7 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [is-admin (get-in request [:authenticated-entity :is_admin] false)]
-      (if is-admin
+    (let [auth (get-in request [:authenticated-entity] nil)]
+      (if auth
         (handler request)
         (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))

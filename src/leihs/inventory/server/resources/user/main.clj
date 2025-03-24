@@ -1,13 +1,15 @@
 (ns leihs.inventory.server.resources.user.main
   (:require
    [clojure.set]
+   [clojure.string :as str]
+   [clojure.walk :as walk]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.user.languages :as l]
    [leihs.inventory.server.resources.user.profile :refer [get-current get-navigation get-one get-settings]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [leihs.inventory.server.utils.helper :refer [convert-to-map]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
@@ -17,38 +19,53 @@
     (let [tx (:tx request)
           user-id (or (presence (-> request path-params :user_id))
                       (:id (:authenticated-entity request)))
-          ;query (-> (sql/select :p.id :p.name :p.description)
-          ;          (sql/from [:direct_access_rights :d])
-          ;          (sql/join [:users :u] [:= :u.id :d.user_id])
-          ;          (sql/join [:inventory_pools :p] [:= :d.inventory_pool_id :p.id])
-          ;          (sql/where [:= :u.id user-id])
-          ;          sql-format)
-
           select (sql/select :ip.*)
+          ;; TODO: remove is_active?
           query (-> (sql/union-all
-                         ;; Query for direct_access_rights
                      (-> select
                          (sql/from [:users :u])
                          (sql/join [:groups_users :gu] [:= :u.id :gu.user_id])
                          (sql/join [:groups :g] [:= :gu.group_id :g.id])
                          (sql/join [:direct_access_rights :dar] [:= :u.id :dar.user_id])
                          (sql/join [:inventory_pools :ip] [:= :dar.inventory_pool_id :ip.id])
-                         (sql/where [:and
-                                     [:= :u.id user-id]
-                                     [:= :ip.is_active true]]))
-
-                         ;; Query for group_access_rights
+                         (sql/where [:and [:= :u.id user-id] [:= :ip.is_active true]]))
                      (-> select
                          (sql/from [:users :u])
                          (sql/join [:groups_users :gu] [:= :u.id :gu.user_id])
                          (sql/join [:groups :g] [:= :gu.group_id :g.id])
                          (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
                          (sql/join [:inventory_pools :ip] [:= :gar.inventory_pool_id :ip.id])
-                         (sql/where [:and
-                                     [:= :u.id user-id]
-                                     [:= :ip.is_active true]])))
+                         (sql/where [:and [:= :u.id user-id] [:= :ip.is_active true]])))
                     sql-format)
+          result (jdbc/query tx query)]
+      (response result))
+    (catch Exception e
+      (error "Failed to get user" e)
+      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
+(defn get-pools-access-rights-of-user-query [min-raw user-id access-right-raw]
+  (let [min (boolean min-raw)
+        access-right (if (and access-right-raw (not (contains? #{"direct_access_rights" "group_access_rights"} access-right-raw)))
+                       nil
+                       access-right-raw)
+        select (if min (sql/select :i.id :i.name) (sql/select :i.is_active :i.name :u.*))
+        query (-> select
+                  (sql/from [:unified_access_rights :u])
+                  (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
+                  (sql/where [:= :u.user_id user-id])
+                  (cond-> (= access-right "direct_access_rights") (sql/where [:is-not :u.direct_access_right_id nil])
+                          (= access-right "group_access_rights") (sql/where [:is-not :u.group_access_right_id nil]))
+                  sql-format)]
+    query))
+
+(defn get-pools-access-rights-of-user-handler [request]
+  (try
+    (let [tx (:tx request)
+          user-id (or (presence (-> request path-params :user_id))
+                      (:id (:authenticated-entity request)))
+          min-raw (boolean (-> request query-params :min))
+          access-right-raw (-> request query-params :access_rights)
+          query (get-pools-access-rights-of-user-query min-raw user-id access-right-raw)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
@@ -90,18 +107,12 @@
           user-id (or (presence (-> request :path-params :user_id))
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
-          current (get-current tx auth)
-          settings (get-settings tx user-id)
-          navigation (get-navigation tx user-id)
-          user-details (get-one tx (:target-user-id request) user-id)]
-      (response {:user-id user-id
-                 :current current
-                 :settings settings
-                 :navigation navigation
-                 :user-details user-details
-                 :language {:one-to-use (l/one-to-use tx user-id)
-                            :get-one (l/get-one tx auth)
-                            :get-multiple (l/get-multiple tx)}}))
+          user-details (get-one tx (:target-user-id request) user-id)
+          pools (jdbc/query tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
+      (response {:navigation (snake-case-keys (get-navigation tx auth))
+                 :available_inventory_pools pools
+                 :user_details (snake-case-keys user-details)
+                 :languages (snake-case-keys (l/get-multiple tx))}))
     (catch Exception e
       (error "Failed to get user" e)
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))

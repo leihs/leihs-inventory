@@ -1426,19 +1426,13 @@
                 });
         });
 
-
-
-
-
-
-
         // Extract params from URL
         const urlParams = new URLSearchParams(window.location.search);
 
         const poolIdParam = urlParams.get('pool_id');
         const modelIdParam = urlParams.get('model_id');
 
-// Conditionally set input fields
+        // Conditionally set input fields
         if (poolIdParam) {
             document.getElementById('poolId').value = poolIdParam;
         }
@@ -1447,9 +1441,9 @@
             document.getElementById('fetchModelId').value = modelIdParam;
         }
 
+        if (modelIdParam && poolIdParam) {
             $("#fetchModelBtn").click()
-
-
+        }
     });
 </script>
 </body>

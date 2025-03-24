@@ -1513,6 +1513,91 @@
   environment_variables:
     FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool when creating a new model and retrieving it from the pool 02"
     FEATURE: './spec/features/api/inventory-pools/pools_direct_user_spec.rb[1:1:3:2]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:1]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:2]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 02"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 02"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:2]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:3]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 03"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 03"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:3]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:4]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 04"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 04"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:4]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:5]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 05"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 05"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:5]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:6]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 06"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 06"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:6]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:7]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 07"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with both direct and group access rights 07"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:1:7]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:1]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:2]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 02"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 02"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:2]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:3]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 03"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 03"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:3]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:4]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 04"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 04"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:4]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:5]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 05"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only group access rights 05"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:2:5]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:1]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 01"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 01"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:1]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:2]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 02"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 02"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:2]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:3]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 03"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 03"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:3]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:4]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 04"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 04"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:4]'
+'./spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:5]':
+  name: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 05"
+  environment_variables:
+    FEATURE_NAME: "Call inventory-pool endpoints when retrieving models from an inventory pool with only direct access rights 05"
+    FEATURE: './spec/features/api/inventory-pools/pools_for_menu_spec.rb[1:1:3:5]'
 './spec/features/api/inventory-pools/pools_group_spec.rb[1:1:1:1]':
   name: "Call inventory-pool endpoints Retrieving models from an inventory pool User with group manager access rights 01"
   environment_variables:
