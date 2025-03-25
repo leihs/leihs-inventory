@@ -1,9 +1,9 @@
 (ns leihs.inventory.client.routes.components.translate-check
   (:require
-   ["@/i18n.js" :as i18next :refer [i18n]]
    ["@@/button" :refer [Button]]
    ["react-i18next" :refer [useTranslation]]
    ["translation-check" :refer [showTranslations]]
+   ["~/i18n.config.js" :as i18next :refer [i18n]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 

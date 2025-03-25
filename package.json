@@ -10,7 +10,8 @@
     "clean": "rm -rf resources/public/inventory/assets/js/* resources/public/inventory/assets/css/style.css",
     "format": "prettier --write ./src/leihs/inventory/client",
     "format:check": "prettier --check ./src/leihs/inventory/client",
-    "test": "DB_NAME=leihs_test LEIHS_INVENTORY_HTTP_PORT=5173 bin/rspec ./spec/features/"
+    "test": "DB_NAME=leihs_test LEIHS_INVENTORY_HTTP_PORT=5173 bin/rspec ./spec/features/",
+    "locales:sync": "i18next-locales-sync -c ./localesSync.config.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
@@ -31,7 +32,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.34.1",
     "globals": "^15.3.0",
-    "i18next-locales-sync": "^2.1.0",
+    "i18next-locales-sync": "^2.1.1",
     "postcss": "^8.4.47",
     "postcss-cli": "^11.0.0",
     "postcss-import": "^16.1.0",
@@ -84,6 +85,7 @@
     "translate": "^3.0.0",
     "translation-check": "^1.1.0",
     "truncate": "^3.0.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "zod-i18n-map": "^2.27.0"
   }
 }

@@ -4,9 +4,7 @@ feature "Call swagger-endpoints" do
   context "revoking the token ", driver: :selenium_headless do
     {
       "/inventory/assets/locales/de/translation.json" => 200,
-      "/inventory/assets/locales/fr/translation.json" => 200,
       "/inventory/assets/locales/en/translation.json" => 200,
-      "/inventory/assets/locales/es/translation.json" => 200,
 
       "/inventory/assets/css/additional.css" => 200,
 

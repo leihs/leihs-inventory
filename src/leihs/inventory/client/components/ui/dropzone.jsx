@@ -7,10 +7,8 @@ import { cn } from "@/components/ui/utils"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import SortableList from "@/components/react/sortable-list"
 import {
@@ -172,7 +170,10 @@ function ErrorMessages({ rejections }) {
   return (
     <>
       {rejections.map((rejection) => (
-        <div key={rejection.file.name} className="text-xs text-red-600 mt-3">
+        <div
+          key={rejection.file.name}
+          className="text-[0.8rem] font-medium text-destructive mt-3"
+        >
           <div>{rejection.file.name}</div>
           <div>
             {rejection.errors.map((err) => (

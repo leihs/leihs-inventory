@@ -7,6 +7,39 @@
       "lending": "Loan"
     }
   },
+  "pool": {
+    "models": {
+      "title": "Inventarliste - Ausleihe Toni Areal",
+      "dropdown": {
+        "title": "Inventar Hinzufügen",
+        "add_model": "Neues Modell",
+        "add_item": "Neuen Gegenstand"
+      },
+      "tabs": {
+        "inventory_list": "Inventarliste",
+        "advanced_search": "Erweiterte Suche",
+        "statistics": "Statistik",
+        "entitlement_groups": "Anspruchsgruppen"
+      }
+    },
+    "model": {
+      "title": "Modell bearbeiten",
+      "submit": "Erstellen",
+      "cancel": "Abbrechen",
+      "create": {
+        "title": "Create new model",
+        "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+        "submit": "Erstellen",
+        "cancel": "Abbrechen"
+      },
+      "delete": {
+        "title": "Modell löschen",
+        "description": "Sind Sie sicher, dass Sie dieses Modell löschen möchten?",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen"
+      }
+    }
+  },
   "models": {
     "title": "Inventory list - Loan Toni Area Localized",
     "tabs": {

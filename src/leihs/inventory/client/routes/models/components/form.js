@@ -7,10 +7,7 @@ const modelProperties = z.object({
 
 export const schema = z.object({
   is_package: z.boolean().optional(),
-  product: z
-    .string()
-    .min(5, "Produktname muss mindestens 5 Zeichen lang sein")
-    .max(255),
+  product: z.string().min(5).max(255),
   version: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),

@@ -42,7 +42,10 @@ export function ScrollspyMenu({ children, className, ...props }) {
   const none = items.every((item) => item.id !== current.id)
 
   return (
-    <aside className="min-w-max w-1/5 h-max sticky top-[10vh]" {...props}>
+    <aside
+      className="hidden lg:block lg:bg-transparent lg:min-w-max lg:w-1/5 h-max sticky top-[10vh]"
+      {...props}
+    >
       <nav
         className={cn(
           "flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1",

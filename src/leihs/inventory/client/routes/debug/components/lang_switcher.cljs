@@ -1,6 +1,5 @@
 (ns leihs.inventory.client.routes.debug.components.lang-switcher
   (:require
-   ["@/i18n.js" :as i18n :refer [i18n]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu
                                DropdownMenuContent
@@ -9,6 +8,7 @@
                                DropdownMenuSeparator
                                DropdownMenuTrigger]]
    ["i18next" :as i18next]
+   ["~/i18n.config.js" :as i18n :refer [i18n]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main []
