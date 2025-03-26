@@ -49,7 +49,16 @@
    [ring.util.response :as response]
    [schema.core :as s]
    [spec-tools.core :as st]
+   [clojure.java.io :as io]
    [spec-tools.data-spec :as ds]))
+
+
+(def FileUpload
+  "Schema describing a typical Ring multipart file map."
+  {:filename s/Str
+   :size s/Int
+   :content-type s/Str
+   :tempfile s/Any})
 
 (defn get-model-route []
   ["/"
@@ -288,26 +297,51 @@
      ["/images"
       ["" {:post {:accept "application/json"
                   :summary "FE v1 | Create images"
-                  :swagger {:consumes ["application/octet-stream"]
+                  :swagger {:consumes ["application/json"]
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}}
-                  :handler (fn [req]
-                             (let [content-type (get-in req [:headers "content-type"])
-                                   content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-                                   max-size-bytes (* 80 1024 1024) ; 80MB
-                                   model_id (get-in req [:parameters :path :model_id])
-                                   body (get-in req [:parameters :body])]
-                               (cond
-                                 (nil? content-length)
-                                 (response/status (response/response {:error "Missing Content-Length header"}) 411)
+                  :parameters {:path {:model_id s/Uuid}
 
-                                 (> content-length max-size-bytes)
-                                 (response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
+                               ;:multipart {:file multipart/temp-file-part}
+                               ;:multipart multipart/temp-file-part
+                               ;:multipart  {:file FileUpload}
+                               ;:body   FileUpload
+
+                               }
+
+                  :handler (fn [req]
+
+                             (let [{{:keys [model-id]} :path} (:parameters req)
+                                   ;; get the input stream from the Ring request
+                                   body-stream (:body req)
+
+
+                             ;(let [
+                              content-type (get-in req [:headers "content-type"])
+                                   content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+                             ;      max-size-bytes (* 80 1024 1024) ; 80MB
+                             ;      model_id (get-in req [:parameters :path :model_id])
+                             ;      body (get-in req [:parameters :body])
+                             ;      mp (get-in req [:parameters :multipart])
+
+                                   ;p (println ">o> abc.body" body)
+                                   ;p (println ">o> abc.mp" mp)
+                                   ;p (println ">o> abc.body-stream" body-stream)
+                                   p (println ">o> abc.body-stream" body-stream)
+
+                                   _ (io/copy body-stream (io/file "saved-upload.png"))
+
+                                   ]
+                               (cond
+                                 ;(nil? content-length)
+                                 ;(response/status (response/response {:error "Missing Content-Length header"}) 411)
+                                 ;
+                                 ;(> content-length max-size-bytes)
+                                 ;(response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
 
                                  (or (= content-type "image/png") (= content-type "image/jpeg"))
-                                 (response/status (response/response {:model_id model_id :body body}) 200)
+                                 (response/status (response/response {:model_id "model_id" :body body-stream}) 200)
 
                                  :else (response/status 400))))
                   :responses {200 {:description "OK" :body s/Any}
@@ -624,7 +658,7 @@
              :parameters {:path {:pool_id uuid?}
                           :body {
                                  :product string?
-                                 (ds/opt :version) (sa/nilable string?)
+                                 ;(ds/opt :version) (sa/nilable string?)
                                  }}
 
              :handler create-model-handler-by-pool-form
