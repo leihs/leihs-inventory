@@ -622,13 +622,20 @@
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body {:product string?}}
-             :handler (fn [request]
-                        (let [content-type (get-in request [:headers "content-type"])
-                              body (-> request :parameters :body)]
-                          (cond
-                            (= content-type "application/json") (response/response {:foo "bar" :body body})
-                            :else {:status 400 :body "Unsupported Content-Type"})))
+                          :body {
+                                 :product string?
+                                 (ds/opt :version) (sa/nilable string?)
+                                 }}
+
+             :handler create-model-handler-by-pool-form
+
+             ;:handler (fn [request]
+             ;           (let [content-type (get-in request [:headers "content-type"])
+             ;                 body (-> request :parameters :body)]
+             ;             (cond
+             ;               (= content-type "application/json") (response/response {:foo "bar" :body body})
+             ;               :else {:status 400 :body "Unsupported Content-Type"})))
+
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]

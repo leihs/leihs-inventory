@@ -64,8 +64,9 @@
                     throw new Error('Error creating model data');
                 }
                 const modelData = await modelResponse.json();
-                const modelId = modelData.model_id;  // adapt to your API response
+                const modelId = modelData.id;  // adapt to your API response
 
+                console.log('Model created, modelId:', modelId);
 
                 // 2) Upload files individually (raw binary).
                 //    We'll store each file's response data in an array to use later in PATCH.

@@ -159,9 +159,23 @@
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
+
+        ;; >o> abc.normalize-model-data.type 0> clojure.lang.PersistentHashMap
         multipart (get-in request [:parameters :multipart])
+        p (println ">o> abc.multipart1" multipart)
+
+        body (get-in request [:parameters :body])
+        p (println ">o> abc.mult-body2" body)
+
+        multipart (or multipart body)
+
+
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
+
+        p (println ">o> abc.prepared-model-data2" prepared-model-data)
+
         categories (parse-json-array request :categories)
         compatibles (parse-json-array request :compatibles)
         attachments (normalize-files request :attachments)

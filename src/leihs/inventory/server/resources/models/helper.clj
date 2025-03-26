@@ -31,6 +31,11 @@
                  :technical_detail :technical_detail
                  :internal_description :internal_description
                  :hand_over_note :hand_over_note}
+
+        ;>o> abc.normalize-model-data.type 0> clojure.lang.PersistentHashMap
+
+        p (println ">o> abc.normalize-model-data.type 0>" (type data))
+
         normalized-data (reduce (fn [acc [db-key original-key]]
                                   (if-let [val (get data original-key)]
                                     (assoc acc db-key val)
