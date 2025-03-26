@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Form Example - Track Status</title>
+</head>
+<body>
+<h1>Upload Model & Images (No FormData, With Status)</h1>
+
+<form id="myForm">
+    <label for="poolId">Pool-ID:</label>
+    <input type="text" id="poolId" name="poolId" required value="8bd16d45-056d-5590-bc7f-12849f034351" />
+
+    <br /><br />
+
+    <label for="product">Product:</label>
+    <input type="text" id="product" name="product" required />
+
+    <br /><br />
+
+    <label for="version">Version:</label>
+    <input type="text" id="version" name="version"  />
+
+    <br /><br />
+
+    <label for="images">Images:</label>
+    <input type="file" id="images" name="images" multiple />
+
+    <br /><br />
+
+    <button type="submit">Submit</button>
+</form>
+
+<!-- Simple status area -->
+<div id="status" style="margin-top: 1em; font-weight: bold;"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('myForm');
+        const statusEl = document.getElementById('status');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Clear status messages
+            statusEl.textContent = '';
+
+            try {
+                // 1) POST the model data
+                statusEl.textContent = 'Creating model...';
+                const poolId = document.getElementById('poolId').value.trim();
+                const product = document.getElementById('product').value.trim();
+                const version = document.getElementById('version').value.trim();
+
+                const modelResponse = await fetch(`/inventory/${poolId}/model/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ product, version })
+                });
+                if (!modelResponse.ok) {
+                    throw new Error('Error creating model data');
+                }
+                const modelData = await modelResponse.json();
+                const modelId = modelData.model_id;  // adapt to your API response
+
+
+                // 2) Upload files individually (raw binary).
+                //    We'll store each file's response data in an array to use later in PATCH.
+                const files = document.getElementById('images').files;
+                const uploadedFilesData = [];
+
+                if(files.length == 0){
+                    console.info('No files selected for UPLOAD');
+                    statusEl.textContent = `MODEL CREATED. No files selected for UPLOAD`;
+                    return;
+                }
+
+                statusEl.textContent = `Model created (ID = ${modelId}). Now uploading files...`;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    statusEl.textContent = `Uploading file ${i + 1} of ${files.length}...`;
+
+                    // Suppose your server expects model_id in the query or custom header.
+                    // We'll pass it in the query param for demonstration.
+                    const uploadUrl = `/inventory/image?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
+
+                    const fileResponse = await fetch(uploadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': file.type, // e.g. "image/png" or "application/octet-stream"
+                            'Accept': 'application/json'
+                        },
+                        body: file
+                    });
+
+                    if (!fileResponse.ok) {
+                        throw new Error(`Error uploading file: ${file.name}`);
+                    }
+
+                    // If the server returns JSON data needed for the PATCH, collect it
+                    const fileData = await fileResponse.json();
+                    uploadedFilesData.push(fileData);
+
+                    // Show partial status
+                    statusEl.textContent = `Uploaded file "${file.name}".`;
+                }
+
+                // 3) PATCH to update model with file data
+                statusEl.textContent = 'Sending final patch...';
+
+                // Suppose your PATCH expects:
+                // {
+                //   "model_id": 123,
+                //   "uploaded_files": [
+                //     { "fileId": ..., "otherData": ... },
+                //     ...
+                //   ]
+                // }
+                // Adjust as needed:
+                const patchBody = {
+                    model_id: modelId,
+                    uploaded_files: uploadedFilesData
+                };
+
+                const patchResponse = await fetch('/inventory/image', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(patchBody)
+                });
+                if (!patchResponse.ok) {
+                    throw new Error('Error updating model data');
+                }
+                const patchData = await patchResponse.json();
+
+                // Success
+                statusEl.textContent = 'All steps completed successfully!';
+                console.log('Final PATCH response:', patchData);
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.textContent = `An error occurred: ${error.message}`;
+            }
+        });
+    });
+</script>
+</body>
+</html>
