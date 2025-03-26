@@ -633,8 +633,10 @@
                                body (get-in req [:parameters :body])]
                            (response/status (response/response {:model_id model_id :body body}) 200)))
               :responses {200 {:description "OK"
-                               :body {:data :model-optional-response/inventory-model
-                                      :validation any?}}
+                               ;:body {:data :model-optional-response/inventory-model
+                               ;       :validation any?}
+
+                               }
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 

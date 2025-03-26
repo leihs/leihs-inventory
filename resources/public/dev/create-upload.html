@@ -42,14 +42,12 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // Clear status messages
             statusEl.textContent = '';
 
             try {
                 // 1) POST the model data
                 statusEl.textContent = 'Creating model...';
-                const poolId = document.getElementById('poolId').value.trim();
+                const poolId  = document.getElementById('poolId').value.trim();
                 const product = document.getElementById('product').value.trim();
                 const version = document.getElementById('version').value.trim();
 
@@ -65,17 +63,15 @@
                     throw new Error('Error creating model data');
                 }
                 const modelData = await modelResponse.json();
-                // debugger
                 const modelId = modelData.data.id;  // adapt to your API response
 
                 console.log('Model created, modelId:', modelId);
 
-                // 2) Upload files individually (raw binary).
-                //    We'll store each file's response data in an array to use later in PATCH.
+                // 2) Upload files individually (raw binary) - but wait for each upload
                 const files = document.getElementById('images').files;
                 const uploadedFilesData = [];
 
-                if(files.length == 0){
+                if (files.length === 0) {
                     console.info('No files selected for UPLOAD');
                     statusEl.textContent = `MODEL CREATED. No files selected for UPLOAD`;
                     return;
@@ -83,113 +79,60 @@
 
                 statusEl.textContent = `Model created (ID = ${modelId}). Now uploading files...`;
 
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    statusEl.textContent = `Uploading file ${i + 1} of ${files.length}...`;
+                // Helper to upload one file as a Promise
+                function uploadSingleFile(file, index, total) {
+                    return new Promise((resolve, reject) => {
+                        statusEl.textContent = `Uploading file ${index + 1} of ${total}...`;
 
-                    // Suppose your server expects model_id in the query or custom header.
-                    // We'll pass it in the query param for demonstration.
-                    // const uploadUrl = `/inventory/image?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
-                    // const uploadUrl = `/inventory/models/${modelId}/images?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
-                    // const uploadUrl = `/inventory/models/${modelId}/images?model_id=${encodeURIComponent(modelId)}}`;
-                    const uploadUrl = `/inventory/models/${modelId}/images`;
+                        const uploadUrl = `/inventory/models/${modelId}/images`;
 
-                    // const fileResponse = await fetch(uploadUrl, {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': file.type, // e.g. "image/png" or "application/octet-stream"
-                    //         'Accept': 'application/json'
-                    //         // 'Accept': 'application/octet-stream'
-                    //     },
-                    //     body: file
-                    // });
+                        $.ajax({
+                            url: uploadUrl,
+                            type: 'POST',
+                            // The raw binary file as the request body
+                            data: file,
+                            // Use the actual file type (e.g., "image/png")
+                            contentType: file.type,
+                            processData: false,
+                            dataType: 'json',         // expect JSON response
+                            headers: {
+                                'Accept': 'application/json'
+                            },
+                            success: function(response) {
+                                console.log('File uploaded successfully:', file.name);
 
-                    // const fileResponse = await fetch(uploadUrl, {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': file.type,
-                    //         'Accept': 'application/json'
-                    //     },
-                    //     credentials: 'include',   // or 'same-origin'
-                    //     body: file
-                    // });
-
-
-                    $.ajax({
-                        url: uploadUrl,
-                        type: 'POST',
-                        // The raw binary file as the request body
-                        data: file,
-                        // headers: {
-                        //     'Accept': 'application/json',
-                        //     // 'X-File-Size': file.size, // custom header
-                        //     // 'Content-Length': file.size, // custom header
-                        //     // 'Accept-Encoding': 'gzip, deflate, br',
-                        // },
-                        // Use the actual file type (e.g., "image/png")
-                        contentType: file.type,
-                        // Prevent jQuery from processing/translating the file
-                        processData: false,
-
-                        dataType: 'json',         // expect JSON response
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-
-                        // If your server requires cookies/credentials:
-                        // xhrFields: { withCredentials: true },
-                        // crossDomain: true,
-
-                        success: function(response) {
-
-                            const imageData = response[0]
-
-                            console.log('imageData > ', imageData)
-                            console.log('File uploaded successfully:', file.name);
-
-
-
-
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            console.error('Error uploading file:', file.name, textStatus, errorThrown);
-                        }
+                                // Suppose your server returns an array in the response
+                                // (like [ { ...imageData... } ])
+                                // We'll store the first element for patch usage
+                                const imageData = response[0];
+                                resolve(imageData);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.error('Error uploading file:', file.name, textStatus, errorThrown);
+                                reject(errorThrown);
+                            }
+                        });
                     });
+                }
 
-                    // if (!fileResponse.ok) {
-                    //     throw new Error(`Error uploading file: ${file.name}`);
-                    // }
-                    //
-                    // // If the server returns JSON data needed for the PATCH, collect it
-                    // const fileData = await fileResponse.json();
-                    // uploadedFilesData.push(fileData);
-                    //
-                    // // Show partial status
-                    // statusEl.textContent = `Uploaded file "${file.name}".`;
+                // Upload all files in sequence or in parallel
+                // To keep it simple, do it in sequence:
+                for (let i = 0; i < files.length; i++) {
+                    const imgData = await uploadSingleFile(files[i], i, files.length);
+                    uploadedFilesData.push(imgData);
                 }
 
                 // 3) PATCH to update model with file data
                 statusEl.textContent = 'Sending final patch...';
 
-                // Suppose your PATCH expects:
-                // {
-                //   "model_id": 123,
-                //   "uploaded_files": [
-                //     { "fileId": ..., "otherData": ... },
-                //     ...
-                //   ]
-                // }
-
-
-                // FIXME: i want to use imageData here!!!
-
-                // Adjust as needed:
+                // FIXME was here: now we actually have the imageData from each file
+                // stored in uploadedFilesData.
                 const patchBody = {
                     model_id: modelId,
                     uploaded_files: uploadedFilesData
                 };
 
-                const patchResponse = await fetch('/inventory/image', {
+                const patchResponse = await fetch(`/inventory/${poolId}/model`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
