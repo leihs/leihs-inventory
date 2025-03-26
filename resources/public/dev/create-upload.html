@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Form Example - Track Status</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <h1>Upload Model & Images (No FormData, With Status)</h1>
@@ -64,7 +65,8 @@
                     throw new Error('Error creating model data');
                 }
                 const modelData = await modelResponse.json();
-                const modelId = modelData.id;  // adapt to your API response
+                // debugger
+                const modelId = modelData.data.id;  // adapt to your API response
 
                 console.log('Model created, modelId:', modelId);
 
@@ -87,27 +89,83 @@
 
                     // Suppose your server expects model_id in the query or custom header.
                     // We'll pass it in the query param for demonstration.
-                    const uploadUrl = `/inventory/image?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
+                    // const uploadUrl = `/inventory/image?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
+                    // const uploadUrl = `/inventory/models/${modelId}/images?model_id=${encodeURIComponent(modelId)}&filename=${encodeURIComponent(file.name)}`;
+                    // const uploadUrl = `/inventory/models/${modelId}/images?model_id=${encodeURIComponent(modelId)}}`;
+                    const uploadUrl = `/inventory/models/${modelId}/images`;
 
-                    const fileResponse = await fetch(uploadUrl, {
-                        method: 'POST',
+                    // const fileResponse = await fetch(uploadUrl, {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': file.type, // e.g. "image/png" or "application/octet-stream"
+                    //         'Accept': 'application/json'
+                    //         // 'Accept': 'application/octet-stream'
+                    //     },
+                    //     body: file
+                    // });
+
+                    // const fileResponse = await fetch(uploadUrl, {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': file.type,
+                    //         'Accept': 'application/json'
+                    //     },
+                    //     credentials: 'include',   // or 'same-origin'
+                    //     body: file
+                    // });
+
+
+                    $.ajax({
+                        url: uploadUrl,
+                        type: 'POST',
+                        // The raw binary file as the request body
+                        data: file,
+                        // headers: {
+                        //     'Accept': 'application/json',
+                        //     // 'X-File-Size': file.size, // custom header
+                        //     // 'Content-Length': file.size, // custom header
+                        //     // 'Accept-Encoding': 'gzip, deflate, br',
+                        // },
+                        // Use the actual file type (e.g., "image/png")
+                        contentType: file.type,
+                        // Prevent jQuery from processing/translating the file
+                        processData: false,
+
+                        dataType: 'json',         // expect JSON response
                         headers: {
-                            'Content-Type': file.type, // e.g. "image/png" or "application/octet-stream"
                             'Accept': 'application/json'
                         },
-                        body: file
+
+                        // If your server requires cookies/credentials:
+                        // xhrFields: { withCredentials: true },
+                        // crossDomain: true,
+
+                        success: function(response) {
+
+                            const imageData = response[0]
+
+                            console.log('imageData > ', imageData)
+                            console.log('File uploaded successfully:', file.name);
+
+
+
+
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            console.error('Error uploading file:', file.name, textStatus, errorThrown);
+                        }
                     });
 
-                    if (!fileResponse.ok) {
-                        throw new Error(`Error uploading file: ${file.name}`);
-                    }
-
-                    // If the server returns JSON data needed for the PATCH, collect it
-                    const fileData = await fileResponse.json();
-                    uploadedFilesData.push(fileData);
-
-                    // Show partial status
-                    statusEl.textContent = `Uploaded file "${file.name}".`;
+                    // if (!fileResponse.ok) {
+                    //     throw new Error(`Error uploading file: ${file.name}`);
+                    // }
+                    //
+                    // // If the server returns JSON data needed for the PATCH, collect it
+                    // const fileData = await fileResponse.json();
+                    // uploadedFilesData.push(fileData);
+                    //
+                    // // Show partial status
+                    // statusEl.textContent = `Uploaded file "${file.name}".`;
                 }
 
                 // 3) PATCH to update model with file data
@@ -121,6 +179,10 @@
                 //     ...
                 //   ]
                 // }
+
+
+                // FIXME: i want to use imageData here!!!
+
                 // Adjust as needed:
                 const patchBody = {
                     model_id: modelId,

@@ -12,6 +12,7 @@
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
+                                                                                         process-image
                                                                                          update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
@@ -315,6 +316,7 @@
                              (let [{{:keys [model-id]} :path} (:parameters req)
                                    ;; get the input stream from the Ring request
                                    body-stream (:body req)
+                                   tx (:tx req)
 
 
                              ;(let [
@@ -330,20 +332,31 @@
                                    ;p (println ">o> abc.body-stream" body-stream)
                                    p (println ">o> abc.body-stream" body-stream)
 
-                                   _ (io/copy body-stream (io/file "saved-upload.png"))
+                                   filename "tmp-saved-upload.png"
+
+                                   _ (io/copy body-stream (io/file filename))
+                                   _ (println ">o> abc >> SAVED FILE TO DISK" filename)
+
+
+                                   data (process-image tx {:tempfile filename} model-id )
 
                                    ]
-                               (cond
-                                 ;(nil? content-length)
-                                 ;(response/status (response/response {:error "Missing Content-Length header"}) 411)
-                                 ;
-                                 ;(> content-length max-size-bytes)
-                                 ;(response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
 
-                                 (or (= content-type "image/png") (= content-type "image/jpeg"))
-                                 (response/status (response/response {:model_id "model_id" :body body-stream}) 200)
+                                 (response/status (response/response data) 200)
 
-                                 :else (response/status 400))))
+                               ;(cond
+                               ;  ;(nil? content-length)
+                               ;  ;(response/status (response/response {:error "Missing Content-Length header"}) 411)
+                               ;  ;
+                               ;  ;(> content-length max-size-bytes)
+                               ;  ;(response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
+                               ;
+                               ;  (or (= content-type "image/png") (= content-type "image/jpeg"))
+                               ;  (response/status (response/response {:model_id "model_id" :body body-stream}) 200)
+                               ;
+                               ;  :else (response/status 400))
+
+                               ))
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
