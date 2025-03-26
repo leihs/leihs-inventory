@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
-require_relative "../../_shared"
-require_relative "../_common"
+require_relative "../../../_shared"
+require_relative "../../_common"
 require "faker"
 
 def add_delete_flag(map)
@@ -10,18 +10,24 @@ def add_delete_flag(map)
 end
 
 feature "Inventory Model" do
-  ["inventory_manager", "lending_manager"].each do |role|
+  ["group_manager", "customer"].each do |role|
     context "when interacting with inventory model with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
 
       let(:pool_id) { @inventory_pool.id }
+      let(:model_id) { @model.id }
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
+
+      let(:form_categories) { @form_categories }
+      let(:form_compatible_models) { @form_compatible_models }
 
       let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
       let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
       let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
+      let(:path_test2_pdf) { File.expand_path("spec/files/test2.pdf", Dir.pwd) }
+      let(:path_test_txt) { File.expand_path("spec/files/text-file.txt", Dir.pwd) }
 
       before do
         [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
@@ -38,7 +44,7 @@ feature "Inventory Model" do
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
         resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = convert_to_id_correction(resp.body)
+        @form_models_compatibles = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups"
@@ -68,41 +74,23 @@ feature "Inventory Model" do
         end
       end
 
-      def convert_to_id_correction(compatibles)
-        compatibles.each do |compatible|
-          # puts "before: #{compatible}"
-          compatible["id"] = compatible.delete("model_id")
-          # puts "after: #{compatible}\n\n"
-        end
-      end
-
       context "create model (min)" do
         it "creates a model with all available attributes" do
+          compatibles = @form_models_compatibles
+          compatibles.first["id"] = compatibles.first.delete("model_id")
+
           # create model request
-          form_data = {
-            "product" => Faker::Commerce.product_name
-          }
+          form_data = {"product" => Faker::Commerce.product_name}
 
           resp = http_multipart_client(
             "/inventory/#{pool_id}/model",
             form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(200)
+          expect(resp.status).to eq(401)
 
-          # fetch created model
-          model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
-          expect(resp.body[0]["attachments"].count).to eq(0)
-
-          expect(resp.body[0]["entitlement_groups"].count).to eq(0)
-          expect(resp.body[0]["compatibles"].count).to eq(0)
-          expect(resp.body[0]["categories"].count).to eq(0)
-          expect(resp.status).to eq(200)
-
-          expect(Image.where(target_id: model_id).count).to eq(0)
+          expect(resp.status).to eq(401)
 
           # update model request
           form_data = {
@@ -115,26 +103,18 @@ feature "Inventory Model" do
             method: :put,
             headers: cookie_header
           )
-
-          expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.status).to eq(401)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
-          expect(resp.body[0]["attachments"].count).to eq(0)
-          expect(resp.body[0]["entitlement_groups"].count).to eq(0)
-          expect(resp.body[0]["entitlement_groups"].count).to eq(0)
-          expect(resp.body[0]["compatibles"].count).to eq(0)
-          expect(resp.body[0]["categories"].count).to eq(0)
-          expect(resp.status).to eq(200)
+          expect(resp.status).to eq(401)
         end
       end
 
       context "create model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
+          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {
@@ -158,22 +138,11 @@ feature "Inventory Model" do
             form_data,
             headers: cookie_header
           )
-
-          expect(resp.status).to eq(200)
+          expect(resp.status).to eq(401)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
-          expect(resp.body[0]["attachments"].count).to eq(1)
-
-          expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-          expect(resp.body[0]["compatibles"].count).to eq(1)
-          expect(resp.body[0]["categories"].count).to eq(1)
-          expect(resp.status).to eq(200)
-
-          expect(Image.where(target_id: model_id).count).to eq(4)
+          expect(resp.status).to eq(401)
 
           # update model request
           form_data = {
@@ -198,100 +167,11 @@ feature "Inventory Model" do
             method: :put,
             headers: cookie_header
           )
-          expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.status).to eq(401)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-
-          expect(resp.body[0]["image_attributes"].count).to eq(4)
-          expect(resp.body[0]["attachments"].count).to eq(2)
-          expect(resp.body[0]["entitlement_groups"].count).to eq(1)
-          expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
-
-          compatibles = resp.body[0]["compatibles"]
-          expect(compatibles.count).to eq(2)
-          expect(resp.body[0]["categories"].count).to eq(2)
-          expect(resp.status).to eq(200)
-        end
-      end
-
-      def rename_model_id_to_id(compatible)
-        # puts "compatible.before: #{compatible}"
-        compatible["id"] = compatible["model_id"]
-        # puts "compatible.after: #{compatible}"
-        compatible
-      end
-
-      def find_with_cover2(compatibles)
-        compatibles.find { |c| !c["id"].nil? }
-      end
-
-      def find_with_cover(compatibles)
-        compatibles.find { |c| !c["cover_image_url"].nil? }
-      end
-
-      def find_without_cover(compatibles)
-        compatibles.find { |c| c["cover_image_url"].nil? }
-      end
-
-      def select_with_cover(compatibles)
-        compatibles.select { |c| !c["cover_image_url"].nil? }
-      end
-
-      def select_without_cover(compatibles)
-        compatibles.select { |c| c["cover_image_url"].nil? }
-      end
-
-      def select_two_variants_of_compatibles(compatibles)
-        compatible_with_cover_image = find_with_cover(compatibles)
-        compatible_without_cover_image = find_without_cover(compatibles)
-
-        [compatible_with_cover_image, compatible_without_cover_image]
-      end
-
-      context "create model (min)" do
-        it "creates a model with all available attributes" do
-          # create model request
-          product = Faker::Commerce.product_name
-          form_data = {
-            "product" => product
-          }
-
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
-            headers: cookie_header
-          )
-          expect(resp.status).to eq(200)
-
-          # fetch created model
-          model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
-
-          # delete model request
-          resp = json_client_delete(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            headers: cookie_header
-          )
-          expect(resp.status).to eq(200)
-          expect(resp.body["deleted_attachments"].count).to eq(0)
-          expect(resp.body["deleted_model"].count).to eq(1)
-
-          # retry to delete model request
-          resp = json_client_delete(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            headers: cookie_header
-          )
-          expect(resp.status).to eq(404)
-          expect(resp.body["error"]).to eq("Request to delete model blocked: model not found")
-
-          # no results when fetching deleted model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(0)
+          expect(resp.status).to eq(401)
         end
       end
     end

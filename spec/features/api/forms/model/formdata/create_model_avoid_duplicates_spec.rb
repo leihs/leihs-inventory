@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
-require_relative "../../_shared"
-require_relative "../_common"
+require_relative "../../../_shared"
+require_relative "../../_common"
 require "faker"
 
 def add_delete_flag(map)
@@ -62,9 +62,9 @@ feature "Inventory Model" do
 
       def convert_to_id_correction(compatibles)
         compatibles.each do |compatible|
-          puts "before: #{compatible}"
+          # puts "before: #{compatible}"
           compatible["id"] = compatible.delete("model_id")
-          puts "after: #{compatible}\n\n"
+          # puts "after: #{compatible}\n\n"
         end
       end
 

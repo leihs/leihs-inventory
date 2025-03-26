@@ -116,8 +116,11 @@
 
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  [request key]
-  (let [json-array-string (get-in request [:parameters :multipart key])]
+  [multipart key] ;; TODO: multipart is a map (preferred way) OR request (legacy-code)
+  (let [;; TODO: To use (key multipart) is the correct way (create-model-handler)
+        ;; The other one is legacy-code to handle multipart-data requests
+        json-array-string (or (key multipart)
+                              (get-in multipart [:parameters :multipart key]))]
     (cond
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []

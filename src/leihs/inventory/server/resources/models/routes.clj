@@ -1,18 +1,26 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
+   [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
+   [clojure.string :as str]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.coercion :as mc]
-
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
+                                                                      patch-models-handler
+                                                                      upload-image]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
+                                                                                         create-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
-                                                                                         update-model-handler-by-pool-form]]
+                                                                                         update-model-handler-by-pool-model-only
+                                                                                         update-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -41,7 +49,9 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.response_helper :as rh]
+   [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
@@ -50,6 +60,13 @@
    [schema.core :as s]
    [spec-tools.core :as st]
    [spec-tools.data-spec :as ds]))
+
+(def FileUpload
+  "Schema describing a typical Ring multipart file map."
+  {:filename s/Str
+   :size s/Int
+   :content-type s/Str
+   :tempfile s/Any})
 
 (defn get-model-route []
   ["/"
@@ -287,29 +304,14 @@
 
      ["/images"
       ["" {:post {:accept "application/json"
-                  :summary "FE v1 | Create images"
-                  :swagger {:consumes ["application/octet-stream"]
+                  :summary "Create image [v1]"
+                  :swagger {:consumes ["application/json"]
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}}
-                  :handler (fn [req]
-                             (let [content-type (get-in req [:headers "content-type"])
-                                   content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-                                   max-size-bytes (* 80 1024 1024) ; 80MB
-                                   model_id (get-in req [:parameters :path :model_id])
-                                   body (get-in req [:parameters :body])]
-                               (cond
-                                 (nil? content-length)
-                                 (response/status (response/response {:error "Missing Content-Length header"}) 411)
-
-                                 (> content-length max-size-bytes)
-                                 (response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
-
-                                 (or (= content-type "image/png") (= content-type "image/jpeg"))
-                                 (response/status (response/response {:model_id model_id :body body}) 200)
-
-                                 :else (response/status 400))))
+                  :parameters {:path {:model_id s/Uuid}
+                               :header {:x-filename s/Str}}
+                  :handler upload-image
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
@@ -329,16 +331,16 @@
                              500 {:description "Internal Server Error"}}}
 
            :post {:accept "application/json"
-                  :summary "FE v1 | Create attachments"
+                  :summary "Create attachment [v1]"
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :swagger {:produces ["application/json"]}
-                  :parameters {:path {:model_id s/Uuid}}
-                  :handler (fn [req]
-                             (let [model_id (get-in req [:parameters :path :model_id])
-                                   body (get-in req [:parameters :body])]
-                               (response/status (response/response {:model_id model_id :body body}) 200)))
+                  :parameters {:path {:model_id s/Uuid}
+                               :header {:x-filename s/Str}}
+                  :handler upload-attachment
                   :responses {200 {:description "OK"
+                                   :body s/Any}
+                              400 {:description "Bad Request (Coercion error)"
                                    :body s/Any}
                               404 {:description "Not Found"}
                               500 {:description "Internal Server Error"}}}}]
@@ -568,7 +570,7 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :multipart :software/multipart}
-             :handler create-model-handler-by-pool-form
+             :handler create-model-handler-by-pool-with-attachment-images
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
@@ -577,17 +579,15 @@
 
       :patch {:accept "application/json"
               :summary "Form-Handler: Used to update image-attributes | [v1]"
-              :coercion spec/coercion
+              :coercion reitit.coercion.schema/coercion
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-              :parameters {:path {:pool_id uuid?}
-                           :body any?}
-              :handler (fn [req]
-                         (let [model_id (get-in req [:parameters :path :model_id])
-                               body (get-in req [:parameters :body])]
-                           (response/status (response/response {:model_id model_id :body body}) 200)))
+              :parameters {:path {:pool_id s/Uuid}
+                           :body [{:is_cover (s/maybe s/Uuid)
+                                   :id s/Uuid}]}
+              :handler patch-models-handler
               :responses {200 {:description "OK"
-                               :body {:data :model-optional-response/inventory-model
-                                      :validation any?}}
+                               :body [{:id s/Uuid
+                                       :cover_image_id s/Uuid}]}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
@@ -618,18 +618,15 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "(DEV) | New JSON Endpoint (fake-version) | [v1]"
+             :summary "New Create Model-Endpoint (JSON) [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body {:product string?}}
-             :handler (fn [request]
-                        (let [content-type (get-in request [:headers "content-type"])
-                              body (-> request :parameters :body)]
-                          (cond
-                            (= content-type "application/json") (response/response {:foo "bar" :body body})
-                            :else {:status 400 :body "Unsupported Content-Type"})))
-             :responses {200 {:description "OK"}
+                          :body :software/multipart}
+             :handler create-model-handler-by-pool-model-only
+             :responses {200 {:description "OK"
+                              :body {:data :model-optional-response/inventory-model
+                                     :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
@@ -648,7 +645,7 @@
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
-             :summary "(DEV) | [v0]"
+             :summary "Update model endpoint (multiform-data) [v0] DEPR"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -656,7 +653,7 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :multipart :software/multipart}
-             :handler update-model-handler-by-pool-form
+             :handler update-model-handler-by-pool-with-attachment-images
              :responses {200 {:description "OK"
                               :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
@@ -681,7 +678,21 @@
                                                          :product string?
                                                          :manufacturer any?}]}}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]
+                            500 {:description "Internal Server Error"}}}}]
+
+     ["/"
+      {:put {:accept "application/json"
+             :summary "Update model endpoint (JSON) [v1]"
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
+                          :body :software/multipart}
+             :handler update-model-handler-by-pool-model-only
+             :responses {200 {:description "OK"
+                              :body :model-optional-response/inventory-models}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
 
    ["/option"
     {:swagger {:conflicting true

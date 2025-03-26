@@ -10,6 +10,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
+                                                                      extract-model-form-data
                                                                       prepare-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool]]
@@ -88,36 +89,26 @@
                               (sql/where [:= :id model-id])
                               sql-format))))))
 
-(defn process-images [tx images model-id] "DEPR: logic to handle passed images & thumbnails"
-  (let [image-groups (group-by #(base-filename (:filename %)) images)]
-    (doseq [[_ entries] image-groups]
-      (when (= 2 (count entries))
-        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
-                                   [(second entries) (first entries)]
-                                   [(first entries) (second entries)])
-              file-content (file-to-base64 (:tempfile main-image))
-              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                  (dissoc :tempfile)
-                                  (assoc :content file-content
-                                         :target_id model-id
-                                         :target_type "Model"
-                                         :thumbnail false))
-              main-image-result (first (jdbc/execute! tx (-> (sql/insert-into :images)
-                                                             (sql/values [main-image-data])
-                                                             (sql/returning :*)
-                                                             sql-format)))
-              file-content (file-to-base64 (:tempfile thumb))
-              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                 (dissoc :tempfile)
-                                 (assoc :content file-content
-                                        :target_id model-id
-                                        :target_type "Model"
-                                        :thumbnail true
-                                        :parent_id (:id main-image-result)))]
-          (jdbc/execute! tx (-> (sql/insert-into :images)
-                                (sql/values [thumbnail-data])
-                                (sql/returning :*)
-                                sql-format)))))))
+(defn process-delete-images-by-id "Process update/delete of images by image-attributes" [tx ids model-id]
+  (let [images-to-delete ids]
+    (doseq [id images-to-delete]
+      (let [id (to-uuid id)
+            row (jdbc/execute-one! tx (-> (sql/select :*)
+                                          (sql/from :models)
+                                          (sql/where [:= :id model-id])
+                                          sql-format))]
+        (when (= (:cover_image_id row) id)
+          (jdbc/execute! tx (-> (sql/update :models)
+                                (sql/set {:cover_image_id nil})
+                                (sql/where [:= :id model-id])
+                                sql-format)))
+        (jdbc/execute! tx (sql-format {:with [[:ordered_images
+                                               {:select [:id]
+                                                :from [:images]
+                                                :where [:or [:= :parent_id id] [:= :id id]]
+                                                :order-by [[:parent_id :asc]]}]]
+                                       :delete-from :images
+                                       :where [:in :id {:select [:id] :from [:ordered_images]}]}))))))
 
 (defn process-entitlements [tx entitlements model-id]
   (doseq [entry entitlements]
@@ -193,13 +184,14 @@
   (let [updated-model (apply dissoc model keys)]
     updated-model))
 
-(defn update-model-handler-by-pool-form [request]
+(defn update-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+        {:keys [prepared-model-data categories compatibles attachments attachments-to-delete images-to-delete
+                properties accessories entitlements images new-images-attr existing-images-attr]}
+        (extract-model-form-data request create-all)]
     (try
       (let [update-model-query (-> (sql/update :models)
                                    (sql/set prepared-model-data)
@@ -208,24 +200,13 @@
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             updated-model (filter-response updated-model [:rental_price])
-            compatibles (parse-json-array request :compatibles)
-            categories (parse-json-array request :categories)
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments_to_delete)
-
-            {:keys [images image-attributes new-images-attr existing-images-attr]}
-            (create-images-and-prepare-image-attributes request)
-
-            properties (parse-json-array request :properties)
-            accessories (parse-json-array request :accessories)
-            entitlements (parse-json-array request :entitlements)
-
             {:keys [created-images-attr all-image-attributes]}
-            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
 
-        (process-attachments tx attachments model-id)
+        (when create-all (process-attachments tx attachments model-id))
         (process-deletions tx attachments-to-delete :attachments :id)
-        (process-image-attributes tx all-image-attributes model-id)
+        (when-not create-all (process-delete-images-by-id tx images-to-delete model-id))
+        (when create-all (process-image-attributes tx all-image-attributes model-id))
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
@@ -238,6 +219,12 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+
+(defn update-model-handler-by-pool-model-only [request]
+  (update-model-handler-by-pool-form request false))
+
+(defn update-model-handler-by-pool-with-attachment-images [request]
+  (update-model-handler-by-pool-form request true))
 
 (defn delete-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))

@@ -51,7 +51,7 @@
 
         body {
             font-family: Arial, sans-serif;
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -237,6 +237,7 @@
 </head>
 <body>
 <ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/upload">FileUpload</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/stable">InventoryList</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
@@ -364,12 +365,6 @@
         </label>
     </div>
 
-
-    <!--    <div class="form-group">-->
-    <!--        <label for="entitlements">Zuteilungen (Anspruchsgruppen / Entitlements)</label>-->
-    <!--        <select id="entitlements" name="entitlements" multiple></select>-->
-    <!--    </div>-->
-
     <div class="form-group row">
         <label for="entitlements" class="col-sm-3 col-form-label">Zuteilungen (Anspruchsgruppen / Entitlements)</label>
         <div class="col-sm-9">
@@ -448,14 +443,14 @@
             // create
             if (CONST_IS_CREATE_FORM) {
                 return {
-                    url: '/inventory/' + poolId + '/model',
+                    url: '/inventory/' + poolId + '/model/',
                     method: 'POST'
                 }
             }
 
             // update
             return {
-                url: '/inventory/' + poolId + '/model/' + modelId,
+                url: '/inventory/' + poolId + '/model/' + modelId+"/",
                 method: 'PUT'
             }
         };
@@ -484,7 +479,6 @@
                     is_cover: isCover,
                     to_delete: toDelete
                 }
-                data["checksum"] = hash // TODO: create sha by file
                 imagesData.push(data);
             });
 
@@ -545,7 +539,6 @@
         $('#entitlements').on('change', function () {
             updateSelectedEntitlements();
         });
-
 
         // let previousSelection = [];
         function fetchOptions(url, selectId) {
@@ -643,12 +636,6 @@
         // Initialize dropdowns on page load
         var initialPoolId = $('#poolId').val();
         updateDropdowns(initialPoolId);
-
-        // Update dropdowns when pool ID changes
-        // $('#poolId').change(function() {
-        //     var newPoolId = $(this).val();
-        //     updateDropdowns(newPoolId);
-        // });
 
         $('#fetchModelBtn').click(function () {
             var modelId = $('#fetchModelId').val();
@@ -932,8 +919,6 @@
                     }, 3000);
                 }
             });
-
-
         });
 
 
@@ -1024,15 +1009,6 @@
             return name + postfix + extension;
         }
 
-
-        async function computeSHA256(file) {
-            const buffer = await file.arrayBuffer(); // Read file as ArrayBuffer
-            const hashBuffer = await crypto.subtle.digest("SHA-256", buffer); // Generate SHA-256
-            return Array.from(new Uint8Array(hashBuffer)) // Convert buffer to hex string
-                .map(b => b.toString(16).padStart(2, "0"))
-                .join("");
-        }
-
         // Generates attachment/image-entries for html-list
         function updateFileList(input, listSelector, inputId) {
             var fileList = $(listSelector);
@@ -1052,7 +1028,6 @@
                         fileItem = $(`
                     <div class="file-item">
                         <span>${fileName}</span>
-                        <div id="hash" class="sha-hash limited-text">Calculating...</div> <!-- SHA Placeholder -->
                         <button type="button" ftpye="${inputId}" image_id="${image_id}" class="remove-file-btn" data-file-index="${i}">Remove</button>
                         <input type="radio" name="is_cover" image_id="${image_id}">
                         <canvas id="canvas-${inputId}-${i}" image_id="${image_id}" fileName="${fileNameThumb}" width="100" height="100" style="border: 1px solid #000; display: none;"></canvas>
@@ -1070,14 +1045,6 @@
 
                     fileList.append(fileItem);
                     fileItem.find("canvas").data("file", file)
-
-                    // Compute and insert SHA hash
-                    computeSHA256(file).then((hash) => {
-                        fileItem.find(".sha-hash").text(hash);
-                    }).catch((err) => {
-                        fileItem.find(".sha-hash").text("Error calculating hash");
-                        console.error("SHA calculation error:", err);
-                    });
 
                     if (file.type.startsWith('image/')) {
                         var reader = new FileReader();
@@ -1116,15 +1083,6 @@
             }
         }
 
-        // // jQuery to add a click event to the remove button
-        // $('#removeFileButton').click(function() {
-        //     // Clear the file input
-        //     $('#images').val('');
-        //
-        //     // Optionally, log a message or perform additional actions
-        //     console.log("File input cleared.");
-        // });
-
         // Remove file from list
         $(document).on('click', '.remove-file-btn', function () {
             var fileId = $(this).data('fileId')
@@ -1155,7 +1113,6 @@
             updateFileList(input, `#${inputId}List`, inputId);
         }
 
-
         // Clear form fields
         function clearForm() {
             $('#modelForm')[0].reset();
@@ -1168,25 +1125,38 @@
             $('select').val(null).trigger('change');
         }
 
-
         // Form submission
         $('#modelForm').submit(function (e) {
             e.preventDefault();
-            var formData = new FormData(this);
 
-            // Prepare properties
-            var properties = [];
+            var payload = {
+                product: $('#product').val(),
+                version: $('#version').val(),
+                manufacturer: $('#manufacturer').val(),
+                description: $('#description').val(),
+                technical_detail: $('#technicalDetail').val(),
+                internal_description: $('#internalDescription').val(),
+                hand_over_note: $('#handOverNote').val(),
+                is_package: $('#isPackage').is(':checked'),
+                properties: [],
+                accessories: [],
+                entitlements: [],
+                categories: [],
+                compatibles: [],
+                image_attributes: extractImageData(), // still ok since it's metadata
+                attachments_to_delete: $(`#attachments-to-delete`).data('to-delete') || []
+            };
+
             $('input[name="propertyKey[]"]').each(function (index) {
-                properties.push({
+                payload.properties.push({
                     key: $(this).val(),
                     value: $('input[name="propertyValue[]"]').eq(index).val(),
                     id: $('input[name="propertyValue[]"]').eq(index).attr('id')
                 });
             });
-            var deleted_data = $("#cache").data("deleted-properties") || []
-            var mergedProperties = properties.concat(deleted_data);
-            formData.append('properties', JSON.stringify(mergedProperties));
 
+            const deletedProps = $("#cache").data("deleted-properties") || [];
+            payload.properties = payload.properties.concat(deletedProps);
 
             // Prepare accessories
             var accessories = [];
@@ -1205,8 +1175,7 @@
             deleted_data = $("#cache").data("deleted-accessories") || []
             mergedProperties = accessories.concat(deleted_data);
             console.log(">o> accessories > ", mergedProperties)
-            formData.append('accessories', JSON.stringify(mergedProperties));
-
+            payload.accessories = mergedProperties;
 
             // Prepare entitlements
             const entitlements = [];
@@ -1237,12 +1206,10 @@
                     });
                 }
             });
-            formData.delete('entitlements');
             deleted_data = $("#cache").data("deleted-entitlements") || []
             mergedProperties = entitlements.concat(deleted_data);
             console.log(">o> entitlements > ", mergedProperties)
-            formData.append('entitlements', JSON.stringify(mergedProperties));
-
+            payload.entitlements = mergedProperties;
 
             // Prepare categories
             const categories = [];
@@ -1252,23 +1219,14 @@
                 }
 
                 const categoriesData = $(option).data().categories
-                // const entitlement = categoriesData.entitlement
-                // const entitlement_group = categoriesData.entitlement_group
-                // id name type
                 if (categoriesData) {
                     categories.push(categoriesData)
-                    // categories.push({
-                    //     entitlement_group_id: entitlement_group.id,
-                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
-                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
-                    // });
                 }
             });
-            formData.delete('categories');
             deleted_data = $("#cache").data("deleted-categories") || []
             mergedProperties = categories.concat(deleted_data);
             console.log(">o> categories > ", mergedProperties)
-            formData.append('categories', JSON.stringify(mergedProperties));
+            payload.categories = mergedProperties;
 
 
             // Prepare compatibles
@@ -1283,7 +1241,6 @@
                     compatibles.push(categoriesData)
                 }
             });
-            formData.delete('compatibles');
             deleted_data = $("#cache").data("deleted-compatibles") || []
             mergedProperties = compatibles.concat(deleted_data);
 
@@ -1295,135 +1252,43 @@
             });
 
             console.log(">o> compatibles 2> ", mergedProperties)
-            formData.append('compatibles', JSON.stringify(mergedProperties));
+            payload.compatibles = mergedProperties;
 
+            const poolId = $('#poolId').val();
+            const modelId = $('#fetchModelId').val();
+            const config = FNC_CONFIG(poolId, modelId);
 
-            // Example usage
-            let imageAttributes = extractImageData();
-            console.log(imageAttributes);
-            formData.append('image_attributes', JSON.stringify(imageAttributes));
-            formData.delete('is_cover');
-            formData.delete('images_to_delete');
+            $.ajax({
+                url: config.url,
+                method: config.method,
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function (response) {
+                    console.log('Model saved successfully:', response);
+                    clearForm();
+                    $("#cache").removeData();
 
-            // FIXME
-            formData.delete('attachments_to_delete');
-            var attachmentsToDelete = $(`#attachments-to-delete`).data('to-delete') || []
-            formData.append('attachments_to_delete', JSON.stringify(attachmentsToDelete));
+                    if (CONST_IS_CREATE_FORM) {
+                        $('#fetchModelId').val(response.data?.id || '');
+                        $('#delete-model').hide();
+                    } else {
+                        $('#fetchModelId').val(response[0]?.id || '');
+                        $('#fetchModelBtn').click();
+                        $('#delete-model').show();
+                    }
 
-
-            formData.delete('is_package');
-            // $('#isPackage').prop('checked', false);
-            // $('#isPackageFlag').val($('#isPackage').is(':checked'))
-            const isPackage = $('#isPackage').is(':checked')
-            formData.append('is_package', isPackage);
-
-            formData.delete('accessoryName[]');
-            formData.delete('propertyKey[]');
-            formData.delete('propertyValue[]');
-            formData.delete('accessoryInventory[]');
-
-            // Get the poolId value
-            var poolId = $('#poolId').val();
-            var modelId = $('#fetchModelId').val();
-
-            // Create image-thumbnail from canvas
-            var config = FNC_CONFIG(poolId, modelId);
-            let canvasPromises = [];
-            // TODO: avoid thumbnail upload
-            // $("#imagesList").find("canvas").each(function (index, canvas) {
-            //     const promise = new Promise((resolve, reject) => {
-            //         canvas.toBlob(function (blob) {
-            //             if (blob) {
-            //                 const fileInfo = $(canvas).data("file");
-            //                 const file = new File([blob], fileInfo.nameThumb, {type: fileInfo.type});
-            //
-            //                 console.log(">>> Canvas processed to file: ", file);
-            //                 resolve(file);
-            //             } else {
-            //                 reject(new Error("Blob creation failed for canvas."));
-            //             }
-            //         }, 'image/jpeg');
-            //     });
-            //     canvasPromises.push(promise);
-            // });
-
-            Promise.all(canvasPromises)
-                .then(files => {
-                    // var index=1
-                    // 
-                    // files.forEach(file => {
-                    //     
-                    //     // Add image-thumbnails
-                    //     formData.append('images', file);
-                    //     formData.append('images_order[]', index);
-                    //     index++
-                    // });
-
-                    files = formData.getAll("images")
-
-                    // formData.delete("images")
-                    //
-                    // let orderedFiles = files.map((file, index) => {
-                    //     return {
-                    //         file: file,
-                    //         order: index + 1, // Assign a custom order
-                    //         checksum: `${index+1}:${file.name}:${file.size}`, // Assign a custom order
-                    //         // nameThumb: "thumb_" + file.name // Custom param (Example)
-                    //     };
-                    // });
-                    //
-                    //
-                    // var orderInfo=[]
-                    // // Append files and metadata to FormData
-                    // orderedFiles.forEach(({ file, checksum, order, nameThumb }) => {
-                    //     formData.append("images", file); // Append actual file
-                    //     orderInfo.push(checksum)
-                    //     // formData.append("image_nameThumb[]", nameThumb); // Append custom name
-                    // });
-                    //     formData.append("images_order[]", orderInfo); // Append order separately
-
-
-                    // Send form data to API
-                    $.ajax({
-                        url: config.url,
-                        method: config.method,
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'Accept': 'application/json'
-                        },
-                        success: function (response) {
-                            console.log('Model created successfully!');
-                            clearForm(); // Clear the form after successful save
-                            $("#cache").removeData();
-
-                            if (CONST_IS_CREATE_FORM) {
-                                $('#fetchModelId').val(response.data.id)
-                                $('#delete-model').hide()
-                            } else {
-                                $('#fetchModelId').val(response[0].id)
-                                $('#fetchModelBtn').click()
-                                $('#delete-model').show()
-                            }
-
-                            $('body').addClass('save-success');
-                            setTimeout(function () {
-                                $('body').removeClass('save-success');
-                            }, 3000);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error creating model: ' + error);
-                            $('body').addClass('save-failed');
-                            setTimeout(function () {
-                                $('body').removeClass('save-failed');
-                            }, 3000);
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error("Error processing canvases: ", error);
-                });
+                    $('body').addClass('save-success');
+                    setTimeout(() => $('body').removeClass('save-success'), 3000);
+                },
+                error: function (xhr) {
+                    console.error('Error saving model:', xhr.responseText);
+                    $('body').addClass('save-failed');
+                    setTimeout(() => $('body').removeClass('save-failed'), 3000);
+                }
+            });
         });
 
         // Extract params from URL
