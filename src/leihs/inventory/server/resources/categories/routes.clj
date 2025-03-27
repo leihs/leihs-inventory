@@ -68,7 +68,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Categories / Model-Groups"] :security []}}
+               :tags ["Categories / Templates | Model-Groups"] :security []}}
 
     ["/model-groups"
      ["" {:get {:conflicting true
