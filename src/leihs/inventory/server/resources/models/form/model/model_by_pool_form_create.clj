@@ -154,7 +154,9 @@
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
 
-(defn create-model-handler-by-pool-form [request]
+
+
+(defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
@@ -180,8 +182,10 @@
         compatibles (parse-json-array request :compatibles)
         attachments (normalize-files request :attachments)
         properties (parse-json-array request :properties)
+
         {:keys [images image-attributes new-images-attr existing-images-attr]}
-        (create-images-and-prepare-image-attributes request)
+        (when create-all (create-images-and-prepare-image-attributes request))
+
         accessories (parse-json-array request :accessories)
         entitlements (parse-json-array request :entitlements)]
 
@@ -192,13 +196,17 @@
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
-            {:keys [created-images-attr all-image-attributes]}
-            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
 
-        (process-attachments tx attachments "model_id" model-id)
+            {:keys [created-images-attr all-image-attributes]}
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))
+
+            ]
+
+        (when create-all (process-attachments tx attachments "model_id" model-id))
+        (when create-all (process-image-attributes tx all-image-attributes model-id))
+
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
-        (process-image-attributes tx all-image-attributes model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
@@ -220,3 +228,13 @@
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
+
+
+(defn create-model-handler-by-pool-model-only [request]
+  (create-model-handler-by-pool-form request false)
+
+  )
+
+(defn create-model-handler-by-pool-with-attachment-images [request]
+  (create-model-handler-by-pool-form request true)
+  )

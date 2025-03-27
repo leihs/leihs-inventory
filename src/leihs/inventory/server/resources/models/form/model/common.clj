@@ -49,11 +49,14 @@
             (let [[name ext] (clojure.string/split filename #"\.(?=[^.]+$)")]
               (str name "_thumb." ext)))))
 
-(defn process-persist-images [tx images model-id validation-result]
+(defn process-persist-images
+  "Convert file to base64, insert image-entry and thumbnail-entry"
+  [tx images model-id validation-result]
   (reduce
    (fn [acc image]
      (let [tempfile (:tempfile image)
            checksum (file-sha256 image)
+           ;; insert image-entry
            file-content-main (file-to-base64 tempfile)
            main-image-data (-> (set/rename-keys image {:content-type :content_type})
                                (dissoc :tempfile)
@@ -67,6 +70,7 @@
                                                        sql-format))
            main-image-result (assoc main-image-result :checksum checksum)
            file-content-thumb (generate-thumbnail file-content-main)
+           ;; insert thumb-entry
            main-image-data (add-thumb-to-filename main-image-data)
            thumbnail-data (assoc main-image-data
                                  :content file-content-thumb
