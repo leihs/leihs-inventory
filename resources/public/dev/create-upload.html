@@ -4,9 +4,34 @@
     <meta charset="UTF-8" />
     <title>Form Example - Track Status</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-status {
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .success { color: green; }
+        .error { color: red; }
+    </style>
 </head>
 <body>
-<h1>Upload Model & Images (No FormData, With Status)</h1>
+<h1>Upload Model & Images (Enhanced)</h1>
 
 <form id="myForm">
     <label for="poolId">Pool-ID:</label>
@@ -29,27 +54,38 @@
 
     <br /><br />
 
+    <label for="files">Files:</label>
+    <input type="file" id="files" name="files" multiple />
+
+    <br /><br />
+
     <button type="submit">Submit</button>
+    <div id="spinner"></div>
 </form>
 
-<!-- Simple status area -->
 <div id="status" style="margin-top: 1em; font-weight: bold;"></div>
+<div id="fileStatuses" class="file-status"></div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('myForm');
         const statusEl = document.getElementById('status');
+        const fileStatuses = document.getElementById('fileStatuses');
+        const spinner = document.getElementById('spinner');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            spinner.style.display = 'inline-block';
             statusEl.textContent = '';
+            fileStatuses.innerHTML = '';
+            form.querySelector('button').disabled = true;
 
             try {
-                // 1) POST the model data
-                statusEl.textContent = 'Creating model...';
                 const poolId  = document.getElementById('poolId').value.trim();
                 const product = document.getElementById('product').value.trim();
                 const version = document.getElementById('version').value.trim();
+                const images = document.getElementById('images').files;
+                const files  = document.getElementById('files').files;
 
                 const modelResponse = await fetch(`/inventory/${poolId}/model/`, {
                     method: 'POST',
@@ -59,74 +95,45 @@
                     },
                     body: JSON.stringify({ product, version })
                 });
-                if (!modelResponse.ok) {
-                    throw new Error('Error creating model data');
-                }
+
+                if (!modelResponse.ok) throw new Error('Error creating model');
+
                 const modelData = await modelResponse.json();
-                const modelId = modelData.data.id;  // adapt to your API response
+                const modelId = modelData.data.id;
 
-                console.log('Model created, modelId:', modelId);
+                statusEl.textContent = `Model created (ID = ${modelId}). Uploading files...`;
 
-                // 2) Upload files individually (raw binary) - but wait for each upload
-                const files = document.getElementById('images').files;
+                const allFiles = [
+                    ...Array.from(images).map(file => ({ file, type: 'image' })),
+                    ...Array.from(files).map(file => ({ file, type: 'file' }))
+                ];
+
                 const uploadedFilesData = [];
+                const uploadStatus = {
+                    successfully_uploaded: [],
+                    upload_failed: []
+                };
 
-                if (files.length === 0) {
-                    console.info('No files selected for UPLOAD');
-                    statusEl.textContent = `MODEL CREATED. No files selected for UPLOAD`;
-                    return;
+                for (let i = 0; i < allFiles.length; i++) {
+                    const { file, type } = allFiles[i];
+                    const uploadUrl = `/inventory/models/${modelId}/${type === 'image' ? 'images' : 'attachments'}`;
+                    const indexText = `${i + 1} of ${allFiles.length}`;
+
+                    fileStatuses.innerHTML += `<div id="file-${i}">🔄 Uploading ${file.name} (${indexText})...</div>`;
+
+                    try {
+                        const response = await uploadSingleFile(file, uploadUrl);
+                        uploadedFilesData.push(response[0]);
+                        document.getElementById(`file-${i}`).innerHTML = `✅ <span class="success">${file.name} uploaded successfully.</span>`;
+                        uploadStatus.successfully_uploaded.push({ file_name: file.name });
+                    } catch (err) {
+                        document.getElementById(`file-${i}`).innerHTML = `❌ <span class="error">${file.name} failed to upload.</span>`;
+                        uploadStatus.upload_failed.push({ file_name: file.name });
+                    }
                 }
 
-                statusEl.textContent = `Model created (ID = ${modelId}). Now uploading files...`;
+                statusEl.textContent = 'Sending final PATCH...';
 
-                // Helper to upload one file as a Promise
-                function uploadSingleFile(file, index, total) {
-                    return new Promise((resolve, reject) => {
-                        statusEl.textContent = `Uploading file ${index + 1} of ${total}...`;
-
-                        const uploadUrl = `/inventory/models/${modelId}/images`;
-
-                        $.ajax({
-                            url: uploadUrl,
-                            type: 'POST',
-                            // The raw binary file as the request body
-                            data: file,
-                            // Use the actual file type (e.g., "image/png")
-                            contentType: file.type,
-                            processData: false,
-                            dataType: 'json',         // expect JSON response
-                            headers: {
-                                'Accept': 'application/json'
-                            },
-                            success: function(response) {
-                                console.log('File uploaded successfully:', file.name);
-
-                                // Suppose your server returns an array in the response
-                                // (like [ { ...imageData... } ])
-                                // We'll store the first element for patch usage
-                                const imageData = response[0];
-                                resolve(imageData);
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                console.error('Error uploading file:', file.name, textStatus, errorThrown);
-                                reject(errorThrown);
-                            }
-                        });
-                    });
-                }
-
-                // Upload all files in sequence or in parallel
-                // To keep it simple, do it in sequence:
-                for (let i = 0; i < files.length; i++) {
-                    const imgData = await uploadSingleFile(files[i], i, files.length);
-                    uploadedFilesData.push(imgData);
-                }
-
-                // 3) PATCH to update model with file data
-                statusEl.textContent = 'Sending final patch...';
-
-                // FIXME was here: now we actually have the imageData from each file
-                // stored in uploadedFilesData.
                 const patchBody = {
                     model_id: modelId,
                     uploaded_files: uploadedFilesData
@@ -140,20 +147,46 @@
                     },
                     body: JSON.stringify(patchBody)
                 });
-                if (!patchResponse.ok) {
-                    throw new Error('Error updating model data');
-                }
-                const patchData = await patchResponse.json();
 
-                // Success
-                statusEl.textContent = 'All steps completed successfully!';
+                if (!patchResponse.ok) throw new Error('PATCH request failed');
+
+                const patchData = await patchResponse.json();
+                statusEl.innerHTML = `
+                    ✅ All steps completed.<br>
+                    Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
+                    Failed: ${uploadStatus.upload_failed.length}
+                `;
+
                 console.log('Final PATCH response:', patchData);
 
             } catch (error) {
                 console.error('Error:', error);
-                statusEl.textContent = `An error occurred: ${error.message}`;
+                statusEl.textContent = `❌ Error: ${error.message}`;
+            } finally {
+                spinner.style.display = 'none';
+                form.querySelector('button').disabled = false;
             }
         });
+
+        function uploadSingleFile(file, uploadUrl) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: uploadUrl,
+                    type: 'POST',
+                    data: file,
+                    contentType: file.type,
+                    processData: false,
+                    dataType: 'json',
+                    headers: { 'Accept': 'application/json' },
+                    success: function(response) {
+                        resolve(response);
+                    },
+                    error: function(_, __, errorThrown) {
+                        reject(errorThrown);
+                    }
+                });
+            });
+        }
     });
 </script>
 </body>
