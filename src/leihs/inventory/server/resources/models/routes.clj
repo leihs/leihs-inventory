@@ -14,6 +14,13 @@
    [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
                                                                       upload-image]]
 
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [next.jdbc :as jdbc]
+
+   [clojure.string :as str]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form
 
                                                                                          create-model-handler-by-pool-model-only
@@ -586,14 +593,85 @@
 
       :patch {:accept "application/json"
               :summary "Form-Handler: Used to update image-attributes | [v1]"
-              :coercion spec/coercion
+              ;:coercion spec/coercion
+              :coercion reitit.coercion.schema/coercion
+
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-              :parameters {:path {:pool_id uuid?}
-                           :body any?}
-              :handler (fn [req]
-                         (let [model_id (get-in req [:parameters :path :model_id])
-                               body (get-in req [:parameters :body])]
-                           (response/status (response/response {:model_id model_id :body body}) 200)))
+              ;:parameters {:path {:pool_id uuid?}
+              ;             :body any?}
+              ;
+              :parameters {:path {:pool_id s/Uuid}
+                           :body [{
+                                   :is_cover  (s/maybe s/Uuid)
+                                   ;:to_delete  (s/maybe s/Bool)
+                                   :id s/Uuid
+                                 }]}
+
+              ;:handler (fn [req]
+              ;           (let [
+              ;                 ;model_id (get-in req [:parameters :path :model_id])
+              ;                 images-to-update (get-in req [:parameters :body])]
+              ;
+              ;             (doseq [{:keys [id is_cover]} images-to-update]
+              ;               ;(when is_cover
+              ;                 (jdbc/execute! tx (-> (sql/update :models)
+              ;                                     (if is_cover
+              ;                                       (sql/set {:cover_image_id (to-uuid id)})
+              ;                                       (sql/set {:cover_image_id nil})
+              ;                                       )
+              ;                                     (sql/where [:= :id model-id])
+              ;                                     (sql/return :id :cover_image_id)
+              ;                                     sql-format)))
+              ;               ;)
+              ;
+              ;             (response/status (response/response {:model_id model_id :body body}) 200)
+              ;             )
+              ;             )
+
+                           :handler
+                           (fn [{{{:keys [model_id]} :path
+                                  images-to-update :body} :parameters
+                                 :as req}]
+                             (let [model-id (to-uuid model_id)
+                                   tx (:tx req)
+
+                                   results (mapv (fn [{:keys [id is_cover]}]
+                                           (jdbc/execute! tx
+                                             (-> (sql/update :models)
+                                               (sql/set (if is_cover
+                                                          {:cover_image_id (to-uuid id)}
+                                                          {:cover_image_id nil}))
+                                               (sql/where [:= :id model-id])
+                                               (sql/returning [:id :cover_image_id])
+                                               sql-format)))
+                                     images-to-update)]
+
+
+
+                                   ;]
+                               ;(doseq [{:keys [id is_cover]} images-to-update]
+                               ;    (jdbc/execute! tx
+                               ;      (-> (sql/update :models)
+                               ;        (sql/set (if is_cover
+                               ;                   {:cover_image_id (to-uuid id)}
+                               ;                   {:cover_image_id nil}))
+                               ;        (sql/where [:= :id model-id])
+                               ;        (sql/returning [:id :cover_image_id])
+                               ;        sql-format))
+                               ;  )
+
+                               ;(response/status
+                               ;  (response/response {:model_id model-id
+                               ;                      :updated_cover (some #(select-keys % [:id :is_cover]) images-to-update)})
+                               ;  200)
+
+                               (response/response {:model_id model-id :results results})
+
+
+                             ))
+
+
+
               :responses {200 {:description "OK"
                                ;:body {:data :model-optional-response/inventory-model
                                ;       :validation any?}

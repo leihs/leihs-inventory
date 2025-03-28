@@ -243,6 +243,7 @@
         ;data {:image main-image-result :thumbnail thumbnail-result}
         data {:image main-image-result
               :thumbnail thumbnail-result
+              :model_id model_id
               }
 
         ;>o> >>> abc.images.data {:image {:id #uuid "bc6d40da-ad2b-455d-843e-2209bc585ba9", :filename upload2_thumb.png,

@@ -72,43 +72,39 @@
         body.save-failed {
             border: 1em solid red;
         }
-    </style>
 
-
-    <style>
         /* menu */
         ul.dev-page-menu {
-            list-style-type: none; /* Remove default bullets */
-            padding: 0; /* Remove default padding */
-            margin: 0; /* Remove default margin */
-            display: flex; /* Display items in a row */
-            justify-content: space-around; /* Space items evenly */
-            background-color: #f4f4f4; /* Light gray background for the list */
-            border: 1px solid #ddd; /* Add a border around the list */
-            border-radius: 5px; /* Round the corners */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         ul li {
-            margin: 0; /* Remove default margin */
+            margin: 0;
         }
 
         ul.dev-page-menu li a {
             display: block;
-            padding: 10px 15px; /* Add padding for better click area */
-            text-decoration: none; /* Remove default underline */
-            color: #333; /* Set text color */
-            font-weight: 500; /* Make the font semi-bold */
-            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
-            border-radius: 5px; /* Match border radius with the list */
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px;
         }
 
         ul.dev-page-menu li a:hover {
-            background-color: #007BFF; /* Change background color on hover */
-            color: white; /* Change text color on hover */
+            background-color: #007BFF;
+            color: white;
         }
     </style>
-
 </head>
 <body>
 
@@ -122,8 +118,7 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
-    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
-    </li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
 </ul>
 
 <h1>Upload Model & Images (Enhanced)</h1>
@@ -225,7 +220,8 @@
                     try {
                         const response = await uploadSingleFile(file, uploadUrl);
                         if (type === 'image') {
-                            uploadedImageData.push(response[0]);
+                            // uploadedImageData.push(response[0]);
+                            uploadedImageData.push(response);
                         }
                         document.getElementById(`file-${i}`).innerHTML = `✅ <span class="success">${file.name} uploaded successfully.</span>`;
                         uploadStatus.successfully_uploaded.push({ file_name: file.name });
@@ -235,46 +231,55 @@
                     }
                 }
 
-
-
-
                 statusEl.textContent = 'Sending final PATCH...';
 
+                const isCoverChecked = document.getElementById('firstImageIsCover').checked;
 
-                // TODO: if firstImageIsCover is checked, set the first image as 'is_cover'=true
+                if (isCoverChecked && uploadedImageData.length > 0) {
+                    patchBody=[]
+                    uploadedImageData.forEach((image, i) => {
+                        patchBody.push({
+                            id: modelId,
+                            is_cover: i==0 ? image.image.id : null
+                        });
+                    });
 
-                const patchBody = {
-                    model_id: modelId,
-                    uploaded_files: uploadedImageData
-                };
+                    const patchResponse = await fetch(`/inventory/${poolId}/model`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(patchBody)
+                    });
 
-                // TODO: do nothing if no images were uploaded OR firstImageIsCover is unchecked, avoid request
-                const patchResponse = await fetch(`/inventory/${poolId}/model`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(patchBody)
-                });
+                    if (!patchResponse.ok) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        throw new Error('PATCH request failed');
+                    }
 
-                if (!patchResponse.ok) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    throw new Error('PATCH request failed');
+                    const patchData = await patchResponse.json();
+                    statusEl.innerHTML = `
+                        ✅ All steps completed for model_id=${modelId}<br>
+                        <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
+                        <br>
+                        Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
+                        Failed: ${uploadStatus.upload_failed.length}
+                        <br>
+                    `;
+                    document.body.classList.add('save-success');
+                    console.log('Final PATCH response:', patchData);
+                } else {
+                    statusEl.innerHTML = `
+                        ✅ All steps completed for model_id=${modelId} (no PATCH)<br>
+                        <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
+                        <br>
+                        Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
+                        Failed: ${uploadStatus.upload_failed.length}
+                        <br>
+                    `;
+                    document.body.classList.add('save-success');
                 }
-
-                const patchData = await patchResponse.json();
-                statusEl.innerHTML = `
-                    ✅ All steps completed for model_id=${modelId}<br>
-                      <a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
-                    <br>
-                    Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
-                    Failed: ${uploadStatus.upload_failed.length}
-                    <br>
-                `;
-                document.body.classList.add('save-success');
-
-                console.log('Final PATCH response:', patchData);
 
             } catch (error) {
                 console.error('Error:', error);
