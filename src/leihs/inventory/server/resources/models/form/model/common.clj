@@ -166,99 +166,35 @@
 
   )  )
 
-
 (defn sanitize-filename [filename]
-  ;; Basic sanitization to prevent directory traversal
-  (-> filename
-    (str/replace #"[^a-zA-Z0-9_.-]" "_")))
+  (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
 
-  ;; new version for json-endpoint
 (defn upload-attachment [req]
-  (println ">o> upload-attachments" )
-
+  (println ">o> upload-attachments")
   (let [{{:keys [model_id]} :path} (:parameters req)
-        ;; get the input stream from the Ring request
         body-stream (:body req)
-
         path (str (System/getProperty "user.dir") "/tmp/")
-p (println ">o> path" path)
-
-        ;tmp-dir ""
-
-        p (println ">o> abc.header" (get-in req [:headers]))
-
         tx (:tx req)
-
         content-type (get-in req [:headers "content-type"])
-        filename-to-save (get-in req [:headers "x-filename"])
-        filename-to-save (sanitize-filename filename-to-save)
+
+        filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
         content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-
         file-full-path (str path filename-to-save)
-        ;filename-to-save "tmp-saved-upload.pdf"
-        entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}
-
-
-
-        p (println ">o> abc.entry" entry)
-
-        p (println ">o> abc.body-stream" body-stream)
-
-        _ (io/copy body-stream (io/file file-full-path))
-        _ (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
-
-        ;data (process-image tx {:tempfile filename-to-save} model_id-id )
-
-        ;(let [
-              id (to-uuid model_id)
-              file-content (file-to-base64 entry)
-
-        ;p (println ">o> abc.file-content" file-content)
-
-              data (assoc (dissoc entry :tempfile ) :content file-content )
-
-        p (println ">o> attachemnts.data" data)
-
+        entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}]
+    (println ">o> path" path)
+    (println ">o> abc.entry" entry)
+    (io/copy body-stream (io/file file-full-path))
+    (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
+    (let [id (to-uuid model_id)
+          file-content (file-to-base64 entry)
+          data (assoc (dissoc entry :tempfile) :content file-content)
           data (jdbc/execute! tx (-> (sql/insert-into :attachments)
-                              (sql/values [data])
-                              (sql/returning :*)
-                              sql-format))
-         _ (println ">o> abc >> INSERTED IN DB")
-
-        data {:foo "bar"}
-
-        ]
-
-    (status (response data) 200)
-          )
-  )
+                                     (sql/values [data])
+                                     (sql/returning :id :filename  :content_type :size :item_id)
+                                     sql-format))]
+      (println ">o> abc >> INSERTED IN DB")
+      (status (response data) 200))))
 
 
 
-;(defn sanitize-filename [filename]
-;  ;; Basic sanitization to prevent directory traversal
-;  (-> filename
-;    (str/replace #"[^a-zA-Z0-9_.-]" "_")))
-;
-;(defn upload-attachment [req]
-;  (let [
-;        tmp-dir ""
-;
-;        headers (:headers req)
-;        body-stream (:body req)
-;        raw-filename (get headers "x-filename")
-;        filename (sanitize-filename raw-filename)
-;        content-type (get headers "content-type")
-;        content-length (some-> (get headers "content-length") Long/parseLong)
-;        file (io/file tmp-dir filename)]
-;
-;    (with-open [in body-stream
-;                out (io/output-stream file)]
-;      (io/copy in out))
-;
-;    (-> {:filename filename
-;         :status "saved"
-;         :size content-length
-;         :content-type content-type}
-;      response
-;      (status 200))))
+
