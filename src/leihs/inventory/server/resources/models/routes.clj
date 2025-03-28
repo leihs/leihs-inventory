@@ -651,7 +651,7 @@
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
-             :summary "(DEV) | [v0]"
+             :summary "(DEV) | [v0] DEPRECATED"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -664,6 +664,8 @@
                               :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
+
+
 
        :delete {:accept "application/json"
                 :summary "(DEV) | Form-Handler: Delete form data [v0]"
@@ -684,7 +686,34 @@
                                                          :product string?
                                                          :manufacturer any?}]}}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]
+                            500 {:description "Internal Server Error"}}}}]
+
+
+     ["/"
+
+      {       :put {:accept "application/json"
+                    :summary "(DEV) | [v1]"
+                    ;:swagger {:consumes ["multipart/form-data"]
+                    ;          :produces "application/json"}
+                    :coercion spec/coercion
+                    :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+                    :parameters {:path {:pool_id uuid?
+                                        :model_id uuid?}
+                                 ;:multipart :software/multipart}
+                                 :body map?}
+                    :handler update-model-handler-by-pool-form
+                    :responses {200 {:description "OK"
+                                     :body :model-optional-response/inventory-models}
+                                404 {:description "Not Found"}
+                                500 {:description "Internal Server Error"}}}
+
+       }
+
+
+      ]
+
+
+     ]]
 
    ["/option"
     {:swagger {:conflicting true

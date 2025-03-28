@@ -453,7 +453,7 @@
 
             // update
             return {
-                url: '/inventory/' + poolId + '/model/' + modelId,
+                url: '/inventory/' + poolId + '/model/' + modelId+"/",
                 method: 'PUT'
             }
         };
@@ -1192,6 +1192,11 @@
                     id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
                 });
             });
+
+
+
+
+
 
             payload.accessories = payload.accessories.concat($("#cache").data("deleted-accessories") || []);
 

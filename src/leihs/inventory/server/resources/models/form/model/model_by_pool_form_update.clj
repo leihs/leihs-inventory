@@ -120,6 +120,10 @@
                                 sql-format)))))))
 
 (defn process-entitlements [tx entitlements model-id]
+
+  (println ">o> abc.model-id" model-id)
+  (println ">o> abc.entitlements" entitlements)
+
   (doseq [entry entitlements]
     (let [id (to-uuid (:entitlement_id entry))
           where-clause (if id
@@ -197,7 +201,16 @@
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        ;multipart (or(get-in request [:parameters :multipart]))
+
         multipart (get-in request [:parameters :multipart])
+        p (println ">o> abc.multipart1" multipart)
+
+        body (get-in request [:parameters :body])
+        p (println ">o> abc.mult-body2" body)
+
+        multipart (or multipart body)
+
         tx (:tx request)
         prepared-model-data (prepare-model-data multipart)]
     (try
@@ -210,8 +223,8 @@
             updated-model (filter-response updated-model [:rental_price])
             compatibles (parse-json-array request :compatibles)
             categories (parse-json-array request :categories)
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments_to_delete)
+            ;attachments (normalize-files request :attachments)
+            ;attachments-to-delete (parse-json-array request :attachments_to_delete)
 
             {:keys [images image-attributes new-images-attr existing-images-attr]}
             (create-images-and-prepare-image-attributes request)
@@ -220,12 +233,13 @@
             accessories (parse-json-array request :accessories)
             entitlements (parse-json-array request :entitlements)
 
-            {:keys [created-images-attr all-image-attributes]}
-            (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)]
+            ;{:keys [created-images-attr all-image-attributes]}
+            ;(prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
+             ]
 
-        (process-attachments tx attachments model-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
-        (process-image-attributes tx all-image-attributes model-id)
+        ;(process-attachments tx attachments model-id)
+        ;(process-deletions tx attachments-to-delete :attachments :id)
+        ;(process-image-attributes tx all-image-attributes model-id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
