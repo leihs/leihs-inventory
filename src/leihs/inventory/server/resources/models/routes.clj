@@ -309,9 +309,12 @@
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}}
+                  :parameters {:path {:model_id s/Uuid}
+                               ;}
+                  :header {:x-filename s/Str}}
 
-                  :handler upload-image
+
+           :handler upload-image
 
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}

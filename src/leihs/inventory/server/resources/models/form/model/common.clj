@@ -86,7 +86,9 @@
            thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                       (sql/values [thumbnail-data])
                                                       (sql/returning :id :filename :thumbnail :size)
-                                                      sql-format))]
+                                                      sql-format))
+
+           ]
        (into (or acc []) [main-image-result thumbnail-result])))
    []
    images))
@@ -130,34 +132,113 @@
                           (sql/returning :*)
                           sql-format))))
 
+
+
+
+(defn sanitize-filename [filename]
+  (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
+
+(defn filter-keys
+  [m keys-to-keep]
+  (select-keys m keys-to-keep))
+
+(defn filter-keys-images
+  [m]
+   (filter-keys m [:filename :content_type :size  :thumbnail :target_id :target_type :parent_id :content]))
+
+(defn filter-keys-attachments
+  [m]
+   (filter-keys m [:filename :content_type :size  :model_id :item_id :content ]))
+
+
+
+
+
 ;; new version for json-endpoint
 (defn upload-image [req]
 
   (println ">o> upload-image")
 
-  ;(let [model_id (get-in req [:parameters :path :model_id])
-  ;      body (get-in req [:parameters :body])]
-  ;  (status (response {:model_id model_id :body body}) 200))
-
-  (let [{{:keys [model-id]} :path} (:parameters req)
-        ;; get the input stream from the Ring request
+  (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
+        path (str (System/getProperty "user.dir") "/tmp/")
         tx (:tx req)
-
         content-type (get-in req [:headers "content-type"])
+
+        filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
         content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+        file-full-path (str path filename-to-save)
+        entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length
+               :model_id model_id
+               }]
+    (println ">o> path" path)
+    (println ">o> abc.entry" entry)
+    ;(io/copy body-stream (io/file file-full-path))
+    (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
 
-        p (println ">o> abc.body-stream" body-stream)
 
-        filename-to-save "tmp-saved-upload.png"
 
-        _ (io/copy body-stream (io/file filename-to-save))
-        _ (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
+  (let [
+        ;tempfile (:tempfile entry)
+        ;checksum (file-sha256 image)
+        ;; insert image-entry
+        ;file-content-main (file-to-base64 tempfile)
 
-        data (process-image tx {:tempfile filename-to-save} model-id)]))
+        p (println ">o> abc.before")
 
-(defn sanitize-filename [filename]
-  (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
+        ;file-content-main (file-to-base64 file-full-path)
+        file-content-main (file-to-base64 entry)
+        p (println ">o> abc.after" entry)
+
+        main-image-data (->
+                          entry
+                          ;(set/rename-keys entry {:content-type :content_type})
+                          ;(dissoc :tempfile :model_id)
+                          (assoc :content file-content-main
+                            :target_id model_id
+                            :target_type "Model"
+                            :thumbnail false)
+                          filter-keys-images
+                          )
+
+        p (println ">o> abc.main-image-data"  (dissoc main-image-data :content))
+
+        main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                  (sql/values [main-image-data])
+                                                  (sql/returning :id :filename :thumbnail :size)
+                                                  sql-format))
+        ;main-image-result (assoc main-image-result :checksum checksum)
+        file-content-thumb (generate-thumbnail file-content-main)
+
+        ;; insert thumb-entry
+        main-image-data (add-thumb-to-filename main-image-data)
+        thumbnail-data (-> (assoc main-image-data
+                         :content file-content-thumb
+                         :thumbnail true
+                         :parent_id (:id main-image-result))
+                         filter-keys-images
+                         )
+        p (println ">o> abc.thumbnail-data" (dissoc thumbnail-data :content))
+
+        thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                 (sql/values [thumbnail-data])
+                                                 (sql/returning :id :filename :thumbnail :size)
+                                                 sql-format))
+
+
+        ;data {:image main-image-result :thumbnail thumbnail-result}
+        data {:image main-image-result
+              ;:thumbnail thumbnail-result
+              }
+        ]
+
+    (println ">o> abc >> INSERTED IN DB")
+    (status (response data) 200))
+  ))
+
+
+
+
 
 (defn upload-attachment [req]
   (println ">o> upload-attachments")
@@ -171,13 +252,19 @@
         content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
         file-full-path (str path filename-to-save)
         entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}]
+
     (println ">o> path" path)
     (println ">o> abc.entry" entry)
     (io/copy body-stream (io/file file-full-path))
     (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
+
     (let [id (to-uuid model_id)
           file-content (file-to-base64 entry)
-          data (assoc (dissoc entry :tempfile) :content file-content)
+          ;data (assoc (dissoc entry :tempfile) :content file-content)
+          data (-> entry
+                 (assoc :content file-content)
+                 filter-keys-attachments)
+
           data (jdbc/execute! tx (-> (sql/insert-into :attachments)
                                      (sql/values [data])
                                      (sql/returning :id :filename :content_type :size :item_id)
