@@ -171,6 +171,8 @@
                                   sql-format))))))))
 
 (defn process-compatibles [tx compatibles model-id]
+  (println ">o> abc.compatibles" compatibles)
+  (println ">o> abc.model-id" model-id)
   (doseq [compatible compatibles]
     (let [compatible-id (to-uuid (:id compatible))]
       (update-insert-or-delete tx :models_compatibles
@@ -221,17 +223,17 @@
                                    sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             updated-model (filter-response updated-model [:rental_price])
-            compatibles (parse-json-array request :compatibles)
-            categories (parse-json-array request :categories)
+            compatibles (parse-json-array multipart :compatibles)
+            categories (parse-json-array multipart :categories)
             ;attachments (normalize-files request :attachments)
             ;attachments-to-delete (parse-json-array request :attachments_to_delete)
 
-            {:keys [images image-attributes new-images-attr existing-images-attr]}
-            (create-images-and-prepare-image-attributes request)
+            ;{:keys [images image-attributes new-images-attr existing-images-attr]}
+            ;(create-images-and-prepare-image-attributes request)
 
-            properties (parse-json-array request :properties)
-            accessories (parse-json-array request :accessories)
-            entitlements (parse-json-array request :entitlements)
+            properties (parse-json-array multipart :properties)
+            accessories (parse-json-array multipart :accessories)
+            entitlements (parse-json-array multipart :entitlements)
 
             ;{:keys [created-images-attr all-image-attributes]}
             ;(prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
@@ -240,6 +242,9 @@
         ;(process-attachments tx attachments model-id)
         ;(process-deletions tx attachments-to-delete :attachments :id)
         ;(process-image-attributes tx all-image-attributes model-id)
+
+
+
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)

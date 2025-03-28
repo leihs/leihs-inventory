@@ -1156,7 +1156,7 @@
         $('#modelForm').submit(function (e) {
             e.preventDefault();
 
-            const payload = {
+            var payload = {
                 product: $('#product').val(),
                 version: $('#version').val(),
                 manufacturer: $('#manufacturer').val(),
@@ -1185,49 +1185,146 @@
             const deletedProps = $("#cache").data("deleted-properties") || [];
             payload.properties = payload.properties.concat(deletedProps);
 
-            $('input[name="accessoryName[]"]').each(function (index) {
-                payload.accessories.push({
+            // $('input[name="accessoryName[]"]').each(function (index) {
+            //     payload.accessories.push({
+            //         name: $(this).val(),
+            //         inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
+            //         id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
+            //     });
+            // });
+
+
+
+
+
+            // Prepare accessories
+            var accessories = [];
+            $('input[name="accessoryName[]"]').each(function (index, option) {
+
+                if (option.textContent === 'Select an option') {
+                    return;
+                }
+
+                accessories.push({
                     name: $(this).val(),
                     inventory_bool: $('input[name="accessoryInventory[]"]').eq(index).is(':checked'),
                     id: $('input[name="accessoryInventory[]"]').eq(index).attr('id')
                 });
             });
+            deleted_data = $("#cache").data("deleted-accessories") || []
+            mergedProperties = accessories.concat(deleted_data);
+            console.log(">o> accessories > ", mergedProperties)
+            // formData.append('accessories', JSON.stringify(mergedProperties));
+            // payload.accessories.push( JSON.stringify(mergedProperties));
+            // payload.accessories = JSON.stringify(mergedProperties);
+            payload.accessories = mergedProperties;
 
 
 
 
 
 
-            payload.accessories = payload.accessories.concat($("#cache").data("deleted-accessories") || []);
 
-            $('#entitlements').find('option:selected').each(function () {
-                const data = $(this).data();
-                const groupId = data.entitlement_group.id;
-                const quantity = parseInt($("#selected-entitlements").find("input[uuid=" + groupId + "]").val(), 10) || 1;
 
-                payload.entitlements.push({
-                    entitlement_group_id: groupId,
-                    entitlement_id: data.entitlement?.id || null,
-                    quantity: quantity
-                });
-            });
 
-            payload.entitlements = payload.entitlements.concat($("#cache").data("deleted-entitlements") || []);
+            // Prepare entitlements
+            const entitlements = [];
+            $('#entitlements').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
+                    return;
+                }
 
-            $('#categories option:selected').each(function () {
-                const cat = $(this).data('categories');
-                if (cat) payload.categories.push(cat);
-            });
-            payload.categories = payload.categories.concat($("#cache").data("deleted-categories") || []);
+                const entitlementData = $(option).data()
+                const entitlement = entitlementData.entitlement
+                const entitlement_group = entitlementData.entitlement_group
 
-            $('#compatibles option:selected').each(function () {
-                let c = $(this).data('compatible');
-                if (c) {
-                    c = renameKeys(c, { model_id: 'id' });
-                    payload.compatibles.push(c);
+                const entitlement_group_id = entitlementData.entitlement_group.id
+
+
+                var quantity = parseInt($("#selected-entitlements").find("input[uuid=" + entitlement_group_id + "]").val(), 10)
+                if (isNaN(quantity)) {
+                    console.error("Quantity is not a number, setting to 1")
+                    quantity = 1
+                }
+
+                if (entitlementData) {
+                    entitlements.push({
+                        entitlement_group_id: entitlement_group.id,
+                        entitlement_id: entitlement == undefined ? null : entitlement.id,
+                        // quantity: entitlement == undefined ? 1 : (quantity || 1)
+                        quantity: (quantity || 1)
+                    });
                 }
             });
-            payload.compatibles = payload.compatibles.concat($("#cache").data("deleted-compatibles") || []);
+            // formData.delete('entitlements');
+            deleted_data = $("#cache").data("deleted-entitlements") || []
+            mergedProperties = entitlements.concat(deleted_data);
+            console.log(">o> entitlements > ", mergedProperties)
+            // formData.append('entitlements', JSON.stringify(mergedProperties));
+            payload.entitlements = mergedProperties;
+            // payload.entitlements = JSON.stringify(mergedProperties));
+
+
+
+
+
+            // Prepare categories
+            const categories = [];
+            $('#categories').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
+                    return;
+                }
+
+                const categoriesData = $(option).data().categories
+                // const entitlement = categoriesData.entitlement
+                // const entitlement_group = categoriesData.entitlement_group
+                // id name type
+                if (categoriesData) {
+                    categories.push(categoriesData)
+                    // categories.push({
+                    //     entitlement_group_id: entitlement_group.id,
+                    //     entitlement_id: entitlement == undefined ? null : entitlement.id,
+                    //     quantity: entitlement == undefined ? 1 : (entitlement.quantity || 1)
+                    // });
+                }
+            });
+            // formData.delete('categories');
+            deleted_data = $("#cache").data("deleted-categories") || []
+            mergedProperties = categories.concat(deleted_data);
+            console.log(">o> categories > ", mergedProperties)
+            // formData.append('categories', JSON.stringify(mergedProperties));
+            payload.categories = mergedProperties;
+
+
+            // Prepare compatibles
+            const compatibles = [];
+            $('#compatibles').find('option:selected').each(function (index, option) {
+                if (option.textContent === 'Select an option') {
+                    return;
+                }
+
+                const categoriesData = $(option).data().compatible
+                if (categoriesData) {
+                    compatibles.push(categoriesData)
+                }
+            });
+            // formData.delete('compatibles');
+            deleted_data = $("#cache").data("deleted-compatibles") || []
+            mergedProperties = compatibles.concat(deleted_data);
+
+            console.log(">o> compatibles 1> ", mergedProperties)
+
+            var keyMapa = {model_id: "id"};
+            mergedProperties.forEach(function (item, index) {
+                mergedProperties[index] = renameKeys(item, keyMapa);
+            });
+
+            console.log(">o> compatibles 2> ", mergedProperties)
+            payload.compatibles = mergedProperties;
+            // formData.append('compatibles', JSON.stringify(mergedProperties));
+
+
+
 
             const poolId = $('#poolId').val();
             const modelId = $('#fetchModelId').val();

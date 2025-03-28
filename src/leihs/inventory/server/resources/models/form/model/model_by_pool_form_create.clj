@@ -174,16 +174,18 @@
 
         p (println ">o> abc.prepared-model-data2" prepared-model-data)
 
-        categories (parse-json-array request :categories)
-        compatibles (parse-json-array request :compatibles)
+
+
+        categories (parse-json-array multipart :categories)
+        compatibles (parse-json-array multipart :compatibles)
         attachments (normalize-files request :attachments)
-        properties (parse-json-array request :properties)
+        properties (parse-json-array multipart :properties)
 
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))
 
-        accessories (parse-json-array request :accessories)
-        entitlements (parse-json-array request :entitlements)]
+        accessories (parse-json-array multipart :accessories)
+        entitlements (parse-json-array multipart :entitlements)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)

@@ -646,7 +646,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-model-handler-by-pool-form-fetch
              :responses {200 {:description "OK"
-                              :body :model-strict-response/inventory-models}
+                              ;:body :model-strict-response/inventory-models
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -661,7 +662,8 @@
                           :multipart :software/multipart}
              :handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"
-                              :body :model-optional-response/inventory-models}
+                              ;:body :model-optional-response/inventory-models
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 

@@ -116,8 +116,10 @@
 
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  [request key]
-  (let [json-array-string (get-in request [:parameters :multipart key])]
+  ;[request key]
+  [multipart key]
+  ;(let [json-array-string (get-in request [:parameters :multipart key])]
+  (let [json-array-string (key multipart)]
     (cond
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
@@ -133,6 +135,15 @@
                 parsed-vector)
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
+
+;;
+(defn  parse-json-array
+  "CAUTION: no json-decoding"
+  ;"Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
+  ;[request key]
+  [multipart key]
+  ;(let [json-array-string (get-in request [:parameters :multipart key])]
+  (key multipart))
 
 (defn file-sha256 [file]
   (let [actual-file (if (instance? java.io.File file)
