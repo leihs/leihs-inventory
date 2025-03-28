@@ -203,6 +203,9 @@
             ]
 
         (when create-all (process-attachments tx attachments "model_id" model-id))
+
+
+        ;; PATCH
         (when create-all (process-image-attributes tx all-image-attributes model-id))
 
         (process-entitlements tx entitlements model-id)

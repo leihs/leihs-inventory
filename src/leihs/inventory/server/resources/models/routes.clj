@@ -302,7 +302,7 @@
 
      ["/images"
       ["" {:post {:accept "application/json"
-                  :summary "FE v1 | Create images"
+                  :summary "FE v1 | Create image"
                   :swagger {:consumes ["application/json"]
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
@@ -381,7 +381,7 @@
                              500 {:description "Internal Server Error"}}}
 
            :post {:accept "application/json"
-                  :summary "FE v1 | Create attachments"
+                  :summary "FE v1 | Create attachment"
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :swagger {:produces ["application/json"]}

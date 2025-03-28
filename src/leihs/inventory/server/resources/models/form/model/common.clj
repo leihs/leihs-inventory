@@ -94,7 +94,11 @@
      :new-images-attr new-images-attr
      :existing-images-attr existing-images-attr}))
 
-(defn prepare-image-attributes [tx images model-id validation-result new-images-attr existing-images-attr]
+(defn prepare-image-attributes
+  "Insert image-entries and image-attributes, prepare image-attributes for update
+  -
+  "
+  [tx images model-id validation-result new-images-attr existing-images-attr]
   (let [created-images-attr (process-persist-images tx images model-id validation-result)
         created-images-attr (update-image-attribute-ids new-images-attr created-images-attr)
 
