@@ -628,7 +628,9 @@
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body {:product string?}}
+                          ;:body {:product string?}
+                          :body map?
+                          }
              :handler create-model-handler-by-pool-model-only
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
