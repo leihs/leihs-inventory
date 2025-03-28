@@ -10,6 +10,13 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
+
+   ;[leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [
+   ;                                                                                      ;delete-model-handler-by-pool-form
+   ;                                                                                      process-image
+   ;                                                                                      ;update-model-handler-by-pool-form
+   ;                                                                                      ]]
+
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
@@ -105,3 +112,153 @@
         all-image-attributes (into existing-images-attr created-images-attr)]
     {:created-images-attr created-images-attr
      :all-image-attributes all-image-attributes}))
+
+
+(defn process-image [tx image model-id]
+
+
+  (let [file-content (file-to-base64 (:tempfile image))
+        image-data (-> (set/rename-keys image {:content-type :content_type})
+                     (dissoc :tempfile)
+                     (assoc :content file-content
+                       :target_id model-id
+                       :target_type "Model"
+                       :thumbnail false))
+        p (println ">o> abc.image-data" image-data)
+
+        ]
+
+    (println ">o> abc >> INSERT IMAGE-ENTRY" )
+    (jdbc/execute! tx (-> (sql/insert-into :images)
+                        (sql/values [image-data])
+                        (sql/returning :*)
+                        sql-format)))
+  )
+
+
+  ;; new version for json-endpoint
+(defn upload-image [req]
+
+  (println ">o> upload-image" )
+
+  ;(let [model_id (get-in req [:parameters :path :model_id])
+  ;      body (get-in req [:parameters :body])]
+  ;  (status (response {:model_id model_id :body body}) 200))
+
+
+  (let [{{:keys [model-id]} :path} (:parameters req)
+        ;; get the input stream from the Ring request
+        body-stream (:body req)
+        tx (:tx req)
+
+        content-type (get-in req [:headers "content-type"])
+        content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+
+        p (println ">o> abc.body-stream" body-stream)
+
+        filename-to-save "tmp-saved-upload.png"
+
+        _ (io/copy body-stream (io/file filename-to-save))
+        _ (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
+
+        data (process-image tx {:tempfile filename-to-save} model-id )
+        ]
+
+  )  )
+
+
+(defn sanitize-filename [filename]
+  ;; Basic sanitization to prevent directory traversal
+  (-> filename
+    (str/replace #"[^a-zA-Z0-9_.-]" "_")))
+
+  ;; new version for json-endpoint
+(defn upload-attachment [req]
+  (println ">o> upload-attachments" )
+
+  (let [{{:keys [model_id]} :path} (:parameters req)
+        ;; get the input stream from the Ring request
+        body-stream (:body req)
+
+        path (str (System/getProperty "user.dir") "/tmp/")
+p (println ">o> path" path)
+
+        ;tmp-dir ""
+
+        p (println ">o> abc.header" (get-in req [:headers]))
+
+        tx (:tx req)
+
+        content-type (get-in req [:headers "content-type"])
+        filename-to-save (get-in req [:headers "x-filename"])
+        filename-to-save (sanitize-filename filename-to-save)
+        content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+
+        file-full-path (str path filename-to-save)
+        ;filename-to-save "tmp-saved-upload.pdf"
+        entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}
+
+
+
+        p (println ">o> abc.entry" entry)
+
+        p (println ">o> abc.body-stream" body-stream)
+
+        _ (io/copy body-stream (io/file file-full-path))
+        _ (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
+
+        ;data (process-image tx {:tempfile filename-to-save} model_id-id )
+
+        ;(let [
+              id (to-uuid model_id)
+              file-content (file-to-base64 entry)
+
+        ;p (println ">o> abc.file-content" file-content)
+
+              data (assoc (dissoc entry :tempfile ) :content file-content )
+
+        p (println ">o> attachemnts.data" data)
+
+          data (jdbc/execute! tx (-> (sql/insert-into :attachments)
+                              (sql/values [data])
+                              (sql/returning :*)
+                              sql-format))
+         _ (println ">o> abc >> INSERTED IN DB")
+
+        data {:foo "bar"}
+
+        ]
+
+    (status (response data) 200)
+          )
+  )
+
+
+
+;(defn sanitize-filename [filename]
+;  ;; Basic sanitization to prevent directory traversal
+;  (-> filename
+;    (str/replace #"[^a-zA-Z0-9_.-]" "_")))
+;
+;(defn upload-attachment [req]
+;  (let [
+;        tmp-dir ""
+;
+;        headers (:headers req)
+;        body-stream (:body req)
+;        raw-filename (get headers "x-filename")
+;        filename (sanitize-filename raw-filename)
+;        content-type (get headers "content-type")
+;        content-length (some-> (get headers "content-length") Long/parseLong)
+;        file (io/file tmp-dir filename)]
+;
+;    (with-open [in body-stream
+;                out (io/output-stream file)]
+;      (io/copy in out))
+;
+;    (-> {:filename filename
+;         :status "saved"
+;         :size content-length
+;         :content-type content-type}
+;      response
+;      (status 200))))

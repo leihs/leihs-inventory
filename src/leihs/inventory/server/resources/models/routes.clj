@@ -15,9 +15,15 @@
                                                                                          create-model-handler-by-pool-with-attachment-images
 
                                                                                          ]]
+
+   [leihs.inventory.server.resources.models.form.model.common :refer [
+                                                                      upload-attachment
+                                                                      upload-image
+
+                                                                                         ]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
-                                                                                         process-image
+                                                                                         ;process-image
                                                                                          update-model-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
@@ -308,60 +314,10 @@
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :parameters {:path {:model_id s/Uuid}
-
-                               ;:multipart {:file multipart/temp-file-part}
-                               ;:multipart multipart/temp-file-part
-                               ;:multipart  {:file FileUpload}
-                               ;:body   FileUpload
-
                                }
 
-                  :handler (fn [req]
+                  :handler upload-image
 
-                             (let [{{:keys [model-id]} :path} (:parameters req)
-                                   ;; get the input stream from the Ring request
-                                   body-stream (:body req)
-                                   tx (:tx req)
-
-
-                             ;(let [
-                              content-type (get-in req [:headers "content-type"])
-                                   content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-                             ;      max-size-bytes (* 80 1024 1024) ; 80MB
-                             ;      model_id (get-in req [:parameters :path :model_id])
-                             ;      body (get-in req [:parameters :body])
-                             ;      mp (get-in req [:parameters :multipart])
-
-                                   ;p (println ">o> abc.body" body)
-                                   ;p (println ">o> abc.mp" mp)
-                                   ;p (println ">o> abc.body-stream" body-stream)
-                                   p (println ">o> abc.body-stream" body-stream)
-
-                                   filename "tmp-saved-upload.png"
-
-                                   _ (io/copy body-stream (io/file filename))
-                                   _ (println ">o> abc >> SAVED FILE TO DISK" filename)
-
-
-                                   data (process-image tx {:tempfile filename} model-id )
-
-                                   ]
-
-                                 (response/status (response/response data) 200)
-
-                               ;(cond
-                               ;  ;(nil? content-length)
-                               ;  ;(response/status (response/response {:error "Missing Content-Length header"}) 411)
-                               ;  ;
-                               ;  ;(> content-length max-size-bytes)
-                               ;  ;(response/status (response/response {:error "File too large. Max allowed is 80MB."}) 413)
-                               ;
-                               ;  (or (= content-type "image/png") (= content-type "image/jpeg"))
-                               ;  (response/status (response/response {:model_id "model_id" :body body-stream}) 200)
-                               ;
-                               ;  :else (response/status 400))
-
-                               ))
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
@@ -386,10 +342,9 @@
                   :middleware [accept-json-middleware]
                   :swagger {:produces ["application/json"]}
                   :parameters {:path {:model_id s/Uuid}}
-                  :handler (fn [req]
-                             (let [model_id (get-in req [:parameters :path :model_id])
-                                   body (get-in req [:parameters :body])]
-                               (response/status (response/response {:model_id model_id :body body}) 200)))
+
+                  :handler upload-attachment
+
                   :responses {200 {:description "OK"
                                    :body s/Any}
                               404 {:description "Not Found"}
