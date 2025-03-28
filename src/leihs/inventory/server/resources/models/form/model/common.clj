@@ -8,6 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [ring.util.response :as response]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
 
@@ -165,6 +167,30 @@
     )
   )
 
+
+ (defn patch-models-handler [{{{:keys [model_id]} :path
+                images-to-update :body} :parameters
+               :as req}]
+           (let [model-id (to-uuid model_id)
+                 tx (:tx req)
+
+                 results (mapv (fn [{:keys [id is_cover]}]
+                                 (when is_cover
+
+                                   (jdbc/execute! tx
+                                     (-> (sql/update :models)
+                                       (sql/set {:cover_image_id (to-uuid is_cover)})
+                                       (sql/where [:= :id id])
+                                       (sql/returning [:id :cover_image_id])
+                                       sql-format))))
+                           images-to-update)]
+
+
+
+             (response/response {
+                                 :results results})
+
+             ))
 
 ;; new version for json-endpoint
 (defn upload-image [req]
