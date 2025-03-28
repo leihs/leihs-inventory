@@ -341,11 +341,14 @@
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :swagger {:produces ["application/json"]}
-                  :parameters {:path {:model_id s/Uuid}}
+                  :parameters {:path {:model_id s/Uuid}
+                               :header {:x-filename s/Str}}
 
                   :handler upload-attachment
 
                   :responses {200 {:description "OK"
+                                   :body s/Any}
+                              400 {:description "Bad Request (Coercion error)"
                                    :body s/Any}
                               404 {:description "Not Found"}
                               500 {:description "Internal Server Error"}}}}]

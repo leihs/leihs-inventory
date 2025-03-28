@@ -317,14 +317,15 @@
                     contentType: file.type,
                     processData: false,
                     dataType: 'json',
-                    headers: { 'Accept': 'application/json',
+                    headers: {
+                        'Accept': 'application/json',
                         'X-Filename': file.name
-
                     },
                     success: function(response) {
                         resolve(response);
                     },
-                    error: function(_, __, errorThrown) {
+                    error: function(a,b, errorThrown) {
+                        console.error(a.responseJSON)
                         reject(errorThrown);
                     }
                 });
