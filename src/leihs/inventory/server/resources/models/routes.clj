@@ -316,12 +316,8 @@
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :parameters {:path {:model_id s/Uuid}
-                               ;}
                                :header {:x-filename s/Str}}
-
-
                   :handler upload-image
-
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
@@ -347,9 +343,7 @@
                   :swagger {:produces ["application/json"]}
                   :parameters {:path {:model_id s/Uuid}
                                :header {:x-filename s/Str}}
-
                   :handler upload-attachment
-
                   :responses {200 {:description "OK"
                                    :body s/Any}
                               400 {:description "Bad Request (Coercion error)"
@@ -592,50 +586,16 @@
 
       :patch {:accept "application/json"
               :summary "Form-Handler: Used to update image-attributes | [v1]"
-              ;:coercion spec/coercion
               :coercion reitit.coercion.schema/coercion
-
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-
               :parameters {:path {:pool_id s/Uuid}
                            :body [{
                                    :is_cover (s/maybe s/Uuid)
                                    ;:to_delete  (s/maybe s/Bool)
                                    :id s/Uuid
                                    }]}
-
               :handler patch-models-handler
-
-              ;:handler (fn [{{{:keys [model_id]} :path
-              ;                images-to-update :body} :parameters
-              ;               :as req}]
-              ;           (let [model-id (to-uuid model_id)
-              ;                 tx (:tx req)
-              ;
-              ;                 results (mapv (fn [{:keys [id is_cover]}]
-              ;                                 (when is_cover
-              ;
-              ;                                   (jdbc/execute! tx
-              ;                                     (-> (sql/update :models)
-              ;                                       (sql/set {:cover_image_id (to-uuid is_cover)})
-              ;                                       (sql/where [:= :id id])
-              ;                                       (sql/returning [:id :cover_image_id])
-              ;                                       sql-format))))
-              ;                           images-to-update)]
-              ;
-              ;
-              ;
-              ;             (response/response {
-              ;                                 :results results})
-              ;
-              ;             ))
-
-
-
-              :responses {200 {:description "OK"
-                               ;:body {:data :model-optional-response/inventory-model
-                               ;       :validation any?}
-                               }
+              :responses {200 {:description "OK"                               }
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
@@ -666,23 +626,12 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "(DEV) | New JSON Endpoint (fake-version) | [v1]"
+             :summary "New JSON Endpoint | [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body {:product string?
-                                 ;(ds/opt :version) (sa/nilable string?)
-                                 }}
-
+                          :body {:product string?}}
              :handler create-model-handler-by-pool-model-only
-
-             ;:handler (fn [request]
-             ;           (let [content-type (get-in request [:headers "content-type"])
-             ;                 body (-> request :parameters :body)]
-             ;             (cond
-             ;               (= content-type "application/json") (response/response {:foo "bar" :body body})
-             ;               :else {:status 400 :body "Unsupported Content-Type"})))
-
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]

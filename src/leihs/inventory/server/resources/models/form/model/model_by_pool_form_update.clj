@@ -88,27 +88,6 @@
                               (sql/where [:= :id model-id])
                               sql-format))))))
 
-;(defn process-image [tx image model-id]
-;
-;
-;  (let [file-content (file-to-base64 (:tempfile image))
-;        image-data (-> (set/rename-keys image {:content-type :content_type})
-;                       (dissoc :tempfile)
-;                       (assoc :content file-content
-;                              :target_id model-id
-;                              :target_type "Model"
-;                              :thumbnail false))
-;        p (println ">o> abc.image-data" image-data)
-;
-;        ]
-;
-;    (println ">o> abc >> INSERT IMAGE-ENTRY" )
-;    (jdbc/execute! tx (-> (sql/insert-into :images)
-;                          (sql/values [image-data])
-;                          (sql/returning :*)
-;                          sql-format)))
-;  )
-
 (defn process-images [tx images model-id] "DEPR: logic to handle passed images & thumbnails"
   (let [image-groups (group-by #(base-filename (:filename %)) images)]
     (doseq [[_ entries] image-groups]
