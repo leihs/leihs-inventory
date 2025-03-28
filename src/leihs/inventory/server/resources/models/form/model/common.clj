@@ -151,7 +151,19 @@
    (filter-keys m [:filename :content_type :size  :model_id :item_id :content ]))
 
 
+(defn image-response-format [s]
+  (-> s
+    ;(sql/returning :id :filename :thumbnail :size))
+    (sql/returning :id :filename :thumbnail))
+  )
 
+(defn attachment-response-format [s]
+  (-> s
+    ;(sql/returning :id :filename :content_type)
+    (sql/returning :id :filename)
+
+    )
+  )
 
 
 ;; new version for json-endpoint
@@ -205,7 +217,8 @@
 
         main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                   (sql/values [main-image-data])
-                                                  (sql/returning :id :filename :thumbnail :size)
+                                                  ;(sql/returning :id :filename :thumbnail :size)
+                                                  image-response-format
                                                   sql-format))
         ;main-image-result (assoc main-image-result :checksum checksum)
         file-content-thumb (generate-thumbnail file-content-main)
@@ -222,14 +235,21 @@
 
         thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                  (sql/values [thumbnail-data])
-                                                 (sql/returning :id :filename :thumbnail :size)
+                                                 ;(sql/returning :id :filename :thumbnail :size)
+                                                 image-response-format
                                                  sql-format))
 
 
         ;data {:image main-image-result :thumbnail thumbnail-result}
         data {:image main-image-result
-              ;:thumbnail thumbnail-result
+              :thumbnail thumbnail-result
               }
+
+        ;>o> >>> abc.images.data {:image {:id #uuid "bc6d40da-ad2b-455d-843e-2209bc585ba9", :filename upload2_thumb.png,
+        ; :thumbnail false, :size 37552}, :thumbnail {:id #uuid "3a40ec5f-86ef-47bc-a909-079ad42ec586",
+        ; :filename upload2_thumb_thumb.png, :thumbnail true, :size 37552}}
+
+        p (println ">o> >>> abc.images.data" data)
         ]
 
     (println ">o> abc >> INSERTED IN DB")
@@ -267,8 +287,18 @@
 
           data (jdbc/execute! tx (-> (sql/insert-into :attachments)
                                      (sql/values [data])
-                                     (sql/returning :id :filename :content_type :size :item_id)
+                                     ;(sql/returning :id :filename :content_type :size :item_id)
+                                     ;(sql/returning :id :filename :content_type)
+                                   attachment-response-format
                                      sql-format))]
+
+
+      ; abc.attachments.data [{:id #uuid "2155e275-9fb7-447f-87c7-3b939c1fc145", :filename upload_thumb.pdf,
+      ; :content_type application/pdf, :size 17234, :item_id nil}]
+
+      (println ">o> >>> abc.attachments.data" data)
+
+
       (println ">o> abc >> INSERTED IN DB")
       (status (response data) 200))))
 
