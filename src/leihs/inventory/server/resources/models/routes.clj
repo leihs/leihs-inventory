@@ -3,33 +3,29 @@
    [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
 
+   [clojure.string :as str]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
 
    [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
                                                                       upload-image]]
-
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc]
-
-   [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form
-
-                                                                                         create-model-handler-by-pool-model-only
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
                                                                                          create-model-handler-by-pool-with-attachment-images]]
-
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
                                                                                          ;process-image
                                                                                          update-model-handler-by-pool-form]]
+
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -58,7 +54,9 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.response_helper :as rh]
+   [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
@@ -102,12 +100,12 @@
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             :body [(s/conditional
-                                    map? {:id s/Uuid
-                                          :manufacturer s/Str
-                                          :product s/Str
-                                          :version (s/maybe s/Str)
-                                          :model_id s/Uuid}
-                                    string? s/Str)]}
+                                     map? {:id s/Uuid
+                                           :manufacturer s/Str
+                                           :product s/Str
+                                           :version (s/maybe s/Str)
+                                           :model_id s/Uuid}
+                                     string? s/Str)]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -318,10 +316,10 @@
                   :middleware [accept-json-middleware]
                   :parameters {:path {:model_id s/Uuid}
                                ;}
-                  :header {:x-filename s/Str}}
+                               :header {:x-filename s/Str}}
 
 
-           :handler upload-image
+                  :handler upload-image
 
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
@@ -427,7 +425,7 @@
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
 
-   ["/item" ;; form/item new
+   ["/item"                                                 ;; form/item new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -458,7 +456,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/item" ;; new
+   ["/models/:model_id/item"                                ;; new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -480,7 +478,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json" ;;new
+      :get {:accept "application/json"                      ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -494,7 +492,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/package" ;; new
+   ["/package"                                              ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -530,7 +528,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/package" ;; new
+   ["/models/:model_id/package"                             ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -552,7 +550,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json" ;;new
+      :get {:accept "application/json"                      ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -574,11 +572,11 @@
                        :produces "application/json"}
              :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              :description (str
-                           " - Upload images and attachments \n"
-                           " - Save data \n"
-                           " - images: additional handling needed to process no/one/multiple files \n"
-                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+                            " - Upload images and attachments \n"
+                            " - Save data \n"
+                            " - images: additional handling needed to process no/one/multiple files \n"
+                            " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+                            " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
@@ -602,10 +600,10 @@
               ;
               :parameters {:path {:pool_id s/Uuid}
                            :body [{
-                                   :is_cover  (s/maybe s/Uuid)
+                                   :is_cover (s/maybe s/Uuid)
                                    ;:to_delete  (s/maybe s/Bool)
                                    :id s/Uuid
-                                 }]}
+                                   }]}
 
               ;:handler (fn [req]
               ;           (let [
@@ -628,47 +626,47 @@
               ;             )
               ;             )
 
-                           :handler
-                           (fn [{{{:keys [model_id]} :path
-                                  images-to-update :body} :parameters
-                                 :as req}]
-                             (let [model-id (to-uuid model_id)
-                                   tx (:tx req)
+              :handler (fn [{{{:keys [model_id]} :path
+                              images-to-update :body} :parameters
+                             :as req}]
+                         (let [model-id (to-uuid model_id)
+                               tx (:tx req)
 
-                                   results (mapv (fn [{:keys [id is_cover]}]
-                                           (jdbc/execute! tx
-                                             (-> (sql/update :models)
-                                               (sql/set (if is_cover
-                                                          {:cover_image_id (to-uuid id)}
-                                                          {:cover_image_id nil}))
-                                               (sql/where [:= :id model-id])
-                                               (sql/returning [:id :cover_image_id])
-                                               sql-format)))
-                                     images-to-update)]
+                               results (mapv (fn [{:keys [id is_cover]}]
+                                               (when is_cover
 
+                                                 (jdbc/execute! tx
+                                                   (-> (sql/update :models)
+                                                     (sql/set {:cover_image_id (to-uuid is_cover)})
+                                                     (sql/where [:= :id id])
+                                                     (sql/returning [:id :cover_image_id])
+                                                     sql-format))))
+                                         images-to-update)]
 
 
-                                   ;]
-                               ;(doseq [{:keys [id is_cover]} images-to-update]
-                               ;    (jdbc/execute! tx
-                               ;      (-> (sql/update :models)
-                               ;        (sql/set (if is_cover
-                               ;                   {:cover_image_id (to-uuid id)}
-                               ;                   {:cover_image_id nil}))
-                               ;        (sql/where [:= :id model-id])
-                               ;        (sql/returning [:id :cover_image_id])
-                               ;        sql-format))
-                               ;  )
 
-                               ;(response/status
-                               ;  (response/response {:model_id model-id
-                               ;                      :updated_cover (some #(select-keys % [:id :is_cover]) images-to-update)})
-                               ;  200)
+                           ;]
+                           ;(doseq [{:keys [id is_cover]} images-to-update]
+                           ;    (jdbc/execute! tx
+                           ;      (-> (sql/update :models)
+                           ;        (sql/set (if is_cover
+                           ;                   {:cover_image_id (to-uuid id)}
+                           ;                   {:cover_image_id nil}))
+                           ;        (sql/where [:= :id model-id])
+                           ;        (sql/returning [:id :cover_image_id])
+                           ;        sql-format))
+                           ;  )
 
-                               (response/response {:model_id model-id :results results})
+                           ;(response/status
+                           ;  (response/response {:model_id model-id
+                           ;                      :updated_cover (some #(select-keys % [:id :is_cover]) images-to-update)})
+                           ;  200)
 
+                           (response/response {
+                                               ;:model_id model-id
+                                               :results results})
 
-                             ))
+                           ))
 
 
 
@@ -839,7 +837,7 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-   ["/license" ;;new
+   ["/license"                                              ;;new
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
 
@@ -1074,7 +1072,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
-     ["/licenses" ;; new
+     ["/licenses"                                           ;; new
       {:swagger {:conflicting true
                  :tags ["form / licenses"] :security []}}
 
@@ -1112,7 +1110,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
-        :get {:accept "application/json" ;;new
+        :get {:accept "application/json"                    ;;new
               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?

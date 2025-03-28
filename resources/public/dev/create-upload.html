@@ -236,13 +236,16 @@
                 const isCoverChecked = document.getElementById('firstImageIsCover').checked;
 
                 if (isCoverChecked && uploadedImageData.length > 0) {
-                    patchBody=[]
-                    uploadedImageData.forEach((image, i) => {
-                        patchBody.push({
-                            id: modelId,
-                            is_cover: i==0 ? image.image.id : null
-                        });
-                    });
+                    patchBody=[{
+                        id: modelId,
+                        is_cover: uploadedImageData[0].image.id
+                    }]
+                    // uploadedImageData.forEach((image, i) => {
+                    //     patchBody.push({
+                    //         id: modelId,
+                    //         is_cover: uploadedImageData[0].image.id
+                    //     });
+                    // });
 
                     const patchResponse = await fetch(`/inventory/${poolId}/model`, {
                         method: 'PATCH',
