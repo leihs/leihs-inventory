@@ -113,38 +113,31 @@
     {:created-images-attr created-images-attr
      :all-image-attributes all-image-attributes}))
 
-
 (defn process-image [tx image model-id]
-
 
   (let [file-content (file-to-base64 (:tempfile image))
         image-data (-> (set/rename-keys image {:content-type :content_type})
-                     (dissoc :tempfile)
-                     (assoc :content file-content
-                       :target_id model-id
-                       :target_type "Model"
-                       :thumbnail false))
-        p (println ">o> abc.image-data" image-data)
+                       (dissoc :tempfile)
+                       (assoc :content file-content
+                              :target_id model-id
+                              :target_type "Model"
+                              :thumbnail false))
+        p (println ">o> abc.image-data" image-data)]
 
-        ]
-
-    (println ">o> abc >> INSERT IMAGE-ENTRY" )
+    (println ">o> abc >> INSERT IMAGE-ENTRY")
     (jdbc/execute! tx (-> (sql/insert-into :images)
-                        (sql/values [image-data])
-                        (sql/returning :*)
-                        sql-format)))
-  )
+                          (sql/values [image-data])
+                          (sql/returning :*)
+                          sql-format))))
 
-
-  ;; new version for json-endpoint
+;; new version for json-endpoint
 (defn upload-image [req]
 
-  (println ">o> upload-image" )
+  (println ">o> upload-image")
 
   ;(let [model_id (get-in req [:parameters :path :model_id])
   ;      body (get-in req [:parameters :body])]
   ;  (status (response {:model_id model_id :body body}) 200))
-
 
   (let [{{:keys [model-id]} :path} (:parameters req)
         ;; get the input stream from the Ring request
@@ -161,10 +154,7 @@
         _ (io/copy body-stream (io/file filename-to-save))
         _ (println ">o> abc >> SAVED FILE TO DISK" filename-to-save)
 
-        data (process-image tx {:tempfile filename-to-save} model-id )
-        ]
-
-  )  )
+        data (process-image tx {:tempfile filename-to-save} model-id)]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -190,7 +180,7 @@
           data (assoc (dissoc entry :tempfile) :content file-content)
           data (jdbc/execute! tx (-> (sql/insert-into :attachments)
                                      (sql/values [data])
-                                     (sql/returning :id :filename  :content_type :size :item_id)
+                                     (sql/returning :id :filename :content_type :size :item_id)
                                      sql-format))]
       (println ">o> abc >> INSERTED IN DB")
       (status (response data) 200))))

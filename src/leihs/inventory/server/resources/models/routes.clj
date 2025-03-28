@@ -1,26 +1,24 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
+   [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.models.coercion :as mc]
 
+   [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
+
+   [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
+                                                                      upload-image]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-form
 
                                                                                          create-model-handler-by-pool-model-only
-                                                                                         create-model-handler-by-pool-with-attachment-images
+                                                                                         create-model-handler-by-pool-with-attachment-images]]
 
-                                                                                         ]]
-
-   [leihs.inventory.server.resources.models.form.model.common :refer [
-                                                                      upload-attachment
-                                                                      upload-image
-
-                                                                                         ]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
                                                                                          ;process-image
@@ -61,9 +59,7 @@
    [ring.util.response :as response]
    [schema.core :as s]
    [spec-tools.core :as st]
-   [clojure.java.io :as io]
    [spec-tools.data-spec :as ds]))
-
 
 (def FileUpload
   "Schema describing a typical Ring multipart file map."
@@ -313,8 +309,7 @@
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}
-                               }
+                  :parameters {:path {:model_id s/Uuid}}
 
                   :handler upload-image
 
@@ -599,7 +594,6 @@
               :responses {200 {:description "OK"
                                ;:body {:data :model-optional-response/inventory-model
                                ;       :validation any?}
-
                                }
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
@@ -635,8 +629,7 @@
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body {
-                                 :product string?
+                          :body {:product string?
                                  ;(ds/opt :version) (sa/nilable string?)
                                  }}
 

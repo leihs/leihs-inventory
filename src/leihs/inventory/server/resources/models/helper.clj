@@ -180,7 +180,7 @@
 
 (defn process-attachments
 
-  (  [tx attachments model-id]
+  ([tx attachments model-id]
    (doseq [entry attachments]
      (let [file-content (file-to-base64 (:tempfile entry))
            data (assoc (dissoc entry :tempfile) :content file-content :model_id model-id)]
@@ -188,7 +188,6 @@
                              (sql/values [data])
                              (sql/returning :*)
                              sql-format)))))
-
 
   ([tx attachments col_name id]
    (doseq [entry attachments]

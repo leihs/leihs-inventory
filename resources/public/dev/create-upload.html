@@ -28,23 +28,6 @@
 
         .success { color: green; }
         .error { color: red; }
-    </style>
-
-    <style>
-        .limited-text {
-            width: 200px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
-
-        .links {
-            padding: 0.5em 1em 1em 1em;
-            margin-top: 1em;
-            background-color: #f4f4f4;
-            border-style: dashed;
-        }
 
         body {
             font-family: Arial, sans-serif;
@@ -53,19 +36,16 @@
             padding: 20px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
         label {
             display: block;
             margin-bottom: 5px;
         }
 
-        input[type="text"], input[type="file"], textarea, select {
+        input[type="text"], input[type="file"] {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
+            margin-bottom: 15px;
         }
 
         button {
@@ -76,131 +56,99 @@
             cursor: pointer;
         }
 
-        .myBtn {
-            margin-top: 10px;
-        }
-
-        .btn-danger, .remove-file-btn, .deleteStyle {
-            background-color: #dc3545;
-        }
-
-        .entitlement-row {
-            display: flex;
-            align-items: center;
-            column-gap: 3rem;
-            justify-content: space-around;
-            margin-top: 0.5rem;
-        }
-
         button:hover {
             background-color: #0056b3;
         }
 
-        .dynamic-list {
-            margin-top: 10px;
-        }
-
-        .dynamic-item {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .remove-btn {
-            background-color: #dc3545;
-        }
-
-        .file-list {
-            margin-top: 10px;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
+        #status {
+            margin-top: 1em;
+            font-weight: bold;
         }
 
         body.save-success {
             border: 1em solid #b8f4b8;
-            transition: border 0.3s ease-in-out;
-        }
-
-        body.no-result-success {
-            border: 1em solid #BFBFBF1C;
-            transition: border 0.3s ease-in-out;
         }
 
         body.save-failed {
             border: 1em solid red;
-            transition: border 0.3s ease-in-out;
-        }
-
-        #addAccessory, #addProperty {
-            background-color: #dedede;
-            color: black;
-        }
-
-        .image-group {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-        }
-
-        .image-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 30%; /* Adjust as needed */
-        }
-
-        .image-container img {
-            width: 100%;
-            object-fit: cover;
-        }
-
-        .image-footer {
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
         }
     </style>
+
+
+    <style>
+        /* menu */
+        ul.dev-page-menu {
+            list-style-type: none; /* Remove default bullets */
+            padding: 0; /* Remove default padding */
+            margin: 0; /* Remove default margin */
+            display: flex; /* Display items in a row */
+            justify-content: space-around; /* Space items evenly */
+            background-color: #f4f4f4; /* Light gray background for the list */
+            border: 1px solid #ddd; /* Add a border around the list */
+            border-radius: 5px; /* Round the corners */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+        }
+
+        ul li {
+            margin: 0; /* Remove default margin */
+        }
+
+        ul.dev-page-menu li a {
+            display: block;
+            padding: 10px 15px; /* Add padding for better click area */
+            text-decoration: none; /* Remove default underline */
+            color: #333; /* Set text color */
+            font-weight: 500; /* Make the font semi-bold */
+            transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
+            border-radius: 5px; /* Match border radius with the list */
+        }
+
+        ul.dev-page-menu li a:hover {
+            background-color: #007BFF; /* Change background color on hover */
+            color: white; /* Change text color on hover */
+        }
+    </style>
+
 </head>
 <body>
+
+<ul class="dev-page-menu">
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/upload">FileUpload</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/stable">InventoryList</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model">Model</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/software">Software</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/license">License (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/item">Item (d)</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
+    <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
+</ul>
+
 <h1>Upload Model & Images (Enhanced)</h1>
 
 <form id="myForm">
     <label for="poolId">Pool-ID:</label>
     <input type="text" id="poolId" name="poolId" required value="8bd16d45-056d-5590-bc7f-12849f034351" />
 
-    <br /><br />
-
     <label for="product">Product:</label>
     <input type="text" id="product" name="product" required />
 
-    <br /><br />
-
     <label for="version">Version:</label>
-    <input type="text" id="version" name="version"  />
-
-    <br /><br />
+    <input type="text" id="version" name="version" />
 
     <label for="images">Images:</label>
-    <input type="file" id="images" name="images" multiple />
-
-    <br /><br />
+    <input type="file" id="images" name="images" multiple accept="image/*" />
 
     <label for="files">Files:</label>
-    <input type="file" id="files" name="files" multiple />
-
-    <br /><br />
+    <input type="file" id="files" name="files" multiple accept=".pdf,.docx,.csv,.zip,.txt" />
 
     <button type="submit">Submit</button>
     <div id="spinner"></div>
 </form>
 
-<div id="status" style="margin-top: 1em; font-weight: bold;"></div>
+<div id="status"></div>
 <div id="fileStatuses" class="file-status"></div>
 
 <script>
@@ -233,7 +181,10 @@
                     body: JSON.stringify({ product, version })
                 });
 
-                if (!modelResponse.ok) throw new Error('Error creating model');
+                if (!modelResponse.ok) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    throw new Error('Error creating model');
+                }
 
                 const modelData = await modelResponse.json();
                 const modelId = modelData.data.id;
@@ -245,11 +196,13 @@
                     ...Array.from(files).map(file => ({ file, type: 'file' }))
                 ];
 
-                const uploadedFilesData = [];
+                const uploadedImageData = [];
                 const uploadStatus = {
                     successfully_uploaded: [],
                     upload_failed: []
                 };
+
+                const maxFileSize = 20 * 1024 * 1024;
 
                 for (let i = 0; i < allFiles.length; i++) {
                     const { file, type } = allFiles[i];
@@ -258,9 +211,17 @@
 
                     fileStatuses.innerHTML += `<div id="file-${i}">🔄 Uploading ${file.name} (${indexText})...</div>`;
 
+                    if (file.size > maxFileSize) {
+                        document.getElementById(`file-${i}`).innerHTML = `❌ <span class="error">${file.name} exceeds 20MB limit.</span>`;
+                        uploadStatus.upload_failed.push({ file_name: file.name, reason: "File too large" });
+                        continue;
+                    }
+
                     try {
                         const response = await uploadSingleFile(file, uploadUrl);
-                        uploadedFilesData.push(response[0]);
+                        if (type === 'image') {
+                            uploadedImageData.push(response[0]);
+                        }
                         document.getElementById(`file-${i}`).innerHTML = `✅ <span class="success">${file.name} uploaded successfully.</span>`;
                         uploadStatus.successfully_uploaded.push({ file_name: file.name });
                     } catch (err) {
@@ -273,7 +234,7 @@
 
                 const patchBody = {
                     model_id: modelId,
-                    uploaded_files: uploadedFilesData
+                    uploaded_files: uploadedImageData
                 };
 
                 const patchResponse = await fetch(`/inventory/${poolId}/model`, {
@@ -285,20 +246,28 @@
                     body: JSON.stringify(patchBody)
                 });
 
-                if (!patchResponse.ok) throw new Error('PATCH request failed');
+                if (!patchResponse.ok) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    throw new Error('PATCH request failed');
+                }
 
                 const patchData = await patchResponse.json();
                 statusEl.innerHTML = `
-                    ✅ All steps completed.<br>
+                    ✅ All steps completed for model_id=${modelId}<br>
+                      <a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
+                    <br>
                     Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
                     Failed: ${uploadStatus.upload_failed.length}
+                    <br>
                 `;
+                document.body.classList.add('save-success');
 
                 console.log('Final PATCH response:', patchData);
 
             } catch (error) {
                 console.error('Error:', error);
                 statusEl.textContent = `❌ Error: ${error.message}`;
+                document.body.classList.add('save-failed');
             } finally {
                 spinner.style.display = 'none';
                 form.querySelector('button').disabled = false;
@@ -306,9 +275,6 @@
         });
 
         function uploadSingleFile(file, uploadUrl) {
-
-            // debugger
-
             return new Promise((resolve, reject) => {
                 $.ajax({
                     url: uploadUrl,
@@ -324,8 +290,8 @@
                     success: function(response) {
                         resolve(response);
                     },
-                    error: function(a,b, errorThrown) {
-                        console.error(a.responseJSON)
+                    error: function(xhr, status, errorThrown) {
+                        console.error(xhr.responseJSON);
                         reject(errorThrown);
                     }
                 });

@@ -88,7 +88,6 @@
                               (sql/where [:= :id model-id])
                               sql-format))))))
 
-
 ;(defn process-image [tx image model-id]
 ;
 ;

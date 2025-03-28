@@ -154,16 +154,13 @@
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
 
-
-
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
 
-
-        ;; >o> abc.normalize-model-data.type 0> clojure.lang.PersistentHashMap
+;; >o> abc.normalize-model-data.type 0> clojure.lang.PersistentHashMap
         multipart (get-in request [:parameters :multipart])
         p (println ">o> abc.multipart1" multipart)
 
@@ -171,7 +168,6 @@
         p (println ">o> abc.mult-body2" body)
 
         multipart (or multipart body)
-
 
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
@@ -198,14 +194,11 @@
             model-id (:id res)
 
             {:keys [created-images-attr all-image-attributes]}
-            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))
-
-            ]
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
 
         (when create-all (process-attachments tx attachments "model_id" model-id))
 
-
-        ;; PATCH
+;; PATCH
         (when create-all (process-image-attributes tx all-image-attributes model-id))
 
         (process-entitlements tx entitlements model-id)
@@ -232,12 +225,8 @@
               (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 
-
 (defn create-model-handler-by-pool-model-only [request]
-  (create-model-handler-by-pool-form request false)
-
-  )
+  (create-model-handler-by-pool-form request false))
 
 (defn create-model-handler-by-pool-with-attachment-images [request]
-  (create-model-handler-by-pool-form request true)
-  )
+  (create-model-handler-by-pool-form request true))
