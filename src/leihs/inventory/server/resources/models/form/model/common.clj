@@ -8,12 +8,12 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [ring.util.response :as response]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
+   [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
@@ -110,11 +110,11 @@
         results (mapv (fn [{:keys [id is_cover]}]
                         (when is_cover
                           (jdbc/execute! tx
-                            (-> (sql/update :models)
-                                (sql/set {:cover_image_id (to-uuid is_cover)})
-                                (sql/where [:= :id id])
-                                (sql/returning [:id :cover_image_id])
-                                sql-format))))
+                                         (-> (sql/update :models)
+                                             (sql/set {:cover_image_id (to-uuid is_cover)})
+                                             (sql/where [:= :id id])
+                                             (sql/returning [:id :cover_image_id])
+                                             sql-format))))
                       images-to-update)]
     (response/response {:results results})))
 

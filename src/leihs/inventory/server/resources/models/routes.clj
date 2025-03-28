@@ -101,12 +101,12 @@
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             :body [(s/conditional
-                                     map? {:id s/Uuid
-                                           :manufacturer s/Str
-                                           :product s/Str
-                                           :version (s/maybe s/Str)
-                                           :model_id s/Uuid}
-                                     string? s/Str)]}
+                                    map? {:id s/Uuid
+                                          :manufacturer s/Str
+                                          :product s/Str
+                                          :version (s/maybe s/Str)
+                                          :model_id s/Uuid}
+                                    string? s/Str)]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
@@ -420,7 +420,7 @@
    {:swagger {:conflicting true
               :tags ["Models by pool"] :security []}}
 
-   ["/item"                                                 ;; form/item new
+   ["/item" ;; form/item new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -451,7 +451,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/item"                                ;; new
+   ["/models/:model_id/item" ;; new
     {:swagger {:conflicting true
                :tags ["form / item"] :security []}}
 
@@ -473,7 +473,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json"                      ;;new
+      :get {:accept "application/json" ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -487,7 +487,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/package"                                              ;; new
+   ["/package" ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -523,7 +523,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/package"                             ;; new
+   ["/models/:model_id/package" ;; new
     {:swagger {:conflicting true
                :tags ["form / package"] :security []}}
 
@@ -545,7 +545,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :get {:accept "application/json"                      ;;new
+      :get {:accept "application/json" ;;new
             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?
@@ -567,11 +567,11 @@
                        :produces "application/json"}
              :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
              :description (str
-                            " - Upload images and attachments \n"
-                            " - Save data \n"
-                            " - images: additional handling needed to process no/one/multiple files \n"
-                            " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-                            " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+                           " - Upload images and attachments \n"
+                           " - Save data \n"
+                           " - images: additional handling needed to process no/one/multiple files \n"
+                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
@@ -589,13 +589,11 @@
               :coercion reitit.coercion.schema/coercion
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :parameters {:path {:pool_id s/Uuid}
-                           :body [{
-                                   :is_cover (s/maybe s/Uuid)
+                           :body [{:is_cover (s/maybe s/Uuid)
                                    ;:to_delete  (s/maybe s/Bool)
-                                   :id s/Uuid
-                                   }]}
+                                   :id s/Uuid}]}
               :handler patch-models-handler
-              :responses {200 {:description "OK"                               }
+              :responses {200 {:description "OK"}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
@@ -748,7 +746,7 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-   ["/license"                                              ;;new
+   ["/license" ;;new
     {:swagger {:conflicting true
                :tags ["form / licenses"] :security []}}
 
@@ -983,7 +981,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
-     ["/licenses"                                           ;; new
+     ["/licenses" ;; new
       {:swagger {:conflicting true
                  :tags ["form / licenses"] :security []}}
 
@@ -1021,7 +1019,7 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 
-        :get {:accept "application/json"                    ;;new
+        :get {:accept "application/json" ;;new
               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
               :coercion spec/coercion
               :parameters {:path {:pool_id uuid?
