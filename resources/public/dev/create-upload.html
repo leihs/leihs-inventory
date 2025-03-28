@@ -144,6 +144,11 @@
     <label for="files">Files:</label>
     <input type="file" id="files" name="files" multiple accept=".pdf,.docx,.csv,.zip,.txt" />
 
+    <label for="firstImageIsCover">Set first image as 'is_cover':</label>
+    <input type="checkbox" id="firstImageIsCover" name="firstImageIsCover" />
+
+    </br></br>
+
     <button type="submit">Submit</button>
     <div id="spinner"></div>
 </form>
@@ -230,13 +235,20 @@
                     }
                 }
 
+
+
+
                 statusEl.textContent = 'Sending final PATCH...';
+
+
+                // TODO: if firstImageIsCover is checked, set the first image as 'is_cover'=true
 
                 const patchBody = {
                     model_id: modelId,
                     uploaded_files: uploadedImageData
                 };
 
+                // TODO: do nothing if no images were uploaded OR firstImageIsCover is unchecked, avoid request
                 const patchResponse = await fetch(`/inventory/${poolId}/model`, {
                     method: 'PATCH',
                     headers: {
