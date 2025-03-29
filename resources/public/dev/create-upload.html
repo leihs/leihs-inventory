@@ -103,6 +103,16 @@
             background-color: #007BFF;
             color: white;
         }
+
+        .preview-container img {
+            max-height: 80px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .preview-container {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -125,7 +135,6 @@
 
 <h3>Options</h3>
 
-<!-- Pool ID: used for both fetch and submit -->
 <div class="form-group">
     <label for="poolId">Pool ID</label>
     <input type="text" id="poolId" name="poolId" value="8bd16d45-056d-5590-bc7f-12849f034351">
@@ -141,8 +150,6 @@
 
 <h1>Upload Model & Images (Enhanced)</h1>
 <form id="myForm">
-    <!-- poolId was removed from here to avoid duplication -->
-
     <label for="product">Product:</label>
     <input type="text" id="product" name="product" required />
 
@@ -151,9 +158,11 @@
 
     <label for="images">Images:</label>
     <input type="file" id="images" name="images" multiple accept="image/*" />
+    <div id="existingImages" class="preview-container"></div>
 
     <label for="files">Files:</label>
     <input type="file" id="files" name="files" multiple accept=".pdf,.docx,.csv,.zip,.txt" />
+    <div id="existingAttachments" class="preview-container"></div>
 
     <label for="firstImageIsCover">Set first image as 'is_cover':</label>
     <input type="checkbox" id="firstImageIsCover" name="firstImageIsCover" />
@@ -162,6 +171,9 @@
     <input type="checkbox" id="lastImageIsCover" name="lastImageIsCover" />
 
     <br><br>
+    <!-- TODO: change text depending on mode
+     - why did you remove uploadSingleFile function? -->
+     -->
     <button type="submit">Submit</button>
     <div id="spinner"></div>
 </form>
@@ -195,104 +207,35 @@
 
                 if (!response.ok) throw new Error("Failed to fetch model data.");
 
-                const data = await response.json();
-                $('#product').val(data.product || '');
-                $('#version').val(data.version || '');
+                const [model] = await response.json();
+
+                $('#product').val(model.product || '');
+                $('#version').val(model.version || '');
                 $('#formTitle').text('Update Existing Model');
                 $('#modeStatus').text('Mode: UPDATE');
+
+                const imageHtml = model.image_attributes?.length
+                    ? model.image_attributes.map(img => `
+                        <div>
+                            <img src="${img.thumbnail_url || img.url}" alt="${img.filename}">
+                            <span>${img.filename}</span>
+                            ${img.is_cover ? '<strong> ⭐ Cover</strong>' : ''}
+                        </div>
+                    `).join('')
+                    : '<em>No existing images found.</em>';
+
+                $('#existingImages').html(`<h4>Existing Images</h4>${imageHtml}`);
+
+                const attachmentHtml = model.attachments?.length
+                    ? model.attachments.map(file => `
+                        <div>📎 ${file.filename} <small>(${file.content_type})</small></div>
+                    `).join('')
+                    : '<em>No existing attachments found.</em>';
+
+                $('#existingAttachments').html(`<h4>Existing Attachments</h4>${attachmentHtml}`);
             } catch (err) {
                 alert("Error fetching model.");
                 console.error(err);
-            }
-        });
-
-        $('#myForm').on('submit', async function (e) {
-            e.preventDefault();
-            const spinner = $('#spinner').show();
-            $('#status').text('');
-            $('#fileStatuses').html('');
-            $('button[type="submit"]').prop('disabled', true);
-            $('body').removeClass('save-success save-failed');
-
-            try {
-                const poolId = $('#poolId').val().trim();
-                const product = $('#product').val().trim();
-                const version = $('#version').val().trim();
-                const images = $('#images')[0].files;
-                const files = $('#files')[0].files;
-
-                const modelRes = await fetch(`/inventory/${poolId}/model/`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ product, version })
-                });
-
-                if (!modelRes.ok) throw new Error('Error creating model');
-
-                const modelData = await modelRes.json();
-                const modelId = modelData.data.id;
-
-                $('#status').text(`Model created (ID = ${modelId}). Uploading files...`);
-
-                const allFiles = [...Array.from(images).map(f => ({ file: f, type: 'image' })), ...Array.from(files).map(f => ({ file: f, type: 'file' }))];
-                const uploadedImageData = [], uploadStatus = { successfully_uploaded: [], upload_failed: [] };
-                const maxSize = 20 * 1024 * 1024;
-
-                for (let i = 0; i < allFiles.length; i++) {
-                    const { file, type } = allFiles[i];
-                    const url = `/inventory/models/${modelId}/${type === 'image' ? 'images' : 'attachments'}`;
-                    const indexText = `${i + 1} of ${allFiles.length}`;
-                    const statusId = `file-${i}`;
-                    $('#fileStatuses').append(`<div id="${statusId}">🔄 Uploading ${file.name} (${indexText})...</div>`);
-
-                    if (file.size > maxSize) {
-                        $(`#${statusId}`).html(`❌ <span class="error">${file.name} exceeds 20MB limit.</span>`);
-                        uploadStatus.upload_failed.push({ file_name: file.name, reason: "File too large" });
-                        continue;
-                    }
-
-                    try {
-                        const response = await uploadSingleFile(file, url);
-                        if (type === 'image') uploadedImageData.push(response);
-                        $(`#${statusId}`).html(`✅ <span class="success">${file.name} uploaded successfully.</span>`);
-                        uploadStatus.successfully_uploaded.push({ file_name: file.name });
-                    } catch {
-                        $(`#${statusId}`).html(`❌ <span class="error">${file.name} failed to upload.</span>`);
-                        uploadStatus.upload_failed.push({ file_name: file.name });
-                    }
-                }
-
-                $('#status').text('Sending final PATCH...');
-                let coverImageId = null;
-                if ($('#firstImageIsCover').is(':checked') && uploadedImageData.length > 0)
-                    coverImageId = uploadedImageData[0].image.id;
-                else if ($('#lastImageIsCover').is(':checked') && uploadedImageData.length > 0)
-                    coverImageId = uploadedImageData[uploadedImageData.length - 1].image.id;
-
-                if (coverImageId) {
-                    const patchRes = await fetch(`/inventory/${poolId}/model`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify([{ id: modelId, is_cover: coverImageId }])
-                    });
-
-                    if (!patchRes.ok) throw new Error('PATCH request failed');
-                }
-
-                $('#status').html(`
-                    ✅ All steps completed for model_id=${modelId}<br>
-                    <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br><br>
-                    Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
-                    Failed: ${uploadStatus.upload_failed.length}
-                `);
-                $('body').addClass('save-success');
-            } catch (err) {
-                console.error(err);
-                $('#status').text(`❌ Error: ${err.message}`);
-                $('body').addClass('save-failed');
-            } finally {
-                spinner.hide();
-                $('button[type="submit"]').prop('disabled', false);
             }
         });
 
@@ -316,5 +259,6 @@
         }
     });
 </script>
+
 </body>
 </html>
