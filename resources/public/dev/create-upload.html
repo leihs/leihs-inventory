@@ -178,69 +178,147 @@
 <div id="status"></div>
 <div id="fileStatuses" class="file-status"></div>
 
+
 <script>
-    $(document).ready(function () {
-        $('#firstImageIsCover').on('change', function () {
-            $('#lastImageIsCover').prop('disabled', this.checked);
-        });
-        $('#lastImageIsCover').on('change', function () {
-            $('#firstImageIsCover').prop('disabled', this.checked);
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('myForm');
+        const statusEl = document.getElementById('status');
+        const fileStatuses = document.getElementById('fileStatuses');
+        const spinner = document.getElementById('spinner');
 
-        $('#fetchModelBtn').on('click', async function () {
-            const poolId = $('#poolId').val().trim();
-            const modelId = $('#fetchModelId').val().trim();
-
-            if (!poolId || !modelId) {
-                alert("Please enter both Pool ID and Model ID.");
-                return;
-            }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            spinner.style.display = 'inline-block';
+            statusEl.textContent = '';
+            fileStatuses.innerHTML = '';
+            form.querySelector('button').disabled = true;
 
             try {
-                const response = await fetch(`/inventory/${poolId}/model/${modelId}`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
+                const poolId  = document.getElementById('poolId').value.trim();
+                const product = document.getElementById('product').value.trim();
+                const version = document.getElementById('version').value.trim();
+                const images = document.getElementById('images').files;
+                const files  = document.getElementById('files').files;
+
+                const modelResponse = await fetch(`/inventory/${poolId}/model/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ product, version })
                 });
 
-                if (!response.ok) throw new Error("Failed to fetch model data.");
+                if (!modelResponse.ok) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    throw new Error('Error creating model');
+                }
 
-                const [model] = await response.json();
+                const modelData = await modelResponse.json();
+                const modelId = modelData.data.id;
 
-                $('#product').val(model.product || '');
-                $('#version').val(model.version || '');
-                $('#formTitle').text('Update Existing Model');
-                $('#modeStatus').text('Mode: UPDATE');
-                $('#submitBtn').text('Update Model');
+                statusEl.textContent = `Model created (ID = ${modelId}). Uploading files...`;
 
-                const imageHtml = model.image_attributes?.length
-                    ? model.image_attributes.map(img => `
-                        <div>
-                            <img src="${img.thumbnail_url || img.url}" alt="${img.filename}">
-                            <span>${img.filename}</span>
-                            ${img.is_cover ? '<strong> ⭐ Cover</strong>' : ''}
-                        </div>
-                    `).join('')
-                    : '<em>No existing images found.</em>';
+                const allFiles = [
+                    ...Array.from(images).map(file => ({ file, type: 'image' })),
+                    ...Array.from(files).map(file => ({ file, type: 'file' }))
+                ];
 
-                $('#existingImages').html(`<h4>Existing Images</h4>${imageHtml}`);
+                const uploadedImageData = [];
+                const uploadStatus = {
+                    successfully_uploaded: [],
+                    upload_failed: []
+                };
 
-                const attachmentHtml = model.attachments?.length
-                    ? model.attachments.map(file => `
-                        <div>📎 ${file.filename} <small>(${file.content_type})</small></div>
-                    `).join('')
-                    : '<em>No existing attachments found.</em>';
+                const maxFileSize = 20 * 1024 * 1024;
 
-                $('#existingAttachments').html(`<h4>Existing Attachments</h4>${attachmentHtml}`);
-            } catch (err) {
-                alert("Error fetching model.");
-                console.error(err);
+                for (let i = 0; i < allFiles.length; i++) {
+                    const { file, type } = allFiles[i];
+                    const uploadUrl = `/inventory/models/${modelId}/${type === 'image' ? 'images' : 'attachments'}`;
+                    const indexText = `${i + 1} of ${allFiles.length}`;
+
+                    fileStatuses.innerHTML += `<div id="file-${i}">🔄 Uploading ${file.name} (${indexText})...</div>`;
+
+                    if (file.size > maxFileSize) {
+                        document.getElementById(`file-${i}`).innerHTML = `❌ <span class="error">${file.name} exceeds 20MB limit.</span>`;
+                        uploadStatus.upload_failed.push({ file_name: file.name, reason: "File too large" });
+                        continue;
+                    }
+
+                    try {
+                        const response = await uploadSingleFile(file, uploadUrl);
+                        if (type === 'image') {
+                            uploadedImageData.push(response);
+                        }
+                        document.getElementById(`file-${i}`).innerHTML = `✅ <span class="success">${file.name} uploaded successfully.</span>`;
+                        uploadStatus.successfully_uploaded.push({ file_name: file.name });
+                    } catch (err) {
+                        document.getElementById(`file-${i}`).innerHTML = `❌ <span class="error">${file.name} failed to upload.</span>`;
+                        uploadStatus.upload_failed.push({ file_name: file.name });
+                    }
+                }
+
+                statusEl.textContent = 'Sending final PATCH...';
+
+                const isCoverChecked = document.getElementById('firstImageIsCover').checked;
+
+                if (isCoverChecked && uploadedImageData.length > 0) {
+                    const patchBody = [{
+                        id: modelId,
+                        is_cover: uploadedImageData[0].image.id
+                    }];
+
+                    const patchResponse = await fetch(`/inventory/${poolId}/model`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(patchBody)
+                    });
+
+                    if (!patchResponse.ok) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        throw new Error('PATCH request failed');
+                    }
+
+                    const patchData = await patchResponse.json();
+                    statusEl.innerHTML = `
+                        ✅ All steps completed for model_id=${modelId}<br>
+                        <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
+                        <br>
+                        Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
+                        Failed: ${uploadStatus.upload_failed.length}
+                        <br>
+                    `;
+                    document.body.classList.add('save-success');
+                    console.log('Final PATCH response:', patchData);
+                } else {
+                    statusEl.innerHTML = `
+                        ✅ All steps completed for model_id=${modelId} (no PATCH)<br>
+                        <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
+                        <br>
+                        Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
+                        Failed: ${uploadStatus.upload_failed.length}
+                        <br>
+                    `;
+                    document.body.classList.add('save-success');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                document.body.classList.add('save-failed');
+            } finally {
+                spinner.style.display = 'none';
+                form.querySelector('button').disabled = false;
             }
         });
 
-        function uploadSingleFile(file, url) {
+        function uploadSingleFile(file, uploadUrl) {
             return new Promise((resolve, reject) => {
                 $.ajax({
-                    url,
+                    url: uploadUrl,
                     type: 'POST',
                     data: file,
                     contentType: file.type,
@@ -250,13 +328,19 @@
                         'Accept': 'application/json',
                         'X-Filename': file.name
                     },
-                    success: resolve,
-                    error: (_, __, errorThrown) => reject(errorThrown)
+                    success: function(response) {
+                        resolve(response);
+                    },
+                    error: function(xhr, status, errorThrown) {
+                        console.error(xhr.responseJSON);
+                        reject(errorThrown);
+                    }
                 });
             });
         }
     });
 </script>
+
 
 </body>
 </html>
