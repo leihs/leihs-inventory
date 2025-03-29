@@ -131,7 +131,7 @@
 </ul>
 
 <h1 id="formTitle">Create New Model</h1>
-<p id="modeStatus">Mode: CREATE</p>
+<div>Mode<p id="modeStatus">CREATE</p></div>
 
 <h3>Options</h3>
 
@@ -172,6 +172,7 @@
 
     <br><br>
     <button type="submit" id="submitBtn">Submit</button>
+    <button type="button" id="resetForm">Reset</button>
     <div id="spinner"></div>
 </form>
 
@@ -179,6 +180,18 @@
 <div id="fileStatuses" class="file-status"></div>
 <script>
     $(document).ready(function () {
+
+        // create global var
+        let globalModeIsCreate = true;
+
+        $('#resetForm').on('click', function () {
+            $('#myForm')[0].reset();
+            $('#existingImages').empty();
+            $('#existingAttachments').empty();
+            $('#firstImageIsCover').prop('checked', false);
+            $('#lastImageIsCover').prop('checked', false);
+        });
+
         // Checkbox toggle logic
         $('#firstImageIsCover').on('change', function () {
             $('#lastImageIsCover').prop('disabled', this.checked);
@@ -203,6 +216,8 @@
                     headers: { 'Accept': 'application/json' }
                 });
 
+                globalModeIsCreate = false;
+
                 if (!response.ok) throw new Error("Failed to fetch model data.");
 
                 var data = await response.json();
@@ -212,7 +227,7 @@
                 $('#product').val(data.product || '');
                 $('#version').val(data.version || '');
                 $('#formTitle').text('Update Existing Model');
-                $('#modeStatus').text('Mode: UPDATE');
+                $('#modeStatus').text(globalModeIsCreate ? 'CREATE' : 'UPDATE');
                 $('#submitBtn').text('Update Model');
             } catch (err) {
                 alert("Error fetching model.");
@@ -245,7 +260,7 @@
                 let endpoint = `/inventory/${poolId}/model/`;
 
                 // If updating an existing model
-                if (modelIdInput) {
+                if (!globalModeIsCreate) {
                     method = 'PUT';
                     endpoint = `/inventory/${poolId}/model/${modelIdInput}/`;
                 }
@@ -265,12 +280,17 @@
                     body: JSON.stringify(modelPayload)
                 });
 
+                // if (globalModeIsCreate) {
+                //     $('#fetchModelId').val(modelResponse.data.id);
+                // }
+
                 if (!modelResponse.ok) {
                     throw new Error(`${method} model request failed`);
                 }
 
                 const modelData = await modelResponse.json();
-                if (!modelIdInput) {
+                // if (!modelIdInput) {
+                if (globalModeIsCreate) {
                     modelId = modelData.data.id;
                     $('#fetchModelId').val(modelId);
                 }
@@ -357,6 +377,12 @@
                 }
 
                 $('body').removeClass('save-failed').addClass('save-success');
+
+                globalModeIsCreate=false;
+
+                $('#formTitle').text('Update Existing Model');
+                $('#modeStatus').text(globalModeIsCreate ? 'CREATE' : 'UPDATE');
+                $('#submitBtn').text('Update Model');
 
             } catch (error) {
                 console.error('Error:', error);
