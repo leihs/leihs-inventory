@@ -178,13 +178,19 @@
 <div id="status"></div>
 <div id="fileStatuses" class="file-status"></div>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('myForm');
         const statusEl = document.getElementById('status');
         const fileStatuses = document.getElementById('fileStatuses');
         const spinner = document.getElementById('spinner');
+
+        document.getElementById('firstImageIsCover').addEventListener('change', function () {
+            document.getElementById('lastImageIsCover').disabled = this.checked;
+        });
+        document.getElementById('lastImageIsCover').addEventListener('change', function () {
+            document.getElementById('firstImageIsCover').disabled = this.checked;
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -260,12 +266,17 @@
 
                 statusEl.textContent = 'Sending final PATCH...';
 
-                const isCoverChecked = document.getElementById('firstImageIsCover').checked;
+                const firstImageIsCoverChecked = document.getElementById('firstImageIsCover').checked;
+                const lastImageIsCoverChecked = document.getElementById('lastImageIsCover').checked;
 
-                if (isCoverChecked && uploadedImageData.length > 0) {
+                if ((firstImageIsCoverChecked || lastImageIsCoverChecked) && uploadedImageData.length > 0) {
+                    const selectedImage = firstImageIsCoverChecked
+                        ? uploadedImageData[0]
+                        : uploadedImageData[uploadedImageData.length - 1];
+
                     const patchBody = [{
                         id: modelId,
-                        is_cover: uploadedImageData[0].image.id
+                        is_cover: selectedImage.image.id
                     }];
 
                     const patchResponse = await fetch(`/inventory/${poolId}/model`, {
@@ -288,8 +299,8 @@
                         <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
                         <br>
                         Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
-                        Failed: ${uploadStatus.upload_failed.length}
-                        <br>
+                        Failed: ${uploadStatus.upload_failed.length}<br>
+                        ⭐ Cover image set to: ${selectedImage.image.filename}
                     `;
                     document.body.classList.add('save-success');
                     console.log('Final PATCH response:', patchData);
@@ -300,7 +311,6 @@
                         <br>
                         Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
                         Failed: ${uploadStatus.upload_failed.length}
-                        <br>
                     `;
                     document.body.classList.add('save-success');
                 }
@@ -340,7 +350,6 @@
         }
     });
 </script>
-
 
 </body>
 </html>
