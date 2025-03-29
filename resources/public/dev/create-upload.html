@@ -178,10 +178,9 @@
 
 <div id="status"></div>
 <div id="fileStatuses" class="file-status"></div>
+
 <script>
     $(document).ready(function () {
-
-        // create global var
         let globalModeIsCreate = true;
 
         $('#resetForm').on('click', function () {
@@ -192,15 +191,14 @@
             $('#lastImageIsCover').prop('checked', false);
         });
 
-        // Checkbox toggle logic
         $('#firstImageIsCover').on('change', function () {
             $('#lastImageIsCover').prop('disabled', this.checked);
         });
+
         $('#lastImageIsCover').on('change', function () {
             $('#firstImageIsCover').prop('disabled', this.checked);
         });
 
-        // Fetch existing model data
         $('#fetchModelBtn').on('click', async function () {
             const poolId = $('#poolId').val().trim();
             const modelId = $('#fetchModelId').val().trim();
@@ -216,19 +214,42 @@
                     headers: { 'Accept': 'application/json' }
                 });
 
-                globalModeIsCreate = false;
-
                 if (!response.ok) throw new Error("Failed to fetch model data.");
 
-                var data = await response.json();
+                globalModeIsCreate = false;
 
-                data=data[0]
+                let data = await response.json();
+                data = data[0];
 
                 $('#product').val(data.product || '');
                 $('#version').val(data.version || '');
                 $('#formTitle').text('Update Existing Model');
                 $('#modeStatus').text(globalModeIsCreate ? 'CREATE' : 'UPDATE');
                 $('#submitBtn').text('Update Model');
+
+                $('#existingImages').empty();
+                $('#existingAttachments').empty();
+
+                if (data.image_attributes && data.image_attributes.length > 0) {
+                    data.image_attributes.forEach(attr => {
+                        $('#existingImages').append(`
+                            <div style="display:inline-block;text-align:center;margin:5px;">
+                                <img src="${attr.thumbnail_url}" alt="${attr.filename}" title="${attr.filename}" />
+                                <div style="font-size: 0.8em;">${attr.filename}${attr.is_cover ? ' ⭐' : ''}</div>
+                            </div>`);
+                    });
+                }
+
+                if (data.attachments && data.attachments.length > 0) {
+                    data.attachments.forEach(att => {
+                        $('#existingAttachments').append(`
+                            <div style="margin-bottom: 5px;">
+                                📎 <a href="/inventory/attachments/${att.id}" target="_blank">${att.filename}</a>
+                                <span style="font-size: 0.8em; color: #666;">(${att.content_type})</span>
+                            </div>`);
+                    });
+                }
+
             } catch (err) {
                 alert("Error fetching model.");
                 console.error(err);
@@ -417,7 +438,6 @@
         }
     });
 </script>
-
 
 </body>
 </html>
