@@ -148,6 +148,9 @@
     <button id="fetchModelBtn" class="myBtn">Fetch model</button>
 </div>
 
+
+<br/><br/><br/>
+
 <h1>Upload Model & Images (Enhanced)</h1>
 <form id="myForm">
     <label for="product">Product:</label>
@@ -172,7 +175,7 @@
 
     <br><br>
     <button type="submit" id="submitBtn">Submit</button>
-    <button type="button" id="resetForm">Reset</button>
+    <button type="button" style="background-color: #ff9999" id="resetForm">Reset</button>
     <div id="spinner"></div>
 </form>
 
@@ -180,9 +183,10 @@
 <div id="fileStatuses" class="file-status"></div>
 
 <script>
-    $(document).ready(function () {
-        let globalModeIsCreate = true;
+    let globalModeIsCreate = true;
+    let lastFetchedModelData = null;
 
+    $(document).ready(function () {
         $('#resetForm').on('click', function () {
             $('#myForm')[0].reset();
             $('#existingImages').empty();
@@ -194,7 +198,6 @@
         $('#firstImageIsCover').on('change', function () {
             $('#lastImageIsCover').prop('disabled', this.checked);
         });
-
         $('#lastImageIsCover').on('change', function () {
             $('#firstImageIsCover').prop('disabled', this.checked);
         });
@@ -215,11 +218,11 @@
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch model data.");
-
                 globalModeIsCreate = false;
 
                 let data = await response.json();
                 data = data[0];
+                lastFetchedModelData = data;
 
                 $('#product').val(data.product || '');
                 $('#version').val(data.version || '');
@@ -230,7 +233,7 @@
                 $('#existingImages').empty();
                 $('#existingAttachments').empty();
 
-                if (data.image_attributes && data.image_attributes.length > 0) {
+                if (data.image_attributes?.length) {
                     data.image_attributes.forEach(attr => {
                         $('#existingImages').append(`
                             <div style="display:inline-block;text-align:center;margin:5px;">
@@ -240,7 +243,7 @@
                     });
                 }
 
-                if (data.attachments && data.attachments.length > 0) {
+                if (data.attachments?.length) {
                     data.attachments.forEach(att => {
                         $('#existingAttachments').append(`
                             <div style="margin-bottom: 5px;">
@@ -256,9 +259,9 @@
             }
         });
 
-        // Submit logic
         $('#myForm').on('submit', async function (e) {
             e.preventDefault();
+
             const spinner = $('#spinner');
             const statusEl = $('#status');
             const fileStatuses = $('#fileStatuses');
@@ -276,21 +279,19 @@
                 const images = $('#images')[0].files;
                 const files = $('#files')[0].files;
 
+                const firstCover = $('#firstImageIsCover').prop('checked');
+                const lastCover = $('#lastImageIsCover').prop('checked');
+
                 let modelId = modelIdInput;
                 let method = 'POST';
                 let endpoint = `/inventory/${poolId}/model/`;
 
-                // If updating an existing model
                 if (!globalModeIsCreate) {
                     method = 'PUT';
                     endpoint = `/inventory/${poolId}/model/${modelIdInput}/`;
                 }
 
-                const modelPayload = modelIdInput
-                    ? { product, version }
-                    // ? { id: modelIdInput, product, version }
-                    // ? [{ id: modelIdInput, product, version }]
-                    : { product, version };
+                const modelPayload = { product, version };
 
                 const modelResponse = await fetch(endpoint, {
                     method: method,
@@ -301,35 +302,22 @@
                     body: JSON.stringify(modelPayload)
                 });
 
-                // if (globalModeIsCreate) {
-                //     $('#fetchModelId').val(modelResponse.data.id);
-                // }
-
-                if (!modelResponse.ok) {
-                    throw new Error(`${method} model request failed`);
-                }
+                if (!modelResponse.ok) throw new Error(`${method} model request failed`);
 
                 const modelData = await modelResponse.json();
-                // if (!modelIdInput) {
                 if (globalModeIsCreate) {
                     modelId = modelData.data.id;
                     $('#fetchModelId').val(modelId);
                 }
 
-                statusEl.text(`Model ${method === 'POST' ? 'created' : 'updated'} (ID = ${modelId}). Uploading files...`);
+                const uploadedImageData = [];
+                const uploadStatus = { successfully_uploaded: [], upload_failed: [] };
+                const maxFileSize = 20 * 1024 * 1024;
 
                 const allFiles = [
                     ...Array.from(images).map(file => ({ file, type: 'image' })),
                     ...Array.from(files).map(file => ({ file, type: 'file' }))
                 ];
-
-                const uploadedImageData = [];
-                const uploadStatus = {
-                    successfully_uploaded: [],
-                    upload_failed: []
-                };
-
-                const maxFileSize = 20 * 1024 * 1024;
 
                 for (let i = 0; i < allFiles.length; i++) {
                     const { file, type } = allFiles[i];
@@ -339,70 +327,61 @@
 
                     if (file.size > maxFileSize) {
                         $(`#file-${i}`).html(`❌ <span class="error">${file.name} exceeds 20MB limit.</span>`);
-                        uploadStatus.upload_failed.push({ file_name: file.name, reason: "File too large" });
+                        uploadStatus.upload_failed.push({ file_name: file.name });
                         continue;
                     }
 
                     try {
-                        const response = await uploadSingleFile(file, uploadUrl);
-                        if (type === 'image') uploadedImageData.push(response);
+                        const res = await uploadSingleFile(file, uploadUrl);
+                        if (type === 'image') uploadedImageData.push(res);
                         $(`#file-${i}`).html(`✅ <span class="success">${file.name} uploaded successfully.</span>`);
                         uploadStatus.successfully_uploaded.push({ file_name: file.name });
-                    } catch (err) {
+                    } catch {
                         $(`#file-${i}`).html(`❌ <span class="error">${file.name} failed to upload.</span>`);
                         uploadStatus.upload_failed.push({ file_name: file.name });
                     }
                 }
 
-                // Handle is_cover PATCH
-                const firstCover = $('#firstImageIsCover').prop('checked');
-                const lastCover = $('#lastImageIsCover').prop('checked');
+                // Cover image logic
+                if ((firstCover || lastCover)) {
+                    let selectedImage = null;
 
-                if ((firstCover || lastCover) && uploadedImageData.length > 0) {
-                    const selectedImage = firstCover
-                        ? uploadedImageData[0]
-                        : uploadedImageData[uploadedImageData.length - 1];
+                    if (uploadedImageData.length > 0) {
+                        selectedImage = firstCover ? uploadedImageData[0] : uploadedImageData[uploadedImageData.length - 1];
+                    } else if (!globalModeIsCreate && lastFetchedModelData?.image_attributes?.length > 0) {
+                        const existingAttrs = lastFetchedModelData.image_attributes;
+                        selectedImage = firstCover ? existingAttrs[0] : existingAttrs[existingAttrs.length - 1];
+                    }
 
-                    const patchBody = [{
-                        id: modelId,
-                        is_cover: selectedImage.image.id
-                    }];
+                    if (selectedImage?.id || selectedImage?.image?.id) {
+                        const imageId = selectedImage.id || selectedImage.image.id;
 
-                    const patchResponse = await fetch(`/inventory/${poolId}/model`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(patchBody)
-                    });
+                        const patchBody = [{ id: modelId, is_cover: imageId }];
 
-                    if (!patchResponse.ok) throw new Error('PATCH request failed');
+                        const patchResponse = await fetch(`/inventory/${poolId}/model`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(patchBody)
+                        });
 
-                    const patchData = await patchResponse.json();
+                        if (!patchResponse.ok) throw new Error('PATCH request failed');
+                    }
+                }
 
-                    statusEl.html(`
+                statusEl.html(`
                     ✅ All steps completed for model_id=${modelId}<br>
-                    <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
-                    Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
-                    Failed: ${uploadStatus.upload_failed.length}<br>
-                    ⭐ Cover image set to: ${selectedImage.image.filename}
-                `);
-                } else {
-                    statusEl.html(`
-                    ✅ All steps completed for model_id=${modelId} (no PATCH)<br>
                     <a target="_blank" href="/inventory/${poolId}/dev/model?model_id=${modelId}&pool_id=${poolId}">${modelId}</a><br>
                     Uploaded: ${uploadStatus.successfully_uploaded.length}<br>
                     Failed: ${uploadStatus.upload_failed.length}
                 `);
-                }
 
                 $('body').removeClass('save-failed').addClass('save-success');
-
-                globalModeIsCreate=false;
-
+                globalModeIsCreate = false;
                 $('#formTitle').text('Update Existing Model');
-                $('#modeStatus').text(globalModeIsCreate ? 'CREATE' : 'UPDATE');
+                $('#modeStatus').text('UPDATE');
                 $('#submitBtn').text('Update Model');
 
             } catch (error) {
