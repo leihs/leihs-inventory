@@ -171,10 +171,7 @@
     <input type="checkbox" id="lastImageIsCover" name="lastImageIsCover" />
 
     <br><br>
-    <!-- TODO: change text depending on mode
-     - why did you remove uploadSingleFile function? -->
-     -->
-    <button type="submit">Submit</button>
+    <button type="submit" id="submitBtn">Submit</button>
     <div id="spinner"></div>
 </form>
 
@@ -213,6 +210,7 @@
                 $('#version').val(model.version || '');
                 $('#formTitle').text('Update Existing Model');
                 $('#modeStatus').text('Mode: UPDATE');
+                $('#submitBtn').text('Update Model');
 
                 const imageHtml = model.image_attributes?.length
                     ? model.image_attributes.map(img => `
