@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Form Example - Track Status</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
+        .checkStyle {
+            display: ruby-text;
+            display: inline-table;
+        }
+
         #spinner {
             display: none;
             border: 4px solid #f3f3f3;
@@ -17,8 +22,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .file-status {
@@ -26,8 +35,13 @@
             font-size: 0.9em;
         }
 
-        .success { color: green; }
-        .error { color: red; }
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
 
         body {
             font-family: Arial, sans-serif;
@@ -127,7 +141,8 @@
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/option">Option</a></li>
     <li><a target="_blank" href="/inventory/8bd16d45-056d-5590-bc7f-12849f034351/dev/package">Package (d)</a></li>
     <li><a target="_blank" href="/inventory/api-docs/index.html#/Auth/get_inventory_login">| Login</a></li>
-    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a></li>
+    <li><a target="_blank" href="/inventory/api-docs/index.html#/Dev/get_inventory_dev_update_accounts">updateCreds</a>
+    </li>
 </ul>
 
 <h1 id="formTitle">Create New Model</h1>
@@ -142,7 +157,8 @@
 
 <div class="form-group">
     <label for="fetchModelId">
-        <a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Model-ID (API)</a>
+        <a target="_blank" href="/inventory/api-docs/index.html#/Models%20by%20pool/get_inventory__pool_id__models">Model-ID
+            (API)</a>
     </label>
     <input type="text" id="fetchModelId" name="fetchModelId" value="0467bf02-fab7-5bbc-b259-4d00f02ebbcf"/>
     <button id="fetchModelBtn" class="myBtn">Fetch model</button>
@@ -153,25 +169,32 @@
 
 <h1>Upload Model & Images (Enhanced)</h1>
 <form id="myForm">
-    <label for="product">Product:</label>
-    <input type="text" id="product" name="product" required />
+    <label for="product" style="font-weight: bolder">Product:</label>
+    <input type="text" id="product" name="product" required/>
 
-    <label for="version">Version:</label>
-    <input type="text" id="version" name="version" />
+    <label for="version" style="font-weight: bolder">Version:</label>
+    <input type="text" id="version" name="version"/>
 
-    <label for="images">Images:</label>
-    <input type="file" id="images" name="images" multiple accept="image/*" />
+    <label for="images" style="font-weight: bolder">Images:</label>
+    <input type="file" id="images" name="images" multiple accept="image/*"/>
     <div id="existingImages" class="preview-container"></div>
 
-    <label for="files">Files:</label>
-    <input type="file" id="files" name="files" multiple accept=".pdf,.docx,.csv,.zip,.txt" />
+    <div class="checkStyle">
+        <label for="firstImageIsCover">Set first image as 'is_cover':</label>
+        <input type="checkbox" id="firstImageIsCover" name="firstImageIsCover"/>
+    </div>
+
+    <div class="checkStyle">
+        <label for="lastImageIsCover">Set last image as 'is_cover':</label>
+        <input type="checkbox" id="lastImageIsCover" name="lastImageIsCover"/>
+    </div>
+
+    <br><br>
+
+    <label for="files" style="font-weight: bolder">Files:</label>
+    <input type="file" id="files" name="files" multiple accept=".pdf,.docx,.csv,.zip,.txt"/>
     <div id="existingAttachments" class="preview-container"></div>
 
-    <label for="firstImageIsCover">Set first image as 'is_cover':</label>
-    <input type="checkbox" id="firstImageIsCover" name="firstImageIsCover" />
-
-    <label for="lastImageIsCover">Set last image as 'is_cover':</label>
-    <input type="checkbox" id="lastImageIsCover" name="lastImageIsCover" />
 
     <br><br>
     <button type="submit" id="submitBtn">Submit</button>
@@ -196,10 +219,12 @@
         });
 
         $('#firstImageIsCover').on('change', function () {
-            $('#lastImageIsCover').prop('disabled', this.checked);
+            // $('#lastImageIsCover').prop('disabled', this.checked);
+            $('#lastImageIsCover').prop('checked', false);
         });
         $('#lastImageIsCover').on('change', function () {
-            $('#firstImageIsCover').prop('disabled', this.checked);
+            // $('#firstImageIsCover').prop('disabled', this.checked);
+            $('#firstImageIsCover').prop('checked', false);
         });
 
         $('#fetchModelBtn').on('click', async function () {
@@ -214,7 +239,7 @@
             try {
                 const response = await fetch(`/inventory/${poolId}/model/${modelId}`, {
                     method: 'GET',
-                    headers: { 'Accept': 'application/json' }
+                    headers: {'Accept': 'application/json'}
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch model data.");
@@ -291,7 +316,7 @@
                     endpoint = `/inventory/${poolId}/model/${modelIdInput}/`;
                 }
 
-                const modelPayload = { product, version };
+                const modelPayload = {product, version};
 
                 const modelResponse = await fetch(endpoint, {
                     method: method,
@@ -311,23 +336,23 @@
                 }
 
                 const uploadedImageData = [];
-                const uploadStatus = { successfully_uploaded: [], upload_failed: [] };
+                const uploadStatus = {successfully_uploaded: [], upload_failed: []};
                 const maxFileSize = 20 * 1024 * 1024;
 
                 const allFiles = [
-                    ...Array.from(images).map(file => ({ file, type: 'image' })),
-                    ...Array.from(files).map(file => ({ file, type: 'file' }))
+                    ...Array.from(images).map(file => ({file, type: 'image'})),
+                    ...Array.from(files).map(file => ({file, type: 'file'}))
                 ];
 
                 for (let i = 0; i < allFiles.length; i++) {
-                    const { file, type } = allFiles[i];
+                    const {file, type} = allFiles[i];
                     const uploadUrl = `/inventory/models/${modelId}/${type === 'image' ? 'images' : 'attachments'}`;
                     const indexText = `${i + 1} of ${allFiles.length}`;
                     fileStatuses.append(`<div id="file-${i}">🔄 Uploading ${file.name} (${indexText})...</div>`);
 
                     if (file.size > maxFileSize) {
                         $(`#file-${i}`).html(`❌ <span class="error">${file.name} exceeds 20MB limit.</span>`);
-                        uploadStatus.upload_failed.push({ file_name: file.name });
+                        uploadStatus.upload_failed.push({file_name: file.name});
                         continue;
                     }
 
@@ -335,10 +360,10 @@
                         const res = await uploadSingleFile(file, uploadUrl);
                         if (type === 'image') uploadedImageData.push(res);
                         $(`#file-${i}`).html(`✅ <span class="success">${file.name} uploaded successfully.</span>`);
-                        uploadStatus.successfully_uploaded.push({ file_name: file.name });
+                        uploadStatus.successfully_uploaded.push({file_name: file.name});
                     } catch {
                         $(`#file-${i}`).html(`❌ <span class="error">${file.name} failed to upload.</span>`);
-                        uploadStatus.upload_failed.push({ file_name: file.name });
+                        uploadStatus.upload_failed.push({file_name: file.name});
                     }
                 }
 
@@ -356,7 +381,7 @@
                     if (selectedImage?.id || selectedImage?.image?.id) {
                         const imageId = selectedImage.id || selectedImage.image.id;
 
-                        const patchBody = [{ id: modelId, is_cover: imageId }];
+                        const patchBody = [{id: modelId, is_cover: imageId}];
 
                         const patchResponse = await fetch(`/inventory/${poolId}/model`, {
                             method: 'PATCH',
