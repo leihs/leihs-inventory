@@ -183,14 +183,18 @@
         prepared-model-data (-> (prepare-model-data multipart)
                                   (assoc :is_package (str-to-bool (:is_package multipart))))
 
+
+        p (println ">o> abc.multipart!!!!!!!!!" multipart)
+
         p (println ">o> abc.prepared-model-data???1" prepared-model-data)
         categories (parse-json-array multipart :categories)
         compatibles (parse-json-array multipart :compatibles)
         properties (parse-json-array multipart :properties)
         accessories (parse-json-array multipart :accessories)
         entitlements (parse-json-array multipart :entitlements)
-        attachments (when create-all (normalize-files request :attachments))
-        attachments-to-delete (parse-json-array request :attachments_to_delete)
+        attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
+        attachments-to-delete (parse-json-array multipart :attachments_to_delete)
+        images-to-delete (parse-json-array multipart :images_to_delete)
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))]
     {:prepared-model-data prepared-model-data
@@ -201,6 +205,7 @@
      :entitlements entitlements
      :attachments attachments
      :attachments-to-delete attachments-to-delete
+     :images-to-delete images-to-delete
      :images images
      :new-images-attr new-images-attr
      :existing-images-attr existing-images-attr}))
