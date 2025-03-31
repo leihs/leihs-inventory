@@ -10,6 +10,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
+                                                                      extract-model-form-data
                                                                       prepare-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool]]
@@ -160,31 +161,23 @@
 (defn filter-response [model keys]
   (let [updated-model (apply dissoc model keys)]
     updated-model))
+
 (defn update-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (or (get-in request [:parameters :multipart])
-                      (get-in request [:parameters :body]))
         tx (:tx request)
-        prepared-model-data (prepare-model-data multipart)]
+        {:keys [prepared-model-data categories compatibles attachments attachments-to-delete
+                properties accessories entitlements images new-images-attr existing-images-attr]}
+        (extract-model-form-data request create-all)]
     (try
       (let [update-model-query (-> (sql/update :models)
-                                   (sql/set prepared-model-data)
-                                   (sql/where [:= :id model-id])
-                                   (sql/returning :*)
-                                   sql-format)
+                                 (sql/set prepared-model-data)
+                                 (sql/where [:= :id model-id])
+                                 (sql/returning :*)
+                                 sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             updated-model (filter-response updated-model [:rental_price])
-            compatibles (parse-json-array multipart :compatibles)
-            categories (parse-json-array multipart :categories)
-            attachments (when create-all (normalize-files request :attachments))
-            attachments-to-delete (parse-json-array request :attachments_to_delete)
-            {:keys [images image-attributes new-images-attr existing-images-attr]}
-            (when create-all (create-images-and-prepare-image-attributes request))
-            properties (parse-json-array multipart :properties)
-            accessories (parse-json-array multipart :accessories)
-            entitlements (parse-json-array multipart :entitlements)
             {:keys [created-images-attr all-image-attributes]}
             (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
 
@@ -203,6 +196,7 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+
 
 (defn update-model-handler-by-pool-model-only [request]
   (update-model-handler-by-pool-form request false))

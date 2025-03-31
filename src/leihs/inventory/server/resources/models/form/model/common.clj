@@ -161,3 +161,40 @@
                                      attachment-response-format
                                      sql-format))]
       (status (response data) 200))))
+
+(defn prepare-model-data
+  [data]
+  (let [normalize-data (normalize-model-data data)
+        created-ts (LocalDateTime/now)
+        normalize-data (dissoc normalize-data :id)]
+    (assoc normalize-data
+      :type "Model"
+      :created_at created-ts
+      :updated_at created-ts)))
+
+(defn extract-model-form-data [request create-all]
+  (let [multipart (or (get-in request [:parameters :multipart])
+                    (get-in request [:parameters :body]))
+        prepared-model-data (-> (prepare-model-data multipart)
+                              (cond-> create-all
+                                (assoc :is_package (str-to-bool (:is_package multipart)))))
+        categories (parse-json-array multipart :categories)
+        compatibles (parse-json-array multipart :compatibles)
+        properties (parse-json-array multipart :properties)
+        accessories (parse-json-array multipart :accessories)
+        entitlements (parse-json-array multipart :entitlements)
+        attachments (when create-all (normalize-files request :attachments))
+        attachments-to-delete (parse-json-array request :attachments_to_delete)
+        {:keys [images image-attributes new-images-attr existing-images-attr]}
+        (when create-all (create-images-and-prepare-image-attributes request))]
+    {:prepared-model-data prepared-model-data
+     :categories categories
+     :compatibles compatibles
+     :properties properties
+     :accessories accessories
+     :entitlements entitlements
+     :attachments attachments
+     :attachments-to-delete attachments-to-delete
+     :images images
+     :new-images-attr new-images-attr
+     :existing-images-attr existing-images-attr}))

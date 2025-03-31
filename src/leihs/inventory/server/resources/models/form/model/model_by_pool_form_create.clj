@@ -9,6 +9,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
+                                                                      extract-model-form-data
                                                                       create-images-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
@@ -122,18 +123,9 @@
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (or (get-in request [:parameters :multipart])
-                      (get-in request [:parameters :body]))
-        prepared-model-data (-> (prepare-model-data multipart)
-                                (assoc :is_package (str-to-bool (:is_package multipart))))
-        categories (parse-json-array multipart :categories)
-        compatibles (parse-json-array multipart :compatibles)
-        attachments (normalize-files request :attachments)
-        properties (parse-json-array multipart :properties)
-        {:keys [images image-attributes new-images-attr existing-images-attr]}
-        (when create-all (create-images-and-prepare-image-attributes request))
-        accessories (parse-json-array multipart :accessories)
-        entitlements (parse-json-array multipart :entitlements)]
+        {:keys [accessories prepared-model-data categories compatibles attachments properties
+                entitlements images new-images-attr existing-images-attr]}
+        (extract-model-form-data request create-all)]
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
