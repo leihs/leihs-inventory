@@ -108,7 +108,7 @@
                       images-to-update)]
     (response/response {:results results})))
 
-(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
+;(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
 (def CONST_FILE_PATH "/tmp/")
 
 (defn upload-image [req]

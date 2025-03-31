@@ -121,7 +121,6 @@
         ;; The other one is legacy-code to handle multipart-data requests
         json-array-string (or (key multipart)
                               (get-in multipart [:parameters :multipart key]))]
-
     (cond
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []

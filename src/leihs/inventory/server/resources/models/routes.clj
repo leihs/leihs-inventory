@@ -579,7 +579,6 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :multipart :software/multipart}
-             ;:handler create-model-handler-by-pool-form
              :handler create-model-handler-by-pool-with-attachment-images
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
@@ -627,11 +626,10 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "New JSON Endpoint | [v1]"
+             :summary "New Create Model-Endpoint (JSON) | [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          ;:body {:product string?}
                           :body map?}
              :handler create-model-handler-by-pool-model-only
              :responses {200 {:description "OK"}
@@ -648,13 +646,12 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler create-model-handler-by-pool-form-fetch
              :responses {200 {:description "OK"
-                              ;:body :model-strict-response/inventory-models
-                              }
+                              :body :model-strict-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
-             :summary "(DEV) | [v0] DEPRECATED"
+             :summary "Update model endpoint (multidata) [v0] DEPR"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -663,10 +660,8 @@
                                  :model_id uuid?}
                           :multipart :software/multipart}
              :handler update-model-handler-by-pool-with-attachment-images
-             ;:handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"
-                              ;:body :model-optional-response/inventory-models
-                              }
+                              :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -692,18 +687,13 @@
                             500 {:description "Internal Server Error"}}}}]
 
      ["/"
-
       {:put {:accept "application/json"
-             :summary "(DEV) | [v1]"
-                    ;:swagger {:consumes ["multipart/form-data"]
-                    ;          :produces "application/json"}
+             :summary "Update model endpoint (JSON) [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
-                                 ;:multipart :software/multipart}
                           :body map?}
-                    ;:handler update-model-handler-by-pool-form
              :handler update-model-handler-by-pool-model-only
              :responses {200 {:description "OK"
                               :body :model-optional-response/inventory-models}
