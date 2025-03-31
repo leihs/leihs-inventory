@@ -381,7 +381,7 @@ feature "Inventory Model" do
           }
 
           resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
+            "/inventory/#{pool_id}/model/#{model_id}/",
             form_data,
             method: :put,
             headers: cookie_header

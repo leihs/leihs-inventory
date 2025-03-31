@@ -175,9 +175,15 @@
 (defn extract-model-form-data [request create-all]
   (let [multipart (or (get-in request [:parameters :multipart])
                       (get-in request [:parameters :body]))
+
+        ;prepared-model-data (-> (prepare-model-data multipart)
+        ;                        (cond-> create-all
+        ;                          (assoc :is_package (str-to-bool (:is_package multipart)))))
+
         prepared-model-data (-> (prepare-model-data multipart)
-                                (cond-> create-all
-                                  (assoc :is_package (str-to-bool (:is_package multipart)))))
+                                  (assoc :is_package (str-to-bool (:is_package multipart))))
+
+        p (println ">o> abc.prepared-model-data???1" prepared-model-data)
         categories (parse-json-array multipart :categories)
         compatibles (parse-json-array multipart :compatibles)
         properties (parse-json-array multipart :properties)

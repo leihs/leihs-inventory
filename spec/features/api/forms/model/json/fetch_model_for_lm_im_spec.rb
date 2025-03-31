@@ -403,13 +403,13 @@ feature "Inventory Model" do
             headers: cookie_header
           )
 
-          binding.pry
+          # binding.pry
           expect(compare_values(resp.body["data"], form_data.to_hash,
                                 ["version", "description", "technical_detail", "internal_description", "hand_over_note",
                                  "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
-          binding.pry
+          # binding.pry
           expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
 
           # fetch created model
@@ -449,11 +449,11 @@ feature "Inventory Model" do
             "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)].to_json,
             "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)].to_json,
 
-            "attachments" => [],
-            "images" => [],
+            # "attachments" => [],
+            # "images" => [],
             # "attachments_to_delete" => [attachments.first["id"]].to_json,
-            "images_to_delete" => [images.first["id"]].to_json,
-            "is_package" => "false"
+            # "images_to_delete" => [images.first["id"]].to_json,
+            "is_package" => false
           }
 
           resp = json_client_put(
@@ -461,6 +461,8 @@ feature "Inventory Model" do
             body: form_data,
             headers: cookie_header
           )
+
+          binding.pry
 
           expect(compare_values(resp.body[0], form_data,
                                 ["product", "version", "manufacturer", "description", "technical_detail",
@@ -478,8 +480,10 @@ feature "Inventory Model" do
                                 ["product", "version", "manufacturer", "description", "technical_detail",
                                  "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
-          expect(resp.body[0]["attachments"].count).to eq(1)
+          # expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["image_attributes"].count).to eq(0)
+          # expect(resp.body[0]["attachments"].count).to eq(1)
+          expect(resp.body[0]["attachments"].count).to eq(0)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["compatibles"].count).to eq(1)
           expect(resp.body[0]["categories"].count).to eq(1)

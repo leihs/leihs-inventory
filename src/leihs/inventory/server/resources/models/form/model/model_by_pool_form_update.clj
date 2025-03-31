@@ -163,13 +163,17 @@
     updated-model))
 
 (defn update-model-handler-by-pool-form [request create-all]
+  (println ">o> abc ----------------------------------------")
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         tx (:tx request)
         {:keys [prepared-model-data categories compatibles attachments attachments-to-delete
                 properties accessories entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request create-all)]
+        (extract-model-form-data request create-all)
+
+        p (println ">o> abc.prepared-model-data???" prepared-model-data)
+        ]
     (try
       (let [update-model-query (-> (sql/update :models)
                                    (sql/set prepared-model-data)
