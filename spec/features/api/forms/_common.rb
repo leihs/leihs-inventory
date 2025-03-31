@@ -42,9 +42,9 @@ def compare_values(hash1, hash2, keys)
       puts "\nComparing key: #{key}, values: #{hash1[key]} == #{hash2[key]}"
       puts "Comparing key-type: #{key}, values: #{hash1[key].class} == #{hash2[key].class}"
 
-      if (hash1[key].to_s != hash2[key].to_s)
+      if hash1[key].to_s != hash2[key].to_s
         puts "❌ Values are not equal for key: #{key}"
-        puts "❌ Values are not equal for key: #{key}, hash1: #{hash1[key].to_s}, hash2: #{hash2[key].to_s}"
+        puts "❌ Values are not equal for key: #{key}, hash1: #{hash1[key]}, hash2: #{hash2[key]}"
       else
         puts "✅ Values are equal for key: #{key}"
       end

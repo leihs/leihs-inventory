@@ -107,7 +107,7 @@ end
 
 def json_client_put(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:put, url, token: token, body: body, headers: headers)
-  end
+end
 
 def json_client_patch(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:patch, url, token: token, body: body, headers: headers)

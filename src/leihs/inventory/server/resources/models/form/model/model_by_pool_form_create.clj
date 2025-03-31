@@ -128,8 +128,7 @@
         (extract-model-form-data request create-all)
 
         p (println ">o> abc.prepared-model-data1" prepared-model-data)
-        p (println ">o> abc.prepared-model-data2" (:is_package prepared-model-data) (type (:is_package prepared-model-data)))
-        ]
+        p (println ">o> abc.prepared-model-data2" (:is_package prepared-model-data) (type (:is_package prepared-model-data)))]
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])

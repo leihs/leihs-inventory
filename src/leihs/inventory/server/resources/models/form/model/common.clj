@@ -181,8 +181,7 @@
         ;                          (assoc :is_package (str-to-bool (:is_package multipart)))))
 
         prepared-model-data (-> (prepare-model-data multipart)
-                                  (assoc :is_package (str-to-bool (:is_package multipart))))
-
+                                (assoc :is_package (str-to-bool (:is_package multipart))))
 
         p (println ">o> abc.multipart!!!!!!!!!" multipart)
 

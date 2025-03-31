@@ -118,7 +118,7 @@ feature "Inventory Model" do
 
           resp = json_client_post(
             "/inventory/#{pool_id}/model/",
-            body:  form_data,
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -140,7 +140,7 @@ feature "Inventory Model" do
 
           resp = json_client_post(
             "/inventory/#{pool_id}/model/",
-            body:  form_data,
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)

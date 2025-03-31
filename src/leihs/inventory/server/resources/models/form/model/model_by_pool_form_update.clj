@@ -205,8 +205,7 @@
         (extract-model-form-data request create-all)
 
         p (println ">o> abc.prepared-model-data??? 1" attachments-to-delete)
-        p (println ">o> abc.prepared-model-data??? 2" images-to-delete)
-        ]
+        p (println ">o> abc.prepared-model-data??? 2" images-to-delete)]
     (try
       (let [update-model-query (-> (sql/update :models)
                                    (sql/set prepared-model-data)
@@ -220,12 +219,8 @@
 
         (when create-all (process-attachments tx attachments model-id))
 
-
-
         (process-deletions tx attachments-to-delete :attachments :id)
         (when-not create-all (process-delete-images-by-id tx images-to-delete model-id))
-
-
 
         (when create-all (process-image-attributes tx all-image-attributes model-id))
         (process-entitlements tx entitlements model-id)
