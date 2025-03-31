@@ -125,7 +125,11 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request create-all)]
+        (extract-model-form-data request create-all)
+
+        p (println ">o> abc.prepared-model-data1" prepared-model-data)
+        p (println ">o> abc.prepared-model-data2" (:is_package prepared-model-data) (type (:is_package prepared-model-data)))
+        ]
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])

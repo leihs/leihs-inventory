@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
-require_relative "../../_shared"
-require_relative "../_common"
+require_relative "../../../_shared"
+require_relative "../../_common"
 require "faker"
 
 def add_delete_flag(map)

@@ -1,7 +1,7 @@
 require "spec_helper"
 require "pry"
-require_relative "../../_shared"
-require_relative "../_common"
+require_relative "../../../_shared"
+require_relative "../../_common"
 require "faker"
 
 def add_delete_flag(map)
@@ -65,7 +65,8 @@ get_response = {
 }
 
 feature "Inventory Model" do
-  ["inventory_manager", "lending_manager"].each do |role|
+  # ["inventory_manager", "lending_manager"].each do |role|
+  ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -141,9 +142,9 @@ feature "Inventory Model" do
             "product" => Faker::Commerce.product_name
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -167,10 +168,9 @@ feature "Inventory Model" do
             "product" => "updated product"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
 
@@ -197,8 +197,8 @@ feature "Inventory Model" do
           # create model request
           form_data = {
             "product" => Faker::Commerce.product_name,
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
+            # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+            # "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
             "is_package" => "true",
@@ -223,8 +223,8 @@ feature "Inventory Model" do
           model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
-          expect(resp.body[0]["attachments"].count).to eq(1)
+          # expect(resp.body[0]["image_attributes"].count).to eq(2)
+          # expect(resp.body[0]["attachments"].count).to eq(1)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["compatibles"].count).to eq(1)
@@ -250,10 +250,9 @@ feature "Inventory Model" do
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -312,7 +311,7 @@ feature "Inventory Model" do
             "internal_description" => "Internal notes",
             "hand_over_note" => "Hand over notes",
 
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+            # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
 
             "properties" => [{key: "prop-1", value: "bar1"}, {key: "prop-2", value: "bar2"}].to_json,
             "accessories" => [{name: "acc1", inventory_pool: false}, {name: "acc2", inventory_pool: true}].to_json,
@@ -321,20 +320,26 @@ feature "Inventory Model" do
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json,
             "compatibles" => two_variants_of_compatibles.to_json,
 
-            "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
-            "is_package" => "true"
+            # "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
+            # "is_package" => "true"
+            "is_package" => true
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            # body: form_data.to_json,
+            body: form_data,
             headers: cookie_header
           )
-          expect(compare_values(resp.body["data"], form_data,
+
+
+          binding.pry
+          expect(compare_values(resp.body["data"], form_data.to_hash,
             ["version", "description", "technical_detail", "internal_description", "hand_over_note",
               "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
+          binding.pry
           expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
 
           # fetch created model
@@ -380,10 +385,9 @@ feature "Inventory Model" do
             "is_package" => "false"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
 

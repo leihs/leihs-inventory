@@ -625,7 +625,10 @@
                           ;:body map?}
                           :body :software/multipart}
              :handler create-model-handler-by-pool-model-only
-             :responses {200 {:description "OK"}
+             :responses {200 {:description "OK"
+                              ;}
+                         :body {:data :model-optional-response/inventory-model
+                                :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 
