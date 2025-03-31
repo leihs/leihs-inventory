@@ -313,7 +313,7 @@
 
      ["/images"
       ["" {:post {:accept "application/json"
-                  :summary "FE v1 | Create image"
+                  :summary "Create image [v1]"
                   :swagger {:consumes ["application/json"]
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
@@ -340,7 +340,7 @@
                              500 {:description "Internal Server Error"}}}
 
            :post {:accept "application/json"
-                  :summary "FE v1 | Create attachment"
+                  :summary "Create attachment [v1]"
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
                   :swagger {:produces ["application/json"]}
@@ -595,7 +595,9 @@
                                    ;:to_delete  (s/maybe s/Bool)
                                    :id s/Uuid}]}
               :handler patch-models-handler
-              :responses {200 {:description "OK"}
+              :responses {200 {:description "OK"
+                               :body [{:id s/Uuid
+                                       :is_cover (s/maybe s/Uuid)}]}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
@@ -626,11 +628,12 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "New Create Model-Endpoint (JSON) | [v1]"
+             :summary "New Create Model-Endpoint (JSON) [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body map?}
+                          ;:body map?}
+                          :body :software/multipart}
              :handler create-model-handler-by-pool-model-only
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -651,7 +654,7 @@
                          500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
-             :summary "Update model endpoint (multidata) [v0] DEPR"
+             :summary "Update model endpoint (multiform-data) [v0] DEPR"
              :swagger {:consumes ["multipart/form-data"]
                        :produces "application/json"}
              :coercion spec/coercion
@@ -693,7 +696,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
-                          :body map?}
+                          ;:body map?}
+                          :body :software/multipart}
              :handler update-model-handler-by-pool-model-only
              :responses {200 {:description "OK"
                               :body :model-optional-response/inventory-models}
