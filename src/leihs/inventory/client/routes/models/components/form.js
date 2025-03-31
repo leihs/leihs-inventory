@@ -25,21 +25,13 @@ export const schema = z.object({
   categories: z.array(z.object({ id: z.string() })).optional(),
   images: z
     .array(
-      z
-        .instanceof(File)
-        .refine(
-          (file) =>
-            ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
-          { message: "Invalid image file type" },
-        ),
-    )
-    .optional(),
-  image_attributes: z
-    .array(
       z.object({
+        file: z
+          .instanceof(File)
+          .refine((file) =>
+            ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
+          ),
         is_cover: z.boolean(),
-        checksum: z.string(),
-        to_delete: z.boolean(),
       }),
     )
     .optional(),

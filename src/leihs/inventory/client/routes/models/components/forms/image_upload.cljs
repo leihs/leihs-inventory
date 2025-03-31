@@ -29,18 +29,8 @@
   (vec (concat (subvec vector 0 index)
                (subvec vector (inc index)))))
 
-(defn error-message [rejections]
-  (let [rej (jc rejections)]
-    (map (fn [el] (let [error (:errors el)]
-                    (do
-                      (js/console.debug "error" error)
-                      (str ((:code error) (:message error))))))
-         rej)
-    (js/console.debug rej)
-    (str "Error Uploading Files" (map :errors rej))))
-
 (defui main [{:keys [control form props]}]
-  (let [[files set-files!] (uix.core/use-state [])
+  (let [[images set-images!] (uix.core/use-state [])
         [img-attributes set-img-attributes!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
         [cover-index set-cover-index!] (uix.core/use-state nil)
@@ -51,22 +41,13 @@
                         (set-error! rejections)
                         (set-error! nil))
 
-                      (set-files!
+                      (set-images!
                        (fn [prev]
-                           ;; loop through all files and compute the sha256 hash on drop
-                         (let [all-files (vec (concat prev files))]
-                           (go
-                             (let [hashes (atom [])]
-                               (doseq [file all-files]
-                                 (let [hash (<! (compute-sha256 file))]
-                                   (swap! hashes conj {:is_cover false
-                                                       :checksum hash
-                                                       :to_delete false})))
-
-                               (set-img-attributes! @hashes)))
-
-                             ;; then return all files to files state
-                           all-files))))
+                         (vec (concat prev
+                                      (map (fn [file]
+                                             {:file file
+                                              :is_cover false})
+                                           files))))))
 
         handle-delete (fn [index]
                         ;; remove img attr by index on delete
@@ -77,23 +58,22 @@
                          (fn [prev] (delete-by-index index prev)))
 
                         ;; remove file by index on delete
-                        (set-files!
+                        (set-images!
                          (fn [prev] (delete-by-index index prev))))
 
         handle-cover (fn [index]
                        (set-cover-index! index)
-                       (set-img-attributes! #(vec (map-indexed
-                                                   (fn [i attrs]
-                                                     (if (= i index)
-                                                       (assoc attrs :is_cover true)
-                                                       (assoc attrs :is_cover false)))
-                                                   %))))]
+                       (set-images! #(vec (map-indexed
+                                           (fn [i attrs]
+                                             (if (= i index)
+                                               (assoc attrs :is_cover true)
+                                               (assoc attrs :is_cover false)))
+                                           %))))]
 
     (uix/use-effect
      (fn []
-       (set-value "image_attributes" (cj (vec img-attributes)))
-       (set-value "images" (cj (vec files)))
-       [set-value files]))
+       (set-value "images" (cj (vec images)))
+       [set-value images]))
 
     ($ RadioGroup {:value cover-index
                    :onValueChange handle-cover}
@@ -106,7 +86,7 @@
 
           (when error ($ ErrorMessages {:rejections error}))
 
-          (when (seq files)
+          (when (seq images)
             ($ DropzoneFiles
                ($ Table
                   ($ TableHeader
@@ -115,10 +95,10 @@
                         ($ TableHead "Coverbild")
                         ($ TableHead "")))
                   ($ TableBody
-                     (for [[index file] (map-indexed vector files)]
-                       ($ TableRow {:key (.. file -name)}
+                     (for [[index item] (map-indexed vector images)]
+                       ($ TableRow {:key (.. (:file item) -name)}
 
-                          ($ Item {:file file}
+                          ($ Item {:file (:file item)}
                              ($ TableCell
                                 ($ RadioGroupItem {:value index}))
                              ($ TableCell
