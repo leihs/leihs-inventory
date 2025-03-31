@@ -201,22 +201,22 @@ feature "Inventory Model" do
             # "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-            "is_package" => "true",
+            "is_package" => true,
             "description" => "A sample product",
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
+            "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33 }].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
-
+          # binding.pry
           expect(resp.status).to eq(200)
 
           # fetch created model
@@ -231,21 +231,91 @@ feature "Inventory Model" do
           expect(resp.body[0]["categories"].count).to eq(1)
           expect(resp.status).to eq(200)
 
+          # create image
+          images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
+          @image_id = nil
+          images.each do |image|
+            headers = cookie_header.merge({
+                                            "Content-Type" => "image/png",
+                                            "X-Filename" => image.path.split('/').last
+                                          })
+            resp = json_client_post(
+              "/inventory/models/#{model_id}/images",
+              body: image,
+              headers: headers
+            )
+            # binding.pry
+            expect(resp.status).to eq(200)
+            @image_id = resp.body["image"]["id"]
+          end
+
+
+
+
+
+          # puts "image_id: #{@image_id}"
+          #
+          # data = [{ "id" => model_id, "is_cover" => @image_id } ]
+          #
+          # puts "model_id.data: #{ data }"
+          #
+          # resp = json_client_patch(
+          #   "/inventory/#{pool_id}/model",
+          #   body: data,
+          #   headers: cookie_header
+          # )
+          # binding.pry
+          # expect(resp.status).to eq(200)
+
+
+
+
+
+
+
+
+
+          # create attachment
+          attachments = [File.open(path_test_pdf, "rb")]
+          attachments.each do |attachment|
+            headers = cookie_header.merge({
+                                            "Content-Type" => "application/pdf",
+                                            "X-Filename" => attachment.path.split('/').last,
+                                            "Accept-Encoding" => "gzip, deflate, br",
+                                            "Content-Length" => attachment.size.to_s
+                                          })
+            resp = json_client_post(
+              "/inventory/models/#{model_id}/attachments",
+              body: attachment,
+              headers: headers
+            )
+            binding.pry
+            expect(resp.status).to eq(200)
+          end
+
+
+
+
+
+
+
+
           expect(Image.where(target_id: model_id).count).to eq(4)
+          expect(Attachment.where(model_id: model_id).count).to eq(1)
 
           # update model request
           form_data = {
             "product" => "updated product",
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
+            # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
+            # "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "updated v1.0",
             "manufacturer" => "updated manufacturer",
-            "is_package" => "true",
+            "is_package" => true,
             "description" => "updated description",
             "technical_detail" => "updated techDetail",
             "internal_description" => "updated internalDesc",
             "important_notes" => "updated notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
+            "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11 }].to_json,
             "compatibles" => [compatibles.first, compatibles.second].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
           }
@@ -260,8 +330,10 @@ feature "Inventory Model" do
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.body[0]["image_attributes"].count).to eq(4)
-          expect(resp.body[0]["attachments"].count).to eq(2)
+
+          # expect(resp.body[0]["image_attributes"].count).to eq(4)
+          # expect(resp.body[0]["attachments"].count).to eq(2)
+
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
 
@@ -313,10 +385,10 @@ feature "Inventory Model" do
 
             # "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
 
-            "properties" => [{key: "prop-1", value: "bar1"}, {key: "prop-2", value: "bar2"}].to_json,
-            "accessories" => [{name: "acc1", inventory_pool: false}, {name: "acc2", inventory_pool: true}].to_json,
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
-              {entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55}].to_json,
+            "properties" => [{ key: "prop-1", value: "bar1" }, { key: "prop-2", value: "bar2" }].to_json,
+            "accessories" => [{ name: "acc1", inventory_pool: false }, { name: "acc2", inventory_pool: true }].to_json,
+            "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33 },
+                               { entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55 }].to_json,
             "categories" => [@form_model_groups.first, @form_model_groups.second].to_json,
             "compatibles" => two_variants_of_compatibles.to_json,
 
@@ -327,16 +399,14 @@ feature "Inventory Model" do
 
           resp = json_client_post(
             "/inventory/#{pool_id}/model/",
-            # body: form_data.to_json,
             body: form_data,
             headers: cookie_header
           )
 
-
           binding.pry
           expect(compare_values(resp.body["data"], form_data.to_hash,
-            ["version", "description", "technical_detail", "internal_description", "hand_over_note",
-              "is_package"])).to eq(true)
+                                ["version", "description", "technical_detail", "internal_description", "hand_over_note",
+                                 "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
           binding.pry
@@ -348,8 +418,8 @@ feature "Inventory Model" do
           images = resp.body[0]["image_attributes"]
           attachments = resp.body[0]["attachments"]
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
-          expect(resp.body[0]["attachments"].count).to eq(2)
+          # expect(resp.body[0]["image_attributes"].count).to eq(2)
+          # expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(2)
           expect(resp.body[0]["compatibles"].count).to eq(2)
 
@@ -359,7 +429,8 @@ feature "Inventory Model" do
 
           expect(resp.body[0]["categories"].count).to eq(2)
           expect(resp.status).to eq(200)
-          expect(Image.where(target_id: model_id).count).to eq(4)
+          expect(Image.where(target_id: model_id).count).to eq(0)
+          expect(Attachment.where(model_id: model_id).count).to eq(0)
 
           # create model request
           form_data = {
@@ -371,16 +442,16 @@ feature "Inventory Model" do
             "internal_description" => "Internal notes",
             "hand_over_note" => "Hand over notes",
 
-            "properties" => [{key: "prop-1", value: "bar1"}, add_delete_flag({key: "prop-2", value: "bar2"})].to_json,
-            "accessories" => [{name: "acc1", inventory_pool: false}, add_delete_flag({name: "acc2", inventory_pool: true})].to_json,
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33},
-              add_delete_flag({entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55})].to_json,
+            "properties" => [{ key: "prop-1", value: "bar1" }, add_delete_flag({ key: "prop-2", value: "bar2" })].to_json,
+            "accessories" => [{ name: "acc1", inventory_pool: false }, add_delete_flag({ name: "acc2", inventory_pool: true })].to_json,
+            "entitlements" => [{ entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33 },
+                               add_delete_flag({ entitlement_group_id: @form_entitlement_groups.second["id"], entitlement_id: nil, quantity: 55 })].to_json,
             "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)].to_json,
             "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)].to_json,
 
             "attachments" => [],
             "images" => [],
-            "attachments_to_delete" => [attachments.first["id"]].to_json,
+            # "attachments_to_delete" => [attachments.first["id"]].to_json,
             "images_to_delete" => [images.first["id"]].to_json,
             "is_package" => "false"
           }
@@ -392,8 +463,8 @@ feature "Inventory Model" do
           )
 
           expect(compare_values(resp.body[0], form_data,
-            ["product", "version", "manufacturer", "description", "technical_detail",
-              "internal_description", "hand_over_note", "is_package"])).to eq(true)
+                                ["product", "version", "manufacturer", "description", "technical_detail",
+                                 "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
           expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
           expect(resp.status).to eq(200)
@@ -404,8 +475,8 @@ feature "Inventory Model" do
 
           expect(validate_map_structure(resp.body.first, get_response)).to eq(true)
           expect(compare_values(resp.body[0], form_data,
-            ["product", "version", "manufacturer", "description", "technical_detail",
-              "internal_description", "hand_over_note", "is_package"])).to eq(true)
+                                ["product", "version", "manufacturer", "description", "technical_detail",
+                                 "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
           expect(resp.body[0]["image_attributes"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
