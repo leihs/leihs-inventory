@@ -25,7 +25,10 @@
 
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
                                                                                          ;process-image
-                                                                                         update-model-handler-by-pool-form]]
+                                                                                         ;update-model-handler-by-pool-form
+
+                                                                                         update-model-handler-by-pool-model-only
+                                                                                         update-model-handler-by-pool-with-attachment-images]]
 
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
@@ -629,8 +632,7 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           ;:body {:product string?}
-                          :body map?
-                          }
+                          :body map?}
              :handler create-model-handler-by-pool-model-only
              :responses {200 {:description "OK"}
                          404 {:description "Not Found"}
@@ -660,14 +662,13 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :multipart :software/multipart}
-             :handler update-model-handler-by-pool-form
+             :handler update-model-handler-by-pool-with-attachment-images
+             ;:handler update-model-handler-by-pool-form
              :responses {200 {:description "OK"
                               ;:body :model-optional-response/inventory-models
                               }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
-
-
 
        :delete {:accept "application/json"
                 :summary "(DEV) | Form-Handler: Delete form data [v0]"
@@ -690,32 +691,24 @@
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
-
      ["/"
 
-      {       :put {:accept "application/json"
-                    :summary "(DEV) | [v1]"
+      {:put {:accept "application/json"
+             :summary "(DEV) | [v1]"
                     ;:swagger {:consumes ["multipart/form-data"]
                     ;          :produces "application/json"}
-                    :coercion spec/coercion
-                    :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-                    :parameters {:path {:pool_id uuid?
-                                        :model_id uuid?}
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?
+                                 :model_id uuid?}
                                  ;:multipart :software/multipart}
-                                 :body map?}
-                    :handler update-model-handler-by-pool-form
-                    :responses {200 {:description "OK"
-                                     :body :model-optional-response/inventory-models}
-                                404 {:description "Not Found"}
-                                500 {:description "Internal Server Error"}}}
-
-       }
-
-
-      ]
-
-
-     ]]
+                          :body map?}
+                    ;:handler update-model-handler-by-pool-form
+             :handler update-model-handler-by-pool-model-only
+             :responses {200 {:description "OK"
+                              :body :model-optional-response/inventory-models}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]]
 
    ["/option"
     {:swagger {:conflicting true

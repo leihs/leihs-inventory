@@ -199,11 +199,11 @@
   (let [updated-model (apply dissoc model keys)]
     updated-model))
 
-(defn update-model-handler-by-pool-form [request]
+(defn update-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        ;multipart (or(get-in request [:parameters :multipart]))
+        multipart (when create-all (or (get-in request [:parameters :multipart])))
 
         multipart (get-in request [:parameters :multipart])
         p (println ">o> abc.multipart1" multipart)
@@ -225,25 +225,24 @@
             updated-model (filter-response updated-model [:rental_price])
             compatibles (parse-json-array multipart :compatibles)
             categories (parse-json-array multipart :categories)
-            ;attachments (normalize-files request :attachments)
-            ;attachments-to-delete (parse-json-array request :attachments_to_delete)
 
-            ;{:keys [images image-attributes new-images-attr existing-images-attr]}
-            ;(create-images-and-prepare-image-attributes request)
+            attachments (when create-all (normalize-files request :attachments))
+
+            attachments-to-delete (parse-json-array request :attachments_to_delete)
+
+            {:keys [images image-attributes new-images-attr existing-images-attr]}
+            (when create-all (create-images-and-prepare-image-attributes request))
 
             properties (parse-json-array multipart :properties)
             accessories (parse-json-array multipart :accessories)
             entitlements (parse-json-array multipart :entitlements)
 
-            ;{:keys [created-images-attr all-image-attributes]}
-            ;(prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)
-             ]
+            {:keys [created-images-attr all-image-attributes]}
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
 
-        ;(process-attachments tx attachments model-id)
-        ;(process-deletions tx attachments-to-delete :attachments :id)
-        ;(process-image-attributes tx all-image-attributes model-id)
-
-
+        (when create-all (process-attachments tx attachments model-id))
+        (process-deletions tx attachments-to-delete :attachments :id)
+        (when create-all (process-image-attributes tx all-image-attributes model-id))
 
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
@@ -257,6 +256,12 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+
+(defn update-model-handler-by-pool-model-only [request]
+  (update-model-handler-by-pool-form request false))
+
+(defn update-model-handler-by-pool-with-attachment-images [request]
+  (update-model-handler-by-pool-form request true))
 
 (defn delete-model-handler-by-pool-form [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))

@@ -291,7 +291,6 @@ feature "Inventory Item" do
             method: :post,
             headers: cookie_header
           )
-          # binding.pry
 
           expect(resp.status).to eq(200)
           model_id = resp.body["data"]["model_id"]

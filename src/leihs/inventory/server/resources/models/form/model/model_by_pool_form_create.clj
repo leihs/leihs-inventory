@@ -174,8 +174,6 @@
 
         p (println ">o> abc.prepared-model-data2" prepared-model-data)
 
-
-
         categories (parse-json-array multipart :categories)
         compatibles (parse-json-array multipart :compatibles)
         attachments (normalize-files request :attachments)

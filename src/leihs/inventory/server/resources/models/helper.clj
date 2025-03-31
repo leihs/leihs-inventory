@@ -7,9 +7,7 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc])
-  (:import (java.security MessageDigest)
-           (java.util Base64)))
+   [next.jdbc :as jdbc]))
 
 (defn str-to-bool
   [s]
@@ -116,10 +114,12 @@
 
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  ;[request key]
-  [multipart key]
-  ;(let [json-array-string (get-in request [:parameters :multipart key])]
-  (let [json-array-string (key multipart)]
+  [multipart key] ;; TODO: multipart is a map (preferred way) OR request (legacy-code)
+  (let [;; TODO: To use (key multipart) is the correct way (create-model-handler)
+        ;; The other one is legacy-code to handle multipart-data requests
+        json-array-string (or (key multipart)
+                              (get-in multipart [:parameters :multipart key]))]
+
     (cond
       (not json-array-string) []
       (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
@@ -135,15 +135,6 @@
                 parsed-vector)
               (catch Exception e
                 (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
-
-;;
-(defn  parse-json-array
-  "CAUTION: no json-decoding"
-  ;"Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  ;[request key]
-  [multipart key]
-  ;(let [json-array-string (get-in request [:parameters :multipart key])]
-  (key multipart))
 
 (defn file-sha256 [file]
   (let [actual-file (if (instance? java.io.File file)
