@@ -11,7 +11,7 @@
     (and (str/includes? uri "/admin/") (= method :get)) :scope_system_admin_read
     (and (str/includes? uri "/admin/") (#{:post :put :delete} method)) :scope_system_admin_write
     (= method :get) :scope_read
-    (#{:post :put :delete} method) :scope_write))
+    (#{:post :patch :put :delete} method) :scope_write))
 
 (defn validate-admin-scopes
   "Checks admin-level scopes (is_admin or is_system_admin) for elevated privileges."
@@ -56,7 +56,7 @@
         (let [user (get-in request [:authenticated-entity])
               auth-entity (:access-rights user)
               _ (when (nil? auth-entity)
-                  (throw (ex-info "Unauthorized: unknown user" {:status 401})))
+                  (throw (ex-info "unknown user" {:status 401})))
 
               method (get request :request-method)
               uri (get request :uri)
@@ -65,7 +65,7 @@
               has-scope? (or (get user required-scope)
                              (validate-admin-scopes user required-scope))
               _ (when-not has-scope?
-                  (throw (ex-info "Unauthorized: invalid scope for the requested method" {:status 401})))
+                  (throw (ex-info "invalid scope for the requested method" {:status 401})))
 
               roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
               request (if requested-pool-id
@@ -74,5 +74,5 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized:" (.getMessage e))
+          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized: " (.getMessage e))
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
