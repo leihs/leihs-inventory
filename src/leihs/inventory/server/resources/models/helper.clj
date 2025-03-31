@@ -7,7 +7,9 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc]))
+   [next.jdbc :as jdbc])
+  (:import (java.security MessageDigest)
+           (java.util Base64)))
 
 (defn str-to-bool
   [s]
