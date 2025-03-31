@@ -7,7 +7,7 @@ const modelProperties = z.object({
 
 export const schema = z.object({
   is_package: z.boolean().optional(),
-  product: z.string().min(5).max(255),
+  product: z.string().min(1),
   version: z.string().optional(),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
@@ -18,34 +18,39 @@ export const schema = z.object({
     .array(
       z.object({
         entitlement_group_id: z.string(),
+        entitlement_id: z.string().nullish(),
         quantity: z.coerce.number(),
+        name: z.string(),
       }),
     )
     .optional(),
-  categories: z.array(z.object({ id: z.string() })).optional(),
+  categories: z
+    .array(z.object({ id: z.string(), name: z.string(), type: z.string() }))
+    .optional(),
   images: z
     .array(
-      z
-        .instanceof(File)
-        .refine(
-          (file) =>
-            ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
-          { message: "Invalid image file type" },
-        ),
-    )
-    .optional(),
-  image_attributes: z
-    .array(
       z.object({
+        file: z
+          .instanceof(File)
+          .refine((file) =>
+            ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
+          ),
         is_cover: z.boolean(),
-        checksum: z.string(),
-        to_delete: z.boolean(),
       }),
     )
     .optional(),
   attachments: z.array(z.instanceof(File)).optional(),
   accessories: z.array(z.object({ name: z.string() })).optional(),
-  compatibles: z.array(z.object({ product: z.string() })).optional(),
+  compatibles: z
+    .array(
+      z.object({
+        product: z.string(),
+        id: z.string(),
+        cover_image_id: z.string().nullish(),
+        cover_image_url: z.string().nullish(),
+      }),
+    )
+    .optional(),
   properties: z.array(modelProperties).optional(),
 })
 

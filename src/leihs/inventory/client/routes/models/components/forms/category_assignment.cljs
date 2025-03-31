@@ -111,9 +111,12 @@
                      ($ CommandItem {:key (:path item)
                                      :value (:label item)
                                      :on-select #(do (set-open! false)
+                                                     (js/console.debug item)
                                                      (if
                                                       (not (check-path-existing (:path item) fields))
-                                                       (append (cj item))
+                                                       (append (cj (assoc item
+                                                                          :type "Category"
+                                                                          :name (:label item))))
                                                        (remove (find-index-from-path (:path item) fields))))
                                      :style {:padding-left (str (* (:level item) 16) "px")}}
 

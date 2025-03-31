@@ -17,6 +17,7 @@
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
@@ -34,73 +35,123 @@
                          :technical_detail ""
                          :hand_over_note ""
                          :version ""
-                         :image_attributes []
                          :categories []
                          :entitlements []
                          :properties []
                          :accessories []}))
 
-(def dev-api-origin "https://652d4449-f35d-44ea-92be-58c1e6ae0bc4.mock.pstmn.io")
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
+        navigate (router/useNavigate)
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
         model (into {} (:model (jc (router/useLoaderData))))
 
         form (useForm #js {:resolver (zodResolver schema)
-                           :defaultValues default-values})
+                           :defaultValues (if is-create default-values (cj model))})
 
-        params (router/useParams)
-        handleSubmit (.. form -handleSubmit)
         control (.. form -control)
+        params (router/useParams)
+
+        handle-submit (.. form -handleSubmit)
+        handle-delete (fn []
+                        (go
+                          (let [pool-id (aget params "pool-id")
+                                model-id (aget params "model-id")
+                                res (<p! (.. (js/fetch (str "/inventory/" pool-id "/model/" model-id)
+                                                       (cj {:method "DELETE"
+                                                            :headers {"Accept" "application/json"}}))
+                                             (then #(.json %))))
+                                status (.. res -status)]
+
+                            (if (= status 200)
+                              (do
+                                (.. toast (success (t "pool.model.delete.success")))
+                                ;; navigate to models list
+                                (navigate (router/generatePath "/inventory/:pool-id/models" params)
+                                          #js {:state state}))
+                              ;; show error message
+                              (.. toast (error (t "pool.model.delete.error")))))))
 
         on-submit (fn [data event]
                     (go
-                      (let [form-data (js/FormData.)]
+                      (let [images (:images (jc data))
+                            attachments (:attachments (jc data))
+                            model-data (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
+                                                        (dissoc (jc data) :images :attachments)))
+                            pool-id (aget params "pool-id")
+                            model-res (<p! (.. (js/fetch (str "/inventory/" pool-id "/model/")
+                                                         (cj {:method "POST"
+                                                              :headers {"Content-Type" "application/json"
+                                                                        "Accept" "application/json"}
+                                                              :body (js/JSON.stringify (cj model-data))}))
+                                               (then #(.json %))))
+                            model-id (when (not= (.. model-res -status) "failure")
+                                       (.. model-res -data -id))]
+
                         (.. event (preventDefault))
-                        (js/console.debug "is valid" (js/JSON.stringify data))
 
-                        (.. toast (success "Data is valid"))
+                        (if (.. model-res -status)
+                          (.. toast (error (.. model-res -message)))
 
-                        (doseq [[k v] (js/Object.entries data)]
-                          (cond
-                          ;; add images as binary data
-                            (= k "images")
-                            (if (js/Array.isArray v)
-                              (doseq [val v]
-                                (.. form-data (append (str "images") val)))
-                              (.. form-data (append "images" v)))
+                          (do
+                            ;; upload images sequentially and path model with is_cover when is needed + images with target_type
+                            (doseq [image images]
+                              (let [file (:file image)
+                                    is-cover (:is_cover image)
+                                    size (.. file -size)
+                                    type (.. file -type)
+                                    name (.. file -name)
+                                    binary-data (<p! (.. file (arrayBuffer)))
+                                    image-res (<p! (.. (js/fetch (str "/inventory/models/" model-id "/images")
+                                                                 (cj {:method "POST"
+                                                                      :headers {"Accept" "application/json"
+                                                                                "Content-Length" size
+                                                                                "Content-Type" type
+                                                                                "X-Filename" name}
+                                                                      :body binary-data}))
+                                                       (then #(.json %))))
+                                    image-id ^js (.. image-res -image -id)]
 
-                            ;; add attachments as binary data
-                            (= k "attachments")
-                            (if (js/Array.isArray v)
-                              (doseq [val v]
+                                ;; patch image with target_type "Model"
+                                #_(<p! (js/fetch (str "/inventory/" model-id "/images/" image-id)
+                                                 (cj {:method "PATCH"
+                                                      :headers {"Accept" "application/json"}
+                                                      :body (js/JSON.stringify (cj {:target_type "Model"}))})))
 
-                                (.. form-data (append "attachments" val)))
-                              (.. form-data (append "attachments" v)))
+                                ;; if there is a cover image then patch the model with iid of the cover image
+                                (when is-cover (<p! (js/fetch (str "/inventory/" pool-id "/model/" model-id)
+                                                              (cj {:method "PATCH"
+                                                                   :headers {"Accept" "application/json"
+                                                                             "Content-Type" "application/json"}
+                                                                   :body (js/JSON.stringify (cj {:is_cover image-id}))}))))))
 
-                          ;; add fields as text data
-                            :else (let [value (js/JSON.stringify v)]
-                                    (.. form-data (append k value)))))
+                            ;; upload attachments sequentially
+                            (doseq [attachment attachments]
+                              (let [binary-data (<p! (.. attachment (arrayBuffer)))
+                                    size (.. attachment -size)
+                                    type (.. attachment -type)
+                                    name (.. attachment -name)]
 
-                        #_(if is-create
+                                (<p! (js/fetch (str "/inventory/models/" model-id "/attachments")
+                                               (cj {:method "POST"
+                                                    :headers {"Accept" "application/json"
+                                                              "Content-Length" size
+                                                              "Content-Type" type
+                                                              "X-Filename" name}
+                                                    :body binary-data})))))
 
-                            (.. (js/fetch (str dev-api-origin (router/generatePath "/inventory/:pool-id" params))
-                                          (cj {:method "POST"
-                                               :headers {"Accept" "application/json"}
-                                               :body form-data}))
-                                (then (js/console.debug "success"))
-                                (catch (fn [err] (js/console.debug "error" err))))
+                            (js/console.debug "is valid" data)
+                            (.. toast (success (t "pool.model.create.success")))
 
-                            (.. (js/fetch (router/generatePath "/inventory/:pool-id/model/:model-id" params)
-                                          (cj {:method "PUT"
-                                               :headers {"Accept" "application/json"}
-                                               :body form-data}))
-                                (then (js/console.debug "success"))
-                                (catch (fn [err] (js/console.debug "error" err))))))))]
+                            ;; state needs to be forwarded for back navigation
+                            (navigate (router/generatePath
+                                       "/inventory/:pool-id/models/:model-id"
+                                       #js {:pool-id pool-id
+                                            :model-id model-id})
+                                      #js {:state state}))))))]
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
@@ -120,7 +171,7 @@
                 ($ Form (merge form)
                    ($ :form {:id "create-model"
                              :className "space-y-12 w-full lg:w-3/5"
-                             :on-submit (handleSubmit on-submit on-invalid)}
+                             :on-submit (handle-submit on-submit on-invalid)}
 
                       (for [section (jc structure)]
                         ($ ScrollspyItem {:className "scroll-mt-[10vh]"
@@ -158,7 +209,8 @@
                                 :variant "destructive"
                                 :size "icon"
                                 :className "self-center"}
-                        ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)}
+                        ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
+                                 :state state}
                            ($ Trash {:className "w-4 h-4"}))))
 
                    ;; Dialog when deleting a model
@@ -171,11 +223,14 @@
                               ($ AlertDialogDescription (t "pool.model.delete.description")))
 
                            ($ AlertDialogFooter
-                              ($ AlertDialogAction
-                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models" params)}
-                                    (t "pool.model.delete.confirm")))
+                              ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                                                    hover:bg-destructive hover:text-destructive-foreground"
+                                                    :onClick handle-delete}
+                                 (t "pool.model.delete.confirm"))
                               ($ AlertDialogCancel
-                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)}
+                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
+                                          :state state}
+
                                     (t "pool.model.delete.cancel"))))))))))))))
 
 

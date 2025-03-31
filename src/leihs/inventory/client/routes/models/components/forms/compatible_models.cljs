@@ -70,7 +70,10 @@
                                      :on-select #(do (set-open! false)
                                                      (if
                                                       (not (check-path-existing (:product model) fields))
-                                                       (append (cj {:product (:product model)}))
+                                                       (append (cj {:product (:product model)
+                                                                    :id (:model_id model)
+                                                                    :cover_image_id (:cover_image_id model)
+                                                                    :cover_image_url (:cover_image_url model)}))
                                                        (remove (find-index-from-path (:product model) fields))))}
 
                         ($ Check

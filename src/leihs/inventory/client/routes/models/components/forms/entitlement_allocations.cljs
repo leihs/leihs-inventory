@@ -95,6 +95,7 @@
                                                         (not (check-path-existing (:id entitlement) fields))
                                                          (append (cj {:entitlement_group_id (:id entitlement)
                                                                       :entitlement_id nil
+                                                                      :name (:name entitlement)
                                                                       :quantity "0"}))
                                                          (remove (find-index-from-path (:id entitlement) fields))))
                                         :key (:id entitlement)}

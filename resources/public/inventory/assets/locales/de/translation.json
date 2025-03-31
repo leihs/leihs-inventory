@@ -35,19 +35,22 @@
     },
     "model": {
       "title": "Modell bearbeiten",
-      "submit": "Erstellen",
+      "submit": "Speichern",
       "cancel": "Abbrechen",
       "create": {
         "title": "Neues Modell erstellen",
         "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
         "submit": "Erstellen",
-        "cancel": "Abbrechen"
+        "cancel": "Abbrechen",
+        "success": "Modell wurder erfolgreich erstellt"
       },
       "delete": {
         "title": "Modell löschen",
         "description": "Sind Sie sicher, dass Sie dieses Modell löschen möchten?",
         "confirm": "Löschen",
-        "cancel": "Abbrechen"
+        "cancel": "Abbrechen",
+        "success": "Modell wurde erfolgreich gelöscht",
+        "error": "Modell konnte nicht gelöscht werden"
       }
     }
   },

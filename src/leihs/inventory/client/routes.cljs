@@ -82,14 +82,17 @@
                                                         (cj {:headers {"Accept" "application/json"}}))
                                               (then #(.json %))
                                               (then #(jc %)))
+
                                models (.. (js/fetch "/inventory/models-compatibles"
                                                     (cj {:headers {"Accept" "application/json"}}))
                                           (then #(.json %))
                                           (then #(jc %)))
+
                                manufacturers (.. (js/fetch "/inventory/manufacturers?type=Model"
                                                            (cj {:headers {"Accept" "application/json"}}))
                                                  (then #(.json %))
                                                  (then #(remove (fn [el] (= "" el)) (jc %))))
+
                                model-path (when (:model-id (jc params)) (router/generatePath "/inventory/:pool-id/model/:model-id" params))
 
                                model (when model-path
