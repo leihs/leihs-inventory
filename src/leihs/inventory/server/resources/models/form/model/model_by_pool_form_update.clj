@@ -172,10 +172,10 @@
         (extract-model-form-data request create-all)]
     (try
       (let [update-model-query (-> (sql/update :models)
-                                 (sql/set prepared-model-data)
-                                 (sql/where [:= :id model-id])
-                                 (sql/returning :*)
-                                 sql-format)
+                                   (sql/set prepared-model-data)
+                                   (sql/where [:= :id model-id])
+                                   (sql/returning :*)
+                                   sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
             updated-model (filter-response updated-model [:rental_price])
             {:keys [created-images-attr all-image-attributes]}
@@ -196,7 +196,6 @@
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
-
 
 (defn update-model-handler-by-pool-model-only [request]
   (update-model-handler-by-pool-form request false))

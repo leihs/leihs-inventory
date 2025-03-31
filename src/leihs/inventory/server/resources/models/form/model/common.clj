@@ -99,14 +99,14 @@
         tx (:tx req)
         results (mapv (fn [{:keys [id is_cover]}]
                         (when is_cover
-                          (jdbc/execute! tx
-                                         (-> (sql/update :models)
-                                             (sql/set {:cover_image_id (to-uuid is_cover)})
-                                             (sql/where [:= :id id])
-                                             (sql/returning [:id :cover_image_id])
-                                             sql-format))))
+                          (jdbc/execute-one! tx (-> (sql/update :models)
+                                                    (sql/set {:cover_image_id (to-uuid is_cover)})
+                                                    (sql/where [:= :id id])
+                                             ;(sql/returning [:id :cover_image_id])
+                                                    (sql/returning :id :cover_image_id)
+                                                    sql-format))))
                       images-to-update)]
-    (response/response {:results results})))
+    (response/response results)))
 
 ;(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
 (def CONST_FILE_PATH "/tmp/")
@@ -168,16 +168,16 @@
         created-ts (LocalDateTime/now)
         normalize-data (dissoc normalize-data :id)]
     (assoc normalize-data
-      :type "Model"
-      :created_at created-ts
-      :updated_at created-ts)))
+           :type "Model"
+           :created_at created-ts
+           :updated_at created-ts)))
 
 (defn extract-model-form-data [request create-all]
   (let [multipart (or (get-in request [:parameters :multipart])
-                    (get-in request [:parameters :body]))
+                      (get-in request [:parameters :body]))
         prepared-model-data (-> (prepare-model-data multipart)
-                              (cond-> create-all
-                                (assoc :is_package (str-to-bool (:is_package multipart)))))
+                                (cond-> create-all
+                                  (assoc :is_package (str-to-bool (:is_package multipart)))))
         categories (parse-json-array multipart :categories)
         compatibles (parse-json-array multipart :compatibles)
         properties (parse-json-array multipart :properties)

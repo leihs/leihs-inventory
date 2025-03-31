@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
-
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -10,26 +9,18 @@
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-
    [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
                                                                       patch-models-handler
                                                                       upload-image]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
                                                                                          create-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
-                                                                                         ;process-image
-                                                                                         ;update-model-handler-by-pool-form
-
                                                                                          update-model-handler-by-pool-model-only
                                                                                          update-model-handler-by-pool-with-attachment-images]]
-
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -592,12 +583,11 @@
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :parameters {:path {:pool_id s/Uuid}
                            :body [{:is_cover (s/maybe s/Uuid)
-                                   ;:to_delete  (s/maybe s/Bool)
                                    :id s/Uuid}]}
               :handler patch-models-handler
               :responses {200 {:description "OK"
                                :body [{:id s/Uuid
-                                       :is_cover (s/maybe s/Uuid)}]}
+                                       :cover_image_id s/Uuid}]}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
