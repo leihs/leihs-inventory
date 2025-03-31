@@ -51,42 +51,6 @@
   {:data data
    :validation validation})
 
-;; TODO: use or remove if decision has been made regarding who(FE or BE) is responsible for thumbnail-creation
-;; Following code expects that FE passes image & thumbnail
-(defn process-images [tx images model-id validation-result]
-  (let [image-groups (group-by #(base-filename (:filename %)) images)
-        CONST_ALLOW_IMAGE_WITH_THUMB_ONLY true]
-    (doseq [[_ entries] image-groups]
-      (if (and CONST_ALLOW_IMAGE_WITH_THUMB_ONLY (= 2 (count entries)))
-        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
-                                   [(second entries) (first entries)]
-                                   [(first entries) (second entries)])
-              file-content-main (file-to-base64 (:tempfile main-image))
-              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                  (dissoc :tempfile)
-                                  (assoc :content file-content-main
-                                         :target_id model-id
-                                         :target_type "Model"
-                                         :thumbnail false))
-              main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                          (sql/values [main-image-data])
-                                                          (sql/returning :*)
-                                                          sql-format))
-              file-content-thumb (file-to-base64 (:tempfile thumb))
-              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                 (dissoc :tempfile)
-                                 (assoc :content file-content-thumb
-                                        :target_id model-id
-                                        :target_type "Model"
-                                        :thumbnail true
-                                        :parent_id (:id main-image-result)))]
-          (jdbc/execute! tx (-> (sql/insert-into :images)
-                                (sql/values [thumbnail-data])
-                                (sql/returning :*)
-                                sql-format)))
-        (swap! validation-result conj {:error "Either image or thumbnail is missing"
-                                       :uploaded-file (:filename (first entries))})))))
-
 (defn process-entitlements [tx entitlements model-id]
   (doseq [entry entitlements]
     (create-or-use-existing tx
@@ -153,38 +117,23 @@
                              [:= :model_group_id (to-uuid (:id category))]]
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
-
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-
-;; >o> abc.normalize-model-data.type 0> clojure.lang.PersistentHashMap
-        multipart (get-in request [:parameters :multipart])
-        p (println ">o> abc.multipart1" multipart)
-
-        body (get-in request [:parameters :body])
-        p (println ">o> abc.mult-body2" body)
-
-        multipart (or multipart body)
-
+        multipart (or (get-in request [:parameters :multipart])
+                      (get-in request [:parameters :body]))
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
-
-        p (println ">o> abc.prepared-model-data2" prepared-model-data)
-
         categories (parse-json-array multipart :categories)
         compatibles (parse-json-array multipart :compatibles)
         attachments (normalize-files request :attachments)
         properties (parse-json-array multipart :properties)
-
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))
-
         accessories (parse-json-array multipart :accessories)
         entitlements (parse-json-array multipart :entitlements)]
-
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
@@ -192,21 +141,16 @@
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
-
             {:keys [created-images-attr all-image-attributes]}
             (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
-
-        (when create-all (process-attachments tx attachments "model_id" model-id))
-
-;; PATCH
-        (when create-all (process-image-attributes tx all-image-attributes model-id))
-
+        (when create-all
+          (process-attachments tx attachments "model_id" model-id)
+          (process-image-attributes tx all-image-attributes model-id))
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
-
         (if res
           (response (create-validation-response res @validation-result))
           (bad-request {:error "Failed to create model"})))

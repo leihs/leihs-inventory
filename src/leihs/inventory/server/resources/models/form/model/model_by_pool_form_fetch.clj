@@ -51,9 +51,6 @@
     (jdbc/execute! tx query)))
 
 (defn fetch-compatibles [tx model-id]
-
-  (println ">o> abc.model-id???" model-id)
-
   (let [query (-> (sql/select :mm.id :mm.product
                               (create-image-url :mm :cover_image_url)
                               :mm.cover_image_id)
@@ -62,8 +59,7 @@
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
                   (sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
                   (sql/where [:= :mc.model_id model-id])
-                  sql-format)
-        p (println ">o> abc.query???" query)]
+                  sql-format)]
     (jdbc/execute! tx query)))
 
 (defn fetch-properties [tx model-id]

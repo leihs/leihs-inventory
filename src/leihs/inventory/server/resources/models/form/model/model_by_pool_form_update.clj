@@ -87,43 +87,7 @@
                               (sql/set {:cover_image_id (to-uuid id)})
                               (sql/where [:= :id model-id])
                               sql-format))))))
-
-(defn process-images [tx images model-id] "DEPR: logic to handle passed images & thumbnails"
-  (let [image-groups (group-by #(base-filename (:filename %)) images)]
-    (doseq [[_ entries] image-groups]
-      (when (= 2 (count entries))
-        (let [[main-image thumb] (if (str/includes? (:filename (first entries)) "_thumb.")
-                                   [(second entries) (first entries)]
-                                   [(first entries) (second entries)])
-              file-content (file-to-base64 (:tempfile main-image))
-              main-image-data (-> (set/rename-keys main-image {:content-type :content_type})
-                                  (dissoc :tempfile)
-                                  (assoc :content file-content
-                                         :target_id model-id
-                                         :target_type "Model"
-                                         :thumbnail false))
-              main-image-result (first (jdbc/execute! tx (-> (sql/insert-into :images)
-                                                             (sql/values [main-image-data])
-                                                             (sql/returning :*)
-                                                             sql-format)))
-              file-content (file-to-base64 (:tempfile thumb))
-              thumbnail-data (-> (set/rename-keys thumb {:content-type :content_type})
-                                 (dissoc :tempfile)
-                                 (assoc :content file-content
-                                        :target_id model-id
-                                        :target_type "Model"
-                                        :thumbnail true
-                                        :parent_id (:id main-image-result)))]
-          (jdbc/execute! tx (-> (sql/insert-into :images)
-                                (sql/values [thumbnail-data])
-                                (sql/returning :*)
-                                sql-format)))))))
-
 (defn process-entitlements [tx entitlements model-id]
-
-  (println ">o> abc.model-id" model-id)
-  (println ">o> abc.entitlements" entitlements)
-
   (doseq [entry entitlements]
     (let [id (to-uuid (:entitlement_id entry))
           where-clause (if id
@@ -171,8 +135,6 @@
                                   sql-format))))))))
 
 (defn process-compatibles [tx compatibles model-id]
-  (println ">o> abc.compatibles" compatibles)
-  (println ">o> abc.model-id" model-id)
   (doseq [compatible compatibles]
     (let [compatible-id (to-uuid (:id compatible))]
       (update-insert-or-delete tx :models_compatibles
@@ -198,21 +160,12 @@
 (defn filter-response [model keys]
   (let [updated-model (apply dissoc model keys)]
     updated-model))
-
 (defn update-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (when create-all (or (get-in request [:parameters :multipart])))
-
-        multipart (get-in request [:parameters :multipart])
-        p (println ">o> abc.multipart1" multipart)
-
-        body (get-in request [:parameters :body])
-        p (println ">o> abc.mult-body2" body)
-
-        multipart (or multipart body)
-
+        multipart (or (get-in request [:parameters :multipart])
+                      (get-in request [:parameters :body]))
         tx (:tx request)
         prepared-model-data (prepare-model-data multipart)]
     (try
@@ -225,25 +178,19 @@
             updated-model (filter-response updated-model [:rental_price])
             compatibles (parse-json-array multipart :compatibles)
             categories (parse-json-array multipart :categories)
-
             attachments (when create-all (normalize-files request :attachments))
-
             attachments-to-delete (parse-json-array request :attachments_to_delete)
-
             {:keys [images image-attributes new-images-attr existing-images-attr]}
             (when create-all (create-images-and-prepare-image-attributes request))
-
             properties (parse-json-array multipart :properties)
             accessories (parse-json-array multipart :accessories)
             entitlements (parse-json-array multipart :entitlements)
-
             {:keys [created-images-attr all-image-attributes]}
             (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
 
         (when create-all (process-attachments tx attachments model-id))
         (process-deletions tx attachments-to-delete :attachments :id)
         (when create-all (process-image-attributes tx all-image-attributes model-id))
-
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)

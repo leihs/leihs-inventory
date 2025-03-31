@@ -75,16 +75,6 @@
         all-image-attributes (into existing-images-attr created-images-attr)]
     {:created-images-attr created-images-attr :all-image-attributes all-image-attributes}))
 
-(defn process-image [tx image model-id]
-  (let [file-content (file-to-base64 (:tempfile image))
-        image-data (-> (set/rename-keys image {:content-type :content_type})
-                       (dissoc :tempfile)
-                       (assoc :content file-content :target_id model-id :target_type "Model" :thumbnail false))]
-    (jdbc/execute! tx (-> (sql/insert-into :images)
-                          (sql/values [image-data])
-                          (sql/returning :*)
-                          sql-format))))
-
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
 
@@ -118,10 +108,13 @@
                       images-to-update)]
     (response/response {:results results})))
 
+(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
+(def CONST_FILE_PATH "/tmp/")
+
 (defn upload-image [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
-        path (str (System/getProperty "user.dir") "/tmp/")
+        path CONST_FILE_PATH
         tx (:tx req)
         content-type (get-in req [:headers "content-type"])
         filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
@@ -151,7 +144,7 @@
 (defn upload-attachment [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
-        path (str (System/getProperty "user.dir") "/tmp/")
+        path CONST_FILE_PATH
         tx (:tx req)
         content-type (get-in req [:headers "content-type"])
         filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
