@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.routes
   (:require
    ["react-router-dom" :as router :refer [createBrowserRouter]]
+   ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
@@ -19,10 +20,18 @@
   (createBrowserRouter
    (cj
     [{:path "/inventory"
+      :id "root"
       :element
       ($ root-layout)
       :errorElement
       ($ notfound-page)
+      :loader (fn []
+                (.. (js/fetch "/inventory/profile"
+                              (cj {:headers {"Accept" "application/json"}}))
+                    (then #(.json %))
+                    (then #(jc %))
+                    (then #(do (.. i18n (changeLanguage (-> % :user_details :language_locale)))
+                               %))))
 
       :children
       (cj
@@ -37,7 +46,10 @@
          (cj [{:element ($ models-layout)
                :children
                (cj
-                [{:path "models"
+                [{:index true
+                  :loader #(router/redirect "models")}
+
+                 {:path "models"
                   :element ($ models-page)
                   :loader (fn [route-data]
                             (let [url (js/URL. (.. route-data -request -url))

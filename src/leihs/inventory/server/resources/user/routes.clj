@@ -17,7 +17,8 @@
    :href s/Str})
 
 (s/defschema navigation-schema
-  {:admin_url (s/maybe s/Str)
+  {:borrow_url (s/maybe s/Str)
+   :admin_url (s/maybe s/Str)
    :procure_url (s/maybe s/Str)
    :manage_nav_items [manage-nav-item-schema]
    :documentation_url (s/maybe s/Str)})
