@@ -35,6 +35,7 @@
    [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
+   [leihs.inventory.server.resources.templates.routes :refer [get-templates-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
@@ -73,6 +74,7 @@
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)
+   (get-templates-routes)
    (get-buildings-rooms-routes)
    (get-dev-routes)
 

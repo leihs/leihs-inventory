@@ -13,12 +13,12 @@
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :model_group_id)
+          template_id (-> request path-params :template_id)
           query (-> (sql/select :mg.*)
                     (sql/from [:model_groups :mg])
                     (sql/where [:= :mg.type "Template"])
+                    (cond-> template_id (sql/where [:= :mg.id template_id]))
                     (sql/order-by :mg.name)
-                    (cond-> group_id (sql/where [:= :mg.id group_id]))
                     sql-format)
           result (jdbc/query tx query)]
       (response result))

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.templates.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.categories.main :refer [get-model-groups-of-pool-handler]]
+   [leihs.inventory.server.resources.templates.main :refer [get-templates-of-pool-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -27,13 +27,14 @@
                 :responses {200 {:description "OK"
                                  :body [{:id s/Uuid
                                          :name s/Str
+                                         :type s/Str
                                          :created_at s/Any
                                          :updated_at s/Any}]}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
      ["/:template_id"
       {:get {:conflicting true
-             :summary "OK | a.k.a 'Categories'"
+             :summary "OK | a.k.a 'Templates'"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :middleware [accept-json-middleware]
@@ -43,6 +44,7 @@
              :responses {200 {:description "OK"
                               :body [{:id s/Uuid
                                       :name s/Str
+                                      :type s/Str
                                       :created_at s/Any
                                       :updated_at s/Any}]}
                          404 {:description "Not Found"}
