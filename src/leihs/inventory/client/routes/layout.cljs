@@ -7,9 +7,10 @@
    [uix.dom]))
 
 (defui layout []
-  ($ :<>
-     ($ header/main)
-     ($ :main {:className "container"}
-        ($ Outlet)
-        ($ Toaster {:position "top-center"
-                    :richColors true}))))
+  (let [profile (router/useLoaderData)]
+    ($ :<>
+       ($ header/main profile)
+       ($ :main {:className "container"}
+          ($ Outlet)
+          ($ Toaster {:position "top-center"
+                      :richColors true})))))

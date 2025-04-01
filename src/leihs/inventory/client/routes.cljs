@@ -23,6 +23,11 @@
       ($ root-layout)
       :errorElement
       ($ notfound-page)
+      :loader (fn []
+                (.. (js/fetch "/inventory/profile"
+                              (cj {:headers {"Accept" "application/json"}}))
+                    (then #(.json %))
+                    (then #(jc %))))
 
       :children
       (cj

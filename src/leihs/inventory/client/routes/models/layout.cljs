@@ -23,7 +23,7 @@
 
     ($ :article
        ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
-          (t "pool.models.title"))
+          (t "pool.models.title") " - (TODO: NAME OF POOL)")
 
        ($ Tabs {:value (:pathname tab-route)}
           ($ :div {:className "flex w-full"}

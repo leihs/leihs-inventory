@@ -1,15 +1,26 @@
 {
   "header": {
     "links": {
-      "lending14_one": "Apfel",
-      "lending14_other": "Äpfel",
       "inventory": "Inventar",
-      "lending": "Ausleihe"
+      "lending": "Verleih"
+    },
+    "app-menu": {
+      "borrow": "Ausleihen",
+      "admin": "Admin",
+      "procure": "Bedarfsermittlung",
+      "inventory-pools": "Geräteparks",
+      "inventory": "Inventar"
+    },
+    "user-menu": {
+      "user-data": "Benutzerdaten",
+      "my-documents": "Meine Dokumente",
+      "logout": "Logout",
+      "language": "Sprache"
     }
   },
   "pool": {
     "models": {
-      "title": "Inventarliste - Ausleihe Toni Areal",
+      "title": "Inventarliste",
       "dropdown": {
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",

@@ -97,7 +97,7 @@
                       ($ TableHead "")))
                 ($ TableBody
                    (for [model models]
-                     ($ TableRow {:key (-> model :item_id)}
+                     ($ TableRow {:key (-> model :id)}
                         ($ TableCell
                            ($ Button {:variant "outline"
                                       :size "icon"} "+"))
