@@ -385,10 +385,8 @@
 
                     if (selectedImage?.id || selectedImage?.image?.id) {
                         const imageId = selectedImage.id || selectedImage.image.id;
-
-                        const patchBody = [{id: modelId, is_cover: imageId}];
-
-                        const patchResponse = await fetch(`/inventory/${poolId}/model`, {
+                        const patchBody = {is_cover: imageId};
+                        const patchResponse = await fetch(`/inventory/${poolId}/model/${modelId}`, {
                             method: 'PATCH',
                             headers: {
                                 'Content-Type': 'application/json',
