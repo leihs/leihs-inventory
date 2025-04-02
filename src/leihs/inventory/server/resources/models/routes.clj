@@ -14,6 +14,7 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
                                                                       patch-models-handler
+                                                                      patch-model-handler
                                                                       upload-image]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
                                                                                          create-model-handler-by-pool-with-attachment-images]]
@@ -578,8 +579,9 @@
                          500 {:description "Internal Server Error"}}}
 
       :patch {:accept "application/json"
-              :summary "Form-Handler: Used to update image-attributes | [v1]"
+              :summary "Form-Handler: Used to patch model | [v1]"
               :coercion reitit.coercion.schema/coercion
+              :swagger {:deprecated true}
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
               :parameters {:path {:pool_id s/Uuid}
                            :body [{:is_cover (s/maybe s/Uuid)
@@ -643,6 +645,20 @@
                               :body :model-strict-response/inventory-models}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
+
+       :patch {:accept "application/json"
+               :summary "Form-Handler: Used to patch model-attributes | [v1]"
+               :coercion reitit.coercion.schema/coercion
+               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+               :parameters {:path {:pool_id s/Uuid
+                                   :model_id s/Uuid}
+                            :body {:is_cover (s/maybe s/Uuid)}}
+               :handler patch-model-handler
+               :responses {200 {:description "OK"
+                                :body [{:id s/Uuid
+                                        :cover_image_id s/Uuid}]}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}
 
        :put {:accept "application/json"
              :summary "Update model endpoint (multiform-data) [v0] DEPR"

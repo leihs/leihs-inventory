@@ -107,6 +107,18 @@
                       images-to-update)]
     (response/response results)))
 
+(defn patch-model-handler [req]
+  (let [model-id (to-uuid (get-in req [:path-params :model_id]))
+        pool-id (to-uuid (get-in req [:path-params :pool_id]))
+        tx (:tx req)
+        is-cover (-> req :body-params :is_cover)
+        result (jdbc/execute! tx (-> (sql/update :models)
+                                     (sql/set {:cover_image_id (to-uuid is-cover)})
+                                     (sql/where [:= :id model-id])
+                                     (sql/returning :id :cover_image_id)
+                                     sql-format))]
+    (response/response result)))
+
 ;(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
 (def CONST_FILE_PATH "/tmp/")
 
