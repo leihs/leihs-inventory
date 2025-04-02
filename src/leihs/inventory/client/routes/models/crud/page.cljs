@@ -17,8 +17,11 @@
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
+   [shadow.cljs.modern :refer (js-await)]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -59,48 +62,53 @@
 
         on-submit (fn [data event]
                     (go
-                      (let [form-data (js/FormData.)]
+                      (let [images (:images (jc data))
+                            attachments (:attachments (jc data))
+                            model-data (dissoc (jc data) :images :attachments)
+
+                            model-res (<p! (.. (js/fetch (str dev-api-origin "/inventory/123/models")
+                                                         (cj {:method "POST"
+                                                              :headers {"Accept" "application/json"}
+                                                              :body (js/JSON.stringify (cj model-data))}))
+                                               (then #(.json %))))
+                            model-id (.-id model-res)]
+
                         (.. event (preventDefault))
-                        (js/console.debug "is valid" (js/JSON.stringify data))
 
-                        (.. toast (success "Data is valid"))
+                        ;; upload images sequentially and path model with is_cover when is needed + images with target_type
+                        (doseq [image images]
+                          (let [file (:file image)
+                                is-cover (:is_cover image)
+                                binary-data (<p! (.. file (arrayBuffer)))
+                                image-res (<p! (.. (js/fetch (str dev-api-origin "/inventory/" model-id "/images")
+                                                             (cj {:method "POST"
+                                                                  :headers {"Accept" "application/json"}
+                                                                  :body binary-data}))
+                                                   (then #(.json %))))
+                                image-id ^js (.-id image-res)]
 
-                        (doseq [[k v] (js/Object.entries data)]
-                          (cond
-                          ;; add images as binary data
-                            (= k "images")
-                            (if (js/Array.isArray v)
-                              (doseq [val v]
-                                (.. form-data (append (str "images") val)))
-                              (.. form-data (append "images" v)))
+                            ;; patch image with target_type "Model"
+                            (<p! (js/fetch (str dev-api-origin "/inventory/" model-id "/images/" image-id)
+                                           (cj {:method "PATCH"
+                                                :headers {"Accept" "application/json"}
+                                                :body (js/JSON.stringify (cj {:target_type "Model"}))})))
 
-                            ;; add attachments as binary data
-                            (= k "attachments")
-                            (if (js/Array.isArray v)
-                              (doseq [val v]
+                            ;; if there is a cover image then patch the model with iid of the cover image
+                            (when is-cover (<p! (js/fetch (str dev-api-origin "/inventory/123/models/" model-id)
+                                                          (cj {:method "PATCH"
+                                                               :headers {"Accept" "application/json"}
+                                                               :body (js/JSON.stringify (cj {:cover_image_id image-id}))}))))))
 
-                                (.. form-data (append "attachments" val)))
-                              (.. form-data (append "attachments" v)))
+                        ;; upload attachments sequentially
+                        (doseq [attachment attachments]
+                          (let [binary-data (<p! (.. attachment (arrayBuffer)))]
+                            (<p! (js/fetch (str dev-api-origin "/inventory/" model-id "/attachments/")
+                                           (cj {:method "POST"
+                                                :headers {"Accept" "application/json"}
+                                                :body binary-data})))))
 
-                          ;; add fields as text data
-                            :else (let [value (js/JSON.stringify v)]
-                                    (.. form-data (append k value)))))
-
-                        #_(if is-create
-
-                            (.. (js/fetch (str dev-api-origin (router/generatePath "/inventory/:pool-id" params))
-                                          (cj {:method "POST"
-                                               :headers {"Accept" "application/json"}
-                                               :body form-data}))
-                                (then (js/console.debug "success"))
-                                (catch (fn [err] (js/console.debug "error" err))))
-
-                            (.. (js/fetch (router/generatePath "/inventory/:pool-id/model/:model-id" params)
-                                          (cj {:method "PUT"
-                                               :headers {"Accept" "application/json"}
-                                               :body form-data}))
-                                (then (js/console.debug "success"))
-                                (catch (fn [err] (js/console.debug "error" err))))))))]
+                        (js/console.debug "is valid" data)
+                        (.. toast (success "Data is valid")))))]
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
