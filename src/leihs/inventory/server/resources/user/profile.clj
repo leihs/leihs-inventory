@@ -1,18 +1,10 @@
 (ns leihs.inventory.server.resources.user.profile
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence raise]]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
    [leihs.core.settings :refer [settings!]]
    [leihs.inventory.server.resources.user.common :refer [get-by-id]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [leihs.inventory.server.utils.helper :refer [convert-to-map]]
-   [next.jdbc.sql :as jdbc]
-   [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.middleware.accept]))
 
 (defn get-one [tx target-user-id user-id]
   (get-by-id tx (or user-id target-user-id)))
@@ -28,7 +20,8 @@
   (let [settings (settings! tx [:external_base_url :documentation_link])
         base-url (:external_base_url settings)
         sub-apps (sub-apps tx authenticated-entity)]
-    {:admin-url (when (:admin sub-apps) (str base-url "/admin/"))
+    {:borrow-url (when (:borrow sub-apps) (str base-url "/borrow/"))
+     :admin-url (when (:admin sub-apps) (str base-url "/admin/"))
      :procure-url (when (:procure sub-apps) (str base-url "/procure/"))
      :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
      :documentation-url (:documentation_link settings)}))

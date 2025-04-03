@@ -10,17 +10,31 @@
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.core.core :refer [detect]]
-   [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.lib.csrf :as csrf]
+   [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(defn- switch-language [locale-id]
+  (.. i18n (changeLanguage locale-id))
+  (js/console.warn "Switching language, but should update the user profile on server too (to be implemented)")
+  #_(let [url "/inventory/profile-language"
+          data (cj {:locale locale-id,
+                    csrf/token-field-name csrf/token})]
+      (.. (js/fetch url (cj {:method "PUT"
+                             :headers {"Accept" "application/json"}
+                             :body (js/JSON.stringify data)}))
+          (then (fn [data] (js/console.log "success" data)))
+          (catch (fn [err] (js/console.log "error" err))))))
+
 (defui main [{:keys [navigation available_inventory_pools user_details languages]}]
   (let [[t] (useTranslation)
-        navigate (router/useNavigate)
         {:keys [pool-id]} (jc (router/useParams))
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
-        current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)]
+        current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
+        current-lang (.. i18n -language)]
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
           ($ :div {:className "flex items-center"}
@@ -31,45 +45,58 @@
                    (t "header.links.lending" "Verleih"))
                 ($ :a {:href "/inventory/" :className "font-semibold"} (t "header.links.inventory" "Inventar"))))
 
-          ($ :div
+          ($ :div {:className "flex"}
              ($ DropdownMenu
                 ($ DropdownMenuTrigger {:asChild "true" :className "ml-auto"}
                    ($ Button {:variant "outline"}
                       ($ :<>
-                         ($ LayoutGrid {:className "mr-2 h-4 w-4"})
+                         ($ LayoutGrid {:className "h-4 w-4"})
                          ($ :span {:className "hidden lg:block"} (if current-pool (:name current-pool) (t "header.app-menu.inventory" "Inventar")))
-                         ($ ChevronsUpDown {:className "ml-2 h-4 w-4"}))))
+                         ($ ChevronsUpDown {:className "h-4 w-4 hidden lg:block"}))))
                 ($ DropdownMenuContent {:className "ml-auto"}
                    ($ DropdownMenuGroup
-                      ($ DropdownMenuItem {:onClick #(navigate "/borrow")} (t "header.app-menu.borrow" "Ausleihen"))
+                      (when-let [url (:borrow_url navigation)]
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ :a {:href url} (t "header.app-menu.borrow" "Ausleihen"))))
                       (when-let [url (:admin_url navigation)]
-                        ($ DropdownMenuItem {:onClick #(set! (.-location js/window) url)} (t "header.app-menu.admin" "Admin")))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ :a {:href url} (t "header.app-menu.admin" "Admin"))))
                       (when-let [url (:procure_url navigation)]
-                        ($ DropdownMenuItem {:onClick #(set! (.-location js/window) url)} (t "header.app-menu.procure" "Bedarfsermittlung"))))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ :a {:href url} (t "header.app-menu.procure" "Bedarfsermittlung")))))
                    ($ DropdownMenuSeparator)
-                   ($ DropdownMenuLabel {:className "text-xs"} (t "header.app-menu.inventory-pools", "Geräteparks") ":")
+                   ($ DropdownMenuLabel {:className "text-xs font-normal"} (t "header.app-menu.inventory-pools", "Geräteparks") ":")
                    ($ DropdownMenuGroup
                       (doall
                        (map-indexed
                         (fn [idx pool]
-                          ($ DropdownMenuItem
-                             {:key idx
-                              :className (when (= pool-id (:id pool)) "font-semibold")
-                              :onClick #(navigate (router/generatePath "/inventory/:pool-id/models" #js {:pool-id (:id pool)}))}
-                             (:name pool)))
+                          (let [url (router/generatePath "/inventory/:pool-id/models" #js {:pool-id (:id pool)})]
+                            ($ DropdownMenuItem {:key idx
+                                                 :asChild true
+                                                 :className (when (= pool-id (:id pool)) "font-semibold")}
+                               ($ :a {:href url} (:name pool)))))
                         available_inventory_pools)))))
+
              ($ DropdownMenu
                 ($ DropdownMenuTrigger {:asChild "true" :className "ml-4"}
                    ($ Button {:variant "outline"}
                       ($ :<>
-                         ($ CircleUser {:className "mr-2 h-4 w-4"})
+                         ($ CircleUser {:className "h-4 w-4"})
                          ($ :span {:className "hidden lg:block"} (:name user_details))
-                         ($ ChevronsUpDown {:className "ml-2 h-4 w-4"}))))
+                         ($ ChevronsUpDown {:className "h-4 w-4 hidden lg:block"}))))
                 ($ DropdownMenuContent {:className "ml-auto"}
                    ($ DropdownMenuGroup
-                      ($ DropdownMenuItem {:onClick #(js/alert "TODO")} (t "header.user-menu.user-data"))
-                      ($ DropdownMenuItem {:onClick #(js/alert "TODO")} (t "header.user-menu.my-documents"))
-                      ($ DropdownMenuItem {:onClick #(js/alert "TODO")} (t "header.user-menu.logout")))
+                      (when-let [url (some-> (:borrow_url navigation) (str "current-user"))]
+                        ($ :<>
+                           ($ DropdownMenuItem {:asChild true}
+                              ($ :a {:href url} (t "header.user-menu.user-data")))
+                           ($ DropdownMenuItem {:asChild true}
+                              ($ :a {:href url} (t "header.user-menu.my-documents")))))
+                      ($ DropdownMenuItem {:asChild true}
+                         ($ :button {:type :submit :form "sign-out-form" :className "w-full"}
+                            (t "header.user-menu.logout")))
+                      ($ :form {:action "/sign-out" :method :POST :id "sign-out-form"}
+                         ($ :input {:type :hidden :name csrf/token-field-name :value csrf/token})))
                    ($ DropdownMenuSeparator)
                    ($ DropdownMenuSub
                       ($ DropdownMenuSubTrigger (t "header.user-menu.language"))
@@ -78,6 +105,8 @@
                             (doall
                              (map-indexed
                               (fn [idx lang]
-                                ($ DropdownMenuItem {:key idx :onClick #(js/alert (str "TODO - Selected lang: " (:name lang)))}
+                                ($ DropdownMenuItem {:key idx
+                                                     :onClick #(switch-language (:locale lang))
+                                                     :className (when (= current-lang (:locale lang)) "font-semibold")}
                                    (:name lang)))
                               languages))))))))))))
