@@ -99,6 +99,9 @@
                 (response/status 404)
                 (response/content-type "application/json"))))))))
 
+
+
+
 (defn wrap-csrf [handler]
   (fn [request]
     (let [referer (get-in request [:headers "referer"])

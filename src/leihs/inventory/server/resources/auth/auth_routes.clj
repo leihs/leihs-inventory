@@ -360,7 +360,8 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:security []}
              :handler protected-handler
-             :middleware [ab/wrap]}}]]
+             :middleware [ab/wrap]
+             }}]]
 
     ["token"
      {:tags ["Auth / Token"]}

@@ -18,6 +18,7 @@
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [leihs.inventory.server.utils.session-dev-mode :as dm]
+   [leihs.inventory.server.resources.utils.middleware :refer [ wrap-authenticate!]]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
             [reitit.coercion.spec]
@@ -93,6 +94,9 @@
                                      wrap-cookies
                                      csrf/wrap-csrf
                                      dm/extract-dev-cookie-params
+
+
+                                     wrap-authenticate!
 
                                       ;locale/wrap
                                       ;settings/wrap

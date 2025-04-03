@@ -26,8 +26,12 @@
         (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
 
 (defn wrap-authenticate! [handler]
+  "Wraps the handler to check if the user is authenticated OR uri is in whitelist"
   (fn [request]
-    (let [auth (get-in request [:authenticated-entity] nil)]
-      (if auth
+    (let [auth (get-in request [:authenticated-entity] nil)
+          whitelist-uris-as-public ["/sign-in" "/inventory/token/public" "/inventory/session/public"]
+          uri (:uri request)
+          swagger-resource-request? (and uri (str/includes? uri "/api-docs/"))]
+      (if (or auth (some #(str/starts-with? uri %) whitelist-uris-as-public) swagger-resource-request?)
         (handler request)
         (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
