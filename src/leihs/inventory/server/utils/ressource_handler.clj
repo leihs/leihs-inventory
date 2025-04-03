@@ -127,10 +127,38 @@
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri CONST_SUPPORTED_LOCALES))
-      (let [src (str/replace-first uri "/inventory" "public/inventory")]
-        {:status 200
-         :headers {"Content-Type" "application/json"}
-         :body (slurp (io/resource src))})
+      (let [src (str/replace-first uri "/inventory" "public/inventory")
+
+            resource (try (slurp (io/resource src))
+                 (catch Exception e
+                    (println ">>> Error loading translation file:" src)
+                   nil))
+
+
+
+
+            ]
+        (if resource
+
+
+          {:status 200
+           :headers {"Content-Type" "application/json"}
+           :body resource}
+          {:status 404
+           :headers {"Content-Type" "application/json"}
+           ;:body (str "{\"error\": \"File not found: " src "\"}")
+           }))
+
+
+        ;{:status 200
+        ; :headers {"Content-Type" "application/json"}
+        ; :body (try (slurp (io/resource src))
+        ;            (catch Exception e
+        ;              (println "Error loading translation file:" src)
+        ;              (throw e)))})
+        ;            )}
+
+;))
 
       (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
       {:status 302

@@ -51,8 +51,16 @@
        (into {})))
 
 (defn add-cookies-to-request [request]
-  (let [cookie-header (get-in request [:headers "cookie"])
-        parsed-cookies (when cookie-header (parse-cookies cookie-header))]
+  (let [
+        p (println ">o> abc.befor" (:cookies request))
+
+
+        cookie-header (get-in request [:headers "cookie"])
+
+        parsed-cookies (when cookie-header (parse-cookies cookie-header))
+
+        p (println ">o> abc.after" parsed-cookies)
+        ]
     (assoc request :cookies parsed-cookies)))
 
 (alter-var-root #'constants/ANTI_CSRF_TOKEN_COOKIE_NAME (constantly (keyword "leihs-anti-csrf-token")))
@@ -87,17 +95,43 @@
                           convert-params))
                     (-> request
                         add-cookies-to-request
-                        convert-params))]
+                        convert-params))
+
+          p (println ">o> abc.finally.cookie" (:cookies request))
+          ]
+
       (try
+
+        ;(leihs.core.anti-csrf.back/x-csrf-token! request)
+
+
         (handler request)
+
+        ;((anti-csrf/wrap handler) request)
+
+
+
         (catch Exception e
+
+          (println ">o> abc??" (type e))
+          (println ">o> abc??" (.getMessage e))
+
           (if (str/includes? (:uri request) "/sign-in")
             (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
                 (response/status 404)
-                (response/content-type "application/json"))))))))
+                (response/content-type "application/json"))
+
+
+            )
+
+          )
+
+
+        )))
+)
 
 (defn wrap-csrf [handler]
   (fn [request]
@@ -116,4 +150,6 @@
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"
                                    :detail (str "error: " (.getMessage e))})}))))
-          (handler request))))))
+          (handler request))
+        )
+      )))

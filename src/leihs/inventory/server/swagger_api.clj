@@ -92,6 +92,12 @@
                                      session/wrap-authenticate
                                      wrap-cookies
                                      csrf/wrap-csrf
+
+
+                                     leihs.core.anti-csrf.back/wrap
+                                     ;leihs.core.anti-csrf.back/x-csrf-token!
+
+
                                      dm/extract-dev-cookie-params
 
 

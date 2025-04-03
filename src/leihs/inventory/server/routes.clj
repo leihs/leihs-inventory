@@ -108,7 +108,17 @@
   (let [request-method (:request-method request)
         uri (:uri request)
         request (assoc request :settings {})
+
         form-data (get request :form-params)
+        p (println ">o> abc.form-data1" form-data)
+
+        form-data (get-in request [:parameters :multipart])
+        p (println ">o> abc.form-data2-new" form-data)
+
+        form-data (get-in request [:parameters])
+        p (println ">o> abc.form-data3-???" form-data)
+
+
         username (:user form-data)
         password (:password form-data)
         resp (if (or (str/blank? username) (str/blank? password))
@@ -155,7 +165,16 @@
       {:no-doc false
        :post {:accept "text/html"
               :swagger {:produces ["application/multipart-form-data"]}
+              :coercion reitit.coercion.schema/coercion
+
+              :parameters {:multipart {:user s/Str
+                                         :password s/Str
+                                       (s/optional-key  :csrf-token) s/Str
+                                         (s/optional-key :return-to) s/Str}}
+
+
               :handler post-sign-in}
+
        :get {:summary "HTML | Get sign-in page"
              :accept "text/html"
              :swagger {:produces ["text/html"]}
