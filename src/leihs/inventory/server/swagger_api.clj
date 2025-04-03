@@ -94,13 +94,6 @@
                                      csrf/wrap-csrf
                                      dm/extract-dev-cookie-params
 
-                                      ;locale/wrap
-                                      ;settings/wrap
-                                      ;datasource/wrap-tx
-                                      ;wrap-json-response
-                                      ;(wrap-json-body {:keywords? true})
-                                      ;wrap-empty
-                                      ;wrap-form-params
 
                                      wrap-params
                                      wrap-content-type
@@ -132,5 +125,23 @@
                      :urls.primaryName "openapi"
                      :operationsSorter "alpha"}})
 
-          (ring/create-default-handler
+
+           ;(swagger-ui/create-swagger-ui-handler
+           ;  {:path "/inventory/api-docs/"
+           ;   :config {:validatorUrl nil
+           ;            :urls [{:name "swagger" :url "swagger.json"}]
+           ;            :urls.primaryName "openapi"
+           ;            :operationsSorter "alpha"
+           ;            :requestInterceptor "function(request) {
+           ;     const token = document.querySelector('meta[name=\"csrf-token\"]').getAttribute('content');
+           ;     if (token) {
+           ;       request.headers['x-csrf-token'] = token;
+           ;     }
+           ;     return request;
+           ;   }"
+           ;
+           ;   }})
+
+
+           (ring/create-default-handler
            {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))

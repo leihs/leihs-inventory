@@ -183,6 +183,12 @@
               :swagger {:security [{:basicAuth []}] :deprecated true}
               :handler authenticate-handler}}]
 
+      ;["foo-bar"
+      ; {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login ( set cookie with token ) [v0]"
+      ;        :description
+      ;        "<button onclick=\"alert('CSRF token is: abc123')\">Click me</button>"}}]
+
+
       ["admin/update-role"
        {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
               :accept "application/json"
@@ -234,8 +240,14 @@
                        :securityDefinitions {:apiAuth {:type "apiKey"
                                                        :name "Authorization"
                                                        :in "header"}
+                                             :csrfToken
+                                             {:type "apiKey"
+                                              :name "x-csrf-token"
+                                              :in "header"}
+
                                              :basicAuth {:type "basic"}}
                        :security [{:basicAuth [] "auth" []}
+                                  {:csrfToken []}
                                   {:apiAuth {:type "apiKey"
                                              :name "Authorization"
                                              :in "header"}}]}
