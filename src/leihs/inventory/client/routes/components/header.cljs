@@ -13,21 +13,10 @@
    ["~/i18n.config.js" :as i18n :refer [i18n]]
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
-   [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.lib.language :refer [switch-language]]
+   [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
-
-(defn- switch-language [locale-id]
-  (.. i18n (changeLanguage locale-id))
-  (js/console.warn "Switching language, but should update the user profile on server too (to be implemented)")
-  #_(let [url "/inventory/profile-language"
-          data (cj {:locale locale-id,
-                    csrf/token-field-name csrf/token})]
-      (.. (js/fetch url (cj {:method "PUT"
-                             :headers {"Accept" "application/json"}
-                             :body (js/JSON.stringify data)}))
-          (then (fn [data] (js/console.log "success" data)))
-          (catch (fn [err] (js/console.log "error" err))))))
 
 (defui main [{:keys [navigation available_inventory_pools user_details languages]}]
   (let [[t] (useTranslation)
@@ -75,7 +64,7 @@
                                                  :asChild true
                                                  :className (when (= pool-id (:id pool)) "font-semibold")}
                                ($ :a {:href url} (:name pool)))))
-                        available_inventory_pools)))))
+                        (sort-by :name available_inventory_pools))))))
 
              ($ DropdownMenu
                 ($ DropdownMenuTrigger {:asChild "true" :className "ml-4"}

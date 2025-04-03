@@ -1,11 +1,6 @@
 (ns leihs.inventory.client.lib.csrf
-  (:require [leihs.core.constants :as constants]))
-
-(defn get-cookie [name]
-  (let [re (js/RegExp. (str "(?:^|; )" name "=([^;]*)"))
-        match (.match (.-cookie js/document) re)]
-    (when match
-      (js/decodeURIComponent (aget match 1)))))
+  (:require [leihs.core.constants :as constants]
+            [leihs.inventory.client.lib.cookies :refer [get-cookie]]))
 
 (def token
   (get-cookie constants/ANTI_CSRF_TOKEN_COOKIE_NAME))
