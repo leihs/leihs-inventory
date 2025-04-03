@@ -17,7 +17,7 @@
 
    ["/dev"
     {:swagger {:conflicting true
-               :tags ["Dev"] :security []}}
+               :tags ["Dev"]}}
     ["/update-accounts" {:put {:conflicting true
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
@@ -29,7 +29,6 @@
                                :accept "application/json"
                                :middleware [wrap-check-authenticated-admin]
                                :coercion reitit.coercion.schema/coercion
-                               :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
                                :parameters {:query {(s/optional-key :type) (s/enum "min" "all")}}
                                :handler update-and-fetch-accounts
                                :responses {200 {:description "OK"
@@ -42,7 +41,6 @@
                      :accept "application/json"
                      :middleware [wrap-check-authenticated-admin]
                      :coercion reitit.coercion.schema/coercion
-                     :swagger {:security [{:basicAuth []}] :produces ["application/json"]}
                      :parameters {:query {(s/optional-key :id) s/Str
                                           (s/optional-key :columns) [s/Str]}}
                      :handler search-in-tables

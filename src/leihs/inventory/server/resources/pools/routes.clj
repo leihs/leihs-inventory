@@ -14,7 +14,7 @@
 (defn get-pools-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Pool"] :security []}}
+              :tags ["Pool"]}}
 
    ["user-pools-info"
     {:get {:conflicting true

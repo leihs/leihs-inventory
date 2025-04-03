@@ -8,7 +8,12 @@ feature "Inventory API Endpoints - Model Properties" do
 
     let(:model_with_properties) { @models.first }
     let(:model_without_properties) { @models.third }
-    let(:client) { plain_faraday_json_client }
+
+    before :each do
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       let(:url) { "/inventory#{path}models/#{model_with_properties.id}/properties" }

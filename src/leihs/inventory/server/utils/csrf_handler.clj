@@ -79,33 +79,32 @@
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
-          request (if (= content-type "application/x-www-form-urlencoded")
-                    (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
-                      (-> request
-                          (assoc :form-params body-form)
-                          add-cookies-to-request
-                          convert-params))
-                    (-> request
-                        add-cookies-to-request
-                        convert-params))]
+          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
+          x-csrf-token (get-in request [:headers "x-csrf-token"])
+          header (get-in request [:headers])
+          request (-> request
+                      (cond-> (= content-type "application/x-www-form-urlencoded")
+                        (assoc :form-params (some-> (:body request) extract-form-params)))
+                      add-cookies-to-request
+                      convert-params)]
       (try
         (handler request)
         (catch Exception e
           (if (str/includes? (:uri request) "/sign-in")
-            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+            (leihs.inventory.server.routes/get-sign-in request)
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-                (response/status 404)
-                (response/content-type "application/json"))))))))
+                (response/status 404))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
     (let [referer (get-in request [:headers "referer"])
-          api-request? (and referer (str/includes? referer "/api-docs/"))]
+          uri (:uri request)
+          api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out"])
+        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e

@@ -6,10 +6,14 @@ feature "Inventory API Endpoints - Entitlements" do
   context "when fetching entitlements for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
+    before :each do
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+    end
+
     let(:model_with_entitlements) { @models.first }
     let(:model_without_entitlements) { @models.third }
 
-    let(:client) { plain_faraday_json_client }
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       context "GET /inventory/models/:id/entitlements for a model with entitlements" do

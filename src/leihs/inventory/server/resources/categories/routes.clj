@@ -30,7 +30,7 @@
 
    ["/category_links"
     {:swagger {:conflicting true
-               :tags ["Category-Links"] :security []}}
+               :tags ["Category-Links"]}}
     ["" {:get {:conflicting true
                :summary "OK | Kategorie-Links anzeigen / category_links == model_group_links"
                :description (create-description "https://staging.leihs.zhdk.ch/category_links")
@@ -68,7 +68,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Categories / Model-Groups"] :security []}}
+               :tags ["Categories / Model-Groups"]}}
 
     ["/model-groups"
      ["" {:get {:conflicting true

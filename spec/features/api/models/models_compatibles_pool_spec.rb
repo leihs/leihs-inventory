@@ -1,5 +1,6 @@
 require "spec_helper"
 require "pry"
+require_relative "../_shared"
 
 feature "Inventory API Endpoints" do
   context "when fetching models for a specific inventory pool", driver: :selenium_headless do
@@ -18,7 +19,11 @@ feature "Inventory API Endpoints" do
       end
     end
 
-    let(:client) { plain_faraday_json_client }
+    before do
+      @admin, @admin_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
 
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns status 200 with no results" do

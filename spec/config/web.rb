@@ -5,6 +5,14 @@ ACCEPT_PNG = "image/png"
 ACCEPT_CSV = "text/csv"
 ACCEPT_HTML = "text/html"
 ACCEPT_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+X_CSRF_TOKEN = "test-csrf-123-456"
+
+def login_and_extract_session_token(user)
+  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  expect(resp.status).to eq(200)
+
+  parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+end
 
 def http_port
   @port ||= Integer(ENV["LEIHS_INVENTORY_HTTP_PORT"].presence || 3260)
@@ -39,9 +47,11 @@ def plain_faraday_resource_client(headers = {})
 end
 
 def plain_faraday_json_client(headers = nil)
+  cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+
   @plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,
-    headers: headers || {accept: "application/json"}
+    headers: headers || {:accept => "application/json", :Cookie => cookie.to_s, "x-csrf-token" => X_CSRF_TOKEN}
   ) do |conn|
     yield(conn) if block_given?
     conn.response :json, content_type: /\bjson$/
@@ -76,6 +86,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
   Faraday.new(url: api_base_url) do |conn|
     conn.headers["Authorization"] = "Token #{token}" if token
     conn.headers["Accept"] = "application/json"
+    conn.headers["x-csrf-token"] = X_CSRF_TOKEN
     conn.headers["Content-Type"] = "application/json" unless multipart
     conn.headers.update(headers)
     conn.request :multipart if multipart
@@ -90,6 +101,21 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
     elsif body
       req.body = body.to_json
     end
+  end
+end
+
+def common_plain_faraday_login_client(method, url, token: nil, body: nil, headers: {})
+  Faraday.new(url: api_base_url) do |conn|
+    conn.headers["Authorization"] = "Token #{token}" if token
+    conn.headers["Accept"] = "text/html,application/xhtml+xml"
+    conn.headers["Content-Type"] = "application/x-www-form-urlencoded"
+    conn.headers.update(headers)
+    conn.request :url_encoded
+    conn.adapter Faraday.default_adapter
+
+    yield(conn) if block_given?
+  end.public_send(method, url) do |req|
+    req.body = body
   end
 end
 
@@ -113,15 +139,19 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:patch, url, token: token, body: body, headers: headers)
 end
 
-def session_auth_plain_faraday_json_client(cookie_string)
-  @plain_faraday_json_client ||= Faraday.new(
-    url: api_base_url,
-    headers: {accept: "application/json", Cookie: cookie_string}
-  ) do |conn|
+def session_auth_plain_faraday_json_client(cookies: nil, headers: nil)
+  headers ||= {"accept" => "application/json"}
+  headers[:Cookie] = cookies.map(&:to_s).join("; ") if cookies
+
+  Faraday.new(url: api_base_url, headers: headers) do |conn|
     yield(conn) if block_given?
     conn.response :json, content_type: /\bjson$/
     conn.adapter Faraday.default_adapter
   end
+end
+
+def session_auth_plain_faraday_json_csrf_client(cookies: nil, headers: {"accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN})
+  session_auth_plain_faraday_json_client(cookies: cookies, headers: headers)
 end
 
 ResponseResult = Struct.new(:status, :body)
@@ -140,6 +170,7 @@ def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "
 
   request = request_class.new(uri)
   headers["Authorization"] = "Token #{token}" if token
+  headers["x-csrf-token"] = X_CSRF_TOKEN
   headers.each { |key, value| request[key] = value }
   prepared_form_data = form_data.flat_map do |key, value|
     if value.is_a?(Array)

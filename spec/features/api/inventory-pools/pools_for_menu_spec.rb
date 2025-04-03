@@ -1,22 +1,14 @@
 require "spec_helper"
 require "pry"
-
-def create_and_login(role, login, password)
-  user = FactoryBot.create(role, login: login, password: password)
-  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-  expect(resp.status).to eq(200)
-  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-  cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-  [user, cookie]
-end
+require_relative "../_shared"
 
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
-      @admin, @admin_cookie = create_and_login(:admin, "admin", "password")
+      @admin, @admin_cookies, @admin_cookies_str, @cookie_token = create_and_login(:admin)
     end
 
-    let(:admin_client) { session_auth_plain_faraday_json_client(@admin_cookie.to_s) }
+    let(:admin_client) { session_auth_plain_faraday_json_csrf_client(cookies: @admin_cookies) }
 
     context "with both direct and group access rights" do
       before :each do

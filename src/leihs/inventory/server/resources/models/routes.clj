@@ -72,8 +72,7 @@
 (defn get-model-route []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Models"]
-              :security []}}
+              :tags ["Models"]}}
 
    ["manufacturers"
     {:get {:conflicting true
@@ -413,11 +412,11 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags ["Models by pool"] :security []}}
+              :tags ["Models by pool"]}}
 
    ["/item" ;; form/item new
     {:swagger {:conflicting true
-               :tags ["form / item"] :security []}}
+               :tags ["form / item"]}}
 
     [""
      {:post {:accept "application/json"
@@ -448,7 +447,7 @@
 
    ["/models/:model_id/item" ;; new
     {:swagger {:conflicting true
-               :tags ["form / item"] :security []}}
+               :tags ["form / item"]}}
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -484,7 +483,7 @@
 
    ["/package" ;; new
     {:swagger {:conflicting true
-               :tags ["form / package"] :security []}}
+               :tags ["form / package"]}}
 
     [""
      {:post {:accept "application/json"
@@ -520,7 +519,7 @@
 
    ["/models/:model_id/package" ;; new
     {:swagger {:conflicting true
-               :tags ["form / package"] :security []}}
+               :tags ["form / package"]}}
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -555,7 +554,7 @@
 
    ["/model"
     {:swagger {:conflicting true
-               :tags ["form / model"] :security []}}
+               :tags ["form / model"]}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data" "application/json"]
@@ -712,7 +711,7 @@
 
    ["/option"
     {:swagger {:conflicting true
-               :tags ["form / option"] :security []}}
+               :tags ["form / option"]}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data"]
@@ -774,7 +773,7 @@
 
    ["/license" ;;new
     {:swagger {:conflicting true
-               :tags ["form / licenses"] :security []}}
+               :tags ["form / licenses"]}}
 
     [""
      {:post {:accept "application/json"
@@ -833,7 +832,7 @@
 
    ["/software"
     {:swagger {:conflicting true
-               :tags ["form / software"] :security []}}
+               :tags ["form / software"]}}
     [""
      {:post {:accept "application/json"
              :summary "(DEV) | Form-Handler: Fetch form data [v0]"
@@ -1009,7 +1008,7 @@
 
      ["/licenses" ;; new
       {:swagger {:conflicting true
-                 :tags ["form / licenses"] :security []}}
+                 :tags ["form / licenses"]}}
 
       [""
        {:post {:accept "application/json"

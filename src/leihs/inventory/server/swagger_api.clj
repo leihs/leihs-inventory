@@ -7,6 +7,7 @@
             [leihs.core.anti-csrf.back :as anti-csrf]
             [leihs.core.auth.core :as auth]
             [leihs.core.auth.session :as session]
+            [leihs.core.auth.token :as token]
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.back :as core-routing]
@@ -73,6 +74,24 @@
                             :else request)]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
+(defn wrap-authenticate! [handler]
+  (fn [request]
+    (let [handler (try
+                    (session/wrap-authenticate handler)
+                    (catch Exception e
+                      (println ">> Error in session-authenticate!" e)
+                      handler))
+          token (get-in request [:headers "authorization"])
+          handler (if (and token
+                           (re-matches #"(?i)^token\s+(.*)$" token))
+                    (try
+                      (token/wrap-authenticate handler)
+                      (catch Exception e
+                        (println ">> Error in token-authenticate!" e)
+                        handler))
+                    handler)]
+      (handler request))))
+
 (defn create-app [options]
   (let [router (ring/router
 
@@ -89,9 +108,11 @@
                                      wrap-accept-with-image-rewrite
 
                                      csrf/extract-header
-                                     session/wrap-authenticate
+                                     wrap-authenticate!
+                                     leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                                      wrap-cookies
                                      csrf/wrap-csrf
+                                     leihs.core.anti-csrf.back/wrap
                                      dm/extract-dev-cookie-params
 
                                       ;locale/wrap
@@ -108,7 +129,7 @@
                                      dispatch-content-type/wrap-accept
 
                                      default-handler-fetch-resource
-                                     csrf/wrap-dispatch-content-type
+                                     ;csrf/wrap-dispatch-content-type
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware

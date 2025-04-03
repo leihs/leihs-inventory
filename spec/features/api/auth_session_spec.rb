@@ -1,22 +1,31 @@
 require "spec_helper"
+require_relative "_shared"
 
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
+    it "returns 403 for incorrect credentials" do
+      resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
+      expect(resp.status).to eq(403)
+    end
+  end
+
+  context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      @user = FactoryBot.create(:user, login: "test-user")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) { plain_faraday_json_client }
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"
       expect(resp.status).to eq(403)
     end
 
-    it "returns 403 for incorrect credentials" do
-      resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
-      expect(resp.status).to eq(403)
-    end
+    # FIXME uses session instead of basicAuth
+    # it "returns 403 for incorrect credentials" do
+    #   resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
+    #   expect(resp.status).to eq(403)
+    # end
 
     it "returns 200 for correct credentials" do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
@@ -30,12 +39,9 @@ feature "Call swagger-endpoints" do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
       expect(resp.status).to eq(200)
 
-      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-      cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+      resp = client.get("/inventory/session/protected") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["Cookie"] = cookie.to_s
+        req.headers["Cookie"] = @user_cookies_str
       end
 
       expect(resp.status).to eq(200)

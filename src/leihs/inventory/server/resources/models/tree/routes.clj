@@ -29,7 +29,7 @@
 
   ["/tree"
    {:swagger {:conflicting true
-              :tags ["tree"] :security []}}
+              :tags ["tree"]}}
 
    [""
     {:get {:accept "application/json"

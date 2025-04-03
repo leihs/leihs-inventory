@@ -18,6 +18,21 @@ def create_models(count = 3)
   @models
 end
 
+def create_model_post(client, inventory_pool_id, product, category_ids)
+  client.post "/inventory/#{inventory_pool_id}/models" do |req|
+    req.body = {
+      product: product,
+      category_ids: category_ids,
+      version: "1",
+      type: "Model",
+      is_package: false
+    }.to_json
+    req.headers["Content-Type"] = "application/json"
+    req.headers["Accept"] = "application/json"
+    req.headers["x-csrf-token"] = X_CSRF_TOKEN
+  end
+end
+
 def create_and_add_items_to_all_existing_models(inventory_pool)
   LeihsModel.all.each do |model|
     FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)
@@ -155,13 +170,26 @@ shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
+def generate_csrf_data(cookie_token)
+  cookies = [
+    CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+  ]
+
+  cookies_str = cookies.map(&:to_s).join("; ")
+  [cookies, cookies_str]
+end
+
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
     resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
     expect(resp.status).to eq(200)
 
     cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookies = [CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)]
+    cookies = [
+      CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+    ]
     cookie_attributes.each do |cookie_hash|
       cookies << CGI::Cookie.new(cookie_hash)
     end
@@ -331,7 +359,30 @@ end
 
 shared_context :setup_models_api_base do
   before :each do
-    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
   end
+end
+
+def create_and_login(role, login = nil, password = nil)
+  user = if login.nil? && password.nil?
+    FactoryBot.create(role, login: Faker::Lorem.word, password: "password")
+  else
+    FactoryBot.create(role, login: login, password: password)
+  end
+
+  response = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  expect(response.status).to eq(200)
+
+  session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
+
+  [user] + generate_csrf_data(session_cookie) + [session_cookie]
+end
+
+def create_and_login_by(user)
+  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  expect(resp.status).to eq(200)
+  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+  generate_csrf_data(cookie_token) + [cookie_token]
 end

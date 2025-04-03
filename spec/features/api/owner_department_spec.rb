@@ -6,7 +6,11 @@ feature "Inventory API Endpoints - Departments and Owners" do
   context "when fetching departments and owners for an inventory pool", driver: :selenium_headless do
     include_context :setup_access_rights
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     ["/inventory/departments", "/inventory/owners"].each do |url|
       context "GET #{url}" do

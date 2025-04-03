@@ -31,7 +31,7 @@
 
    [""
     {:swagger {:conflicting true
-               :tags ["Items"] :security []}}
+               :tags ["Items"]}}
 
     ["/items"
      {:get {:conflicting true
@@ -62,7 +62,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Items by pool"] :security []}}
+               :tags ["Items by pool"]}}
 
     ["/items-with-model-info"
      {:get {:description "Shortcut to fetch Items with model info (distinct item entries) page&size set!!"

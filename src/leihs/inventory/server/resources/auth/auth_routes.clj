@@ -115,8 +115,7 @@
              (response/response
               {:status "success" :message "User authenticated successfully"})
              (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-anti-csrf-token" "NOT-IMPLEMENTED" {:max-age max-age :path "/"}))))
+             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"}))))
 
         (response/status
          (response/response {:status "failure" :message "Invalid credentials"}) 403)))
@@ -171,27 +170,22 @@
       (response/status (response/response {:message (.getMessage e)}) 400))))
 
 (defn logout-handler [request]
-  (let [token (get-in request [:cookies "leihs-user-session" :value])
-        hashed-token (sha256-hash token)]
+  (let [user-id (-> request :authenticated-entity :id)]
     (try
       (let [delete-query (-> (sql/delete-from :user_sessions)
-                             (sql/where [:= :token_hash hashed-token])
+                             (sql/where [:= :user_id user-id])
                              sql-format)
             delete-result (jdbc/execute! (:tx request) delete-query)]
-        (if (> (:next.jdbc/update-count (first delete-result)) 0) ;; Check if any row was affected
+        (if (> (:next.jdbc/update-count (first delete-result)) 0)
           (do
-            (log/info "Successfully removed session for token:" token)
-            (->
-             (response/response {:status "success" :message "User logged out successfully"})
-             (response/set-cookie "leihs-session" "" {:max-age 0 :path "/"})
-             (response/set-cookie "leihs-anti-csrf-token" "" {:max-age 0 :path "/"})))
+            (log/info "Successfully removed session for user_id:" user-id)
+            (response/response {:status "success" :message "User logged out successfully"}))
           (do
-            (log/warn "No session found for token:" token)
+            (log/warn "No session found for user_id:" user-id)
             (response/status
              (response/response {:status "failure" :message "No active session found"}) 404))))
-
       (catch Exception e
-        (println "Error in logout-handler:" e)
+        (log/error "Error in logout-handler:" e)
         (response/status (response/response {:message (.getMessage e)}) 400)))))
 
 ;; ------------------------------------------------------
@@ -206,8 +200,8 @@
 (defn set-password-handler [request]
   (try
     (let [{:keys [new-password1]} (:body-params request)
-          [login password] (extract-basic-auth-from-header request)]
-      (if (verify-password request login password)
+          login (-> request :authenticated-entity :login)]
+      (if authenticated?
         (do
           (set-password request login new-password1)
           (response/response {:status "success" :message "Password updated successfully"}))
@@ -287,10 +281,9 @@
      :scopes scopes}))
 
 (defn create-api-token-handler [request]
-  (let [[login password] (extract-basic-auth-from-header request)
+  (let [user (-> request :authenticated-entity)
         {:keys [description scopes]} (:body-params request)
-        verfication-entry-result (verify-password-entry request login password)
-        user_id (:id verfication-entry-result)
+        user_id (:id user)
         scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)]
 
     (if user_id
@@ -358,7 +351,7 @@
      ["/protected"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             :swagger {:security []}
+             :swagger {:security [{:csrfToken []}]}
              :handler protected-handler
              :middleware [ab/wrap]}}]]
 
@@ -367,10 +360,9 @@
 
      ["/"
       {:post {:summary "Create an API token with creds for a user"
-              :description "Generates an API token for a user with specific permissions and scopes (login / password)"
+              :description "Generates an API token for a user with specific permissions and scopes"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
-              :swagger {:security [{:basicAuth []}]}
               :parameters {:body {:description s/Str
                                   :scopes {:read s/Bool
                                            :write s/Bool

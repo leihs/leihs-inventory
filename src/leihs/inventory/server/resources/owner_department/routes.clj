@@ -16,7 +16,7 @@
 (defn get-owner-department-routes []
   [""
    {:swagger {:conflicting true
-              :tags ["Owner / Department"] :security []}}
+              :tags ["Owner / Department"]}}
 
    ["/owners"
     ["" {:get {:conflicting true

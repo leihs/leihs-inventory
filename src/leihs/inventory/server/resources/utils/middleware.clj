@@ -1,5 +1,7 @@
 (ns leihs.inventory.server.resources.utils.middleware
   (:require [clojure.string :as str]
+            [leihs.core.auth.session :as session]
+            [leihs.core.auth.token :as token]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
             [ring.util.response :as response]))
@@ -27,7 +29,17 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [auth (get-in request [:authenticated-entity] nil)]
-      (if auth
-        (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
+    (let [auth (get-in request [:authenticated-entity])
+          uri (:uri request)
+          referer (get-in request [:headers "referer"])
+          is-api-request? (and referer (str/includes? referer "/api-docs/"))
+          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
+          swagger-resource? (str/includes? uri "/api-docs/")
+          whitelisted? (some #(str/includes? uri %) ["/sign-in" "/inventory/login"
+                                                     "/inventory/csrf-token"
+                                                     "/inventory/token/public"
+                                                     "/inventory/session/public"])]
+      (cond
+        (or auth swagger-resource? whitelisted?) (handler request)
+        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
+        :else (handler request)))))

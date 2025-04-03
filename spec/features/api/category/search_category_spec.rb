@@ -6,9 +6,13 @@ feature "Inventory API Endpoints - Models" do
   context "when fetching items for a specific model in an inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
+    before :each do
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+    end
+
     let(:model_with_accessories) { @models.first }
     let(:model_without_accessories) { @models.third }
-    let(:client) { plain_faraday_json_client }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:pool_id) { @inventory_pool.id }
 
     context "GET /inventory/:pool_id/search with a model without items" do

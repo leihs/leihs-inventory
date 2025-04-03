@@ -1,13 +1,18 @@
 require "spec_helper"
 require "pry"
 require "#{File.dirname(__FILE__)}/_shared"
+require_relative "_shared"
 
 feature "Inventory API Endpoints - Model Links" do
   context "when fetching model links for a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
+    before :each do
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+    end
+
     let(:url) { "/inventory/#{@inventory_pool.id}/entitlement-groups" }
-    let(:client) { plain_faraday_json_client }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:model_id) { resp.body[0]["id"] }
 

@@ -6,7 +6,11 @@ feature "Fetching Fields" do
   context "when searching for fields in a specific inventory pool", driver: :selenium_headless do
     include_context :setup_models_api, "inventory_manager"
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:pool_id) { @inventory_pool.id }
 
     {

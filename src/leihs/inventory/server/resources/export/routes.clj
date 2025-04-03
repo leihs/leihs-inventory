@@ -8,7 +8,7 @@
   ["/export"
 
    {:swagger {:conflicting true
-              :tags ["Export"] :security []}}
+              :tags ["Export"]}}
 
    ["/csv" {:get {:summary "Export CSV ( test-dummy )"
                   :accept "text/csv"
