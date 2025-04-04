@@ -103,10 +103,6 @@ GEM
     diff-lcs (1.5.1)
     drb (2.2.1)
     erubi (1.13.0)
-    exiftool (1.2.6)
-      json
-    exiftool_vendored (12.96.0)
-      exiftool (>= 0.7.0)
     factory_bot (6.5.0)
       activesupport (>= 5.0.0)
     faker (3.4.2)
@@ -321,7 +317,6 @@ DEPENDENCIES
   addressable
   base32-crockford
   capybara (~> 3.8)
-  exiftool_vendored
   factory_bot
   faker
   faraday
