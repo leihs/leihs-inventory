@@ -87,6 +87,8 @@
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
+          x-csrf-token (get-in request [:headers "x-csrf-token"])
+          header (get-in request [:headers ])
           request (if (= content-type "application/x-www-form-urlencoded")
                     (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
                       (-> request
@@ -98,18 +100,17 @@
                         convert-params))
 
           p (println ">o> abc.finally.cookie" (:cookies request))
+          p (println ">o> abc.finally.x-csrf-token" x-csrf-token)
+          p (println ">o> abc.finally.header" header)
           ]
 
       (try
 
         ;(leihs.core.anti-csrf.back/x-csrf-token! request)
 
-
         (handler request)
 
         ;((anti-csrf/wrap handler) request)
-
-
 
         (catch Exception e
 
@@ -123,23 +124,22 @@
                                     :detail (.getMessage e)})
                 (response/status 404)
                 (response/content-type "application/json"))
-
-
             )
-
           )
-
-
         )))
 )
 
 (defn wrap-csrf [handler]
   (fn [request]
     (let [referer (get-in request [:headers "referer"])
-          api-request? (and referer (str/includes? referer "/api-docs/"))]
+          uri (:uri request)
+          api-request? (and uri (str/includes? uri "/api-docs/"))
+          p (println ">o> abc.api-request?" api-request?)
+          ]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out"])
+        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login"])
+          ;(handler request)
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
@@ -150,6 +150,8 @@
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"
                                    :detail (str "error: " (.getMessage e))})}))))
-          (handler request))
+
+          (handler request)
+          )
         )
       )))
