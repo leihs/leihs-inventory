@@ -113,16 +113,19 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:patch, url, token: token, body: body, headers: headers)
 end
 
-def session_auth_plain_faraday_json_client(cookie_string)
-  @plain_faraday_json_client ||= Faraday.new(
-    url: api_base_url,
-    headers: {accept: "application/json", Cookie: cookie_string}
-  ) do |conn|
-    yield(conn) if block_given?
-    conn.response :json, content_type: /\bjson$/
-    conn.adapter Faraday.default_adapter
-  end
-end
+def session_auth_plain_faraday_json_client(cookie_string: nil)
+      headers = {accept: "application/json"}
+      headers[:Cookie] = cookie_string if cookie_string
+
+      @plain_faraday_json_client ||= Faraday.new(
+        url: api_base_url,
+        headers: headers
+      ) do |conn|
+        yield(conn) if block_given?
+        conn.response :json, content_type: /\bjson$/
+        conn.adapter Faraday.default_adapter
+      end
+    end
 
 ResponseResult = Struct.new(:status, :body)
 
