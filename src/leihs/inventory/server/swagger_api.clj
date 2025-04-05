@@ -93,13 +93,10 @@
                                      wrap-cookies
                                      csrf/wrap-csrf
 
-
-                                     ;leihs.core.anti-csrf.back/wrap
+leihs.core.anti-csrf.back/wrap
                                      ;leihs.core.anti-csrf.back/x-csrf-token!
 
-
                                      dm/extract-dev-cookie-params
-
 
                                      wrap-params
                                      wrap-content-type
@@ -107,7 +104,7 @@
                                      dispatch-content-type/wrap-accept
 
                                      default-handler-fetch-resource
-                                     csrf/wrap-dispatch-content-type
+                                     ;csrf/wrap-dispatch-content-type
 
                                      swagger/swagger-feature
                                      parameters/parameters-middleware
@@ -131,8 +128,7 @@
                      :urls.primaryName "openapi"
                      :operationsSorter "alpha"}})
 
-
-           ;(swagger-ui/create-swagger-ui-handler
+;(swagger-ui/create-swagger-ui-handler
            ;  {:path "/inventory/api-docs/"
            ;   :config {:validatorUrl nil
            ;            :urls [{:name "swagger" :url "swagger.json"}]
@@ -148,6 +144,5 @@
            ;
            ;   }})
 
-
-           (ring/create-default-handler
+          (ring/create-default-handler
            {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))

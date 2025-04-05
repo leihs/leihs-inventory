@@ -160,6 +160,79 @@
 (defn basic-routes []
 
   ["/"
+
+
+   [
+    [""
+     ["test-csrf"
+   ;{:swagger {:tags ["CSRF"] :security []}}
+      {:no-doc false
+       :post {:accept "application/json"
+              ;:swagger {:produces ["application/multipart-form-data"]}
+              :coercion reitit.coercion.schema/coercion
+              :handler (fn [req]
+                         (let [
+                               ;csrf-token (get-in req [:form-params :csrf-token])
+                              ;csrf-token-cook (get-in req [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                               ]
+
+
+                            {:status 200
+                             ;:body "post: CSRF token is valid"
+                             }
+                           ))}
+       :put {:accept "application/json"
+              ;:swagger {:produces ["application/multipart-form-data"]}
+              :coercion reitit.coercion.schema/coercion
+              :handler (fn [req]
+                         (let [
+                               ;csrf-token (get-in req [:form-params :csrf-token])
+                              ;csrf-token-cook (get-in req [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                               ]
+
+
+                            {:status 200
+                             ;:body "put: CSRF token is valid"
+                             }
+                           ))}
+       :get {:accept "application/json"
+              ;:swagger {:produces ["application/multipart-form-data"]}
+              :coercion reitit.coercion.schema/coercion
+              :handler (fn [req]
+                         (let [
+                               ;csrf-token (get-in req [:form-params :csrf-token])
+                              ;csrf-token-cook (get-in req [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                               ]
+
+
+                            {:status 200
+                             ;:body "get: CSRF token is valid"
+                             }
+                           ))}
+       :delete {:accept "application/json"
+              ;:swagger {:produces ["application/multipart-form-data"]}
+              :coercion reitit.coercion.schema/coercion
+              :handler (fn [req]
+                         (let [
+                               ;csrf-token (get-in req [:form-params :csrf-token])
+                              ;csrf-token-cook (get-in req [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
+                               ]
+
+
+                            {:status 200
+                             ;:body "delete: CSRF token is valid"
+                             }
+                           ))}
+
+
+
+
+
+              }
+
+      ]]]
+
+
    [[""
      ["sign-in"
       {:no-doc false

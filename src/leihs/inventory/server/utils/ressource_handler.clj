@@ -130,16 +130,11 @@
       (let [src (str/replace-first uri "/inventory" "public/inventory")
 
             resource (try (slurp (io/resource src))
-                 (catch Exception e
-                    (println ">>> Error loading translation file:" src)
-                   nil))
+                          (catch Exception e
+                            (println ">>> Error loading translation file:" src)
+                            nil))]
 
-
-
-
-            ]
         (if resource
-
 
           {:status 200
            :headers {"Content-Type" "application/json"}
@@ -148,9 +143,7 @@
            :headers {"Content-Type" "application/json"}
            ;:body (str "{\"error\": \"File not found: " src "\"}")
            }))
-
-
-        ;{:status 200
+;{:status 200
         ; :headers {"Content-Type" "application/json"}
         ; :body (try (slurp (io/resource src))
         ;            (catch Exception e

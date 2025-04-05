@@ -51,16 +51,13 @@
        (into {})))
 
 (defn add-cookies-to-request [request]
-  (let [
-        p (println ">o> abc.befor" (:cookies request))
-
+  (let [p (println ">o> abc.befor" (:cookies request))
 
         cookie-header (get-in request [:headers "cookie"])
 
         parsed-cookies (when cookie-header (parse-cookies cookie-header))
 
-        p (println ">o> abc.after" parsed-cookies)
-        ]
+        p (println ">o> abc.after" parsed-cookies)]
     (assoc request :cookies parsed-cookies)))
 
 (alter-var-root #'constants/ANTI_CSRF_TOKEN_COOKIE_NAME (constantly (keyword "leihs-anti-csrf-token")))
@@ -88,7 +85,7 @@
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
           x-csrf-token (get-in request [:headers "x-csrf-token"])
-          header (get-in request [:headers ])
+          header (get-in request [:headers])
           request (if (= content-type "application/x-www-form-urlencoded")
                     (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
                       (-> request
@@ -101,8 +98,7 @@
 
           p (println ">o> abc.finally.cookie" (:cookies request))
           p (println ">o> abc.finally.x-csrf-token" x-csrf-token)
-          p (println ">o> abc.finally.header" header)
-          ]
+          p (println ">o> abc.finally.header" header)]
 
       (try
 
@@ -123,19 +119,14 @@
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
                 (response/status 404)
-                (response/content-type "application/json"))
-            )
-          )
-        )))
-)
+                (response/content-type "application/json"))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
     (let [referer (get-in request [:headers "referer"])
           uri (:uri request)
           api-request? (and uri (str/includes? uri "/api-docs/"))
-          p (println ">o> abc.api-request?" api-request?)
-          ]
+          p (println ">o> abc.api-request?" api-request?)]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login"])
@@ -151,7 +142,4 @@
                    :body (to-json {:message "Error updating password"
                                    :detail (str "error: " (.getMessage e))})}))))
 
-          (handler request)
-          )
-        )
-      )))
+          (handler request))))))
