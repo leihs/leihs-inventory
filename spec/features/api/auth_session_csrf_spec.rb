@@ -69,8 +69,34 @@ feature "Call swagger-endpoints" do
       resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["x-csrf-token"] = csrf_token
-        # req.headers["Cookie"] = cookie1.merge.cookie2.to_s
         req.headers["Cookie"] = "#{cookie1}; #{cookie2}"
+      end
+
+      expect(resp.status).to eq(200)
+    end
+
+
+    it "accesses protected resource with valid session cookie" do
+      resp = plain_faraday_json_client.post("/test-csrf")
+      expect(resp.status).to eq(404)
+
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      # expect(resp.status).to eq(200)
+
+
+      csrf_token= "abc-def-ghi"
+
+      # cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+      # cookie1 = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+      # cookie1 = CGI::Cookie.new("name" => "leihs-user-session", "value" => "")
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      # cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "")
+
+
+      resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["x-csrf-token"] = csrf_token
+        req.headers["Cookie"] = "#{cookie}"
       end
 
       expect(resp.status).to eq(200)
