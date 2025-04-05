@@ -87,6 +87,21 @@ feature "Call swagger-endpoints" do
                                 "message" => "CSRF-Token/Session not valid",
                                 "detail" => "The anti-csrf-token cookie value is not set." })
 
+      # not identical csrf-token
+      csrf_token = "abc-def-ghi"
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+
+      resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["x-csrf-token"] = "any-different-token"
+        req.headers["Cookie"] = "#{cookie}"
+      end
+
+      expect(resp.status).to eq(404)
+      expect(resp.body).to eq({ "status" => "failure",
+                                "message" => "CSRF-Token/Session not valid",
+                                "detail" => "The x-csrf-token is not equal to the anti-csrf cookie value." })
+
       # correct csrf-token
       csrf_token = "abc-def-ghi"
       cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
@@ -98,7 +113,7 @@ feature "Call swagger-endpoints" do
       end
 
       expect(resp.status).to eq(200)
-      end
+    end
 
     it "accesses protected resource with valid session cookie for PUT" do
       # block public access
@@ -115,6 +130,21 @@ feature "Call swagger-endpoints" do
                                 "message" => "CSRF-Token/Session not valid",
                                 "detail" => "The anti-csrf-token cookie value is not set." })
 
+      # not identical csrf-token
+      csrf_token = "abc-def-ghi"
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+
+      resp = session_auth_plain_faraday_json_client().put("/test-csrf") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["x-csrf-token"] = "any-different-token"
+        req.headers["Cookie"] = "#{cookie}"
+      end
+
+      expect(resp.status).to eq(404)
+      expect(resp.body).to eq({ "status" => "failure",
+                                "message" => "CSRF-Token/Session not valid",
+                                "detail" => "The x-csrf-token is not equal to the anti-csrf cookie value." })
+
       # correct csrf-token
       csrf_token = "abc-def-ghi"
       cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
@@ -127,7 +157,6 @@ feature "Call swagger-endpoints" do
 
       expect(resp.status).to eq(200)
     end
-
 
     it "accesses protected resource with valid session cookie for DELETE" do
       # block public access
@@ -143,6 +172,21 @@ feature "Call swagger-endpoints" do
       expect(resp.body).to eq({ "status" => "failure",
                                 "message" => "CSRF-Token/Session not valid",
                                 "detail" => "The anti-csrf-token cookie value is not set." })
+
+      # not identical csrf-token
+      csrf_token = "abc-def-ghi"
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+
+      resp = session_auth_plain_faraday_json_client().delete("/test-csrf") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["x-csrf-token"] = "any-different-token"
+        req.headers["Cookie"] = "#{cookie}"
+      end
+
+      expect(resp.status).to eq(404)
+      expect(resp.body).to eq({ "status" => "failure",
+                                "message" => "CSRF-Token/Session not valid",
+                                "detail" => "The x-csrf-token is not equal to the anti-csrf cookie value." })
 
       # correct csrf-token
       csrf_token = "abc-def-ghi"
@@ -162,9 +206,21 @@ feature "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/test-csrf")
       expect(resp.status).to eq(200)
 
-      # invalid csrf-token
+      # ignores invalid csrf-token
       resp = session_auth_plain_faraday_json_client().get("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
+      end
+
+      expect(resp.status).to eq(200)
+
+      # ignores not identical csrf-token
+      csrf_token = "abc-def-ghi"
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+
+      resp = session_auth_plain_faraday_json_client().get("/test-csrf") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.headers["x-csrf-token"] = "any-different-token"
+        req.headers["Cookie"] = "#{cookie}"
       end
 
       expect(resp.status).to eq(200)
@@ -181,10 +237,6 @@ feature "Call swagger-endpoints" do
 
       expect(resp.status).to eq(200)
     end
-
-
-
-
 
   end
 end
