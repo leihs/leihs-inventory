@@ -22,12 +22,16 @@ feature "Inventory Model Management" do
     it "creates a model with only the required product attribute" do
       form_data = {"product" => "New-Product"}
 
+      binding.pry
       resp = http_multipart_client(
         "/inventory/#{pool_id}/software",
         form_data,
-        headers: cookie_header
+        # headers: cookie_header.merge({ "x-csrf-token", "test-csrf-123-456" })
+      # headers: cookie_header.merge({ "x-csrf-token" => "test-csrf-123-456" })
+      headers: cookie_header
       )
 
+      binding.pry
       expect(resp.status).to eq(200)
       expect(resp.body["data"].count).to be
       expect(resp.body["validation"].count).to eq(0)

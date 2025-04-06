@@ -6,6 +6,8 @@ ACCEPT_CSV = "text/csv"
 ACCEPT_HTML = "text/html"
 ACCEPT_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
+X_CSRF_TOKEN= "test-csrf-123-456"
+
 def http_port
   @port ||= Integer(ENV["LEIHS_INVENTORY_HTTP_PORT"].presence || 3260)
 end
@@ -129,6 +131,7 @@ def session_auth_plain_faraday_json_client(cookie_string: nil)
 
 ResponseResult = Struct.new(:status, :body)
 
+# def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}, token: nil)
 def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "application/json"}, token: nil)
   uri = URI.parse(api_base_url + url)
   http = Net::HTTP.new(uri.host, uri.port)
@@ -143,6 +146,7 @@ def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "
 
   request = request_class.new(uri)
   headers["Authorization"] = "Token #{token}" if token
+  headers["x-csrf-token"] = X_CSRF_TOKEN
   headers.each { |key, value| request[key] = value }
   prepared_form_data = form_data.flat_map do |key, value|
     if value.is_a?(Array)

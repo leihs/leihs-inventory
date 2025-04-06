@@ -161,7 +161,14 @@ shared_context :generate_session_header do |accept = "application/json", cookie_
     expect(resp.status).to eq(200)
 
     cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookies = [CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)]
+    # cookies = [CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)]
+    # cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+    cookies = [
+      CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+      # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
+      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+      # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
+    ]
     cookie_attributes.each do |cookie_hash|
       cookies << CGI::Cookie.new(cookie_hash)
     end
