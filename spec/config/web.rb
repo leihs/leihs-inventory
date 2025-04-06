@@ -78,6 +78,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
   Faraday.new(url: api_base_url) do |conn|
     conn.headers["Authorization"] = "Token #{token}" if token
     conn.headers["Accept"] = "application/json"
+    conn.headers["x-csrf-token"] = X_CSRF_TOKEN
     conn.headers["Content-Type"] = "application/json" unless multipart
     conn.headers.update(headers)
     conn.request :multipart if multipart
@@ -116,9 +117,9 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
 end
 
 def session_auth_plain_faraday_json_client(cookie_string: nil)
-      headers = {accept: "application/json"}
+      headers = {accept => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
       headers[:Cookie] = cookie_string if cookie_string
-
+      X_CSRF_TOKEN
       @plain_faraday_json_client ||= Faraday.new(
         url: api_base_url,
         headers: headers
