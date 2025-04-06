@@ -6,12 +6,18 @@ require_relative "../../_audit_validator"
 shared_context :setup_model_creation do
   before :each do
     @category = FactoryBot.create(:category)
+
+    cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+    @cookie_header ={"Cookie" => cookie.to_s }
     @response = json_client_post(url, body: {
       product: Faker::Lorem.word,
       version: "1",
       type: "Model",
       is_package: false
-    })
+    },
+                                 # headers: {"Cookie" => cookie.to_s }
+    headers: @cookie_header
+    )
   end
 end
 
@@ -36,11 +42,25 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       it "updates a model and returns status 200" do
         model_id = @response.body[0]["id"]
 
+
+        cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+        # @response = json_client_post(url, body: {
+        #   product: Faker::Lorem.word,
+        #   version: "1",
+        #   type: "Model",
+        #   is_package: false
+        # },
+
         updated_response = json_client_put("#{url}/#{model_id}", body: {
           product: "Example Model 2",
           type: "Model",
           manufacturer: "Example Manufacturer after update"
-        })
+        },
+                                           # headers: {"Cookie" => @cookie_header.to_s }
+                                     # headers: {"Cookie" => cookie.to_s }
+        headers: @cookie_header
+
+        )
 
         expect(updated_response.status).to eq(200)
         expect(updated_response.body[0]["id"]).to eq(model_id)
@@ -48,8 +68,15 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       end
 
       it "deletes a model and verifies it is removed" do
+
+        puts "response: #{ {"Cookie" => @cookie_header.to_s }}"
+
         model_id = @response.body[0]["id"]
-        delete_response = json_client_delete("#{url}/#{model_id}")
+        delete_response = json_client_delete("#{url}/#{model_id}",
+         # headers: {"Cookie" => @cookie_header.to_s }
+        headers: @cookie_header
+
+        )
 
         expect(delete_response.status).to eq(200)
         expect(delete_response.body[0]["id"]).to eq(model_id)

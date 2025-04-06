@@ -6,13 +6,18 @@ require_relative "../../_audit_validator"
 shared_context :setup_model_creation_with_category do
   before :each do
     @category = FactoryBot.create(:category)
+
+    cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+    @cookie_header ={"Cookie" => cookie.to_s }
     @response = json_client_post(url, body: {
       product: Faker::Lorem.word,
       category_ids: [@category.id],
       version: "1",
       type: "Model",
       is_package: false
-    })
+    },
+    headers: @cookie_header
+    )
   end
 end
 
@@ -40,7 +45,10 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
           product: "Example Model 2",
           type: "Model",
           manufacturer: "Example Manufacturer after update"
-        })
+        },
+                                          headers: @cookie_header
+
+        )
 
         expect(update_response.status).to eq(200)
         expect(update_response.body[0]["id"]).to eq(model_id)
@@ -49,7 +57,9 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
 
       it "deletes a model and verifies it is removed" do
         model_id = @response.body[0]["id"]
-        delete_response = json_client_delete("#{url}/#{model_id}")
+        delete_response = json_client_delete("#{url}/#{model_id}",
+        headers: @cookie_header
+        )
 
         expect(delete_response.status).to eq(200)
         expect(delete_response.body[0]["id"]).to eq(model_id)

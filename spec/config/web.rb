@@ -117,9 +117,9 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
 end
 
 def session_auth_plain_faraday_json_client(cookie_string: nil)
-      headers = {accept => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
+      headers = {"accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
       headers[:Cookie] = cookie_string if cookie_string
-      X_CSRF_TOKEN
+
       @plain_faraday_json_client ||= Faraday.new(
         url: api_base_url,
         headers: headers

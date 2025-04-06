@@ -34,16 +34,20 @@ feature "Call swagger-endpoints" do
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie1 = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-      cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       cookie_str = "#{cookie1}; #{cookie2}"
 
-      resp = session_auth_plain_faraday_json_client(cookie_string: cookie_str).get("/test-csrf") do |req|
-        req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
-        # req.headers["Cookie"] = cookie1.merge.cookie2.to_s
-        # req.headers["Cookie"] = "#{cookie1}; #{cookie2}"
-      end
+      # resp = session_auth_plain_faraday_json_client(cookie_string: cookie_str).get("/test-csrf")
+      resp = session_auth_plain_faraday_json_client().get("/test-csrf")
+
+      # resp = session_auth_plain_faraday_json_client(cookie_string: cookie_str).get("/test-csrf") do |req|
+      # resp = session_auth_plain_faraday_json_client().get("/test-csrf") do |req|
+      #   req.headers["Content-Type"] = "application/json"
+      #   req.headers["x-csrf-token"] = X_CSRF_TOKEN
+      #   # req.headers["Cookie"] = cookie1.merge.cookie2.to_s
+      #   # req.headers["Cookie"] = "#{cookie1}; #{cookie2}"
+      # end
 
       expect(resp.status).to eq(200)
     end
@@ -59,13 +63,16 @@ feature "Call swagger-endpoints" do
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie1 = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-      cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie2 = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       cookie_str = "#{cookie1}; #{cookie2}"
 
+      # resp = session_auth_plain_faraday_json_client(cookie_string: "#{cookie1}; #{cookie2}").post("/test-csrf")
+
+      # resp = session_auth_plain_faraday_json_client(cookie_string: "#{cookie1}; #{cookie2}").post("/test-csrf") do |req|
       resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
         req.headers["Cookie"] = "#{cookie1}; #{cookie2}"
       end
 
@@ -89,7 +96,7 @@ feature "Call swagger-endpoints" do
 
       # not identical csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
@@ -104,11 +111,11 @@ feature "Call swagger-endpoints" do
 
       # correct csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().post("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
         req.headers["Cookie"] = "#{cookie}"
       end
 
@@ -132,7 +139,7 @@ feature "Call swagger-endpoints" do
 
       # not identical csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().put("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
@@ -147,11 +154,11 @@ feature "Call swagger-endpoints" do
 
       # correct csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().put("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
         req.headers["Cookie"] = "#{cookie}"
       end
 
@@ -175,7 +182,7 @@ feature "Call swagger-endpoints" do
 
       # not identical csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().delete("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
@@ -190,11 +197,11 @@ feature "Call swagger-endpoints" do
 
       # correct csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().delete("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
         req.headers["Cookie"] = "#{cookie}"
       end
 
@@ -215,7 +222,7 @@ feature "Call swagger-endpoints" do
 
       # ignores not identical csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().get("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
@@ -227,11 +234,11 @@ feature "Call swagger-endpoints" do
 
       # correct csrf-token
       csrf_token = "abc-def-ghi"
-      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => csrf_token)
+      cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
 
       resp = session_auth_plain_faraday_json_client().get("/test-csrf") do |req|
         req.headers["Content-Type"] = "application/json"
-        req.headers["x-csrf-token"] = csrf_token
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
         req.headers["Cookie"] = "#{cookie}"
       end
 
