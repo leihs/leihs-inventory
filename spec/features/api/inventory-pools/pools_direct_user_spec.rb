@@ -25,7 +25,14 @@ feature "Call inventory-pool endpoints" do
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
       expect(resp.status).to eq(200)
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-      @cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+      # @cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+
+      @cookies = [
+        CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+        # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
+        CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+      # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
+      ]
 
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
@@ -41,7 +48,7 @@ feature "Call inventory-pool endpoints" do
     let(:client) {
       # TODO: write test with plain (401)
       # plain_faraday_json_client
-      session_auth_plain_faraday_json_client(@cookie.to_s)
+      session_auth_plain_faraday_json_client(cookies: @cookies)
     }
 
     context "with direct access rights as a group manager" do
