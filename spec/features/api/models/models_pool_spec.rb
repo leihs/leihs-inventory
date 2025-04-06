@@ -29,13 +29,10 @@ feature "Swagger Inventory Endpoints - Models" do
       # cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
 
       session_token = login_and_extract_session_token(@user)
-
-
+      
       cookies = [
-        CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-        # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
+        CGI::Cookie.new("name" => "leihs-user-session", "value" => session_token),
         CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
-      # CGI::Cookie.new("name" => "x-csrf-token", "value" => X_CSRF_TOKEN)
       ]
       session_auth_plain_faraday_json_client(cookies: cookies)
 
