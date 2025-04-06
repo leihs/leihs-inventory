@@ -13,6 +13,8 @@ def create_model(client, inventory_pool_id, product, category_ids)
     }.to_json
     req.headers["Content-Type"] = "application/json"
     req.headers["Accept"] = "application/json"
+    req.headers["x-csrf-token"] = X_CSRF_TOKEN
+
   end
 end
 
@@ -20,7 +22,26 @@ feature "Swagger Inventory Endpoints - Models" do
   context "when fetching models for an inventory pool", driver: :selenium_headless do
     include_context :setup_models_min_api
 
-    let(:client) { plain_faraday_json_client }
+    # let(:client) { plain_faraday_json_client }
+
+    let(:client) {
+
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      # expect(resp.status).to eq(200)
+      #
+      # session_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+      session_token = login_and_extract_session_token(@user)
+
+      cookies = [
+        # CGI::Cookie.new("name" => "leihs-user-session", "value" => "test-session-token"),
+        CGI::Cookie.new("name" => "leihs-user-session", "value" => session_token),
+        CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+      ]
+      session_auth_plain_faraday_json_client(cookies: cookies)
+
+      # plain_faraday_json_client
+    }
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/models" }
 

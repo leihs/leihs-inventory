@@ -8,6 +8,15 @@ ACCEPT_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 
 X_CSRF_TOKEN= "test-csrf-123-456"
 
+def login_and_extract_session_token(user)
+
+resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+expect(resp.status).to eq(200)
+
+parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+end
+
 def http_port
   @port ||= Integer(ENV["LEIHS_INVENTORY_HTTP_PORT"].presence || 3260)
 end
