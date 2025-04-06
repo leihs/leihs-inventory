@@ -33,7 +33,7 @@ feature "Call swagger-endpoints" do
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
 
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+      resp = session_auth_plain_faraday_json_client([cookie]).get("/inventory/session/protected") do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["Cookie"] = cookie.to_s
       end
@@ -55,7 +55,7 @@ feature "Call swagger-endpoints" do
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
 
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).put("/inventory/dev/update-accounts") do |req|
+      resp = session_auth_plain_faraday_json_client([cookie]).put("/inventory/dev/update-accounts") do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["Cookie"] = cookie.to_s
       end
@@ -108,7 +108,7 @@ feature "Call swagger-endpoints" do
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
 
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).get("/inventory/session/protected") do |req|
+      resp = session_auth_plain_faraday_json_client([cookie]).get("/inventory/session/protected") do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["Cookie"] = cookie.to_s
       end
@@ -131,7 +131,7 @@ feature "Call swagger-endpoints" do
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
       cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
 
-      resp = session_auth_plain_faraday_json_client(cookie.to_s).put("/inventory/dev/update-accounts") do |req|
+      resp = session_auth_plain_faraday_json_client([cookie]).put("/inventory/dev/update-accounts") do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["Cookie"] = cookie.to_s
       end

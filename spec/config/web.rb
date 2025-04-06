@@ -116,9 +116,9 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:patch, url, token: token, body: body, headers: headers)
 end
 
-def session_auth_plain_faraday_json_client(cookie_string: nil)
+def session_auth_plain_faraday_json_client(cookies: nil)
       headers = {"accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
-      headers[:Cookie] = cookie_string if cookie_string
+      headers[:Cookie] = cookies.map(&:to_s).join("; ") if cookies
 
       @plain_faraday_json_client ||= Faraday.new(
         url: api_base_url,

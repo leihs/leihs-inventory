@@ -51,8 +51,8 @@ feature "Call inventory-pool endpoints" do
       # TODO: write test with plain (401)
       # plain_faraday_json_client
 
-      cookie_str=@cookies.map(&:to_s).join("; ")
-      session_auth_plain_faraday_json_client(cookie_string: cookie_str)
+      # cookie_str=@cookies.map(&:to_s).join("; ")
+      session_auth_plain_faraday_json_client(cookies: @cookies)
       # "Cookie" => cookies.map(&:to_s).join("; ")
 
     }
