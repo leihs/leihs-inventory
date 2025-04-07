@@ -3,43 +3,6 @@ require "pry"
 require_relative "../../_shared"
 require_relative "../../_audit_validator"
 
-# shared_context :setup_model_creation do
-#   before :each do
-#     @category = FactoryBot.create(:category)
-#
-#   #   cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
-#   #   @cookie_header ={"Cookie" => cookie.to_s }
-#   #   response = json_client_post(url, body: {
-#   #     product: Faker::Lorem.word,
-#   #     version: "1",
-#   #     type: "Model",
-#   #     is_package: false
-#   #   },
-#   #                                # headers: {"Cookie" => cookie.to_s }
-#   #   headers: @cookie_header
-#   #   )
-#   # end
-#
-#
-#   # before do
-#   #   @admin, @admin_cookies = create_and_login(:user, "user", "password")
-#   # end
-#   #
-#   # let(:client) {
-#   #   session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
-# end
-#
-#   let(@response) {
-#     client.post(url, body: {
-#       product: Faker::Lorem.word,
-#       version: "1",
-#       type: "Model",
-#       is_package: false
-#
-#      })
-#   }
-#
-# end
 
 feature "Swagger Inventory Endpoints - Models with audits" do
   context "when managing models within an inventory pool", driver: :selenium_headless do
@@ -58,9 +21,9 @@ feature "Swagger Inventory Endpoints - Models with audits" do
     context "CRUD operations for model management" do
       # include_context :setup_model_creation
 
-      let(:category) {
-        FactoryBot.create(:category)
-      }
+      # let(:category) {
+      #   FactoryBot.create(:category)
+      # }
 
 
       let(:response) {
@@ -90,15 +53,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       it "updates a model and returns status 200" do
         model_id = response.body[0]["id"]
 
-        # updated_response = json_client_put("#{url}/#{model_id}", body: {
-        #   product: "Example Model 2",
-        #   type: "Model",
-        #   manufacturer: "Example Manufacturer after update"
-        # },
-        # headers: @cookie_header
-        #
-        # )
-
         updated_response = client.put("#{url}/#{model_id}") do |req|
           req.body = {
             product: "Example Model 2",
@@ -122,34 +76,13 @@ feature "Swagger Inventory Endpoints - Models with audits" do
         puts "response: #{ {"Cookie" => @cookie_header.to_s }}"
 
         model_id = response.body[0]["id"]
-        # delete_response = json_client_delete("#{url}/#{model_id}",
-        #  # headers: {"Cookie" => @cookie_header.to_s }
-        # headers: @cookie_header
-        #
-        # )
-
         delete_response = client.delete("#{url}/#{model_id}")
-        # delete_response = client.delete("#{url}/#{model_id}") do |req|
-        #   req.headers["Content-Type"] = "application/json"
-        #   req.headers["Accept"] = "application/json"
-        #   req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        #   req.headers["Cookie"] = @user_cookies.map(&:to_s).join("; ")
-        # end
-
 
         expect(delete_response.status).to eq(200)
         expect(delete_response.body[0]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
 
-        # check_deleted_response = json_client_get("#{url}/#{model_id}")
-
         check_deleted_response = client.get("#{url}/#{model_id}")
-        # check_deleted_response = client.get("#{url}/#{model_id}") do |req|
-        #   req.headers["Content-Type"] = "application/json"
-        #   req.headers["Accept"] = "application/json"
-        #   req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        #   req.headers["Cookie"] = @user_cookies.map(&:to_s).join("; ")
-        # end
 
         expect(check_deleted_response.status).to eq(200)
         expect(check_deleted_response.body.count).to eq(0)
