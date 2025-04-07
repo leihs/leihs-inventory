@@ -84,6 +84,13 @@
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
+          ;accept (get-in request [:headers "accept"])
+          ;is-accept-json?
+          ;p (println ">o> abc.accept??" accept)
+
+          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
+          p (println ">o> abc.is-accept-json???" is-accept-json?)
+
           x-csrf-token (get-in request [:headers "x-csrf-token"])
           header (get-in request [:headers])
           request (if (= content-type "application/x-www-form-urlencoded")
@@ -110,13 +117,17 @@
 
         (catch Exception e
 
-          (println ">o> abc??" (type e))
-          (println ">o> abc??" (.getMessage e))
+          (println ">o> abc1??" (type e))
+          (println ">o> abc2??" (.getMessage e))
+          (println ">o> abc3??" e)
 
           (if (str/includes? (:uri request) "/sign-in")
-            (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+            ;(response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid1")
+
+            (leihs.inventory.server.routes/get-sign-in request)
+
             (-> (response/response {:status "failure"
-                                    :message "CSRF-Token/Session not valid"
+                                    :message "CSRF-Token/Session not valid1"
                                     :detail (.getMessage e)})
                 (response/status 404)
                 ;(response/content-type "application/json")
@@ -137,7 +148,7 @@
             (catch Exception e
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
-                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid2")
                   {:status 400
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"

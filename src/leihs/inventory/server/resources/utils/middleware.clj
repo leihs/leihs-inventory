@@ -61,6 +61,14 @@
           uri (:uri request)
           referer (get-in request [:headers "referer"])
 
+
+          is-api-request? (if referer
+                            (str/includes? referer "/api-docs/")
+                            false)
+
+          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
+          p (println ">o> abc.is-accept-json?" is-accept-json?)
+
           swagger-resource? (str/includes? uri "/api-docs/")
           whitelisted? (some #(str/includes? uri %) ["/sign-in" "/inventory/login"
 
@@ -70,6 +78,20 @@
 
 
           ]
-      (if (or auth swagger-resource? whitelisted?)
-        (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized"}) 404)))))
+      ;(if (or auth swagger-resource? whitelisted?)
+      ;  (handler request)
+      ;  (response/status (response/response {:status "failure" :message "Unauthorized2"}) 404))
+
+
+      (cond
+        (or auth swagger-resource? whitelisted?) (handler request)
+
+        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized2"}) 404)
+
+        :else         (handler request)
+
+
+        )
+
+
+      )))
