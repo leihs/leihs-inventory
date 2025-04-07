@@ -25,7 +25,13 @@ feature "Swagger Inventory Endpoints - Models with audits" do
   context "when managing models within an inventory pool", driver: :selenium_headless do
     include_context :setup_models_min_api
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user_cookies = create_and_login_by(@user)
+    end
+
+    let(:client) {
+      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/models" }
 
@@ -42,22 +48,11 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       it "updates a model and returns status 200" do
         model_id = @response.body[0]["id"]
 
-
-        cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
-        # @response = json_client_post(url, body: {
-        #   product: Faker::Lorem.word,
-        #   version: "1",
-        #   type: "Model",
-        #   is_package: false
-        # },
-
         updated_response = json_client_put("#{url}/#{model_id}", body: {
           product: "Example Model 2",
           type: "Model",
           manufacturer: "Example Manufacturer after update"
         },
-                                           # headers: {"Cookie" => @cookie_header.to_s }
-                                     # headers: {"Cookie" => cookie.to_s }
         headers: @cookie_header
 
         )

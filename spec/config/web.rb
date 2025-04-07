@@ -50,9 +50,14 @@ def plain_faraday_resource_client(headers = {})
 end
 
 def plain_faraday_json_client(headers = nil)
+
+
+  cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+
+
   @plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,
-    headers: headers || { accept: "application/json" }
+    headers: headers || { accept: "application/json", Cookie: cookie.to_s, "x-csrf-token" => X_CSRF_TOKEN }
   ) do |conn|
     yield(conn) if block_given?
     conn.response :json, content_type: /\bjson$/

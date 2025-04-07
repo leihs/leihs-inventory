@@ -1,23 +1,23 @@
 require "spec_helper"
 require "pry"
 
-def create_and_login(role, login, password)
-  user = FactoryBot.create(role, login: login, password: password)
-  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-  expect(resp.status).to eq(200)
-  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-  # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-  # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-
-  cookies = [
-    CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-    # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
-    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
-  # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
-  ]
-
-  [user, cookies]
-end
+# def create_and_login(role, login, password)
+#   user = FactoryBot.create(role, login: login, password: password)
+#   resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+#   expect(resp.status).to eq(200)
+#   cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+#   # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+#   # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
+#
+#   cookies = [
+#     CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+#     # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
+#     CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+#   # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
+#   ]
+#
+#   [user, cookies]
+# end
 
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do

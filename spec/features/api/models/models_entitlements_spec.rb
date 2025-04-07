@@ -9,7 +9,12 @@ feature "Inventory API Endpoints - Entitlements" do
     let(:model_with_entitlements) { @models.first }
     let(:model_without_entitlements) { @models.third }
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user, @user_cookies = create_and_login(:user, "admin", "password")
+    end
+
+    let(:client) {
+      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       context "GET /inventory/models/:id/entitlements for a model with entitlements" do

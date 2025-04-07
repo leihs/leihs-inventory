@@ -13,7 +13,12 @@ feature "Inventory API Endpoints - Items" do
     let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: @inventory_pool) }
     let(:fake_package2) { FactoryBot.create(:package_model_with_parent_and_items, inventory_pool: @inventory_pool) }
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user, @user_cookies = create_and_login(:user, "admin", "password")
+    end
+
+    let(:client) {
+      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       let(:url) { "/inventory#{path}models" }

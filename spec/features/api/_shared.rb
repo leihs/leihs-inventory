@@ -342,3 +342,31 @@ shared_context :setup_models_api_base do
     @inventory_pool = FactoryBot.create(:inventory_pool)
   end
 end
+
+def create_and_login(role, login, password)
+  user = FactoryBot.create(role, login: login, password: password)
+  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  expect(resp.status).to eq(200)
+  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+  cookies = [
+    CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+  ]
+
+  [user, cookies]
+end
+
+def create_and_login_by(user)
+  # user = FactoryBot.create(role, login: login, password: password)
+  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  expect(resp.status).to eq(200)
+  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+  cookies = [
+    CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
+    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+  ]
+
+  cookies
+end

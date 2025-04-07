@@ -25,7 +25,13 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
   context "when managing models within an inventory pool", driver: :selenium_headless do
     include_context :setup_models_min_api
 
-    let(:client) { plain_faraday_json_client }
+    before :each do
+      @user, @user_cookies = create_and_login(:user, "admin", "password")
+    end
+
+    let(:client) {
+      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/models" }
 
