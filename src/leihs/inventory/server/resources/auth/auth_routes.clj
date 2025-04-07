@@ -207,8 +207,12 @@
 (defn set-password-handler [request]
   (try
     (let [{:keys [new-password1]} (:body-params request)
-          [login password] (extract-basic-auth-from-header request)]
-      (if (verify-password request login password)
+          ;[login password] (extract-basic-auth-from-header request)
+
+          login (-> request :authenticated-entity :login)
+          ]
+      ;(if (verify-password request login password)
+      (if authenticated?
         (do
           (set-password request login new-password1)
           (response/response {:status "success" :message "Password updated successfully"}))
@@ -363,12 +367,14 @@
      {:tags ["Auth / Session"]}
 
      ["/public"
-      {:get {:swagger {:security []}
+      {:get {
+             :swagger {:security []}
              :handler public-endpoint-handler}}]
      ["/protected"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             :swagger {:security []}
+             ;:swagger {:security [{:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
+             :swagger {:security [{:csrfToken []} ]}
              :handler protected-handler
              :middleware [ab/wrap]}}]]
 
@@ -401,5 +407,6 @@
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:apiAuth []}]}
+             ;:swagger {:security [{:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
              :handler protected-handler
              :middleware [wrap-token-authentication]}}]]]])

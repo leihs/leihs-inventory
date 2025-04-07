@@ -11,6 +11,7 @@
                                [leihs.core.sign-out.back :as so]
                                [leihs.core.status :as status]
                                [leihs.inventory.server.constants :as consts]
+                               [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
                                [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
                                [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler update-role-handler token-routes]]
                                [leihs.inventory.server.resources.auth.session :as ab]
@@ -139,7 +140,9 @@
                                    :get {:handler (fn [_] {:status 200})}
                                    :delete {:handler (fn [_] {:status 200})}}]]
                                [""
-                                {:swagger {:tags ["Login"] :security []}}
+                                {:swagger {:tags ["Login"]
+                                           ;:security []
+                                           }}
 
                                 ["sign-in"
                                     {:no-doc false
@@ -158,14 +161,16 @@
                                 ["sign-out"
                                  {:no-doc false
                                   :post {:accept "text/html"
-                                         :middleware [wrap-authenticate]
+                                         ;:middleware [wrap-authenticate]
                                          :handler post-sign-out}
                                   :get {:accept "text/html"
                                         :summary "HTML | Get sign-out page"
                                         :handler get-sign-out}}]]
                                ["inventory"
                                 ["/"
-                                 {:swagger {:tags ["Auth"] :security []}}
+                                 {:swagger {:tags ["Auth"]
+                                            ;:security []
+                                            }}
                                  ["login"
                                   {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
                                          :accept "application/json"
@@ -179,7 +184,7 @@
                                          :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
                                                               (s/optional-key :pool_id) s/Uuid}}
                                          :coercion reitit.coercion.schema/coercion
-                                         :middleware [wrap-authenticate]
+                                         :middleware [wrap-is-admin!]
                                          :handler update-role-handler
                                          :responses {200 {:description "OK" :body update-role-response}
                                                      409 {:description "Conflict" :body update-role-response}
@@ -187,22 +192,24 @@
                                  ["logout"
                                   {:get {:accept "application/json"
                                          :coercion reitit.coercion.schema/coercion
-                                         :swagger {:security [] :deprecated true}
+                                         :swagger { :deprecated true}
                                          :middleware [ab/wrap]
                                          :handler logout-handler}}]
                                  ["set-password"
                                   {:post {:summary "OK | Set password by basicAuth for already authenticated user"
                                           :accept "application/json"
                                           :coercion reitit.coercion.schema/coercion
-                                          :swagger {:security [{:basicAuth []}]}
+                                          ;:swagger {:security [{:basicAuth []}]}
                                           :parameters {:body {:new-password1 s/Str}}
                                           :handler set-password-handler}}]]
                                 ["/"
                                  {:swagger {:tags ["Status"] :security []}}
-                                 ["status"
+                                 ["admin/status"
                                   {:get {:accept "application/json"
                                          :handler status/status-handler
-                                         :swagger {:security []}}}]]
+                                         :middleware [wrap-is-admin!]
+                                         ;:swagger {:security []}
+                                         }}]]
                                 ["/api-docs"
                                  {:get {:conflicting true
                                         :handler swagger-api-docs-handler
@@ -215,7 +222,8 @@
                                                   :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
                                                                         :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}
                                                                         :basicAuth {:type "basic"}}
-                                                  :security [{:basicAuth [] "auth" []} {:csrfToken []} {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
+                                                  :security [{:csrfToken []} ]}
+                                                  ;:security [{:basicAuth [] "auth" []} {:csrfToken []} {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
                                         :handler (swagger/create-swagger-handler)}}]
                                 ["/api-docs/openapi.json"
                                  {:get {:no-doc true
