@@ -4,12 +4,13 @@ require "pry"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      @user = FactoryBot.create(:user, login: "test-user")
+      @user = FactoryBot.create(:user, login: "test", password: "test")
       @create_token_url = "/inventory/token/"
       @protected_url = "/inventory/token/protected"
     end
 
     let(:client) { plain_faraday_json_client }
+    let(:cookie) { CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN).to_s }
 
     it "returns 401 for unauthenticated request" do
       resp = client.post @create_token_url do |req|
@@ -24,12 +25,15 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(401)
     end
 
     it "returns 401 for incorrect credentials" do
-      resp = basic_auth_plain_faraday_json_client("abc", "def").post(@create_token_url) do |req|
+      # resp = basic_auth_plain_faraday_json_client("abc", "def").post(@create_token_url) do |req|
+      resp = client.post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {
@@ -41,12 +45,15 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(401)
     end
 
     it "returns 200 for correct credentials" do
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      resp = client.post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {
@@ -58,6 +65,8 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(200)
     end
@@ -66,7 +75,8 @@ feature "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get(@protected_url)
       expect(resp.status).to eq(401)
 
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      resp = client.post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {
@@ -79,6 +89,8 @@ feature "Call swagger-endpoints" do
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
         # req.headers["Accept"] = "text/html"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -89,7 +101,8 @@ feature "Call swagger-endpoints" do
     end
 
     it "returns 200 with all scopes set to false" do
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      resp = client.post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {
@@ -101,6 +114,8 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -115,7 +130,8 @@ feature "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get(@protected_url)
       expect(resp.status).to eq(401)
 
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+      resp = client.post(@create_token_url) do |req|
+      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {
@@ -127,6 +143,8 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
+        req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        req.headers["Cookie"] = cookie
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]

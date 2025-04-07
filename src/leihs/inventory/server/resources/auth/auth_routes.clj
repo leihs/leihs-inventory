@@ -116,7 +116,8 @@
               {:status "success" :message "User authenticated successfully"})
              (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
              (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-anti-csrf-token" "NOT-IMPLEMENTED" {:max-age max-age :path "/"}))))
+             ;(response/set-cookie "leihs-anti-csrf-token" "NOT-IMPLEMENTED" {:max-age max-age :path "/"})
+              )))
 
         (response/status
          (response/response {:status "failure" :message "Invalid credentials"}) 403)))
@@ -287,10 +288,19 @@
      :scopes scopes}))
 
 (defn create-api-token-handler [request]
-  (let [[login password] (extract-basic-auth-from-header request)
+  (let [
+
+        user (-> request :authenticated-entity)
+
+
+        p (println ">o> -----> abc.user!!!!" user)
+
+
+
+
         {:keys [description scopes]} (:body-params request)
-        verfication-entry-result (verify-password-entry request login password)
-        user_id (:id verfication-entry-result)
+
+        user_id (:id user)
         scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)]
 
     (if user_id
@@ -370,8 +380,12 @@
               :description "Generates an API token for a user with specific permissions and scopes (login / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
-              :swagger {:security [{:basicAuth []}]}
-              :parameters {:body {:description s/Str
+              ;:swagger {:security [{:basicAuth []}]}
+              :parameters {:body {
+                                  ;:username s/Str
+                                  ;:password s/Str
+
+                                  :description s/Str
                                   :scopes {:read s/Bool
                                            :write s/Bool
                                            :admin_read s/Bool

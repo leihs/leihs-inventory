@@ -2,6 +2,8 @@
   (:require [clojure.string :as str]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
+   [leihs.core.auth.session :as session]
+   [leihs.core.auth.token :as token]
             [ring.util.response :as response]))
 
 (defn accept-json-middleware [handler]
@@ -27,7 +29,47 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [auth (get-in request [:authenticated-entity] nil)]
-      (if auth
+    (let [
+          ;
+          ;_ (try
+          ;
+          ;
+          ;    ;(defn wrap-authenticate [handler]
+          ;    ;  (fn [request]
+          ;    ;    (-> request authenticate handler)))
+          ;    session/wrap-authenticate
+          ;
+          ;    (catch Exception e
+          ;      (println "Error in session-authenticate!" e)))
+          ;
+          ;_ (try
+          ;
+          ;    ;(defn wrap-authenticate [handler & [opts]]
+          ;    token/wrap-authenticate
+          ;
+          ;    (catch Exception e
+          ;      (println "Error in token-authenticate!" e)))
+          ;
+
+
+
+          auth (get-in request [:authenticated-entity] nil)
+
+
+          p (println ">o> abc.auth" auth)
+
+          uri (:uri request)
+          referer (get-in request [:headers "referer"])
+
+          swagger-resource? (str/includes? uri "/api-docs/")
+          whitelisted? (some #(str/includes? uri %) ["/sign-in" "/inventory/login"
+
+                                                     "/inventory/token/public"
+                                                     "/inventory/session/public"
+                                                     ])
+
+
+          ]
+      (if (or auth swagger-resource? whitelisted?)
         (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
+        (response/status (response/response {:status "failure" :message "Unauthorized"}) 404)))))

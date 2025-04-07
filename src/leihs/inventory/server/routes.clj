@@ -87,7 +87,8 @@
 
                             (defn post-sign-in [request]
                                (println ">o> post-sign-in" )
-                              (let [form-data (:form-params request)
+                              (let [
+                                    form-data (:form-params request)
                                     username (:user form-data)
                                     password (:password form-data)
                                     csrf-token (:csrf-token form-data)
@@ -128,7 +129,7 @@
 
   [""
 
-                                 {:swagger {:tags ["CSRF"] :security []}}
+                                 {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
                                  ["test-csrf"
                                   {:no-doc false
                                    :coercion reitit.coercion.schema/coercion
@@ -142,19 +143,13 @@
 
                                 ["sign-in"
                                     {:no-doc false
-                                     ;:post {:accept "text/html"
-                                     ;       :swagger {:produces ["application/multipart-form-data"]}
-                                     ;       :coercion reitit.coercion.schema/coercion
-                                     ;       :handler post-sign-in}
 
                                      :post {
-                                            ;:accept "text/html"
                                             :accept "application/json"
                                             :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
                                             :swagger {:produces ["application/multipart-form-data"]}
                                             :coercion reitit.coercion.schema/coercion
                                             :handler post-sign-in}
-
 
                                      :get {:summary "HTML | Get sign-in page"
                                            :accept "text/html"
