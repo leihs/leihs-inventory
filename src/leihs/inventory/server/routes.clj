@@ -86,9 +86,14 @@
                                  :body html}))
 
                             (defn post-sign-in [request]
+                               (println ">o> post-sign-in" )
                               (let [form-data (:form-params request)
                                     username (:user form-data)
-                                    password (:password form-data)]
+                                    password (:password form-data)
+                                    csrf-token (:csrf-token form-data)
+
+                                    p (println ">o> abc. userdata" username password csrf-token)
+                                    ]
                                 (if (or (str/blank? username) (str/blank? password))
                                   (be/create-error-response username request)
                                   (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
@@ -137,10 +142,20 @@
 
                                 ["sign-in"
                                     {:no-doc false
-                                     :post {:accept "text/html"
+                                     ;:post {:accept "text/html"
+                                     ;       :swagger {:produces ["application/multipart-form-data"]}
+                                     ;       :coercion reitit.coercion.schema/coercion
+                                     ;       :handler post-sign-in}
+
+                                     :post {
+                                            ;:accept "text/html"
+                                            :accept "application/json"
+                                            :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
                                             :swagger {:produces ["application/multipart-form-data"]}
                                             :coercion reitit.coercion.schema/coercion
                                             :handler post-sign-in}
+
+
                                      :get {:summary "HTML | Get sign-in page"
                                            :accept "text/html"
                                            :swagger {:produces ["text/html"]}

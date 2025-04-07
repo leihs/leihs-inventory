@@ -105,6 +105,21 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
   end
 end
 
+def common_plain_faraday_login_client(method, url, token: nil, body: nil, headers: {})
+  Faraday.new(url: api_base_url) do |conn|
+    conn.headers["Authorization"] = "Token #{token}" if token
+    conn.headers["Accept"] = "text/html,application/xhtml+xml"
+    conn.headers["Content-Type"] = "application/x-www-form-urlencoded"
+    conn.headers.update(headers)
+    conn.request :url_encoded
+    conn.adapter Faraday.default_adapter
+
+    yield(conn) if block_given?
+  end.public_send(method, url) do |req|
+    req.body = body
+  end
+end
+
 def json_client_get(url, headers: {}, token: nil)
   common_plain_faraday_client(:get, url, token: token, headers: headers)
 end

@@ -3,7 +3,7 @@ require "spec_helper"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      @user = FactoryBot.create(:user, login: "test-user")
+      @user = FactoryBot.create(:user, login: "test", password: "test")
     end
 
     let(:client) { plain_faraday_json_client }
@@ -51,6 +51,8 @@ feature "Call swagger-endpoints" do
 
       expect(resp.status).to eq(200)
     end
+
+
 
     it "accesses protected resource with valid session cookie" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
