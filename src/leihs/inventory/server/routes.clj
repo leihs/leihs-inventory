@@ -87,13 +87,11 @@
      :body html}))
 
 (defn post-sign-in [request]
-  (println ">o> post-sign-in")
   (let [form-data (:form-params request)
         username (:user form-data)
         password (:password form-data)
-        csrf-token (:csrf-token form-data)
+        csrf-token (:csrf-token form-data)]
 
-        p (println ">o> abc. userdata" username password csrf-token)]
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
@@ -127,7 +125,6 @@
   ["/"
 
    [""
-
     {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
     ["test-csrf"
      {:no-doc false
@@ -137,10 +134,9 @@
       :put {:handler (fn [_] {:status 200})}
       :get {:handler (fn [_] {:status 200})}
       :delete {:handler (fn [_] {:status 200})}}]]
+
    [""
-    {:swagger {:tags ["Login"]
-                                           ;:security []
-               }}
+    {:swagger {:tags ["Login"]  }}
 
     ["sign-in"
      {:no-doc false
@@ -158,16 +154,13 @@
     ["sign-out"
      {:no-doc false
       :post {:accept "text/html"
-                                         ;:middleware [wrap-authenticate]
              :handler post-sign-out}
       :get {:accept "text/html"
             :summary "HTML | Get sign-out page"
             :handler get-sign-out}}]]
    ["inventory"
     ["/"
-     {:swagger {:tags ["Auth"]
-                                            ;:security []
-                }}
+     {:swagger {:tags ["Auth"] }}
      ["login"
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
              :accept "application/json"
@@ -196,7 +189,6 @@
       {:post {:summary "OK | Set password by basicAuth for already authenticated user"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
-                                          ;:swagger {:security [{:basicAuth []}]}
               :parameters {:body {:new-password1 s/Str}}
               :handler set-password-handler}}]]
     ["/"
@@ -204,9 +196,7 @@
      ["admin/status"
       {:get {:accept "application/json"
              :handler status/status-handler
-             :middleware [wrap-is-admin!]
-                                         ;:swagger {:security []}
-             }}]]
+             :middleware [wrap-is-admin!] }}]]
     ["/api-docs"
      {:get {:conflicting true
             :handler swagger-api-docs-handler
@@ -220,7 +210,6 @@
                                             :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}
                                             :basicAuth {:type "basic"}}
                       :security [{:csrfToken []}]}
-                                                  ;:security [{:basicAuth [] "auth" []} {:csrfToken []} {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
             :handler (swagger/create-swagger-handler)}}]
     ["/api-docs/openapi.json"
      {:get {:no-doc true
