@@ -192,7 +192,7 @@
               :parameters {:body {:new-password1 s/Str}}
               :handler set-password-handler}}]]
     ["/"
-     {:swagger {:tags ["Status"] :security []}}
+     {:swagger {:tags ["Status"] }}
      ["admin/status"
       {:get {:accept "application/json"
              :handler status/status-handler
