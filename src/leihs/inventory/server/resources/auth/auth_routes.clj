@@ -168,33 +168,23 @@
     (catch Exception e
       (println "Error in authenticate-handler:" (.getMessage e))
       (response/status (response/response {:message (.getMessage e)}) 400))))
-
 (defn logout-handler [request]
-  (let [token (get-in request [:cookies "leihs-user-session" :value])
-        p (println ">o> abc.token" token)
-        hashed-token (sha256-hash token)
-
-        p (println ">o> abc.hashed-token" hashed-token)
-        ]
+  (let [user-id (-> request :authenticated-entity :id)]
     (try
       (let [delete-query (-> (sql/delete-from :user_sessions)
-                             (sql/where [:= :token_hash hashed-token])
+                             (sql/where [:= :user_id user-id])
                              sql-format)
             delete-result (jdbc/execute! (:tx request) delete-query)]
-        (if (> (:next.jdbc/update-count (first delete-result)) 0) ;; Check if any row was affected
+        (if (> (:next.jdbc/update-count (first delete-result)) 0)
           (do
-            (log/info "Successfully removed session for token:" token)
-            (->
-             (response/response {:status "success" :message "User logged out successfully"})
-             (response/set-cookie "leihs-session" "" {:max-age 0 :path "/"})
-             (response/set-cookie "leihs-anti-csrf-token" "" {:max-age 0 :path "/"})))
+            (log/info "Successfully removed session for user_id:" user-id)
+            (response/response {:status "success" :message "User logged out successfully"}))
           (do
-            (log/warn "No session found for token:" token)
+            (log/warn "No session found for user_id:" user-id)
             (response/status
              (response/response {:status "failure" :message "No active session found"}) 404))))
-
       (catch Exception e
-        (println "Error in logout-handler:" e)
+        (log/error "Error in logout-handler:" e)
         (response/status (response/response {:message (.getMessage e)}) 400)))))
 
 ;; ------------------------------------------------------
