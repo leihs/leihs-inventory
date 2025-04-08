@@ -59,7 +59,7 @@ feature "Call swagger-endpoints" do
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
         req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        req.headers["Cookie"] = @user_cookies_str
+        # req.headers["Cookie"] = @user_cookies_str
       end
       binding.pry
       expect(resp.status).to eq(200)
@@ -82,9 +82,8 @@ feature "Call swagger-endpoints" do
         }.to_json
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
-        # req.headers["Accept"] = "text/html"
         req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        req.headers["Cookie"] = @user_cookies_str
+        # req.headers["Cookie"] = @user_cookies_str
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -109,7 +108,7 @@ feature "Call swagger-endpoints" do
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
         req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        req.headers["Cookie"] = @user_cookies_str
+        # req.headers["Cookie"] = @user_cookies_str
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
@@ -138,7 +137,7 @@ feature "Call swagger-endpoints" do
         req.headers["Content-Type"] = "application/json"
         req.headers["Accept"] = "application/json"
         req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        req.headers["Cookie"] = @user_cookies_str
+        # req.headers["Cookie"] = @user_cookies_str
       end
       expect(resp.status).to eq(200)
       token = resp.body["token"]
