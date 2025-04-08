@@ -80,7 +80,12 @@
 (defn authenticate-handler [request]
   (try
     (let [[login password] (extract-basic-auth-from-header request)
-          user (verify-password-entry request login password)]
+
+          p (println ">o> abc.login ??" login password)
+          user (verify-password-entry request login password)
+
+          p (println ">o> abc.user" user)
+          ]
       (if user
         (let [token (str (UUID/randomUUID))
               hashed-token (sha256-hash token)

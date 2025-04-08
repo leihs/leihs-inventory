@@ -54,7 +54,6 @@ feature "Swagger Inventory Endpoints - Models" do
       before :each do
         category = FactoryBot.create(:category)
         resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
-        binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
         @model_id = resp.body[0]["id"]

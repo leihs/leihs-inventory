@@ -127,7 +127,7 @@
             (leihs.inventory.server.routes/get-sign-in request)
 
             (-> (response/response {:status "failure"
-                                    :message "CSRF-Token/Session not valid1"
+                                    :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
                 (response/status 404)
                 ;(response/content-type "application/json")
@@ -148,7 +148,7 @@
             (catch Exception e
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
-                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid2")
+                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
                   {:status 400
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"

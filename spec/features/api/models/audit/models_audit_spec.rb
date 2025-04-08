@@ -43,7 +43,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
 
 
       it "creates a model and returns status 200" do
-        binding.pry
         expect(response.status).to eq(200)
         expect(response.body[0]["id"]).to be_present
         expect(response.body.count).to eq(1)

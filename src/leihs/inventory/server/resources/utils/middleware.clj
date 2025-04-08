@@ -86,7 +86,7 @@
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
 
-        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized2"}) 404)
+        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
 
         :else         (handler request)
 

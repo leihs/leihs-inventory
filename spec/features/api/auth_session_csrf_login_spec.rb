@@ -1,16 +1,38 @@
 require "spec_helper"
+require_relative "_shared"
 
 feature "Call swagger-endpoints" do
-  context "with accept=text/html", driver: :selenium_headless do
-    before :each do
-      @user = FactoryBot.create(:user, login: "test", password: "test")
+
+  context "with accept=text/html2", driver: :selenium_headless do
+    it "redirect to login" do
+      resp = plain_faraday_client.get("/inventory/session/protected")
+      expect(resp.status).to eq(302)
     end
 
-    let(:client) { plain_faraday_json_client }
-    let(:cookie) { CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN).to_s }
+    it "denies access to protected resource without login" do
+      resp = plain_faraday_json_client.get("/inventory/session/protected")
+      expect(resp.status).to eq(403)
+      end
+  end
+
+  context "with accept=text/html", driver: :selenium_headless do
+    before :each do
+      # @user, @user_cookies = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+      # binding.pry
+    end
+
+    let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+
+    # let(:cookie) { CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN).to_s }
+
+    let(:cookie2) {     [CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token)] }
+    # let(:cookie3) {     CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token).to_s }
+
 
     it "denies access to protected resource without login" do
-      resp = client.get("/inventory/session/protected")
+      resp = plain_faraday_json_client.get("/inventory/session/protected")
+      # binding.pry
       expect(resp.status).to eq(403)
     end
 
@@ -32,7 +54,7 @@ feature "Call swagger-endpoints" do
           "password" => @user.password,
           "csrf-token" => X_CSRF_TOKEN,
           "return-to" => "/inventory/models"
-        }, headers: { "Cookie" => cookie })
+        }, headers: { "Cookie" => @user_cookies_str })
 
         expect(resp.status).to eq(302)
         expect(resp.headers["location"]).to match(%r{/inventory/.+/models})
@@ -40,7 +62,13 @@ feature "Call swagger-endpoints" do
     end
 
     context "CSRF-protected endpoints" do
-      let(:auth_client) { session_auth_plain_faraday_json_client }
+      # before :each do
+      #   @user, @user_cookies = create_and_login(:user)
+      # end
+
+      let(:auth_client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+      let(:auth_client_no) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+      let(:auth_client_no2) {    session_auth_plain_faraday_json_client(cookies: cookie2) }
 
       it "GET /test-csrf succeeds with session" do
         resp = auth_client.get("/test-csrf")
@@ -48,16 +76,18 @@ feature "Call swagger-endpoints" do
       end
 
       it "PUT /test-csrf with token and cookie succeeds" do
-        resp = auth_client.put("/test-csrf") do |req|
+        resp = auth_client_no.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
-          req.headers["Cookie"] = cookie
+          req.headers["Cookie"] = @user_cookies_str
         end
+        # binding.pry
         expect(resp.status).to eq(200)
       end
 
+      # FIXME: this should be 404
       it "PUT /test-csrf missing cookie returns error" do
-        resp = auth_client.put("/test-csrf") do |req|
+        resp = auth_client_no2.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
@@ -66,17 +96,18 @@ feature "Call swagger-endpoints" do
       end
 
       it "PUT /test-csrf missing token returns error" do
-        resp = auth_client.put("/test-csrf") do |req|
+        resp = auth_client_no.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
-          req.headers["Cookie"] = cookie
+          req.headers["Cookie"] = @user_cookies_str
         end
 
         expect(resp.status).to eq(404)
         expect(resp.body["detail"]).to eq("The x-csrf-token has not been send!")
       end
 
+      # FIXME: this should be 404
       it "PUT /test-csrf missing token and cookie returns error" do
-        resp = auth_client.put("/test-csrf") do |req|
+        resp = auth_client_no2.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
         end
         expect(resp.status).to eq(404)
@@ -87,7 +118,7 @@ feature "Call swagger-endpoints" do
         resp = auth_client.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = "not-correct-token"
-          req.headers["Cookie"] = cookie
+          req.headers["Cookie"] = @user_cookies_str
         end
         expect(resp.status).to eq(404)
         expect(resp.body["detail"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
@@ -97,7 +128,7 @@ feature "Call swagger-endpoints" do
         resp = auth_client.post("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
-          req.headers["Cookie"] = cookie
+          req.headers["Cookie"] = @user_cookies_str
         end
         expect(resp.status).to eq(200)
       end
@@ -106,7 +137,7 @@ feature "Call swagger-endpoints" do
         resp = auth_client.delete("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
-          req.headers["Cookie"] = cookie
+          req.headers["Cookie"] = @user_cookies_str
         end
         expect(resp.status).to eq(200)
       end
