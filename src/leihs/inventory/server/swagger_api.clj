@@ -86,28 +86,6 @@
           has-token? (and token
                           (re-matches #"(?i)^token\s+(.*)$" token))
 
-          handler2 (if has-token? (try
-                                    (token/wrap-authenticate handler1)
-                                    (catch Exception e
-                                      (println "Error in token-authenticate!" e)
-                                      handler1))
-                       handler1)]
-
-;; fallback to previous step
-      handler2)))
-
-(defn wrap-authenticate! [handler]
-  (fn [request]
-    (let [handler1 (try
-                     (session/wrap-authenticate handler)
-                     (catch Exception e
-                       (println "Error in session-authenticate!" e)
-                       handler)) ;; fallback to unmodified handler
-
-          token (get-in request [:headers "authorization"])
-          has-token? (and token
-                          (re-matches #"(?i)^token\s+(.*)$" token))
-
           handler2 (if has-token?
                      (try
                        (token/wrap-authenticate handler1)
@@ -136,22 +114,12 @@
 
                                      csrf/extract-header
 
-                                     ;(->
-                                     ;
-                                     ;session/wrap-authenticate
-                                     ;token/wrap-authenticate
-
                                      wrap-authenticate!
-
                                      leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
-                                       ;)
 
                                      wrap-cookies
                                      csrf/wrap-csrf
-
                                      leihs.core.anti-csrf.back/wrap
-                                     ;leihs.core.anti-csrf.back/x-csrf-token!
-
                                      dm/extract-dev-cookie-params
 
                                      wrap-params
@@ -183,22 +151,6 @@
                      :urls [{:name "swagger" :url "swagger.json"}]
                      :urls.primaryName "openapi"
                      :operationsSorter "alpha"}})
-
-            ;(swagger-ui/create-swagger-ui-handler
-            ;  {:path "/inventory/api-docs/"
-            ;   :config {:validatorUrl nil
-            ;            :urls [{:name "swagger" :url "swagger.json"}]
-           ;            :urls.primaryName "openapi"
-           ;            :operationsSorter "alpha"
-           ;            :requestInterceptor "function(request) {
-           ;     const token = document.querySelector('meta[name=\"csrf-token\"]').getAttribute('content');
-           ;     if (token) {
-           ;       request.headers['x-csrf-token'] = token;
-           ;     }
-           ;     return request;
-           ;   }"
-           ;
-           ;   }})
 
           (ring/create-default-handler
            {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))

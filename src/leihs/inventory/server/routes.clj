@@ -81,10 +81,27 @@
                                        {:name "csrf-token" :value mtoken}))
                    (cond-> (not (nil? (:message query)))
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+
+        p (println ">o> abc.params" params)
+
+        accept (-> request :headers (get "accept"))
+
+        p (println ">o> abc.accept" accept)
+
         html (add-csrf-tags (sign-in-view params) params)]
-    {:status 200
-     :headers {"Content-Type" "text/html; charset=utf-8"}
-     :body html}))
+
+    (if (str/includes? accept "application/json")
+      {:status 200
+       ;:headers {"Content-Type" "text/html; charset=utf-8"}
+       :body params}
+
+      {:status 200
+       :headers {"Content-Type" "text/html; charset=utf-8"}
+       :body html}
+
+      )
+
+    ))
 
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
@@ -111,9 +128,14 @@
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body html}))
-
 (defn post-sign-out [request]
-  (so/routes (convert-params request)))
+  (let [params (-> request
+                   convert-params
+                   (assoc-in [:accept :mime] :html))
+        accept (get-in params [:headers "accept"])]
+    (if (str/includes? accept "application/json")
+      {:status (if (so/routes params) 200 409)}
+      (so/routes params))))
 
 (def update-role-response {:role-before s/Str
                            :role-after s/Str
@@ -149,11 +171,15 @@
 
       :get {:summary "HTML | Get sign-in page"
             :accept "text/html"
-            :swagger {:produces ["text/html"]}
+            :swagger {:produces ["text/html" "application/json"]}
             :handler get-sign-in}}]
     ["sign-out"
      {:no-doc false
-      :post {:accept "text/html"
+      :post {
+             ;:accept "text/html"
+             :accept "application/json"
+             :swagger {:produces ["text/html" "application/json"]}
+
              :handler post-sign-out}
       :get {:accept "text/html"
             :summary "HTML | Get sign-out page"
@@ -165,7 +191,7 @@
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:basicAuth []}] :deprecated true}
+             :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
              :handler authenticate-handler}}]
      ["admin/update-role"
       {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"

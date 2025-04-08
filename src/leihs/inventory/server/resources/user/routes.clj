@@ -46,7 +46,7 @@
 (defn get-user-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["User"] :}}
+              :tags ["User"]}}
 
    ["pools"
     [""

@@ -483,7 +483,7 @@
 
    ["/package" ;; new
     {:swagger {:conflicting true
-               :tags ["form / package"] :}}
+               :tags ["form / package"]}}
 
     [""
      {:post {:accept "application/json"

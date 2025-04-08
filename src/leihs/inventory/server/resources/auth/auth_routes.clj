@@ -171,7 +171,11 @@
 
 (defn logout-handler [request]
   (let [token (get-in request [:cookies "leihs-user-session" :value])
-        hashed-token (sha256-hash token)]
+        p (println ">o> abc.token" token)
+        hashed-token (sha256-hash token)
+
+        p (println ">o> abc.hashed-token" hashed-token)
+        ]
     (try
       (let [delete-query (-> (sql/delete-from :user_sessions)
                              (sql/where [:= :token_hash hashed-token])
