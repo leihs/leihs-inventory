@@ -1,38 +1,12 @@
 require "spec_helper"
 require "pry"
+require_relative "../_shared"
 
-def create_model(client, inventory_pool_id, product, category_ids)
-  client.post "/inventory/#{inventory_pool_id}/models" do |req|
-    req.body = {
-      product: product,
-      category_ids: category_ids,
-      version: "1",
-      type: "Model",
-      is_package: false
-    }.to_json
-    req.headers["Content-Type"] = "application/json"
-    req.headers["Accept"] = "application/json"
-  end
-end
 
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
-      # TODO: write test with user (401)
-      # @user = FactoryBot.create(:user, login: "admin", password: "password")
-      @user = FactoryBot.create(:admin, login: "admin", password: "password")
-
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
-      expect(resp.status).to eq(200)
-      cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-      # @cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-
-      @cookies = [
-        CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-        # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
-        CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
-      # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
-      ]
+      @user, @user_cookies = create_and_login(:user, "admin", "password")
 
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
@@ -45,11 +19,7 @@ feature "Call inventory-pool endpoints" do
       end
     end
 
-    let(:client) {
-      # TODO: write test with plain (401)
-      # plain_faraday_json_client
-      session_auth_plain_faraday_json_client(cookies: @cookies)
-    }
+    let(:client) {      session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     context "with direct access rights as a group manager" do
       before :each do
@@ -74,7 +44,7 @@ feature "Call inventory-pool endpoints" do
     context "when creating a new model and retrieving it from the pool" do
       before :each do
         category = FactoryBot.create(:category, name: "Test-ModelGroup")
-        resp = create_model(client, @inventory_pool.id, "Example Model", [category.id])
+        resp = create_model_post(client, @inventory_pool.id, "Example Model", [category.id])
         expect(resp.status).to eq(200)
       end
 

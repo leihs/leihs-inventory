@@ -2,20 +2,6 @@ require "spec_helper"
 require "pry"
 require_relative "../_shared"
 
-def create_model(client, inventory_pool_id, product, category_ids)
-  client.post "/inventory/#{inventory_pool_id}/models" do |req|
-    req.body = {
-      product: product,
-      category_ids: category_ids,
-      version: "1",
-      type: "Model",
-      is_package: false
-    }.to_json
-    req.headers["Content-Type"] = "application/json"
-    req.headers["Accept"] = "application/json"
-    req.headers["x-csrf-token"] = X_CSRF_TOKEN
-  end
-end
 
 feature "Swagger Inventory Endpoints - Models" do
   context "when fetching models for an inventory pool", driver: :selenium_headless do
@@ -67,7 +53,7 @@ feature "Swagger Inventory Endpoints - Models" do
     context "POST and GET /inventory/:pool_id/models when creating new models" do
       before :each do
         category = FactoryBot.create(:category)
-        resp = create_model(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+        resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
         binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
@@ -83,7 +69,7 @@ feature "Swagger Inventory Endpoints - Models" do
       context "when adding another model" do
         before :each do
           category = FactoryBot.create(:category)
-          resp = create_model(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+          resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
 
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(1)

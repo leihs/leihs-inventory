@@ -18,6 +18,21 @@ def create_models(count = 3)
   @models
 end
 
+def create_model_post(client, inventory_pool_id, product, category_ids)
+  client.post "/inventory/#{inventory_pool_id}/models" do |req|
+    req.body = {
+      product: product,
+      category_ids: category_ids,
+      version: "1",
+      type: "Model",
+      is_package: false
+    }.to_json
+    req.headers["Content-Type"] = "application/json"
+    req.headers["Accept"] = "application/json"
+    req.headers["x-csrf-token"] = X_CSRF_TOKEN
+  end
+end
+
 def create_and_add_items_to_all_existing_models(inventory_pool)
   LeihsModel.all.each do |model|
     FactoryBot.create(:item, leihs_model: model, inventory_pool_id: inventory_pool.id, responsible: inventory_pool, is_borrowable: true)

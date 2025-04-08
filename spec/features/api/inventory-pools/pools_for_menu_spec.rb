@@ -1,23 +1,6 @@
 require "spec_helper"
 require "pry"
-
-# def create_and_login(role, login, password)
-#   user = FactoryBot.create(role, login: login, password: password)
-#   resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-#   expect(resp.status).to eq(200)
-#   cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-#   # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-#   # cookie = CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token)
-#
-#   cookies = [
-#     CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-#     # CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => "test-csrf-123-456"),
-#     CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
-#   # CGI::Cookie.new("name" => "x-csrf-token", "value" => "test-csrf-123-456")
-#   ]
-#
-#   [user, cookies]
-# end
+require_relative "../_shared"
 
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
@@ -25,11 +8,7 @@ feature "Call inventory-pool endpoints" do
       @admin, @admin_cookies = create_and_login(:admin, "admin", "password")
     end
 
-    # let(:admin_client) { session_auth_plain_faraday_json_client(@admin_cookie.to_s) }
-    let(:admin_client) {
-
-      puts "admin cookie #{@admin_cookies.to_s}"
-      session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
+    let(:admin_client) {      session_auth_plain_faraday_json_csrf_client(cookies: @admin_cookies) }
 
     context "with both direct and group access rights" do
       before :each do
