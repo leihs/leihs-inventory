@@ -3,10 +3,11 @@ require "spec_helper"
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      @user = FactoryBot.create(:admin, login: "test-user")
+      @user, @user_cookies = create_and_login(:user, "test", "password")
     end
 
-    let(:client) { plain_faraday_json_client }
+    let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+
 
     it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"
