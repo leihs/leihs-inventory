@@ -51,13 +51,8 @@
        (into {})))
 
 (defn add-cookies-to-request [request]
-  (let [p (println ">o> abc.befor" (:cookies request))
-
-        cookie-header (get-in request [:headers "cookie"])
-
-        parsed-cookies (when cookie-header (parse-cookies cookie-header))
-
-        p (println ">o> abc.after" parsed-cookies)]
+  (let [cookie-header (get-in request [:headers "cookie"])
+        parsed-cookies (when cookie-header (parse-cookies cookie-header))]
     (assoc request :cookies parsed-cookies)))
 
 (alter-var-root #'constants/ANTI_CSRF_TOKEN_COOKIE_NAME (constantly (keyword "leihs-anti-csrf-token")))
@@ -84,65 +79,32 @@
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
-          ;accept (get-in request [:headers "accept"])
-          ;is-accept-json?
-          ;p (println ">o> abc.accept??" accept)
-
           is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
-          p (println ">o> abc.is-accept-json???" is-accept-json?)
-
           x-csrf-token (get-in request [:headers "x-csrf-token"])
           header (get-in request [:headers])
-          request (if (= content-type "application/x-www-form-urlencoded")
-                    (let [body-form (if (nil? (:body request)) nil (extract-form-params (:body request)))]
-                      (-> request
-                          (assoc :form-params body-form)
-                          add-cookies-to-request
-                          convert-params))
-                    (-> request
-                        add-cookies-to-request
-                        convert-params))
-
-          p (println ">o> abc.finally.cookie" (:cookies request))
-          p (println ">o> abc.finally.x-csrf-token" x-csrf-token)
-          p (println ">o> abc.finally.header" header)]
-
+          request (-> request
+                      (cond-> (= content-type "application/x-www-form-urlencoded")
+                        (assoc :form-params (some-> (:body request) extract-form-params)))
+                      add-cookies-to-request
+                      convert-params)]
       (try
-
-        ;(leihs.core.anti-csrf.back/x-csrf-token! request)
-
         (handler request)
-
-        ;((anti-csrf/wrap handler) request)
-
         (catch Exception e
-
-          (println ">o> abc1??" (type e))
-          (println ">o> abc2??" (.getMessage e))
-          (println ">o> abc3??" e)
-
           (if (str/includes? (:uri request) "/sign-in")
-            ;(response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid1")
-
             (leihs.inventory.server.routes/get-sign-in request)
-
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-                (response/status 404)
-                ;(response/content-type "application/json")
-                )))))))
+                (response/status 404))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]
     (let [referer (get-in request [:headers "referer"])
           uri (:uri request)
-          api-request? (and uri (str/includes? uri "/api-docs/"))
-          p (println ">o> abc.api-request?" api-request?)]
+          api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login"])
-          ;(handler request)
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
@@ -153,5 +115,4 @@
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"
                                    :detail (str "error: " (.getMessage e))})}))))
-
           (handler request))))))
