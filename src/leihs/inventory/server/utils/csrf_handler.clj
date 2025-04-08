@@ -131,7 +131,7 @@
                                     :detail (.getMessage e)})
                 (response/status 404)
                 ;(response/content-type "application/json")
-              )))))))
+                )))))))
 
 (defn wrap-csrf [handler]
   (fn [request]

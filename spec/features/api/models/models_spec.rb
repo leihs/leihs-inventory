@@ -2,7 +2,6 @@ require "spec_helper"
 require "pry"
 require_relative "../_shared"
 
-
 feature "Swagger Inventory Endpoints - Models" do
   context "when fetching models for an inventory pool", driver: :selenium_headless do
     include_context :setup_models_min_api
@@ -11,7 +10,7 @@ feature "Swagger Inventory Endpoints - Models" do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
     end
 
-    let(:client) {      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/models" }

@@ -2,15 +2,13 @@ require "spec_helper"
 require "pry"
 require_relative "../api/_shared"
 
-
 feature "Request " do
   context " with accept=text/html" do
-
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     context "against /inventory/admin/status" do
       scenario "status-check for cider" do

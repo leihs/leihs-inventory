@@ -2,7 +2,6 @@ require "spec_helper"
 require_relative "_shared"
 
 feature "Call swagger-endpoints" do
-
   context "with accept=text/html2", driver: :selenium_headless do
     it "redirect to login" do
       resp = plain_faraday_client.get("/inventory/session/protected")
@@ -12,7 +11,7 @@ feature "Call swagger-endpoints" do
     it "denies access to protected resource without login" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
-      end
+    end
   end
 
   context "with accept=text/html", driver: :selenium_headless do
@@ -20,9 +19,8 @@ feature "Call swagger-endpoints" do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
-    let(:cookie2) {     [CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token)] }
-
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+    let(:cookie2) { [CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token)] }
 
     it "denies access to protected resource without login" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
@@ -47,7 +45,7 @@ feature "Call swagger-endpoints" do
           "password" => @user.password,
           "csrf-token" => X_CSRF_TOKEN,
           "return-to" => "/inventory/models"
-        }, headers: { "Cookie" => @user_cookies_str })
+        }, headers: {"Cookie" => @user_cookies_str})
 
         expect(resp.status).to eq(302)
         expect(resp.headers["location"]).to match(%r{/inventory/.+/models})
@@ -55,10 +53,9 @@ feature "Call swagger-endpoints" do
     end
 
     context "CSRF-protected endpoints" do
-
-      let(:auth_client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
-      let(:auth_client_no) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
-      let(:auth_client_no2) {    session_auth_plain_faraday_json_client(cookies: cookie2) }
+      let(:auth_client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+      let(:auth_client_no) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+      let(:auth_client_no2) { session_auth_plain_faraday_json_client(cookies: cookie2) }
 
       it "GET /test-csrf succeeds with session" do
         resp = auth_client.get("/test-csrf")

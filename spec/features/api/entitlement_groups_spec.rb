@@ -13,7 +13,7 @@ feature "Inventory API Endpoints - Model Links" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     let(:resp) { client.get url }
     let(:model_id) { resp.body[0]["id"] }

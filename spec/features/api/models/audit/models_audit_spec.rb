@@ -3,7 +3,6 @@ require "pry"
 require_relative "../../_shared"
 require_relative "../../_audit_validator"
 
-
 feature "Swagger Inventory Endpoints - Models with audits" do
   context "when managing models within an inventory pool", driver: :selenium_headless do
     include_context :setup_models_min_api
@@ -13,8 +12,9 @@ feature "Swagger Inventory Endpoints - Models with audits" do
     end
 
     let(:client) {
-      headers = { "accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN }
-      session_auth_plain_faraday_json_client(cookies: @user_cookies, headers: headers) }
+      headers = {"accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
+      session_auth_plain_faraday_json_client(cookies: @user_cookies, headers: headers)
+    }
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/models" }
 
@@ -24,7 +24,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       # let(:category) {
       #   FactoryBot.create(:category)
       # }
-
 
       let(:response) {
         client.post(url) do |req|
@@ -40,7 +39,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
           req.headers["Cookie"] = @user_cookies.map(&:to_s).join("; ")
         end
       }
-
 
       it "creates a model and returns status 200" do
         expect(response.status).to eq(200)
@@ -64,15 +62,13 @@ feature "Swagger Inventory Endpoints - Models with audits" do
           req.headers["Cookie"] = @user_cookies.map(&:to_s).join("; ")
         end
 
-
         expect(updated_response.status).to eq(200)
         expect(updated_response.body[0]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
       end
 
       it "deletes a model and verifies it is removed" do
-
-        puts "response: #{ {"Cookie" => @cookie_header.to_s }}"
+        puts "response: #{{"Cookie" => @cookie_header.to_s}}"
 
         model_id = response.body[0]["id"]
         delete_response = client.delete("#{url}/#{model_id}")

@@ -7,7 +7,7 @@ feature "Inventory API Endpoints - Compatible Models" do
     @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
   end
 
-  let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+  let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
   context "when fetching compatible models for an inventory pool", driver: :selenium_headless do
     include_context :setup_access_rights

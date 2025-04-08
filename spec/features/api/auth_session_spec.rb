@@ -14,7 +14,7 @@ feature "Call swagger-endpoints" do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"

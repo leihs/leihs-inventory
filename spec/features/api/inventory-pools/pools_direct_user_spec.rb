@@ -2,7 +2,6 @@ require "spec_helper"
 require "pry"
 require_relative "../_shared"
 
-
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
@@ -19,7 +18,7 @@ feature "Call inventory-pool endpoints" do
       end
     end
 
-    let(:client) {      session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     context "with direct access rights as a group manager" do
       before :each do

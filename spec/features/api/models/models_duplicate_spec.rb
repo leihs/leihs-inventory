@@ -18,7 +18,8 @@ feature "Inventory API Endpoints - Items" do
     end
 
     let(:client) {
-      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+      session_auth_plain_faraday_json_client(cookies: @user_cookies)
+    }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       let(:url) { "/inventory#{path}models" }

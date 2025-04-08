@@ -10,7 +10,7 @@ feature "Inventory API Endpoints - Departments and Owners" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     ["/inventory/departments", "/inventory/owners"].each do |url|
       context "GET #{url}" do

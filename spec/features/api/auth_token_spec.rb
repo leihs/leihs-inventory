@@ -2,7 +2,6 @@ require "spec_helper"
 require "pry"
 require_relative "_shared"
 
-
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     # before :each do
@@ -14,15 +13,13 @@ feature "Call swagger-endpoints" do
     # let(:client) { plain_faraday_json_client }
     # let(:cookie) { CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN).to_s }
 
-
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       @create_token_url = "/inventory/token/"
       @protected_url = "/inventory/token/protected"
     end
 
-    let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
-
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     it "returns 403 for unauthenticated request" do
       resp = plain_faraday_json_client.post @create_token_url do |req|
@@ -42,7 +39,6 @@ feature "Call swagger-endpoints" do
       end
       expect(resp.status).to eq(403)
     end
-
 
     it "returns 200 for correct credentials" do
       # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
@@ -123,7 +119,7 @@ feature "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
 
       resp = client.post(@create_token_url) do |req|
-      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
+        # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).post(@create_token_url) do |req|
         req.body = {
           description: "string",
           scopes: {

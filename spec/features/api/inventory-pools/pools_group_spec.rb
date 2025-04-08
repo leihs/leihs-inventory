@@ -48,7 +48,7 @@ feature "Call inventory-pool endpoints" do
       end
     end
 
-    let(:client) {      session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     context "User with group manager access rights" do
       before :each do

@@ -16,7 +16,8 @@ feature "Inventory API Endpoints - model-links" do
     end
 
     let(:client) {
-      session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+      session_auth_plain_faraday_json_client(cookies: @user_cookies)
+    }
 
     context "Request against endpoint" do
       let(:url) { "/inventory#{path}models/#{model_without_links.id}/model-links" }

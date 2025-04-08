@@ -170,9 +170,7 @@ shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
-
-def generate_csrf_data( cookie_token)
-
+def generate_csrf_data(cookie_token)
   cookies = [
     CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
     CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
@@ -180,7 +178,6 @@ def generate_csrf_data( cookie_token)
 
   cookies_str = cookies.map(&:to_s).join("; ")
   [cookies, cookies_str]
-
 end
 
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
@@ -191,7 +188,7 @@ shared_context :generate_session_header do |accept = "application/json", cookie_
     cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
     cookies = [
       CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
+      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
     ]
     cookie_attributes.each do |cookie_hash|
       cookies << CGI::Cookie.new(cookie_hash)
@@ -369,10 +366,10 @@ end
 
 def create_and_login(role, login = nil, password = nil)
   user = if login.nil? && password.nil?
-           FactoryBot.create(role, login: Faker::Lorem.word, password: "password")
-         else
-           FactoryBot.create(role, login: login, password: password)
-         end
+    FactoryBot.create(role, login: Faker::Lorem.word, password: "password")
+  else
+    FactoryBot.create(role, login: login, password: password)
+  end
 
   response = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
 
@@ -386,9 +383,8 @@ def create_and_login(role, login = nil, password = nil)
   # ]
 
   # [user, cookies]
-  [user] + generate_csrf_data(session_cookie)+ [session_cookie]
+  [user] + generate_csrf_data(session_cookie) + [session_cookie]
 end
-
 
 def create_and_login_by(user)
   # user = FactoryBot.create(role, login: login, password: password)

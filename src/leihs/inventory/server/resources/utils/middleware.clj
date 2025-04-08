@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.utils.middleware
   (:require [clojure.string :as str]
+            [leihs.core.auth.session :as session]
+            [leihs.core.auth.token :as token]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
-   [leihs.core.auth.session :as session]
-   [leihs.core.auth.token :as token]
             [ring.util.response :as response]))
 
 (defn accept-json-middleware [handler]
@@ -29,8 +29,7 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [
-          ;
+    (let [;
           ;_ (try
           ;
           ;
@@ -51,16 +50,12 @@
           ;      (println "Error in token-authenticate!" e)))
           ;
 
-
-
           auth (get-in request [:authenticated-entity] nil)
-
 
           p (println ">o> abc.auth" auth)
 
           uri (:uri request)
           referer (get-in request [:headers "referer"])
-
 
           is-api-request? (if referer
                             (str/includes? referer "/api-docs/")
@@ -73,25 +68,15 @@
           whitelisted? (some #(str/includes? uri %) ["/sign-in" "/inventory/login"
 
                                                      "/inventory/token/public"
-                                                     "/inventory/session/public"
-                                                     ])
+                                                     "/inventory/session/public"])]
 
-
-          ]
-      ;(if (or auth swagger-resource? whitelisted?)
+;(if (or auth swagger-resource? whitelisted?)
       ;  (handler request)
       ;  (response/status (response/response {:status "failure" :message "Unauthorized2"}) 404))
-
 
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
 
         is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
 
-        :else         (handler request)
-
-
-        )
-
-
-      )))
+        :else (handler request)))))

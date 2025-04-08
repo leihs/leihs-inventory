@@ -8,7 +8,7 @@ feature "Call inventory-pool endpoints" do
       @admin, @admin_cookies, @admin_cookies_str, @cookie_token = create_and_login(:admin, "admin", "password")
     end
 
-    let(:admin_client) {      session_auth_plain_faraday_json_csrf_client(cookies: @admin_cookies) }
+    let(:admin_client) { session_auth_plain_faraday_json_csrf_client(cookies: @admin_cookies) }
 
     context "with both direct and group access rights" do
       before :each do

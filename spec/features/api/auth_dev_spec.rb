@@ -83,15 +83,14 @@ feature "Call swagger-endpoints" do
       resp = basic_auth_plain_faraday_json_client("invalid-login", "invalid-pw").get("/inventory/login")
       expect(resp.status).to eq(403)
     end
-    end
-
+  end
 
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     it "returns 403 for unauthenticated request" do
       resp = client.get "/inventory/login"

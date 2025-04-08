@@ -1,14 +1,13 @@
 require "spec_helper"
 require_relative "_shared"
 
-
 feature "Call swagger-endpoints" do
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     # it "returns 403 for unauthenticated request" do
     #   resp = client.get "/inventory/login"
@@ -29,46 +28,44 @@ feature "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      resp = client().get("/test-csrf")
+      resp = client.get("/test-csrf")
       expect(resp.status).to eq(200)
 
-      resp = client().post("/test-csrf")
+      resp = client.post("/test-csrf")
       expect(resp.status).to eq(200)
 
-      resp = client().delete("/test-csrf")
+      resp = client.delete("/test-csrf")
       expect(resp.status).to eq(200)
 
-      resp = client().put("/test-csrf")
+      resp = client.put("/test-csrf")
       expect(resp.status).to eq(200)
     end
 
     it "accesses protected json-resource by accept=*/*" do
-
-      resp = plain_faraday_json_client().get("/test-csrf")
+      resp = plain_faraday_json_client.get("/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_json_client().post("/test-csrf")
+      resp = plain_faraday_json_client.post("/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_json_client().delete("/test-csrf")
+      resp = plain_faraday_json_client.delete("/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_json_client().put("/test-csrf")
+      resp = plain_faraday_json_client.put("/test-csrf")
       expect(resp.status).to eq(403)
     end
 
     it "accesses protected json-resource by accept=*/*" do
-
-      resp = plain_faraday_client().get("/test-csrf")
+      resp = plain_faraday_client.get("/test-csrf")
       expect(resp.status).to eq(302)
 
-      resp = plain_faraday_client().post("/test-csrf")
+      resp = plain_faraday_client.post("/test-csrf")
       expect(resp.status).to eq(404)
 
-      resp = plain_faraday_client().delete("/test-csrf")
+      resp = plain_faraday_client.delete("/test-csrf")
       expect(resp.status).to eq(404)
 
-      resp = plain_faraday_client().put("/test-csrf")
+      resp = plain_faraday_client.put("/test-csrf")
       expect(resp.status).to eq(404)
     end
 
@@ -233,6 +230,5 @@ feature "Call swagger-endpoints" do
     #
     #   expect(resp.status).to eq(200)
     # end
-
   end
 end

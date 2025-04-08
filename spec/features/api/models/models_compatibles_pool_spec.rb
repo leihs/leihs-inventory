@@ -24,7 +24,8 @@ feature "Inventory API Endpoints" do
     end
 
     let(:client) {
-      session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
+      session_auth_plain_faraday_json_client(cookies: @admin_cookies)
+    }
 
     context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns status 200 with no results" do

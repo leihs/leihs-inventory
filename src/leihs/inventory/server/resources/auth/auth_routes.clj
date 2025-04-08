@@ -84,8 +84,7 @@
           p (println ">o> abc.login ??" login password)
           user (verify-password-entry request login password)
 
-          p (println ">o> abc.user" user)
-          ]
+          p (println ">o> abc.user" user)]
       (if user
         (let [token (str (UUID/randomUUID))
               hashed-token (sha256-hash token)
@@ -122,7 +121,7 @@
              (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
              (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})
              ;(response/set-cookie "leihs-anti-csrf-token" "NOT-IMPLEMENTED" {:max-age max-age :path "/"})
-              )))
+             )))
 
         (response/status
          (response/response {:status "failure" :message "Invalid credentials"}) 403)))
@@ -214,8 +213,7 @@
     (let [{:keys [new-password1]} (:body-params request)
           ;[login password] (extract-basic-auth-from-header request)
 
-          login (-> request :authenticated-entity :login)
-          ]
+          login (-> request :authenticated-entity :login)]
       ;(if (verify-password request login password)
       (if authenticated?
         (do
@@ -297,15 +295,9 @@
      :scopes scopes}))
 
 (defn create-api-token-handler [request]
-  (let [
-
-        user (-> request :authenticated-entity)
-
+  (let [user (-> request :authenticated-entity)
 
         p (println ">o> -----> abc.user!!!!" user)
-
-
-
 
         {:keys [description scopes]} (:body-params request)
 
@@ -372,14 +364,13 @@
      {:tags ["Auth / Session"]}
 
      ["/public"
-      {:get {
-             :swagger {:security []}
+      {:get {:swagger {:security []}
              :handler public-endpoint-handler}}]
      ["/protected"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              ;:swagger {:security [{:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
-             :swagger {:security [{:csrfToken []} ]}
+             :swagger {:security [{:csrfToken []}]}
              :handler protected-handler
              :middleware [ab/wrap]}}]]
 
@@ -392,8 +383,7 @@
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
               ;:swagger {:security [{:basicAuth []}]}
-              :parameters {:body {
-                                  ;:username s/Str
+              :parameters {:body {;:username s/Str
                                   ;:password s/Str
 
                                   :description s/Str

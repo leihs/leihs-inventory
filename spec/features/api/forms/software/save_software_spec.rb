@@ -26,8 +26,8 @@ feature "Inventory Model Management" do
         "/inventory/#{pool_id}/software",
         form_data,
         # headers: cookie_header.merge({ "x-csrf-token", "test-csrf-123-456" })
-      # headers: cookie_header.merge({ "x-csrf-token" => "test-csrf-123-456" })
-      headers: cookie_header
+        # headers: cookie_header.merge({ "x-csrf-token" => "test-csrf-123-456" })
+        headers: cookie_header
       )
 
       expect(resp.status).to eq(200)
