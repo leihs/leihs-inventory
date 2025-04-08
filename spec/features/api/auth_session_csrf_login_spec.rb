@@ -17,22 +17,15 @@ feature "Call swagger-endpoints" do
 
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      # @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
-      # binding.pry
     end
 
     let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
-
-    # let(:cookie) { CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN).to_s }
-
     let(:cookie2) {     [CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token)] }
-    # let(:cookie3) {     CGI::Cookie.new("name" => "leihs-user-session", "value" => @cookie_token).to_s }
 
 
     it "denies access to protected resource without login" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
-      # binding.pry
       expect(resp.status).to eq(403)
     end
 
@@ -85,7 +78,6 @@ feature "Call swagger-endpoints" do
         expect(resp.status).to eq(200)
       end
 
-      # FIXME: this should be 404
       it "PUT /test-csrf missing cookie returns error" do
         resp = auth_client_no2.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
@@ -105,7 +97,6 @@ feature "Call swagger-endpoints" do
         expect(resp.body["detail"]).to eq("The x-csrf-token has not been send!")
       end
 
-      # FIXME: this should be 404
       it "PUT /test-csrf missing token and cookie returns error" do
         resp = auth_client_no2.put("/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
