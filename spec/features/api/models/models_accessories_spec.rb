@@ -10,12 +10,10 @@ feature "Inventory API Endpoints - Accessories" do
     let(:model_without_accessories) { @models.third }
 
     before :each do
-      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    let(:client) {
-      session_auth_plain_faraday_json_client(cookies: @user_cookies)
-    }
+    let(:client) {      session_auth_plain_faraday_json_client(cookies: @user_cookies)    }
 
     ["/", "/#{@inventory_pool_id}"].each do |path|
       context "GET /inventory/models/:id/accessories for a model with accessories" do

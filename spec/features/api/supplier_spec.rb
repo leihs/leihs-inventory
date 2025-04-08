@@ -11,9 +11,7 @@ feature "Inventory API Endpoints - Supplier" do
     end
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
-
     let(:url) { "/inventory/supplier" }
-    # let(:client) { plain_faraday_json_client }
     let(:resp) { client.get url }
     let(:supplier_id) { resp.body[0]["id"] }
 

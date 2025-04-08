@@ -5,7 +5,7 @@ require_relative "../_shared"
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
-      @admin, @admin_cookies, @admin_cookies_str, @cookie_token = create_and_login(:admin, "admin", "password")
+      @admin, @admin_cookies, @admin_cookies_str, @cookie_token = create_and_login(:admin)
     end
 
     let(:admin_client) { session_auth_plain_faraday_json_csrf_client(cookies: @admin_cookies) }

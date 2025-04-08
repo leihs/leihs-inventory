@@ -25,8 +25,6 @@ feature "Inventory Model Management" do
       resp = http_multipart_client(
         "/inventory/#{pool_id}/software",
         form_data,
-        # headers: cookie_header.merge({ "x-csrf-token", "test-csrf-123-456" })
-        # headers: cookie_header.merge({ "x-csrf-token" => "test-csrf-123-456" })
         headers: cookie_header
       )
 

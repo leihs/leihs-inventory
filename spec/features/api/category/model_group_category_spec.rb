@@ -11,9 +11,7 @@ feature "Inventory API - Model Group Endpoints" do
     end
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
-
     let(:url) { "/inventory/#{@inventory_pool.id}/model-groups" }
-    # let(:client) { plain_faraday_json_client }
     let(:resp) { client.get url }
     let(:image_id) { resp.body[0]["id"] }
 

@@ -19,12 +19,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
     let(:url) { "/inventory/models" }
 
     context "CRUD operations for model management" do
-      # include_context :setup_model_creation
-
-      # let(:category) {
-      #   FactoryBot.create(:category)
-      # }
-
       let(:response) {
         client.post(url) do |req|
           req.body = {

@@ -50,22 +50,11 @@ feature "Request " do
       end
     end
 
-    # TODO: add test with admin-rights
     context "against /inventory/admin/status" do
       scenario "status-check for cider" do
         resp = http_client.get "/inventory/admin/status"
         expect(resp.status).to be == 403
       end
     end
-
-    # TODO: create a public/simple endpoint for status-check
-    # context "against /inventory/admin/status" do
-    #   scenario "status-check for cider" do
-    #     resp = http_client.get "/inventory/admin/status"
-    #     expect(resp.status).to be == 200
-    #     expect(resp.body["memory"]["ok?"]).to be == true
-    #     expect(resp.body["health-checks"]["HikariPool-1.pool.ConnectivityCheck"]["healthy?"]).to be == true
-    #   end
-    # end
   end
 end

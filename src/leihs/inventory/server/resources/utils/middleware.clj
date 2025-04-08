@@ -29,54 +29,16 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [;
-          ;_ (try
-          ;
-          ;
-          ;    ;(defn wrap-authenticate [handler]
-          ;    ;  (fn [request]
-          ;    ;    (-> request authenticate handler)))
-          ;    session/wrap-authenticate
-          ;
-          ;    (catch Exception e
-          ;      (println "Error in session-authenticate!" e)))
-          ;
-          ;_ (try
-          ;
-          ;    ;(defn wrap-authenticate [handler & [opts]]
-          ;    token/wrap-authenticate
-          ;
-          ;    (catch Exception e
-          ;      (println "Error in token-authenticate!" e)))
-          ;
-
-          auth (get-in request [:authenticated-entity] nil)
-
-          p (println ">o> abc.auth" auth)
-
+    (let [auth (get-in request [:authenticated-entity])
           uri (:uri request)
           referer (get-in request [:headers "referer"])
-
-          is-api-request? (if referer
-                            (str/includes? referer "/api-docs/")
-                            false)
-
+          is-api-request? (and referer (str/includes? referer "/api-docs/"))
           is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
-          p (println ">o> abc.is-accept-json?" is-accept-json?)
-
           swagger-resource? (str/includes? uri "/api-docs/")
           whitelisted? (some #(str/includes? uri %) ["/sign-in" "/inventory/login"
-
                                                      "/inventory/token/public"
                                                      "/inventory/session/public"])]
-
-;(if (or auth swagger-resource? whitelisted?)
-      ;  (handler request)
-      ;  (response/status (response/response {:status "failure" :message "Unauthorized2"}) 404))
-
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
-
         is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
-
         :else (handler request)))))

@@ -35,7 +35,7 @@ feature "Call inventory-pool endpoints" do
     # end
 
     before :each do
-      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
 
       @inventory_pool = FactoryBot.create(:inventory_pool)
 

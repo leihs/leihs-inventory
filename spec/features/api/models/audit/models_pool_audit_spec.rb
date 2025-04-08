@@ -19,12 +19,7 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
     let(:url) { "/inventory/#{inventory_pool_id}/models" }
 
     context "CRUD operations for model management" do
-      # include_context :setup_model_creation
-
-      let(:category) {
-        FactoryBot.create(:category)
-      }
-
+      let(:category) {        FactoryBot.create(:category)      }
       let(:response) {
         client.post(url) do |req|
           req.body = {
@@ -69,8 +64,6 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
       end
 
       it "deletes a model and verifies it is removed" do
-        puts "response: #{{"Cookie" => @cookie_header.to_s}}"
-
         model_id = response.body[0]["id"]
         delete_response = client.delete("#{url}/#{model_id}")
 

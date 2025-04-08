@@ -372,30 +372,17 @@ def create_and_login(role, login = nil, password = nil)
   end
 
   response = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-
   expect(response.status).to eq(200)
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
-  # cookies = [
-  #   CGI::Cookie.new("name" => "leihs-user-session", "value" => session_cookie),
-  #   CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
-  # ]
-
-  # [user, cookies]
   [user] + generate_csrf_data(session_cookie) + [session_cookie]
 end
 
 def create_and_login_by(user)
-  # user = FactoryBot.create(role, login: login, password: password)
   resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
   expect(resp.status).to eq(200)
   cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-
-  # cookies = [
-  #   CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-  #   CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN),
-  # ]
 
   generate_csrf_data(cookie_token) + [cookie_token]
 end

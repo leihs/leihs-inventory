@@ -80,11 +80,7 @@
 (defn authenticate-handler [request]
   (try
     (let [[login password] (extract-basic-auth-from-header request)
-
-          p (println ">o> abc.login ??" login password)
-          user (verify-password-entry request login password)
-
-          p (println ">o> abc.user" user)]
+          user (verify-password-entry request login password)]
       (if user
         (let [token (str (UUID/randomUUID))
               hashed-token (sha256-hash token)
@@ -119,9 +115,7 @@
              (response/response
               {:status "success" :message "User authenticated successfully"})
              (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})
-             ;(response/set-cookie "leihs-anti-csrf-token" "NOT-IMPLEMENTED" {:max-age max-age :path "/"})
-             )))
+             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})  )))
 
         (response/status
          (response/response {:status "failure" :message "Invalid credentials"}) 403)))
@@ -211,10 +205,7 @@
 (defn set-password-handler [request]
   (try
     (let [{:keys [new-password1]} (:body-params request)
-          ;[login password] (extract-basic-auth-from-header request)
-
-          login (-> request :authenticated-entity :login)]
-      ;(if (verify-password request login password)
+           login (-> request :authenticated-entity :login)]
       (if authenticated?
         (do
           (set-password request login new-password1)
@@ -296,11 +287,7 @@
 
 (defn create-api-token-handler [request]
   (let [user (-> request :authenticated-entity)
-
-        p (println ">o> -----> abc.user!!!!" user)
-
         {:keys [description scopes]} (:body-params request)
-
         user_id (:id user)
         scopes (merge {:read true :write false :admin_read false :admin_write false} scopes)]
 
@@ -369,7 +356,6 @@
      ["/protected"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             ;:swagger {:security [{:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
              :swagger {:security [{:csrfToken []}]}
              :handler protected-handler
              :middleware [ab/wrap]}}]]
@@ -382,11 +368,7 @@
               :description "Generates an API token for a user with specific permissions and scopes (login / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
-              ;:swagger {:security [{:basicAuth []}]}
-              :parameters {:body {;:username s/Str
-                                  ;:password s/Str
-
-                                  :description s/Str
+              :parameters {:body { :description s/Str
                                   :scopes {:read s/Bool
                                            :write s/Bool
                                            :admin_read s/Bool
@@ -402,6 +384,5 @@
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:apiAuth []}]}
-             ;:swagger {:security [{:apiAuth {:type "apiKey" :name "Authorization" :in "header"}}]}
              :handler protected-handler
              :middleware [wrap-token-authentication]}}]]]])
