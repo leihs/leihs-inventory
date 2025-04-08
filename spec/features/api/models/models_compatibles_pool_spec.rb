@@ -20,7 +20,7 @@ feature "Inventory API Endpoints" do
     end
 
     before do
-      @admin, @admin_cookies = create_and_login(:user, "user", "password")
+      @admin, @admin_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
     end
 
     let(:client) {

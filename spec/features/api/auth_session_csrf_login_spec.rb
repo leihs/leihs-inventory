@@ -55,9 +55,6 @@ feature "Call swagger-endpoints" do
     end
 
     context "CSRF-protected endpoints" do
-      # before :each do
-      #   @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
-      # end
 
       let(:auth_client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
       let(:auth_client_no) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }
