@@ -61,7 +61,6 @@ feature "Call swagger-endpoints" do
         req.headers["x-csrf-token"] = X_CSRF_TOKEN
         # req.headers["Cookie"] = @user_cookies_str
       end
-      binding.pry
       expect(resp.status).to eq(200)
     end
 
