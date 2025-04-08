@@ -2,6 +2,7 @@
   (:require
    ["react-router-dom" :as router :refer [createBrowserRouter]]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+   [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
@@ -26,12 +27,11 @@
       :errorElement
       ($ notfound-page)
       :loader (fn []
-                (.. (js/fetch "/inventory/profile"
-                              (cj {:headers {"Accept" "application/json"}}))
-                    (then #(.json %))
-                    (then #(jc %))
-                    (then #(do (.. i18n (changeLanguage (-> % :user_details :language_locale)))
-                               %))))
+                (-> http-client
+                    (.get "/inventory/profile")
+                    (.then #(jc (.. % -data)))
+                    (.then #(do (.. i18n (changeLanguage (-> % :user_details :language_locale)))
+                                %))))
 
       :children
       (cj
@@ -53,10 +53,9 @@
                   :element ($ models-page)
                   :loader (fn [route-data]
                             (let [url (js/URL. (.. route-data -request -url))
-                                  models (.. (js/fetch (str (.-pathname url) (.-search url))
-                                                       (cj {:headers {"Accept" "application/json"}}))
-                                             (then #(.json %))
-                                             (then #(jc %)))]
+                                  models (-> http-client
+                                             (.get (str (.-pathname url) (.-search url)))
+                                             (.then #(jc (.. % -data))))]
                               models))}
 
                  {:path "advanced-search"
@@ -73,38 +72,33 @@
                :loader (fn [route-data]
                          (let [params (.. ^js route-data -params)
                                path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
-                               entitlement-groups (.. (js/fetch path
-                                                                (cj {:headers {"Accept" "application/json"}}))
-                                                      (then #(.json %))
-                                                      (then #(jc %)))
+                               entitlement-groups (-> http-client
+                                                      (.get path)
+                                                      (.then #(jc (.-data %))))
 
-                               categories (.. (js/fetch "/inventory/tree"
-                                                        (cj {:headers {"Accept" "application/json"}}))
-                                              (then #(.json %))
-                                              (then #(jc %)))
+                               categories (-> http-client
+                                              (.get "/inventory/tree")
+                                              (.then #(jc (.-data %))))
 
-                               models (.. (js/fetch "/inventory/models-compatibles"
-                                                    (cj {:headers {"Accept" "application/json"}}))
-                                          (then #(.json %))
-                                          (then #(jc %)))
+                               models (-> http-client
+                                          (.get "/inventory/models-compatibles")
+                                          (.then #(jc (.-data %))))
 
-                               manufacturers (.. (js/fetch "/inventory/manufacturers?type=Model"
-                                                           (cj {:headers {"Accept" "application/json"}}))
-                                                 (then #(.json %))
-                                                 (then #(remove (fn [el] (= "" el)) (jc %))))
+                               manufacturers (-> http-client
+                                                 (.get "/inventory/manufacturers?type=Model")
+                                                 (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
                                model-path (when (:model-id (jc params)) (router/generatePath "/inventory/:pool-id/model/:model-id" params))
 
                                model (when model-path
-                                       (.. (js/fetch model-path
-                                                     (cj {:headers {"Accept" "application/json"}}))
-                                           (then #(.json %))
-                                           (then (fn [res]
-                                                   (let [kv (first (jc res))]
-                                                     (->> kv
-                                                          (vals)
-                                                          (map (fn [el] (if (nil? el) "" el)))
-                                                          (zipmap (keys kv))))))))]
+                                       (-> http-client
+                                           (.get model-path)
+                                           (.then (fn [res]
+                                                    (let [kv (first (jc (.-data res)))]
+                                                      (->> kv
+                                                           (vals)
+                                                           (map (fn [el] (if (nil? el) "" el)))
+                                                           (zipmap (keys kv))))))))]
 
                            (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
                                                  model (conj model)))

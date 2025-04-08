@@ -18,6 +18,7 @@
    ["sonner" :refer [toast]]
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
+   [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
    [uix.core :as uix :refer [$ defui]]
@@ -60,10 +61,9 @@
                         (go
                           (let [pool-id (aget params "pool-id")
                                 model-id (aget params "model-id")
-                                res (<p! (.. (js/fetch (str "/inventory/" pool-id "/model/" model-id)
-                                                       (cj {:method "DELETE"
-                                                            :headers {"Accept" "application/json"}}))
-                                             (then #(.json %))))
+                                res (<p! (-> http-client
+                                             (.delete (str "/inventory/" pool-id "/model/" model-id))
+                                             (.then #(.-data %))))
                                 status (.. res -status)]
 
                             (if (= status 200)
@@ -82,12 +82,10 @@
                             model-data (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
                                                         (dissoc (jc data) :images :attachments)))
                             pool-id (aget params "pool-id")
-                            model-res (<p! (.. (js/fetch (str "/inventory/" pool-id "/model/")
-                                                         (cj {:method "POST"
-                                                              :headers {"Content-Type" "application/json"
-                                                                        "Accept" "application/json"}
-                                                              :body (js/JSON.stringify (cj model-data))}))
-                                               (then #(.json %))))
+                            model-res (<p! (-> http-client
+                                               (.post (str "/inventory/" pool-id "/model/")
+                                                      (js/JSON.stringify (cj model-data)))
+                                               (.then #(.-data %))))
                             model-id (when (not= (.. model-res -status) "failure")
                                        (.. model-res -data -id))]
 
@@ -101,18 +99,15 @@
                             (doseq [image images]
                               (let [file (:file image)
                                     is-cover (:is_cover image)
-                                    size (.. file -size)
                                     type (.. file -type)
                                     name (.. file -name)
                                     binary-data (<p! (.. file (arrayBuffer)))
-                                    image-res (<p! (.. (js/fetch (str "/inventory/models/" model-id "/images")
-                                                                 (cj {:method "POST"
-                                                                      :headers {"Accept" "application/json"
-                                                                                "Content-Length" size
-                                                                                "Content-Type" type
-                                                                                "X-Filename" name}
-                                                                      :body binary-data}))
-                                                       (then #(.json %))))
+                                    image-res (<p! (-> http-client
+                                                       (.post (str "/inventory/models/" model-id "/images")
+                                                              binary-data
+                                                              (cj {:headers {"Content-Type" type
+                                                                             "X-Filename" name}}))
+                                                       (.then #(.-data %))))
                                     image-id ^js (.. image-res -image -id)]
 
                                 ;; patch image with target_type "Model"
@@ -122,26 +117,21 @@
                                                       :body (js/JSON.stringify (cj {:target_type "Model"}))})))
 
                                 ;; if there is a cover image then patch the model with iid of the cover image
-                                (when is-cover (<p! (js/fetch (str "/inventory/" pool-id "/model/" model-id)
-                                                              (cj {:method "PATCH"
-                                                                   :headers {"Accept" "application/json"
-                                                                             "Content-Type" "application/json"}
-                                                                   :body (js/JSON.stringify (cj {:is_cover image-id}))}))))))
+                                (when is-cover (<p! (-> http-client
+                                                        (.patch (str "/inventory/" pool-id "/model/" model-id)
+                                                                (js/JSON.stringify (cj {:is_cover image-id}))))))))
 
                             ;; upload attachments sequentially
                             (doseq [attachment attachments]
                               (let [binary-data (<p! (.. attachment (arrayBuffer)))
-                                    size (.. attachment -size)
                                     type (.. attachment -type)
                                     name (.. attachment -name)]
 
-                                (<p! (js/fetch (str "/inventory/models/" model-id "/attachments")
-                                               (cj {:method "POST"
-                                                    :headers {"Accept" "application/json"
-                                                              "Content-Length" size
-                                                              "Content-Type" type
-                                                              "X-Filename" name}
-                                                    :body binary-data})))))
+                                (<p! (-> http-client
+                                         (.post (str "/inventory/models/" model-id "/attachments")
+                                                binary-data
+                                                (cj {:headers {"Content-Type" type
+                                                               "X-Filename" name}}))))))
 
                             (js/console.debug "is valid" data)
                             (.. toast (success (t "pool.model.create.success")))
