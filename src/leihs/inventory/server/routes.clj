@@ -97,11 +97,7 @@
 
       {:status 200
        :headers {"Content-Type" "text/html; charset=utf-8"}
-       :body html}
-
-      )
-
-    ))
+       :body html})))
 
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
@@ -158,7 +154,7 @@
       :delete {:handler (fn [_] {:status 200})}}]]
 
    [""
-    {:swagger {:tags ["Login"]  }}
+    {:swagger {:tags ["Login"]}}
 
     ["sign-in"
      {:no-doc false
@@ -175,8 +171,7 @@
             :handler get-sign-in}}]
     ["sign-out"
      {:no-doc false
-      :post {
-             ;:accept "text/html"
+      :post {;:accept "text/html"
              :accept "application/json"
              :swagger {:produces ["text/html" "application/json"]}
 
@@ -186,7 +181,7 @@
             :handler get-sign-out}}]]
    ["inventory"
     ["/"
-     {:swagger {:tags ["Auth"] }}
+     {:swagger {:tags ["Auth"]}}
      ["login"
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
              :accept "application/json"
@@ -218,11 +213,11 @@
               :parameters {:body {:new-password1 s/Str}}
               :handler set-password-handler}}]]
     ["/"
-     {:swagger {:tags ["Status"] }}
+     {:swagger {:tags ["Status"]}}
      ["admin/status"
       {:get {:accept "application/json"
              :handler status/status-handler
-             :middleware [wrap-is-admin!] }}]]
+             :middleware [wrap-is-admin!]}}]]
     ["/api-docs"
      {:get {:conflicting true
             :handler swagger-api-docs-handler

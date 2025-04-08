@@ -19,7 +19,7 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
     let(:url) { "/inventory/#{inventory_pool_id}/models" }
 
     context "CRUD operations for model management" do
-      let(:category) {        FactoryBot.create(:category)      }
+      let(:category) { FactoryBot.create(:category) }
       let(:response) {
         client.post(url) do |req|
           req.body = {

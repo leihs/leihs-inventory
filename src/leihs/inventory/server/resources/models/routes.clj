@@ -447,7 +447,7 @@
 
    ["/models/:model_id/item" ;; new
     {:swagger {:conflicting true
-               :tags ["form / item"] }}
+               :tags ["form / item"]}}
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -519,7 +519,7 @@
 
    ["/models/:model_id/package" ;; new
     {:swagger {:conflicting true
-               :tags ["form / package"] }}
+               :tags ["form / package"]}}
 
     ["/:item_id"
      {:put {:accept "application/json"
@@ -554,7 +554,7 @@
 
    ["/model"
     {:swagger {:conflicting true
-               :tags ["form / model"] }}
+               :tags ["form / model"]}}
     [""
      {:post {:accept "application/json"
              :swagger {:consumes ["multipart/form-data" "application/json"]
@@ -773,7 +773,7 @@
 
    ["/license" ;;new
     {:swagger {:conflicting true
-               :tags ["form / licenses"] }}
+               :tags ["form / licenses"]}}
 
     [""
      {:post {:accept "application/json"
@@ -832,7 +832,7 @@
 
    ["/software"
     {:swagger {:conflicting true
-               :tags ["form / software"] }}
+               :tags ["form / software"]}}
     [""
      {:post {:accept "application/json"
              :summary "(DEV) | Form-Handler: Fetch form data [v0]"
@@ -1008,7 +1008,7 @@
 
      ["/licenses" ;; new
       {:swagger {:conflicting true
-                 :tags ["form / licenses"] }}
+                 :tags ["form / licenses"]}}
 
       [""
        {:post {:accept "application/json"

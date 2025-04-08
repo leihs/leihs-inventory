@@ -98,59 +98,59 @@
       (str "text/" filetype charset))))
 
 (defn custom-not-found-handler [request]
-          (let [request ((db/wrap-tx (fn [request] request)) request)
-                request ((csrf/extract-header (fn [request] request)) request)
-                request ((session/wrap-authenticate (fn [request] request)) request)
-                request ((dm/extract-dev-cookie-params (fn [request] request)) request)
-                uri (:uri request)
-                file (extract-filename uri)
-                assets (get-assets)
-                asset (fetch-file-entry uri assets)]
-            (cond
-              (= uri "/") (create-root-page)
+  (let [request ((db/wrap-tx (fn [request] request)) request)
+        request ((csrf/extract-header (fn [request] request)) request)
+        request ((session/wrap-authenticate (fn [request] request)) request)
+        request ((dm/extract-dev-cookie-params (fn [request] request)) request)
+        uri (:uri request)
+        file (extract-filename uri)
+        assets (get-assets)
+        asset (fetch-file-entry uri assets)]
+    (cond
+      (= uri "/") (create-root-page)
 
-              (and (dm/has-admin-permission request) (str/starts-with? uri "/inventory/dev/") file)
-              {:status 200
-               :headers {"Content-Type" (generate-content-type (extract-filetype uri))}
-               :body (slurp (io/resource (str "public/dev/" file)))}
+      (and (dm/has-admin-permission request) (str/starts-with? uri "/inventory/dev/") file)
+      {:status 200
+       :headers {"Content-Type" (generate-content-type (extract-filetype uri))}
+       :body (slurp (io/resource (str "public/dev/" file)))}
 
-              (and (dm/has-admin-permission request) (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))
-              (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
-                (if (CONST_ALLOWED_TYPES type)
-                  {:status 200
-                   :headers {"Content-Type" "text/html"}
-                   :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
-                  {:status 400 :body "Invalid type"}))
+      (and (dm/has-admin-permission request) (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))
+      (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
+        (if (CONST_ALLOWED_TYPES type)
+          {:status 200
+           :headers {"Content-Type" "text/html"}
+           :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
+          {:status 400 :body "Invalid type"}))
 
-              (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-                   (contains-one-of? uri CONST_SUPPORTED_LOCALES))
-              (let [src (str/replace-first uri "/inventory" "public/inventory")
-                    resource (try (slurp (io/resource src))
-                                  (catch Exception _ nil))]
-                (if resource
-                  {:status 200 :headers {"Content-Type" "application/json"} :body resource}
-                  {:status 404 :headers {"Content-Type" "application/json"}}))
+      (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
+           (contains-one-of? uri CONST_SUPPORTED_LOCALES))
+      (let [src (str/replace-first uri "/inventory" "public/inventory")
+            resource (try (slurp (io/resource src))
+                          (catch Exception _ nil))]
+        (if resource
+          {:status 200 :headers {"Content-Type" "application/json"} :body resource}
+          {:status 404 :headers {"Content-Type" "application/json"}}))
 
-              (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-              {:status 302 :headers {"Location" "/inventory"} :body ""}
+      (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
+      {:status 302 :headers {"Location" "/inventory"} :body ""}
 
-              (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-              {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
+      (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
+      {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
 
-              asset
-              (let [{:keys [file content-type]} asset
-                    resource (io/resource file)]
-                (if resource
-                  {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
-                  (rh/index-html-response request 404)))
+      asset
+      (let [{:keys [file content-type]} asset
+            resource (io/resource file)]
+        (if resource
+          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
+          (rh/index-html-response request 404)))
 
-              (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
-              (response/redirect "/sign-in?return-to=%2Finventory")
+      (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
+      (response/redirect "/sign-in?return-to=%2Finventory")
 
-              (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
-              (rh/index-html-response request 200)
+      (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
+      (rh/index-html-response request 200)
 
-              (and (nil? asset) (accept-header-html? request))
-              (rh/index-html-response request 200)
+      (and (nil? asset) (accept-header-html? request))
+      (rh/index-html-response request 200)
 
-              :else (rh/index-html-response request 404))))
+      :else (rh/index-html-response request 404))))

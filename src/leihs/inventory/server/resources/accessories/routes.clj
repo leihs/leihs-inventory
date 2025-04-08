@@ -22,7 +22,7 @@
 
   ["/"
    {:swagger {:conflicting true
-              :tags ["Accessories"] }}
+              :tags ["Accessories"]}}
 
    [":pool_id"
 

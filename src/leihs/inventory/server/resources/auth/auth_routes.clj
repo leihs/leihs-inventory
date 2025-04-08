@@ -115,7 +115,7 @@
              (response/response
               {:status "success" :message "User authenticated successfully"})
              (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"})  )))
+             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"}))))
 
         (response/status
          (response/response {:status "failure" :message "Invalid credentials"}) 403)))
@@ -199,7 +199,7 @@
 (defn set-password-handler [request]
   (try
     (let [{:keys [new-password1]} (:body-params request)
-           login (-> request :authenticated-entity :login)]
+          login (-> request :authenticated-entity :login)]
       (if authenticated?
         (do
           (set-password request login new-password1)
@@ -362,7 +362,7 @@
               :description "Generates an API token for a user with specific permissions and scopes (login / password)"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
-              :parameters {:body { :description s/Str
+              :parameters {:body {:description s/Str
                                   :scopes {:read s/Bool
                                            :write s/Bool
                                            :admin_read s/Bool
