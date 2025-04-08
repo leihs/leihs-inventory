@@ -10,7 +10,7 @@ feature "Inventory API Endpoints - Items" do
     let(:model_without_items) { @models.third }
 
     before :each do
-      @user, @user_cookies = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
     end
 
     let(:client) {

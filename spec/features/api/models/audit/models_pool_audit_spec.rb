@@ -9,7 +9,7 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
     include_context :setup_models_min_api
 
     before :each do
-      @user_cookies = create_and_login_by(@user)
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
     let(:client) {

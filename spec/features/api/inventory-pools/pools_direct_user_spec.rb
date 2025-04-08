@@ -6,7 +6,7 @@ require_relative "../_shared"
 feature "Call inventory-pool endpoints" do
   context "when retrieving models from an inventory pool", driver: :selenium_headless do
     before :each do
-      @user, @user_cookies = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
 
       @inventory_pool = FactoryBot.create(:inventory_pool)
 

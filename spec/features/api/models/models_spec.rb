@@ -8,7 +8,7 @@ feature "Swagger Inventory Endpoints - Models" do
     include_context :setup_models_min_api
 
     before :each do
-      @user, @user_cookies = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
     end
 
     let(:client) {      session_auth_plain_faraday_json_client(cookies: @user_cookies) }

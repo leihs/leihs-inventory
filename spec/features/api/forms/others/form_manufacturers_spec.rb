@@ -7,7 +7,7 @@ feature "Fetching Fields" do
     include_context :setup_models_api_license
 
     before :each do
-      @user_cookies = create_and_login_by(@user)
+      @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
     let(:client) {    session_auth_plain_faraday_json_client(cookies: @user_cookies) }

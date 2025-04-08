@@ -14,7 +14,7 @@ feature "Inventory API Endpoints - Items" do
     let(:fake_package2) { FactoryBot.create(:package_model_with_parent_and_items, inventory_pool: @inventory_pool) }
 
     before :each do
-      @user, @user_cookies = create_and_login(:user, "admin", "password")
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
     end
 
     let(:client) {

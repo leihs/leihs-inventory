@@ -17,7 +17,7 @@ feature "Call swagger-endpoints" do
 
   context "with accept=text/html", driver: :selenium_headless do
     before :each do
-      # @user, @user_cookies = create_and_login(:user, "admin", "password")
+      # @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user, "admin", "password")
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       # binding.pry
     end
@@ -63,7 +63,7 @@ feature "Call swagger-endpoints" do
 
     context "CSRF-protected endpoints" do
       # before :each do
-      #   @user, @user_cookies = create_and_login(:user)
+      #   @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       # end
 
       let(:auth_client) {    session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
