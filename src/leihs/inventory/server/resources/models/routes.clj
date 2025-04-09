@@ -625,9 +625,13 @@
              :parameters {:path {:pool_id uuid?}
                           :body :software/multipart}
              :handler create-model-handler-by-pool-model-only
+             ;:handler (fn [_]
+             ;           {:status 200}
+             ;           )
              :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
+                              ;:body {:data :model-optional-response/inventory-model
+                              ;       :validation any?}
+                              }
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]
 

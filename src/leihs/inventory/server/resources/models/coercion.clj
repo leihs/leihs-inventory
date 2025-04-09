@@ -157,9 +157,12 @@
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
+(sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
 (sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
-                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+                               :req-un [::entitlement_group_id
+                                        :nil/entitlement_id
+                                        ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of ::entitlement)
                                        :str string?)

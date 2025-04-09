@@ -36,6 +36,10 @@
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
+
+   (println ">o> abc.create-or-use-existing1" table  insert-values)
+   (println ">o> abc.create-or-use-existing2" table where-values )
+
   (let [select-query (-> (sql/select :*)
                          (sql/from table)
                          (sql/where where-values)
@@ -53,7 +57,13 @@
    :validation validation})
 
 (defn process-entitlements [tx entitlements model-id]
-  (doseq [entry entitlements]
+
+  (println ">o> process-entitlements1" entitlements )
+   (println ">o> process-entitlements2"  model-id)
+
+  (when (seq entitlements) ;; <- Only proceed if entitlements is non-empty
+
+    (doseq [entry entitlements]
     (create-or-use-existing tx
                             :entitlements
                             [:and
@@ -61,7 +71,7 @@
                              [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
                             {:model_id model-id
                              :entitlement_group_id (to-uuid (:entitlement_group_id entry))
-                             :quantity (:quantity entry)})))
+                             :quantity (:quantity entry)}))))
 
 (defn process-properties [tx properties model-id]
   (doseq [entry properties]
@@ -118,6 +128,16 @@
                              [:= :model_group_id (to-uuid (:id category))]]
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
+
+
+(defn replace-nil-with-empty-string
+  "Replace all nil values in a map with empty strings."
+  [m]
+  (into {}
+    (for [[k v] m]
+      [k (if (nil? v) "" v)])))
+
+
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
@@ -125,17 +145,39 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request create-all)]
+        (extract-model-form-data request create-all)
+
+
+        p (println ">o> abc!!!!!" entitlements(type entitlements))
+
+
+
+p (println ">o> abc.prepared-model-data" prepared-model-data)
+
+        ;prepare-model-data (remove-empty-or-nil prepared-model-data)
+
+        ]
 
     (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+      (let [
+
+            p (println ">o> abc.before.insert.models" (-> (sql/insert-into :models)
+                                                        (sql/values [prepared-model-data])
+                                                        (sql/returning :*)
+                                                        sql-format))
+            res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
+            p (println ">o> abc.after.insert.models" )
             res (filter-response res [:rental_price])
             model-id (:id res)
             {:keys [created-images-attr all-image-attributes]}
-            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))
+
+             ]
+
+
         (when create-all
           (process-attachments tx attachments "model_id" model-id)
           (process-image-attributes tx all-image-attributes model-id))
@@ -146,7 +188,9 @@
         (process-categories tx categories model-id pool-id)
         (if res
           (response (create-validation-response res @validation-result))
-          (bad-request {:error "Failed to create model"})))
+          (bad-request {:error "Failed to create model"})
+         )
+      )
       (catch Exception e
         (error "Failed to create model" (.getMessage e))
         (cond
@@ -160,7 +204,7 @@
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
+          :else (bad-request {:status "failure" :error "Failed to create model" :details (.getMessage e)}))))))
 
 (defn create-model-handler-by-pool-model-only [request]
   (create-model-handler-by-pool-form request false))

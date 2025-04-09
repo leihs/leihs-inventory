@@ -7,6 +7,10 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
+
+
+   [ leihs.inventory.server.resources.models.form.license.common :refer [remove-empty-or-nil]]
+
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
@@ -183,27 +187,55 @@
            :created_at created-ts
            :updated_at created-ts)))
 
+
+(defn replace-nil-with-empty-string
+  "Replace all nil values in a map with empty strings."
+  [m]
+  (into {}
+    (for [[k v] m]
+      [k (if (nil? v) "" v)])))
+
 (defn extract-model-form-data [request create-all]
+  (println ">o> extract-model-form-data!!!!!!!!!!!!!!!!!!!" )
   (let [multipart (or (get-in request [:parameters :multipart])
                       (get-in request [:parameters :body]))
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
-        categories (parse-json-array multipart :categories)
+
+        p (println ">o> abc.prepared-model-data >> " prepared-model-data)
+
+
+        ;; FIXME: CONVERT NIL-VALUES TO EMPTY-STR
+        prepared-model-data (replace-nil-with-empty-string prepared-model-data)
+        ;prepared-model-data (remove-empty-or-nil prepared-model-data)
+        p (println ">o> abc.prepared-model-data2 >> " prepared-model-data)
+
+        ;categories (parse-json-array multipart :categories)
+        categories (->  multipart :categories)
+
         compatibles (parse-json-array multipart :compatibles)
         properties (parse-json-array multipart :properties)
         accessories (parse-json-array multipart :accessories)
-        entitlements (parse-json-array multipart :entitlements)
+  _ (println ">o> extract-model-form-data.before" )
+        p (println ">o> abc.data" (-> multipart :entitlements))
+
+        ;data {}
+
+        ;entitlements (parse-json-array multipart :entitlements)
+        entitlements (-> multipart :entitlements)
+  _ (println ">o> !!!!!!!!! extract-model-form-data.after.entitlements "entitlements )
         attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
         attachments-to-delete (parse-json-array multipart :attachments_to_delete)
         images-to-delete (parse-json-array multipart :images_to_delete)
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))]
     {:prepared-model-data prepared-model-data
-     :categories categories
+     ;:categories categories
+     :categories (if (nil? categories) [] categories)
      :compatibles compatibles
      :properties properties
      :accessories accessories
-     :entitlements entitlements
+     :entitlements (if (nil? entitlements) [] entitlements)
      :attachments attachments
      :attachments-to-delete attachments-to-delete
      :images-to-delete images-to-delete
