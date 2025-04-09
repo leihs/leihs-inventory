@@ -10,12 +10,12 @@ feature "Inventory API Endpoints - Items" do
     let(:model_with_two_items) { @models.second }
     let(:model_without_items) { @models.third }
 
-    let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: @inventory_pool) }
-    let(:fake_package2) { FactoryBot.create(:package_model_with_parent_and_items, inventory_pool: @inventory_pool) }
-
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
+
+    let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: @inventory_pool) }
+    let(:fake_package2) { FactoryBot.create(:package_model_with_parent_and_items, inventory_pool: @inventory_pool) }
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 

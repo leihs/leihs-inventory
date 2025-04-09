@@ -168,6 +168,7 @@
     (catch Exception e
       (println "Error in authenticate-handler:" (.getMessage e))
       (response/status (response/response {:message (.getMessage e)}) 400))))
+
 (defn logout-handler [request]
   (let [user-id (-> request :authenticated-entity :id)]
     (try

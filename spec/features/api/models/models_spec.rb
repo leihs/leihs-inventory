@@ -11,7 +11,6 @@ feature "Swagger Inventory Endpoints - Models" do
     end
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
-
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/models" }
 

@@ -106,6 +106,7 @@
         file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)]
+
     (cond
       (= uri "/") (create-root-page)
 
@@ -137,12 +138,11 @@
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
       {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
 
-      asset
-      (let [{:keys [file content-type]} asset
-            resource (io/resource file)]
-        (if resource
-          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
-          (rh/index-html-response request 404)))
+      asset (let [{:keys [file content-type]} asset
+                  resource (io/resource file)]
+              (if resource
+                {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
+                (rh/index-html-response request 404)))
 
       (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")

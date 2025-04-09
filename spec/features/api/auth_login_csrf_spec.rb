@@ -12,14 +12,14 @@ feature "Call swagger-endpoints" do
 
     context "GET /sign-in" do
       it "returns 200 to fetch csrf-token" do
-        resp = session_auth_plain_faraday_json_client(headers: { accept: "application/json" }).get("/sign-in")
+        resp = session_auth_plain_faraday_json_client(headers: {accept: "application/json"}).get("/sign-in")
         expect(resp.status).to eq(200)
         expect(resp.body["csrfToken"]["name"]).to eq("csrf-token")
         expect(resp.body["csrfToken"]["value"]).to be
       end
 
       it "returns 200 to fetch login-form containing csrf-token" do
-        resp = session_auth_plain_faraday_json_client(headers: { accept: "text/html" }).get("/sign-in")
+        resp = session_auth_plain_faraday_json_client(headers: {accept: "text/html"}).get("/sign-in")
         expect(resp.status).to eq(200)
       end
     end
@@ -27,8 +27,7 @@ feature "Call swagger-endpoints" do
     context "POST /sign-in data" do
       # TODO: why is this possible?
       it "returns 200 for correct sign-in" do
-        resp = session_auth_plain_faraday_json_client().post("/sign-in") do |req|
-
+        resp = session_auth_plain_faraday_json_client.post("/sign-in") do |req|
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
@@ -45,7 +44,7 @@ feature "Call swagger-endpoints" do
       end
 
       it "returns 200 for correct sign-out" do
-        resp = session_auth_plain_faraday_json_client().post("/sign-in") do |req|
+        resp = session_auth_plain_faraday_json_client.post("/sign-in") do |req|
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
@@ -62,17 +61,17 @@ feature "Call swagger-endpoints" do
         expect(resp.headers["set-cookie"]).to be
 
         cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-        cookies, cookies_str = generate_csrf_data(cookie_token)
+        _, cookies_str = generate_csrf_data(cookie_token)
 
         # logout fails due missing cookie
-        resp = session_auth_plain_faraday_json_client().post("/sign-out") do |req|
+        resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
           req.headers["Accept"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(403)
 
         # logout successful
-        resp = session_auth_plain_faraday_json_client().post("/sign-out") do |req|
+        resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
           req.headers["Accept"] = "application/json"
           req.headers["Cookie"] = cookies_str
           req.headers["x-csrf-token"] = X_CSRF_TOKEN

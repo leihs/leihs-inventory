@@ -10,9 +10,9 @@ feature "Inventory API Endpoints - Models" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:model_with_accessories) { @models.first }
     let(:model_without_accessories) { @models.third }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:pool_id) { @inventory_pool.id }
 
     context "GET /inventory/:pool_id/search with a model without items" do

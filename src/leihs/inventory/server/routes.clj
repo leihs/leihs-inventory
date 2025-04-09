@@ -12,7 +12,8 @@
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler update-role-handler token-routes]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler
+                                                              update-role-handler token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
@@ -79,32 +80,19 @@
                     :flashMessages []}
                    (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
                                        {:name "csrf-token" :value mtoken}))
-                   (cond-> (not (nil? (:message query)))
+                   (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-
-        p (println ">o> abc.params" params)
-
-        accept (-> request :headers (get "accept"))
-
-        p (println ">o> abc.accept" accept)
-
+        accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
-
     (if (str/includes? accept "application/json")
-      {:status 200
-       ;:headers {"Content-Type" "text/html; charset=utf-8"}
-       :body params}
-
-      {:status 200
-       :headers {"Content-Type" "text/html; charset=utf-8"}
-       :body html})))
+      {:status 200 :body params}
+      {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html})))
 
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
         username (:user form-data)
         password (:password form-data)
         csrf-token (:csrf-token form-data)]
-
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
@@ -140,6 +128,7 @@
                            (s/optional-key :update-result) s/Any})
 
 (defn basic-routes []
+
   ["/"
 
    [""
@@ -169,25 +158,29 @@
             :accept "text/html"
             :swagger {:produces ["text/html" "application/json"]}
             :handler get-sign-in}}]
+
     ["sign-out"
      {:no-doc false
-      :post {;:accept "text/html"
-             :accept "application/json"
+      :post {:accept "application/json"
              :swagger {:produces ["text/html" "application/json"]}
 
              :handler post-sign-out}
       :get {:accept "text/html"
             :summary "HTML | Get sign-out page"
             :handler get-sign-out}}]]
+
    ["inventory"
+
     ["/"
      {:swagger {:tags ["Auth"]}}
+
      ["login"
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
              :handler authenticate-handler}}]
+
      ["admin/update-role"
       {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
              :accept "application/json"
@@ -200,28 +193,33 @@
              :responses {200 {:description "OK" :body update-role-response}
                          409 {:description "Conflict" :body update-role-response}
                          500 {:description "Internal Server Error"}}}}]
+
      ["logout"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:deprecated true}
              :middleware [ab/wrap]
              :handler logout-handler}}]
+
      ["set-password"
       {:post {:summary "OK | Set password by basicAuth for already authenticated user"
               :accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :parameters {:body {:new-password1 s/Str}}
               :handler set-password-handler}}]]
+
     ["/"
      {:swagger {:tags ["Status"]}}
      ["admin/status"
       {:get {:accept "application/json"
              :handler status/status-handler
              :middleware [wrap-is-admin!]}}]]
+
     ["/api-docs"
      {:get {:conflicting true
             :handler swagger-api-docs-handler
             :no-doc true}}]
+
     ["/api-docs/swagger.json"
      {:get {:no-doc true
             :swagger {:info {:title "inventory-api"

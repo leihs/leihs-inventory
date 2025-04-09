@@ -76,26 +76,21 @@
 
 (defn wrap-authenticate! [handler]
   (fn [request]
-    (let [handler1 (try
-                     (session/wrap-authenticate handler)
-                     (catch Exception e
-                       (println "Error in session-authenticate!" e)
-                       handler)) ;; fallback to unmodified handler
-
+    (let [handler (try
+                    (session/wrap-authenticate handler)
+                    (catch Exception e
+                      (println ">> Error in session-authenticate!" e)
+                      handler))
           token (get-in request [:headers "authorization"])
-          has-token? (and token
-                          (re-matches #"(?i)^token\s+(.*)$" token))
-
-          handler2 (if has-token?
-                     (try
-                       (token/wrap-authenticate handler1)
-                       (catch Exception e
-                         (println "Error in token-authenticate!" e)
-                         handler1))
-                     handler1)]
-
-      ;; Call the final wrapped handler with the request
-      (handler2 request))))
+          handler (if (and token
+                           (re-matches #"(?i)^token\s+(.*)$" token))
+                    (try
+                      (token/wrap-authenticate handler)
+                      (catch Exception e
+                        (println ">> Error in token-authenticate!" e)
+                        handler))
+                    handler)]
+      (handler request))))
 
 (defn create-app [options]
   (let [router (ring/router
@@ -113,14 +108,20 @@
                                      wrap-accept-with-image-rewrite
 
                                      csrf/extract-header
-
                                      wrap-authenticate!
                                      leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
-
                                      wrap-cookies
                                      csrf/wrap-csrf
                                      leihs.core.anti-csrf.back/wrap
                                      dm/extract-dev-cookie-params
+
+                                      ;locale/wrap
+                                      ;settings/wrap
+                                      ;datasource/wrap-tx
+                                      ;wrap-json-response
+                                      ;(wrap-json-body {:keywords? true})
+                                      ;wrap-empty
+                                      ;wrap-form-params
 
                                      wrap-params
                                      wrap-content-type

@@ -62,8 +62,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
       end
 
       it "deletes a model and verifies it is removed" do
-        puts "response: #{{"Cookie" => @cookie_header.to_s}}"
-
         model_id = response.body[0]["id"]
         delete_response = client.delete("#{url}/#{model_id}")
 
@@ -72,7 +70,6 @@ feature "Swagger Inventory Endpoints - Models with audits" do
         expect_audit_entries_count(2, 9, 2)
 
         check_deleted_response = client.get("#{url}/#{model_id}")
-
         expect(check_deleted_response.status).to eq(200)
         expect(check_deleted_response.body.count).to eq(0)
         expect_audit_entries_count(2, 9, 2)

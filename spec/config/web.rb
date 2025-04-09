@@ -5,7 +5,6 @@ ACCEPT_PNG = "image/png"
 ACCEPT_CSV = "text/csv"
 ACCEPT_HTML = "text/html"
 ACCEPT_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-
 X_CSRF_TOKEN = "test-csrf-123-456"
 
 def login_and_extract_session_token(user)
@@ -140,30 +139,8 @@ def json_client_patch(url, body: nil, headers: {}, token: nil)
   common_plain_faraday_client(:patch, url, token: token, body: body, headers: headers)
 end
 
-# def session_auth_plain_faraday_json_client(cookies: nil, headers: {})
-#       headers_default = {"accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}
-#
-#       # headers.update(headers) if headers
-#       headers=headers_default if empty headers
-#
-#       headers[:Cookie] = cookies.map(&:to_s).join("; ") if cookies
-#
-#       @plain_faraday_json_client ||= Faraday.new(
-#         url: api_base_url,
-#         headers: headers
-#       ) do |conn|
-#         yield(conn) if block_given?
-#         conn.response :json, content_type: /\bjson$/
-#         conn.adapter Faraday.default_adapter
-#       end
-# end
-
 def session_auth_plain_faraday_json_client(cookies: nil, headers: nil)
-  # Use default headers only if no headers are provided
-  # headers ||= { "accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN }
   headers ||= {"accept" => "application/json"}
-
-  # Add cookies if provided
   headers[:Cookie] = cookies.map(&:to_s).join("; ") if cookies
 
   Faraday.new(url: api_base_url, headers: headers) do |conn|
@@ -179,7 +156,6 @@ end
 
 ResponseResult = Struct.new(:status, :body)
 
-# def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "application/json", "x-csrf-token" => X_CSRF_TOKEN}, token: nil)
 def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "application/json"}, token: nil)
   uri = URI.parse(api_base_url + url)
   http = Net::HTTP.new(uri.host, uri.port)
