@@ -5,7 +5,8 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
-                                                            model-links-query properties-query]]
+                                                            model-links-query properties-query
+                                                            with-items]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -13,7 +14,7 @@
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error]])
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
@@ -57,44 +58,13 @@
    (get-models-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
-         {:keys [pool_id model_id item_id properties_id accessories_id attachments_id entitlement_id model_link_id]} (path-params request)
-         option-type (extract-option-type-from-uri (:uri request))
-         query-params (query-params request)
-         {:keys [filter_ids is_deletable]} query-params
+         {:keys [pool_id]} (path-params request)
+         {:keys [with_items retired]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
-
-         sort-by (case (:sort_by query-params)
-                   :manufacturer-asc [:m.manufacturer :asc]
-                   :manufacturer-desc [:m.manufacturer :desc]
-                   :product-asc [:m.product :asc]
-                   :product-desc [:m.product :desc]
-                   nil)
-         filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
-         filter-product (if-not model_id (:filter_product query-params) nil)
-
-         base-query (-> (apply-is_deleted-context-if-valid is_deletable)
-                        ((fn [query] (base-pool-query query pool_id option-type)))
-                        (cond-> (or item_id (= option-type "items"))
-                          ((fn [q] (item-query q item_id))))
-                        (cond-> (or properties_id (= option-type "properties"))
-                          ((fn [q] (properties-query q properties_id))))
-                        (cond-> (or accessories_id (= option-type "accessories"))
-                          ((fn [q] (accessories-query q accessories_id option-type))))
-                        (cond-> (or attachments_id (= option-type "attachments"))
-                          ((fn [q] (attachments-query q attachments_id option-type))))
-                        (cond-> (or entitlement_id (= option-type "entitlements"))
-                          ((fn [q] (entitlements-query q entitlement_id))))
-                        (cond-> (or model_link_id (= option-type "model-links"))
-                          ((fn [q] (model-links-query q model_link_id pool_id))))
-                        (cond-> filter-manufacturer
-                          (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
-                        (cond-> filter-product
-                          (sql/where [:ilike :m.product (str "%" filter-product "%")]))
-                        (cond-> model_id (sql/where [:= :m.id model_id]))
-                        (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
-         base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
-     (create-pagination-response request base-query with-pagination?))))
+         query (-> (base-pool-query pool_id)
+                   (cond-> with_items
+                     (with-items pool_id :retired retired)))]
+     (create-pagination-response request query with-pagination?))))
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (response (get-models-handler request true)))
