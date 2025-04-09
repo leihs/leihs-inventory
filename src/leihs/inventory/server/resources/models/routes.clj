@@ -39,6 +39,7 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
+   [leihs.inventory.server.resources.models.items.main :refer [get-model-items]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -980,7 +981,7 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
+                 :handler get-model-items ; implements pagination too
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])} ;;FIXME
                                   :body s/Any}
