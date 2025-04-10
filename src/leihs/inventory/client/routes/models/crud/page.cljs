@@ -16,7 +16,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
-   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -41,17 +41,99 @@
                          :properties []
                          :accessories []}))
 
+(defn create-file-from-url [url name type]
+  (js/Promise.
+   (fn [resolve reject]
+     (-> http-client
+         (.get url #js {:headers #js {:Accept type
+                                      :Content-Type type}
+                        :responseType "blob"})
+
+         (.then (fn [response]
+                  (let [blob (.-data response)
+                        file (js/File. #js [blob] name #js {:type type})]
+                    (resolve file))))
+
+         (.catch (fn [error]
+                   (reject error)))))))
+
+(defn prepare-default-values [model]
+  (let [images (:images model)
+        attachments (:attachments model)]
+
+    (-> (js/Promise.all
+         (concat
+
+          (when (seq images)
+            (map (fn [image]
+                   (let [url (:url image)
+                         filename (:filename image)
+                         content-type (:content_type image)
+                         is-cover (:is_cover image)]
+                     (-> (create-file-from-url url filename content-type)
+                         (.then (fn [file]
+                                  {:file file
+                                   :is_cover is-cover}))
+                         (.catch (fn [error]
+                                   (js/console.error "Error processing image file" error)
+                                   (js/Promise.reject error))))))
+                 images))
+
+          (when (seq attachments)
+            (map (fn [attachment]
+                   (let [url (:url attachment)
+                         filename (:filename attachment)
+                         content-type (:content_type attachment)]
+
+                     (-> (create-file-from-url url filename content-type)
+                         (.then (fn [file] file))
+                         (.catch (fn [error]
+                                   (js/console.error "Error processing attachment file" error)
+                                   (js/Promise.reject error))))))
+                 attachments))))
+        (.then (fn [files]
+                 (let [files-vec (vec files)
+                       processed-images (filter #(contains? % :is_cover) files-vec)
+                       processed-attachments (filter #(not (contains? % :is_cover)) files-vec)
+                       model (cj (-> model
+                                     (assoc :images processed-images)
+                                     (assoc :attachments processed-attachments)))]
+
+                   model)))
+        (.catch (fn [error]
+                  (js/console.error "Promise error" error)
+                  (js/Promise.reject error))))))
+
+(defn remove-nil-values [data]
+  (cond
+    (map? data)
+    (into {}
+          (for [[k v] data
+                :when (some? v)]
+            [k (remove-nil-values v)]))
+
+    (vector? data)
+    (vec (filter some? (map remove-nil-values data)))
+
+    :else
+    data))
+
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
         navigate (router/useNavigate)
+
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
-        model (into {} (:model (jc (router/useLoaderData))))
 
+        is-edit (not (or is-create is-delete))
+
+        model (into {} (:model (jc (router/useLoaderData))))
         form (useForm #js {:resolver (zodResolver schema)
-                           :defaultValues (if is-create default-values (cj model))})
+                           :defaultValues (if is-edit
+                                            (fn [] (prepare-default-values model))
+                                            default-values)})
 
         control (.. form -control)
         params (router/useParams)
@@ -79,8 +161,9 @@
                     (go
                       (let [images (:images (jc data))
                             attachments (:attachments (jc data))
-                            model-data (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                        (dissoc (jc data) :images :attachments)))
+                            model-data (remove-nil-values
+                                        (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
+                                                         (dissoc (jc data) :images :attachments))))
                             pool-id (aget params "pool-id")
                             model-res (<p! (-> http-client
                                                (.post (str "/inventory/" pool-id "/model/")
@@ -90,6 +173,7 @@
                                        (.. model-res -data -id))]
 
                         (.. event (preventDefault))
+                        (js/console.debug model-data)
 
                         (if (.. model-res -status)
                           (.. toast (error (.. model-res -message)))
@@ -138,89 +222,104 @@
 
                             ;; state needs to be forwarded for back navigation
                             (navigate (router/generatePath
-                                       "/inventory/:pool-id/models/:model-id"
-                                       #js {:pool-id pool-id
-                                            :model-id model-id})
+                                       "/inventory/:pool-id/models"
+                                       #js {:pool-id pool-id})
                                       #js {:state state}))))))]
 
-    ($ :article
-       ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
-          (if is-create (t "pool.model.create.title")
-              (t "models.model.title")))
+    (uix/use-effect
+     (fn []
+       (prepare-default-values model))
+     [model])
 
-       ($ :h3 {:className "text-sm mb-6 text-gray-500"}
-          (if is-create
-            (t "pool.model.create.description")
-            (t "pool.model.description")))
+    #_(uix/use-effect
+       (fn []
+         (when is-create
+           (.. form (reset default-values))
+           (js/console.debug "is create model")))
+       [is-create form])
 
-       ($ Card {:className "py-8 mb-12"}
-          ($ CardContent
-             ($ Scrollspy {:className "flex gap-4"}
-                ($ ScrollspyMenu)
+    (if (.. form -formState -isLoading)
+      ($ :div {:className "flex justify-center items-center h-screen"}
+         ($ :div {:className "animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"}))
 
-                ($ Form (merge form)
-                   ($ :form {:id "create-model"
-                             :className "space-y-12 w-full lg:w-3/5"
-                             :on-submit (handle-submit on-submit on-invalid)}
+      ($ :article
+         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+            (if is-create (t "pool.model.create.title")
+                (t "models.model.title")))
 
-                      (for [section (jc structure)]
-                        ($ ScrollspyItem {:className "scroll-mt-[10vh]"
-                                          :key (:title section)
-                                          :id (:title section)
-                                          :name (:title section)}
+         ($ :h3 {:className "text-sm mb-6 text-gray-500"}
+            (if is-create
+              (t "pool.model.create.description")
+              (t "pool.model.description")))
 
-                           ($ :h2 {:className "text-lg"} (:title section))
-                           ($ :hr {:className "mb-4"})
+         ($ Card {:className "py-8 mb-12"}
+            ($ CardContent
+               ($ Scrollspy {:className "flex gap-4"}
+                  ($ ScrollspyMenu)
 
-                           (for [block (:blocks section)]
-                             ($ form-fields/field {:key (:name block)
-                                                   :control control
-                                                   :form form
-                                                   :block block}))))))
+                  ($ Form (merge form)
+                     ($ :form {:id "create-model"
+                               :className "space-y-12 w-full lg:w-3/5"
+                               :on-submit (handle-submit on-submit on-invalid)}
 
-                ($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
+                        (for [section (jc structure)]
+                          ($ ScrollspyItem {:className "scroll-mt-[10vh]"
+                                            :key (:title section)
+                                            :id (:title section)
+                                            :name (:title section)}
 
-                   ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
-                                     (.. state -searchParams))
-                            :className "self-center hover:underline"}
-                      (if is-create
-                        (t "pool.model.create.cancel")
-                        (t "pool.model.cancel")))
+                             ($ :h2 {:className "text-lg"} (:title section))
+                             ($ :hr {:className "mb-4"})
 
-                   ($ Button {:type "submit"
-                              :form "create-model"
-                              :className "self-center"}
-                      (if is-create
-                        (t "pool.model.create.submit")
-                        (t "pool.model.submit")))
+                             (for [block (:blocks section)]
+                               ($ form-fields/field {:key (:name block)
+                                                     :control control
+                                                     :form form
+                                                     :block block}))))))
 
-                   (when (not is-create)
-                     ($ Button {:asChild true
-                                :variant "destructive"
-                                :size "icon"
+                  ($ :div {:className "h-max flex space-x-6 sticky bottom-0 pt-12 lg:top-[43vh] ml-auto"}
+
+                     ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                       (some-> state .-searchParams))
+                              :className "self-center hover:underline"}
+                        (if is-create
+                          (t "pool.model.create.cancel")
+                          (t "pool.model.cancel")))
+
+                     ($ Button {:type "submit"
+                                :form "create-model"
                                 :className "self-center"}
-                        ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
-                                 :state state}
-                           ($ Trash {:className "w-4 h-4"}))))
+                        (if is-create
+                          (t "pool.model.create.submit")
+                          (t "pool.model.submit")))
+
+                     (when (not is-create)
+                       ($ Button {:asChild true
+                                  :variant "destructive"
+                                  :size "icon"
+                                  :className "self-center"}
+                          ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
+                                   :state state}
+                             ($ Trash {:className "w-4 h-4"}))))
 
                    ;; Dialog when deleting a model
-                   (when (not is-create)
-                     ($ AlertDialog {:open is-delete}
-                        ($ AlertDialogContent
+                     (when (not is-create)
+                       ($ AlertDialog {:open is-delete}
+                          ($ AlertDialogContent
 
-                           ($ AlertDialogHeader
-                              ($ AlertDialogTitle (t "pool.model.delete.title"))
-                              ($ AlertDialogDescription (t "pool.model.delete.description")))
+                             ($ AlertDialogHeader
+                                ($ AlertDialogTitle (t "pool.model.delete.title"))
+                                ($ AlertDialogDescription (t "pool.model.delete.description")))
 
-                           ($ AlertDialogFooter
-                              ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                             ($ AlertDialogFooter
+                                ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                    :onClick handle-delete}
-                                 (t "pool.model.delete.confirm"))
-                              ($ AlertDialogCancel
-                                 ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
-                                          :state state}
+                                                      :onClick handle-delete}
+                                   (t "pool.model.delete.confirm"))
+                                ($ AlertDialogCancel
+                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
+                                            :state state}
 
-                                    (t "pool.model.delete.cancel"))))))))))))))
+                                      (t "pool.model.delete.cancel")))))))))))))))
 
 

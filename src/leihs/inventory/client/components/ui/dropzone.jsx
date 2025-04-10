@@ -26,15 +26,21 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-function Item({ children, className, file }) {
+function Item({ children, className, file, generatePreview = true }) {
   const [preview, setPreview] = React.useState()
-  const [filename, setFilename] = React.useState()
   const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
-    setPreview(URL.createObjectURL(file))
-    return () => URL.revokeObjectURL(preview)
-  }, [])
+    if (!generatePreview) return
+
+    if (file && file instanceof File) {
+      const objectUrl = URL.createObjectURL(file)
+      setPreview(objectUrl)
+      return () => URL.revokeObjectURL(objectUrl)
+    } else {
+      console.error("Invalid file object:", file)
+    }
+  }, [file])
 
   const handleOpen = () => {
     setOpen((prev) => !prev)
@@ -43,7 +49,7 @@ function Item({ children, className, file }) {
   return (
     <>
       <TableCell className="flex gap-4 items-center">
-        {file.type === "application/pdf" ? (
+        {generatePreview === false || file.type === "application/pdf" ? (
           <FileText className="w-10 h-10" />
         ) : (
           <>

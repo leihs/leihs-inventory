@@ -7,7 +7,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash]]
-   [leihs.inventory.client.lib.utils :refer [cj]]
+   [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -16,11 +16,13 @@
                (subvec vector (inc index)))))
 
 (defui main [{:keys [control form props]}]
-  (let [[images set-images!] (uix.core/use-state [])
+  (let [set-value (aget form "setValue")
+        get-values (aget form "getValues")
+
+        [images set-images!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
         [cover-index set-cover-index!] (uix.core/use-state nil)
 
-        set-value (aget form "setValue")
         handle-drop (fn [files rejections _event]
                       (if (seq rejections)
                         (set-error! rejections)
@@ -50,8 +52,15 @@
 
     (uix/use-effect
      (fn []
-       (set-value "images" (cj (vec images)))
-       [set-value images]))
+       (let [img (jc (get-values "images"))]
+         (when (seq img)
+           (set-images! img))))
+     [get-values])
+
+    (uix/use-effect
+     (fn []
+       (set-value "images" (cj (vec images))))
+     [set-value images])
 
     ($ RadioGroup {:value cover-index
                    :onValueChange handle-cover}

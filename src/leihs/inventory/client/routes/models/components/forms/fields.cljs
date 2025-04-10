@@ -7,6 +7,7 @@
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.components.forms.attachments :refer [Attachments]]
    [leihs.inventory.client.routes.models.components.forms.category-assignment :refer [CategoryAssignment]]
    [leihs.inventory.client.routes.models.components.forms.compatible-models :refer [CompatibleModels]]
    [leihs.inventory.client.routes.models.components.forms.entitlement-allocations :refer [EntitlementAllocations]]
@@ -38,6 +39,11 @@
 
     (-> block :component (= "image-dropzone"))
     ($ ImageUpload {:control control
+                    :form form
+                    :props (:props block)})
+
+    (-> block :component (= "attachments"))
+    ($ Attachments {:control control
                     :form form
                     :props (:props block)})
 

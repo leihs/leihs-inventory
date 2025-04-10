@@ -162,7 +162,7 @@ export const structure = [
       {
         name: "attachments",
         label: "Anhänge",
-        input: "dropzone",
+        component: "attachments",
         props: {
           multiple: true,
           sortable: false,
