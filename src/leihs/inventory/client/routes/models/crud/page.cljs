@@ -62,23 +62,46 @@
                    (reject error)))))))
 
 (defn prepare-default-values [model]
-  (let [images (:image_attributes model)]
+  (let [images (:image_attributes model)
+        attachments (:attachments model)]
+    (js/console.debug images attachments)
     (-> (js/Promise.all
-         (map (fn [image]
-                (let [url (:url image)
-                      filename (:filename image)
-                      content-type (:content_type image)
-                      is-cover (:is_cover image)]
-                  (-> (create-file-from-url url filename content-type)
-                      (.then (fn [file]
-                               {:file file
-                                :is_cover is-cover}))
-                      (.catch (fn [error]
-                                (js/console.error "Error processing file" error)
-                                (js/Promise.reject error))))))
-              images))
+         (concat
+
+          (when (seq images)
+            (map (fn [image]
+                   (let [url (:url image)
+                         filename (:filename image)
+                         content-type (:content_type image)
+                         is-cover (:is_cover image)]
+                     (-> (create-file-from-url url filename content-type)
+                         (.then (fn [file]
+                                  {:file file
+                                   :is_cover is-cover}))
+                         (.catch (fn [error]
+                                   (js/console.error "Error processing image file" error)
+                                   (js/Promise.reject error))))))
+                 images))
+
+          (when (seq attachments)
+            (map (fn [attachment]
+                   (let [url (str "/inventory/attachments/" (:id attachment))
+                         filename (:filename attachment)
+                         content-type (:content_type attachment)]
+                     (-> (create-file-from-url url filename content-type)
+                         (.then (fn [file]
+                                  {:file file}))
+                         (.catch (fn [error]
+                                   (js/console.error "Error processing attachment file" error)
+                                   (js/Promise.reject error))))))
+                 attachments))))
         (.then (fn [files]
-                 files))
+                 (let [processed-images (vec (filter #(= true (:is_cover %)) files))
+                       processed-attachments (vec (remove #(= true (:is_cover %)) files))]
+                   (js/console.debug "Processed files" processed-images files)
+                   (-> model
+                       (assoc :images processed-images)
+                       (assoc :attachments processed-attachments)))))
         (.catch (fn [error]
                   (js/console.error "Promise error" error)
                   (js/Promise.reject error))))))
@@ -115,6 +138,7 @@
         state (.. location -state)
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
+        is-edit (not (or is-create is-delete))
         model (into {} (:model (jc (router/useLoaderData))))
 
         form (useForm #js {:resolver (zodResolver schema)
