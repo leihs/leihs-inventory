@@ -16,7 +16,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
-   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async :as async :refer [go <!]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -40,6 +40,73 @@
                          :entitlements []
                          :properties []
                          :accessories []}))
+
+;; (defn create-file-from-url [url name type]
+;;   (go
+;;     (let [blob (<p! (-> http-client
+;;                         (.get url #js {:headers #js {:Accept type}})
+;;                         (.then #(-> % .-data))))
+;;           file (js/File. #js [blob] name #js {:type type})]
+;;       file)))
+
+(defn create-file-from-url [url name type]
+  (js/Promise.
+   (fn [resolve reject]
+     (-> http-client
+         (.get url #js {:headers #js {:Accept type}})
+         (.then (fn [response]
+                  (let [blob (.-data response)
+                        file (js/File. #js [blob] name #js {:type type})]
+                    (resolve file))))
+         (.catch (fn [error]
+                   (reject error)))))))
+
+(defn prepare-default-values [model]
+  (let [images (:image_attributes model)]
+    (-> (js/Promise.all
+         (map (fn [image]
+                (let [url (:url image)
+                      filename (:filename image)
+                      content-type (:content_type image)
+                      is-cover (:is_cover image)]
+                  (-> (create-file-from-url url filename content-type)
+                      (.then (fn [file]
+                               {:file file
+                                :is_cover is-cover}))
+                      (.catch (fn [error]
+                                (js/console.error "Error processing file" error)
+                                (js/Promise.reject error))))))
+              images))
+        (.then (fn [files]
+                 files))
+        (.catch (fn [error]
+                  (js/console.error "Promise error" error)
+                  (js/Promise.reject error))))))
+
+;; (defn prepare-default-values [model]
+;;   (go
+;;     (let [images (:image_attributes model)
+;;           attachments (:attachments model)
+;;           first-image (first images)
+;;           url (:url first-image)
+;;           filename (:filename first-image)
+;;           content-type (:content_type first-image)
+;;           file (<! (create-file-from-url url filename content-type))
+;;           files (<! (go (mapv
+;;                          (fn [image]
+;;                            (go
+;;                              (let [url (:url image)
+;;                                    filename (:filename image)
+;;                                    content-type (:content_type image)
+;;                                    is-cover (:is_cover image)
+;;                                    file (<! (create-file-from-url url filename content-type))]
+;;                                {:file file
+;;                                 :is_cover is-cover})))
+;;
+;;                          images)))]
+;;
+;;       (<! (js/console.debug "Model" files))
+;;       files)))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -142,6 +209,15 @@
                                        #js {:pool-id pool-id
                                             :model-id model-id})
                                       #js {:state state}))))))]
+
+    (uix/use-effect
+     (fn []
+       (-> (prepare-default-values model)
+           (.then (fn [default-values]
+                    (js/console.debug (clj->js default-values))))
+           (.catch (fn [error]
+                     (js/console.error "Error preparing default values" error)))))
+     [model])
 
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
