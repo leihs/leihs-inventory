@@ -79,7 +79,7 @@
                         (cond-> (or properties_id (= option-type "properties"))
                           ((fn [q] (properties-query q properties_id))))
                         (cond-> (or accessories_id (= option-type "accessories"))
-                          ((fn [q] (accessories-query q accessories_id option-type))))
+                          ((fn [q] (accessories-query q pool_id model_id accessories_id option-type))))
                         (cond-> (or attachments_id (= option-type "attachments"))
                           ((fn [q] (attachments-query q attachments_id option-type))))
                         (cond-> (or entitlement_id (= option-type "entitlements"))

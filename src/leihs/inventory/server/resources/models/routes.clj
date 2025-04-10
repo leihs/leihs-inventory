@@ -2,6 +2,8 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.models.coercion :as mc]
+   [leihs.inventory.server.resources.models.accessories.main :refer [get-accessory-handler
+                                                                     get-accessories-with-pagination-handler]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
@@ -808,10 +810,8 @@
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
-                 :handler get-models-of-pool-with-pagination-handler
+                                     :model_id s/Uuid}}
+                 :handler get-accessories-with-pagination-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
@@ -819,15 +819,15 @@
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]
 
-      ["/:accessories_id"
+      ["/:accessory_id"
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
-                                  :accessories_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+                                  :accessory_id s/Uuid}}
+              :handler get-accessory-handler
 
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])}
