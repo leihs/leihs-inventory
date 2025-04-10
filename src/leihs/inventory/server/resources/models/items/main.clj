@@ -16,24 +16,32 @@
                                                     fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [spy debug error]]))
 
-(defn base-query [pool-id model-id]
+(defn base-query [pool-id model-id item-id]
   (-> (sql/select :*)
       (sql/from :items)
-      (sql/where [:model_id model-id])
-      (sql/where [:or
-                  [:items.inventory_pool_id pool-id]
-                  [:items.owner_id pool-id]])))
+      (sql/where [:= :items.model_id model-id])
+      (cond-> item-id
+        (sql/where [:= :items.id item-id]))
+      (cond-> pool-id
+        (sql/where [:or
+                    [:= :items.inventory_pool_id pool-id]
+                    [:= :items.owner_id pool-id]]))))
 
-(defn get-model-items
+(defn get-model-items-handler
   ([request]
-   (get-model-items request false))
+   (get-model-items-handler request false))
   ([request with-pagination?]
+   (debug "get-model-items-handler")
    (let [tx (:tx request)
-         {:keys [pool_id model_id]} (path-params request)
+         {:keys [pool_id model_id item_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
-         query (base-query pool_id model_id)]
-     (-> request
-         (create-pagination-response query with-pagination?)
-         response))))
+         query (base-query pool_id model_id item_id)]
+     (create-pagination-response request query with-pagination?))))
+
+(defn get-model-items-with-pagination-handler [request]
+  (response (get-model-items-handler request true)))
+
+(defn get-model-items-auto-pagination-handler [request]
+  (response (get-model-items-handler request nil)))

@@ -39,7 +39,8 @@
                                                          get-models-compatible-handler
                                                          get-models-handler
                                                          update-model-handler]]
-   [leihs.inventory.server.resources.models.items.main :refer [get-model-items]]
+   [leihs.inventory.server.resources.models.items.main :refer [get-model-items-auto-pagination-handler
+                                                               get-model-items-with-pagination-handler]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
                                                                    create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
@@ -216,12 +217,10 @@
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
               :parameters {:path {:model_id s/Uuid}
-
                            :query {(s/optional-key :page) s/Int
                                    (s/optional-key :size) s/Int
                                    (s/optional-key :is_deletable) s/Bool}}
-
-              :handler get-models-of-pool-auto-pagination-handler
+              :handler get-model-items-auto-pagination-handler
               :responses {200 {:description "OK"
                                :body s/Any}
 
@@ -981,7 +980,7 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-model-items ; implements pagination too
+                 :handler get-model-items-with-pagination-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])} ;;FIXME
                                   :body s/Any}
@@ -997,7 +996,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :item_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+              :handler get-model-items-with-pagination-handler
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])} ;;FIXME
                                :body s/Any}
