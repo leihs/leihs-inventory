@@ -8,7 +8,8 @@
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.util.response :refer [bad-request response status]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
@@ -22,7 +23,8 @@
   (let [paginated-query (-> base-query
                             (sql/limit per_page)
                             (sql/offset offset)
-                            sql-format
+                            (sql-format :inline true)
+                            spy
                             (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 

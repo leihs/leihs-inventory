@@ -36,11 +36,11 @@
   [is_deletable]
   (-> (sql/select-distinct :m.*
                            [[:raw "CASE
-                                          WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          ELSE false
-                                          END"]
+                                   WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   ELSE false
+                                   END"]
                             :is_deletable])
       (sql/from [:models :m])
       (sql/left-join [:items :i] [:= :m.id :i.model_id])
@@ -61,8 +61,8 @@
          {:keys [pool_id]} (path-params request)
          {:keys [with_items retired]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
-         query (-> (base-pool-query pool_id)
-                   (cond-> with_items
+         query (-> base-pool-query
+                   (cond-> (and pool_id with_items)
                      (with-items pool_id :retired retired)))]
      (create-pagination-response request query with-pagination?))))
 

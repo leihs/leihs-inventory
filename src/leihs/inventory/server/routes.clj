@@ -67,7 +67,8 @@
     request))
 
 (defn- incl-other-routes []
-  ["" (get-model-route)
+  [""
+   (get-model-route)
    (get-model-by-pool-route)
    (get-tree-route)
    (get-properties-routes)

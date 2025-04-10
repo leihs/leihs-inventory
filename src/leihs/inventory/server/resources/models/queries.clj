@@ -59,7 +59,7 @@
        (cond-> attachment-id
          (sql/where [:= :a.id attachment-id])))))
 
-(defn base-pool-query [pool-id]
+(def base-pool-query
   (-> (sql/select :models.*)
       (sql/from :models)
       (sql/order-by [[:trim :models.product] :asc])))
