@@ -1,10 +1,6 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
-   [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
-   [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
@@ -12,10 +8,8 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
-                                                                      patch-models-handler
-                                                                      patch-model-handler
-                                                                      upload-image]]
+   [leihs.inventory.server.resources.models.form.model.common :refer [patch-model-handler
+                                                                      patch-models-handler]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
                                                                                          create-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
@@ -33,34 +27,21 @@
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
                                                                                             update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.inventory-list :refer [inventory-list-handler]]
-   [leihs.inventory.server.resources.models.main :refer [create-model-handler
-                                                         delete-model-handler
-                                                         get-manufacturer-handler
-                                                         get-models-compatible-handler
-                                                         get-models-handler
-                                                         update-model-handler]]
-   [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
-                                                                   create-model-handler-by-pool
+   [leihs.inventory.server.resources.models.main :refer [get-manufacturer-handler
+                                                         get-models-compatible-handler]]
+   [leihs.inventory.server.resources.models.models-by-pool :refer [create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
-                                                                   get-models-of-pool-auto-pagination-handler
+                                                                   get-models-of-pool-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    update-model-handler-by-pool]]
-   [leihs.inventory.server.resources.models.tree.filter :as filter]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.response_helper :as rh]
-   [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
-   [ring.util.response :as response]
-   [schema.core :as s]
-   [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]))
+   [schema.core :as s]))
 
 (def FileUpload
   "Schema describing a typical Ring multipart file map."
@@ -135,278 +116,7 @@
                             :body s/Any}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
-
-   ;; /inventory/models/*
-   ["models"
-    [""
-     {:get {:conflicting true
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json" "text/html"]}
-            :handler get-models-handler
-            :description "Get all models, default: page=1, size=10, sort_by=manufacturer-asc"
-            :parameters {:query {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                                 (s/optional-key :is_deletable) s/Bool
-                                 (s/optional-key :filter_manufacturer) s/Str
-                                 (s/optional-key :filter_product) s/Str}}
-            :responses {200 {:description "OK"
-                             :body s/Any}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      :post {:summary "Create model."
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :parameters {:body {:product s/Str
-                                 :version s/Str
-                                 (s/optional-key :type) (s/enum "Software" "Model")
-                                 (s/optional-key :is_package) s/Bool}}
-             :middleware [accept-json-middleware]
-             :handler create-model-handler
-             :responses {200 {:description "Returns the created model."
-                              :body s/Any}
-                         400 {:description "Bad Request / Duplicate key value of ?product?"
-                              :body s/Any}}}}]
-
-    ["/:model_id"
-
-     [""
-
-      {:get {:accept "application/json"
-             :conflicting true
-             :coercion reitit.coercion.schema/coercion
-             :middleware [accept-json-middleware]
-             :swagger {:produces ["application/json"]}
-             :handler get-models-handler
-             :parameters {:path {:model_id s/Uuid}}
-             :responses {200 {:description "OK"
-                              :body s/Any}
-                         204 {:description "No Content"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-       :put {:accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :parameters {:path {:model_id s/Uuid}
-                          :body mc/models-request-payload}
-             :middleware [accept-json-middleware]
-             :handler update-model-handler
-             :responses {200 {:description "Returns the updated model."
-                              :body s/Any}}}
-
-       :delete {:accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-                :parameters {:path {:model_id s/Uuid}}
-                :middleware [accept-json-middleware]
-                :handler delete-model-handler
-                :responses {200 {:description "Returns the deleted model."
-                                 :body s/Any}
-                            400 {:description "Bad Request"
-                                 :body s/Any}}}}]
-
-     ["/items"
-      [""
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid}
-
-                           :query {(s/optional-key :page) s/Int
-                                   (s/optional-key :size) s/Int
-                                   (s/optional-key :is_deletable) s/Bool}}
-
-              :handler get-models-of-pool-auto-pagination-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]
-
-      ["/:item_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :item_id s/Uuid}}
-              :handler get-models-of-pool-handler
-              :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
-                               :body s/Any}
-
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
-
-     ["/properties"
-      ["" {:get {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
-                                  :body s/Any}
-
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]
-
-      ["/:properties_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :properties_id s/Uuid}}
-              :handler get-models-of-pool-handler
-
-              :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
-                               :body s/Any}
-
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
-
-     ["/accessories"
-      ["" {:get {:accept "application/json"
-                 :summary "(T)"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  ;:body (s/->Either [s/Any schema])}
-                                  :body s/Any}
-
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]
-
-      ["/:accessories_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :accessories_id s/Uuid}}
-              :handler get-models-of-pool-handler
-
-              :responses {200 {:description "OK"
-                               ;:body (s/->Either [s/Any schema])}
-                               :body s/Any}
-
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
-
-     ["/images"
-      ["" {:post {:accept "application/json"
-                  :summary "Create image [v1]"
-                  :swagger {:consumes ["application/json"]
-                            :produces "application/json"}
-                  :coercion reitit.coercion.schema/coercion
-                  :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}
-                               :header {:x-filename s/Str}}
-                  :handler upload-image
-                  :responses {200 {:description "OK" :body s/Any}
-                              404 {:description "Not Found"}
-                              411 {:description "Length Required"}
-                              413 {:description "Payload Too Large"}
-                              500 {:description "Internal Server Error"}}}}]]
-
-     ["/attachments"
-      ["" {:get {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  :body s/Any}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}
-
-           :post {:accept "application/json"
-                  :summary "Create attachment [v1]"
-                  :coercion reitit.coercion.schema/coercion
-                  :middleware [accept-json-middleware]
-                  :swagger {:produces ["application/json"]}
-                  :parameters {:path {:model_id s/Uuid}
-                               :header {:x-filename s/Str}}
-                  :handler upload-attachment
-                  :responses {200 {:description "OK"
-                                   :body s/Any}
-                              400 {:description "Bad Request (Coercion error)"
-                                   :body s/Any}
-                              404 {:description "Not Found"}
-                              500 {:description "Internal Server Error"}}}}]
-
-      ["/:attachments_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :attachments_id s/Uuid}}
-              :handler get-models-of-pool-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
-
-     ["/entitlements"
-      ["" {:get {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  :body s/Any}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]
-
-      ["/:entitlement_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :entitlement_id s/Uuid}}
-              :handler get-models-of-pool-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
-
-     ["/model-links"
-      ["" {:get {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  :body s/Any}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]
-
-      ["/:model_link_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :model_link_id s/Uuid}}
-              :handler get-models-of-pool-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]]]])
+   ])
 
 (defn get-model-by-pool-route []
   ["/:pool_id"
