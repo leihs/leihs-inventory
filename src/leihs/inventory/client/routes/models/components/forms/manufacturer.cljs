@@ -92,25 +92,25 @@
                                                                 (.. input-ref -current -firstChild (focus)))
                                              :style {:width (str width "px")}}
 
-                             ($ :ul {:ref list-ref}
-                                (for [manufacturer manufacturers]
-                                  (when (str/includes? (str/lower-case manufacturer)
-                                                       (str/lower-case (get-values "manufacturer")))
-                                    ($ :li {:key manufacturer}
-                                       ($ Button {:variant "ghost"
-                                                  :class-name "w-full justify-start"
-                                                  :on-click (fn []
-                                                              (set-open! false)
-                                                              (if (= (str (get-values "manufacturer")) manufacturer)
-                                                                (set-value "manufacturer" nil)
-                                                                (set-value "manufacturer" manufacturer)))}
+                             #_($ :ul {:ref list-ref}
+                                  (for [manufacturer manufacturers]
+                                    (when (str/includes? (str/lower-case manufacturer)
+                                                         (str/lower-case (get-values "manufacturer")))
+                                      ($ :li {:key manufacturer}
+                                         ($ Button {:variant "ghost"
+                                                    :class-name "w-full justify-start"
+                                                    :on-click (fn []
+                                                                (set-open! false)
+                                                                (if (= (str (get-values "manufacturer")) manufacturer)
+                                                                  (set-value "manufacturer" nil)
+                                                                  (set-value "manufacturer" manufacturer)))}
 
-                                          ($ Check
-                                             {:class-name (str "mr-2 h-4 w-4 "
-                                                               (if (= manufacturer (get-values "manufacturer"))
-                                                                 "visible"
-                                                                 "invisible"))})
-                                          ($ :span manufacturer)))))))))}))))
+                                            ($ Check
+                                               {:class-name (str "mr-2 h-4 w-4 "
+                                                                 (if (= manufacturer (get-values "manufacturer"))
+                                                                   "visible"
+                                                                   "invisible"))})
+                                            ($ :span manufacturer)))))))))}))))
 
 (def Manufacturer
   (uix/as-react

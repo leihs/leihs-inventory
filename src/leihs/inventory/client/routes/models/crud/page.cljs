@@ -64,7 +64,7 @@
 (defn prepare-default-values [model]
   (let [images (:image_attributes model)
         attachments (:attachments model)]
-    (js/console.debug images attachments)
+
     (-> (js/Promise.all
          (concat
 
@@ -96,12 +96,13 @@
                                    (js/Promise.reject error))))))
                  attachments))))
         (.then (fn [files]
-                 (let [processed-images (vec (filter #(= true (:is_cover %)) files))
-                       processed-attachments (vec (remove #(= true (:is_cover %)) files))]
-                   (js/console.debug "Processed files" processed-images files)
-                   (-> model
-                       (assoc :images processed-images)
-                       (assoc :attachments processed-attachments)))))
+                 (let [files-vec (vec files)
+                       processed-images (filter #(contains? % :is_cover) files-vec)
+                       processed-attachments (filter #(not (contains? % :is_cover)) files-vec)
+                       model (cj (-> model
+                                     (assoc :images processed-images)
+                                     (assoc :attachments processed-attachments)))]
+                   model)))
         (.catch (fn [error]
                   (js/console.error "Promise error" error)
                   (js/Promise.reject error))))))
@@ -141,8 +142,9 @@
         is-edit (not (or is-create is-delete))
         model (into {} (:model (jc (router/useLoaderData))))
 
+        values (prepare-default-values model)
         form (useForm #js {:resolver (zodResolver schema)
-                           :defaultValues (if is-create default-values (cj model))})
+                           :defaultValues (fn [] (prepare-default-values model))})
 
         control (.. form -control)
         params (router/useParams)
@@ -234,15 +236,14 @@
                                             :model-id model-id})
                                       #js {:state state}))))))]
 
-    (uix/use-effect
-     (fn []
-       (-> (prepare-default-values model)
-           (.then (fn [default-values]
-                    (js/console.debug (clj->js default-values))))
-           (.catch (fn [error]
-                     (js/console.error "Error preparing default values" error)))))
-     [model])
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (go
+    ;;      (let [values (<p! (prepare-default-values model))]
+    ;;        (js/console.debug "values" values))))
+    ;;  [model])
 
+    ;; (js/console.debug values)
     ($ :article
        ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
           (if is-create (t "pool.model.create.title")

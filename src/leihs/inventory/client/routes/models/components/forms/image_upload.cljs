@@ -16,11 +16,12 @@
                (subvec vector (inc index)))))
 
 (defui main [{:keys [control form props]}]
-  (let [[images set-images!] (uix.core/use-state [])
+  (let [set-value (aget form "setValue")
+        get-values (aget form "getValues")
+        [images set-images!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
         [cover-index set-cover-index!] (uix.core/use-state nil)
 
-        set-value (aget form "setValue")
         handle-drop (fn [files rejections _event]
                       (if (seq rejections)
                         (set-error! rejections)
@@ -50,6 +51,14 @@
 
     (uix/use-effect
      (fn []
+       (js/console.debug "effect" (get-values "images"))
+       (let [img (get-values "images")]
+         (when (seq img)
+           (set-images! img))) []))
+
+    (uix/use-effect
+     (fn []
+       ;; (js/console.debug images)
        (set-value "images" (cj (vec images)))
        [set-value images]))
 
