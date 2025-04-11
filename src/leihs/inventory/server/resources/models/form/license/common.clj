@@ -113,7 +113,7 @@
                     parsed-vector (vec parsed)]
                 parsed-vector)
               (catch Exception e
-                (throw (ex-info "Invalid JSON Array Format3" {:error (.getMessage e)})))))))
+                (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
 
 (defn normalize-files [request key]
   (let [attachments (get-in request [:parameters :multipart key])
