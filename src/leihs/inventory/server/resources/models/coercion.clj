@@ -159,9 +159,8 @@
 (sa/def ::entitlement_id uuid?)
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
+(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id]
                                :req-un [::entitlement_group_id
-                                        :nil/entitlement_id
                                         ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of ::entitlement)
@@ -543,6 +542,26 @@
                                             ::price]))
 
 (sa/def :software/multipart (sa/keys :req-un [::product]
+                                     :opt-un [::version
+                                              ::manufacturer
+                                              ::is_package
+                                              ::description
+                                              ::technical_detail
+                                              ::internal_description
+                                              ::hand_over_note
+                                              ::categories
+                                              ::attachments_to_delete
+                                              ::images_to_delete
+                                              :model/image_attributes
+                                              ::owner
+                                              ::compatibles
+                                              ::images
+                                              ::attachments
+                                              ::entitlements
+                                              :software/properties
+                                              ::accessories]))
+
+(sa/def :model/multipart (sa/keys :req-un [::product]
                                      :opt-un [::version
                                               ::manufacturer
                                               ::is_package

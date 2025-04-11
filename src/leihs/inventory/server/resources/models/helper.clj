@@ -126,52 +126,32 @@
 
 (defn parse-json-array
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  [multipart key] ;; TODO: multipart is a map (preferred way) OR request (legacy-code)
-  (let [;; TODO: To use (key multipart) is the correct way (create-model-handler)
-        ;; The other one is legacy-code to handle multipart-data requests
-        json-array-string (or (key multipart)
-                              (get-in multipart [:parameters :multipart key]))]
+  [multipart key]
+  (let [json-array-input (or (key multipart)
+                           (get-in multipart [:parameters :multipart key]))]
+    (println "[DEBUG] Raw input from multipart:" json-array-input)
     (cond
-      (not json-array-string) []
-      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
-      :else (try
-              (let [normalized-json-array-string
-                    (if (and (.startsWith json-array-string "{")
-                             (not (.startsWith json-array-string "[")))
-                      (str "[" json-array-string "]")
-                      json-array-string)
-
-                    parsed (cjson/parse-string normalized-json-array-string true)
-                    parsed-vector (vec parsed)]
-                parsed-vector)
-              (catch Exception e
-                (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
-
-(defn parse-json-array
-  "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
-  [multipart key] ;; TODO: multipart is a map (preferred way) OR request (legacy-code)
-  (let [json-array-string (or (key multipart)
-                            (get-in multipart [:parameters :multipart key]))]
-    (println "[DEBUG] Raw input from multipart:" json-array-string)
-    (cond
-      (not json-array-string)
+      (nil? json-array-input)
       (do (println "[DEBUG] No input found. Returning empty vector.") [])
 
-      (and (string? json-array-string)
-        (some #(= json-array-string %) ["" "[]" "{}"]))
+      (vector? json-array-input)
+      (do (println "[DEBUG] Input is already a vector. Returning as vector.") (vec json-array-input))
+
+      (and (string? json-array-input)
+        (some #(= json-array-input %) ["" "[]" "{}"]))
       (do (println "[DEBUG] Empty/ignored string value. Returning empty vector.") [])
 
-      :else
+      (string? json-array-input)
       (try
         (let [normalized-json-array-string
-              (if (and (.startsWith json-array-string "{")
-                    (not (.startsWith json-array-string "[")))
+              (if (and (.startsWith json-array-input "{")
+                    (not (.startsWith json-array-input "[")))
                 (do
                   (println "[DEBUG] Input starts with '{' but not '[', wrapping into array.")
-                  (str "[" json-array-string "]"))
+                  (str "[" json-array-input "]"))
                 (do
                   (println "[DEBUG] Input is already an array.")
-                  json-array-string))
+                  json-array-input))
 
               _ (println "[DEBUG] Normalized JSON array string:" normalized-json-array-string)
 
@@ -184,8 +164,14 @@
 
         (catch Exception e
           (println "[ERROR] Failed to parse JSON array:" (.getMessage e))
-          (throw (ex-info "Invalid JSON Array Format"
-                   {:error (.getMessage e)})))))))
+          (throw (ex-info "Invalid JSON Array Format1"
+                   {:error (.getMessage e)}))))
+
+      :else
+      (do
+        (println "[ERROR] Unexpected input type:" (type json-array-input))
+        (throw (ex-info "Invalid input type for JSON array"
+                 {:input json-array-input}))))))
 
 
 (defn file-sha256 [file]
