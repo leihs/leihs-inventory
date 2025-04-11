@@ -3,11 +3,12 @@ require "pry"
 require "faker"
 
 def create_accessory(inventory_pool_id, model)
+  accessory = FactoryBot.create(:accessory, leihs_model: model)
   database[:accessories_inventory_pools].insert(
-    accessory_id: FactoryBot.create(:accessory).id,
+    accessory_id: accessory.id,
     inventory_pool_id: inventory_pool_id
   )
-  FactoryBot.create(:accessory, leihs_model: model)
+  accessory
 end
 
 def create_models(count = 3)
@@ -134,6 +135,7 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
+    @inventory_pool_id = @inventory_pool.id
 
     @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
 

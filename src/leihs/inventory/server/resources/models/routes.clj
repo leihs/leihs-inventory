@@ -2,6 +2,9 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.models.coercion :as mc]
+
+   [leihs.inventory.server.resources.accessories.main :refer [ get-accessories-of-pool-handler]]
+
    [leihs.inventory.server.resources.models.accessories.main :refer [get-accessory-handler
                                                                      get-accessories-with-pagination-handler]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
@@ -811,7 +814,7 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-accessories-with-pagination-handler
+                 :handler get-accessories-of-pool-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
@@ -827,7 +830,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :accessory_id s/Uuid}}
-              :handler get-accessory-handler
+              :handler get-accessories-of-pool-handler
 
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])}

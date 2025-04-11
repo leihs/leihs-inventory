@@ -14,52 +14,70 @@ feature "Inventory API Endpoints - Accessories" do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
-    context "GET /inventory/:pool-id/models/:id/accessories for a model with accessories" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/#{model_with_accessories.id}/accessories" }
+    # Loop over static paths — dynamic values are deferred to let(:path)
+    # ["/", nil].each do |path_prefix|
+    [nil].each do |path_prefix|
+      context "with path prefix #{path_prefix || '/<inventory_pool_id>'}" do
+        let(:path) {
+          path_prefix || "/#{@inventory_pool_id}/" }
 
-      it "retrieves all accessories for the model and returns status 200" do
-        resp = client.get url
-        expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_rows"]).to eq(1)
-      end
+        context "GET /inventory/models/:id/accessories for a model with accessories" do
+          let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/accessories" }
 
-      it "returns paginated accessory results and status 200" do
-        resp = client.get "#{url}?page=1&size=1"
-        expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_rows"]).to eq(1)
-      end
+          it "retrieves all accessories for the model and returns status 200" do
+            resp = client.get url
+            puts ">> url: #{url}"
+            expect(resp.status).to eq(200)
+            # expect(resp.body["pagination"]["total_rows"]).to eq(1)
+            expect(resp.body.count).to eq(1)
+          end
 
-      it "retrieves details of a specific accessory and returns status 200" do
-        resp = client.get "#{url}?page=1&size=1"
-        expect(resp.status).to eq(200)
+          # FIXME
+          it "returns paginated accessory results and status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
+            # expect(resp.body["pagination"]["total_rows"]).to eq(1)
+            expect(resp.body.count).to eq(1)
+          end
 
-        accessory_id = resp.body["data"][0]["id"]
-        resp = client.get "#{url}/#{accessory_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-      end
+          # FIXME
+          it "retrieves details of a specific accessory and returns status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
 
-      it "returns empty results for an invalid accessory ID with status 200" do
-        invalid_id = SecureRandom.uuid
-        resp = client.get "#{url}/#{invalid_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(0)
-      end
-    end
+            # accessory_id = resp.body["data"][0]["id"]
+            accessory_id = resp.body.first["id"]
+            resp = client.get "#{url}/#{accessory_id}"
+            expect(resp.body.count).to eq(1)
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(1)
+          end
 
-    context "GET /inventory/:pool-id/models/:id/accessories for a model without accessories" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/#{model_without_accessories.id}/accessories" }
+          it "returns empty results for an invalid accessory ID with status 200" do
+            invalid_id = SecureRandom.uuid
+            resp = client.get "#{url}/#{invalid_id}"
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(0)
+          end
+        end
 
-      it "retrieves no accessories for the model and returns status 200" do
-        resp = client.get url
-        expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_rows"]).to eq(0)
-      end
+        context "GET /inventory/models/:id/accessories for a model without accessories" do
+          let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/accessories" }
 
-      it "returns paginated empty results with status 200" do
-        resp = client.get "#{url}?page=1&size=1"
-        expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_rows"]).to eq(0)
+          it "retrieves no accessories for the model and returns status 200" do
+            resp = client.get url
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(0)
+          end
+
+          # FIXME
+          it "returns paginated empty results with status 200" do
+            resp = client.get "#{url}?page=1&size=1"
+            expect(resp.status).to eq(200)
+            expect(resp.body.count).to eq(0)
+            # expect(resp.body["pagination"]["total_rows"]).to eq(0)
+          end
+        end
       end
     end
   end

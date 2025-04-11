@@ -28,16 +28,17 @@
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
-          accessories_id (-> request path-params :id)
+          model_id (-> request path-params :model_id)
+          accessories_id (-> request path-params :accessory_id)
           query (-> (sql/select :a.*)
                     (sql/from [:accessories :a])
                     (sql/join [:accessories_inventory_pools :aip]
                               [:= :aip.accessory_id :a.id])
-                    (sql/where [:= :aip.inventory_pool_id pool_id])
+                    (sql/where [:= :aip.inventory_pool_id pool_id] [:= :a.model_id model_id])
                     (cond-> accessories_id (sql/where [:= :a.id accessories_id]))
-                    (sql/limit 10)
                     sql-format)
           result (jdbc/query tx query)]
+      ;; TODO: add pagination if size OR page is set: (create-pagination-response request base-query with-pagination?))))
       (response result))
     (catch Exception e
       (error "Failed to get accessories of pool" e)
