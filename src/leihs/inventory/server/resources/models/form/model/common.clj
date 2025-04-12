@@ -6,9 +6,6 @@
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
-
-   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries]]
-
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
@@ -235,26 +232,23 @@
         ;prepared-model-data (remove-empty-or-nil prepared-model-data)
         p (println ">o> abc.prepared-model-data2 >> " prepared-model-data)
 
-        categories (parse-json-array multipart :categories)
-        ;categories (-> multipart :categories)
+        ;categories (parse-json-array multipart :categories)
+        categories (-> multipart :categories)
 
         ;compatibles (parse-json-array multipart :compatibles)
-        properties (parse-json-array multipart :properties)
-        accessories (parse-json-array multipart :accessories)
+        ;properties (parse-json-array multipart :properties)
+        ;accessories (parse-json-array multipart :accessories)
 
-        compatibles (remove-nil-entries (parse-json-array multipart :compatibles) [:cover_image_url :cover_image_id])
-        p (println ">o> abc.compatibles" (type compatibles) compatibles)
-
-        ;properties (-> multipart :properties)
-        ;accessories (-> multipart :accessories)
+        compatibles (-> multipart :compatibles)
+        properties (-> multipart :properties)
+        accessories (-> multipart :accessories)
         _ (println ">o> extract-model-form-data.before")
         p (println ">o> abc.data" (-> multipart :entitlements))
 
         ;data {}
 
-        entitlements (parse-json-array multipart :entitlements)
-        ;entitlements (-> multipart :entitlements)
-
+        ;entitlements (parse-json-array multipart :entitlements)
+        entitlements (-> multipart :entitlements)
         _ (println ">o> !!!!!!!!! extract-model-form-data.after.entitlements " entitlements)
         attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
         attachments-to-delete (parse-json-array multipart :attachments_to_delete)

@@ -40,62 +40,27 @@
     (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
       (int-to-numeric parsed-value))))
 
-;(defn remove-nil-entries
-;  "Removes entries from the map if the values of the specified keys are nil."
-;  [data keys-to-check]
-;   (println ">o> abc1" data)
-;  (println ">o> abc2" keys-to-check)
-;
-;  (reduce (fn [m k]
-;            (if (nil? (get m k))
-;              (dissoc m k)
-;              m))
-;          data
-;          keys-to-check))
-;
-;(defn remove-empty-entries
-;  "Removes entries from the map if the values of the specified keys are empty strings."
-;  [data keys-to-check]
-;  (reduce (fn [m k]
-;            (try
-;              (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
-;                (dissoc m k)
-;                m)
-;              (catch Exception e)))
-;          data
-;          keys-to-check))
-
 (defn remove-nil-entries
   "Removes entries from the map if the values of the specified keys are nil."
   [data keys-to-check]
-  (println ">o> abc1" data)
-  (println ">o> abc2" keys-to-check)
-  (if (map? data)
-    (reduce (fn [m k]
-              (if (nil? (get m k))
-                (dissoc m k)
-                m))
-      data
-      keys-to-check)
-    (mapv #(remove-nil-entries % keys-to-check) data))) ; handle vector of maps
+  (reduce (fn [m k]
+            (if (nil? (get m k))
+              (dissoc m k)
+              m))
+          data
+          keys-to-check))
 
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]
-  (if (map? data)
-    (reduce (fn [m k]
-              (try
-                (if (and (string? (get m k)) (clojure.string/blank? (get m k)))
-                  (dissoc m k)
-                  m)
-                (catch Exception e
-                  (do
-                    (println "Error in remove-empty-entries:" e)
-                    m))))
-      data
-      keys-to-check)
-    (mapv #(remove-empty-entries % keys-to-check) data))) ; handle vector of maps
-
+  (reduce (fn [m k]
+            (try
+              (if (and (instance? String (get m k)) (clojure.string/blank? (get m k)))
+                (dissoc m k)
+                m)
+              (catch Exception e)))
+          data
+          keys-to-check))
 
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."

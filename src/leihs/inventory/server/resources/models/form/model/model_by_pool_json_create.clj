@@ -37,11 +37,6 @@
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
-
-   (println ">o> abc.table" table)
-   (println ">o> abc.where-values" where-values)
-  (println ">o> abc.insert-values" insert-values)
-
   (let [select-query (-> (sql/select :*)
                          (sql/from table)
                          (sql/where where-values)
@@ -159,8 +154,7 @@
           (response (create-validation-response res @validation-result))
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-        ;(error "Failed to create model" (.getMessage e))
-        (error "Failed to create model"  e)
+        (error "Failed to create model" (.getMessage e))
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
