@@ -83,10 +83,10 @@
           x-csrf-token (get-in request [:headers "x-csrf-token"])
           header (get-in request [:headers])
           request (-> request
-                    (cond-> (= content-type "application/x-www-form-urlencoded")
-                      (assoc :form-params (some-> (:body request) extract-form-params)))
-                    add-cookies-to-request
-                    convert-params)]
+                      (cond-> (= content-type "application/x-www-form-urlencoded")
+                        (assoc :form-params (some-> (:body request) extract-form-params)))
+                      add-cookies-to-request
+                      convert-params)]
       (try
         (handler request)
         (catch Exception e
@@ -95,7 +95,7 @@
             (-> (response/response {:status "failure"
                                     :message "CSRF-Token/Session not valid"
                                     :detail (.getMessage e)})
-              (response/status 404))))))))
+                (response/status 404))))))))
 
 (defn wrap-csrf [handler]
   (fn [request]

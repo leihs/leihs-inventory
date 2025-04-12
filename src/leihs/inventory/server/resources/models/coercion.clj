@@ -162,7 +162,7 @@
 (sa/def ::quantity int?)
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; use this
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
-(sa/def ::entitlement (sa/keys :opt-un [::name  ::position :nil/entitlement_id]
+(sa/def ::entitlement (sa/keys :opt-un [::name ::position :nil/entitlement_id]
                                :req-un [::entitlement_group_id
                                         ::quantity]))
 (sa/def ::entitlements (sa/or
