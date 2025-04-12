@@ -210,3 +210,40 @@
      :images images
      :new-images-attr new-images-attr
      :existing-images-attr existing-images-attr}))
+
+(defn replace-nil-with-empty-string
+  "Replace all nil values in a map with empty strings."
+  [m]
+  (into {}
+        (for [[k v] m]
+          [k (if (nil? v) "" v)])))
+
+(defn extract-model-form-data-new [request create-all]
+  (let [multipart (or (get-in request [:parameters :multipart])
+                      (get-in request [:parameters :body]))
+        prepared-model-data (-> (prepare-model-data multipart)
+                                (assoc :is_package (str-to-bool (:is_package multipart))))
+;; FIXME: CONVERT NIL-VALUES TO EMPTY-STR
+        prepared-model-data (replace-nil-with-empty-string prepared-model-data)
+        categories (-> multipart :categories)
+        compatibles (-> multipart :compatibles)
+        properties (-> multipart :properties)
+        accessories (-> multipart :accessories)
+        entitlements (-> multipart :entitlements)
+        attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
+        attachments-to-delete (-> multipart :attachments_to_delete)
+        images-to-delete (-> multipart :images_to_delete)
+        {:keys [images image-attributes new-images-attr existing-images-attr]}
+        (when create-all (create-images-and-prepare-image-attributes request))]
+    {:prepared-model-data prepared-model-data
+     :categories (if (nil? categories) [] categories)
+     :compatibles compatibles
+     :properties properties
+     :accessories accessories
+     :entitlements (if (nil? entitlements) [] entitlements)
+     :attachments attachments
+     :attachments-to-delete attachments-to-delete
+     :images-to-delete images-to-delete
+     :images images
+     :new-images-attr new-images-attr
+     :existing-images-attr existing-images-attr}))

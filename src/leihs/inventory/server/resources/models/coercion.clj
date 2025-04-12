@@ -132,7 +132,7 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
+(sa/def ::category (sa/keys :opt-un [::delete]
                             :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
                       :single (sa/or :coll (sa/coll-of ::category)
@@ -152,14 +152,27 @@
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 
+(sa/def ::image_to_delete string?)
+
+(sa/def :list/images_to_delete (sa/or :multiple (sa/coll-of ::image_to_delete :kind vector?)
+                                      :single ::image_to_delete))
+
+(sa/def ::attachment_to_delete string?)
+
+(sa/def :list/attachments_to_delete (sa/or :multiple (sa/coll-of ::attachment_to_delete :kind vector?)
+                                           :single ::attachment_to_delete))
+
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
+(sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
-                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; TODO: use this
+(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
+                               :req-un [::entitlement_group_id
+                                        ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of ::entitlement)
                                        :str string?)
@@ -167,7 +180,7 @@
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
 (sa/def ::entitlement_groups any?)
-(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete] :req-un [::name ::has_inventory_pool]))
+(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete ::has_inventory_pool] :req-un [::name]))
 (sa/def ::accessories (sa/or
                        :single (sa/or :coll (sa/coll-of ::accessory)
                                       :str string?)
@@ -558,6 +571,25 @@
                                               ::entitlements
                                               :software/properties
                                               ::accessories]))
+
+(sa/def :model/multipart (sa/keys :req-un [::product]
+                                  :opt-un [::version
+                                           ::manufacturer
+                                           ::is_package
+                                           ::description
+                                           ::technical_detail
+                                           ::internal_description
+                                           ::hand_over_note
+                                           ::categories
+                                           :list/images_to_delete
+                                           :list/attachments_to_delete
+                                           ::owner
+                                           ::compatibles
+                                           ::images
+                                           ::attachments
+                                           ::entitlements
+                                           :software/properties
+                                           ::accessories]))
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))

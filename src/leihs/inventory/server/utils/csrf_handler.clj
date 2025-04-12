@@ -79,7 +79,7 @@
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
-          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
+          is-accept-json? (str/includes? (str (get-in request [:headers "accept"])) "application/json")
           x-csrf-token (get-in request [:headers "x-csrf-token"])
           header (get-in request [:headers])
           request (-> request

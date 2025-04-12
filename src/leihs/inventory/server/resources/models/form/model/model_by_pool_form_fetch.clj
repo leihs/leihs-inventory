@@ -21,7 +21,8 @@
                      sql-format)))
 
 (defn fetch-attachments [tx model-id]
-  (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
+  (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
+       (map #(assoc % :url (str "/inventory/attachments/" (:id %))))))
 
 (defn fetch-image-attributes [tx model-id]
   (let [query (-> (sql/select
@@ -111,7 +112,7 @@
                              :accessories accessories
                              :compatibles compatibles
                              :properties properties
-                             :image_attributes image-attributes
+                             :images image-attributes
                              :entitlement_groups entitlements
                              :categories categories)]
                      [])]

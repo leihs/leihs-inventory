@@ -22,6 +22,8 @@
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
                                                                                          update-model-handler-by-pool-model-only
                                                                                          update-model-handler-by-pool-with-attachment-images]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-json-update :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
@@ -623,8 +625,8 @@
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :body :software/multipart}
-             :handler create-model-handler-by-pool-model-only
+                          :body :model/multipart}
+             :handler create-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
@@ -634,7 +636,7 @@
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
+             :summary "(DEV) | Form-Handler: Fetch form data (JSON) [v1]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
@@ -702,8 +704,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
-                          :body :software/multipart}
-             :handler update-model-handler-by-pool-model-only
+                          :body :model/multipart}
+             :handler update-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
                               :body :model-optional-response/inventory-models}
                          404 {:description "Not Found"}
