@@ -51,16 +51,16 @@ feature "Call swagger-endpoints" do
       expect(resp.status).to eq(302)
 
       resp = plain_faraday_client.post("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_client.delete("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_client.put("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_client.patch("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
     end
   end
 end

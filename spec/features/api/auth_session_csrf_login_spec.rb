@@ -76,7 +76,7 @@ feature "Call swagger-endpoints" do
           req.headers["Content-Type"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
-        expect(resp.status).to eq(404)
+        expect(resp.status).to eq(403)
         expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
@@ -86,7 +86,7 @@ feature "Call swagger-endpoints" do
           req.headers["Cookie"] = @user_cookies_str
         end
 
-        expect(resp.status).to eq(404)
+        expect(resp.status).to eq(403)
         expect(resp.body["detail"]).to eq("The x-csrf-token has not been send!")
       end
 
@@ -94,7 +94,7 @@ feature "Call swagger-endpoints" do
         resp = auth_client_no2.put("/inventory/test-csrf") do |req|
           req.headers["Content-Type"] = "application/json"
         end
-        expect(resp.status).to eq(404)
+        expect(resp.status).to eq(403)
         expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
@@ -104,7 +104,7 @@ feature "Call swagger-endpoints" do
           req.headers["x-csrf-token"] = "not-correct-token"
           req.headers["Cookie"] = @user_cookies_str
         end
-        expect(resp.status).to eq(404)
+        expect(resp.status).to eq(403)
         expect(resp.body["detail"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
       end
 
