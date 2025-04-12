@@ -23,13 +23,6 @@
            (java.time LocalDateTime)
            [java.util UUID]))
 
-(defn prepare-model-data
-  [data]
-  (let [normalize-data (normalize-model-data data)
-        created-ts (LocalDateTime/now)
-        res (assoc normalize-data :updated_at created-ts)]
-    (assoc res :is_package (str-to-bool (:is_package res)))))
-
 (defn update-or-insert
   [tx table where-values update-values]
   (let [select-query (-> (sql/select :*)
@@ -61,34 +54,6 @@
     (jdbc/execute! tx (-> (sql/delete-from table)
                           (sql/where [:= key (to-uuid id)])
                           sql-format))))
-
-(defn process-image-attributes "Process update/delete of images by image-attributes" [tx image-attributes model-id]
-  (let [images-to-delete (map :id (filter :to_delete image-attributes))
-        images-to-update (remove #(or (:to_delete %) (not (:is_cover %))) image-attributes)]
-    (doseq [id images-to-delete]
-      (let [id (to-uuid id)
-            row (jdbc/execute-one! tx (-> (sql/select :*)
-                                          (sql/from :models)
-                                          (sql/where [:= :id model-id])
-                                          sql-format))]
-        (when (= (:cover_image_id row) id)
-          (jdbc/execute! tx (-> (sql/update :models)
-                                (sql/set {:cover_image_id nil})
-                                (sql/where [:= :id model-id])
-                                sql-format)))
-        (jdbc/execute! tx (sql-format {:with [[:ordered_images
-                                               {:select [:id]
-                                                :from [:images]
-                                                :where [:or [:= :parent_id id] [:= :id id]]
-                                                :order-by [[:parent_id :asc]]}]]
-                                       :delete-from :images
-                                       :where [:in :id {:select [:id] :from [:ordered_images]}]}))))
-    (doseq [{:keys [id is_cover]} images-to-update]
-      (when is_cover
-        (jdbc/execute! tx (-> (sql/update :models)
-                              (sql/set {:cover_image_id (to-uuid id)})
-                              (sql/where [:= :id model-id])
-                              sql-format))))))
 
 (defn process-delete-images-by-id "Process update/delete of images by image-attributes" [tx ids model-id]
   (let [images-to-delete ids]
@@ -205,12 +170,8 @@
         (process-deletions tx attachments-to-delete :attachments :id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
-
         (process-deletions tx attachments-to-delete :attachments :id)
         (process-delete-images-by-id tx images-to-delete model-id)
-        ;(when-not create-all (process-delete-images-by-id tx images-to-delete model-id))
-        ;(when create-all (process-image-attributes tx all-image-attributes model-id))
-
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)

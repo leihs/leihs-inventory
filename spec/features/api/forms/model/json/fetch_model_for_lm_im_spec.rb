@@ -283,10 +283,8 @@ feature "Inventory Model" do
             "important_notes" => "updated notes",
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 11}],
             "compatibles" => [compatibles.first, compatibles.second],
-            "categories" => [
-              @form_model_groups.first.except("created_at", "updated_at"),
-              @form_model_groups.second.except("created_at", "updated_at")
-            ]
+            "categories" => [@form_model_groups.first.except("created_at", "updated_at"),
+              @form_model_groups.second.except("created_at", "updated_at")]
           }
 
           resp = json_client_put(
@@ -294,7 +292,6 @@ feature "Inventory Model" do
             body: form_data,
             headers: cookie_header
           )
-
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(model_id)
 
@@ -355,13 +352,8 @@ feature "Inventory Model" do
             "accessories" => [{name: "acc1", has_inventory_pool: false}, {name: "acc2", has_inventory_pool: true}],
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33},
               {entitlement_group_id: @form_entitlement_groups.second["id"], quantity: 55}],
-            # "categories" => [@form_model_groups.first, @form_model_groups.second],
-
-            "categories" => [
-              @form_model_groups.first.except("created_at", "updated_at"),
-              @form_model_groups.second.except("created_at", "updated_at")
-            ],
-
+            "categories" => [@form_model_groups.first.except("created_at", "updated_at"),
+              @form_model_groups.second.except("created_at", "updated_at")],
             "compatibles" => two_variants_of_compatibles,
             "is_package" => true
           }
@@ -447,13 +439,8 @@ feature "Inventory Model" do
             "accessories" => [{name: "acc1", has_inventory_pool: false}, add_delete_flag({name: "acc2", has_inventory_pool: true})],
             "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33},
               add_delete_flag({entitlement_group_id: @form_entitlement_groups.second["id"], quantity: 55})],
-            # "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)],
-
-            "categories" => [
-              @form_model_groups.first.except("created_at", "updated_at"),
-              add_delete_flag(@form_model_groups.second.except("created_at", "updated_at"))
-            ],
-
+            "categories" => [@form_model_groups.first.except("created_at", "updated_at"),
+              add_delete_flag(@form_model_groups.second.except("created_at", "updated_at"))],
             "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)],
             "attachments_to_delete" => [attachments_response.first["id"]],
             "images_to_delete" => [images_response.first["id"]],
