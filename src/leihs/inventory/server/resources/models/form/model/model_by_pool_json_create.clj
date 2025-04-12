@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-create
+(ns leihs.inventory.server.resources.models.form.model.model-by-pool-json-create
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
@@ -10,6 +10,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
                                                                       extract-model-form-data
+                                                                      extract-model-form-data-new
                                                                       create-images-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
@@ -136,7 +137,7 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request create-all) ]
+        (extract-model-form-data-new request create-all) ]
 
     (try
       (let [ res (jdbc/execute-one! tx (-> (sql/insert-into :models)
@@ -145,11 +146,7 @@
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
-            {:keys [created-images-attr all-image-attributes]}
-            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)) ]
-        (when create-all
-          (process-attachments tx attachments "model_id" model-id)
-          (process-image-attributes tx all-image-attributes model-id))
+
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)

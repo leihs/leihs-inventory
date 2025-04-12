@@ -101,22 +101,12 @@
       (and (string? json-map-string) (some #(= json-map-string %) ["" "[]" "{}"])) {}
       :else
       (try
-        (let [
-              p (println ">o> abc.before.normalized")
-              normalized-json-map-string
+        (let [normalized-json-map-string
               (if (.startsWith json-map-string "[")
                 (subs json-map-string 1 (dec (count json-map-string)))
                 json-map-string)
 
-              p (println ">o> abc.after.normalized" normalized-json-map-string)
-              p (println ">o> abc.before.parse" )
-
-
-              parsed (cjson/parse-string normalized-json-map-string true)
-              p (println ">o> abc.after.parse" parsed)
-
-
-              ]
+              parsed (cjson/parse-string normalized-json-map-string true)]
 
           (if (map? parsed)
             parsed

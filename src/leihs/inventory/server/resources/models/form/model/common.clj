@@ -195,7 +195,36 @@
     (for [[k v] m]
       [k (if (nil? v) "" v)])))
 
+
 (defn extract-model-form-data [request create-all]
+  (let [multipart (or (get-in request [:parameters :multipart])
+                    (get-in request [:parameters :body]))
+        prepared-model-data (-> (prepare-model-data multipart)
+                              (assoc :is_package (str-to-bool (:is_package multipart))))
+        categories (parse-json-array multipart :categories)
+        compatibles (parse-json-array multipart :compatibles)
+        properties (parse-json-array multipart :properties)
+        accessories (parse-json-array multipart :accessories)
+        entitlements (parse-json-array multipart :entitlements)
+        attachments  (normalize-files request :attachments) ; maybe FIXME
+        attachments-to-delete (parse-json-array multipart :attachments_to_delete)
+        images-to-delete (parse-json-array multipart :images_to_delete)
+        {:keys [images image-attributes new-images-attr existing-images-attr]}
+         (create-images-and-prepare-image-attributes request)]
+    {:prepared-model-data prepared-model-data
+     :categories categories
+     :compatibles compatibles
+     :properties properties
+     :accessories accessories
+     :entitlements entitlements
+     :attachments attachments
+     :attachments-to-delete attachments-to-delete
+     :images-to-delete images-to-delete
+     :images images
+     :new-images-attr new-images-attr
+     :existing-images-attr existing-images-attr}))
+
+(defn extract-model-form-data-new [request create-all]
   (println ">o> extract-model-form-data!!!!!!!!!!!!!!!!!!!" )
   (let [multipart (or (get-in request [:parameters :multipart])
                       (get-in request [:parameters :body]))
