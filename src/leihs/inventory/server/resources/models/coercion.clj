@@ -132,7 +132,8 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
+;(sa/def ::category (sa/keys :opt-un [::delete ::created_at ::updated_at]
+(sa/def ::category (sa/keys :opt-un [::delete]
                             :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
                       :single (sa/or :coll (sa/coll-of ::category)
@@ -160,7 +161,8 @@
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; use this
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
+;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
+(sa/def ::entitlement (sa/keys :opt-un [::name  ::position :nil/entitlement_id]
                                :req-un [::entitlement_group_id
                                         ::quantity]))
 (sa/def ::entitlements (sa/or

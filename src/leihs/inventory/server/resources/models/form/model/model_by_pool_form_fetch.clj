@@ -112,7 +112,7 @@
                              :accessories accessories
                              :compatibles compatibles
                              :properties properties
-                             :image_attributes image-attributes
+                             :images image-attributes
                              :entitlement_groups entitlements
                              :categories categories)]
                      [])]

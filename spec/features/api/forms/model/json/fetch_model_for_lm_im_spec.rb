@@ -50,7 +50,7 @@ get_response = {
   "is_package" => [TrueClass, FalseClass],
   "accessories" => Array,
   "entitlement_groups" => Array,
-  "image_attributes" => Array,
+  "images" => Array,
   "attachments" => Array,
   "type" => String,
   "hand_over_note" => String,
@@ -66,6 +66,7 @@ get_response = {
 
 feature "Inventory Model" do
   ["inventory_manager", "lending_manager"].each do |role|
+  # ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}", driver: :selenium_headless do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -152,7 +153,7 @@ feature "Inventory Model" do
           model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
+          expect(resp.body[0]["images"].count).to eq(0)
           expect(resp.body[0]["attachments"].count).to eq(0)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
@@ -179,7 +180,7 @@ feature "Inventory Model" do
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
+          expect(resp.body[0]["images"].count).to eq(0)
           expect(resp.body[0]["attachments"].count).to eq(0)
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
@@ -203,7 +204,7 @@ feature "Inventory Model" do
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
+            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33}].to_json,
             "compatibles" => [compatibles.first].to_json,
             "categories" => [@form_model_groups.first].to_json
           }
@@ -213,6 +214,7 @@ feature "Inventory Model" do
             body: form_data,
             headers: cookie_header
           )
+          binding.pry
           expect(resp.status).to eq(200)
 
           # fetch created model
@@ -297,7 +299,7 @@ feature "Inventory Model" do
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["images"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
@@ -372,7 +374,7 @@ feature "Inventory Model" do
           # fetch created model
           model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          resp.body[0]["image_attributes"]
+          resp.body[0]["images"]
           resp.body[0]["attachments"]
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(2)
@@ -467,7 +469,7 @@ feature "Inventory Model" do
             ["product", "version", "manufacturer", "description", "technical_detail",
               "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
-          expect(resp.body[0]["image_attributes"].count).to eq(1)
+          expect(resp.body[0]["images"].count).to eq(1)
           expect(resp.body[0]["attachments"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["compatibles"].count).to eq(1)

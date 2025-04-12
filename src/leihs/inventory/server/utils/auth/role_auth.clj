@@ -74,5 +74,7 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized: " (.getMessage e))
+          ;(println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized1: " (.getMessage e))
+          ;(println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized2: " (.getData e))
+          (println "EXCEPTION-DETAIL: [permission-by-role-and-pool] Unauthorized3: " e)
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
