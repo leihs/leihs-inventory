@@ -54,6 +54,10 @@
    :validation validation})
 
 (defn process-entitlements [tx entitlements model-id]
+
+  (println ">o> abc.entitlements" entitlements)
+  (println ">o> abc.model-id" model-id)
+
   (when (seq entitlements)
     (doseq [entry entitlements]
       (create-or-use-existing tx
@@ -154,13 +158,18 @@
           (response (create-validation-response res @validation-result))
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-        (error "Failed to create model" (.getMessage e))
+        (error "Failed to create model.message" (.getMessage e))
+        (error "Failed to create model.message" (str/includes? (.getMessage e) "unique_model_name_idx"))
+        (error "Failed to create model" e)
+        (println ">o> WEITER GEHTS")
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
-          (-> (response {:status "failure"
-                         :message "Model already exists"
-                         :detail {:product (:product prepared-model-data)}})
-              (status 409))
+          (do
+            (println ">o> abc.SEND MODEL-ALREADY-EXIST")
+            (-> (response {:status "failure"
+                           :message "Model already exists"
+                           :detail {:product (:product prepared-model-data)}})
+                (status 409)))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"

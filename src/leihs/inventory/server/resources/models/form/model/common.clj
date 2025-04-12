@@ -249,10 +249,14 @@
 
         ;entitlements (parse-json-array multipart :entitlements)
         entitlements (-> multipart :entitlements)
+
+        p (println ">o> abc.entitlements" entitlements)
+        p (println ">o> abc.entitlements" (type entitlements))
+
         _ (println ">o> !!!!!!!!! extract-model-form-data.after.entitlements " entitlements)
         attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
-        attachments-to-delete (parse-json-array multipart :attachments_to_delete)
-        images-to-delete (parse-json-array multipart :images_to_delete)
+        attachments-to-delete (-> multipart :attachments_to_delete)
+        images-to-delete (-> multipart :images_to_delete)
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))]
     {:prepared-model-data prepared-model-data

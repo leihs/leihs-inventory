@@ -150,8 +150,17 @@
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
                        :none nil?))
-(sa/def ::images_to_delete string?)
-(sa/def ::attachments_to_delete string?)
+(sa/def ::image_to_delete string?)
+
+(sa/def :list/images_to_delete (sa/or :multiple (sa/coll-of ::image_to_delete :kind vector?)
+                   ;:single ::file
+                                      ))
+
+(sa/def ::attachment_to_delete string?)
+
+(sa/def :list/attachments_to_delete (sa/or :multiple (sa/coll-of ::attachment_to_delete :kind vector?)
+                   ;:single ::attachment_to_delete
+                                           ))
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
@@ -162,7 +171,7 @@
 (sa/def ::quantity int?)
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; use this
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
-(sa/def ::entitlement (sa/keys :opt-un [::name ::position :nil/entitlement_id]
+(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
                                :req-un [::entitlement_group_id
                                         ::quantity]))
 (sa/def ::entitlements (sa/or
@@ -573,9 +582,13 @@
                                            ::internal_description
                                            ::hand_over_note
                                            ::categories
+
+                                           :list/images_to_delete
+                                           :list/attachments_to_delete
+
                                            ;::attachments_to_delete
                                            ;::images_to_delete
-                                           ;:model/image_attributes
+
                                            ::owner
                                            ::compatibles
                                            ::images
