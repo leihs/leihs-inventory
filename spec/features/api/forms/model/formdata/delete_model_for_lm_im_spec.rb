@@ -94,7 +94,7 @@ feature "Inventory Model" do
           model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
+          expect(resp.body[0]["images"].count).to eq(0)
           expect(resp.body[0]["attachments"].count).to eq(0)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
@@ -122,7 +122,7 @@ feature "Inventory Model" do
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(0)
+          expect(resp.body[0]["images"].count).to eq(0)
           expect(resp.body[0]["attachments"].count).to eq(0)
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
           expect(resp.body[0]["entitlement_groups"].count).to eq(0)
@@ -165,7 +165,7 @@ feature "Inventory Model" do
           model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(2)
+          expect(resp.body[0]["images"].count).to eq(2)
           expect(resp.body[0]["attachments"].count).to eq(1)
 
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
@@ -204,7 +204,7 @@ feature "Inventory Model" do
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body[0]["image_attributes"].count).to eq(4)
+          expect(resp.body[0]["images"].count).to eq(4)
           expect(resp.body[0]["attachments"].count).to eq(2)
           expect(resp.body[0]["entitlement_groups"].count).to eq(1)
           expect(resp.body[0]["entitlement_groups"][0]["quantity"]).to eq(11)
