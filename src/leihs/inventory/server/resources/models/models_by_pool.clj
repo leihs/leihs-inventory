@@ -9,7 +9,7 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -84,18 +84,23 @@
                         (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
                         (cond-> (and sort-by model_id) (sql/order-by sort-by)))
          base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
-     (debug (sql-format base-query :inline true))
-     (create-pagination-response request base-query with-pagination?))))
+
+     (if (url-ends-with-uuid? (:uri request))
+       (let [res (jdbc/execute-one! tx (-> base-query sql-format))]
+         (if res
+           (response res)
+           (status 404)))
+       (response (create-pagination-response request base-query with-pagination?))))))
 
 (defn get-models-of-pool-with-pagination-handler [request]
-  (response (get-models-handler request true)))
+  (get-models-handler request true))
 
 (defn get-models-of-pool-auto-pagination-handler [request]
-  (response (get-models-handler request nil)))
+  (get-models-handler request nil))
 
 (defn get-models-of-pool-handler [request]
   (let [result (get-models-handler request)]
-    (response result)))
+    result))
 
 ;;  ------------
 

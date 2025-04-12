@@ -29,6 +29,33 @@ feature "Call swagger-endpoints" do
       expect(resp.status).to eq(200)
     end
 
+    context "accesses protected json-resource by accept=application/json" do
+      it "return 404 for invalid url" do
+        resp = client.get("/inventory/whats/up/222")
+        expect(resp.status).to eq(404)
+      end
+
+      it "return 404 for invalid url" do
+        resp = client.get("/invalid/inventory/whats/up/222")
+        expect(resp.status).to eq(404)
+      end
+
+      it "return 404 for unknown id by model-id" do
+        resp = client.get("/inventory/models/8bd16d45-0000-0000-0000-12849f034351")
+        expect(resp.status).to eq(404)
+      end
+
+      it "return 404 for unknown id by pool-id/model-id" do
+        resp = client.get("/inventory/8bd16d45-0000-0000-0000-12849f034351/models/8bd16d45-0000-0000-0000-12849f034351")
+        expect(resp.status).to eq(404)
+      end
+
+      it "return 400 for invalid id (coercion)" do
+        resp = client.get("/inventory/models/2849f034351")
+        expect(resp.status).to eq(400)
+      end
+    end
+
     it "accesses protected json-resource by accept=*/*" do
       resp = plain_faraday_json_client.get("/inventory/test-csrf")
       expect(resp.status).to eq(403)

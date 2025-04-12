@@ -29,7 +29,7 @@
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [muuntaja.core :as m]
@@ -39,6 +39,7 @@
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.swagger :as swagger]
    [ring.util.response :as response]
+   [ring.util.response :refer [bad-request response status]]
    [schema.core :as s]))
 
 (defn swagger-api-docs-handler [request]
@@ -131,11 +132,9 @@
 
   ["/"
 
-   [""
-    {:swagger {:tags ["Login"]}}
-
-    ["sign-in"
-     {:no-doc false
+   [["sign-in"
+     {:swagger {:tags ["Login"]}
+      :no-doc false
 
       :post {:accept "application/json"
              :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
@@ -145,14 +144,16 @@
 
       :get {:summary "HTML | Get sign-in page"
             :accept "text/html"
-            :swagger {:produces ["text/html" "application/json"]}
+            :swagger {:consumes ["text/html"]
+                      :produces ["text/html" "application/json"]}
+            :middleware [(restrict-uri-middleware ["/sign-in"])]
             :handler get-sign-in}}]
 
     ["sign-out"
-     {:no-doc false
+     {:swagger {:tags ["Login"]}
+      :no-doc false
       :post {:accept "application/json"
              :swagger {:produces ["text/html" "application/json"]}
-
              :handler post-sign-out}
       :get {:accept "text/html"
             :summary "HTML | Get sign-out page"
@@ -198,35 +199,35 @@
               :handler set-password-handler}}]]
 
     ["/"
+     {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
 
-     [""
-      {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
-
-      ["test-csrf"
-       {:no-doc false
-        :coercion reitit.coercion.schema/coercion
-        :accept "application/json"
-
-        :get {:description "Access allowed without x-csrf-token"
+     ["test-csrf"
+      {:no-doc false
+       :get {:accept "application/json"
+             :description "Access allowed without x-csrf-token"
+             :handler (fn [_] {:status 200})}
+       :post {:accept "application/json"
+              :description "Access denied without x-csrf-token"
               :handler (fn [_] {:status 200})}
-        :post {:description "Access denied without x-csrf-token"
+       :put {:accept "application/json"
+             :description "Access denied without x-csrf-token"
+             :handler (fn [_] {:status 200})}
+       :patch {:accept "application/json"
+               :description "Access denied without x-csrf-token"
                :handler (fn [_] {:status 200})}
-        :put {:description "Access denied without x-csrf-token"
-              :handler (fn [_] {:status 200})}
-        :patch {:description "Access denied without x-csrf-token"
-                :handler (fn [_] {:status 200})}
-        :delete {:description "Access denied without x-csrf-token"
-                 :handler (fn [_] {:status 200})}}]]
+       :delete {:accept "application/json"
+                :description "Access denied without x-csrf-token"
+                :handler (fn [_] {:status 200})}}]]
 
-     [""
-      {:swagger {:tags ["CSRF"] :security []}}
+    ["/"
+     {:swagger {:tags ["CSRF"] :security []}}
 
-      ["csrf-token"
-       {:no-doc false
-        :get {:summary "Retrieve X-CSRF-Token for request header"
-              :accept "text/html"
-              :swagger {:produces ["application/json"]}
-              :handler get-sign-in}}]]]
+     ["csrf-token"
+      {:no-doc false
+       :get {:summary "Retrieve X-CSRF-Token for request header"
+             :accept "application/json"
+             :swagger {:produces ["application/json"]}
+             :handler get-sign-in}}]]
 
     ["/"
      {:swagger {:tags ["Status"]}}

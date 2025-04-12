@@ -11,7 +11,7 @@
                                                                    apply-is_deleted-where-context-if-valid]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -96,8 +96,11 @@
                        (cond-> model_id (sql/where [:= :m.id model_id]))
                        (sql/order-by sort-by))
         base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
-    (if model_id
-      (response (jdbc/execute! tx (-> base-query sql-format)))
+    (if (url-ends-with-uuid? (:uri request))
+      (let [res (jdbc/execute-one! tx (-> base-query sql-format))]
+        (if res
+          (response res)
+          (status 404)))
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))))
 

@@ -66,7 +66,8 @@
                                               merged-result (merge-by-id items-res models-res :model_id)
                                               reduced-res (map #(select-keys % [:inventory_code :product]) merged-result)]
 
-                                          (if (= "Normal" result-type) merged-result reduced-res)))]
+                                          (if (= "Normal" result-type) merged-result reduced-res)))
+                               result (remove #(or (nil? %) (and (map? %) (empty? %))) result)]
 
                            (-> (response/response result)
                                (response/header "Count" (str (count result)))))))

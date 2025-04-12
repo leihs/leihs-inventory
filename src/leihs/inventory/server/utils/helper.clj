@@ -82,6 +82,15 @@
     (update m k f)
     m))
 
+(def uuid-regex
+  #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$")
+
+(defn url-ends-with-uuid? [url]
+  (let [path (first (str/split url #"\?"))
+        segments (str/split path #"/")
+        last-segment (last segments)]
+    (boolean (re-matches uuid-regex last-segment))))
+
 ;; Used for columns of jsonb type
 (defn convert-map-if-exist [m]
   (-> m

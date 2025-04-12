@@ -1095,7 +1095,7 @@
 
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
-
+     ;; by pool id
      ["/accessories"
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion

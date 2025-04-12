@@ -13,6 +13,17 @@
         (handler request)
         (index-html-response request 200)))))
 
+(defn restrict-uri-middleware
+  "Middleware that blocks requests unless URI is explicitly allowed."
+  [allowed-uris]
+  (fn [handler]
+    (fn [request]
+      (let [uri (:uri request)
+            referer (:referer request)]
+        (if (some #(= uri %) allowed-uris)
+          (handler request)
+          (response/status 404))))))
+
 (defn accept-json-image-middleware [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])]

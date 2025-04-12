@@ -32,16 +32,16 @@
      (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (handler request)
      (= (-> request :accept :mime) :json) (or (handler request)
                                               (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 407})))
+                                                              {:status 404})))
      (and (= (-> request :accept :mime) :html)
           (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 405)
+          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 404)
      :else (let [response (handler request)]
              (if (and (nil? response)
                       (not (#{:post :put :patch :delete} (:request-method request)))
                       (= (-> request :accept :mime) :html)
                       (not (browser-request-matches-javascript? request)))
-               (rh/index-html-response request 408)
+               (rh/index-html-response request 404)
                response)))))
 
 (defn parse-cookies [cookie-header]
@@ -81,7 +81,6 @@
     (let [content-type (get-in request [:headers "content-type"])
           is-accept-json? (str/includes? (str (get-in request [:headers "accept"])) "application/json")
           x-csrf-token (get-in request [:headers "x-csrf-token"])
-          header (get-in request [:headers])
           request (-> request
                       (cond-> (= content-type "application/x-www-form-urlencoded")
                         (assoc :form-params (some-> (:body request) extract-form-params)))
@@ -89,13 +88,15 @@
                       convert-params)]
       (try
         (handler request)
-        (catch Exception e
-          (if (str/includes? (:uri request) "/sign-in")
-            (leihs.inventory.server.routes/get-sign-in request)
-            (-> (response/response {:status "failure"
-                                    :message "CSRF-Token/Session not valid"
-                                    :detail (.getMessage e)})
-                (response/status 403))))))))
+        (catch Throwable e
+          (if (instance? Throwable e)
+            (if (str/includes? (:uri request) "/sign-in")
+              (leihs.inventory.server.routes/get-sign-in request)
+              (-> (response/response {:status "failure"
+                                      :message "CSRF-Token/Session not valid"
+                                      :detail (.getMessage e)})
+                  (response/status 403)))
+            (response/status 404))))))) ;; coercion error for undefined urls
 
 (defn wrap-csrf [handler]
   (fn [request]

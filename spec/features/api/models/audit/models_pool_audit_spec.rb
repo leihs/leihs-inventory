@@ -72,8 +72,7 @@ feature "Swagger Inventory Endpoints - Models of pool with audits" do
         expect_audit_entries_count(2, 9, 2)
 
         check_deleted_response = client.get("#{url}/#{model_id}")
-        expect(check_deleted_response.status).to eq(200)
-        expect(check_deleted_response.body.count).to eq(0)
+        expect(check_deleted_response.status).to eq(404)
         expect_audit_entries_count(2, 9, 2)
       end
     end
