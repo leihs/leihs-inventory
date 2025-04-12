@@ -628,9 +628,9 @@
              :parameters {:path {:pool_id uuid?}
                           :body :software/multipart}
 
-             :handler create-model-handler-by-pool-model-only
+             ;:handler create-model-handler-by-pool-model-only
 
-             ;:handler create-model-handler-by-pool-model-json
+             :handler create-model-handler-by-pool-model-json
 
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model

@@ -235,9 +235,13 @@
         ;categories (parse-json-array multipart :categories)
         categories (-> multipart :categories)
 
-        compatibles (parse-json-array multipart :compatibles)
-        properties (parse-json-array multipart :properties)
-        accessories (parse-json-array multipart :accessories)
+        ;compatibles (parse-json-array multipart :compatibles)
+        ;properties (parse-json-array multipart :properties)
+        ;accessories (parse-json-array multipart :accessories)
+
+        compatibles (-> multipart :compatibles)
+        properties (-> multipart :properties)
+        accessories (-> multipart :accessories)
         _ (println ">o> extract-model-form-data.before")
         p (println ">o> abc.data" (-> multipart :entitlements))
 
