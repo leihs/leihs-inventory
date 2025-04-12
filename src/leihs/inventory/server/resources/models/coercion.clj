@@ -157,9 +157,12 @@
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def ::entitlement_id uuid?)
+(sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position]
-                               :req-un [::entitlement_group_id ::entitlement_id ::quantity]))
+;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; use this
+(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
+                               :req-un [::entitlement_group_id
+                                        ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of ::entitlement)
                                        :str string?)
@@ -558,6 +561,26 @@
                                               ::entitlements
                                               :software/properties
                                               ::accessories]))
+
+(sa/def :model/multipart (sa/keys :req-un [::product]
+                                  :opt-un [::version
+                                           ::manufacturer
+                                           ::is_package
+                                           ::description
+                                           ::technical_detail
+                                           ::internal_description
+                                           ::hand_over_note
+                                           ::categories
+                                           ::attachments_to_delete
+                                           ::images_to_delete
+                                           :model/image_attributes
+                                           ::owner
+                                           ::compatibles
+                                           ::images
+                                           ::attachments
+                                           ::entitlements
+                                           :software/properties
+                                           ::accessories]))
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
