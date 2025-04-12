@@ -183,6 +183,10 @@ def http_multipart_client(url, form_data, method: :post, headers: {"Accept" => "
   request.set_form(prepared_form_data, "multipart/form-data")
   response = http.request(request)
 
+  if response.body == ""
+    return ResponseResult.new(response.code.to_i, {})
+  end
+
   ResponseResult.new(response.code.to_i, JSON.parse(response.body))
 end
 

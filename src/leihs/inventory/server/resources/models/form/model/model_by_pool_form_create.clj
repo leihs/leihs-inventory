@@ -53,8 +53,7 @@
    :validation validation})
 
 (defn process-entitlements [tx entitlements model-id]
-  (when (seq entitlements)
-    (doseq [entry entitlements]
+  (doseq [entry entitlements]
     (create-or-use-existing tx
                             :entitlements
                             [:and
@@ -62,7 +61,7 @@
                              [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
                             {:model_id model-id
                              :entitlement_group_id (to-uuid (:entitlement_group_id entry))
-                             :quantity (:quantity entry)}))))
+                             :quantity (:quantity entry)})))
 
 (defn process-properties [tx properties model-id]
   (doseq [entry properties]
@@ -119,16 +118,6 @@
                              [:= :model_group_id (to-uuid (:id category))]]
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
-
-
-(defn replace-nil-with-empty-string
-  "Replace all nil values in a map with empty strings."
-  [m]
-  (into {}
-    (for [[k v] m]
-      [k (if (nil? v) "" v)])))
-
-
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
@@ -136,17 +125,17 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request create-all) ]
+        (extract-model-form-data request create-all)]
 
     (try
-      (let [ res (jdbc/execute-one! tx (-> (sql/insert-into :models)
+      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)
             {:keys [created-images-attr all-image-attributes]}
-            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr)) ]
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
         (when create-all
           (process-attachments tx attachments "model_id" model-id)
           (process-image-attributes tx all-image-attributes model-id))
@@ -171,7 +160,7 @@
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (bad-request {:status "failure" :error "Failed to create model" :details (.getMessage e)}))))))
+          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 
 (defn create-model-handler-by-pool-model-only [request]
   (create-model-handler-by-pool-form request false))
