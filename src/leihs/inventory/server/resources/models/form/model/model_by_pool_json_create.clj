@@ -25,6 +25,16 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
+(defn prepare-model-data
+  [data]
+  (let [normalize-data (normalize-model-data data)
+        created-ts (LocalDateTime/now)
+        normalize-data (dissoc normalize-data :id)]
+    (assoc normalize-data
+           :type "Model"
+           :created_at created-ts
+           :updated_at created-ts)))
+
 (defn create-or-use-existing
   [tx table where-values insert-values]
   (let [select-query (-> (sql/select :*)
@@ -44,6 +54,10 @@
    :validation validation})
 
 (defn process-entitlements [tx entitlements model-id]
+
+  (println ">o> abc.entitlements" entitlements)
+  (println ">o> abc.model-id" model-id)
+
   (when (seq entitlements)
     (doseq [entry entitlements]
       (create-or-use-existing tx
@@ -111,6 +125,13 @@
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
 
+(defn replace-nil-with-empty-string
+  "Replace all nil values in a map with empty strings."
+  [m]
+  (into {}
+        (for [[k v] m]
+          [k (if (nil? v) "" v)])))
+
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
@@ -158,3 +179,6 @@
 
 (defn create-model-handler-by-pool-model-json [request]
   (create-model-handler-by-pool-form request true))
+
+;(defn create-model-handler-by-pool-with-attachment-images [request]
+;  (create-model-handler-by-pool-form request true))

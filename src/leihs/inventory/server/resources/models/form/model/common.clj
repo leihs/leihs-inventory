@@ -225,19 +225,38 @@
         prepared-model-data (-> (prepare-model-data multipart)
                                 (assoc :is_package (str-to-bool (:is_package multipart))))
 
-        ;; FIXME: CONVERT NIL-VALUES TO EMPTY-STR
+        p (println ">o> abc.prepared-model-data >> " prepared-model-data)
+
+;; FIXME: CONVERT NIL-VALUES TO EMPTY-STR
         prepared-model-data (replace-nil-with-empty-string prepared-model-data)
+        ;prepared-model-data (remove-empty-or-nil prepared-model-data)
+        p (println ">o> abc.prepared-model-data2 >> " prepared-model-data)
+
+        ;categories (parse-json-array multipart :categories)
         categories (-> multipart :categories)
+
+        ;compatibles (parse-json-array multipart :compatibles)
+        ;properties (parse-json-array multipart :properties)
+        ;accessories (parse-json-array multipart :accessories)
+
         compatibles (-> multipart :compatibles)
         properties (-> multipart :properties)
         accessories (-> multipart :accessories)
+        _ (println ">o> extract-model-form-data.before")
+        p (println ">o> abc.data" (-> multipart :entitlements))
+
+        ;data {}
+
+        ;entitlements (parse-json-array multipart :entitlements)
         entitlements (-> multipart :entitlements)
+        _ (println ">o> !!!!!!!!! extract-model-form-data.after.entitlements " entitlements)
         attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
         attachments-to-delete (-> multipart :attachments_to_delete)
         images-to-delete (-> multipart :images_to_delete)
         {:keys [images image-attributes new-images-attr existing-images-attr]}
         (when create-all (create-images-and-prepare-image-attributes request))]
     {:prepared-model-data prepared-model-data
+     ;:categories categories
      :categories (if (nil? categories) [] categories)
      :compatibles compatibles
      :properties properties
