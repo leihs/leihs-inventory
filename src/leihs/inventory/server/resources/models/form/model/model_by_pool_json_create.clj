@@ -145,7 +145,7 @@
                                           (sql/returning :*)
                                           sql-format))
             res (filter-response res [:rental_price])
-            model-id (:id res)
+            model-id (:id res)]
 
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
@@ -170,8 +170,8 @@
               (status 409))
           :else (bad-request {:status "failure" :error "Failed to create model" :details (.getMessage e)}))))))
 
-(defn create-model-handler-by-pool-model-only [request]
-  (create-model-handler-by-pool-form request false))
-
-(defn create-model-handler-by-pool-with-attachment-images [request]
+(defn create-model-handler-by-pool-model-json [request]
   (create-model-handler-by-pool-form request true))
+
+;(defn create-model-handler-by-pool-with-attachment-images [request]
+;  (create-model-handler-by-pool-form request true))

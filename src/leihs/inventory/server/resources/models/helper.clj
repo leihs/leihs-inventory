@@ -114,7 +114,7 @@
         (catch Exception e
           (throw (ex-info "Invalid JSON Map Format" {:error (.getMessage e)})))))))
 
-(defn parse-json-array
+(defn parse-json-array-new
   "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
   [multipart key]
   (let [json-array-input (or (key multipart)
@@ -163,6 +163,29 @@
         (throw (ex-info "Invalid input type for JSON array"
                  {:input json-array-input}))))))
 
+
+(defn parse-json-array
+  "Parse the JSON string and return the vector of maps. (swagger-ui normalizer)"
+  [multipart key] ;; TODO: multipart is a map (preferred way) OR request (legacy-code)
+  (let [;; TODO: To use (key multipart) is the correct way (create-model-handler)
+        ;; The other one is legacy-code to handle multipart-data requests
+        json-array-string (or (key multipart)
+                            (get-in multipart [:parameters :multipart key]))]
+    (cond
+      (not json-array-string) []
+      (and (string? json-array-string) (some #(= json-array-string %) ["" "[]" "{}"])) []
+      :else (try
+              (let [normalized-json-array-string
+                    (if (and (.startsWith json-array-string "{")
+                          (not (.startsWith json-array-string "[")))
+                      (str "[" json-array-string "]")
+                      json-array-string)
+
+                    parsed (cjson/parse-string normalized-json-array-string true)
+                    parsed-vector (vec parsed)]
+                parsed-vector)
+              (catch Exception e
+                (throw (ex-info "Invalid JSON Array Format" {:error (.getMessage e)})))))))
 
 (defn file-sha256 [file]
   (let [actual-file (if (instance? java.io.File file)

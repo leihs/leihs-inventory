@@ -16,8 +16,12 @@
                                                                       patch-models-handler
                                                                       patch-model-handler
                                                                       upload-image]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [
                                                                                          create-model-handler-by-pool-with-attachment-images]]
+
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json
+                                                                                         ]]
+
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
                                                                                          update-model-handler-by-pool-model-only
@@ -624,7 +628,7 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :body :software/multipart}
-             :handler create-model-handler-by-pool-model-only
+             :handler create-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
