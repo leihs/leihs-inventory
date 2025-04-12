@@ -571,9 +571,9 @@
                                            ::internal_description
                                            ::hand_over_note
                                            ::categories
-                                           ::attachments_to_delete
-                                           ::images_to_delete
-                                           :model/image_attributes
+                                           ;::attachments_to_delete
+                                           ;::images_to_delete
+                                           ;:model/image_attributes
                                            ::owner
                                            ::compatibles
                                            ::images
