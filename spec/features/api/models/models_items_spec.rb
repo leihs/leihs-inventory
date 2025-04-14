@@ -12,76 +12,51 @@ feature "Inventory API Endpoints - Items" do
 
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+      @path = "/#{@inventory_pool_id}/"
     end
 
-    ["/", "/#{@inventory_pool_id}"].each do |path|
-      let(:url) { "/inventory#{path}models/#{model_with_items.id}/items" }
+    let(:url) { "/inventory#{@path}models/#{model_with_items.id}/items" }
 
-      context "GET /inventory/models/:id/items for a model with items" do
-        it "retrieves all items for the model and returns status 200" do
-          resp = client.get url
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
-        end
-
-        it "retrieves paginated item results and returns status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
-        end
-
-        it "retrieves specific item details by ID and returns status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-
-          item_id = resp.body["data"][0]["id"]
-          resp = client.get "#{url}/#{item_id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(0)
-        end
-
-        it "returns no results for model with an invalid item ID with status 200" do
-          invalid_id = SecureRandom.uuid
-          resp = client.get "#{url}/#{invalid_id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(0)
-        end
-
-        it "retrieves paginated results for model with items and returns status 200" do
-          resp = client.get "#{url}?is_deletable=true&page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(0)
-
-          resp = client.get "#{url}?is_deletable=false&page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
-        end
+    context "GET /inventory/models/:id/items for a model with items" do
+      it "retrieves all items for the model and returns status 200" do
+        resp = client.get url
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"].count).to eq(1)
       end
 
-      context "GET /inventory/models/:id/items for a model without items" do
-        let(:url) { "/inventory#{path}models/#{model_without_items.id}/items?page=1&size=50" }
+      it "retrieves paginated item results and returns status 200" do
+        resp = client.get "#{url}?page=1&size=1"
+        expect(resp.status).to eq(200)
+        expect(resp.body["pagination"]["total_rows"]).to eq(1)
+      end
 
-        it "retrieves no items for the model and returns status 200" do
-          resp = client.get url
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
-        end
+      it "retrieves specific item details by ID and returns status 200" do
+        resp = client.get "#{url}?page=1&size=1"
+        expect(resp.status).to eq(200)
 
-        it "retrieves paginated results for model with no items and returns status 200" do
-          resp = client.get "#{url}?page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
-        end
+        item_id = resp.body["data"][0]["id"]
+        resp = client.get "#{url}/#{item_id}"
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"].count).to eq(1)
+        expect(resp.body["data"][0]["id"]).to eq(item_id)
+      end
 
-        it "retrieves paginated results for model with no items and returns status 200" do
-          resp = client.get "#{url}?is_deletable=true&page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
+      it "returns no results for model with an invalid item ID with status 200" do
+        invalid_id = SecureRandom.uuid
+        resp = client.get "#{url}/#{invalid_id}"
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"].count).to eq(0)
+      end
+    end
 
-          resp = client.get "#{url}?is_deletable=false&page=1&size=1"
-          expect(resp.status).to eq(200)
-          expect(resp.body["pagination"]["total_rows"]).to eq(1)
-        end
+    context "GET /inventory/models/:id/items for a model without items" do
+      let(:url) { "/inventory#{@path}models/#{model_without_items.id}/items?page=1&size=50" }
+
+      it "retrieves no items for the model and returns status 200" do
+        resp = client.get url
+        expect(resp.status).to eq(200)
+        expect(resp.body["data"].count).to eq(0)
+        expect(resp.body["pagination"]["total_rows"]).to eq(0)
       end
     end
   end

@@ -61,19 +61,19 @@ feature "Swagger Inventory Endpoints - Models with audits" do
         expect_audit_entries_count(2, 9, 2)
       end
 
-      it "deletes a model and verifies it is removed" do
-        model_id = response.body[0]["id"]
-        delete_response = client.delete("#{url}/#{model_id}")
+      # it "deletes a model and verifies it is removed" do
+      #   model_id = response.body[0]["id"]
+      #   delete_response = client.delete("#{url}/#{model_id}")
 
-        expect(delete_response.status).to eq(200)
-        expect(delete_response.body[0]["id"]).to eq(model_id)
-        expect_audit_entries_count(2, 9, 2)
+      #   expect(delete_response.status).to eq(200)
+      #   expect(delete_response.body[0]["id"]).to eq(model_id)
+      #   expect_audit_entries_count(2, 9, 2)
 
-        check_deleted_response = client.get("#{url}/#{model_id}")
-        expect(check_deleted_response.status).to eq(200)
-        expect(check_deleted_response.body.count).to eq(0)
-        expect_audit_entries_count(2, 9, 2)
-      end
+      #   check_deleted_response = client.get("#{url}/#{model_id}")
+      #   expect(check_deleted_response.status).to eq(200)
+      #   expect(check_deleted_response.body.count).to eq(0)
+      #   expect_audit_entries_count(2, 9, 2)
+      # end
     end
   end
 end

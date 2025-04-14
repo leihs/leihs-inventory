@@ -40,12 +40,13 @@
         (sql/where [:= :p.id properties-id]))))
 
 (defn accessories-query
-  ([query accessories-id]
+  ([query pool-id model-id accessories-id]
    (accessories-query query accessories-id "n/d"))
-  ([query accessories-id type]
+  ([query pool-id model-id accessories-id type]
    (-> query
        (sql/select-distinct [:a.*])
        (sql/join [:accessories :a] [:= :m.id :a.model_id])
+       (sql/where [:= :models.id model-id])
        (cond-> accessories-id
          (sql/where [:= :a.id accessories-id])))))
 

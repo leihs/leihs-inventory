@@ -8,7 +8,8 @@
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.util.response :refer [bad-request response status]]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
@@ -75,11 +76,14 @@
   (let [{:keys [page size]} (fetch-pagination-params-raw request)
         tx (:tx request)]
     (cond
-      (and (or (nil? with-pagination?) (= with-pagination? false)) (single-entity-get-request? request))
-      (jdbc/query (:tx request) (-> base-query sql-format))
+      (and (or (nil? with-pagination?) (= with-pagination? false))
+           (single-entity-get-request? request))
+      (jdbc/query tx (-> base-query sql-format))
 
-      (and (or (nil? with-pagination?) with-pagination?) (or (some? page) (some? size)))
+      (and (or (nil? with-pagination?) with-pagination?)
+           (or (some? page) (some? size)))
       (pagination-response request base-query)
 
-      (and with-pagination?) (pagination-response request base-query)
-      :else (jdbc/query (:tx request) (-> base-query sql-format)))))
+      with-pagination? (pagination-response request base-query)
+
+      :else (jdbc/query tx (-> base-query sql-format)))))

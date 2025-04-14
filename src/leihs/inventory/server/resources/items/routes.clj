@@ -29,37 +29,6 @@
 (defn get-items-routes []
   [""
 
-   [""
-    {:swagger {:conflicting true
-               :tags ["Items"]}}
-
-    ["/items"
-     {:get {:conflicting true
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:query {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int}}
-            :handler get-items-of-pool-with-pagination-handler
-            :responses {200 {:description "OK"
-                             :body s/Any}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ["/items/:item_id"
-     {:get {:conflicting true
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:item_id s/Uuid}}
-            :handler get-items-of-pool-handler
-            :responses {200 {:description "OK"
-                             :body s/Any}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
    ["/:pool_id"
     {:swagger {:conflicting true
                :tags ["Items by pool"]}}

@@ -1,21 +1,19 @@
 (ns leihs.inventory.server.resources.models.routes
   (:require
-   [clojure.java.io :as io]
    [clojure.spec.alpha :as sa]
-   [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.accessories.main :refer [get-accessories-of-pool-handler]]
    [leihs.inventory.server.resources.models.coercion :as mc]
+   [leihs.inventory.server.resources.models.entitlements.main :refer [get-entitlements-with-pagination-handler]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.models.form.model.common :refer [upload-attachment
-                                                                      patch-models-handler
+   [leihs.inventory.server.resources.models.form.model.common :refer [upload-image
+                                                                      upload-attachment
                                                                       patch-model-handler
-                                                                      upload-image]]
+                                                                      patch-models-handler]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
                                                                                          create-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
@@ -35,34 +33,29 @@
    [leihs.inventory.server.resources.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
                                                                                             update-software-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.inventory-list :refer [inventory-list-handler]]
+   [leihs.inventory.server.resources.models.items.main :refer [get-items-with-pagination-handler]]
    [leihs.inventory.server.resources.models.main :refer [create-model-handler
+                                                         update-model-handler
                                                          delete-model-handler
                                                          get-manufacturer-handler
-                                                         get-models-compatible-handler
-                                                         get-models-handler
-                                                         update-model-handler]]
-   [leihs.inventory.server.resources.models.models-by-pool :refer [get-models-of-pool-handler
-                                                                   create-model-handler-by-pool
+                                                         get-models-compatible-handler]]
+   [leihs.inventory.server.resources.models.model-links.main :refer [get-model-links-with-pagination-handler]]
+   [leihs.inventory.server.resources.models.models-by-pool :refer [create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
-                                                                   get-models-of-pool-auto-pagination-handler
+                                                                   get-models-handler
+                                                                   get-models-of-pool-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
+                                                                   get-models-of-pool-auto-pagination-handler
                                                                    update-model-handler-by-pool]]
-   [leihs.inventory.server.resources.models.tree.filter :as filter]
+   [leihs.inventory.server.resources.models.properties.main :refer [get-properties-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.response_helper :as rh]
-   [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
-   [ring.util.response :as response]
-   [schema.core :as s]
-   [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]))
+   [schema.core :as s]))
 
 (def FileUpload
   "Schema describing a typical Ring multipart file map."
@@ -145,7 +138,8 @@
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json" "text/html"]}
+            :swagger {:produces ["application/json" "text/html"]
+                      :deprecated true}
             :handler get-models-handler
             :description "Get all models, default: page=1, size=10, sort_by=manufacturer-asc"
             :parameters {:query {(s/optional-key :page) s/Int
@@ -214,7 +208,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid}
 
                            :query {(s/optional-key :page) s/Int
@@ -232,7 +227,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid
                                   :item_id s/Uuid}}
               :handler get-models-of-pool-handler
@@ -247,7 +243,8 @@
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
+                 :swagger {:produces ["application/json"]
+                           :deprecated true}
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
@@ -261,7 +258,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid
                                   :properties_id s/Uuid}}
               :handler get-models-of-pool-handler
@@ -278,7 +276,8 @@
                  :summary "(T)"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
+                 :swagger {:produces ["application/json"]
+                           :deprecated true}
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
@@ -292,7 +291,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid
                                   :accessories_id s/Uuid}}
               :handler get-models-of-pool-handler
@@ -364,7 +364,8 @@
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
+                 :swagger {:produces ["application/json"]
+                           :deprecated true}
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
@@ -376,7 +377,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid
                                   :entitlement_id s/Uuid}}
               :handler get-models-of-pool-handler
@@ -389,7 +391,8 @@
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
+                 :swagger {:produces ["application/json"]
+                           :deprecated true}
                  :parameters {:path {:model_id s/Uuid}}
                  :handler get-models-of-pool-with-pagination-handler
                  :responses {200 {:description "OK"
@@ -401,7 +404,8 @@
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
+              :swagger {:produces ["application/json"]
+                        :deprecated true}
               :parameters {:path {:model_id s/Uuid
                                   :model_link_id s/Uuid}}
               :handler get-models-of-pool-handler
@@ -984,7 +988,7 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
+                 :handler get-items-with-pagination-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])} ;;FIXME
                                   :body s/Any}
@@ -1000,7 +1004,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :item_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+              :handler get-items-with-pagination-handler
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])} ;;FIXME
                                :body s/Any}
@@ -1066,10 +1070,8 @@
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
-                 :handler get-models-of-pool-with-pagination-handler
+                                     :model_id s/Uuid}}
+                 :handler get-properties-with-pagination-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
@@ -1077,15 +1079,15 @@
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]
 
-      ["/:properties_id"
+      ["/:property_id"
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
-                                  :properties_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+                                  :property_id s/Uuid}}
+              :handler get-properties-with-pagination-handler
 
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])}
@@ -1100,10 +1102,8 @@
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
-                 :handler get-models-of-pool-with-pagination-handler
+                                     :model_id s/Uuid}}
+                 :handler get-accessories-of-pool-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
@@ -1111,15 +1111,15 @@
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]
 
-      ["/:accessories_id"
+      ["/:accessory_id"
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
-                                  :accessories_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+                                  :accessory_id s/Uuid}}
+              :handler get-accessories-of-pool-handler
 
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])}
@@ -1169,10 +1169,8 @@
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
-                                     :model_id s/Uuid
-                                     ;:item_id s/Uuid
-                                     }}
-                 :handler get-models-of-pool-with-pagination-handler
+                                     :model_id s/Uuid}}
+                 :handler get-entitlements-with-pagination-handler
                  :responses {200 {:description "OK"
                                   ;:body (s/->Either [s/Any schema])}
                                   :body s/Any}
@@ -1188,7 +1186,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :entitlement_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+              :handler get-entitlements-with-pagination-handler
 
               :responses {200 {:description "OK"
                                ;:body (s/->Either [s/Any schema])}
@@ -1204,7 +1202,7 @@
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
+                 :handler get-model-links-with-pagination-handler
                  :responses {200 {:description "OK"
                                   :body s/Any}
 
@@ -1219,7 +1217,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :model_link_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+              :handler get-model-links-with-pagination-handler
 
               :responses {200 {:description "OK"
                                :body s/Any}

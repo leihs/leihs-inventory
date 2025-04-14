@@ -10,8 +10,7 @@ FactoryBot.define do
       after(:create) do |package, evaluator|
         3.times do
           package.items << FactoryBot.create(
-            :package_item_with_parts,
-            # inventory_pool: evaluator.inventory_pool
+            :item,
             inventory_pool_id: evaluator.inventory_pool.id,
             owner: evaluator.inventory_pool
           )
@@ -24,38 +23,25 @@ FactoryBot.define do
         inventory_pool { FactoryBot.create(:inventory_pool) }
       end
 
-      after(:create) do |package, evaluator|
-        package.items << FactoryBot.create(
-          :package_item_with_parts,
+      after(:create) do |model, evaluator|
+        parent = FactoryBot.create(
+          :item,
           inventory_pool_id: evaluator.inventory_pool.id,
-          owner: evaluator.inventory_pool
+          owner: evaluator.inventory_pool,
+          model_id: model.id
         )
 
-        parent_id = package.items.first.id
+        model.items << parent
+
         3.times do
-          package.items << FactoryBot.create(
-            :package_item_with_parts,
+          FactoryBot.create(
+            :item,
             inventory_pool_id: evaluator.inventory_pool.id,
             owner: evaluator.inventory_pool,
-            parent_id: parent_id
+            parent_id: parent.id
           )
         end
       end
-    end
-  end
-
-  factory :package_item, parent: :item do
-    factory :package_item_with_parts do
-      # after(:create) do |item, evaluator|
-      #     3.times do
-      #       binding.pry
-      #       item.children << \
-      #         FactoryBot.create(:item,
-      #                           owner: evaluator.owner,
-      #                           parent: item)
-      #   end
-      # end
-      #
     end
   end
 end
