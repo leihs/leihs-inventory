@@ -166,6 +166,7 @@
                         :single ::file))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
+(sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
@@ -173,8 +174,12 @@
 (sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
                                :req-un [::entitlement_group_id
                                         ::quantity]))
+
+(sa/def :json/entitlement (sa/keys :opt-un [::name ::delete ::position :nil/id]
+                                   :req-un [:entitlement/group_id
+                                            ::quantity]))
 (sa/def ::entitlements (sa/or
-                        :single (sa/or :coll (sa/coll-of ::entitlement)
+                        :single (sa/or :coll (sa/coll-of :json/entitlement)
                                        :str string?)
                         :none nil?))
 (sa/def ::inventory_bool boolean?)

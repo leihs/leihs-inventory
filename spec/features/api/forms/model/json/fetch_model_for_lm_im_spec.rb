@@ -203,7 +203,7 @@ feature "Inventory Model" do
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33}],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
             "compatibles" => [compatibles.first],
             "categories" => [@form_model_groups.first]
           }
@@ -281,7 +281,7 @@ feature "Inventory Model" do
             "technical_detail" => "updated techDetail",
             "internal_description" => "updated internalDesc",
             "important_notes" => "updated notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 11}],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 11}],
             "compatibles" => [compatibles.first, compatibles.second],
             "categories" => [
               @form_model_groups.first.except("created_at", "updated_at"),
@@ -353,8 +353,8 @@ feature "Inventory Model" do
             "hand_over_note" => "Hand over notes",
             "properties" => [{key: "prop-1", value: "bar1"}, {key: "prop-2", value: "bar2"}],
             "accessories" => [{name: "acc1", has_inventory_pool: false}, {name: "acc2", has_inventory_pool: true}],
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33},
-              {entitlement_group_id: @form_entitlement_groups.second["id"], quantity: 55}],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33},
+              {group_id: @form_entitlement_groups.second["id"], quantity: 55}],
             # "categories" => [@form_model_groups.first, @form_model_groups.second],
 
             "categories" => [
@@ -445,8 +445,8 @@ feature "Inventory Model" do
             "hand_over_note" => "Hand over notes",
             "properties" => [{key: "prop-1", value: "bar1"}, add_delete_flag({key: "prop-2", value: "bar2"})],
             "accessories" => [{name: "acc1", has_inventory_pool: false}, add_delete_flag({name: "acc2", has_inventory_pool: true})],
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], quantity: 33},
-              add_delete_flag({entitlement_group_id: @form_entitlement_groups.second["id"], quantity: 55})],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33},
+              add_delete_flag({group_id: @form_entitlement_groups.second["id"], quantity: 55})],
             # "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)],
 
             "categories" => [

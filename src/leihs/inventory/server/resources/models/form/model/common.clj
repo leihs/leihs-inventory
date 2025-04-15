@@ -218,6 +218,10 @@
         (for [[k v] m]
           [k (if (nil? v) "" v)])))
 
+(defn rename-keys-in-vec
+  [data key-map]
+  (mapv #(clojure.set/rename-keys % key-map) data))
+
 (defn extract-model-form-data-new [request create-all]
   (let [multipart (or (get-in request [:parameters :multipart])
                       (get-in request [:parameters :body]))
@@ -229,7 +233,7 @@
         compatibles (-> multipart :compatibles)
         properties (-> multipart :properties)
         accessories (-> multipart :accessories)
-        entitlements (-> multipart :entitlements)
+        entitlements (rename-keys-in-vec (-> multipart :entitlements) {:group_id :entitlement_group_id})
         attachments (when create-all (normalize-files request :attachments)) ; maybe FIXME
         attachments-to-delete (-> multipart :attachments_to_delete)
         images-to-delete (-> multipart :images_to_delete)
