@@ -318,34 +318,46 @@
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
                               413 {:description "Payload Too Large"}
-                              500 {:description "Internal Server Error"}}}}]]
+                              500 {:description "Internal Server Error"}}}}]
+
+      ["/:image_id"
+       {:delete {:accept "application/json"
+                 :summary "Delete image [v1] InProgress"
+                 :coercion reitit.coercion.schema/coercion
+                 :parameters {:path {:model_id s/Uuid
+                                     :image_id s/Uuid}}
+                 :handler (fn [_] {:status 200}) ;; TODO
+                 :responses {200 {:description "OK"}
+                             404 {:description "Not Found"}
+                             500 {:description "Internal Server Error"}}}}]]
 
      ["/attachments"
-      ["" {:get {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:model_id s/Uuid}}
-                 :handler get-models-of-pool-with-pagination-handler
-                 :responses {200 {:description "OK"
-                                  :body s/Any}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}
+      [""
+       {:get {:accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :middleware [accept-json-middleware]
+              :swagger {:produces ["application/json"]}
+              :parameters {:path {:model_id s/Uuid}}
+              :handler get-models-of-pool-with-pagination-handler
+              :responses {200 {:description "OK"
+                               :body s/Any}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}
 
-           :post {:accept "application/json"
-                  :summary "Create attachment [v1]"
-                  :coercion reitit.coercion.schema/coercion
-                  :middleware [accept-json-middleware]
-                  :swagger {:produces ["application/json"]}
-                  :parameters {:path {:model_id s/Uuid}
-                               :header {:x-filename s/Str}}
-                  :handler upload-attachment
-                  :responses {200 {:description "OK"
-                                   :body s/Any}
-                              400 {:description "Bad Request (Coercion error)"
-                                   :body s/Any}
-                              404 {:description "Not Found"}
-                              500 {:description "Internal Server Error"}}}}]
+        :post {:accept "application/json"
+               :summary "Create attachment [v1]"
+               :coercion reitit.coercion.schema/coercion
+               :middleware [accept-json-middleware]
+               :swagger {:produces ["application/json"]}
+               :parameters {:path {:model_id s/Uuid}
+                            :header {:x-filename s/Str}}
+               :handler upload-attachment
+               :responses {200 {:description "OK"
+                                :body s/Any}
+                           400 {:description "Bad Request (Coercion error)"
+                                :body s/Any}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}}]
 
       ["/:attachments_id"
        {:get {:accept "application/json"
@@ -358,7 +370,17 @@
               :responses {200 {:description "OK"
                                :body s/Any}
                           404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
+                          500 {:description "Internal Server Error"}}}
+
+        :delete {:accept "application/json"
+                 :summary "Delete attachment [v1] InProgress"
+                 :coercion reitit.coercion.schema/coercion
+                 :parameters {:path {:model_id s/Uuid
+                                     :attachments_id s/Uuid}}
+                 :handler (fn [_] {:status 200}) ;; TODO
+                 :responses {200 {:description "OK"}
+                             404 {:description "Not Found"}
+                             500 {:description "Internal Server Error"}}}}]]
 
      ["/entitlements"
       ["" {:get {:accept "application/json"
