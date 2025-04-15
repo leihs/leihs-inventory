@@ -32,7 +32,8 @@
                        (fn [prev]
                          (vec (concat prev
                                       (map (fn [file]
-                                             {:file file
+                                             {:id nil
+                                              :file file
                                               :is_cover false})
                                            files))))))
 
@@ -52,9 +53,10 @@
 
     (uix/use-effect
      (fn []
-       (let [img (jc (get-values "images"))]
-         (when (seq img)
-           (set-images! img))))
+       (let [imgs (jc (get-values "images"))]
+         (when (seq imgs)
+           (set-cover-index! (first (keep-indexed #(when (:is_cover %2) %1) imgs)))
+           (set-images! imgs))))
      [get-values])
 
     (uix/use-effect

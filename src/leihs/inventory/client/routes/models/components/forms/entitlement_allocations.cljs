@@ -21,7 +21,7 @@
 
 (defn check-path-existing [entitlement items]
   (some (fn [item]
-          (= entitlement (:entitlement_group_id item)))
+          (= entitlement (:group_id item)))
         items))
 
 (defn find-index-from-path [path items]
@@ -93,7 +93,7 @@
                                         :onSelect #(do (set-open! false)
                                                        (if
                                                         (not (check-path-existing (:id entitlement) fields))
-                                                         (append (cj {:entitlement_group_id (:id entitlement)
+                                                         (append (cj {:group_id (:id entitlement)
                                                                       :entitlement_id nil
                                                                       :name (:name entitlement)
                                                                       :quantity "0"}))
@@ -126,7 +126,7 @@
                          ($ TableCell {:class-name "w-[70%]"}
                             (find-name-by-id
                              entitlement-groups
-                             (:entitlement_group_id field)))
+                             (:group_id field)))
 
                          ($ TableCell
                             ($ FormField

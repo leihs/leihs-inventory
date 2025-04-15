@@ -37,6 +37,7 @@
       "title": "Modell bearbeiten",
       "submit": "Speichern",
       "cancel": "Abbrechen",
+      "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
       "create": {
         "title": "Neues Modell erstellen",
         "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",

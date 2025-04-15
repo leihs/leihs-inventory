@@ -28,7 +28,11 @@
 
                       (set-attachments!
                        (fn [prev]
-                         (vec (concat prev files)))))
+                         (vec (concat prev
+                                      (map (fn [file]
+                                             {:id nil
+                                              :file file})
+                                           files))))))
 
         handle-delete (fn [index]
                         ;; remove file by index on delete
@@ -63,10 +67,10 @@
                      ($ TableHead "Bezeichnung")
                      ($ TableHead "")))
                ($ TableBody
-                  (for [[index item] (map-indexed vector attachments)]
-                    ($ TableRow {:key (.. item -name)}
+                  (for [[index attachment] (map-indexed vector attachments)]
+                    ($ TableRow {:key (.. (:file attachment) -name)}
 
-                       ($ Item {:file item
+                       ($ Item {:file (:file attachment)
                                 :generatePreview false}
                           ($ TableCell
                              ($ :div {:className "flex justify-end"}

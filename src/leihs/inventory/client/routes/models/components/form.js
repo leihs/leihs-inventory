@@ -17,7 +17,7 @@ export const schema = z.object({
   entitlements: z
     .array(
       z.object({
-        entitlement_group_id: z.string(),
+        group_id: z.string(),
         entitlement_id: z.string().nullish(),
         quantity: z.coerce.number(),
         name: z.string(),
@@ -30,6 +30,7 @@ export const schema = z.object({
   images: z
     .array(
       z.object({
+        id: z.string().nullish(),
         file: z
           .instanceof(File)
           .refine((file) =>
@@ -39,7 +40,14 @@ export const schema = z.object({
       }),
     )
     .optional(),
-  attachments: z.array(z.instanceof(File)).optional(),
+  attachments: z
+    .array(
+      z.object({
+        id: z.string().nullish(),
+        file: z.instanceof(File).optional(),
+      }),
+    )
+    .optional(),
   accessories: z.array(z.object({ name: z.string() })).optional(),
   compatibles: z
     .array(

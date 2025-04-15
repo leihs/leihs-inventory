@@ -122,7 +122,8 @@
                            ($ :div {:className "flex gap-2"}
                               ($ Button {:variant "outline"}
                                  ($ Link {:state #js {:searchParams (.. location -search)}
-                                          :to (str (:id model))}
+                                          :to (str (:id model))
+                                          :viewTransition true}
                                     "editieren"))
                               ($ Button {:variant "secondary"
                                          :size "icon"}

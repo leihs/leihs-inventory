@@ -10,6 +10,7 @@
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/form" :refer [Form]]
+   ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
    ["lucide-react" :refer [Trash]]
    ["react-hook-form" :refer [useForm]]
@@ -21,6 +22,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
+   [leihs.inventory.client.routes.models.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -41,83 +43,6 @@
                          :properties []
                          :accessories []}))
 
-(defn create-file-from-url [url name type]
-  (js/Promise.
-   (fn [resolve reject]
-     (-> http-client
-         (.get url #js {:headers #js {:Accept type
-                                      :Content-Type type}
-                        :responseType "blob"})
-
-         (.then (fn [response]
-                  (let [blob (.-data response)
-                        file (js/File. #js [blob] name #js {:type type})]
-                    (resolve file))))
-
-         (.catch (fn [error]
-                   (reject error)))))))
-
-(defn prepare-default-values [model]
-  (let [images (:images model)
-        attachments (:attachments model)]
-
-    (-> (js/Promise.all
-         (concat
-
-          (when (seq images)
-            (map (fn [image]
-                   (let [url (:url image)
-                         filename (:filename image)
-                         content-type (:content_type image)
-                         is-cover (:is_cover image)]
-                     (-> (create-file-from-url url filename content-type)
-                         (.then (fn [file]
-                                  {:file file
-                                   :is_cover is-cover}))
-                         (.catch (fn [error]
-                                   (js/console.error "Error processing image file" error)
-                                   (js/Promise.reject error))))))
-                 images))
-
-          (when (seq attachments)
-            (map (fn [attachment]
-                   (let [url (:url attachment)
-                         filename (:filename attachment)
-                         content-type (:content_type attachment)]
-
-                     (-> (create-file-from-url url filename content-type)
-                         (.then (fn [file] file))
-                         (.catch (fn [error]
-                                   (js/console.error "Error processing attachment file" error)
-                                   (js/Promise.reject error))))))
-                 attachments))))
-        (.then (fn [files]
-                 (let [files-vec (vec files)
-                       processed-images (filter #(contains? % :is_cover) files-vec)
-                       processed-attachments (filter #(not (contains? % :is_cover)) files-vec)
-                       model (cj (-> model
-                                     (assoc :images processed-images)
-                                     (assoc :attachments processed-attachments)))]
-
-                   model)))
-        (.catch (fn [error]
-                  (js/console.error "Promise error" error)
-                  (js/Promise.reject error))))))
-
-(defn remove-nil-values [data]
-  (cond
-    (map? data)
-    (into {}
-          (for [[k v] data
-                :when (some? v)]
-            [k (remove-nil-values v)]))
-
-    (vector? data)
-    (vec (filter some? (map remove-nil-values data)))
-
-    :else
-    data))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -132,7 +57,7 @@
         model (into {} (:model (jc (router/useLoaderData))))
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (prepare-default-values model))
+                                            (fn [] (core/prepare-default-values model))
                                             default-values)})
 
         control (.. form -control)
@@ -151,101 +76,136 @@
                             (if (= status 200)
                               (do
                                 (.. toast (success (t "pool.model.delete.success")))
+
                                 ;; navigate to models list
                                 (navigate (router/generatePath "/inventory/:pool-id/models" params)
                                           #js {:state state}))
+
                               ;; show error message
                               (.. toast (error (t "pool.model.delete.error")))))))
 
         on-submit (fn [data event]
                     (go
-                      (let [images (:images (jc data))
-                            attachments (:attachments (jc data))
-                            model-data (remove-nil-values
+                      (let [images (if is-create
+                                     (:images (jc data))
+                                     (filter (fn [el] (= (:id el) nil))
+                                             (:images (jc data))))
+
+                            images-to-delete (if is-edit
+                                               (->> (:images model)
+                                                    (map :id)
+                                                    (remove (set (map :id (:images (jc data))))))
+                                               nil)
+
+                            attachments (if is-create
+                                          (:attachments (jc data))
+                                          (filter (fn [el] (= (:id el) nil))
+                                                  (:attachments (jc data))))
+
+                            attachments-to-delete (if is-edit
+                                                    (->> (:attachments model)
+                                                         (map :id)
+                                                         (remove (set (map :id (:attachments (jc data))))))
+                                                    nil)
+
+                            model-data (core/remove-nil-values
                                         (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
                                                          (dissoc (jc data) :images :attachments))))
+
                             pool-id (aget params "pool-id")
-                            model-res (<p! (-> http-client
-                                               (.post (str "/inventory/" pool-id "/model/")
-                                                      (js/JSON.stringify (cj model-data)))
-                                               (.then #(.-data %))))
+                            model-res (if is-create
+                                        (<p! (-> http-client
+                                                 (.post (str "/inventory/" pool-id "/model/")
+                                                        (js/JSON.stringify (cj model-data)))
+                                                 (.then #(.-data %))))
+
+                                        (<p! (-> http-client
+                                                 (.put (str "/inventory/" pool-id "/model/" (aget params "model-id") "/")
+                                                       (js/JSON.stringify (cj model-data)))
+                                                 (.then #(.. % -data)))))
+
                             model-id (when (not= (.. model-res -status) "failure")
                                        (.. model-res -data -id))]
 
                         (.. event (preventDefault))
-                        (js/console.debug model-data)
 
-                        (if (.. model-res -status)
-                          (.. toast (error (.. model-res -message)))
+                        (when images-to-delete
+                          (doseq [image-id images-to-delete]
+                            ;; delete images that are not in the new model
+                            (<p! (-> http-client
+                                     (.delete (str "/inventory/models/" (aget params "model-id") "/images/" image-id))
+                                     (.then #(.-data %))))))
 
-                          (do
+                        (when attachments-to-delete
+                          (doseq [attachment-id attachments-to-delete]
+                            ;; delete attachments that are not in the new model
+                            (<p! (-> http-client
+                                     (.delete (str "/inventory/models/" (aget params "model-id") "/attachments/" attachment-id))
+                                     (.then #(.-data %))))))
+
+                        (if false #_(.. model-res -status)
+                            (.. toast (error (.. model-res -message)))
+
+                            (do
                             ;; upload images sequentially and path model with is_cover when is needed + images with target_type
-                            (doseq [image images]
-                              (let [file (:file image)
-                                    is-cover (:is_cover image)
-                                    type (.. file -type)
-                                    name (.. file -name)
-                                    binary-data (<p! (.. file (arrayBuffer)))
-                                    image-res (<p! (-> http-client
-                                                       (.post (str "/inventory/models/" model-id "/images")
-                                                              binary-data
-                                                              (cj {:headers {"Content-Type" type
-                                                                             "X-Filename" name}}))
-                                                       (.then #(.-data %))))
-                                    image-id ^js (.. image-res -image -id)]
+                              (doseq [image images]
+                                (let [file (:file image)
+                                      is-cover (:is_cover image)
+                                      type (.. file -type)
+                                      name (.. file -name)
+                                      binary-data (<p! (.. file (arrayBuffer)))
+                                      image-res (<p! (-> http-client
+                                                         (.post (str "/inventory/models/" model-id "/images")
+                                                                binary-data
+                                                                (cj {:headers {"Content-Type" type
+                                                                               "X-Filename" name}}))
+                                                         (.then #(.-data %))))
+                                      image-id ^js (.. image-res -image -id)]
 
-                                ;; patch image with target_type "Model"
-                                #_(<p! (js/fetch (str "/inventory/" model-id "/images/" image-id)
-                                                 (cj {:method "PATCH"
-                                                      :headers {"Accept" "application/json"}
-                                                      :body (js/JSON.stringify (cj {:target_type "Model"}))})))
+                                  ;; patch image with target_type "Model"
+                                  #_(<p! (js/fetch (str "/inventory/" model-id "/images/" image-id)
+                                                   (cj {:method "PATCH"
+                                                        :headers {"Accept" "application/json"}
+                                                        :body (js/JSON.stringify (cj {:target_type "Model"}))})))
 
-                                ;; if there is a cover image then patch the model with iid of the cover image
-                                (when is-cover (<p! (-> http-client
-                                                        (.patch (str "/inventory/" pool-id "/model/" model-id)
-                                                                (js/JSON.stringify (cj {:is_cover image-id}))))))))
+                                  ;; if there is a cover image then patch the model with iid of the cover image
+                                  (when is-cover (<p! (-> http-client
+                                                          (.patch (str "/inventory/" pool-id "/model/" model-id)
+                                                                  (js/JSON.stringify (cj {:is_cover image-id}))))))))
 
-                            ;; upload attachments sequentially
-                            (doseq [attachment attachments]
-                              (let [binary-data (<p! (.. attachment (arrayBuffer)))
-                                    type (.. attachment -type)
-                                    name (.. attachment -name)]
+                              ;; upload attachments sequentially
+                              (doseq [attachment attachments]
+                                (let [file (:file attachment)
+                                      binary-data (<p! (.. file (arrayBuffer)))
+                                      type (.. file -type)
+                                      name (.. file -name)]
 
-                                (<p! (-> http-client
-                                         (.post (str "/inventory/models/" model-id "/attachments")
-                                                binary-data
-                                                (cj {:headers {"Content-Type" type
-                                                               "X-Filename" name}}))))))
+                                  (<p! (-> http-client
+                                           (.post (str "/inventory/models/" model-id "/attachments")
+                                                  binary-data
+                                                  (cj {:headers {"Content-Type" type
+                                                                 "X-Filename" name}}))))))
 
-                            (js/console.debug "is valid" data)
-                            (.. toast (success (t "pool.model.create.success")))
+                              (js/console.debug "is valid" data)
+                              (.. toast (success (t "pool.model.create.success")))
 
-                            ;; state needs to be forwarded for back navigation
-                            (navigate (router/generatePath
-                                       "/inventory/:pool-id/models"
-                                       #js {:pool-id pool-id})
-                                      #js {:state state}))))))]
-
-    (uix/use-effect
-     (fn []
-       (prepare-default-values model))
-     [model])
-
-    #_(uix/use-effect
-       (fn []
-         (when is-create
-           (.. form (reset default-values))
-           (js/console.debug "is create model")))
-       [is-create form])
+                              ;; state needs to be forwarded for back navigation
+                              (if is-create
+                                (navigate (router/generatePath
+                                           "/inventory/:pool-id/models"
+                                           #js {:pool-id pool-id})
+                                          #js {:state state
+                                               :viewTransition true})))))))]
 
     (if (.. form -formState -isLoading)
       ($ :div {:className "flex justify-center items-center h-screen"}
-         ($ :div {:className "animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"}))
+         ($ Spinner))
 
       ($ :article
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
-            (if is-create (t "pool.model.create.title")
-                (t "models.model.title")))
+            (if is-create
+              (t "pool.model.create.title")
+              (t "pool.model.title")))
 
          ($ :h3 {:className "text-sm mb-6 text-gray-500"}
             (if is-create
@@ -281,7 +241,8 @@
 
                      ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
                                        (some-> state .-searchParams))
-                              :className "self-center hover:underline"}
+                              :className "self-center hover:underline"
+                              :viewTransition true}
                         (if is-create
                           (t "pool.model.create.cancel")
                           (t "pool.model.cancel")))

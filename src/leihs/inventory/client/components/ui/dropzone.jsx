@@ -56,7 +56,7 @@ function Item({ children, className, file, generatePreview = true }) {
             {file.type.startsWith("image/") ? (
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger className="cursor-pointer" asChild>
                     <img
                       src={preview}
                       className="w-10 h-10 rounded object-cover"
@@ -234,9 +234,7 @@ const Dropzone = React.forwardRef(
       ])
 
       if (fileRejections.length > 0) {
-        // const _errorMessage = formatErrorMessage(fileRejections)
         const { rejections } = fileRejections
-        console.debug("rejections", rejections, fileRejections)
         setErrorMessage(fileRejections)
       } else {
         setErrorMessage(null)
