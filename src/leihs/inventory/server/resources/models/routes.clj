@@ -733,7 +733,8 @@
                           :body :model/multipart}
              :handler update-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
-                              :body :model-optional-response/inventory-models}
+                              :body {:data :model-optional-response/inventory-model
+                                     :validation any?}}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 

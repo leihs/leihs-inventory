@@ -9,6 +9,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.common :refer [filter-keys db-operation]]
+   [leihs.inventory.server.resources.models.form.license.common :refer [create-validation-response]]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
                                                                       extract-model-form-data
                                                                       extract-model-form-data-new
@@ -177,7 +178,7 @@
         (process-categories tx categories model-id pool-id)
 
         (if updated-model
-          (response [updated-model])
+          (response (create-validation-response updated-model @validation-result))
           (bad-request {:error "Failed to update model"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))

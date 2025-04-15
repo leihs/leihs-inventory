@@ -174,7 +174,7 @@ feature "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
@@ -296,7 +296,7 @@ feature "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
@@ -472,7 +472,7 @@ feature "Inventory Model" do
 
           # expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
