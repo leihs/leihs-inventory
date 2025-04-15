@@ -597,7 +597,7 @@
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
-                          :multipart :software/multipart}
+                          :multipart :model/multipart}
              :handler create-model-handler-by-pool-with-attachment-images
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
