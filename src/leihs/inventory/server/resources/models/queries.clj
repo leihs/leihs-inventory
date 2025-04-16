@@ -91,3 +91,10 @@
    [:not [:exists (-> (sql/select 1)
                       (sql/from :items)
                       (sql/where [:= :items.model_id :models.id]))]]))
+
+(defn with-search [query search]
+  (sql/where query [:ilike
+                    [:concat_ws ", "
+                     :models.manufacturer :models.product :models.version]
+                    (str "%" search "%")]))
+

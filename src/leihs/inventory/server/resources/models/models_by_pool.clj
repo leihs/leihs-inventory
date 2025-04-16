@@ -3,10 +3,11 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query
-                                                            with-items without-items]]
+                                                            with-items without-items with-search]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -59,14 +60,16 @@
   ([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [with_items retired]} (query-params request)
+         {:keys [with_items retired search]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
                    (cond->
                     (and pool_id (true? with_items))
                      (with-items pool_id :retired retired)
                      (and pool_id (false? with_items))
-                     without-items))]
+                     without-items
+                     (and pool_id (presence search))
+                     (with-search search)))]
      (if (url-ends-with-uuid? (:uri request))
        (let [res (jdbc/execute-one! tx (-> query sql-format))]
          (if res

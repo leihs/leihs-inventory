@@ -13,9 +13,9 @@ feature "Inventory Page", type: :feature do
         role: :inventory_manager)
     end
 
-    model_1 = FactoryBot.create(:leihs_model, product: "Model ABC")
-    model_2 = FactoryBot.create(:leihs_model, product: "Model DEF")
-    model_3 = FactoryBot.create(:leihs_model, product: "Model GHI")
+    model_1 = FactoryBot.create(:leihs_model, product: "Model", version: "ABC")
+    model_2 = FactoryBot.create(:leihs_model, product: "Model", version: "DEF")
+    model_3 = FactoryBot.create(:leihs_model, product: "Model", version: "GHI")
 
     FactoryBot.create(:item,
       owner_id: pool_1.id,
@@ -59,6 +59,10 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[0]).to have_content(model_1.product)
     expect(all("table tbody tr")[1]).to have_content(model_2.product)
     expect(all("table tbody tr")[2]).to have_content(model_3.product)
+
+    visit "/inventory/#{pool_1.id}/models?search=#{model_1.version}"
+    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr")[0]).to have_content(model_1.product)
 
     visit "/inventory/#{pool_2.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0

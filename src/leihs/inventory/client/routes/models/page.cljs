@@ -113,7 +113,7 @@
                                  (str (-> model :type)))))
 
                         ($ TableCell {:className "font-bold"}
-                           (-> model :product str))
+                           (str (:product model) " " (:version model)))
 
                         ($ TableCell {:className "text-right"}
                            (str (-> model :available str) " | " (-> model :total str)))

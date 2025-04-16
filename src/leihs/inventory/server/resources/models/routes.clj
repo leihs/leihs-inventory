@@ -942,6 +942,7 @@
                                  (s/optional-key :is_deletable) s/Bool
                                  (s/optional-key :page) s/Int
                                  (s/optional-key :retired) s/Bool
+                                 (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                  (s/optional-key :with_items) s/Bool}}
