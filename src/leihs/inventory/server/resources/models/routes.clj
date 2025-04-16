@@ -936,15 +936,16 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :query {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                                 (s/optional-key :is_deletable) s/Bool
+                         :query {(s/optional-key :filter_ids) [s/Uuid]
                                  (s/optional-key :filter_manufacturer) s/Str
                                  (s/optional-key :filter_product) s/Str
-                                 (s/optional-key :filter_ids) [s/Uuid]}}
+                                 (s/optional-key :is_deletable) s/Bool
+                                 (s/optional-key :page) s/Int
+                                 (s/optional-key :retired) s/Bool
+                                 (s/optional-key :size) s/Int
+                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                 (s/optional-key :with_items) s/Bool}}
 
-            ;; :handler get-models-of-pool-handler
             :handler get-models-of-pool-with-pagination-handler
 
             :responses {200 {:description "OK"

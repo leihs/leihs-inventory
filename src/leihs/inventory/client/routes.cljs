@@ -47,7 +47,7 @@
                :children
                (cj
                 [{:index true
-                  :loader #(router/redirect "models")}
+                  :loader #(router/redirect "models?with_items=true&retired=false")}
 
                  {:path "models"
                   :element ($ models-page)

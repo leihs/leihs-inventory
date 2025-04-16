@@ -5,7 +5,8 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
-                                                            model-links-query properties-query]]
+                                                            model-links-query properties-query
+                                                            with-items without-items]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -35,11 +36,11 @@
   [is_deletable]
   (-> (sql/select-distinct :m.*
                            [[:raw "CASE
-                                          WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
-                                          ELSE false
-                                          END"]
+                                   WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
+                                   ELSE false
+                                   END"]
                             :is_deletable])
       (sql/from [:models :m])
       (sql/left-join [:items :i] [:= :m.id :i.model_id])
@@ -57,40 +58,21 @@
    (get-models-handler request false))
   ([request with-pagination?]
    (let [tx (:tx request)
-         {:keys [pool_id model_id properties_id accessories_id attachments_id model_link_id]} (path-params request)
-         option-type (extract-option-type-from-uri (:uri request))
-         query-params (query-params request)
-         {:keys [filter_ids is_deletable]} query-params
+         {:keys [pool_id]} (path-params request)
+         {:keys [with_items retired]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
-
-         sort-by (case (:sort_by query-params)
-                   :manufacturer-asc [:m.manufacturer :asc]
-                   :manufacturer-desc [:m.manufacturer :desc]
-                   :product-asc [:m.product :asc]
-                   :product-desc [:m.product :desc]
-                   nil)
-         filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
-         filter-product (if-not model_id (:filter_product query-params) nil)
-
-         base-query (-> (apply-is_deleted-context-if-valid is_deletable)
-                        ((fn [query] (base-pool-query query pool_id option-type)))
-                        (cond-> (or attachments_id (= option-type "attachments"))
-                          ((fn [q] (attachments-query q attachments_id option-type))))
-                        (cond-> filter-manufacturer
-                          (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
-                        (cond-> filter-product
-                          (sql/where [:ilike :m.product (str "%" filter-product "%")]))
-                        (cond-> model_id (sql/where [:= :m.id model_id]))
-                        (cond-> filter_ids (sql/where [:in :m.id filter_ids]))
-                        (cond-> (and sort-by model_id) (sql/order-by sort-by)))
-         base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
-
+         query (-> base-pool-query
+                   (cond->
+                    (and pool_id (true? with_items))
+                     (with-items pool_id :retired retired)
+                     (and pool_id (false? with_items))
+                     without-items))]
      (if (url-ends-with-uuid? (:uri request))
-       (let [res (jdbc/execute-one! tx (-> base-query sql-format))]
+       (let [res (jdbc/execute-one! tx (-> query sql-format))]
          (if res
            (response res)
            (status 404)))
-       (response (create-pagination-response request base-query with-pagination?))))))
+       (response (create-pagination-response request query with-pagination?))))))
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (get-models-handler request true))

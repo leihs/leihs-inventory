@@ -14,10 +14,12 @@ RSpec.configure do |config|
   config.include Helpers::Global
   config.include Helpers::User
 
-  config.before(:example) do |example|
+  config.before(type: :feature) do
     page.driver.browser.manage.window.resize_to(1200, 1200)
-    srand 1
+  end
 
+  config.before(:example) do |example|
+    srand 1
     db_clean
     db_restore_data seeds_sql
   end

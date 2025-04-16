@@ -1,7 +1,12 @@
 depends_on: &GOOD_TO_MERGE_DEPENDENTS
-  specs have passed:
+  backend specs have passed:
     type: job
-    job_key: specs
+    job_key: backend-specs
+    states: [passed]
+
+  feature specs have passed:
+    type: job
+    job_key: feature-specs
     states: [passed]
 
   clojure-tests have passed:

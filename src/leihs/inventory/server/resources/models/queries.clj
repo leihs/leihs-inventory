@@ -60,11 +60,34 @@
        (cond-> attachment-id
          (sql/where [:= :a.id attachment-id])))))
 
-(defn base-pool-query [query pool-id type]
-  (-> query
-      (cond->
-       pool-id (sql/left-join [:model_links :ml] [:= :m.id :ml.model_id])
-       pool-id (sql/left-join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
-       pool-id (sql/left-join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-       pool-id (sql/left-join [:inventory_pools :ip] [:= :ip.id :ipmg.inventory_pool_id])
-       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
+(def base-pool-query
+  (-> (sql/select :models.*)
+      (sql/from :models)
+      (sql/order-by [[:trim :models.product] :asc])))
+
+(defn inventoried-items-subquery [pool-id]
+  (-> (sql/select 1)
+      (sql/from :items)
+      (sql/where [:= :items.model_id :models.id])
+      (sql/where [:or
+                  [:= :items.inventory_pool_id pool-id]
+                  [:= :items.owner_id pool-id]])))
+
+(defn with-items [query pool-id & {:keys [retired]}]
+  (sql/where
+   query
+   [:exists (-> (sql/select 1)
+                (sql/from :items)
+                (sql/where [:= :items.model_id :models.id])
+                (sql/where [:or
+                            [:= :items.inventory_pool_id pool-id]
+                            [:= :items.owner_id pool-id]])
+                (cond-> (boolean? retired)
+                  (sql/where [(if retired :<> :=) :items.retired nil])))]))
+
+(defn without-items [query]
+  (sql/where
+   query
+   [:not [:exists (-> (sql/select 1)
+                      (sql/from :items)
+                      (sql/where [:= :items.model_id :models.id]))]]))

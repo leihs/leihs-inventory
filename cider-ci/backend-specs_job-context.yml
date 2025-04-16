@@ -1,0 +1,46 @@
+task_defaults:
+
+  traits:
+    asdf: true
+
+  include:
+    - path: cider-ci/task-components/database.yml
+      submodule: [database]
+    - cider-ci/task-components/ruby-bundle.yml
+    - cider-ci/task-components/service.yml
+    - cider-ci/task-components/uberjar.yml
+
+  ports:
+    LEIHS_INVENTORY_HTTP_PORT:
+      min: 3000
+      max: 3999
+
+  environment_variables:
+    LEIHS_DATABASE_NAME: leihs_inventory_{{CIDER_CI_TRIAL_ID}}
+    DB_NAME: '{{LEIHS_DATABASE_NAME}}'
+    LEIHS_INVENTORY_DIR: '{{CIDER_CI_WORKING_DIR}}'
+    LEIHS_ADMIN_HTTP_HOST: localhost
+    LEIHS_SECRET: '{{CIDER_CI_TRIAL_ID}}'
+    RAILS_ENV: test
+
+  git_options:
+    submodules:
+      include_match: ^.*$
+
+  trial_attachments:
+    screenshots:
+      include_match: '^tmp\/screenshots\/.+\.png$'
+      content_type: image/png
+
+  scripts:
+    test:
+      body: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        mkdir -p log
+        unset PGPORT; unset PGUSER
+        PGPORT=${PG15PORT} PGUSER=${PG15USER} ./bin/rspec $CIDER_CI_TASK_FILE
+
+generate_tasks:
+  include_match: spec\/.*_spec.rb
+  exclude_match: spec\/features.*
