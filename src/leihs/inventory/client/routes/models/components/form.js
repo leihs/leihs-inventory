@@ -67,15 +67,18 @@ export const structure = [
     title: "Produkt",
     blocks: [
       {
-        name: "is_package",
+        name: "is-package",
         label: "dies ist ein Paket?",
-        input: "checkbox",
-        props: { defaultChecked: false },
+        component: "checkbox",
+        props: {
+          defaultChecked: false,
+          "data-id": "is-package",
+        },
       },
       {
         name: "product",
         label: "Produkt",
-        input: "input",
+        component: "input",
         props: {
           "auto-complete": "off",
         },
@@ -83,7 +86,7 @@ export const structure = [
       {
         name: "version",
         label: "Version",
-        input: "input",
+        component: "input",
         props: {
           type: "text",
           "auto-complete": "off",
@@ -97,7 +100,7 @@ export const structure = [
       {
         name: "description",
         label: "Beschreibung",
-        input: "textarea",
+        component: "textarea",
         props: {
           "auto-complete": "off",
         },
@@ -105,7 +108,7 @@ export const structure = [
       {
         name: "technical_detail",
         label: "Technische Details",
-        input: "textarea",
+        component: "textarea",
         props: {
           "auto-complete": "off",
         },
@@ -113,7 +116,7 @@ export const structure = [
       {
         name: "internal_description",
         label: "Interne Beschreibung",
-        input: "textarea",
+        component: "textarea",
         props: {
           "auto-complete": "off",
         },
@@ -121,7 +124,7 @@ export const structure = [
       {
         name: "hand_over_note",
         label: "Übergabevermerk",
-        input: "textarea",
+        component: "textarea",
         props: {
           "auto-complete": "off",
         },

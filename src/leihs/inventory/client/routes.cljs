@@ -47,16 +47,17 @@
                :children
                (cj
                 [{:index true
-                  :loader #(router/redirect "models?with_items=true&retired=false")}
+                  :loader #(router/redirect "models?with_items=true&retired=false&page=1&size=20")}
 
                  {:path "models"
                   :element ($ models-page)
                   :loader (fn [route-data]
-                            (let [url (js/URL. (.. route-data -request -url))
-                                  models (-> http-client
-                                             (.get (str (.-pathname url) (.-search url)))
-                                             (.then #(jc (.. % -data))))]
-                              models))}
+                            (let [url (js/URL. (.. route-data -request -url))]
+                              (if (= (.-search url) "")
+                                (router/redirect "?with_items=true&retired=false&page=1&size=20")
+                                (-> http-client
+                                    (.get (str (.-pathname url) (.-search url)))
+                                    (.then #(jc (.. % -data)))))))}
 
                  {:path "advanced-search"
                   :element ($ advanced-search-page)}

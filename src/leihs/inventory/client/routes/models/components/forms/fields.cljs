@@ -60,7 +60,7 @@
                      :form form
                      :props (:props block)})
 
-    (-> block :input (= "checkbox"))
+    (-> block :component (= "checkbox"))
     ($ FormField {:control (cj control)
                   :name (:name block)
                   :render #($ FormItem {:class-name "mt-6"}
@@ -71,14 +71,11 @@
                                               (:props block))))
 
                               ($ FormLabel {:className "pl-4"} (:label block))
-                              ($ FormDescription
-                                 ($ :<> (:description block)))
-
                               ($ FormMessage))})
 
     ;; "default case - this renders a component from the component map"
     :else
-    (let [comp (get fields-map (:input block))]
+    (let [comp (get fields-map (:component block))]
       (when comp
         ($ FormField {:control (cj control)
                       :name (:name block)

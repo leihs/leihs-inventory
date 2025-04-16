@@ -60,6 +60,8 @@
                                             (fn [] (core/prepare-default-values model))
                                             default-values)})
 
+        is-loading (.. form -formState -isLoading)
+
         control (.. form -control)
         params (router/useParams)
 
@@ -197,7 +199,14 @@
                                           #js {:state state
                                                :viewTransition true})))))))]
 
-    (if (.. form -formState -isLoading)
+    (uix/use-effect
+     (fn []
+       (when (and is-edit (not is-loading))
+         (let [package (.. js/document (querySelector "[data-id='is-package']"))]
+           (set! (.. package -disabled) true))))
+     [is-edit is-loading])
+
+    (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
          ($ Spinner))
 

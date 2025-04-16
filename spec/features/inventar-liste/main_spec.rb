@@ -37,7 +37,7 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_content("Inventarliste - #{pool_1.name}")
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
-    expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"]})
+    expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["20"]})
     expect(all("table tbody tr").count).to eq 1
     expect(first("table tbody tr")).to have_content(model_2.product)
 
@@ -54,7 +54,7 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_1.product)
 
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/models?page=1&size=20"
     expect(all("table tbody tr").count).to eq 3
     expect(all("table tbody tr")[0]).to have_content(model_1.product)
     expect(all("table tbody tr")[1]).to have_content(model_2.product)
