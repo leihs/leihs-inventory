@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.attachments
+(ns leihs.inventory.client.routes.models.crud.components.attachments
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages

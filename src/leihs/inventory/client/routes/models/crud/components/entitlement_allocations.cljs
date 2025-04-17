@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.entitlement-allocations
+(ns leihs.inventory.client.routes.models.crud.components.entitlement-allocations
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup
                                       CommandInput CommandItem CommandList]]

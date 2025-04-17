@@ -2,7 +2,7 @@
   (:require
    ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
                                                      ScrollspyMenu]]
-   ["@/routes/models/components/form" :refer [schema structure]]
+   ["@/routes/models/crud/components/form" :refer [schema structure]]
    ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
                               AlertDialogContent AlertDialogDescription
                               AlertDialogFooter AlertDialogHeader
@@ -21,7 +21,7 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.components.forms.fields :as form-fields]
+   [leihs.inventory.client.routes.models.crud.components.fields :as form-fields]
    [leihs.inventory.client.routes.models.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))

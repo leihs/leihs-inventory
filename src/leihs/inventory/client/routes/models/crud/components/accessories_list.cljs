@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.accessories-list
+(ns leihs.inventory.client.routes.models.crud.components.accessories-list
   (:require
    ["@/components/react/sortable-list" :refer [Draggable DragHandle
                                                SortableList]]

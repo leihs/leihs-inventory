@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.manufacturer
+(ns leihs.inventory.client.routes.models.crud.components.manufacturer
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverAnchor PopoverContent]]
    ["@@/button" :refer [Button]]

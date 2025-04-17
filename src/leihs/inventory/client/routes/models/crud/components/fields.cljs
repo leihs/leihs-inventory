@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.fields
+(ns leihs.inventory.client.routes.models.crud.components.fields
   (:require
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]
@@ -6,14 +6,14 @@
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.components.forms.accessories-list :refer [AccessoryList]]
-   [leihs.inventory.client.routes.models.components.forms.attachments :refer [Attachments]]
-   [leihs.inventory.client.routes.models.components.forms.category-assignment :refer [CategoryAssignment]]
-   [leihs.inventory.client.routes.models.components.forms.compatible-models :refer [CompatibleModels]]
-   [leihs.inventory.client.routes.models.components.forms.entitlement-allocations :refer [EntitlementAllocations]]
-   [leihs.inventory.client.routes.models.components.forms.image-upload :refer [ImageUpload]]
-   [leihs.inventory.client.routes.models.components.forms.manufacturer :refer [Manufacturer]]
-   [leihs.inventory.client.routes.models.components.forms.model-properties :refer [ModelProperties]]
+   [leihs.inventory.client.routes.models.crud.components.accessories-list :refer [AccessoryList]]
+   [leihs.inventory.client.routes.models.crud.components.attachments :refer [Attachments]]
+   [leihs.inventory.client.routes.models.crud.components.category-assignment :refer [CategoryAssignment]]
+   [leihs.inventory.client.routes.models.crud.components.compatible-models :refer [CompatibleModels]]
+   [leihs.inventory.client.routes.models.crud.components.entitlement-allocations :refer [EntitlementAllocations]]
+   [leihs.inventory.client.routes.models.crud.components.image-upload :refer [ImageUpload]]
+   [leihs.inventory.client.routes.models.crud.components.manufacturer :refer [Manufacturer]]
+   [leihs.inventory.client.routes.models.crud.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
 (def fields-map

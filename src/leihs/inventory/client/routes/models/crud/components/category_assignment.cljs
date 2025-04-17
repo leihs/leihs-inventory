@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.category-assignment
+(ns leihs.inventory.client.routes.models.crud.components.category-assignment
   (:require
    ["@@/button" :refer [Button]]
    ["@@/command" :refer [Command CommandEmpty CommandInput CommandItem

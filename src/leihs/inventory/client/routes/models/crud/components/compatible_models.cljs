@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.components.forms.compatible-models
+(ns leihs.inventory.client.routes.models.crud.components.compatible-models
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandInput
                                       CommandItem CommandList]]
