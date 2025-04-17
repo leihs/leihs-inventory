@@ -93,8 +93,8 @@
                                         :onSelect #(do (set-open! false)
                                                        (if
                                                         (not (check-path-existing (:id entitlement) fields))
-                                                         (append (cj {:group_id (:id entitlement)
-                                                                      :entitlement_id nil
+                                                         (append (cj {:id nil
+                                                                      :group_id (:id entitlement)
                                                                       :name (:name entitlement)
                                                                       :quantity "0"}))
                                                          (remove (find-index-from-path (:id entitlement) fields))))

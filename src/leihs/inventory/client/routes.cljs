@@ -7,6 +7,7 @@
    [leihs.inventory.client.routes.advanced-search.page :rename {page advanced-search-page}]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
    [leihs.inventory.client.routes.entitlement-groups.page :rename {page entitlement-groups-page}]
+   [leihs.inventory.client.routes.items.crud.page :rename {page items-crud-page}]
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.models.layout :rename {layout models-layout}]
@@ -59,6 +60,9 @@
                                     (.get (str (.-pathname url) (.-search url)))
                                     (.then #(jc (.. % -data)))))))}
 
+                 {:path "items"
+                  :loader #(router/redirect "create")}
+
                  {:path "advanced-search"
                   :element ($ advanced-search-page)}
 
@@ -110,4 +114,8 @@
                                         :models models
                                         :model (if model model nil)})))))
 
-               :element ($ models-crud-page)}])}])}])))
+               :element ($ models-crud-page)}
+
+              {:path "items/create?/:item-id?/delete?"
+               :loader (fn [route-data])
+               :element ($ items-crud-page)}])}])}])))

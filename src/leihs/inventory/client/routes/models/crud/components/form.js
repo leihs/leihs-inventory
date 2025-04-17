@@ -17,8 +17,8 @@ export const schema = z.object({
   entitlements: z
     .array(
       z.object({
+        id: z.string().nullish(),
         group_id: z.string(),
-        entitlement_id: z.string().nullish(),
         quantity: z.coerce.number(),
         name: z.string(),
       }),

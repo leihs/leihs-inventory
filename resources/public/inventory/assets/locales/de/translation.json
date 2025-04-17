@@ -43,7 +43,7 @@
         "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
         "submit": "Erstellen",
         "cancel": "Abbrechen",
-        "success": "Modell wurder erfolgreich erstellt"
+        "success": "Modell wurde erfolgreich erstellt"
       },
       "delete": {
         "title": "Modell löschen",
