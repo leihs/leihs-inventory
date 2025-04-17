@@ -30,18 +30,12 @@
   (.. toast (error "Invalid Data"))
   (js/console.debug "is invalid: " data))
 
-(def default-values (cj {:product ""
-                         :is_package false
-                         :manufacturer ""
-                         :description ""
-                         :internal_description ""
-                         :technical_detail ""
-                         :hand_over_note ""
-                         :version ""
-                         :categories []
-                         :entitlements []
-                         :properties []
-                         :accessories []}))
+(def default-values (cj {:number-items 1
+                         :inventory-code ""
+                         :retired "yes"
+                         :working "ok"
+                         :availability "ok"
+                         :lendable "ok"}))
 
 (defui page []
   (let [[t] (useTranslation)

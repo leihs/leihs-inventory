@@ -61,7 +61,7 @@
                                     (.then #(jc (.. % -data)))))))}
 
                  {:path "items"
-                  :loader #(router/redirect "items/create")}
+                  :loader #(router/redirect "create")}
 
                  {:path "advanced-search"
                   :element ($ advanced-search-page)}
