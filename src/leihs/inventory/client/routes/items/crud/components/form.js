@@ -96,4 +96,42 @@ export const structure = [
       },
     ]
   },
+  {
+    title: "Allgemeine Informationen",
+    blocks: [
+      {
+        name: "serial-number",
+        label: "Seriennummer",
+        component: "input",
+        props: {
+          type: "text",
+          placeholder: "Seriennummer",
+          autoComplete: "off",
+        },
+      },
+      {
+        name: "imei-number",
+        label: "IMEI-Nummer",
+        component: "input",
+        props: {
+          type: "text",
+          placeholder: "Seriennummer",
+          autoComplete: "off",
+        },
+      },
+      {
+        name: "note",
+        label: "Notiz",
+        component: "textarea",
+      },
+      {
+        name: "attachments",
+        component: "attachments",
+        props: {
+          multiple: true,
+          sortable: false,
+        },
+      },
+    ]
+  },
 ]

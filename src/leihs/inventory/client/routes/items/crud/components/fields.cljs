@@ -9,6 +9,7 @@
                         SelectContent SelectItem]]
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.items.crud.components.attachments :refer [Attachments]]
    [leihs.inventory.client.routes.items.crud.components.inventory-code :refer [InventoryCode]]
    [uix.core :as uix :refer [defui $]]))
 
@@ -22,6 +23,11 @@
     (-> block :component (= "inventory-code"))
     ($ InventoryCode {:control control
                       :props (:props block)})
+
+    (-> block :component (= "attachments"))
+    ($ Attachments {:control control
+                    :form form
+                    :props (:props block)})
 
     (-> block :component (= "checkbox"))
     ($ FormField {:control (cj control)
