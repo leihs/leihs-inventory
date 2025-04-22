@@ -111,7 +111,9 @@
                                 ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                 ;(s/optional-key :filter_manufacturer) s/Str
                                 ;(s/optional-key :filter_product) s/Str
-                                }}
+                                }
+                        :path {:shit s/Str}
+                        }
            :handler get-models-compatible-handler
            :responses {200 {:description "OK"
                             :body s/Any}
@@ -127,7 +129,8 @@
            :parameters {:path {:model_id s/Uuid}}
            :handler get-models-compatible-handler
            :responses {200 {:description "OK"
-                            :body s/Any}
+                            ;:body s/Any}
+                            :body s/Int}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
