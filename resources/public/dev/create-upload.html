@@ -252,7 +252,6 @@
                 globalModeIsCreate = false;
 
                 let data = await response.json();
-                data = data[0];
                 lastFetchedModelData = data;
 
                 $('#product').val(data.product || '');

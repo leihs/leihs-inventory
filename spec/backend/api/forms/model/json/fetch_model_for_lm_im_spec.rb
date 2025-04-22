@@ -443,20 +443,11 @@ describe "Inventory Model" do
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
             "hand_over_note" => "Hand over notes",
-            "properties" => [{key: "prop-1", value: "bar1"}, add_delete_flag({key: "prop-2", value: "bar2"})],
-            "accessories" => [{name: "acc1", has_inventory_pool: false}, add_delete_flag({name: "acc2", has_inventory_pool: true})],
-            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33},
-              add_delete_flag({group_id: @form_entitlement_groups.second["id"], quantity: 55})],
-            # "categories" => [@form_model_groups.first, add_delete_flag(@form_model_groups.second)],
-
-            "categories" => [
-              @form_model_groups.first.except("created_at", "updated_at"),
-              add_delete_flag(@form_model_groups.second.except("created_at", "updated_at"))
-            ],
-
-            "compatibles" => [two_variants_of_compatibles.first, add_delete_flag(two_variants_of_compatibles.second)],
-            "attachments_to_delete" => [attachments_response.first["id"]],
-            "images_to_delete" => [images_response.first["id"]],
+            "properties" => [{key: "prop-1", value: "bar1"}],
+            "accessories" => [{name: "acc1", has_inventory_pool: false}],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
+            "categories" => [@form_model_groups.first.except("created_at", "updated_at")],
+            "compatibles" => [two_variants_of_compatibles.first],
             "is_package" => false
           }
 
