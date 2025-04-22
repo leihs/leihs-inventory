@@ -6,6 +6,10 @@
             [clojure.walk :refer [keywordize-keys]]
             [leihs.core.anti-csrf.back :as anti-csrf]
             [leihs.core.auth.core :as auth]
+   [clojure.tools.logging :as log]
+
+   [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
+
             [leihs.core.auth.session :as session]
             [leihs.core.auth.token :as token]
             [leihs.core.db :as db]
@@ -101,7 +105,14 @@
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
-                        :middleware [db/wrap-tx
+                        :middleware [
+
+
+
+
+                                     wrap-handle-coercion-error
+
+                                     db/wrap-tx
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
@@ -137,8 +148,13 @@
                                      muuntaja/format-response-middleware
                                      exception/exception-middleware
                                      muuntaja/format-request-middleware
+
+
                                      coercion/coerce-response-middleware
                                      coercion/coerce-request-middleware
+
+                                     ;wrap-coercion-logging
+
                                      multipart/multipart-middleware]}})]
 
     (-> (ring/ring-handler
