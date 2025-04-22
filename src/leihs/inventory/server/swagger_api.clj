@@ -3,6 +3,7 @@
             [cheshire.core :as json]
             [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.tools.logging :as log]
             [clojure.walk :refer [keywordize-keys]]
             [leihs.core.anti-csrf.back :as anti-csrf]
             [leihs.core.auth.core :as auth]
@@ -14,6 +15,7 @@
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.constants :as consts]
             [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
+            [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.response_helper :as rh]
@@ -101,7 +103,8 @@
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
-                        :middleware [db/wrap-tx
+                        :middleware [wrap-handle-coercion-error
+                                     db/wrap-tx
                                      core-routing/wrap-canonicalize-params-maps
                                      muuntaja/format-middleware
                                      ring-audits/wrap
