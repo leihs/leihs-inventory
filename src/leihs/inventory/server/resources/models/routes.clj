@@ -102,6 +102,7 @@
    ["models-compatibles"
     {:get {:conflicting true
            :accept "application/json"
+           :summary "TESTA"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
@@ -123,6 +124,7 @@
    ["models-compatibles/:model_id"
     {:get {:conflicting true
            :accept "application/json"
+           :summary "TESTA"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
@@ -465,9 +467,12 @@
                          500 {:description "Internal Server Error"}}}
 
       :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            ;:summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            :summary "TESTA"
             :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?}}
+            :parameters {:path {:pool_id uuid?
+                                :test string?
+                                }}
             :handler fetch-items-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
@@ -532,16 +537,20 @@
                          500 {:description "Internal Server Error"}}}
 
       :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            ;:summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            :summary "TESTA"
             :description "Permitted access for:\n- lending_manager\n- inventory_manager"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:body {:data {:inventory_code string?
-                                           :inventory_pool_id uuid?
-                                           :responsible_department any?}
-                                    :fields [any?]}
+            :responses {200 {:body       int?
+            ;:responses {200 {:body       any?
+                             ;{:data {:inventory_code string?
+                             ;              :inventory_pool_id uuid?
+                             ;              :responsible_department any?}
+                             ;       :fields [any?]}
+
                              :description "OK"}
                         401 {:description "Unauthorized: invalid role for the requested pool or method"
                              :body {:error string?}}

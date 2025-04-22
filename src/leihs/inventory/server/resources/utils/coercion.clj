@@ -20,11 +20,18 @@
 (defn- contains-substrings? [s substrings]
   (and s (every? #(re-find (re-pattern (java.util.regex.Pattern/quote %)) s) substrings)))
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn- has-coercion-substring? [s]
-  (println ">o> abc.s" s)
+  ;(println ">o> abc.s" s)
 
   (if (nil? s) false
-  (boolean (re-find #"\"coercion\"\s*:\s*\"(spec|schema)\"" s))
+  (pr ">o> has-coercion-substring?" (boolean (re-find #"\"coercion\"\s*:\s*\"(spec|schema)\"" s)))
                )
 
 
@@ -92,14 +99,32 @@
            :status response-status)))
 
 (defn handle-coercion-error [request resp]
-  (let [ext-data (extract-data-from-input-stream (:body resp))
 
-        _ (println ">o> wrap-tx1.handle-coercion-error")
+
+
+  (let [
+        accept-header (get-in request [:headers "accept"])
+
         ]
-    (if (and (has-coercion-substring? ext-data)
-          (is-coercion-error? ext-data))
-      (generate-coercion-response ext-data request resp)
-      resp)))
+
+    (if (= accept-header "application/json")
+      (let [
+            ext-data (extract-data-from-input-stream (:body resp))
+        _ (println ">o> wrap-tx1.handle-coercion-error" (nil? ext-data))
+
+
+            ]
+        (if (and          (has-coercion-substring? ext-data)
+              (is-coercion-error? ext-data))
+          (generate-coercion-response ext-data request resp)
+          resp)
+        )
+      resp
+      )
+
+
+
+    ))
 
 
 (defn wrap-handle-coercion-error [handler]
