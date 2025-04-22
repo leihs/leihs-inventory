@@ -14,13 +14,17 @@
             [leihs.core.routing.back :as core-routing]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.constants :as consts]
-            [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
             [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
             [leihs.inventory.server.routes :as routes]
             [leihs.inventory.server.utils.csrf-handler :as csrf]
+            [leihs.inventory.server.utils.debug-handler :as debug-mw]
+            [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
+                                                                     wrap-accept-with-image-rewrite
+                                                                     wrap-authenticate!]]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [leihs.inventory.server.utils.session-dev-mode :as dm]
+            [logbug.thrown :as thrown]
             [muuntaja.core :as m]
             [reitit.coercion.schema]
             [reitit.coercion.spec]
@@ -37,112 +41,63 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.util.codec :as codec]
-            [ring.util.response :as response]))
+            [ring.util.response :as response]
+            [taoensso.timbre :refer [debug error warn]]))
 
-(defn valid-image-or-thumbnail-uri? [uri]
-  (boolean (re-matches #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$" uri)))
+(def ^:dynamic middlewares [wrap-handle-coercion-error
+                            db/wrap-tx
+                            core-routing/wrap-canonicalize-params-maps
+                            muuntaja/format-middleware
+                            ring-audits/wrap
+                            wrap-accept-with-image-rewrite
 
-(defn valid-attachment-uri? [uri]
-  (boolean (re-matches #"^/inventory/attachments/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" uri)))
+                            csrf/extract-header
+                            wrap-authenticate!
+                            leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
+                            wrap-cookies
+                            csrf/wrap-csrf
+                            leihs.core.anti-csrf.back/wrap
+                            dm/extract-dev-cookie-params
 
-(defn default-handler-fetch-resource [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])
-          uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json"]
-          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
-          attachment-request? (valid-attachment-uri? uri)]
+                            ;locale/wrap
+                            ;settings/wrap
+                            ;datasource/wrap-tx
+                            ;wrap-json-response
+                            ;(wrap-json-body {:keywords? true})
+                            ;wrap-empty
+                            ;wrap-form-params
 
-      (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"]))
-              (some #(= % uri) whitelist-uris-for-api)
-              image-or-thumbnail-request?
-              attachment-request?)
-        (handler request)
-        (custom-not-found-handler request)))))
+                            wrap-params
+                            wrap-content-type
 
-(defn wrap-accept-with-image-rewrite [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])
-          uri (:uri request)
-          updated-request (cond
-                            (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
-                                 (valid-image-or-thumbnail-uri? uri))
-                            (assoc-in request [:headers "accept"] "image/jpeg")
+                            dispatch-content-type/wrap-accept
 
-                            (and (str/includes? accept-header "text/html")
-                                 (valid-attachment-uri? uri))
-                            (assoc-in request [:headers "accept"] "application/octet-stream")
+                            default-handler-fetch-resource
+                            ;csrf/wrap-dispatch-content-type
 
-                            :else request)]
-      ((dispatch-content-type/wrap-accept handler) updated-request))))
+                            swagger/swagger-feature
+                            parameters/parameters-middleware
+                            muuntaja/format-negotiate-middleware
+                            muuntaja/format-response-middleware
+                            exception/exception-middleware
+                            muuntaja/format-request-middleware
+                            coercion/coerce-response-middleware
+                            coercion/coerce-request-middleware
+                            multipart/multipart-middleware])
 
-(defn wrap-authenticate! [handler]
-  (fn [request]
-    (let [handler (try
-                    (session/wrap-authenticate handler)
-                    (catch Exception e
-                      (println ">> Error in session-authenticate!" e)
-                      handler))
-          token (get-in request [:headers "authorization"])
-          handler (if (and token
-                           (re-matches #"(?i)^token\s+(.*)$" token))
-                    (try
-                      (token/wrap-authenticate handler)
-                      (catch Exception e
-                        (println ">> Error in token-authenticate!" e)
-                        handler))
-                    handler)]
-      (handler request))))
+(def ^:dynamic middlewares
+  (if (debug-mw/debug-mode?)
+    (into [] (interpose debug-mw/wrap-debug middlewares))
+    middlewares))
 
 (defn create-app [options]
   (let [router (ring/router
-
                 (routes/basic-routes)
-
                 {:conflicts nil
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
-                        :middleware [wrap-handle-coercion-error
-                                     db/wrap-tx
-                                     core-routing/wrap-canonicalize-params-maps
-                                     muuntaja/format-middleware
-                                     ring-audits/wrap
-                                     wrap-accept-with-image-rewrite
-
-                                     csrf/extract-header
-                                     wrap-authenticate!
-                                     leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
-                                     wrap-cookies
-                                     csrf/wrap-csrf
-                                     leihs.core.anti-csrf.back/wrap
-                                     dm/extract-dev-cookie-params
-
-                                      ;locale/wrap
-                                      ;settings/wrap
-                                      ;datasource/wrap-tx
-                                      ;wrap-json-response
-                                      ;(wrap-json-body {:keywords? true})
-                                      ;wrap-empty
-                                      ;wrap-form-params
-
-                                     wrap-params
-                                     wrap-content-type
-
-                                     dispatch-content-type/wrap-accept
-
-                                     default-handler-fetch-resource
-                                     ;csrf/wrap-dispatch-content-type
-
-                                     swagger/swagger-feature
-                                     parameters/parameters-middleware
-                                     muuntaja/format-negotiate-middleware
-                                     muuntaja/format-response-middleware
-                                     exception/exception-middleware
-                                     muuntaja/format-request-middleware
-                                     coercion/coerce-response-middleware
-                                     coercion/coerce-request-middleware
-                                     multipart/multipart-middleware]}})]
+                        :middleware middlewares}})]
 
     (-> (ring/ring-handler
          router

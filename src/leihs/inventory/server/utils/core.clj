@@ -4,7 +4,6 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]))
@@ -15,3 +14,9 @@
         uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
     (and (= method :get)
          (boolean (re-find uuid-regex uri)))))
+
+(defn valid-image-or-thumbnail-uri? [uri]
+  (boolean (re-matches #"^/inventory/images/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/thumbnail)?$" uri)))
+
+(defn valid-attachment-uri? [uri]
+  (boolean (re-matches #"^/inventory/attachments/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" uri)))
