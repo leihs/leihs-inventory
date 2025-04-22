@@ -8,6 +8,11 @@ describe "Call swagger-endpoints" do
 
       "/inventory/assets/css/additional.css" => 200,
 
+      "/inventory/api-docs/swagger.json" => 200,
+      "/inventory/api-docs/index.html" => 200,
+      "/inventory/api-docs/" => 301,
+      "/inventory/api-docs" => 302,
+
       "/inventory/assets/zhdk-logo.svg" => 200,
 
       "/inventory/assets/js/main.js" => 200,
@@ -21,6 +26,11 @@ describe "Call swagger-endpoints" do
     end
 
     {
+      "/inventory/api-docs/swagger.json" => 200,
+      "/inventory/api-docs/index.html" => 200,
+      "/inventory/api-docs/" => 301,
+      "/inventory/api-docs" => 302,
+
       "/inventory/assets/locales/nd/translation.json" => 404,
       "/assets/locales/nd/translation.json" => 404,
 

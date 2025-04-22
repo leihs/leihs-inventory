@@ -124,7 +124,6 @@
 (sa/def ::cover_image_url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
-(sa/def ::id-or-nil (sa/nilable uuid?))
 (sa/def ::name string?)
 (sa/def ::created_at any?)
 (sa/def ::updated_at any?)
@@ -184,12 +183,8 @@
                         :none nil?))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::entitlement_groups any?)
-(sa/def ::accessory (sa/keys :req-opt [::id-or-nil ::delete ::has_inventory_pool] :req-un [::name]))
-(sa/def ::accessories (sa/or
-                       :single (sa/or :coll (sa/coll-of ::accessory)
-                                      :str string?)
-                       :none nil?))
+(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [v0]
 
 (sa/def ::properties string?)
 (sa/def ::serial_number string?)
@@ -334,7 +329,7 @@
 (sa/def ::active boolean?)
 (sa/def ::data any?)
 (sa/def ::group string?)
-(sa/def ::id string?)
+(sa/def :str/id string?)
 (sa/def ::label string?)
 (sa/def ::owner (nil-or string?))
 (sa/def ::position int?)
@@ -487,7 +482,7 @@
   (st/spec {:spec (sa/keys :req-un [::properties
                                     ::is_package
                                     ::accessories
-                                    ::entitlement_groups
+                                    ::entitlements
                                     ::attachments
                                     :model/type
                                     :nil/hand_over_note
@@ -515,7 +510,7 @@
                                     :nil/description]
                            :opt-un [::properties
                                     ::accessories
-                                    ::entitlement_groups
+                                    ::entitlements
                                     ::attachments
                                     ::categories
                                     :model2/image_attributes

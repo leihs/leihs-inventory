@@ -168,11 +168,8 @@
             updated-model (jdbc/execute-one! tx update-model-query)
             updated-model (filter-response updated-model [:rental_price])]
 
-        (process-deletions tx attachments-to-delete :attachments :id)
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
-        (process-delete-images-by-id tx images-to-delete model-id)
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
@@ -181,7 +178,7 @@
           (response (create-validation-response updated-model @validation-result))
           (bad-request {:error "Failed to update model"})))
       (catch Exception e
-        (error "Failed to update model" (.getMessage e))
+        (error "Failed to update model" e)
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 (defn update-model-handler-by-pool-model-json [request]

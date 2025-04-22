@@ -47,7 +47,7 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out"]
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json"]
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
           attachment-request? (valid-attachment-uri? uri)]
 

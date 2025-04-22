@@ -107,19 +107,19 @@
             entitlements (fetch-entitlements tx model-id)
             categories (fetch-categories tx model-id)
             result (if model-result
-                     [(assoc model-result
-                             :attachments attachments
-                             :accessories accessories
-                             :compatibles compatibles
-                             :properties properties
-                             :images image-attributes
-                             :entitlement_groups entitlements
-                             :categories categories)]
-                     [])]
+                     (assoc model-result
+                            :attachments attachments
+                            :accessories accessories
+                            :compatibles compatibles
+                            :properties properties
+                            :images image-attributes
+                            :entitlements entitlements
+                            :categories categories)
+                     nil)]
         (if result
           (response result)
           (status
            (response {:status "failure" :message "No entry found"}) 404)))
       (catch Exception e
-        (error "Failed to fetch model" (.getMessage e))
+        (error "Failed to fetch model" e)
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
