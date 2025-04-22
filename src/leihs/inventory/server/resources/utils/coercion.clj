@@ -9,7 +9,6 @@
    (com.zaxxer.hikari HikariDataSource)
    [java.io ByteArrayInputStream]))
 
-
 (defn- extract-data-from-input-stream [input-stream]
   (when (instance? java.io.ByteArrayInputStream input-stream)
     (slurp input-stream)))
@@ -20,40 +19,34 @@
 (defn- contains-substrings? [s substrings]
   (and s (every? #(re-find (re-pattern (java.util.regex.Pattern/quote %)) s) substrings)))
 
-
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn- has-coercion-substring? [s]
   ;(println ">o> abc.s" s)
 
   (if (nil? s) false
-  (pr ">o> has-coercion-substring?" (boolean (re-find #"\"coercion\"\s*:\s*\"(spec|schema)\"" s)))
-               )
-
-
-  )
+      (pr ">o> has-coercion-substring?" (boolean (re-find #"\"coercion\"\s*:\s*\"(spec|schema)\"" s)))))
 
 (defn- parse-edn-strings [m]
   (clojure.walk/postwalk
-    (fn [x]
-      (if (and (string? x)
-            (re-find #"^\(" x)) ;; crude check for EDN-ish string
-        (try
-          (edn/read-string x)
-          (catch Exception _ x))
-        x))
-    m))
+   (fn [x]
+     (if (and (string? x)
+              (re-find #"^\(" x)) ;; crude check for EDN-ish string
+       (try
+         (edn/read-string x)
+         (catch Exception _ x))
+       x))
+   m))
 
 (defn- beautify-problems [problems]
   (map (fn [problem]
          (-> problem
              (dissoc :path :via)
              (update :in #(str/join "/" %))))
-    problems))
+       problems))
 
 (defn- data->input-stream [data]
   (-> data
@@ -63,7 +56,7 @@
 
 (defn- is-coercion-error? [data]
   (or (contains-substrings? data ["schema" "errors" "type" "coercion" "value" "in"])
-    (contains-substrings? data ["problems"])))
+      (contains-substrings? data ["problems"])))
 
 (defn- extract-coercion-reason
   ([data req]
@@ -75,7 +68,7 @@
          is-coercion? (some #{"spec" "schema"} [coercion])]
      (when is-coercion?
        (let [errors (or (get-in parsed-data [:errors])
-                      (beautify-problems (:problems parsed-data)))
+                        (beautify-problems (:problems parsed-data)))
              scope (some->> (:in parsed-data) (map str) (str/join "/"))
              status (if (str/includes? scope "response") 422 400)
              base-resp {:reason "Coercion-Error"
@@ -99,33 +92,14 @@
            :status response-status)))
 
 (defn handle-coercion-error [request resp]
-
-
-
-  (let [
-        accept-header (get-in request [:headers "accept"])
-
-        ]
-
+  (let [accept-header (get-in request [:headers "accept"])]
     (if (= accept-header "application/json")
-      (let [
-            ext-data (extract-data-from-input-stream (:body resp))
-        _ (println ">o> wrap-tx1.handle-coercion-error" (nil? ext-data))
-
-
-            ]
-        (if (and          (has-coercion-substring? ext-data)
-              (is-coercion-error? ext-data))
+      (let [ext-data (extract-data-from-input-stream (:body resp))]
+        (if (and (has-coercion-substring? ext-data)
+                 (is-coercion-error? ext-data))
           (generate-coercion-response ext-data request resp)
-          resp)
-        )
-      resp
-      )
-
-
-
-    ))
-
+          resp))
+      resp)))
 
 (defn wrap-handle-coercion-error [handler]
   (fn [request]
