@@ -120,14 +120,24 @@
 
                         ($ TableCell {:className "fit-content"}
                            ($ :div {:className "flex gap-2"}
+
                               ($ Button {:variant "outline"}
                                  ($ Link {:state #js {:searchParams (.. location -search)}
                                           :to (str (:id model))
                                           :viewTransition true}
                                     "editieren"))
-                              ($ Button {:variant "secondary"
-                                         :size "icon"}
-                                 ($ Ellipsis {:className "h-4 w-4"}))))))))))
+
+                              ($ DropdownMenu
+                                 ($ DropdownMenuTrigger {:asChild "true"}
+                                    ($ Button {:variant "secondary"
+                                               :size "icon"}
+                                       ($ Ellipsis {:className "h-4 w-4"})))
+                                 ($ DropdownMenuContent {:align "start"}
+                                    ($ DropdownMenuItem
+                                       ($ Link {:to (str (:id model) "/items/create")
+                                                :state #js {:searchParams (.. location -search)}
+                                                :viewTransition true}
+                                          "Gegenstand erstellen"))))))))))))
 
        ($ pagination/main {:pagination pagination
                            :class-name "p-6 pt-0"}))))

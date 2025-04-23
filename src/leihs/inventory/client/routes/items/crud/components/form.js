@@ -19,6 +19,11 @@ export const structure = [
         label: "Inventarcode *",
         component: "inventory-code",
       },
+      {
+        name: "models",
+        label: "Modell *",
+        component: "models",
+      },
     ],
   },
   {

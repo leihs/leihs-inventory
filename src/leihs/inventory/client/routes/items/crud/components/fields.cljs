@@ -1,22 +1,24 @@
 (ns leihs.inventory.client.routes.items.crud.components.fields
   (:require
+   ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]
-   ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
+   ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
+                      FormMessage]]
    ["@@/input" :refer [Input]]
-   ["@@/popover" :refer [Popover PopoverTrigger PopoverContent]]
    ["@@/radio-group" :refer [RadioGroup RadioGroupItem]]
-   ["@@/select" :refer [Select SelectTrigger SelectValue
-                        SelectContent SelectItem]]
+   ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
+                        SelectValue]]
    ["@@/textarea" :refer [Textarea]]
    ["date-fns" :refer [format]]
    ["lucide-react" :refer [CalendarIcon]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.items.crud.components.attachments :refer [Attachments]]
    [leihs.inventory.client.routes.items.crud.components.inventory-code :refer [InventoryCode]]
-   [uix.core :as uix :refer [defui $]]))
+   [leihs.inventory.client.routes.items.crud.components.models :refer [Models]]
+   [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
   {"input" Input
@@ -34,13 +36,19 @@
                     :form form
                     :props (:props block)})
 
+    (-> block :component (= "models"))
+    ($ Models {:control control
+               :form form
+               :block block})
+
     (-> block :component (= "checkbox"))
     ($ FormField {:control (cj control)
                   :name (:name block)
                   :render #($ FormItem {:class-name "mt-6"}
                               ($ FormControl
                                  ($ Checkbox (merge
-                                              {:checked (-> (jc %) :field :value)
+                                              {:name (:name block)
+                                               :checked (-> (jc %) :field :value)
                                                :onCheckedChange (-> (jc %) :field :onChange)}
                                               (:props block))))
 
@@ -57,7 +65,8 @@
                               ($ FormControl
                                  ($ RadioGroup {:onValueChange (aget % "field" "onChange")
                                                 :defaultValue (aget % "field" "value")
-                                                :class-name "flex space-x-1"}
+                                                :class-name "flex space-x-1"
+                                                :name (:name block)}
 
                                     (for [option (:options (:props block))]
                                       ($ FormItem {:key (:value option)
@@ -78,7 +87,7 @@
                                          :defaultValue (aget % "field" "value")}
 
                                  ($ FormControl
-                                    ($ SelectTrigger
+                                    ($ SelectTrigger {:name (:name block)}
                                        ($ SelectValue {:placeholder (:placeholder (:props block))})))
 
                                  ($ SelectContent
@@ -98,7 +107,8 @@
                                 ($ Popover
                                    ($ PopoverTrigger {:asChild true}
                                       ($ FormControl
-                                         ($ Button {:variant "outline"
+                                         ($ Button {:name (:name block)
+                                                    :variant "outline"
                                                     :class-name "w-[240px] pl-3 text-left font-normal"}
                                             (if field-value
                                               (format field-value "PPP")

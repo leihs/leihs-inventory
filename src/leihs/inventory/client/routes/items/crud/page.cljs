@@ -36,7 +36,8 @@
                          :retire-reason ""
                          :working "ok"
                          :availability "ok"
-                         :lendable "ok"}))
+                         :lendable "ok"
+                         :models {:id "" :name ""}}))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -73,7 +74,7 @@
     (uix/use-effect
      (fn []
        (when (not is-loading)
-         (let [retire-reason (.. js/document (querySelector "[data-id='retire-reason']"))]
+         (let [retire-reason (.. js/document (querySelector "[name='retire-reason']"))]
            (if (= is-retired "yes")
              (.. retire-reason -classList (remove "hidden"))
              (.. retire-reason -classList (add "hidden"))))))
