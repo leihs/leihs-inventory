@@ -82,7 +82,7 @@ def wtoken_header_plain_faraday_json_client(token)
   end
 end
 
-def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {}, multipart: false)
+def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {}, multipart: false, is_binary: false)
   Faraday.new(url: api_base_url) do |conn|
     conn.headers["Authorization"] = "Token #{token}" if token
     conn.headers["Accept"] = "application/json"
@@ -96,7 +96,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
 
     yield(conn) if block_given?
   end.public_send(method, url) do |req|
-    if multipart && body
+    if (multipart && body) || is_binary && body
       req.body = body
     elsif body
       req.body = body.to_json

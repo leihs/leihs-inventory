@@ -16,13 +16,9 @@
                                                                       upload-attachment
                                                                       patch-model-handler
                                                                       patch-models-handler]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-create :refer [create-model-handler-by-pool-model-only
-                                                                                         create-model-handler-by-pool-with-attachment-images]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [delete-model-handler-by-pool-form
-                                                                                         update-model-handler-by-pool-model-only
-                                                                                         update-model-handler-by-pool-with-attachment-images]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-json-delete :refer [delete-model-handler-by-pool-json]]
+   [leihs.inventory.server.resources.models.form.model.model-by-pool-json-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-json-update :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
@@ -585,28 +581,7 @@
     {:swagger {:conflicting true
                :tags ["form / model"]}}
     [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data" "application/json"]
-                       :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
-             :description (str
-                           " - Upload images and attachments \n"
-                           " - Save data \n"
-                           " - images: additional handling needed to process no/one/multiple files \n"
-                           " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-                           " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :model/multipart}
-             :handler create-model-handler-by-pool-with-attachment-images
-             :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-      :patch {:accept "application/json"
+     {:patch {:accept "application/json"
               :summary "Form-Handler: Used to patch model | [v1]"
               :coercion reitit.coercion.schema/coercion
               :swagger {:deprecated true}
@@ -688,30 +663,15 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}
 
-       :put {:accept "application/json"
-             :summary "Update model endpoint (multiform-data) [v0] DEPR"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :multipart :software/multipart}
-             :handler update-model-handler-by-pool-with-attachment-images
-             :responses {200 {:description "OK"
-                              :body :model-optional-response/inventory-models}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
        :delete {:accept "application/json"
-                :summary "(DEV) | Form-Handler: Delete form data [v0]"
+                :summary "(DEV) | Form-Handler: Delete form data [v1]"
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
                 :coercion spec/coercion
                 :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                 :parameters {:path {:pool_id uuid?
                                     :model_id uuid?}}
-                :handler delete-model-handler-by-pool-form
+                :handler delete-model-handler-by-pool-json
                 :responses {200 {:description "OK"
                                  :body {:deleted_attachments [{:id uuid?
                                                                :model_id uuid?
@@ -723,7 +683,6 @@
                                                          :manufacturer any?}]}}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
-
      ["/"
       {:put {:accept "application/json"
              :summary "Update model endpoint (JSON) [v1]"

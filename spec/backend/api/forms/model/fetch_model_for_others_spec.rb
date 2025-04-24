@@ -4,9 +4,12 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-def add_delete_flag(map)
-  map["delete"] = true
-  map
+def compact_compatibles(compatibles)
+  compatibles.map do |item|
+    item = item.compact
+    item["id"] ||= item.delete("model_id")
+    item
+  end
 end
 
 describe "Inventory Model" do
@@ -81,10 +84,9 @@ describe "Inventory Model" do
 
           # create model request
           form_data = {"product" => Faker::Commerce.product_name}
-
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)
@@ -97,10 +99,9 @@ describe "Inventory Model" do
             "product" => "updated product"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)
@@ -119,23 +120,21 @@ describe "Inventory Model" do
           # create model request
           form_data = {
             "product" => Faker::Commerce.product_name,
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
             "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-            "is_package" => "true",
+            "is_package" => true,
             "description" => "A sample product",
             "technical_details" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
-            "compatibles" => [compatibles.first].to_json,
-            "categories" => [@form_model_groups.first].to_json
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
+            "compatibles" => [compatibles.first],
+            "categories" => [@form_model_groups.first]
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)
@@ -147,24 +146,21 @@ describe "Inventory Model" do
           # update model request
           form_data = {
             "product" => "updated product",
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "updated v1.0",
             "manufacturer" => "updated manufacturer",
-            "is_package" => "true",
+            "is_package" => true,
             "description" => "updated description",
             "technical_details" => "updated techDetail",
             "internal_description" => "updated internalDesc",
             "important_notes" => "updated notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
-            "compatibles" => [compatibles.first, compatibles.second].to_json,
-            "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 11}],
+            "compatibles" => compact_compatibles([compatibles.first, compatibles.second]),
+            "categories" => [@form_model_groups.first, @form_model_groups.second]
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)

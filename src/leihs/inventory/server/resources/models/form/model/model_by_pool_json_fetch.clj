@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-fetch
+(ns leihs.inventory.server.resources.models.form.model.model-by-pool-json-fetch
   (:require
    [clojure.data.json :as json]
    [clojure.java.io :as io]

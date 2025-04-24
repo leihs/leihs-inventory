@@ -137,7 +137,6 @@ describe "Call swagger-endpoints" do
 
       puts "before login login #{@user.login} password #{@user.password}"
       resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
-      # binding.pry
       expect(resp.status).to eq(200)
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]

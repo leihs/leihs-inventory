@@ -9,6 +9,44 @@ def add_delete_flag(map)
   map
 end
 
+def rename_model_id_to_id(compatible)
+  compatible["id"] = compatible["model_id"]
+  compatible
+end
+
+def find_with_cover2(compatibles)
+  compatibles.find { |c| !c["id"].nil? }
+end
+
+def find_with_cover(compatibles)
+  compatibles.find { |c| !c["cover_image_url"].nil? }
+end
+
+def find_without_cover(compatibles)
+  compatibles.find { |c| c["cover_image_url"].nil? }
+end
+
+def select_with_cover(compatibles)
+  compatibles.select { |c| !c["cover_image_url"].nil? }
+end
+
+def select_without_cover(compatibles)
+  compatibles.select { |c| c["cover_image_url"].nil? }
+end
+
+def select_two_variants_of_compatibles(compatibles)
+  compatible_with_cover_image = find_with_cover(compatibles)
+  compatible_without_cover_image = find_without_cover(compatibles)
+
+  [compatible_with_cover_image, compatible_without_cover_image]
+end
+
+def convert_to_id_correction(compatibles)
+  compatibles.each do |compatible|
+    compatible["id"] = compatible.delete("model_id")
+  end
+end
+
 describe "Inventory Model" do
   ["inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
@@ -68,14 +106,6 @@ describe "Inventory Model" do
         end
       end
 
-      def convert_to_id_correction(compatibles)
-        compatibles.each do |compatible|
-          # puts "before: #{compatible}"
-          compatible["id"] = compatible.delete("model_id")
-          # puts "after: #{compatible}\n\n"
-        end
-      end
-
       context "create model (min)" do
         it "creates a model with all available attributes" do
           # create model request
@@ -83,9 +113,9 @@ describe "Inventory Model" do
             "product" => Faker::Commerce.product_name
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -108,16 +138,14 @@ describe "Inventory Model" do
           form_data = {
             "product" => "updated product"
           }
-
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
@@ -138,30 +166,62 @@ describe "Inventory Model" do
           # create model request
           form_data = {
             "product" => Faker::Commerce.product_name,
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "v1.0",
-            "manufacturer" => @form_manufacturers.first, # Use fetched manufacturer name
-            "is_package" => "true",
+            "manufacturer" => @form_manufacturers.first,
+            "is_package" => true,
             "description" => "A sample product",
             "technical_details" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 33}].to_json,
-            "compatibles" => [compatibles.first].to_json,
-            "categories" => [@form_model_groups.first].to_json
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
+            "compatibles" => [compatibles.first],
+            "categories" => [@form_model_groups.first]
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
+          expect(resp.status).to eq(200)
+          model_id = resp.body["data"]["id"]
 
+          # upload image
+          image_responses = [path_arrow, path_arrow_thumb].map { |path|
+            image = File.open(path, "rb")
+            file_name = File.basename(image)
+            resp = common_plain_faraday_client(:post, "/inventory/models/#{model_id}/images",
+              body: image.read,
+              headers: cookie_header.merge({"X-Filename" => file_name,
+                                             "Content-Type" => "image/png"}),
+              is_binary: true)
+            expect(resp.status).to eq(200)
+            resp.body
+          }
+
+          image_id = image_responses.first["image"]["id"]
+          resp = json_client_patch(
+            "/inventory/#{pool_id}/model/#{model_id}",
+            body: {"is_cover" => image_id},
+            headers: cookie_header
+          )
           expect(resp.status).to eq(200)
 
+          # upload attachment
+          attachment_responses = [path_test_pdf].map { |path|
+            attachment = File.open(path, "rb")
+            file_name = File.basename(attachment)
+            resp = common_plain_faraday_client(:post, "/inventory/models/#{model_id}/attachments",
+              body: attachment.read,
+              headers: cookie_header.merge({"X-Filename" => file_name,
+                                             "Content-Type" => "application/pdf"}),
+              is_binary: true)
+
+            expect(resp.status).to eq(200)
+            resp.body
+          }
+
           # fetch created model
-          model_id = resp.body["data"]["id"]
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
           expect(resp.body["images"].count).to eq(2)
@@ -177,34 +237,31 @@ describe "Inventory Model" do
           # update model request
           form_data = {
             "product" => "updated product",
-            "images" => [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")],
-            "attachments" => [File.open(path_test_pdf, "rb")],
             "version" => "updated v1.0",
             "manufacturer" => "updated manufacturer",
-            "is_package" => "true",
+            "is_package" => true,
             "description" => "updated description",
             "technical_details" => "updated techDetail",
             "internal_description" => "updated internalDesc",
             "important_notes" => "updated notes",
-            "entitlements" => [{entitlement_group_id: @form_entitlement_groups.first["id"], entitlement_id: nil, quantity: 11}].to_json,
-            "compatibles" => [compatibles.first, compatibles.second].to_json,
-            "categories" => [@form_model_groups.first, @form_model_groups.second].to_json
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 11}],
+            "compatibles" => [compatibles.first, compatibles.second],
+            "categories" => [@form_model_groups.first, @form_model_groups.second]
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model/#{model_id}",
-            form_data,
-            method: :put,
+          resp = json_client_put(
+            "/inventory/#{pool_id}/model/#{model_id}/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(model_id)
+          expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
 
-          expect(resp.body["images"].count).to eq(4)
-          expect(resp.body["attachments"].count).to eq(2)
+          expect(resp.body["images"].count).to eq(2)
+          expect(resp.body["attachments"].count).to eq(1)
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["entitlements"][0]["quantity"]).to eq(11)
 
@@ -212,41 +269,27 @@ describe "Inventory Model" do
           expect(compatibles.count).to eq(2)
           expect(resp.body["categories"].count).to eq(2)
           expect(resp.status).to eq(200)
+
+          # delete image & attachment
+          image_id = image_responses.first["image"]["id"]
+          resp = json_client_delete(
+            "/inventory/models/#{model_id}/images/#{image_id}",
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          attachment_id = attachment_responses.first.first["id"]
+          resp = json_client_delete(
+            "/inventory/models/#{model_id}/attachments/#{attachment_id}",
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          # verify deleted image & attachment
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          expect(resp.body["images"].count).to eq(1)
+          expect(resp.body["attachments"].count).to eq(0)
         end
-      end
-
-      def rename_model_id_to_id(compatible)
-        # puts "compatible.before: #{compatible}"
-        compatible["id"] = compatible["model_id"]
-        # puts "compatible.after: #{compatible}"
-        compatible
-      end
-
-      def find_with_cover2(compatibles)
-        compatibles.find { |c| !c["id"].nil? }
-      end
-
-      def find_with_cover(compatibles)
-        compatibles.find { |c| !c["cover_image_url"].nil? }
-      end
-
-      def find_without_cover(compatibles)
-        compatibles.find { |c| c["cover_image_url"].nil? }
-      end
-
-      def select_with_cover(compatibles)
-        compatibles.select { |c| !c["cover_image_url"].nil? }
-      end
-
-      def select_without_cover(compatibles)
-        compatibles.select { |c| c["cover_image_url"].nil? }
-      end
-
-      def select_two_variants_of_compatibles(compatibles)
-        compatible_with_cover_image = find_with_cover(compatibles)
-        compatible_without_cover_image = find_without_cover(compatibles)
-
-        [compatible_with_cover_image, compatible_without_cover_image]
       end
 
       context "create model (min)" do
@@ -257,9 +300,9 @@ describe "Inventory Model" do
             "product" => product
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/model",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/model/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -284,7 +327,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(404)
-          # expect(resp.body["error"]).to eq("Request to delete model blocked: model not found")
+          expect(resp.body["error"]).to eq("Model not found")
 
           # no results when fetching deleted model
           resp = client.get "/inventory/#{pool_id}/model/#{model_id}"

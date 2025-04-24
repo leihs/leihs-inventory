@@ -4,6 +4,8 @@ require_relative "../_shared"
 require_relative "_common"
 require "faker"
 
+CONST_DEV_FORMS = ["software", "license", "item", "option", "package"]
+
 describe "Admin protection for dev-endpoints" do
   ["customer", "group_manager", "inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory software as #{role}" do
@@ -14,7 +16,7 @@ describe "Admin protection for dev-endpoints" do
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
 
-      ["model", "software", "license", "item", "option", "package"].each do |type|
+      CONST_DEV_FORMS.each do |type|
         it "returns 404 for non-existent #{type}" do
           resp = client.get "/inventory/#{pool_id}/dev/#{type}"
           expect(resp.status).to eq(404)
@@ -34,7 +36,7 @@ describe "Admin protection for dev-endpoints" do
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_resource_client(cookie_header) }
 
-      ["model", "software", "license", "item", "option", "package"].each do |type|
+      CONST_DEV_FORMS.each do |type|
         it "returns 200 for existing #{type}" do
           resp = client.get "/inventory/#{pool_id}/dev/#{type}"
           expect(resp.status).to eq(200)
@@ -52,7 +54,7 @@ describe "Admin protection for dev-endpoints" do
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_resource_client(cookie_header) }
 
-      ["model", "software", "license", "item", "option", "package"].each do |type|
+      CONST_DEV_FORMS.each do |type|
         it "returns 200 for existing #{type}" do
           resp = client.get "/inventory/#{pool_id}/dev/#{type}"
           expect(resp.status).to eq(200)
