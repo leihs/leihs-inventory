@@ -121,6 +121,39 @@
 
 ;(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
 (def CONST_FILE_PATH "/tmp/")
+(defn delete-image
+  "Process:
+            - Reset `cover_image_id` in the model if it matches the image ID.
+            - Delete the image and its related entries."
+  [req]
+  (let [tx (:tx req)
+        {:keys [model_id image_id]} (:path (:parameters req))
+        id (to-uuid image_id)
+        row (jdbc/execute-one! tx
+                               (-> (sql/select :cover_image_id)
+                                   (sql/from :models)
+                                   (sql/where [:= :id model_id])
+                                   sql-format))]
+
+    (when (= (:cover_image_id row) id)
+      (jdbc/execute! tx
+                     (-> (sql/update :models)
+                         (sql/set {:cover_image_id nil})
+                         (sql/where [:= :id model_id])
+                         sql-format)))
+
+    (let [res (jdbc/execute-one! tx
+                                 (sql-format
+                                  {:with [[:ordered_images
+                                           {:select [:id]
+                                            :from [:images]
+                                            :where [:or [:= :parent_id id] [:= :id id]]
+                                            :order-by [[:parent_id :asc]]}]]
+                                   :delete-from :images
+                                   :where [:in :id {:select [:id] :from [:ordered_images]}]}))]
+      (if (= (:next.jdbc/update-count res) 2)
+        (response {:status "ok" :image_id image_id})
+        (bad-request {:error "Failed to delete image"})))))
 
 (defn upload-image [req]
   (let [{{:keys [model_id]} :path} (:parameters req)

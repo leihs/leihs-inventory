@@ -6,11 +6,21 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import
    [java.util Base64]))
+
+(defn delete-attachments [{:keys [tx] :as request}]
+  (let [{:keys [attachments_id]} (path-params request)
+        res (jdbc/execute-one! tx
+                               (-> (sql/delete-from :attachments)
+                                   (sql/where [:= :id attachments_id])
+                                   sql-format))]
+    (if (= (:next.jdbc/update-count res) 1)
+      (response {:status "ok" :attachments_id attachments_id})
+      (bad-request {:error "Failed to delete attachment"}))))
 
 (defn get-attachments-handler [request]
   (try
@@ -23,7 +33,7 @@
                     (sql/from [:attachments :a])
                     (cond-> id (sql/where [:= :a.id id]))
                     sql-format)
-          result (jdbc/query tx query)
+          result (jdbc/execute! tx query)
           attachment (first result)
           base64-string (:content attachment)
           file-name (:filename attachment)

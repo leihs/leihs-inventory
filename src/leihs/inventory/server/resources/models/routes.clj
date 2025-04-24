@@ -2,6 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.accessories.main :refer [get-accessories-of-pool-handler]]
+   [leihs.inventory.server.resources.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.models.coercion :as mc]
    [leihs.inventory.server.resources.models.entitlements.main :refer [get-entitlements-with-pagination-handler]]
    [leihs.inventory.server.resources.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
@@ -11,6 +12,7 @@
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
    [leihs.inventory.server.resources.models.form.model.common :refer [upload-image
+                                                                      delete-image
                                                                       upload-attachment
                                                                       patch-model-handler
                                                                       patch-models-handler]]
@@ -43,7 +45,6 @@
    [leihs.inventory.server.resources.models.models-by-pool :refer [create-model-handler-by-pool
                                                                    delete-model-handler-by-pool
                                                                    get-models-handler
-                                                                   get-models-of-pool-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
                                                                    get-models-of-pool-auto-pagination-handler
@@ -322,11 +323,11 @@
 
       ["/:image_id"
        {:delete {:accept "application/json"
-                 :summary "Delete image [v1] InProgress"
+                 :summary "Delete image [v1]"
                  :coercion reitit.coercion.schema/coercion
                  :parameters {:path {:model_id s/Uuid
                                      :image_id s/Uuid}}
-                 :handler (fn [_] {:status 200}) ;; TODO
+                 :handler delete-image
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]]
@@ -373,11 +374,11 @@
                           500 {:description "Internal Server Error"}}}
 
         :delete {:accept "application/json"
-                 :summary "Delete attachment [v1] InProgress"
+                 :summary "Delete attachment [v1]"
                  :coercion reitit.coercion.schema/coercion
                  :parameters {:path {:model_id s/Uuid
                                      :attachments_id s/Uuid}}
-                 :handler (fn [_] {:status 200}) ;; TODO
+                 :handler delete-attachments
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]]
