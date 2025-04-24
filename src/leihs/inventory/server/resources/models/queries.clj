@@ -63,7 +63,7 @@
 (def base-pool-query
   (-> (sql/select :models.*)
       (sql/from :models)
-      (sql/order-by [[:trim :models.product] :asc])))
+      (sql/order-by [[:trim [:|| :models.product :models.version]] :asc])))
 
 (defn inventoried-items-subquery [pool-id]
   (-> (sql/select 1)
@@ -73,7 +73,7 @@
                   [:= :items.inventory_pool_id pool-id]
                   [:= :items.owner_id pool-id]])))
 
-(defn with-items [query pool-id & {:keys [retired]}]
+(defn with-items [query pool-id & {:keys [retired borrowable]}]
   (sql/where
    query
    [:exists (-> (sql/select 1)
@@ -83,7 +83,9 @@
                             [:= :items.inventory_pool_id pool-id]
                             [:= :items.owner_id pool-id]])
                 (cond-> (boolean? retired)
-                  (sql/where [(if retired :<> :=) :items.retired nil])))]))
+                  (sql/where [(if retired :<> :=) :items.retired nil]))
+                (cond-> (boolean? borrowable)
+                  (sql/where [:= :items.is_borrowable borrowable])))]))
 
 (defn without-items [query]
   (sql/where

@@ -60,12 +60,13 @@
   ([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [with_items retired search]} (query-params request)
+         {:keys [with_items retired borrowable search]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
                    (cond->
                     (and pool_id (true? with_items))
-                     (with-items pool_id :retired retired)
+                     (with-items pool_id :retired retired
+                       :borrowable borrowable)
                      (and pool_id (false? with_items))
                      without-items
                      (and pool_id (presence search))

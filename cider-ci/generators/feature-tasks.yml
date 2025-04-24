@@ -3,16 +3,16 @@
   environment_variables:
     FEATURE_NAME: "LanguageSwitcher 01"
     FEATURE: './spec/features/i18n/language-switcher_spec.rb[1:1]'
-'./spec/features/inventar-liste/main_spec.rb[1:1]':
+'./spec/features/inventary-list/main_spec.rb[1:1]':
   name: "Inventory Page 01"
   environment_variables:
     FEATURE_NAME: "Inventory Page 01"
-    FEATURE: './spec/features/inventar-liste/main_spec.rb[1:1]'
-'./spec/features/inventar-liste/smoke_spec.rb[1:1]':
+    FEATURE: './spec/features/inventary-list/main_spec.rb[1:1]'
+'./spec/features/inventary-list/smoke_spec.rb[1:1]':
   name: "Inventory Page 02"
   environment_variables:
     FEATURE_NAME: "Inventory Page 02"
-    FEATURE: './spec/features/inventar-liste/smoke_spec.rb[1:1]'
+    FEATURE: './spec/features/inventary-list/smoke_spec.rb[1:1]'
 './spec/features/root_page_smoke_spec.rb[1:1:1]':
   name: "Root page renders 01"
   environment_variables:
