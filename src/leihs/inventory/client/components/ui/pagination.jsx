@@ -1,5 +1,7 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { Slot } from "@radix-ui/react-slot"
+import { Link } from "react-router-dom"
 
 import { cn } from "@/components/ui/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -29,7 +31,7 @@ const PaginationItem = React.forwardRef(({ className, ...props }, ref) => (
 PaginationItem.displayName = "PaginationItem"
 
 const PaginationLink = ({ className, isActive, size = "icon", ...props }) => (
-  <a
+  <Link
     aria-current={isActive ? "page" : undefined}
     className={cn(
       buttonVariants({
@@ -43,7 +45,7 @@ const PaginationLink = ({ className, isActive, size = "icon", ...props }) => (
 )
 PaginationLink.displayName = "PaginationLink"
 
-const PaginationPrevious = ({ className, ...props }) => (
+const PaginationPrevious = ({ className, children, ...props }) => (
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
@@ -51,19 +53,19 @@ const PaginationPrevious = ({ className, ...props }) => (
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
-    <span>Previous</span>
+    {children}
   </PaginationLink>
 )
 PaginationPrevious.displayName = "PaginationPrevious"
 
-const PaginationNext = ({ className, ...props }) => (
+const PaginationNext = ({ className, children, ...props }) => (
   <PaginationLink
     aria-label="Go to next page"
     size="default"
     className={cn("gap-1 pr-2.5", className)}
     {...props}
   >
-    <span>Next</span>
+    {children}
     <ChevronRight className="h-4 w-4" />
   </PaginationLink>
 )

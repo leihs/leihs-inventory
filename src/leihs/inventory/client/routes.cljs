@@ -39,7 +39,7 @@
                :children
                (cj
                 [{:index true
-                  :loader #(router/redirect "models?with_items=true&retired=false&page=1&size=20")}
+                  :loader #(router/redirect "models?with_items=true&retired=false&page=1&size=50")}
 
                  {:path "models"
                   :loader loader/models-page

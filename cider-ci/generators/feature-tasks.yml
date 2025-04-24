@@ -8,6 +8,11 @@
   environment_variables:
     FEATURE_NAME: "Inventory Page 01"
     FEATURE: './spec/features/inventory-list/main_spec.rb[1:1]'
+'./spec/features/inventory-list/pagination_spec.rb[1:1]':
+  name: "Inventory Pagination 01"
+  environment_variables:
+    FEATURE_NAME: "Inventory Pagination 01"
+    FEATURE: './spec/features/inventory-list/pagination_spec.rb[1:1]'
 './spec/features/inventory-list/smoke_spec.rb[1:1]':
   name: "Inventory Page 02"
   environment_variables:

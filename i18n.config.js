@@ -31,8 +31,8 @@ i18n
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
     resources,
-    lng: "de",
-    fallbackLng: ["de"],
+    lng: "de-CH",
+    fallbackLng: ["de-CH"],
     debug: true,
   })
 

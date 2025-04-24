@@ -1,4 +1,10 @@
 {
+  "pagination": {
+    "previous": "Vorherige",
+    "next": "Nächste",
+    "range": "{{range}} von insgesamt {{total}} Zeilen",
+    "per-page": "Zeilen pro Seite"
+  },
   "header": {
     "links": {
       "inventory": "Inventar",

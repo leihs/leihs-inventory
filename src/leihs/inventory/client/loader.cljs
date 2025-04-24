@@ -14,11 +14,9 @@
 
 (defn models-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))]
-    (if (= (.-search url) "")
-      (router/redirect "?with_items=true&retired=false&page=1&size=20")
-      (-> http-client
-          (.get (str (.-pathname url) (.-search url)))
-          (.then #(jc (.. % -data)))))))
+    (-> http-client
+        (.get (str (.-pathname url) (.-search url)))
+        (.then #(jc (.. % -data))))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)

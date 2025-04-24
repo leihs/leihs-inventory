@@ -171,7 +171,7 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_content("Inventarliste - #{pool_1.name}")
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
-    expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["20"]})
+    expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["50"]})
     expect(all("table tbody tr").count).to eq 5
     expect(all("table tbody tr")[0]).to have_content(model_10.version)
     expect(all("table tbody tr")[1]).to have_content(model_2.version)

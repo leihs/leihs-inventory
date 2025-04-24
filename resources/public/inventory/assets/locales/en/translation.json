@@ -1,4 +1,10 @@
 {
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "range": "{{range}} of total {{total}} rows",
+    "per-page": "Rows per page"
+  },
   "header": {
     "links": {
       "inventory": "Inventory",
