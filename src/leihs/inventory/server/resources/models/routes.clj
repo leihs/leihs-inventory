@@ -944,6 +944,7 @@
                                  (s/optional-key :page) s/Int
                                  (s/optional-key :retired) s/Bool
                                  (s/optional-key :borrowable) s/Bool
+                                 (s/optional-key :inventory_pool_id) s/Uuid
                                  (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)

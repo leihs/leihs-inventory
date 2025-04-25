@@ -65,23 +65,40 @@
       (sql/from :models)
       (sql/order-by [[:trim [:|| :models.product :models.version]] :asc])))
 
-(defn inventoried-items-subquery [pool-id]
-  (-> (sql/select 1)
-      (sql/from :items)
-      (sql/where [:= :items.model_id :models.id])
-      (sql/where [:or
-                  [:= :items.inventory_pool_id pool-id]
-                  [:= :items.owner_id pool-id]])))
+(defn owner-or-responsible-cond [pool-id]
+  [:or
+   [:= :items.owner_id pool-id]
+   [:= :items.inventory_pool_id pool-id]])
 
-(defn with-items [query pool-id & {:keys [retired borrowable]}]
+(defn owner-but-not-responsible-cond [pool-id pool2-id]
+  [:and
+   [:= :items.owner_id pool-id]
+   [:= :items.inventory_pool_id pool2-id]])
+
+(defn all-inventory-models [query pool-id]
+  (-> query
+      (sql/where [:or
+                  [:exists
+                   (-> (sql/select 1)
+                       (sql/from :items)
+                       (sql/where [:= :items.model_id :models.id])
+                       (sql/where (owner-or-responsible-cond pool-id)))]
+                  [:not
+                   [:exists
+                    (-> (sql/select 1)
+                        (sql/from :items)
+                        (sql/where [:= :items.model_id :models.id]))]]])))
+
+(defn with-items [query pool-id & {:keys [retired borrowable
+                                          inventory_pool_id]}]
   (sql/where
    query
    [:exists (-> (sql/select 1)
                 (sql/from :items)
                 (sql/where [:= :items.model_id :models.id])
-                (sql/where [:or
-                            [:= :items.inventory_pool_id pool-id]
-                            [:= :items.owner_id pool-id]])
+                (#(if inventory_pool_id
+                    (sql/where % (owner-but-not-responsible-cond pool-id inventory_pool_id))
+                    (sql/where % (owner-or-responsible-cond pool-id))))
                 (cond-> (boolean? retired)
                   (sql/where [(if retired :<> :=) :items.retired nil]))
                 (cond-> (boolean? borrowable)

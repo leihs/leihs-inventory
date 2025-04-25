@@ -7,6 +7,7 @@
    [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query
+                                                            all-inventory-models
                                                             with-items without-items with-search]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -60,17 +61,28 @@
   ([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [with_items retired borrowable search]} (query-params request)
+         {:keys [with_items
+                 retired borrowable inventory_pool_id
+                 search]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
                    (cond->
-                    (and pool_id (true? with_items))
-                     (with-items pool_id :retired retired
-                       :borrowable borrowable)
+                    (and pool_id (not (boolean? with_items)))
+                     (all-inventory-models pool_id)
+
+                     (and pool_id (true? with_items))
+                     (with-items pool_id
+                       :retired retired
+                       :borrowable borrowable
+                       :inventory_pool_id inventory_pool_id)
+
                      (and pool_id (false? with_items))
                      without-items
+
                      (and pool_id (presence search))
                      (with-search search)))]
+     (debug (sql-format query :inline true))
+
      (if (url-ends-with-uuid? (:uri request))
        (let [res (jdbc/execute-one! tx (-> query sql-format))]
          (if res
