@@ -89,20 +89,45 @@
                         (sql/from :items)
                         (sql/where [:= :items.model_id :models.id]))]]])))
 
-(defn with-items [query pool-id & {:keys [retired borrowable
-                                          inventory_pool_id]}]
+(defn in-stock [query true-or-false]
+  (-> query
+      (sql/where [:= :items.parent_id nil])
+      (sql/where
+       (cond-> [:exists
+                (-> (sql/select 1)
+                    (sql/from :reservations)
+                    (sql/where [:= :reservations.item_id :items.id])
+                    (sql/where [:and
+                                [:= :reservations.status ["signed"]]
+                                [:= :reservations.returned_date nil]]))]
+         true-or-false
+         (vector :not)))))
+
+(defn with-items [query pool-id
+                  & {:keys [retired borrowable incomplete broken
+                            inventory_pool_id owned
+                            in_stock]}]
   (sql/where
    query
    [:exists (-> (sql/select 1)
                 (sql/from :items)
                 (sql/where [:= :items.model_id :models.id])
-                (#(if inventory_pool_id
+                (#(cond
+                    inventory_pool_id
                     (sql/where % (owner-but-not-responsible-cond pool-id inventory_pool_id))
+                    owned
+                    (sql/where % [:= :items.owner_id pool-id])
+                    :else
                     (sql/where % (owner-or-responsible-cond pool-id))))
+                (cond-> (boolean? in_stock) (in-stock in_stock))
                 (cond-> (boolean? retired)
                   (sql/where [(if retired :<> :=) :items.retired nil]))
                 (cond-> (boolean? borrowable)
-                  (sql/where [:= :items.is_borrowable borrowable])))]))
+                  (sql/where [:= :items.is_borrowable borrowable]))
+                (cond-> (boolean? broken)
+                  (sql/where [:= :items.is_broken broken]))
+                (cond-> (boolean? incomplete)
+                  (sql/where [:= :items.is_incomplete incomplete])))]))
 
 (defn without-items [query]
   (sql/where

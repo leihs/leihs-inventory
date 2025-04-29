@@ -3,17 +3,18 @@ require_relative "../shared/common"
 
 feature "Inventory Page", type: :feature do
   scenario "default filter" do
-    # |---------|--------|--------|--------|---------|------------|
-    # | model   | item   | owner  | pool   | retired | borrowable |
-    # |---------|--------|--------|--------|---------|------------|
-    # | model_1 |        |        |        |         |            |
-    # | model_2 | PA100  | pool_1 | pool_1 | false   | true       |
-    # | model_3 | PA101  | pool_1 | pool_1 | true    | true       |
-    # | model_4 | PA102  | pool_1 | pool_1 | true    | false      |
-    # | model_5 | PA103  | pool_1 | pool_2 | true    | true       |
-    # | model_6 | PC104  | pool_3 | pool_1 | false   | true       |
-    # | model_7 | PD105  | pool_4 | pool_4 | false   | true       |
-    # |---------|--------|--------|--------|---------|------------|
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
+    # | model   | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken |
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
+    # | model_1 |        |        |        |         |            |          |            |        |
+    # | model_2 | PA100  | pool_1 | pool_1 | false   | true       | true     | false      | false  |
+    # | model_3 | PA101  | pool_1 | pool_1 | true    | true       | true     | false      | false  |
+    # | model_4 | PA102  | pool_1 | pool_1 | true    | false      | true     | true       | false  |
+    # | model_5 | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |
+    # | model_6 | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |
+    # | model_7 | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |
+    # | model_8 | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
 
     pool_1 = FactoryBot.create(:inventory_pool, shortname: "PA")
     pool_2 = FactoryBot.create(:inventory_pool, shortname: "PB")
@@ -29,13 +30,14 @@ feature "Inventory Page", type: :feature do
         role: :inventory_manager)
     end
 
-    model_1 = FactoryBot.create(:leihs_model, product: "Model", version: "ABC")
-    model_2 = FactoryBot.create(:leihs_model, product: "Model", version: "DEF")
-    model_3 = FactoryBot.create(:leihs_model, product: "Model", version: "GHI")
-    model_4 = FactoryBot.create(:leihs_model, product: "Model", version: "JKL")
-    model_5 = FactoryBot.create(:leihs_model, product: "Model", version: "MNO")
-    model_6 = FactoryBot.create(:leihs_model, product: "Model", version: "PRS")
-    model_7 = FactoryBot.create(:leihs_model, product: "Model", version: "TOV")
+    model_1 = FactoryBot.create(:leihs_model, product: "Model", version: "AA1")
+    model_2 = FactoryBot.create(:leihs_model, product: "Model", version: "AA2")
+    model_3 = FactoryBot.create(:leihs_model, product: "Model", version: "AA3")
+    model_4 = FactoryBot.create(:leihs_model, product: "Model", version: "AA4")
+    model_5 = FactoryBot.create(:leihs_model, product: "Model", version: "AA5")
+    model_6 = FactoryBot.create(:leihs_model, product: "Model", version: "AA6")
+    model_7 = FactoryBot.create(:leihs_model, product: "Model", version: "AA7")
+    model_8 = FactoryBot.create(:leihs_model, product: "Model", version: "AA8")
 
     FactoryBot.create(:item,
       inventory_code: "#{pool_1.shortname}100",
@@ -60,6 +62,7 @@ feature "Inventory Page", type: :feature do
       inventory_pool_id: pool_1.id,
       leihs_model: model_4,
       is_borrowable: false,
+      is_incomplete: true,
       retired: Date.yesterday,
       retired_reason: Faker::Lorem.sentence)
 
@@ -71,10 +74,34 @@ feature "Inventory Page", type: :feature do
       retired_reason: Faker::Lorem.sentence,
       leihs_model: model_5)
 
+    item = FactoryBot.create(:item,
+      inventory_code: "#{pool_1.shortname}106",
+      owner_id: pool_1.id,
+      inventory_pool_id: pool_1.id,
+      leihs_model: model_8,
+      is_borrowable: true,
+      retired: nil)
+
+    user_2 = FactoryBot.create(:user)
+    contract = Contract.create_with_disabled_triggers(
+      "a9bf950b-e91e-4a23-85e1-5fd8163d234a",
+      user_2.id,
+      pool_1.id
+    )
+
+    FactoryBot.create(:reservation,
+      status: :signed,
+      leihs_model: model_8,
+      item_id: item.id,
+      contract_id: contract.id,
+      user_id: user_2.id,
+      inventory_pool_id: pool_1.id)
+
     FactoryBot.create(:item,
       inventory_code: "#{pool_3.shortname}104",
       owner_id: pool_3.id,
       inventory_pool_id: pool_1.id,
+      is_broken: true,
       leihs_model: model_6)
 
     FactoryBot.create(:item,
@@ -91,9 +118,10 @@ feature "Inventory Page", type: :feature do
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
     expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["20"]})
-    expect(all("table tbody tr").count).to eq 2
+    expect(all("table tbody tr").count).to eq 3
     expect(all("table tbody tr")[0]).to have_content(model_2.version)
     expect(all("table tbody tr")[1]).to have_content(model_6.version)
+    expect(all("table tbody tr")[2]).to have_content(model_8.version)
 
     visit "/inventory/#{pool_1.id}/models?with_items=true&retired=true"
     expect(all("table tbody tr").count).to eq 3
@@ -106,25 +134,27 @@ feature "Inventory Page", type: :feature do
     expect(first("table tbody tr")).to have_content(model_4.version)
 
     visit "/inventory/#{pool_1.id}/models?with_items=true"
-    expect(all("table tbody tr").count).to eq 5
+    expect(all("table tbody tr").count).to eq 6
     expect(all("table tbody tr")[0]).to have_content(model_2.version)
     expect(all("table tbody tr")[1]).to have_content(model_3.version)
     expect(all("table tbody tr")[2]).to have_content(model_4.version)
     expect(all("table tbody tr")[3]).to have_content(model_5.version)
     expect(all("table tbody tr")[4]).to have_content(model_6.version)
+    expect(all("table tbody tr")[5]).to have_content(model_8.version)
 
     visit "/inventory/#{pool_1.id}/models?with_items=false"
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_1.version)
 
     visit "/inventory/#{pool_1.id}/models?page=1&size=20"
-    expect(all("table tbody tr").count).to eq 6
+    expect(all("table tbody tr").count).to eq 7
     expect(all("table tbody tr")[0]).to have_content(model_1.version)
     expect(all("table tbody tr")[1]).to have_content(model_2.version)
     expect(all("table tbody tr")[2]).to have_content(model_3.version)
     expect(all("table tbody tr")[3]).to have_content(model_4.version)
     expect(all("table tbody tr")[4]).to have_content(model_5.version)
     expect(all("table tbody tr")[5]).to have_content(model_6.version)
+    expect(all("table tbody tr")[6]).to have_content(model_8.version)
 
     visit "/inventory/#{pool_1.id}/models?search=#{model_1.version}"
     expect(all("table tbody tr").count).to eq 1
@@ -133,6 +163,25 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/models?with_items=true&inventory_pool_id=#{pool_2.id}"
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_5.version)
+
+    visit "/inventory/#{pool_1.id}/models?with_items=true&owned=true&borrowable=true"
+    expect(all("table tbody tr").count).to eq 4
+    expect(all("table tbody tr")[0]).to have_content(model_2.version)
+    expect(all("table tbody tr")[1]).to have_content(model_3.version)
+    expect(all("table tbody tr")[2]).to have_content(model_5.version)
+    expect(all("table tbody tr")[3]).to have_content(model_8.version)
+
+    visit "/inventory/#{pool_1.id}/models?with_items=true&in_stock=false"
+    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr")[0]).to have_content(model_8.version)
+
+    visit "/inventory/#{pool_1.id}/models?with_items=true&incomplete=true"
+    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr")[0]).to have_content(model_4.version)
+
+    visit "/inventory/#{pool_1.id}/models?with_items=true&broken=true"
+    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr")[0]).to have_content(model_6.version)
 
     visit "/inventory/#{pool_5.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0

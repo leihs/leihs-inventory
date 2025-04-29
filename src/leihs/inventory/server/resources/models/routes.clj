@@ -891,7 +891,7 @@
    ["/models"
     [""
      {:get {:accept "application/json"
-            :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models?search_term="
+            :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}
@@ -903,6 +903,10 @@
                                  (s/optional-key :page) s/Int
                                  (s/optional-key :retired) s/Bool
                                  (s/optional-key :borrowable) s/Bool
+                                 (s/optional-key :incomplete) s/Bool
+                                 (s/optional-key :broken) s/Bool
+                                 (s/optional-key :owned) s/Bool
+                                 (s/optional-key :in_stock) s/Bool
                                  (s/optional-key :inventory_pool_id) s/Uuid
                                  (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int

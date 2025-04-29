@@ -62,7 +62,8 @@
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
          {:keys [with_items
-                 retired borrowable inventory_pool_id
+                 retired borrowable incomplete broken
+                 inventory_pool_id owned in_stock
                  search]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
@@ -74,7 +75,11 @@
                      (with-items pool_id
                        :retired retired
                        :borrowable borrowable
-                       :inventory_pool_id inventory_pool_id)
+                       :incomplete incomplete
+                       :broken broken
+                       :inventory_pool_id inventory_pool_id
+                       :owned owned
+                       :in_stock in_stock)
 
                      (and pool_id (false? with_items))
                      without-items

@@ -10,6 +10,8 @@ require "config/web"
 require "helpers/global"
 require "helpers/user"
 
+# require "uuidtools"
+
 RSpec.configure do |config|
   config.include Helpers::Global
   config.include Helpers::User
