@@ -49,6 +49,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
+   [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -907,6 +908,7 @@
                                  (s/optional-key :broken) s/Bool
                                  (s/optional-key :owned) s/Bool
                                  (s/optional-key :in_stock) s/Bool
+                                 (s/optional-key :before_last_check) Date
                                  (s/optional-key :inventory_pool_id) s/Uuid
                                  (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int

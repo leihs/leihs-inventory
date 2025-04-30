@@ -3,18 +3,18 @@ require_relative "../shared/common"
 
 feature "Inventory Page", type: :feature do
   scenario "default filter" do
-    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
-    # | model   | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken |
-    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
-    # | model_1 |        |        |        |         |            |          |            |        |
-    # | model_2 | PA100  | pool_1 | pool_1 | false   | true       | true     | false      | false  |
-    # | model_3 | PA101  | pool_1 | pool_1 | true    | true       | true     | false      | false  |
-    # | model_4 | PA102  | pool_1 | pool_1 | true    | false      | true     | true       | false  |
-    # | model_5 | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |
-    # | model_6 | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |
-    # | model_7 | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |
-    # | model_8 | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |
-    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    # | model   | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    # | model_1 |        |        |        |         |            |          |            |        |            |
+    # | model_2 | PA100  | pool_1 | pool_1 | false   | true       | true     | false      | false  | 2024-12-31 |
+    # | model_3 | PA101  | pool_1 | pool_1 | true    | true       | true     | false      | false  |            |
+    # | model_4 | PA102  | pool_1 | pool_1 | true    | false      | true     | true       | false  |            |
+    # | model_5 | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |            |
+    # | model_6 | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |            |
+    # | model_7 | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |            |
+    # | model_8 | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
+    # |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
 
     pool_1 = FactoryBot.create(:inventory_pool, shortname: "PA")
     pool_2 = FactoryBot.create(:inventory_pool, shortname: "PB")
@@ -44,6 +44,7 @@ feature "Inventory Page", type: :feature do
       owner_id: pool_1.id,
       inventory_pool_id: pool_1.id,
       leihs_model: model_2,
+      last_check: Date.new(2024, 12, 31),
       is_borrowable: true,
       retired: nil)
 
@@ -182,6 +183,10 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/models?with_items=true&broken=true"
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_6.version)
+
+    visit "/inventory/#{pool_1.id}/models?with_items=true&before_last_check=2024-12-31"
+    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr")[0]).to have_content(model_2.version)
 
     visit "/inventory/#{pool_5.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0

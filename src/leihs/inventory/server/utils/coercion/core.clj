@@ -12,3 +12,5 @@
                  :page s/Int
                  :total_rows s/Int
                  :total_pages s/Int})
+
+(def Date java.time.LocalDate)

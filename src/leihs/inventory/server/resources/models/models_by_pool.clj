@@ -64,7 +64,7 @@
          {:keys [with_items
                  retired borrowable incomplete broken
                  inventory_pool_id owned in_stock
-                 search]} (query-params request)
+                 search before_last_check]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
                    (cond->
@@ -79,7 +79,8 @@
                        :broken broken
                        :inventory_pool_id inventory_pool_id
                        :owned owned
-                       :in_stock in_stock)
+                       :in_stock in_stock
+                       :before_last_check before_last_check)
 
                      (and pool_id (false? with_items))
                      without-items

@@ -106,7 +106,7 @@
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned
-                            in_stock]}]
+                            in_stock before_last_check]}]
   (sql/where
    query
    [:exists (-> (sql/select 1)
@@ -120,6 +120,8 @@
                     :else
                     (sql/where % (owner-or-responsible-cond pool-id))))
                 (cond-> (boolean? in_stock) (in-stock in_stock))
+                (cond-> before_last_check
+                  (sql/where [:<= :items.last_check before_last_check]))
                 (cond-> (boolean? retired)
                   (sql/where [(if retired :<> :=) :items.retired nil]))
                 (cond-> (boolean? borrowable)

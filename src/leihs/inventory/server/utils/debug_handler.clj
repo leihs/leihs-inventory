@@ -2,11 +2,9 @@
   (:require [logbug.thrown :as thrown]
             [taoensso.timbre :refer [debug error]]))
 
-(defonce ^:private DEBUG false)
+(defonce ^:private DEBUG true)
 
-(defn debug-mode? []
-  DEBUG)
-(def ^:dynamic debug-last-ex nil)
+(defn debug-mode? [] DEBUG)
 
 (defn wrap-debug [handler]
   (fn [request]
@@ -21,8 +19,7 @@
                   :response response})
           response)
         (catch Exception ex
-          (def ^:dynamic debug-last-ex ex)
           (error "RING-LOGGING-WRAPPER CAUGHT EXCEPTION "
                  {:wrap-debug-level wrap-debug-level} (ex-message ex))
-          (error "RING-LOGGING-WRAPPER CAUGHT EXCEPTION " (thrown/stringify ex))
+          (error "RING-LOGGING-WRAPPER CAUGHT EXCEPTION " ex)
           (throw ex))))))
