@@ -44,7 +44,7 @@
             [ring.util.response :as response]
             [taoensso.timbre :refer [debug error warn]]))
 
-(def ^:dynamic middlewares [wrap-handle-coercion-error
+(def middlewares [wrap-handle-coercion-error
                             db/wrap-tx
                             core-routing/wrap-canonicalize-params-maps
                             muuntaja/format-middleware
@@ -80,15 +80,11 @@
                             muuntaja/format-negotiate-middleware
                             muuntaja/format-response-middleware
                             exception/exception-middleware
+                            debug-mw/wrap-debug
                             muuntaja/format-request-middleware
                             coercion/coerce-response-middleware
                             coercion/coerce-request-middleware
                             multipart/multipart-middleware])
-
-(def ^:dynamic middlewares
-  (if (debug-mw/debug-mode?)
-    (into [] (interpose debug-mw/wrap-debug middlewares))
-    middlewares))
 
 (defn create-app [options]
   (let [router (ring/router
