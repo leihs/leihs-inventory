@@ -44,51 +44,40 @@
             [ring.util.response :as response]
             [taoensso.timbre :refer [debug error warn]]))
 
-(def ^:dynamic middlewares [wrap-handle-coercion-error
-                            db/wrap-tx
-                            core-routing/wrap-canonicalize-params-maps
-                            muuntaja/format-middleware
-                            ring-audits/wrap
-                            wrap-accept-with-image-rewrite
+(def middlewares [wrap-handle-coercion-error
+                  db/wrap-tx
+                  core-routing/wrap-canonicalize-params-maps
+                  muuntaja/format-middleware
+                  ring-audits/wrap
+                  wrap-accept-with-image-rewrite
 
-                            csrf/extract-header
-                            wrap-authenticate!
-                            leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
-                            wrap-cookies
-                            csrf/wrap-csrf
-                            leihs.core.anti-csrf.back/wrap
-                            dm/extract-dev-cookie-params
+                  csrf/extract-header
+                  wrap-authenticate!
+                  leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
+                  wrap-cookies
+                  csrf/wrap-csrf
+                  leihs.core.anti-csrf.back/wrap
+                  dm/extract-dev-cookie-params
 
-                            ;locale/wrap
-                            ;settings/wrap
-                            ;datasource/wrap-tx
-                            ;wrap-json-response
-                            ;(wrap-json-body {:keywords? true})
-                            ;wrap-empty
-                            ;wrap-form-params
+                  wrap-params
+                  wrap-content-type
 
-                            wrap-params
-                            wrap-content-type
+                  dispatch-content-type/wrap-accept
 
-                            dispatch-content-type/wrap-accept
+                  default-handler-fetch-resource
 
-                            default-handler-fetch-resource
-                            ;csrf/wrap-dispatch-content-type
+                  swagger/swagger-feature
+                  parameters/parameters-middleware
+                  muuntaja/format-negotiate-middleware
+                  muuntaja/format-response-middleware
 
-                            swagger/swagger-feature
-                            parameters/parameters-middleware
-                            muuntaja/format-negotiate-middleware
-                            muuntaja/format-response-middleware
-                            exception/exception-middleware
-                            muuntaja/format-request-middleware
-                            coercion/coerce-response-middleware
-                            coercion/coerce-request-middleware
-                            multipart/multipart-middleware])
+                  exception/exception-middleware
+                  debug-mw/wrap-debug
 
-(def ^:dynamic middlewares
-  (if (debug-mw/debug-mode?)
-    (into [] (interpose debug-mw/wrap-debug middlewares))
-    middlewares))
+                  muuntaja/format-request-middleware
+                  coercion/coerce-response-middleware
+                  coercion/coerce-request-middleware
+                  multipart/multipart-middleware])
 
 (defn create-app [options]
   (let [router (ring/router
