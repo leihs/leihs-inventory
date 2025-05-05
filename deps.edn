@@ -1,4 +1,4 @@
-{:paths ["src" "shared-clj/src" "resources"]
+{:paths ["src" "shared-clj/src" "resources" "shared-clj/resources"]
  :deps
  {org.clojure/clojure {:mvn/version "1.11.4"}
   better-cond/better-cond {:mvn/version "2.1.5"}
@@ -53,8 +53,6 @@
          :main-opts ["-m" "cognitect.test-runner"]
          :exec-fn cognitect.test-runner.api/test}
 
-  :cljc-paths ["src" "shared-clj/src"]
-
   :frontend {:deps {cljs-http/cljs-http {:mvn/version "0.1.48"}
                     noencore/noencore {:mvn/version "0.3.8"}
                     com.pitch/uix.core {:mvn/version "1.0.1"}
@@ -66,5 +64,4 @@
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "2.9.1221"}}
              :main-opts ["-m" "antq.core"]}
-
-  :resource-paths ["resources"]}}
+  }}

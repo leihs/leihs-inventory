@@ -8,7 +8,8 @@
                                                             entitlements-query item-query
                                                             model-links-query properties-query
                                                             all-inventory-models
-                                                            with-items without-items with-search]]
+                                                            with-items without-items with-search
+                                                            from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -64,6 +65,7 @@
          {:keys [with_items
                  retired borrowable incomplete broken
                  inventory_pool_id owned in_stock
+                 category_id
                  search before_last_check]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> base-pool-query
@@ -86,8 +88,11 @@
                      without-items
 
                      (and pool_id (presence search))
-                     (with-search search)))]
+                     (with-search search))
+                   (cond-> category_id
+                     (#(from-category tx % category_id))))]
      (debug (sql-format query :inline true))
+     (debug (class category_id))
 
      (if (url-ends-with-uuid? (:uri request))
        (let [res (jdbc/execute-one! tx (-> query sql-format))]

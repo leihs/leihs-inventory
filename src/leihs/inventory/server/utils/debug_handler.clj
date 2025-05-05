@@ -2,7 +2,7 @@
   (:require [logbug.thrown :as thrown]
             [taoensso.timbre :refer [debug error]]))
 
-(defonce ^:private DEBUG true)
+(defonce ^:private DEBUG false)
 
 (defn debug-mode? [] DEBUG)
 

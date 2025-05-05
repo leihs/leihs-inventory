@@ -15,6 +15,18 @@ feature "Inventory Page", type: :feature do
     # | model_7 | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |            |
     # | model_8 | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
     # |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    #
+    # |---------|--------|--------|
+    # | model   | cat_1  | cat_2  |
+    # |---------|--------|--------|
+    # | model_1 | Audio  |        |
+    # |---------|--------|--------|
+    # | model_2 | Audio  | Mic    |
+    # |---------|--------|--------|
+
+    cat_1 = FactoryBot.create(:category, name: "Audio")
+    cat_2 = FactoryBot.create(:category, name: "Mic")
+    cat_1.add_child(cat_2)
 
     pool_1 = FactoryBot.create(:inventory_pool, shortname: "PA")
     pool_2 = FactoryBot.create(:inventory_pool, shortname: "PB")
@@ -38,6 +50,9 @@ feature "Inventory Page", type: :feature do
     model_6 = FactoryBot.create(:leihs_model, product: "Model", version: "AA6")
     model_7 = FactoryBot.create(:leihs_model, product: "Model", version: "AA7")
     model_8 = FactoryBot.create(:leihs_model, product: "Model", version: "AA8")
+
+    model_1.add_category(cat_1)
+    model_2.add_category(cat_2)
 
     FactoryBot.create(:item,
       inventory_code: "#{pool_1.shortname}100",
@@ -187,6 +202,11 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/models?with_items=true&before_last_check=2024-12-31"
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_2.version)
+
+    visit "/inventory/#{pool_1.id}/models?category_id=#{cat_1.id}"
+    expect(all("table tbody tr").count).to eq 2
+    expect(all("table tbody tr")[0]).to have_content(model_1.version)
+    expect(all("table tbody tr")[1]).to have_content(model_2.version)
 
     visit "/inventory/#{pool_5.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0

@@ -2,8 +2,10 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [hugsql.core :as hugsql]
    [leihs.inventory.server.resources.models.tree.shared :as shared]
-   [next.jdbc :as jdbc]))
+   [next.jdbc :as jdbc]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn children [tx category
                 & {:keys [with-metadata exclude] :or {with-metadata false}}]
@@ -31,3 +33,11 @@
                                    :exclude exclude))]
                 (assoc category :children children-with-descendents))))]
     (descendents-h initial-category #{})))
+
+(hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
+
+(defn descendent-ids [tx category-id]
+  (-> {:category-id category-id}
+      descendent-ids-sqlvec
+      (->> (jdbc-query tx))
+      (->> (map :id))))

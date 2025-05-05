@@ -910,6 +910,7 @@
                                  (s/optional-key :in_stock) s/Bool
                                  (s/optional-key :before_last_check) Date
                                  (s/optional-key :inventory_pool_id) s/Uuid
+                                 (s/optional-key :category_id) s/Uuid
                                  (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)

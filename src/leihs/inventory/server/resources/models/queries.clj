@@ -1,17 +1,9 @@
 (ns leihs.inventory.server.resources.models.queries
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
-   [next.jdbc.sql :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import (java.time LocalDateTime)
-           (java.util UUID)))
+   [leihs.inventory.server.resources.models.tree.descendents :refer [descendent-ids]]
+   [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn item-query [query item-id]
   (-> query
@@ -144,3 +136,12 @@
                      :models.manufacturer :models.product :models.version]
                     (str "%" search "%")]))
 
+(defn from-category [tx query category-id]
+  (let [ids (-> (descendent-ids tx category-id)
+                (conj category-id))]
+    (-> query
+        (sql/where
+         [:exists (-> (sql/select 1)
+                      (sql/from :model_links)
+                      (sql/where [:= :model_links.model_id :models.id])
+                      (sql/where [:in :model_links.model_group_id ids]))]))))
