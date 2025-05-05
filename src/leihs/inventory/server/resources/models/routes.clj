@@ -103,13 +103,16 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
+           :summary "TESTA"
 
            :parameters {:query {(s/optional-key :page) s/Int
                                 (s/optional-key :size) s/Int
                                 ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
                                 ;(s/optional-key :filter_manufacturer) s/Str
                                 ;(s/optional-key :filter_product) s/Str
-                                }}
+                                }
+                        :path {:shit s/Str}
+                        }
            :handler get-models-compatible-handler
            :responses {200 {:description "OK"
                             :body s/Any}
@@ -121,12 +124,15 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
+           :summary "TESTA"
            :swagger {:produces ["application/json"]}
            :parameters {:path {:model_id s/Uuid}}
            :handler get-models-compatible-handler
            :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
+                            ;:body s/Any}
+                       :body s/Int}
+
+           404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
    ;; /inventory/models/*
@@ -467,7 +473,8 @@
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
             :responses {200 {:description "OK"
                              ;; TODO
-                             :body mc/item-response-get}
+                             ;:body mc/item-response-get}
+                             :body int?}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
@@ -527,17 +534,18 @@
                          500 {:description "Internal Server Error"}}}
 
       :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0] TESTA"
             :description "Permitted access for:\n- lending_manager\n- inventory_manager"
             :coercion spec/coercion
             :parameters {:path {:pool_id uuid?}}
             :handler fetch-package-handler-by-pool-form
             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:body {:data {:inventory_code string?
-                                           :inventory_pool_id uuid?
-                                           :responsible_department any?}
-                                    :fields [any?]}
-                             :description "OK"}
+            ;:responses {200 {:body {:data {:inventory_code string?
+            :responses {200 {:body int?}
+                                           ;:inventory_pool_id uuid?
+                                           ;:responsible_department any?}
+                                    ;:fields [any?]}
+                             ;:description "OK"}
                         401 {:description "Unauthorized: invalid role for the requested pool or method"
                              :body {:error string?}}
                         404 {:description "Not Found"}

@@ -75,6 +75,7 @@
    (token-routes)])
 
 (defn get-sign-in [request]
+  (+ 1 "a")
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
@@ -105,6 +106,9 @@
         resp))))
 
 (defn get-sign-out [request]
+  ;(assert (< 200 100) "x must be less than 100") ;; no log-entry
+  (throw (Exception. "Something went wrong"))
+
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
         params {:authFlow {:returnTo "/inventory/models"}
                 :csrfToken (when consts/ACTIVATE-SET-CSRF
@@ -142,7 +146,7 @@
              :coercion reitit.coercion.schema/coercion
              :handler post-sign-in}
 
-      :get {:summary "HTML | Get sign-in page"
+      :get {:summary "HTML | Get sign-in page TESTA"
             :accept "text/html"
             :swagger {:consumes ["text/html"]
                       :produces ["text/html" "application/json"]}
@@ -156,7 +160,7 @@
              :swagger {:produces ["text/html" "application/json"]}
              :handler post-sign-out}
       :get {:accept "text/html"
-            :summary "HTML | Get sign-out page"
+            :summary "HTML | Get sign-out page TESTA"
             :handler get-sign-out}}]]
 
    ["inventory"
