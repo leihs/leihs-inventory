@@ -1,15 +1,12 @@
 (ns leihs.inventory.server.resources.models.tree.images
-  (:require [leihs.core.core :refer [presence str]])
+  (:require
+   [leihs.core.core :refer [presence str]]
+   [leihs.core.resources.images.core :refer [IMG-DATA-URL-PREFIX prefix-with-data-url]])
   (:import
    [java.awt.image BufferedImage]
    [java.io ByteArrayInputStream ByteArrayOutputStream]
    [java.util Base64]
    [javax.imageio ImageIO]))
-
-(def IMG-DATA-URL-PREFIX "data:image/jpeg;base64")
-
-(defn prefix-with-data-url [base64]
-  (clojure.string/join "," [IMG-DATA-URL-PREFIX base64]))
 
 (defn assert-proper-image-type! [prefix]
   (when-not (= IMG-DATA-URL-PREFIX prefix)

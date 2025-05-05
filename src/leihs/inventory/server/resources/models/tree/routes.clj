@@ -2,8 +2,8 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.tree.filter :as filter]
-   [leihs.inventory.server.resources.models.tree.tree :refer [tree]]
+   [leihs.core.resources.categories.filter :as filter]
+   [leihs.core.resources.categories.tree :refer [tree]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
