@@ -897,23 +897,24 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json" "text/html"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :query {(s/optional-key :filter_ids) [s/Uuid]
+                         :query {(s/optional-key :before_last_check) Date
+                                 (s/optional-key :borrowable) s/Bool
+                                 (s/optional-key :broken) s/Bool
+                                 (s/optional-key :category_id) s/Uuid
+                                 (s/optional-key :filter_ids) [s/Uuid]
                                  (s/optional-key :filter_manufacturer) s/Str
                                  (s/optional-key :filter_product) s/Str
+                                 (s/optional-key :in_stock) s/Bool
+                                 (s/optional-key :incomplete) s/Bool
+                                 (s/optional-key :inventory_pool_id) s/Uuid
                                  (s/optional-key :is_deletable) s/Bool
+                                 (s/optional-key :owned) s/Bool
                                  (s/optional-key :page) s/Int
                                  (s/optional-key :retired) s/Bool
-                                 (s/optional-key :borrowable) s/Bool
-                                 (s/optional-key :incomplete) s/Bool
-                                 (s/optional-key :broken) s/Bool
-                                 (s/optional-key :owned) s/Bool
-                                 (s/optional-key :in_stock) s/Bool
-                                 (s/optional-key :before_last_check) Date
-                                 (s/optional-key :inventory_pool_id) s/Uuid
-                                 (s/optional-key :category_id) s/Uuid
                                  (s/optional-key :search) s/Str
                                  (s/optional-key :size) s/Int
                                  (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+                                 (s/optional-key :type) (s/enum :model :software :option :package)
                                  (s/optional-key :with_items) s/Bool}}
 
             :handler get-models-of-pool-with-pagination-handler

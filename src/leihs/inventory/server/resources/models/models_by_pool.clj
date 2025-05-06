@@ -4,11 +4,10 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
+   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-inventory-query
                                                             entitlements-query item-query
                                                             model-links-query properties-query
-                                                            all-inventory-models
-                                                            with-items without-items with-search
+                                                            with-items without-items with-search filter-by-type
                                                             from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -62,18 +61,16 @@
   ([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
-         {:keys [with_items
+         {:keys [with_items type
                  retired borrowable incomplete broken
                  inventory_pool_id owned in_stock
                  category_id
                  search before_last_check]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
-         query (-> base-pool-query
+         query (-> (base-inventory-query pool_id)
+                   (cond-> type (filter-by-type type))
                    (cond->
-                    (and pool_id (not (boolean? with_items)))
-                     (all-inventory-models pool_id)
-
-                     (and pool_id (true? with_items))
+                    (and pool_id (true? with_items))
                      (with-items pool_id
                        :retired retired
                        :borrowable borrowable
@@ -92,7 +89,6 @@
                    (cond-> category_id
                      (#(from-category tx % category_id))))]
      (debug (sql-format query :inline true))
-     (debug (class category_id))
 
      (if (url-ends-with-uuid? (:uri request))
        (let [res (jdbc/execute-one! tx (-> query sql-format))]

@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.models.queries
   (:require
    [clojure.set]
+   [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.tree.descendents :refer [descendent-ids]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
@@ -57,6 +58,23 @@
       (sql/from :models)
       (sql/order-by [[:trim [:|| :models.product :models.version]] :asc])))
 
+(def DEFAULT-ORDER-BY
+  [[:trim [:|| :inventory.product :inventory.version]] :asc])
+
+(defn base-inventory-query [pool-id]
+  (-> (sql/select :inventory.*)
+      (sql/from :inventory)
+      (sql/where [:or
+                  [:= :inventory.inventory_pool_id nil]
+                  [:= :inventory.inventory_pool_id pool-id]])
+      (sql/order-by DEFAULT-ORDER-BY)))
+
+(defn filter-by-type [query type]
+  (-> query
+      (sql/where (case type
+                   :package [:= :inventory.is_package true]
+                   [:= :inventory.type (-> type name capitalize)]))))
+
 (defn owner-or-responsible-cond [pool-id]
   [:or
    [:= :items.owner_id pool-id]
@@ -66,20 +84,6 @@
   [:and
    [:= :items.owner_id pool-id]
    [:= :items.inventory_pool_id pool2-id]])
-
-(defn all-inventory-models [query pool-id]
-  (-> query
-      (sql/where [:or
-                  [:exists
-                   (-> (sql/select 1)
-                       (sql/from :items)
-                       (sql/where [:= :items.model_id :models.id])
-                       (sql/where (owner-or-responsible-cond pool-id)))]
-                  [:not
-                   [:exists
-                    (-> (sql/select 1)
-                        (sql/from :items)
-                        (sql/where [:= :items.model_id :models.id]))]]])))
 
 (defn in-stock [query true-or-false]
   (-> query
@@ -103,7 +107,7 @@
    query
    [:exists (-> (sql/select 1)
                 (sql/from :items)
-                (sql/where [:= :items.model_id :models.id])
+                (sql/where [:= :items.model_id :inventory.id])
                 (#(cond
                     inventory_pool_id
                     (sql/where % (owner-but-not-responsible-cond pool-id inventory_pool_id))
@@ -124,16 +128,17 @@
                   (sql/where [:= :items.is_incomplete incomplete])))]))
 
 (defn without-items [query]
-  (sql/where
-   query
-   [:not [:exists (-> (sql/select 1)
-                      (sql/from :items)
-                      (sql/where [:= :items.model_id :models.id]))]]))
+  (-> query
+      (sql/where [:<> :inventory.type "Option"])
+      (sql/where
+       [:not [:exists (-> (sql/select 1)
+                          (sql/from :items)
+                          (sql/where [:= :items.model_id :inventory.id]))]])))
 
 (defn with-search [query search]
   (sql/where query [:ilike
                     [:concat_ws ", "
-                     :models.manufacturer :models.product :models.version]
+                     :inventory.manufacturer :inventory.product :inventory.version]
                     (str "%" search "%")]))
 
 (defn from-category [tx query category-id]
@@ -143,5 +148,5 @@
         (sql/where
          [:exists (-> (sql/select 1)
                       (sql/from :model_links)
-                      (sql/where [:= :model_links.model_id :models.id])
+                      (sql/where [:= :model_links.model_id :inventory.id])
                       (sql/where [:in :model_links.model_group_id ids]))]))))
