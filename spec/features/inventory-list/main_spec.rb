@@ -179,13 +179,21 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[3]).to have_content(model_8.version)
     expect(all("table tbody tr")[4]).to have_content(model_9.version)
 
-    visit "/inventory/#{pool_1.id}/models?with_items=true&retired=true"
+    visit "/inventory/#{pool_1.id}/models"
+    select_value("with_items", "with_items")
+    select_value("retired", "retired")
+
     expect(all("table tbody tr").count).to eq 3
     expect(all("table tbody tr")[0]).to have_content(model_3.version)
     expect(all("table tbody tr")[1]).to have_content(model_4.version)
     expect(all("table tbody tr")[2]).to have_content(model_5.version)
 
-    visit "/inventory/#{pool_1.id}/models?with_items=true&retired=true&borrowable=false"
+    visit "/inventory/#{pool_1.id}/models"
+
+    select_value("with_items", "with_items")
+    select_value("retired", "retired")
+    select_value("borrowable", "not_borrowable")
+
     expect(all("table tbody tr").count).to eq 1
     expect(first("table tbody tr")).to have_content(model_4.version)
 
@@ -200,7 +208,9 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[6]).to have_content(model_8.version)
     expect(all("table tbody tr")[7]).to have_content(model_9.version)
 
-    visit "/inventory/#{pool_1.id}/models?with_items=false"
+    visit "/inventory/#{pool_1.id}/models"
+    select_value("with_items", "without_items")
+
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_1.version)
 
@@ -218,7 +228,9 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[9]).to have_content(model_9.version)
     expect(all("table tbody tr")[10]).to have_content(option_1.version)
 
-    visit "/inventory/#{pool_1.id}/models?search=#{model_2.version}"
+    visit "/inventory/#{pool_1.id}/models"
+    find("input[name='search']").set(model_2.version.to_s)
+
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_2.version)
 
@@ -266,5 +278,12 @@ feature "Inventory Page", type: :feature do
 
     visit "/inventory/#{pool_5.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0
+  end
+
+  def select_value(name, value)
+    filter = find("button[name='#{name}']")
+    filter.click
+    expect(page).to have_css("[data-test-id='#{value}']", wait: 10)
+    find("div[data-test-id='#{value}']", match: :first).click
   end
 end

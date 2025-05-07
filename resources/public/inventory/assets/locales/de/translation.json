@@ -27,6 +27,35 @@
   "pool": {
     "models": {
       "title": "Inventarliste",
+      "filters": {
+        "search": {
+          "placeholder": "Filtern nach Begriff"
+        },
+        "type": {
+          "title": "Inventar-Typ",
+          "model": "Modell",
+          "package": "Paket",
+          "item": "Gegenstand",
+          "option": "Option",
+          "software": "Software",
+          "software-license": "Software-Lizenz"
+        },
+        "retired": {
+          "all": "nicht ausgemustert & ausgemustert",
+          "retired": "ausgemustert",
+          "not_retired": "nicht ausgemustert"
+        },
+        "with_items": {
+          "all": "Alle Modelle",
+          "with_items": "nur Modelle mit Gegenständen",
+          "without_items": "nur Modelle ohne Gegenstände"
+        },
+        "borrowable": {
+          "all": "ausleihbar & nicht ausleihbar",
+          "borrowable": "ausleihbar",
+          "not_borrowable": "nicht ausleihbar"
+        }
+      },
       "dropdown": {
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",
