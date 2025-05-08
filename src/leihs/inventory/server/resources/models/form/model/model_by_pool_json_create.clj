@@ -9,11 +9,10 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer :all]
-   [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
-                                                                      extract-model-form-data-new
-                                                                      filter-response
-                                                                      create-images-and-prepare-image-attributes]]
-   [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
+   [leihs.inventory.server.resources.models.form.model.common :refer [extract-model-form-data
+                                                                      filter-response]]
+   [leihs.inventory.server.resources.models.helper :refer [base-filename
+                                                           normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
@@ -26,14 +25,14 @@
            [java.util UUID]
            [java.util.jar JarFile]))
 
-(defn create-model-handler-by-pool-form [request create-all]
+(defn create-model-handler-by-pool-form [request]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data-new request create-all)]
+        (extract-model-form-data request)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
@@ -55,4 +54,4 @@
 
         (exception-to-response request e "Failed to create model")))))
 (defn create-model-handler-by-pool-model-json [request]
-  (create-model-handler-by-pool-form request true))
+  (create-model-handler-by-pool-form request))

@@ -8,13 +8,13 @@
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
 
-(defn update-model-handler-by-pool-form [request create-all]
+(defn update-model-handler-by-pool-form [request]
   (let [validation-result (atom [])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         tx (:tx request)
         {:keys [prepared-model-data categories compatibles properties accessories entitlements]}
-        (extract-model-form-data-new request create-all)]
+        (extract-model-form-data request)]
     (try
       (let [update-model-query (-> (sql/update :models)
                                    (sql/set prepared-model-data)
@@ -37,4 +37,4 @@
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 (defn update-model-handler-by-pool-model-json [request]
-  (update-model-handler-by-pool-form request false))
+  (update-model-handler-by-pool-form request))

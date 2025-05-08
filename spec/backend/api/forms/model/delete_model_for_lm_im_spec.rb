@@ -186,15 +186,20 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
           model_id = resp.body["data"]["id"]
 
-          # upload image
-          image_responses = [path_arrow, path_arrow_thumb].map { |path|
-            image = File.open(path, "rb")
-            file_name = File.basename(image)
-            resp = common_plain_faraday_client(:post, "/inventory/models/#{model_id}/images",
-              body: image.read,
-              headers: cookie_header.merge({"X-Filename" => file_name,
-                                             "Content-Type" => "image/png"}),
-              is_binary: true)
+          # create image
+          images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
+          image_responses = images.map { |image|
+            headers = cookie_header.merge(
+              "Content-Type" => "image/png",
+              "X-Filename" => File.basename(image.path),
+              "Content-Length" => File.size(image.path).to_s
+            )
+            resp = json_client_post(
+              "/inventory/models/#{model_id}/images",
+              body: image,
+              headers: headers,
+              is_binary: true
+            )
             expect(resp.status).to eq(200)
             resp.body
           }

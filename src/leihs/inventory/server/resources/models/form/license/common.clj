@@ -50,6 +50,15 @@
           data
           keys-to-check))
 
+(def remove-nil-entries-fnc
+  (fn [res]
+    (mapv
+     (fn [r]
+       (->> r
+            (filter (comp some? val))
+            (into {})))
+     res)))
+
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]

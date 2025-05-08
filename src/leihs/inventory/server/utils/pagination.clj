@@ -27,12 +27,19 @@
                             (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
+(defn set-default-pagination [size page]
+  (let [size (if (and (int? size) (pos? size)) size 25)
+        page (if (and (int? page) (pos? page)) page 1)]
+    {:size size
+     :page page}))
+
 (defn create-paginated-response
   ([base-query tx size page]
    (create-paginated-response base-query tx size page nil))
 
   ([base-query tx size page post-data-fnc]
    (let [total-rows (fetch-total-count base-query tx)
+         {:keys [size page]} (set-default-pagination size page)
          total-pages (int (Math/ceil (/ total-rows (float size))))
          offset (* (dec page) size)
          paginated-products (fetch-paginated-rows base-query tx size offset)

@@ -123,8 +123,8 @@ def json_client_get(url, headers: {}, token: nil)
   common_plain_faraday_client(:get, url, token: token, headers: headers)
 end
 
-def json_client_post(url, body: nil, headers: {}, token: nil)
-  common_plain_faraday_client(:post, url, token: token, body: body, headers: headers)
+def json_client_post(url, body: nil, headers: {}, token: nil, is_binary: false)
+  common_plain_faraday_client(:post, url, token: token, body: body, headers: headers, is_binary: is_binary)
 end
 
 def json_client_delete(url, headers: {}, token: nil)

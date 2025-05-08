@@ -131,50 +131,44 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un [::delete]
+(sa/def ::category (sa/keys :opt-un []
                             :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
                       :single (sa/or :coll (sa/coll-of ::category)
                                      :str string?)
                       :none nil?))
 
-(sa/def :nil/compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+(sa/def :put-post/categories (sa/or
+                              :single (sa/or :coll (sa/coll-of ::id)
+                                             :str string?)
+                              :none nil?))
+(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
                                  :req-un [:nil/id :nil/product]))
 
-(sa/def ::compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
                               :req-un [::id ::product]))
 
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
                        :none nil?))
+(sa/def :put-post/compatibles (sa/or
+                               :single (sa/or :coll (sa/coll-of ::id)
+                                              :str string?)
+                               :none nil?))
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
-
-(sa/def ::image_to_delete string?)
-
-(sa/def :list/images_to_delete (sa/or :multiple (sa/coll-of ::image_to_delete :kind vector?)
-                                      :single ::image_to_delete))
-
-(sa/def ::attachment_to_delete string?)
-
-(sa/def :list/attachments_to_delete (sa/or :multiple (sa/coll-of ::attachment_to_delete :kind vector?)
-                                           :single ::attachment_to_delete))
-
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
+(sa/def :min/images (sa/or :multiple (sa/coll-of any? :kind vector?)
+                           :single any?))
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
-;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; TODO: use this
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
-                               :req-un [::entitlement_group_id
-                                        ::quantity]))
-
-(sa/def :json/entitlement (sa/keys :opt-un [::name ::delete ::position :nil/id]
+(sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
 (sa/def ::entitlements (sa/or
@@ -490,10 +484,8 @@
                                     :nil/product
                                     ::categories
                                     ::id
-                                    ;FIXME: nil values?
-                                    ::compatibles
-                                    ;"compatibles"=>[{"id"=>"09993961-3b5c-4ed2-add4-d79a44c0f43e", "product"=>"Enormous Steel Shoes"}, {"id"=>nil, "product"=>nil}],
-                                    ])
+                                    ::compatibles]
+                           :opt-un [:min/images])
             :description "Complete inventory response"}))
 
 (sa/def :model-optional-response/inventory-model
@@ -514,11 +506,7 @@
                                     ::attachments
                                     ::categories
                                     :model2/image_attributes
-
-                                    ;FIXME: nil values?
-                                    ::compatibles
-                                    ;"compatibles"=>[{"id"=>"09993961-3b5c-4ed2-add4-d79a44c0f43e", "product"=>"Enormous Steel Shoes"}, {"id"=>nil, "product"=>nil}],
-                                    ])
+                                    ::compatibles])
             :description "Complete inventory response"}))
 
 (sa/def :model-strict-response/inventory-models (sa/or :multiple (sa/coll-of :model-get-put-response/inventory-model :kind vector?)
@@ -581,12 +569,8 @@
                                            ::internal_description
                                            ::hand_over_note
                                            ::categories
-                                           :list/images_to_delete
-                                           :list/attachments_to_delete
                                            ::owner
                                            ::compatibles
-                                           ::images
-                                           ::attachments
                                            ::entitlements
                                            :software/properties
                                            ::accessories]))
@@ -672,7 +656,6 @@
 (sa/def ::label string?)
 (sa/def :nil-str/owner (sa/nilable string?))
 (sa/def :str/id string?)
-(sa/def ::id uuid?)
 (sa/def ::position ::integer)
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
@@ -745,7 +728,6 @@
 (sa/def :nil/cover_image_id (sa/nilable any?))
 
 (sa/def ::updated_at any?)
-(sa/def ::id uuid?) ;; UUID spec
 (sa/def :image/id any?)
 (sa/def :image/is_cover (sa/nilable boolean?))
 (sa/def :image/filename (sa/nilable string?))

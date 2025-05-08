@@ -5,6 +5,7 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries-fnc remove-nil-entries]]
    [leihs.inventory.server.resources.models.form.model.common :refer [create-image-url]]
    [leihs.inventory.server.resources.models.helper :refer [str-to-bool]]
    [leihs.inventory.server.resources.models.models-by-pool :refer [apply-is_deleted-context-if-valid
@@ -68,8 +69,10 @@
                          (sql/order-by [:m2.product :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
-        (response (jdbc/execute! tx (-> base-query sql-format)))
-        (response (create-paginated-response base-query tx size page))))
+        (-> (jdbc/execute! tx (-> base-query sql-format))
+            remove-nil-entries-fnc
+            response)
+        (response (create-paginated-response base-query tx size page remove-nil-entries-fnc))))
     (catch Exception e
       (error "Failed to get models-compatible" e)
       (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))

@@ -227,14 +227,16 @@ describe "Inventory Model" do
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
           @image_id = nil
           images.each do |image|
-            headers = cookie_header.merge({
+            headers = cookie_header.merge(
               "Content-Type" => "image/png",
-              "X-Filename" => image.path.split("/").last
-            })
+              "X-Filename" => File.basename(image.path),
+              "Content-Length" => File.size(image.path).to_s
+            )
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
-              headers: headers
+              headers: headers,
+              is_binary: true
             )
             expect(resp.status).to eq(200)
             @image_id = resp.body["image"]["id"]
@@ -399,21 +401,21 @@ describe "Inventory Model" do
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
-          images_response = []
           images.each do |image|
-            headers = cookie_header.merge({
+            headers = cookie_header.merge(
               "Content-Type" => "image/png",
-              "X-Filename" => image.path.split("/").last
-            })
+              "X-Filename" => File.basename(image.path),
+              "Content-Length" => File.size(image.path).to_s
+            )
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
-              headers: headers
+              headers: headers,
+              is_binary: true
             )
             expect(resp.status).to eq(200)
-            images_response << resp.body["image"]
+            @image_id = resp.body["image"]["id"]
           end
-          @image_id = images_response.first["id"]
 
           # create attachment
           attachments = [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")]

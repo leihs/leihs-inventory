@@ -8,8 +8,6 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.form.model.common :refer [create-images-and-prepare-image-attributes
-                                                                      prepare-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]

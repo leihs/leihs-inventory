@@ -20,3 +20,8 @@
 
 (defn valid-attachment-uri? [uri]
   (boolean (re-matches #"^/inventory/attachments/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" uri)))
+
+(defn deep-merge [& vals]
+  (if (every? map? vals)
+    (apply merge-with deep-merge vals)
+    (last vals)))
