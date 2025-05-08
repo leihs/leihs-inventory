@@ -624,11 +624,12 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "New Create Model-Endpoint (JSON) [v1]"
+             :summary "Form-Handler: Create model (JSON) [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :body :model/multipart}
+                          ;:body :model-put-post/multipart}
              :handler create-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
@@ -639,7 +640,7 @@
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data (JSON) [v1]"
+             :summary "Form-Handler: Fetch model data (JSON) [v1]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
@@ -686,13 +687,15 @@
                             500 {:description "Internal Server Error"}}}}]
      ["/"
       {:put {:accept "application/json"
-             :summary "Update model endpoint (JSON) [v1]"
+             :summary "Form-Handler: Update model data (JSON) [v1]"
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :body :model/multipart}
-             :handler update-model-handler-by-pool-model-json
+             ;:body :model-put-post/multipart}
+
+       :handler update-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}

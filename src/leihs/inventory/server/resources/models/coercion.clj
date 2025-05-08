@@ -131,35 +131,45 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un [::delete]
+(sa/def ::category (sa/keys :opt-un []
                             :req-un [::id ::type ::name]))
 (sa/def ::categories (sa/or
                       :single (sa/or :coll (sa/coll-of ::category)
                                      :str string?)
                       :none nil?))
 
-(sa/def :nil/compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+(sa/def :put-post/categories (sa/or
+                      :single (sa/or :coll (sa/coll-of ::id)
+                                     :str string?)
+                      :none nil?))
+
+(sa/def :nil/compatible (sa/keys :opt-un [ ::cover_image_id ::cover_image_url]
                                  :req-un [:nil/id :nil/product]))
 
-(sa/def ::compatible (sa/keys :opt-un [::delete ::cover_image_id ::cover_image_url]
+(sa/def ::compatible (sa/keys :opt-un [ ::cover_image_id ::cover_image_url]
                               :req-un [::id ::product]))
 
 (sa/def ::compatibles (sa/or
                        :single (sa/or :coll (sa/coll-of ::compatible)
                                       :str string?)
                        :none nil?))
+
+(sa/def :put-post/compatibles (sa/or
+                       :single (sa/or :coll (sa/coll-of ::id)
+                                      :str string?)
+                       :none nil?))
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 
-(sa/def ::image_to_delete string?)
-
-(sa/def :list/images_to_delete (sa/or :multiple (sa/coll-of ::image_to_delete :kind vector?)
-                                      :single ::image_to_delete))
-
-(sa/def ::attachment_to_delete string?)
-
-(sa/def :list/attachments_to_delete (sa/or :multiple (sa/coll-of ::attachment_to_delete :kind vector?)
-                                           :single ::attachment_to_delete))
+;(sa/def ::image_to_delete string?)
+;
+;(sa/def :list/images_to_delete (sa/or :multiple (sa/coll-of ::image_to_delete :kind vector?)
+;                                      :single ::image_to_delete))
+;
+;(sa/def ::attachment_to_delete string?)
+;
+;(sa/def :list/attachments_to_delete (sa/or :multiple (sa/coll-of ::attachment_to_delete :kind vector?)
+;                                           :single ::attachment_to_delete))
 
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
@@ -170,15 +180,23 @@
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
 ;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position ::entitlement_id] ;; TODO: use this
-(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
-                               :req-un [::entitlement_group_id
-                                        ::quantity]))
+;(sa/def ::entitlement (sa/keys :opt-un [::name ::delete ::position :nil/entitlement_id]
+;                               :req-un [::entitlement_group_id
+;                                        ::quantity]))
 
-(sa/def :json/entitlement (sa/keys :opt-un [::name ::delete ::position :nil/id]
+(sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
 (sa/def ::entitlements (sa/or
                         :single (sa/or :coll (sa/coll-of :json/entitlement)
+                                       :str string?)
+                        :none nil?))
+
+(sa/def :put-post/entitlement (sa/keys :opt-un [:nil/id]
+                                   :req-un [:entitlement/group_id
+                                            ::quantity]))
+(sa/def :put-post/entitlements (sa/or
+                        :single (sa/or :coll (sa/coll-of :put-post/entitlement)
                                        :str string?)
                         :none nil?))
 (sa/def ::inventory_bool boolean?)
@@ -581,13 +599,39 @@
                                            ::internal_description
                                            ::hand_over_note
                                            ::categories
-                                           :list/images_to_delete
-                                           :list/attachments_to_delete
+
+                                           ;:list/images_to_delete
+                                           ;:list/attachments_to_delete
+
                                            ::owner
                                            ::compatibles
                                            ::images
                                            ::attachments
                                            ::entitlements
+                                           :software/properties
+                                           ::accessories]))
+
+
+(sa/def :model-put-post/multipart (sa/keys :req-un [::product]
+                                  :opt-un [::version
+                                           ::manufacturer
+                                           ::is_package
+                                           ::description
+                                           ::technical_detail
+                                           ::internal_description
+                                           ::hand_over_note
+                                           ;:put-post/categories
+                                           ::categories
+
+
+                                           ;:list/images_to_delete
+                                           ;:list/attachments_to_delete
+
+                                           ::owner
+                                           :put-post/compatibles
+                                           ::images
+                                           ::attachments
+                                           :put-post/entitlements
                                            :software/properties
                                            ::accessories]))
 
@@ -672,7 +716,7 @@
 (sa/def ::label string?)
 (sa/def :nil-str/owner (sa/nilable string?))
 (sa/def :str/id string?)
-(sa/def ::id uuid?)
+;(sa/def ::id uuid?)
 (sa/def ::position ::integer)
 (sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
@@ -745,7 +789,7 @@
 (sa/def :nil/cover_image_id (sa/nilable any?))
 
 (sa/def ::updated_at any?)
-(sa/def ::id uuid?) ;; UUID spec
+;(sa/def ::id uuid?) ;; UUID spec
 (sa/def :image/id any?)
 (sa/def :image/is_cover (sa/nilable boolean?))
 (sa/def :image/filename (sa/nilable string?))

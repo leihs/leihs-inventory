@@ -42,8 +42,8 @@
          images)))
 
 (defn fetch-accessories [tx model-id]
-  (let [query (-> (sql/select :a.id :a.name [:aip.inventory_pool_id :has_inventory_pool]
-                              [(sq/call :not= :aip.inventory_pool_id nil) :has_inventory_pool])
+  (let [query (-> (sql/select :a.id :a.name [:aip.inventory_pool_id :has_inventory_pool])
+                              ;[(sq/call :not= :aip.inventory_pool_id nil) :has_inventory_pool])
                   (sql/from [:accessories :a])
                   (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
                   (sql/where [:= :a.model_id model-id])
