@@ -38,6 +38,10 @@
                                            files))))))
 
         handle-delete (fn [index]
+                        ;; reset cover image id when deleted
+                        (when (= index cover-index)
+                          (set-cover-index! nil))
+
                         ;; remove file by index on delete
                         (set-images!
                          (fn [prev] (delete-by-index index prev))))

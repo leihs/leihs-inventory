@@ -77,8 +77,13 @@
         "title": "Neues Modell erstellen",
         "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
         "submit": "Erstellen",
+        "add_item": "Erstellen und Gegenstand hinzufügen",
         "cancel": "Abbrechen",
         "success": "Modell wurde erfolgreich erstellt"
+      },
+      "edit": {
+        "success": "Modell wurde erfolgreich gespeichert",
+        "add_item": "Speichern und Gegenstand hinzufügen"
       },
       "delete": {
         "title": "Modell löschen",

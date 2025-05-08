@@ -13,4 +13,5 @@
        ($ :main {:className "container"}
           ($ Outlet)
           ($ Toaster {:position "top-center"
+                      :closeButton true
                       :richColors true})))))

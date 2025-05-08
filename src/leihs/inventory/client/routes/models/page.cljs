@@ -4,18 +4,17 @@
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]
    ["@@/card" :refer [Card CardContent CardHeader]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuLabel DropdownMenuCheckboxItem
-                               DropdownMenuSeparator DropdownMenuTrigger]]
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuCheckboxItem
+                               DropdownMenuContent DropdownMenuItem
+                               DropdownMenuTrigger]]
    ["@@/input" :refer [Input]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
-   ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger SelectValue]]
+   ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
+                        SelectValue]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-
    ["date-fns" :as date-fns]
-   ["lodash.debounce$default" :as debounce]
-   ["lucide-react" :refer [Download Ellipsis Image Tags CalendarDays]]
+   ["lucide-react" :refer [CalendarDays Download Ellipsis Image Tags]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [goog.functions]
@@ -23,20 +22,12 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn parse-string [s]
-  (case s
-    "true" true
-    "false" false
-    "null" nil
-    s))
-
 (defui page [{:keys [data]}]
   (let [models (:data (router/useLoaderData))
         [t] (useTranslation)
         location (router/useLocation)
         [search-params set-search-params!] (router/useSearchParams)
         pagination (:pagination (router/useLoaderData))
-        search-list #(set-search-params! search-params)
 
         retired (js/JSON.parse (.. search-params (get "retired")))
         handle-retired (fn [e]
