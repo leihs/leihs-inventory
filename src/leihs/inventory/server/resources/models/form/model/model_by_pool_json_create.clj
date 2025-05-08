@@ -13,7 +13,9 @@
                                                                       extract-model-form-data-new
                                                                       filter-response
                                                                       create-images-and-prepare-image-attributes]]
-   [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
+   [leihs.inventory.server.resources.models.helper :refer [base-filename
+                                                           ;file-to-base64
+                                                           normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]

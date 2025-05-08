@@ -8,13 +8,19 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
+   [leihs.inventory.server.resources.models.helper :refer [base-filename
+                                                           file-to-base64
+                                                           normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
+
+   [clojure.java.io :as io]
+   [clojure.data.codec.base64 :as b64]
+
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
@@ -32,7 +38,78 @@
   [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
    col-name-keyword])
 
-(defn generate-thumbnail [a] a)
+(defn generate-thumbnail [base64 path]
+
+
+  ;; generate thumbnail logic here
+
+  )
+
+(defn generate-thumbnail [base64 original-path ]
+  (let [
+        ;original-path (str path "/original.jpg")
+        ;thumbnail-path (str path "/thumbnail.jpg")
+        thumbnail-path (str original-path ".thumb")
+
+        p (println ">o> abc.orig" original-path)
+        p (println ">o> abc.thumb" thumbnail-path)
+
+
+        ]
+    ;(base64-to-file base64 original-path)
+    (let [result (try
+                   (let [process (.exec (Runtime/getRuntime) (str "convert " original-path " -resize 100x100 " thumbnail-path))]
+                     (.waitFor process)
+                     (.exists (io/file thumbnail-path)))
+                   (catch Exception e
+                     (println "Error generating thumbnail:" (.getMessage e))
+                     false))]
+      (if result
+        thumbnail-path
+        (throw (Exception. "Could not generate thumbnail"))))))
+
+
+(defn base64-to-file [base64-str filepath]
+  (with-open [out (io/output-stream filepath)]
+    (.write out (b64/decode (.getBytes base64-str)))))
+
+;(defn file-to-base64 [filepath]
+;  (with-open [in (io/input-stream filepath)]
+;    (let [bytes (byte-array (.available in))]
+;      (.read in bytes)
+;      (String. (b64/encode bytes)))))
+
+(defn generate-thumbnail [base64 original-path]
+  (println ">o> generate-thumbnail" original-path)
+
+
+;(try
+
+  (let [thumbnail-path (str original-path ".thumb")]
+    (println ">o> abc.orig" original-path)
+    (println ">o> abc.thumb" thumbnail-path)
+    ;(base64-to-file base64 original-path)
+    (let [result (try
+                   (let [process (.exec (Runtime/getRuntime) (str "convert " original-path " -resize 100x100 " thumbnail-path))]
+                     (.waitFor process)
+                     (.exists (io/file thumbnail-path)))
+                   (catch Exception e
+                     (println "Error generating thumbnail:" e)
+                     false))]
+      (if result
+        (file-to-base64 thumbnail-path)
+        (throw (Exception. "Could not generate thumbnail")))))
+
+
+      ;(catch Exception e
+      ;  (println "Error generating thumbnail:" e))
+      ;  (throw (Exception. "Could not generate thumbnail")))
+      )
+
+
+
+  ;)
+
 
 (defn add-thumb-to-filename [image-map]
   (update image-map :filename #(str (first (str/split % #"\.(?=[^.]+$)")) "_thumb." (second (str/split % #"\.(?=[^.]+$)")))))
@@ -41,6 +118,8 @@
   (reduce
    (fn [acc image]
      (let [tempfile (:tempfile image)
+
+           p (println ">o> abc.tempfile >> " tempfile)
            checksum (file-sha256 image)
            file-content-main (file-to-base64 tempfile)
            main-image-data (-> (set/rename-keys image {:content-type :content_type})
@@ -51,7 +130,7 @@
                                                        (sql/returning :id :filename :thumbnail :size)
                                                        sql-format))
            main-image-result (assoc main-image-result :checksum checksum)
-           file-content-thumb (generate-thumbnail file-content-main)
+           file-content-thumb (generate-thumbnail file-content-main tempfile)
            main-image-data (add-thumb-to-filename main-image-data)
            thumbnail-data (assoc main-image-data :content file-content-thumb :thumbnail true :parent_id (:id main-image-result))
            thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
@@ -174,7 +253,11 @@
                                                       (sql/values [main-image-data])
                                                       image-response-format
                                                       sql-format))
-          file-content-thumb (generate-thumbnail file-content-main)
+
+          ;file-full-path (str file-full-path ".thumb")
+
+
+          file-content-thumb (generate-thumbnail file-content-main file-full-path)
           main-image-data (add-thumb-to-filename main-image-data)
           thumbnail-data (-> (assoc main-image-data :content file-content-thumb :thumbnail true :parent_id (:id main-image-result))
                              filter-keys-images)
