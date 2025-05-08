@@ -170,6 +170,9 @@
                     (.toByteArray out))]
         (String. (b64/encode bytes))))))
 
+
+
+
 (defn base-filename
   [filename]
   (if-let [[_ base extension] (re-matches #"(.*)_thumb(\.[^.]+)$" filename)]

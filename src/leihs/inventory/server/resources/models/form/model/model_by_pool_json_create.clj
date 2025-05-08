@@ -9,10 +9,12 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer :all]
-   [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
+   [leihs.inventory.server.resources.models.form.model.common :refer [
+                                                                      ;prepare-image-attributes
                                                                       extract-model-form-data-new
                                                                       filter-response
-                                                                      create-images-and-prepare-image-attributes]]
+                                                                      ;create-images-and-prepare-image-attributes
+                                                                      ]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename
                                                            ;file-to-base64
                                                            normalize-files normalize-model-data

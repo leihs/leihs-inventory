@@ -30,7 +30,10 @@
   metosin/ring-swagger-ui {:mvn/version "4.19.1"}
   com.novemberain/pantomime {:mvn/version "2.11.0"}
   metosin/reitit-swagger-ui {:mvn/version "0.7.1"}
+
   digest/digest {:mvn/version "1.4.10"}
+  org.im4java/im4java {:mvn/version "1.4.0"}
+
   cryptohash-clj/cryptohash-clj {:mvn/version "0.1.11"}
   org.clojure/clojurescript {:mvn/version "1.11.60"}
   org.clojure/data.codec {:mvn/version "0.1.1"}}
