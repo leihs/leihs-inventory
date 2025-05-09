@@ -2,7 +2,6 @@
 ; Licensed under the terms of the GNU Affero General Public License v3.
 ; See the "LICENSE.txt" file provided with this software.
 (ns leihs.inventory.server.utils.fs
-;(ns madek.api.utils.fs
   (:require
    [clj-uuid]
    [clojure.string :as string]

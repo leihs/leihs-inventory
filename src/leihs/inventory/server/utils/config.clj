@@ -3,14 +3,11 @@
 ; See the "LICENSE.txt" file provided with this software.
 
 (ns leihs.inventory.server.utils.config
-;(ns madek.api.utils.config
   (:require
    [clj-yaml.core :as yaml]
    [clojure.java.io :as io]
    [clojure.set :refer [difference]]
    [leihs.inventory.server.utils.core :refer [deep-merge]]
-   ;[madek.api.utils.daemon :refer [defdaemon]]
-   ;[madek.api.utils.duration :refer [parse-string-to-seconds]]
    [leihs.inventory.server.utils.fs :refer :all]
    [logbug.catcher :refer [snatch]]
    [taoensso.timbre :refer [info warn]]))
@@ -72,8 +69,6 @@
       (deep-merge (:overrides @opts))
       merge-into-conf))
 
-;(defdaemon "reload-config" 1 (read-configs-and-merge-into-conf))
-
 ;### Initialize ###############################################################
 
 (defn initialize [options]
@@ -86,34 +81,8 @@
               (difference (-> options keys set)
                           default-opt-keys))
              (str "Opts must only contain the following keys: " default-opt-keys))
-            ;(stop-reload-config)
             (Thread/sleep 1000)
             (reset! conf {})
             (let [new-opts (deep-merge default-opts options)]
               (reset! opts new-opts)
-              (read-configs-and-merge-into-conf)
-              ;(start-reload-config)
-              ))))
-
-;### DB #######################################################################
-
-;(defn get-db-spec [service]
-;  (let [conf (get-config)]
-;    (deep-merge
-;     (or (-> conf :database) {})
-;     (or (-> conf :services service :database) {}))))
-;
-;;### duration #################################################################
-;
-;(defn parse-config-duration-to-seconds [& ks]
-;  (try (if-let [duration-config-value (-> (get-config) (get-in ks))]
-;         (parse-string-to-seconds duration-config-value)
-;         (warn (str "No value to parse duration for " ks " was found.")))
-;       (catch Exception ex
-;         (cond (instance? clojure.lang.IExceptionInfo ex) (throw ex)
-;               :else (throw (ex-info "Duration parsing error."
-;                                     {:config-keys ks} ex))))))
-
-;### Debug ####################################################################
-;(debug/debug-ns *ns*)
-;(logbug.thrown/reset-ns-filter-regex #".*cider.ci.*")
+              (read-configs-and-merge-into-conf)))))
