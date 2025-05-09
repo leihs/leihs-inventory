@@ -3,13 +3,14 @@
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
+   [leihs.inventory.server.utils.config :refer [initialize get-config]]
+   [leihs.inventory.server.utils.image-upload-handler :refer [resize-and-convert-to-base64 file-to-base64]]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [base-filename
-                                                           ;file-to-base64
                                                            normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -17,10 +18,8 @@
    [pantomime.extract :as extract]
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
-
    [clojure.java.shell :refer [sh]]
     [clojure.java.io :as io]
-
    [taoensso.timbre :refer [error]])
   (:import [java.net URL JarURLConnection]
    [org.im4java.core ConvertCmd IMOperation]
@@ -87,10 +86,7 @@
                                      sql-format))]
     (response/response result)))
 
-;(def CONST_FILE_PATH (str (System/getProperty "user.dir") "/tmp/"))
 (def CONST_FILE_PATH "/tmp/")
-;(def CONST_FILE_PATH "/private/tmp/")
-;(def CONST_FILE_PATH "/Users/mradl/release/leihs/inventory")
 
 (defn delete-image
   "Process:
@@ -127,102 +123,15 @@
         (bad-request {:error "Failed to delete image"})))))
 
 
-(defn resize-image
-  "Resize an image using IM4Java."
-  [input-path output-path width height]
-  (let [cmd (ConvertCmd.)
-        op (IMOperation.)]
-    (.addImage op (into-array String [input-path]))
-    (.resize op (int width) (int height))
-    (.addImage op (into-array String [output-path]))
-    (.run cmd op (into-array String []))))  ;; Corrected invocation
-
-(defn get-file-size
-  "Get the file size in bytes."
-  [file-path]
-  (.length (File. file-path)))
-
-(defn file-to-base64
-  "Convert a file to a Base64 string."
-  [file-path]
-
- (println ">o> abc.to-base" file-path)
- (println ">o> abc.to-base >>>> " (:tempfile file-path))
-
-  (with-open [input-stream (FileInputStream. (:tempfile file-path))  ;; Convert to string path
-              baos (ByteArrayOutputStream.)]
-    (let [buffer (byte-array 1024)]
-      (loop []
-        (let [bytes-read (.read input-stream buffer)]
-          (when (pos? bytes-read)
-            (.write baos buffer 0 bytes-read)
-            (recur))))
-      (let [encoder (Base64/getEncoder)]
-        (.encodeToString encoder (.toByteArray baos))))))
-
-
-(defn extract-file-path
-  "Extracts the file path from a string or map with :tempfile key."
-  [file-path]
-  (cond
-    (string? file-path) file-path
-    (map? file-path) (get file-path :tempfile)
-    :else nil))
-
-(defn file-to-base64
-  "Convert a file to a Base64 string."
-  [file-path]
-  (let [resolved-path (extract-file-path file-path)]
-
-    (println ">o> abc.to-base: " resolved-path)
-    (println ">o> abc.to-base >>>> " (if (map? file-path) (:tempfile file-path) "N/A"))
-
-    (if (and resolved-path (.exists (File. resolved-path)))
-      (with-open [input-stream (FileInputStream. resolved-path)
-                  baos (ByteArrayOutputStream.)]
-        (let [buffer (byte-array 1024)]
-          (loop []
-            (let [bytes-read (.read input-stream buffer)]
-              (when (pos? bytes-read)
-                (.write baos buffer 0 bytes-read)
-                (recur))))
-          (let [encoder (Base64/getEncoder)]
-            (.encodeToString encoder (.toByteArray baos)))))
-      (do
-        (println "Error: Invalid file path or file does not exist:" resolved-path)
-        nil))))
-
-(defn resize-and-convert-to-base64
-  "Resize the image, convert it to Base64, and get the file size."
-  [input-path width height]
-  (let [output-path (str CONST_FILE_PATH "resized_output.png")]
-    (resize-image input-path output-path width height)
-    (let [
-          p (println ">o> abc.output-path" output-path)
-
-          file-size (get-file-size output-path)
-
-          p (println ">o> abc.file-size" file-size)
-
-          base64-str (file-to-base64 output-path)
-
-          p (println ">o> abc.base64-str" base64-str)
-
-          ]
-
-      {:base64 base64-str
-       :file-size file-size})))
-
-
 (defn upload-image [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
-        path CONST_FILE_PATH
+        upload-path (get-in (get-config) [:api :upload-dir])
         tx (:tx req)
         content-type (get-in req [:headers "content-type"])
         filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
         content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-        file-full-path (str path filename-to-save)
+        file-full-path (str upload-path filename-to-save)
         entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}]
     (io/copy body-stream (io/file file-full-path))
     (let [file-content-main (file-to-base64 entry)
@@ -234,11 +143,11 @@
                                                       image-response-format
                                                       sql-format))
 
-          main-image-data (add-thumb-to-filename main-image-data)
+          ;main-image-data (add-thumb-to-filename main-image-data)
 
           p (println ">o> abc.file-full-path????" file-full-path)
 
-          thumb-data (resize-and-convert-to-base64 file-full-path 100 100)
+          thumb-data (resize-and-convert-to-base64 file-full-path)
 
           thumbnail-data (-> (assoc main-image-data :content (:base64 thumb-data) :size (:file-size thumb-data) :thumbnail true :parent_id (:id main-image-result))
                              filter-keys-images)
@@ -252,12 +161,14 @@
 (defn upload-attachment [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
-        path CONST_FILE_PATH
+        ;path CONST_FILE_PATH
+        upload-path (get-in (get-config) [:api :upload-dir])
+
         tx (:tx req)
         content-type (get-in req [:headers "content-type"])
         filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
         content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
-        file-full-path (str path filename-to-save)
+        file-full-path (str upload-path filename-to-save)
         entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}]
     (io/copy body-stream (io/file file-full-path))
     (let [file-content (file-to-base64 entry)
