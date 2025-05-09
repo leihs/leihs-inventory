@@ -137,7 +137,6 @@ describe "Inventory Model" do
           ]
           @image_id = nil
           images.each do |image|
-
             content_type = Marcel::MimeType.for(image)
 
             headers = cookie_header.merge(
@@ -170,12 +169,11 @@ describe "Inventory Model" do
           images = [
             File.open(path_invalid_png, "rb"),
             File.open(path_invalid_jpg, "rb"),
-            File.open(path_invalid_jpeg, "rb"),
-          # File.open(path_invalid_pdf, "rb")
+            File.open(path_invalid_jpeg, "rb")
+            # File.open(path_invalid_pdf, "rb")
           ]
           @image_id = nil
           images.each do |image|
-
             content_type = Marcel::MimeType.for(image)
 
             headers = cookie_header.merge(
@@ -204,9 +202,7 @@ describe "Inventory Model" do
             # @image_id = resp.body["image"]["id"]
           end
         end
-
       end
-
     end
   end
 end

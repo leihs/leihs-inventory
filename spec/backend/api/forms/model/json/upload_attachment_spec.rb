@@ -132,13 +132,12 @@ describe "Inventory Model" do
           images = [
             File.open(path_valid_png, "rb"),
             File.open(path_valid_jpg, "rb"),
-            File.open(path_valid_jpeg, "rb"),
+            File.open(path_valid_jpeg, "rb")
             # File.open(path_invalid_pdf, "rb"),
             # File.open(path_valid_pdf, "rb")
           ]
           @image_id = nil
           images.each do |image|
-
             content_type = Marcel::MimeType.for(image)
 
             headers = cookie_header.merge(
@@ -160,7 +159,7 @@ describe "Inventory Model" do
 
             # binding.pry
             expect(resp.status).to eq(400)
-            expect(resp.body["error"]).to eq("Failed to upload image")
+            expect(resp.body["error"]).to eq("Failed to upload attachment")
             # expect(resp.body["details"]).to eq("Invalid file type")
             # @image_id = resp.body["image"]["id"]
           end
@@ -172,11 +171,10 @@ describe "Inventory Model" do
             # File.open(path_invalid_png, "rb"),
             # File.open(path_invalid_jpg, "rb"),
             # File.open(path_invalid_jpeg, "rb"),
-          File.open(path_invalid_pdf, "rb")
+            File.open(path_invalid_pdf, "rb")
           ]
           @image_id = nil
           images.each do |image|
-
             content_type = Marcel::MimeType.for(image)
 
             headers = cookie_header.merge(
@@ -200,14 +198,12 @@ describe "Inventory Model" do
 
             # binding.pry
             expect(resp.status).to eq(400)
-            expect(resp.body["error"]).to eq("Failed to upload image")
+            expect(resp.body["error"]).to eq("Failed to upload attachment")
             expect(resp.body["details"]).to eq("File size exceeds limit")
             # @image_id = resp.body["image"]["id"]
           end
         end
-
       end
-
     end
   end
 end
