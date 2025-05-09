@@ -240,6 +240,9 @@ describe "Inventory Model" do
               headers: headers,
               is_binary: true
             )
+
+            puts "Image response: #{resp.body}"
+
             expect(resp.status).to eq(200)
             @image_id = resp.body["image"]["id"]
           end
@@ -415,6 +418,9 @@ describe "Inventory Model" do
               headers: headers,
               is_binary: true
             )
+
+            puts "Image response: #{resp.body}"
+
             expect(resp.status).to eq(200)
             @image_id = resp.body["image"]["id"]
           end
