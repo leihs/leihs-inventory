@@ -605,8 +605,8 @@
 
                                            ::owner
                                            ::compatibles
-                                           ::images
-                                           ::attachments
+                                           ;::images
+                                           ;::attachments
                                            ::entitlements
                                            :software/properties
                                            ::accessories]))

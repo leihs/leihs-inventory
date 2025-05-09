@@ -57,6 +57,21 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+
+(def description-model-form "CAUTION:\n
+- Model\n
+   - Modifies all attributes except: Images/Attachments\n
+   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
+- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
+- Image\n
+   - Use POST /inventory/models/<model-id>/images to upload image\n
+   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
+- Attachment\n
+   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
+   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment\n
+"
+  )
+
 (def FileUpload
   "Schema describing a typical Ring multipart file map."
   {:filename s/Str
@@ -309,8 +324,8 @@
                   :summary "Create image [v1]"
 :description (str "- Limitations: " (get-in (get-config) [:api :images :max-size-mb]) " MB\n"
                                                       "- Allowed File types: " (str/join ", " (get-in (get-config) [:api :images :allowed-file-types])) "\n"
-                                                      "- Creates automatically a thumbnail (" (get-in (get-config) [:api :images :thumbnail :width])
-                                                      "px x " (get-in (get-config) [:api :images :thumbnail :height]) "px)\n")
+                                                      "- Creates automatically a thumbnail (" (get-in (get-config) [:api :images :thumbnail :width-px])
+                                                      "px x " (get-in (get-config) [:api :images :thumbnail :height-px]) "px)\n")
                                  ;)
 :swagger {:consumes ["application/json"]
           :produces "application/json"}
@@ -593,6 +608,7 @@
     [""
      {:patch {:accept "application/json"
               :summary "Form-Handler: Used to patch model | [v1]"
+              :description description-model-form
               :coercion reitit.coercion.schema/coercion
               :swagger {:deprecated true}
               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
@@ -634,6 +650,7 @@
     ["/"
      {:post {:accept "application/json"
              :summary "Form-Handler: Create model (JSON) [v1]"
+             :description description-model-form
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
@@ -661,8 +678,9 @@
                          500 {:description "Internal Server Error"}}}
 
        :patch {:accept "application/json"
-               :summary "Form-Handler: Used to patch model-attributes | [v1]"
+               :summary "Form-Handler: Used to patch model-attributes (JSON) | [v1]"
                :coercion reitit.coercion.schema/coercion
+               :description description-model-form
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                :parameters {:path {:pool_id s/Uuid
                                    :model_id s/Uuid}
@@ -675,9 +693,10 @@
                            500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-                :summary "(DEV) | Form-Handler: Delete form data [v1]"
+                :summary "Form-Handler: Delete form data (JSON) [v1]"
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
+                :description description-model-form
                 :coercion spec/coercion
                 :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                 :parameters {:path {:pool_id uuid?
@@ -698,6 +717,7 @@
       {:put {:accept "application/json"
              :summary "Form-Handler: Update model data (JSON) [v1]"
              :coercion spec/coercion
+             :description description-model-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
