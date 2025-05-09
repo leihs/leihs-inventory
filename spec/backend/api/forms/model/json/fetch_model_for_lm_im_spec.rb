@@ -226,7 +226,6 @@ describe "Inventory Model" do
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
-
           @image_id = nil
           images.each do |image|
             headers = cookie_header.merge(
@@ -234,6 +233,9 @@ describe "Inventory Model" do
               "X-Filename" => File.basename(image.path),
               "Content-Length" => File.size(image.path).to_s
             )
+
+            puts "headers #{headers}"
+
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
@@ -412,6 +414,10 @@ describe "Inventory Model" do
               "X-Filename" => File.basename(image.path),
               "Content-Length" => File.size(image.path).to_s
             )
+
+            puts "headers #{headers}"
+
+
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
