@@ -19,16 +19,19 @@
    {:return-fn (fn [e] (System/exit -1))}
    ;(info "Invoking run with options: " options)
 
-   (info 'leihs.inventory.server.run "initializing ...")
-   (initialize
-    {:filenames ["./config/settings.yml"
-                 "../config/settings.yml",
-                   ;"./datalayer/config/settings.yml",
-                   ;"../webapp/datalayer/config/settings.yml",
-                 "./config/settings.local.yml"
-                 "../config/settings.local.yml"]})
-   (info "Effective startup options " options)
-   (info "Effective startup config " (get-config))
+    (info 'leihs.inventory.server.run "initializing ...")
+
+    (let [db-name (System/getenv "DB_NAME")
+          filenames (cond-> ["./config/settings.yml"
+                             "../config/settings.yml",
+                             "./config/settings.local.yml"
+                             "../config/settings.local.yml"]
+                      (= db-name "leihs_test") (conj "./config/test-settings.yml"))]
+
+      (initialize {:filenames filenames}))
+
+    (info "Effective startup options " options)
+    (info "Effective startup config " (get-config))
 
    (shutdown/init options)
    (let [status (status/init)]
