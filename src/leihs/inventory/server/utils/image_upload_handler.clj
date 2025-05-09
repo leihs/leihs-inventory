@@ -7,30 +7,27 @@
    [leihs.core.constants :as constants]
    [leihs.core.core :refer [presence]]
    [leihs.core.db :as db]
-   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [leihs.core.json :refer [to-json]]
    [leihs.core.ring-audits :as ring-audits]
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.core.sign-in.back :as be]
    [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
    [ring.util.response :as response]
-  [taoensso.timbre :refer [error]])
-(:import [java.net URL JarURLConnection]
- [org.im4java.core ConvertCmd IMOperation]
- (java.time LocalDateTime)
- [java.io File FileInputStream ByteArrayOutputStream]
- [java.util UUID]
- [java.util Base64]
- [org.im4java.core IMOperation ImageCommand]
- [org.im4java.process ProcessStarter]
- [java.io File]
- [java.util.jar JarFile]))
-
-
-
+   [taoensso.timbre :refer [error]])
+  (:import [java.io File]
+           [java.io File FileInputStream ByteArrayOutputStream]
+           [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util Base64]
+           [java.util UUID]
+           [java.util.jar JarFile]
+           [org.im4java.core ConvertCmd IMOperation]
+           [org.im4java.core IMOperation ImageCommand]
+           [org.im4java.process ProcessStarter]))
 
 ;(defn resize-image
 ;  "Resize an image using IM4Java."
@@ -54,8 +51,8 @@
   (println ">o> abc.resize-image" input-path output-path width height)
 
   (println ">o> abc.resize-image.in" input-path (type input-path))
-  (println ">o> abc.resize-image.out"  output-path(type output-path) )
-  (println ">o> abc.resize-image.with"  width (type width) )
+  (println ">o> abc.resize-image.out" output-path (type output-path))
+  (println ">o> abc.resize-image.with" width (type width))
   (println ">o> abc.resize-image.height" height (type height))
 
   ;(let [cmd (ImageCommand. "magick")
@@ -78,7 +75,7 @@
   (println ">o> abc.to-base" file-path)
   (println ">o> abc.to-base >>>> " (:tempfile file-path))
 
-  (with-open [input-stream (FileInputStream. (:tempfile file-path))  ;; Convert to string path
+  (with-open [input-stream (FileInputStream. (:tempfile file-path)) ;; Convert to string path
               baos (ByteArrayOutputStream.)]
     (let [buffer (byte-array 1024)]
       (loop []
@@ -88,7 +85,6 @@
             (recur))))
       (let [encoder (Base64/getEncoder)]
         (.encodeToString encoder (.toByteArray baos))))))
-
 
 (defn extract-file-path
   "Extracts the file path from a string or map with :tempfile key."
@@ -122,22 +118,18 @@
         nil))))
 
 (defn- add-thumb-to-filename [filename]
-    (let [[name ext] (str/split filename #"\.(?=[^.]+$)")]
-      (str name "_thumb." ext)))
-
+  (let [[name ext] (str/split filename #"\.(?=[^.]+$)")]
+    (str name "_thumb." ext)))
 
 (defn resize-and-convert-to-base64
   "Resize the image, convert it to Base64, and get the file size."
   ;[input-path width height]
   [input-path]
-  (let [
-        upload-dir (get-in (get-config) [:api :upload-dir])
+  (let [upload-dir (get-in (get-config) [:api :upload-dir])
         width (get-in (get-config) [:api :images :thumbnail :width-px])
         height (get-in (get-config) [:api :images :thumbnail :height-px])
 
-
-        ;output-path (str CONST_FILE_PATH "resized_output.png")]
-
+;output-path (str CONST_FILE_PATH "resized_output.png")]
 
         output-path (add-thumb-to-filename input-path)
         p (println ">o> abc.output-path1" output-path)
@@ -148,8 +140,7 @@
         ;p (println ">o> abc.output-path2" output-path)
         ]
     (resize-image input-path output-path width height)
-    (let [
-          p (println ">o> abc.output-path" output-path)
+    (let [p (println ">o> abc.output-path" output-path)
 
           file-size (get-file-size output-path)
 
@@ -157,9 +148,7 @@
 
           base64-str (file-to-base64 output-path)
 
-          p (println ">o> abc.base64-str" base64-str)
-
-          ]
+          p (println ">o> abc.base64-str" base64-str)]
 
       {:base64 base64-str
        :file-size file-size})))

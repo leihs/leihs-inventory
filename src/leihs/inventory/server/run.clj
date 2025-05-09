@@ -5,11 +5,11 @@
    [clojure.tools.cli :as cli]
    [leihs.core.db :as db]
    [leihs.core.http-server :as http-server]
-   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
    [leihs.inventory.server.swagger-api :as sui]
+   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
    [taoensso.timbre :refer [info]]))
@@ -19,16 +19,16 @@
    {:return-fn (fn [e] (System/exit -1))}
    ;(info "Invoking run with options: " options)
 
-    (info 'leihs.inventory.server.run "initializing ...")
-    (initialize
-      {:filenames ["./config/settings.yml"
-                   "../config/settings.yml",
+   (info 'leihs.inventory.server.run "initializing ...")
+   (initialize
+    {:filenames ["./config/settings.yml"
+                 "../config/settings.yml",
                    ;"./datalayer/config/settings.yml",
                    ;"../webapp/datalayer/config/settings.yml",
-                   "./config/settings.local.yml"
-                   "../config/settings.local.yml"]})
-    (info "Effective startup options " options)
-    (info "Effective startup config " (get-config))
+                 "./config/settings.local.yml"
+                 "../config/settings.local.yml"]})
+   (info "Effective startup options " options)
+   (info "Effective startup config " (get-config))
 
    (shutdown/init options)
    (let [status (status/init)]

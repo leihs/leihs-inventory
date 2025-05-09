@@ -3,9 +3,9 @@
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
    [clojure.data.json :as json]
-   [leihs.inventory.server.utils.config :refer [initialize get-config]]
-   [leihs.inventory.server.utils.image-upload-handler :refer [resize-and-convert-to-base64 file-to-base64]]
    [clojure.java.io :as io]
+   [clojure.java.io :as io]
+   [clojure.java.shell :refer [sh]]
    [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -13,21 +13,21 @@
    [leihs.inventory.server.resources.models.helper :refer [base-filename
                                                            normalize-files normalize-model-data
                                                            parse-json-array process-attachments str-to-bool file-sha256]]
+   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.image-upload-handler :refer [resize-and-convert-to-base64 file-to-base64]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
-   [clojure.java.shell :refer [sh]]
-    [clojure.java.io :as io]
    [taoensso.timbre :refer [error]])
-  (:import [java.net URL JarURLConnection]
-   [org.im4java.core ConvertCmd IMOperation]
+  (:import [java.io File FileInputStream ByteArrayOutputStream]
+           [java.net URL JarURLConnection]
            (java.time LocalDateTime)
-   [java.io File FileInputStream ByteArrayOutputStream]
+           [java.util Base64]
            [java.util UUID]
-   [java.util Base64]
-           [java.util.jar JarFile]))
+           [java.util.jar JarFile]
+           [org.im4java.core ConvertCmd IMOperation]))
 
 (defn create-image-url [col-name col-name-keyword]
   [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
@@ -36,8 +36,7 @@
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn add-thumb-to-filename [image-map]
   (update image-map :filename #(str (first (str/split % #"\.(?=[^.]+$)")) "_thumb." (second (str/split % #"\.(?=[^.]+$)")))))
@@ -121,7 +120,6 @@
       (if (= (:next.jdbc/update-count res) 2)
         (response {:status "ok" :image_id image_id})
         (bad-request {:error "Failed to delete image"})))))
-
 
 (defn upload-image [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
@@ -213,15 +211,13 @@
         compatibles (-> multipart :compatibles)
         properties (-> multipart :properties)
         accessories (-> multipart :accessories)
-        entitlements (rename-keys-in-vec (-> multipart :entitlements) {:group_id :entitlement_group_id})
-        ]
+        entitlements (rename-keys-in-vec (-> multipart :entitlements) {:group_id :entitlement_group_id})]
     {:prepared-model-data prepared-model-data
      :categories (if (nil? categories) [] categories)
      :compatibles compatibles
      :properties properties
      :accessories accessories
-     :entitlements (if (nil? entitlements) [] entitlements)
-     }))
+     :entitlements (if (nil? entitlements) [] entitlements)}))
 
 (defn delete-where-clause [ids not-in-clause where-clause]
   (let [clean-ids (vec (filter some? ids))]

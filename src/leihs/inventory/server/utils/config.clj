@@ -8,11 +8,11 @@
    [clj-yaml.core :as yaml]
    [clojure.java.io :as io]
    [clojure.set :refer [difference]]
-   [logbug.catcher :refer [snatch]]
    [leihs.inventory.server.utils.core :refer [deep-merge]]
    ;[madek.api.utils.daemon :refer [defdaemon]]
    ;[madek.api.utils.duration :refer [parse-string-to-seconds]]
    [leihs.inventory.server.utils.fs :refer :all]
+   [logbug.catcher :refer [snatch]]
    [taoensso.timbre :refer [info warn]]))
 
 (defonce ^:private conf (atom {}))

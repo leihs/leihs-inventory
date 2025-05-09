@@ -139,14 +139,14 @@
                       :none nil?))
 
 (sa/def :put-post/categories (sa/or
-                      :single (sa/or :coll (sa/coll-of ::id)
-                                     :str string?)
-                      :none nil?))
+                              :single (sa/or :coll (sa/coll-of ::id)
+                                             :str string?)
+                              :none nil?))
 
-(sa/def :nil/compatible (sa/keys :opt-un [ ::cover_image_id ::cover_image_url]
+(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
                                  :req-un [:nil/id :nil/product]))
 
-(sa/def ::compatible (sa/keys :opt-un [ ::cover_image_id ::cover_image_url]
+(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
                               :req-un [::id ::product]))
 
 (sa/def ::compatibles (sa/or
@@ -155,9 +155,9 @@
                        :none nil?))
 
 (sa/def :put-post/compatibles (sa/or
-                       :single (sa/or :coll (sa/coll-of ::id)
-                                      :str string?)
-                       :none nil?))
+                               :single (sa/or :coll (sa/coll-of ::id)
+                                              :str string?)
+                               :none nil?))
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 
@@ -193,12 +193,12 @@
                         :none nil?))
 
 (sa/def :put-post/entitlement (sa/keys :opt-un [:nil/id]
-                                   :req-un [:entitlement/group_id
-                                            ::quantity]))
+                                       :req-un [:entitlement/group_id
+                                                ::quantity]))
 (sa/def :put-post/entitlements (sa/or
-                        :single (sa/or :coll (sa/coll-of :put-post/entitlement)
-                                       :str string?)
-                        :none nil?))
+                                :single (sa/or :coll (sa/coll-of :put-post/entitlement)
+                                               :str string?)
+                                :none nil?))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
 (sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))
@@ -611,29 +611,27 @@
                                            :software/properties
                                            ::accessories]))
 
-
 (sa/def :model-put-post/multipart (sa/keys :req-un [::product]
-                                  :opt-un [::version
-                                           ::manufacturer
-                                           ::is_package
-                                           ::description
-                                           ::technical_detail
-                                           ::internal_description
-                                           ::hand_over_note
+                                           :opt-un [::version
+                                                    ::manufacturer
+                                                    ::is_package
+                                                    ::description
+                                                    ::technical_detail
+                                                    ::internal_description
+                                                    ::hand_over_note
                                            ;:put-post/categories
-                                           ::categories
+                                                    ::categories
 
-
-                                           ;:list/images_to_delete
+;:list/images_to_delete
                                            ;:list/attachments_to_delete
 
-                                           ::owner
-                                           :put-post/compatibles
-                                           ::images
-                                           ::attachments
-                                           :put-post/entitlements
-                                           :software/properties
-                                           ::accessories]))
+                                                    ::owner
+                                                    :put-post/compatibles
+                                                    ::images
+                                                    ::attachments
+                                                    :put-post/entitlements
+                                                    :software/properties
+                                                    ::accessories]))
 
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))

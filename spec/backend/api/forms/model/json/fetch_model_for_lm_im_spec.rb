@@ -204,7 +204,7 @@ describe "Inventory Model" do
             "technical_detail" => "Specs go here",
             "internal_description" => "Internal notes",
             "important_notes" => "Important usage notes",
-            "entitlements" => [{ group_id: @form_entitlement_groups.first["id"], quantity: 33 }],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
             "compatibles" => [compatibles.first],
             "categories" => [@form_model_groups.first]
           }
@@ -245,7 +245,7 @@ describe "Inventory Model" do
           end
 
           # Optional request, if is_cover has been set/modified
-          data = [{ "id" => model_id, "is_cover" => @image_id }]
+          data = [{"id" => model_id, "is_cover" => @image_id}]
           resp = json_client_patch(
             "/inventory/#{pool_id}/model",
             body: data,
@@ -259,11 +259,11 @@ describe "Inventory Model" do
           attachments = [File.open(path_test_pdf, "rb")]
           attachments.each do |attachment|
             headers = cookie_header.merge({
-                                            "Content-Type" => "application/pdf",
-                                            "X-Filename" => attachment.path.split("/").last,
-                                            "Accept-Encoding" => "gzip, deflate, br",
-                                            "Content-Length" => attachment.size.to_s
-                                          })
+              "Content-Type" => "application/pdf",
+              "X-Filename" => attachment.path.split("/").last,
+              "Accept-Encoding" => "gzip, deflate, br",
+              "Content-Length" => attachment.size.to_s
+            })
             resp = json_client_post(
               "/inventory/models/#{model_id}/attachments",
               body: attachment,
@@ -285,7 +285,7 @@ describe "Inventory Model" do
             "technical_detail" => "updated techDetail",
             "internal_description" => "updated internalDesc",
             "important_notes" => "updated notes",
-            "entitlements" => [{ group_id: @form_entitlement_groups.first["id"], quantity: 11 }],
+            "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 11}],
             "compatibles" => [compatibles.first, compatibles.second],
             "categories" => [
               @form_model_groups.first.except("created_at", "updated_at"),
@@ -403,7 +403,6 @@ describe "Inventory Model" do
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
-          images_response = []
           images.each do |image|
             headers = cookie_header.merge(
               "Content-Type" => "image/png",
