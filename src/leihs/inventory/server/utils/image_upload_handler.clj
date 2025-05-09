@@ -11,10 +11,9 @@
            [org.im4java.core IMOperation ImageCommand]))
 
 (defn resize-image
-  "Resize an image using IM4Java and ImageMagick v7."
+  "Resize an image using IM4Java and ImageMagick"
   [input-path output-path width height]
   (let [cmd (ImageCommand. (into-array String ["convert"]))
-  ;(let [cmd (ImageCommand. (into-array String ["magick" "convert"]))
         op (IMOperation.)]
     (.addImage op (into-array String [input-path]))
     (.resize op (int width) (int height))

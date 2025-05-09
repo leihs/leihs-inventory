@@ -124,6 +124,10 @@
 (defn upload-image [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
         body-stream (:body req)
+
+        allowed-file-types (get-in (get-config) [:api :images :allowed-file-types])
+        max-size-mb (get-in (get-config) [:api :images :max-size-mb])
+
         upload-path (get-in (get-config) [:api :upload-dir])
         tx (:tx req)
         content-type (get-in req [:headers "content-type"])
@@ -155,6 +159,73 @@
                                                      sql-format))
           data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
       (status (response data) 200))))
+
+
+(defn upload-image [req]
+  (try
+  (let [{{:keys [model_id]} :path} (:parameters req)
+        body-stream (:body req)
+
+        allowed-file-types (get-in (get-config) [:api :images :allowed-file-types])
+        max-size-mb (get-in (get-config) [:api :images :max-size-mb])
+
+        upload-path (get-in (get-config) [:api :upload-dir])
+        tx (:tx req)
+        content-type (get-in req [:headers "content-type"])
+        filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
+        content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+        file-full-path (str upload-path filename-to-save)
+        entry {:tempfile file-full-path :filename filename-to-save :content_type content-type :size content-length :model_id model_id}]
+
+    ;; Validate file type
+    ;;content-type = image/png, but i want to check ["png" "jpg" "jpeg"]
+    ;(when-not (some #(= content-type %) allowed-file-types)
+    ;  (println ">o> abc.content-type????" content-type)
+    ;  (println ">o> abc.content-type????" allowed-file-types)
+    ;  (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"})))
+
+    (let [allowed-extensions allowed-file-types
+          content-extension  (last (clojure.string/split content-type #"/"))]
+      (when-not (some #(= content-extension %) allowed-extensions)
+        (println ">o> abc.content-type????" content-type)
+        (println ">o> abc.allowed-extensions????" allowed-extensions)
+        (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"}))))
+
+
+    ;; Validate file size
+    (when (> content-length (* max-size-mb 1024 1024))
+      (throw (ex-info "File size exceeds limit" {:status 400 :error "File size exceeds limit"})))
+
+
+
+
+
+    (io/copy body-stream (io/file file-full-path))
+
+    (let [file-content-main (file-to-base64 entry)
+          main-image-data (-> entry
+                            (assoc :content file-content-main :target_id model_id :target_type "Model" :thumbnail false)
+                            filter-keys-images)
+          main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                    (sql/values [main-image-data])
+                                                    image-response-format
+                                                    sql-format))
+
+          thumb-data (resize-and-convert-to-base64 file-full-path)
+
+          thumbnail-data (-> (assoc main-image-data :content (:base64 thumb-data) :size (:file-size thumb-data) :thumbnail true :parent_id (:id main-image-result))
+                           filter-keys-images)
+          thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
+                                                   (sql/values [thumbnail-data])
+                                                   image-response-format
+                                                   sql-format))
+          data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
+      (status (response data) 200)))
+
+  (catch Exception e
+    (error "Failed to upload image" e)
+    (bad-request {:error "Failed to upload image" :details (.getMessage e)}))))
+
 
 (defn upload-attachment [req]
   (let [{{:keys [model_id]} :path} (:parameters req)
