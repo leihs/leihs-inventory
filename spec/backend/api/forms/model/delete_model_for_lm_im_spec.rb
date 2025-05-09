@@ -205,13 +205,13 @@ describe "Inventory Model" do
           # @image_id = nil
           # image_responses = [path_arrow, path_arrow_thumb].map { |image|
           image_responses = images.map { |image|
-          # images.each do |image|
+            # images.each do |image|
             headers = cookie_header.merge(
               "Content-Type" => "image/png",
               "X-Filename" => File.basename(image.path),
               "Content-Length" => File.size(image.path).to_s
             )
-          puts "headers #{headers}"
+            puts "headers #{headers}"
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
@@ -219,8 +219,7 @@ describe "Inventory Model" do
               is_binary: true
             )
 
-
-          puts "Image response: #{resp.body}"
+            puts "Image response: #{resp.body}"
             expect(resp.status).to eq(200)
             # @image_id = resp.body["image"]["id"]
             resp.body
