@@ -1,0 +1,14 @@
+
+api:
+#  upload-dir: /tmp/
+#  upload-dir: /private/tmp/
+#  upload-dir: /Users/mradl/release/leihs/inventory/
+  images:
+    max-size-mb: 1
+#    allowed-file-types: [png, jpg, jpeg]
+#    thumbnail:
+#      width-px: 100
+#      height-px: 100
+  attachments:
+    max-size-mb: 1
+#    allowed-file-types: [pdf]

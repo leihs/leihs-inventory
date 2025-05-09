@@ -66,6 +66,7 @@ post_response = {
 
 describe "Inventory Model" do
   ["inventory_manager", "lending_manager"].each do |role|
+    # ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -227,15 +228,23 @@ describe "Inventory Model" do
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
           @image_id = nil
           images.each do |image|
-            headers = cookie_header.merge({
+            headers = cookie_header.merge(
               "Content-Type" => "image/png",
-              "X-Filename" => image.path.split("/").last
-            })
+              "X-Filename" => File.basename(image.path),
+              "Content-Length" => File.size(image.path).to_s
+            )
+
+            puts "headers #{headers}"
+
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
-              headers: headers
+              headers: headers,
+              is_binary: true
             )
+
+            puts "Image response: #{resp.body}"
+
             expect(resp.status).to eq(200)
             @image_id = resp.body["image"]["id"]
           end
@@ -399,21 +408,27 @@ describe "Inventory Model" do
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
-          images_response = []
           images.each do |image|
-            headers = cookie_header.merge({
+            headers = cookie_header.merge(
               "Content-Type" => "image/png",
-              "X-Filename" => image.path.split("/").last
-            })
+              "X-Filename" => File.basename(image.path),
+              "Content-Length" => File.size(image.path).to_s
+            )
+
+            puts "headers #{headers}"
+
             resp = json_client_post(
               "/inventory/models/#{model_id}/images",
               body: image,
-              headers: headers
+              headers: headers,
+              is_binary: true
             )
+
+            puts "Image response: #{resp.body}"
+
             expect(resp.status).to eq(200)
-            images_response << resp.body["image"]
+            @image_id = resp.body["image"]["id"]
           end
-          @image_id = images_response.first["id"]
 
           # create attachment
           attachments = [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")]
