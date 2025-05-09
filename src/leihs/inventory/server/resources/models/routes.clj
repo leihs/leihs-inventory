@@ -307,10 +307,11 @@
      ["/images"
       ["" {:post {:accept "application/json"
                   :summary "Create image [v1]"
-                  :description (str "- Limitations: " (-> (get-config) :api :images :max-size-mb) " MB\n"
-                                    "- Allowed File types: " (str/join ", " (-> (get-config) :api :images :allowed-file-types)) "\n"
-                                    "- Creates automatically a thumbnail (" (-> (get-config) :api :images :thumbnail :width)   " x " (-> (get-config) :api :images :thumbnail :height)  ")\n"
-                                 )
+:description (str "- Limitations: " (get-in (get-config) [:api :images :max-size-mb]) " MB\n"
+                                                      "- Allowed File types: " (str/join ", " (get-in (get-config) [:api :images :allowed-file-types])) "\n"
+                                                      "- Creates automatically a thumbnail (" (get-in (get-config) [:api :images :thumbnail :width])
+                                                      "px x " (get-in (get-config) [:api :images :thumbnail :height]) "px)\n")
+                                 ;)
 :swagger {:consumes ["application/json"]
           :produces "application/json"}
 :coercion reitit.coercion.schema/coercion
@@ -350,8 +351,8 @@
 
    :post {:accept "application/json"
           :summary "Create attachment [v1]"
-          :description (str "- Limitations: " (-> (get-config) :api :attachments :max-size-mb) " MB\n"
-                         "- Allowed File types: " (str/join ", " (-> (get-config) :api :attachments :allowed-file-types)))
+:description (str "- Limitations: " (get-in (get-config) [:api :attachments :max-size-mb]) " MB\n"
+                                           "- Allowed File types: " (str/join ", " (get-in (get-config) [:api :attachments :allowed-file-types])))
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
