@@ -3,6 +3,7 @@
    ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormField FormItem FormControl FormMessage]]
+   ["@@/input" :refer [Input]]
    ["@@/table" :refer [Table TableHeader TableRow TableHead TableBody TableCell]]
    ["@@/textarea" :refer [Textarea]]
    ["lucide-react" :refer [CirclePlus Trash]]
@@ -67,6 +68,20 @@
                                     :asChild true}
 
                          ($ TableRow {:key (:id field)}
+
+                            ($ TableCell {:class-name "hidden"}
+                               ($ FormField
+                                  {:control (cj control)
+                                   :name (str "properties." index ".id")
+                                   :render #($ FormItem
+                                               ($ FormControl
+                                                  ($ Input (merge
+                                                            {:className "min-h-[2.5rem]"
+                                                             :autoscale true
+                                                             :resize true}
+                                                            (:field (jc %))))))}
+
+                                  ($ FormMessage)))
 
                             ($ TableCell
                                ($ FormField

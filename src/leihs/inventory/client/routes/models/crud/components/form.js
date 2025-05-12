@@ -1,10 +1,5 @@
 import { z } from "zod"
 
-const modelProperties = z.object({
-  key: z.string(),
-  value: z.string(),
-})
-
 export const schema = z.object({
   is_package: z.boolean().optional(),
   product: z.string().min(1),
@@ -59,7 +54,15 @@ export const schema = z.object({
       }),
     )
     .optional(),
-  properties: z.array(modelProperties).optional(),
+  properties: z
+    .array(
+      z.object({
+        id: z.string().nullish(),
+        key: z.string(),
+        value: z.string(),
+      }),
+    )
+    .optional(),
 })
 
 export const structure = [
