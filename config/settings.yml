@@ -2,10 +2,10 @@ api:
   upload-dir: /tmp/
   images:
     max-size-mb: 8
-    allowed-file-types: [png, jpg, jpeg]
+    allowed-file-types: [png, jpg, jpeg, gif]
     thumbnail:
       width-px: 100
       height-px: 100
   attachments:
     max-size-mb: 100
-    allowed-file-types: [pdf]
+    allowed-file-types: [pdf, dxf, dwg, zip, png, jpg, jpeg, html, gif, rtf]
