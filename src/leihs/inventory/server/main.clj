@@ -1,5 +1,6 @@
-(ns leihs.inventory.server.main
+(ns ^:clj-reload/no-unload leihs.inventory.server.main
   (:require
+   [clj-reload.core]
    [clj-yaml.core :as yaml]
    [clojure.pprint :refer [pprint]]
    [clojure.string]
