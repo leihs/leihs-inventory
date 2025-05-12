@@ -123,7 +123,7 @@
                          (t "pool.models.filters.retired.retired"))
                       ($ SelectItem {:data-test-id "not_retired"
                                      :value false}
-                         (t "pool.models.filters.retired.note_retired"))))
+                         (t "pool.models.filters.retired.not_retired"))))
 
                 ($ Select {:value with_items
                            :onValueChange handle-with-items}

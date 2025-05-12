@@ -99,6 +99,8 @@
                                      (filter (fn [el] (= (:id el) nil))
                                              (:images (jc data))))
 
+                            image-id (atom nil)
+
                             images-to-delete (if is-edit
                                                (->> (:images model)
                                                     (map :id)
@@ -134,7 +136,6 @@
                                                  (.put (str "/inventory/" pool-id "/model/" (aget params "model-id") "/")
                                                        (js/JSON.stringify (cj model-data)))
                                                  (.then (fn [res]
-                                                          (js/console.debug (.. res -data -data -id))
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
                                                            :id (.. res -data -data -id)})))))
@@ -164,6 +165,7 @@
                             ;; upload images sequentially and path model with is_cover when is needed + images with target_type
                             (doseq [image images]
                               (let [file (:file image)
+                                    is-cover (:is_cover image)
                                     type (.. file -type)
                                     name (.. file -name)
                                     binary-data (<p! (.. file (arrayBuffer)))
@@ -172,8 +174,10 @@
                                                               binary-data
                                                               (cj {:headers {"Content-Type" type
                                                                              "X-Filename" name}}))
-                                                       (.then #(.-data %))))
-                                    image-id ^js (.. image-res -image -id)]
+                                                       (.then #(.-data %))))]
+
+                                (when is-cover
+                                  (reset! image-id (.. image-res -image -id)))
 
                                 ;; patch image with target_type "Model"
                                 #_(<p! (js/fetch (str "/inventory/" model-id "/images/" image-id)
@@ -196,7 +200,7 @@
 
                             ;; patch cover-image when needed
                             (let [cover-image (filter #(= (:is_cover %) true) (:images (jc data)))
-                                  cover-image-id (:id (first cover-image))]
+                                  cover-image-id (or (:id (first cover-image)) @image-id)]
 
                               (when cover-image-id
                                 (<p! (-> http-client

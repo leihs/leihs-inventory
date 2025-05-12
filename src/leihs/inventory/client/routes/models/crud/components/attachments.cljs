@@ -5,7 +5,8 @@
                           Item]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["lucide-react" :refer [Trash]]
+   ["lucide-react" :refer [Trash Eye]]
+   ["react-router-dom" :as router :refer [useLoaderData]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -14,9 +15,15 @@
   (vec (concat (subvec vector 0 index)
                (subvec vector (inc index)))))
 
+(defn get-url-from-id [id items]
+  (when (seq items)
+    (some #(when (= id (:id %)) (:url %)) items)))
+
 (defui main [{:keys [control form props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
+        navigate (router/useNavigate)
+        {:keys [model]} (useLoaderData)
 
         [attachments set-attachments!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -72,8 +79,20 @@
 
                        ($ Item {:file (:file attachment)
                                 :generatePreview false}
+
                           ($ TableCell
-                             ($ :div {:className "flex justify-end"}
+                             ($ :div {:className "flex justify-end space-x-4"}
+                                ($ Button {:asChild true
+                                           :variant "outline"
+                                           :size "icon"
+                                           :type "button"
+                                           :className "select-none cursor-pointer"}
+                                   ($ :a {:target "_blank"
+                                          :href (get-url-from-id
+                                                 (:id attachment)
+                                                 (:attachments model))}
+                                      ($ Eye {:className "w-4 h-4"})))
+
                                 ($ Button {:variant "outline"
                                            :size "icon"
                                            :type "button"

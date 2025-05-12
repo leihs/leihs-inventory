@@ -76,9 +76,7 @@
                                    :render #($ FormItem
                                                ($ FormControl
                                                   ($ Input (merge
-                                                            {:className "min-h-[2.5rem]"
-                                                             :autoscale true
-                                                             :resize true}
+                                                            {:className "min-h-[2.5rem]"}
                                                             (:field (jc %))))))}
 
                                   ($ FormMessage)))

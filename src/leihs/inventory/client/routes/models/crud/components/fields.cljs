@@ -35,6 +35,7 @@
 
     (-> block :component (= "category-assignment"))
     ($ CategoryAssignment {:control control
+                           :form form
                            :props (:props block)})
 
     (-> block :component (= "image-dropzone"))
