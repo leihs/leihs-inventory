@@ -1,12 +1,12 @@
-(ns ^:clj-reload/no-unload leihs.inventory.server.main
+(ns leihs.inventory.server.main
   (:require
-   [clj-reload.core]
    [clj-yaml.core :as yaml]
    [clojure.pprint :refer [pprint]]
    [clojure.string]
    [clojure.tools.cli :as cli :refer [parse-opts]]
    [environ.core :refer [env]]
    [leihs.core.logging]
+   [leihs.core.reload :as reload]
    [leihs.core.repl :as repl]
    [leihs.inventory.server.run :as run]
    [logbug.catcher :as catcher]
@@ -43,13 +43,9 @@
            "-------------------------------------------------------------------"])]
        flatten (clojure.string/join \newline)))
 
-(defonce args* (atom nil))
-
-(defn main []
+(defn main [args]
   (leihs.core.logging/init)
-  (info 'main @args*)
-  (let [args @args*
-        {:keys [options arguments
+  (let [{:keys [options arguments
                 errors summary]} (cli/parse-opts
                                   args cli-options :in-order true)
         cmd (some-> arguments first keyword)
@@ -62,10 +58,11 @@
                   (print-summary)))))
 
 ; dynamic restart on require
-(when @args* (main))
+(when @reload/args* (main @reload/args*))
 
 (defn -main [& args]
-  (reset! args* args)
-  (main))
+  (info 'main args)
+  (reset! reload/args* args)
+  (main args))
 
 ;(main)
