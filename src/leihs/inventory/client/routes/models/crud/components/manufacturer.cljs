@@ -6,7 +6,7 @@
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [Check]]
    ["react-router-dom" :refer [useLoaderData]]
-   [clojure.string :as str :refer [lower-case]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -24,6 +24,12 @@
                           (let [key (.. e -key)]
 
                             (cond
+                              (= key "Enter")
+                              (do
+                                (.preventDefault e)
+                                (.stopPropagation e)
+                                (when open (set-open! false)))
+
                               (and (not (= key "Escape"))
                                    (not (= key "Tab"))
                                    (not (= key "ArrowDown")))
@@ -32,12 +38,20 @@
                               (= key "ArrowDown")
                               (do
                                 (.preventDefault e)
-                                (.. list-ref -current -firstChild -firstChild (focus)))
+                                (some-> list-ref
+                                        .-current
+                                        .-firstChild
+                                        .-firstChild
+                                        (.focus)))
 
                               (and (= key "Tab") open)
                               (do
                                 (.preventDefault e)
-                                (.. list-ref -current -firstChild -firstChild (focus)))
+                                (some-> list-ref
+                                        .-current
+                                        .-firstChild
+                                        .-firstChild
+                                        (.focus)))
 
                               :else
                               nil)))
@@ -48,12 +62,22 @@
                                    (= key "ArrowUp")
                                    (do
                                      (.preventDefault e)
-                                     (.. e -target -parentElement -previousElementSibling -firstChild (focus)))
+                                     (some-> e
+                                             .-target
+                                             .-parentElement
+                                             .-previousElementSibling
+                                             .-firstChild
+                                             (.focus)))
 
                                    (= key "ArrowDown")
                                    (do
                                      (.preventDefault e)
-                                     (.. e -target -parentElement -nextElementSibling -firstChild (focus)))
+                                     (some-> e
+                                             .-target
+                                             .-parentElement
+                                             .-nextElementSibling
+                                             .-firstChild
+                                             (.focus)))
 
                                    :else
                                    nil)))]
@@ -83,13 +107,23 @@
                           ($ PopoverContent {:class-name "p-0"
                                              :on-key-down handle-key-down-list
                                              :onOpenAutoFocus (fn [e] (.. e (preventDefault)))
-                                             :onCloseAutoFocus (fn [_] (.. input-ref -current -firstChild (focus)))
+                                             :onCloseAutoFocus (fn [_] (some-> input-ref
+                                                                               .-current
+                                                                               .-firstChild
+                                                                               (.focus)))
+
                                              :onInteractOutside (fn [_]
                                                                   (set-open! false)
-                                                                  (.. input-ref -current -firstChild (focus)))
+                                                                  (some-> input-ref
+                                                                          .-current
+                                                                          .-firstChild
+                                                                          (.focus)))
                                              :onEscapeKeyDown (fn []
                                                                 (set-open! false)
-                                                                (.. input-ref -current -firstChild (focus)))
+                                                                (some-> input-ref
+                                                                        .-current
+                                                                        .-firstChild
+                                                                        (.focus)))
                                              :style {:width (str width "px")}}
 
                              ($ :ul {:ref list-ref}
