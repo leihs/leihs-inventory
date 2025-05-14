@@ -1,5 +1,6 @@
 include:
   - path: cider-ci/task-components/ruby-bundle.yml
+  - path: config/*.yml
 
 git_options:
   submodules:
