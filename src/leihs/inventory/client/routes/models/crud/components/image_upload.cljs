@@ -7,6 +7,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash]]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -18,6 +19,7 @@
 (defui main [{:keys [control form props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
+        [t] (useTranslation)
 
         [images set-images!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -84,8 +86,8 @@
                ($ Table
                   ($ TableHeader
                      ($ TableRow
-                        ($ TableHead "Bezeichnung")
-                        ($ TableHead "Coverbild")
+                        ($ TableHead (t "pool.model.images.blocks.image_upload.table.description"))
+                        ($ TableHead (t "pool.model.images.blocks.image_upload.table.cover_image"))
                         ($ TableHead "")))
                   ($ TableBody
                      (for [[index item] (map-indexed vector images)]

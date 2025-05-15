@@ -6,6 +6,8 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Trash Eye]]
+   ["react-i18next" :refer [useTranslation]]
+
    ["react-router-dom" :as router :refer [useLoaderData]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -22,7 +24,7 @@
 (defui main [{:keys [control form props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
-        navigate (router/useNavigate)
+        [t] (useTranslation)
         {:keys [model]} (useLoaderData)
 
         [attachments set-attachments!] (uix.core/use-state [])
@@ -71,7 +73,7 @@
             ($ Table
                ($ TableHeader
                   ($ TableRow
-                     ($ TableHead "Bezeichnung")
+                     ($ TableHead (t "pool.model.attachments.blocks.attachments.table.description"))
                      ($ TableHead "")))
                ($ TableBody
                   (for [[index attachment] (map-indexed vector attachments)]

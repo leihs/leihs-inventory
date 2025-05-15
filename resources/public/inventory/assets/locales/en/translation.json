@@ -2,7 +2,7 @@
   "pagination": {
     "previous": "Previous",
     "next": "Next",
-    "range": "{{range}} of total {{total}} rows",
+    "range": "{{range}} of {{total}} rows",
     "per-page": "Rows per page"
   },
   "header": {
@@ -26,54 +26,210 @@
   },
   "pool": {
     "models": {
-      "title": "Inventarliste",
+      "title": "Inventory List",
+      "filters": {
+        "search": {
+          "placeholder": "Filter by term"
+        },
+        "type": {
+          "title": "Inventory Type",
+          "model": "Model",
+          "package": "Package",
+          "item": "Item",
+          "option": "Option",
+          "software": "Software",
+          "software-license": "Software License"
+        },
+        "retired": {
+          "all": "retired & not retired",
+          "retired": "retired",
+          "not_retired": "not retired"
+        },
+        "with_items": {
+          "all": "All Models",
+          "with_items": "only models with items",
+          "without_items": "only models without items"
+        },
+        "borrowable": {
+          "all": "borrowable & not borrowable",
+          "borrowable": "borrowable",
+          "not_borrowable": "not borrowable"
+        }
+      },
       "dropdown": {
-        "title": "Inventar Hinzufügen",
-        "add_model": "Neues Modell",
-        "add_item": "Neuen Gegenstand"
+        "title": "Add inventory",
+        "add_model": "New model",
+        "add_item": "New item"
       },
       "tabs": {
-        "inventory_list": "Inventarliste",
-        "advanced_search": "Erweiterte Suche",
-        "statistics": "Statistik",
-        "entitlement_groups": "Anspruchsgruppen"
+        "inventory_list": "Inventory List",
+        "advanced_search": "Advanced Search",
+        "statistics": "Statistics",
+        "entitlement_groups": "Entitlement Groups"
+      },
+      "list": {
+        "header": {
+          "amount": "Amount",
+          "name": "Name",
+          "availability": "Availability"
+        },
+        "actions": {
+          "edit": "edit",
+          "add_item": "Add Item"
+        }
       }
     },
     "model": {
-      "title": "Modell bearbeiten",
-      "submit": "Erstellen",
-      "cancel": "Abbrechen",
+      "title": "Edit Model",
+      "submit": "Save",
+      "cancel": "Cancel",
+      "description": "Make changes and then save",
+      "product": {
+        "title": "Product",
+        "blocks": {
+          "package": {
+            "label": "this is a package"
+          },
+          "product": {
+            "label": "Product"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Manufacturer"
+          },
+          "description": {
+            "label": "Description"
+          },
+          "technical_detail": {
+            "label": "Technical Details"
+          },
+          "internal_description": {
+            "label": "Internal Description"
+          },
+          "hand_over_note": {
+            "label": "Important notes for hand over"
+          }
+        }
+      },
+      "entitlements": {
+        "title": "Allocations",
+        "blocks": {
+          "entitlements": {
+            "label": "Allocations (max {{amount}})",
+            "select": "Select Entitlement-Group",
+            "not_found": "Entitlement-Group not found"
+          }
+        }
+      },
+      "categories": {
+        "title": "Categories",
+        "blocks": {
+          "categories": {
+            "label": "Category",
+            "placeholder": "Select category",
+            "select": "Select category",
+            "not_found": "Category not found"
+          }
+        }
+      },
+      "images": {
+        "title": "Images",
+        "blocks": {
+          "image_upload": {
+            "table": {
+              "description": "Description",
+              "cover_image": "Cover Image"
+            },
+            "label": "Category",
+            "select": "Select category",
+            "not_found": "Category not found"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Attachments",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Description"
+            },
+            "label": "File",
+            "select": "Select file",
+            "not_found": "File not found"
+          }
+        }
+      },
+      "accessories": {
+        "title": "Accessories",
+        "blocks": {
+          "accessories": {
+            "add_button": "Add accessory"
+          }
+        }
+      },
+      "compatible_models": {
+        "title": "Compatible Models",
+        "blocks": {
+          "compatible_models": {
+            "select": "Select model",
+            "search": "Search model",
+            "not_found": "Model not found"
+          }
+        }
+      },
+      "model_properties": {
+        "title": "Properties",
+        "blocks": {
+          "model_properties": {
+            "table": {
+              "property": "Property",
+              "value": "Value"
+            },
+            "add_button": "Add property"
+          }
+        }
+      },
       "create": {
         "title": "Create new model",
-        "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
-        "submit": "Erstellen",
-        "cancel": "Abbrechen"
+        "description": "Make changes and then save",
+        "submit": "Create",
+        "add_item": "Create and add item",
+        "cancel": "Cancel",
+        "success": "Model successfully created"
+      },
+      "edit": {
+        "success": "Model successfully saved",
+        "add_item": "Save and Add Item"
       },
       "delete": {
-        "title": "Modell löschen",
-        "description": "Sind Sie sicher, dass Sie dieses Modell löschen möchten?",
-        "confirm": "Löschen",
-        "cancel": "Abbrechen"
+        "title": "Delete model",
+        "description": "Are you sure you want to delete this model?",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "success": "Model successfully deleted",
+        "error": "Model could not be deleted"
       }
     }
   },
   "models": {
-    "title": "Inventory list - Loan Toni Area Localized",
+    "title": "Inventory List - Lending Toni Areal Localized",
     "tabs": {
-      "entitlement-groups": "stakeholders"
+      "entitlement-groups": "Entitlement Groups"
     }
   },
   "debug": {
     "welcome": "Welcome",
-    "welcome-text": "Welcome to the debug page. There is some useful functionality here"
+    "welcome-text": "Welcome to the debug page. Here are some useful features"
   },
   "translate-check": {
     "open": "Open Translation Check"
   },
   "root": {
-    "welcome": "Welcome to Miet’s Inventory!"
+    "welcome": "Welcome to Leihs Inventory!"
   },
   "notfound": {
-    "back-to-home": "Back to home page"
+    "back-to-home": "Back to Home"
   }
 }

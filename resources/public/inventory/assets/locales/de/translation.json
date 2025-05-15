@@ -66,6 +66,17 @@
         "advanced_search": "Erweiterte Suche",
         "statistics": "Statistik",
         "entitlement_groups": "Anspruchsgruppen"
+      },
+      "list": {
+        "header": {
+          "amount": "Menge",
+          "name": "Name",
+          "availability": "Verfügbarkeit"
+        },
+        "actions": {
+          "edit": "editieren",
+          "add_item": "Gegenstand hinzufügen"
+        }
       }
     },
     "model": {
@@ -73,6 +84,113 @@
       "submit": "Speichern",
       "cancel": "Abbrechen",
       "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+      "product": {
+        "title": "Produkt",
+        "blocks": {
+          "package": {
+            "label": "dies ist ein Paket"
+          },
+          "product": {
+            "label": "Produkt"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Hersteller"
+          },
+          "description": {
+            "label": "Beschreibung"
+          },
+          "technical_detail": {
+            "label": "Technische Details"
+          },
+          "internal_description": {
+            "label": "Interne Beschreibung"
+          },
+          "hand_over_note": {
+            "label": "Wichtige Notizen zur Aushändigung"
+          }
+        }
+      },
+      "entitlements": {
+        "title": "Zuteilungen",
+        "blocks": {
+          "entitlements": {
+            "label": "Zuteilung (max {{amount}})",
+            "select": "Anspruchsgruppe auswählen",
+            "not_found": "Anspruchsgruppe nicht gefunden"
+          }
+        }
+      },
+      "categories": {
+        "title": "Kategorien",
+        "blocks": {
+          "categories": {
+            "label": "Kategorie",
+            "placeholder": "Kategorie auswählen",
+            "select": "Kategorie auswählen",
+            "not_found": "Kategorie nicht gefunden"
+          }
+        }
+      },
+      "images": {
+        "title": "Bilder",
+        "blocks": {
+          "image_upload": {
+            "table": {
+              "description": "Bezeichnung",
+              "cover_image": "Titelbild"
+            },
+            "label": "Kategorie",
+            "select": "Kategorie auswählen",
+            "not_found": "Kategorie nicht gefunden"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Anhänge",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Bezeichnung"
+            },
+            "label": "Datei",
+            "select": "Datei auswählen",
+            "not_found": "Datei nicht gefunden"
+          }
+        }
+      },
+      "accessories": {
+        "title": "Accessoires",
+        "blocks": {
+          "accessories": {
+            "add_button": "Zubehör hinzufügen"
+          }
+        }
+      },
+      "compatible_models": {
+        "title": "Ergänzende Modelle",
+        "blocks": {
+          "compatible_models": {
+            "select": "Modell auswählen",
+            "search": "Modell suchen",
+            "not_found": "Modell nicht gefunden"
+          }
+        }
+      },
+      "model_properties": {
+        "title": "Eigenschaften",
+        "blocks": {
+          "model_properties": {
+            "table": {
+              "property": "Eigenschaft",
+              "value": "Wert"
+            },
+            "add_button": "Eigenschaft hinzufügen"
+          }
+        }
+      },
       "create": {
         "title": "Neues Modell erstellen",
         "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",

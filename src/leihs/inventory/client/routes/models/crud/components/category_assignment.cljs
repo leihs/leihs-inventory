@@ -7,6 +7,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -41,6 +42,7 @@
 
 (defui main [{:keys [control form]}]
   (let [{:keys [categories]} (useLoaderData)
+        [t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         buttonRef (uix/use-ref nil)
@@ -99,7 +101,7 @@
                         :ref buttonRef
                         :on-click #(set-open! (not open))
                         :class-name "w-full justify-between"}
-                "Select categories"
+                (t "pool.model.categories.blocks.categories.select")
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
@@ -111,10 +113,10 @@
                                 (str/lower-case search))
                              1 0))}
 
-                ($ CommandInput {:placeholder "Search item..."})
+                ($ CommandInput {:placeholder (t "pool.model.categories.blocks.categories.placeholder")})
                 ($ CommandList
 
-                   ($ CommandEmpty "No item found.")
+                   ($ CommandEmpty (t "pool.model.categories.blocks.categories.not_found"))
 
                    (for [item flat-categories]
                      ($ CommandItem {:key (:path item)

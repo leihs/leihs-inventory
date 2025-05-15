@@ -10,6 +10,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -32,6 +33,7 @@
 
 (defui main [{:keys [control items form props]}]
   (let [{:keys [entitlement-groups]} (useLoaderData)
+        [t] (useTranslation)
         [allocations set-allocations!] (uix/use-state 0)
         [width set-width!] (uix/use-state nil)
         [open set-open!] (uix/use-state false)
@@ -64,7 +66,7 @@
      [fields get-values allocations])
 
     ($ :div {:class-name "flex flex-col gap-2"}
-       ($ Label "Zuteilungen (max. " (str items) ")")
+       ($ Label (t "pool.model.entitlements.blocks.entitlements.label" #js {:amount (str items)}))
 
        ($ Popover {:open open
                    :on-open-change #(set-open! %)}
@@ -74,7 +76,8 @@
                         :variant "outline"
                         :role "combobox"
                         :class-name (str "justify-between w-full")}
-                "Select entitlement group"
+                (t "pool.model.entitlements.blocks.entitlements.select")
+
                 ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
           ($ PopoverContent {:class-name "p-0"
@@ -84,9 +87,9 @@
                            (let [lSearch (str/lower-case search)
                                  lValue (str/lower-case value)]
                              (if (str/includes? lValue lSearch) 1 0)))}
-                ($ CommandInput {:placeholder "Search entitlement groups"})
+                ($ CommandInput {:placeholder (t "pool.model.entitlements.blocks.entitlements.select")})
                 ($ CommandList
-                   ($ CommandEmpty "No Entitlement Group Found")
+                   ($ CommandEmpty (t "pool.model.entitlements.blocks.entitlements.not_found"))
                    ($ CommandGroup
                       (for [entitlement entitlement-groups]
                         ($ CommandItem {:value (:name entitlement)

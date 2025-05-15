@@ -8,6 +8,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [CirclePlus Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom :as uix-dom]))
@@ -34,6 +35,7 @@
   (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
                                                  (cj {:control control
                                                       :name "accessories"})))
+        [t] (useTranslation)
         add-field (fn []
                     (uix-dom/flush-sync
                      (append (cj {:name ""})))
@@ -97,7 +99,7 @@
                      :variant "outline"
                      :on-click handle-add}
 
-             ($ CirclePlus {:className "w-4 h-4"}) "Zubehör hinzufügen")))))
+             ($ CirclePlus {:className "w-4 h-4"}) (t "pool.model.accessories.blocks.accessories.add_button"))))))
 
 (def AccessoryList
   (uix/as-react

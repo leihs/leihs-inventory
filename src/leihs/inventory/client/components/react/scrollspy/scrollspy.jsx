@@ -22,13 +22,13 @@ export function ScrollspyItem({ children, className, name, id }) {
 
   React.useEffect(() => {
     addItem({ name: name, id: id })
-  }, [])
+  }, [name, id])
 
   React.useEffect(() => {
     if (inView) {
       setCurrent({ name: name, id: id })
     }
-  }, [inView, setCurrent])
+  }, [inView, setCurrent, name, id])
 
   return (
     <div id={id} ref={ref} className={cn("", className)}>

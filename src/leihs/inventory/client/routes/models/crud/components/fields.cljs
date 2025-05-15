@@ -5,6 +5,7 @@
    ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.crud.components.accessories-list :refer [AccessoryList]]
    [leihs.inventory.client.routes.models.crud.components.attachments :refer [Attachments]]
@@ -22,72 +23,74 @@
    "textarea" Textarea})
 
 (defui field [{:keys [control form block]}]
-  (cond
-    (-> block :component (= "accessory-list"))
-    ($ AccessoryList {:control control
-                      :props (:props block)})
-
-    (-> block :component (= "entitlement-allocations"))
-    ($ EntitlementAllocations {:control control
-                               :items "0"
-                               :form form
-                               :props (:props block)})
-
-    (-> block :component (= "category-assignment"))
-    ($ CategoryAssignment {:control control
-                           :form form
-                           :props (:props block)})
-
-    (-> block :component (= "image-dropzone"))
-    ($ ImageUpload {:control control
-                    :form form
-                    :props (:props block)})
-
-    (-> block :component (= "attachments"))
-    ($ Attachments {:control control
-                    :form form
-                    :props (:props block)})
-
-    (-> block :component (= "compatible-models"))
-    ($ CompatibleModels {:control control
-                         :props (:props block)})
-
-    (-> block :component (= "model-properties"))
-    ($ ModelProperties {:control control
+  (let [[t] (useTranslation)]
+    (cond
+      (-> block :component (= "accessory-list"))
+      ($ AccessoryList {:control control
                         :props (:props block)})
 
-    (-> block :component (= "manufacturers"))
-    ($ Manufacturer {:control control
-                     :form form
-                     :props (:props block)})
+      (-> block :component (= "entitlement-allocations"))
+      ($ EntitlementAllocations {:control control
+                                 :items "0"
+                                 :form form
+                                 :props (:props block)})
 
-    (-> block :component (= "checkbox"))
-    ($ FormField {:control (cj control)
-                  :name (:name block)
-                  :render #($ FormItem {:class-name "mt-6"}
-                              ($ FormControl
-                                 ($ Checkbox (merge
-                                              {:checked (-> (jc %) :field :value)
-                                               :onCheckedChange (-> (jc %) :field :onChange)}
-                                              (:props block))))
+      (-> block :component (= "category-assignment"))
+      ($ CategoryAssignment {:control control
+                             :form form
+                             :props (:props block)})
 
-                              ($ FormLabel {:className "pl-4"} (:label block))
-                              ($ FormMessage))})
+      (-> block :component (= "image-dropzone"))
+      ($ ImageUpload {:control control
+                      :form form
+                      :props (:props block)})
 
-    ;; "default case - this renders a component from the component map"
-    :else
-    (let [comp (get fields-map (:component block))]
-      (when comp
-        ($ FormField {:control (cj control)
-                      :name (:name block)
-                      :render #($ FormItem {:class-name "mt-6"}
-                                  ($ FormLabel (:label block))
-                                  ($ FormControl
-                                     ($ comp (merge
-                                              (:props block)
-                                              (:field (jc %)))))
+      (-> block :component (= "attachments"))
+      ($ Attachments {:control control
+                      :form form
+                      :props (:props block)})
 
-                                  ($ FormDescription
-                                     ($ :<> (:description block)))
+      (-> block :component (= "compatible-models"))
+      ($ CompatibleModels {:control control
+                           :props (:props block)})
 
-                                  ($ FormMessage))})))))
+      (-> block :component (= "model-properties"))
+      ($ ModelProperties {:control control
+                          :props (:props block)})
+
+      (-> block :component (= "manufacturers"))
+      ($ Manufacturer {:control control
+                       :form form
+                       :props (:props block)})
+
+      (-> block :component (= "checkbox"))
+      ($ FormField {:control (cj control)
+                    :name (:name block)
+                    :render #($ FormItem {:class-name "mt-6"}
+                                ($ FormControl
+                                   ($ Checkbox (merge
+                                                {:checked (-> (jc %) :field :value)
+                                                 :onCheckedChange (-> (jc %) :field :onChange)}
+                                                (:props block))))
+
+                                ($ FormLabel {:className "pl-4"} (t (:label block)))
+                                ($ FormMessage))})
+
+      ;; "default case - this renders a component from the component map"
+      :else
+      (let [comp (get fields-map (:component block))]
+        (when comp
+          ($ FormField {:control (cj control)
+                        :name (:name block)
+                        :render #($ FormItem {:class-name "mt-6"}
+
+                                    ($ FormLabel (t (:label block)))
+                                    ($ FormControl
+                                       ($ comp (merge
+                                                (:props block)
+                                                (:field (jc %)))))
+
+                                    ($ FormDescription
+                                       ($ :<> (:description block)))
+
+                                    ($ FormMessage))}))))))

@@ -262,9 +262,9 @@
                           ($ ScrollspyItem {:className "scroll-mt-[10vh]"
                                             :key (:title section)
                                             :id (:title section)
-                                            :name (:title section)}
+                                            :name (t (:title section))}
 
-                             ($ :h2 {:className "text-lg"} (:title section))
+                             ($ :h2 {:className "text-lg"} (t (:title section)))
                              ($ :hr {:className "mb-4"})
 
                              (for [block (:blocks section)]

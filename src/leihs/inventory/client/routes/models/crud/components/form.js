@@ -67,11 +67,11 @@ export const schema = z.object({
 
 export const structure = [
   {
-    title: "Produkt",
+    title: "pool.model.product.title",
     blocks: [
       {
         name: "is-package",
-        label: "dies ist ein Paket?",
+        label: "pool.model.product.blocks.package.label",
         component: "checkbox",
         props: {
           defaultChecked: false,
@@ -80,7 +80,7 @@ export const structure = [
       },
       {
         name: "product",
-        label: "Produkt",
+        label: "pool.model.product.blocks.product.label",
         component: "input",
         props: {
           "auto-complete": "off",
@@ -88,7 +88,7 @@ export const structure = [
       },
       {
         name: "version",
-        label: "Version",
+        label: "pool.model.product.blocks.version.label",
         component: "input",
         props: {
           type: "text",
@@ -97,12 +97,12 @@ export const structure = [
       },
       {
         name: "manufacturers",
-        label: "Hersteller",
+        label: "pool.model.product.blocks.manufacturer.label",
         component: "manufacturers",
       },
       {
         name: "description",
-        label: "Beschreibung",
+        label: "pool.model.product.blocks.description.label",
         component: "textarea",
         props: {
           "auto-complete": "off",
@@ -110,7 +110,7 @@ export const structure = [
       },
       {
         name: "technical_detail",
-        label: "Technische Details",
+        label: "pool.model.product.blocks.technical_detail.label",
         component: "textarea",
         props: {
           "auto-complete": "off",
@@ -118,7 +118,7 @@ export const structure = [
       },
       {
         name: "internal_description",
-        label: "Interne Beschreibung",
+        label: "pool.model.product.blocks.internal_description.label",
         component: "textarea",
         props: {
           "auto-complete": "off",
@@ -126,7 +126,7 @@ export const structure = [
       },
       {
         name: "hand_over_note",
-        label: "Übergabevermerk",
+        label: "pool.model.product.blocks.hand_over_note.label",
         component: "textarea",
         props: {
           "auto-complete": "off",
@@ -135,32 +135,32 @@ export const structure = [
     ],
   },
   {
-    title: "Zuteilungen",
+    title: "pool.model.entitlements.title",
     blocks: [
       {
         name: "entitlements",
-        label: "Berechtigungen",
+        label: "pool.model.entitlements.blocks.entitlements.label",
         description: "Listen Sie die Berechtigungen auf",
         component: "entitlement-allocations",
       },
     ],
   },
   {
-    title: "Kategorien",
+    title: "pool.model.categories.title",
     blocks: [
       {
         name: "categories",
-        label: "Kategorien",
+        label: "pool.model.categories.blocks.categories.label",
         component: "category-assignment",
       },
     ],
   },
   {
-    title: "Bilder",
+    title: "pool.model.images.title",
     blocks: [
       {
         name: "images",
-        label: "Bilder",
+        label: "pool.model.images.blocks.images.label",
         component: "image-dropzone",
         props: {
           sortable: false,
@@ -171,11 +171,11 @@ export const structure = [
     ],
   },
   {
-    title: "Anhänge",
+    title: "pool.model.attachments.title",
     blocks: [
       {
         name: "attachments",
-        label: "Anhänge",
+        label: "pool.model.attachments.blocks.attachments.label",
         component: "attachments",
         props: {
           multiple: true,
@@ -185,7 +185,7 @@ export const structure = [
     ],
   },
   {
-    title: "Zubehör",
+    title: "pool.model.accessories.title",
     blocks: [
       {
         name: "accessories",
@@ -194,17 +194,17 @@ export const structure = [
     ],
   },
   {
-    title: "Ergänzende Modelle",
+    title: "pool.model.compatible_models.title",
     blocks: [
       {
         name: "compatibles",
-        label: "Modell-Links",
+        label: "pool.model.fields.blocks.compatibles.label",
         component: "compatible-models",
       },
     ],
   },
   {
-    title: "Eigenschaften",
+    title: "pool.model.model_properties.title",
     blocks: [
       {
         name: "properties",
@@ -213,7 +213,7 @@ export const structure = [
           inputs: [
             {
               name: "key",
-              label: "Eigenschaft",
+              label: "pool.model.fields.blocks.properties.label",
               component: "textarea",
               props: {
                 autoscale: true,
@@ -224,7 +224,7 @@ export const structure = [
             },
             {
               name: "value",
-              label: "Wert",
+              label: "pool.model.fields.blocks.value.label",
               component: "textarea",
               props: {
                 autoscale: true,

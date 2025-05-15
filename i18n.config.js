@@ -32,7 +32,9 @@ i18n
   .init({
     resources,
     lng: "de-CH",
-    fallbackLng: ["de-CH"],
+    supportedLngs: ["de", "de-CH", "en"],
+    load: "languageOnly",
+    fallbackLng: ["de"],
     debug: true,
   })
 

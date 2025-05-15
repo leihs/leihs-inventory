@@ -8,6 +8,7 @@
    ["@@/textarea" :refer [Textarea]]
    ["lucide-react" :refer [CirclePlus Trash]]
    ["react-hook-form" :as hook-form]
+   ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]
    [uix.dom :as uix-dom]))
@@ -31,18 +32,20 @@
         (move old-index new-index)))))
 
 (defui properties-table [{:keys [children inputs]}]
-  ($ Table
-     ($ TableHeader
-        ($ TableRow
-           ($ TableHead "Eigenschaft")
-           ($ TableHead "Wert")
-           ($ TableHead "")))
-     ($ TableBody children)))
+  (let [[t] (useTranslation)]
+    ($ Table
+       ($ TableHeader
+          ($ TableRow
+             ($ TableHead (t "pool.model.model_properties.blocks.model_properties.table.property"))
+             ($ TableHead (t "pool.model.model_properties.blocks.model_properties.table.value"))
+             ($ TableHead "")))
+       ($ TableBody children))))
 
 (defui main [{:keys [control props]}]
   (let [{:keys [fields append remove move]} (jc (hook-form/useFieldArray
                                                  (cj {:control control
                                                       :name "properties"})))
+        [t] (useTranslation)
         inputs (:inputs props)
         handle-add (fn []
                      (uix-dom/flush-sync
@@ -127,7 +130,7 @@
                      :variant "outline"
                      :on-click handle-add}
 
-             ($ CirclePlus {:className "w-4 h-4"}) "Eigenschaft hinzufügen")))))
+             ($ CirclePlus {:className "w-4 h-4"}) (t "pool.model.model_properties.blocks.model_properties.add_button"))))))
 
 (def ModelProperties
   (uix/as-react

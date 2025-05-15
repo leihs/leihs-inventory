@@ -62,7 +62,7 @@
        ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
           ($ :div
              ($ :div {:className "flex gap-2"}
-                ($ Input {:placeholder "Suche Inventar"
+                ($ Input {:placeholder (t "pool.models.filters.search.placeholder")
                           :name "search"
                           :className "w-fit py-0"
                           :onChange (fn [e]
@@ -166,10 +166,10 @@
                 ($ TableHeader
                    ($ TableRow
                       ($ TableHead "")
-                      ($ TableHead "Menge")
+                      ($ TableHead (t "pool.models.list.header.amount"))
                       ($ TableHead "")
-                      ($ TableHead {:className "w-full"} "Name")
-                      ($ TableHead "Verfügbarkeit")
+                      ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
+                      ($ TableHead (t "pool.models.list.header.availability"))
                       ($ TableHead "")))
                 ($ TableBody
                    (for [model models]
@@ -201,7 +201,7 @@
                                  ($ Link {:state #js {:searchParams (.. location -search)}
                                           :to (str (:id model))
                                           :viewTransition true}
-                                    "editieren"))
+                                    (t "pool.models.list.actions.edit")))
 
                               ($ DropdownMenu
                                  ($ DropdownMenuTrigger {:asChild "true"}
@@ -213,7 +213,7 @@
                                        ($ Link {:to (str (:id model) "/items/create")
                                                 :state #js {:searchParams (.. location -search)}
                                                 :viewTransition true}
-                                          "Gegenstand erstellen"))))))))))))
+                                          (t "pool.models.list.actions.add_item")))))))))))))
 
        ($ pagination/main {:pagination pagination
                            :class-name "p-6 pt-0"}))))

@@ -5,6 +5,7 @@
    ["@@/form" :refer [FormControl FormField FormItem FormLabel]]
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [Check]]
+   ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [useLoaderData]]
    [clojure.string :as str]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -13,6 +14,7 @@
 
 (defui main [{:keys [form control]}]
   (let [{:keys [manufacturers]} (useLoaderData)
+        [t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         get-values (aget form "getValues")
@@ -93,7 +95,7 @@
           {:name "manufacturer"
            :control (cj control)
            :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                       ($ FormLabel "Manufacturer")
+                       ($ FormLabel (t "pool.model.product.blocks.manufacturer.label"))
 
                        ($ Popover {:open open}
                           ($ PopoverAnchor {:asChild true}

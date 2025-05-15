@@ -151,7 +151,7 @@ const DropzoneArea = React.forwardRef(({ className, ...props }, ref) => {
       ) : (
         <div className="flex items-center flex-col gap-1.5">
           <div className="flex items-center flex-row gap-0.5 text-sm font-medium">
-            <Upload className="mr-2 h-4 w-4" /> Upload files
+            <Upload className="mr-2 h-4 w-4" />
           </div>
           {props.maxSize && (
             <div className="text-xs text-gray-400 font-medium">
