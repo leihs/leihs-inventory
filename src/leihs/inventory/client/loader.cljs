@@ -5,12 +5,19 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc]]))
 
+(def profile* (atom nil))
+
 (defn root-layout []
-  (-> http-client
-      (.get "/inventory/profile")
-      (.then #(jc (.. % -data)))
-      (.then #(do (.. i18n (changeLanguage (-> % :user_details :language_locale)))
-                  %))))
+  (if-let [profile @profile*]
+    profile
+    (-> http-client
+        (.get "/inventory/profile")
+        (.then #(jc (.. % -data)))
+        (.then (fn [profile]
+                 (.. i18n (changeLanguage (-> profile :user_details :language_locale)))
+                 (reset! profile* profile)
+                 profile))
+        (.catch (fn [error] (js/console.log "error" error) #js {})))))
 
 (defn models-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))]

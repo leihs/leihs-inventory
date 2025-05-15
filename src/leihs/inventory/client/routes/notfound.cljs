@@ -10,6 +10,6 @@
     ($ :div {:class-name "w-screen h-screen flex flex-col items-center justify-center"}
        ($ :h1 {:className "text-2xl font-bold"} (.. error -status))
        ($ :p (.. error -statusText) ": " (.. error -data))
-       ($ :a {:href "/"
+       ($ :a {:href "/inventory/"
               :class-name "mt-12"}
           (t "notfound.back-to-home" "Zurück zur Startseite")))))
