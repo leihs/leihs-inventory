@@ -1,11 +1,14 @@
 include:
-  - path:
-    - cider-ci/task-components/ruby-bundle.yml
-#    - config/*.yml
+  - path: cider-ci/task-components/ruby-bundle.yml
 
 git_options:
   submodules:
     include_match: ^.*$
+
+trial_attachments:
+  config:
+    content_type: text/yaml
+    include_match: config\/.*\.ya?ml$
 
 scripts:
   inventory-build-uberjar:
