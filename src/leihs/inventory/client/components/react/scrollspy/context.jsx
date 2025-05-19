@@ -11,10 +11,18 @@ export const ScrollspyProvider = ({ children }) => {
   // Function to add an item
   function addItem(item) {
     setItems((prev) => {
-      if (prev.find((i) => i.id === item.id)) {
+      if (!Array.isArray(prev)) return []
+
+      const index = prev.findIndex((i) => i.id === item.id)
+      if (index === -1) {
+        return [...prev, item]
+      }
+
+      if (prev[index].name === item.name) {
         return [...prev]
       }
-      return [...prev, item]
+
+      return prev.map((i, idx) => (idx === index ? item : i))
     })
   }
 
