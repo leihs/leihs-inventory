@@ -6,7 +6,8 @@
    ["@@/card" :refer [Card CardContent CardHeader]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuCheckboxItem
                                DropdownMenuContent DropdownMenuItem
-                               DropdownMenuTrigger]]
+                               DropdownMenuTrigger DropdownMenuRadioGroup
+                               DropdownMenuRadioItem]]
    ["@@/input" :refer [Input]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
@@ -14,7 +15,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["date-fns" :as date-fns]
-   ["lucide-react" :refer [CalendarDays Download Ellipsis Image Tags]]
+   ["lucide-react" :refer [CalendarDays Download Ellipsis Image Tags CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [goog.functions]
@@ -56,7 +57,36 @@
                                      (if (= date nil)
                                        (.delete search-params "before_last_check")
                                        (.set search-params "before_last_check" formatted-date))
-                                     (set-search-params! search-params)))]
+                                     (set-search-params! search-params)))
+
+        handle-type (fn [e]
+                      (let [current-type (.. search-params (get "type"))]
+                        (if (or (= e nil) (= e current-type))
+                          (.delete search-params "type")
+                          (.set search-params "type" e))
+                        (set-search-params! search-params)))
+
+        status (let [owned (.. search-params (get "owned"))
+                     in_stock (.. search-params (get "in_stock"))
+                     incomplete (.. search-params (get "incomplete"))
+                     broken (.. search-params (get "broken"))]
+                 (cond
+                   owned ["owned" (.. search-params (get "owned"))]
+                   in_stock ["in_stock" (.. search-params (get "in_stock"))]
+                   incomplete ["incomplete" (.. search-params (get "incomplete"))]
+                   broken ["broken" (.. search-params (get "broken"))]))
+
+        handle-status (fn [e]
+                        (let [status (.. search-params (get e))]
+                          (js/console.debug e status search-params)
+
+                          (.delete search-params "in_stock")
+                          (.delete search-params "owned")
+                          (.delete search-params "incomplete")
+                          (.delete search-params "broken")
+
+                          (js/console.debug "after delete")
+                          (.set search-params e true)))]
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
@@ -75,21 +105,45 @@
                 ($ DropdownMenu
                    ($ DropdownMenuTrigger {:asChild "true"}
                       ($ Button {:variant "outline"}
-                         ($ Tags {:className "h-4 w-4 mr-2"}) "Inventar-Typ"))
+                         ($ Tags {:className "h-4 w-4 mr-2"}) (t "pool.models.filters.type.title")))
                    ($ DropdownMenuContent {:align "start"}
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Paket"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Item"))))
+                      ($ DropdownMenuRadioGroup {:value (.. search-params (get "type"))
+                                                 :onValueChange handle-type}
+                         ($ DropdownMenuRadioItem {:value "model"}
+                            ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500"}
+                               (t "pool.models.filters.type.model")))
 
-                ($ Button {:variant "outline"}
-                   ($ Tags {:className "h-4 w-4 mr-2"}) "Status")
+                         ($ DropdownMenuRadioItem {:value "package"}
+                            ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500"}
+                               (t "pool.models.filters.type.package")))
+
+                         ($ DropdownMenuRadioItem {:value "option"}
+                            ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500"}
+                               (t "pool.models.filters.type.option")))
+
+                         ($ DropdownMenuRadioItem {:value "software"}
+                            ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500"}
+                               (t "pool.models.filters.type.software"))))))
+
+                ($ DropdownMenu
+                   ($ DropdownMenuTrigger {:asChild "true"}
+                      ($ Button {:variant "outline"}
+                         ($ CirclePlus {:className "h-4 w-4 mr-2"}) (t "pool.models.filters.status.title")))
+                   ($ DropdownMenuContent {:align "start"}
+                      ($ DropdownMenuRadioGroup {:value (.. search-params (get "type"))
+                                                 :onValueChange handle-status}
+                         ($ DropdownMenuRadioItem {:value "owned"}
+                            (t "pool.models.filters.status.owned"))
+
+                         ($ DropdownMenuRadioItem {:value "in_stock"}
+                            (t "pool.models.filters.status.in_stock"))
+
+                         ($ DropdownMenuRadioItem {:value "incomplete"}
+                            (t "pool.models.filters.status.incomplete"))
+
+                         ($ DropdownMenuRadioItem {:value "broken"}
+                            (t "pool.models.filters.status.broken")))))
+
                 ($ Button {:variant "outline"}
                    ($ Tags {:className "h-4 w-4 mr-2"}) "Geraetepark")
                 ($ Button {:variant "outline"}
@@ -183,10 +237,29 @@
                         ($ TableCell
                            ($ :div {:className "flex gap-2"}
                               ($ Image)
-                              ($ Badge {:className (if (= (-> model :type) "Paket")
+                              ($ Badge {:className (cond
+                                                     (-> model :is_package)
                                                      "bg-lime-500"
-                                                     "bg-slate-600")}
-                                 (str (-> model :type)))))
+
+                                                     (and (= (-> model :type) "Model")
+                                                          (not (:is_package model)))
+                                                     "bg-slate-500"
+
+                                                     #_(= (-> model :type) "Item")
+                                                     #_"bg-blue-500"
+
+                                                     (= (-> model :type) "Option")
+                                                     "bg-emerald-500"
+
+                                                     (= (-> model :type) "Software")
+                                                     "bg-orange-500"
+
+                                                     #_(= (-> model :type) "Software-License")
+                                                     #_"bg-pink-500")}
+
+                                 (str (if (:is_package model)
+                                        (t "pool.models.filters.type.package")
+                                        (-> model :type))))))
 
                         ($ TableCell {:className "font-bold"}
                            (str (:product model) " " (:version model)))

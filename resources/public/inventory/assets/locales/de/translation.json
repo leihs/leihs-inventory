@@ -35,10 +35,15 @@
           "title": "Inventar-Typ",
           "model": "Modell",
           "package": "Paket",
-          "item": "Gegenstand",
           "option": "Option",
-          "software": "Software",
-          "software-license": "Software-Lizenz"
+          "software": "Software"
+        },
+        "status": {
+          "title": "Status",
+          "owned": "Im Besitz",
+          "in_stock": "An Lager",
+          "incomplete": "Unvollständig",
+          "broken": "Defekt"
         },
         "retired": {
           "all": "nicht ausgemustert & ausgemustert",
