@@ -24,14 +24,15 @@ feature "Inventory Pagination", type: :feature do
     validate_pagination_state(20, 20, "381-400", 20, 400)
 
     change_page_size(50)
-    validate_pagination_state(8, 50, "351-400", 8, 400)
+    validate_pagination_state(1, 50, "1-50", 8, 400)
 
     change_page_size(100)
-    validate_pagination_state(4, 100, "301-400", 4, 400)
+    validate_pagination_state(1, 100, "1-100", 4, 400)
 
     change_page_size(10)
-    validate_pagination_state_inner_pos(4, 10, "31-40", 40, 400)
+    validate_pagination_state_inner_pos(1, 10, "1-10", 40, 400)
 
+    visit_with_query_param("page", "4")
     validate_ellipsis_and_navigation(4, 3, 5)
     navigate_to_page(40)
     validate_prev_page(39)

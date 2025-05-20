@@ -5,25 +5,37 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc]]))
 
-(def profile* (atom nil))
-
 (defn root-layout []
-  (if-let [profile @profile*]
-    profile
-    (-> http-client
-        (.get "/inventory/profile")
-        (.then #(jc (.. % -data)))
-        (.then (fn [profile]
-                 (.. i18n (changeLanguage (-> profile :user_details :language_locale)))
-                 (reset! profile* profile)
-                 profile))
-        (.catch (fn [error] (js/console.log "error" error) #js {})))))
+  (-> http-client
+      (.get "/inventory/profile")
+      (.then (fn [res]
+               (let [data (jc (.. res -data))]
+                 (.. i18n (changeLanguage (-> data :user_details :language_locale)))
+                 data)))
+      (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn models-page [route-data]
-  (let [url (js/URL. (.. route-data -request -url))]
-    (-> http-client
-        (.get (str (.-pathname url) (.-search url)))
-        (.then #(jc (.. % -data))))))
+  (let [params (.. ^js route-data -params)
+        url (js/URL. (.. route-data -request -url))
+        categories (-> http-client
+                       (.get "/inventory/tree")
+                       (.then #(jc (.-data %))))
+
+        responsible-pools (-> http-client
+                              (.get (router/generatePath
+                                     "/inventory/:pool-id/responsible-inventory-pools"
+                                     params))
+                              (.then #(jc (.-data %))))
+
+        models (-> http-client
+                   (.get (str (.-pathname url) (.-search url)) #js {:cache false})
+                   (.then #(jc (.. % -data))))]
+
+    (.. (js/Promise.all (cond-> [categories models responsible-pools]))
+        (then (fn [[categories models responsible-pools]]
+                {:categories categories
+                 :responsible-pools responsible-pools
+                 :models models})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -37,7 +49,7 @@
                        (.then #(jc (.-data %))))
 
         models (-> http-client
-                   (.get "/inventory/models-compatibles")
+                   (.get "/inventory/models-compatibles" #js {:cache false})
                    (.then (fn [res]
                             (if (:model-id (jc params))
                               ;; If a model-id is provided, filter out the current model
@@ -47,7 +59,7 @@
                               (jc (.-data res))))))
 
         manufacturers (-> http-client
-                          (.get "/inventory/manufacturers?type=Model")
+                          (.get "/inventory/manufacturers?type=Model" #js {:cache false})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         model-path (when (:model-id (jc params))
@@ -55,7 +67,7 @@
 
         model (when model-path
                 (-> http-client
-                    (.get model-path)
+                    (.get model-path #js {:cache false})
                     (.then (fn [res]
                              (let [kv (jc (.-data res))]
                                (->> kv

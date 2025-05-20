@@ -7,6 +7,9 @@
 (defn page []
   (let [[t] (useTranslation)
         error (useRouteError)]
+
+    (js/console.error "error" error)
+
     ($ :div {:class-name "w-screen h-screen flex flex-col items-center justify-center"}
        ($ :h1 {:className "text-2xl font-bold"} (.. error -status))
        ($ :p (.. error -statusText) ": " (.. error -data))

@@ -114,7 +114,10 @@
                       ($ TableRow {:class-name "" :key index}
 
                          ($ TableCell {:class-name "w-0"}
-                            ($ Image {:class-name "w-10 h-10"}))
+                            (if (:cover_image_url field)
+                              ($ :img {:src (:cover_image_url field)
+                                       :class-name "min-w-10 h-10 object-cover rounded-sm"})
+                              ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
                          ($ TableCell {:class-name ""} (str (:product field) " " (:version field)))
 

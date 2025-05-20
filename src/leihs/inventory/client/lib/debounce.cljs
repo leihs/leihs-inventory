@@ -1,7 +1,17 @@
 (ns leihs.inventory.client.lib.debounce)
 
-(defn main [func & {:keys [timeout] :or {timeout 1000}}]
-  (let [timer (atom nil)]
+(defn debounce
+  "Returns a debounced version of function `f` that waits `delay-ms` milliseconds
+   after the last call before invoking `f`."
+  [f delay-ms]
+  (let [timeout-id (atom nil)
+        last-args (atom nil)]
     (fn [& args]
-      (js/clearTimeout @timer)
-      (reset! timer (js/setTimeout #(apply func args) timeout)))))
+      (reset! last-args args)
+      (when @timeout-id
+        (js/clearTimeout @timeout-id))
+      (reset! timeout-id
+              (js/setTimeout
+               (fn []
+                 (apply f @last-args))
+               delay-ms)))))
