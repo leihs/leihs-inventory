@@ -20,10 +20,19 @@
         (.catch (fn [error] (js/console.log "error" error) #js {})))))
 
 (defn models-page [route-data]
-  (let [url (js/URL. (.. route-data -request -url))]
-    (-> http-client
-        (.get (str (.-pathname url) (.-search url)))
-        (.then #(jc (.. % -data))))))
+  (let [url (js/URL. (.. route-data -request -url))
+        categories (-> http-client
+                       (.get "/inventory/tree")
+                       (.then #(jc (.-data %))))
+
+        models (-> http-client
+                   (.get (str (.-pathname url) (.-search url)))
+                   (.then #(jc (.. % -data))))]
+
+    (.. (js/Promise.all (cond-> [categories models]))
+        (then (fn [[categories models]]
+                {:categories categories
+                 :models models})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
