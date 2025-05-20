@@ -43,9 +43,9 @@
                     (dec current-page)
                     nil)
 
-        gen-page-number-str (fn [number]
-                              (.. search-params (set "page" number))
-                              (.. search-params (toString)))
+        gen-page-str (fn [number]
+                       (.. search-params (set "page" number))
+                       (.. search-params (toString)))
 
         gen-page-size-str (fn [value]
                             (.. search-params (set "size" value))
@@ -54,16 +54,21 @@
                             (.. search-params (toString)))
 
         handle-size-change (fn [value]
-                             (set-size-change! true)
                              (set-search-params! (gen-page-size-str value)))]
+
+    (uix/use-effect
+     (fn []
+       ;; when search-params change size potentially changes
+       (set-size-change! true))
+     [search-params])
 
     (uix/use-effect
      (fn []
         ;; if page number is greater than total pages reset page number to last page
        (when (and (> current-page total-pages) size-change)
-         (set-search-params! (gen-page-number-str total-pages))
+         (set-search-params! (gen-page-str total-pages))
          (set-size-change! false)))
-     [total-pages current-page gen-page-number-str
+     [total-pages current-page gen-page-str
       set-search-params! size-change])
 
     ($ :div {:class-name (str "flex " class-name)}
@@ -73,7 +78,7 @@
           (if prev-page
             ($ PaginationPrevious {:to (str (.. location -pathname)
                                             "?"
-                                            (gen-page-number-str prev-page))}
+                                            (gen-page-str prev-page))}
                ($ :span (t "pagination.previous")))
 
             ($ Button {:variant "link"
@@ -88,7 +93,7 @@
                   ($ PaginationItem
                      ($ PaginationLink {:to (str (.. location -pathname)
                                                  "?"
-                                                 (gen-page-number-str 1))}
+                                                 (gen-page-str 1))}
                         "1"))
                   ($ PaginationEllipsis)))
 
@@ -97,7 +102,7 @@
                ($ PaginationItem
                   ($ PaginationLink {:to (str (.. location -pathname)
                                               "?"
-                                              (gen-page-number-str prev-page))}
+                                              (gen-page-str prev-page))}
                      prev-page)))
 
              ;; current active page
@@ -105,7 +110,7 @@
                 ($ PaginationLink {:is-active true
                                    :to (str (.. location -pathname)
                                             "?"
-                                            (gen-page-number-str current-page))}
+                                            (gen-page-str current-page))}
                    current-page))
 
              ;; next page when not last page
@@ -115,25 +120,27 @@
                   ($ PaginationItem
                      ($ PaginationLink {:to (str (.. location -pathname)
                                                  "?"
-                                                 (gen-page-number-str next-page))}
+                                                 (gen-page-str next-page))}
                         next-page))
                   ($ PaginationEllipsis)))
 
              ;; last page
-             (when (not= current-page
-                         total-pages)
+             (when (and (not= current-page
+                              total-pages)
+                        (> total-rows 0))
                ($ PaginationItem
                   ($ PaginationLink {:to (str (.. location -pathname)
                                               "?"
-                                              (gen-page-number-str total-pages))}
+                                              (gen-page-str total-pages))}
                      total-pages))))
 
-             ;; next link
-          (if next-page
+          ;; next link
+          (if (and next-page
+                   (> total-rows 0))
             ($ PaginationNext {:disabled (not next-page)
                                :to (str (.. location -pathname)
                                         "?"
-                                        (gen-page-number-str next-page))}
+                                        (gen-page-str next-page))}
                ($ :span (t "pagination.next")))
 
             ($ Button {:variant "link"
@@ -157,7 +164,11 @@
              ($ DropdownMenuContent {:align "start"}
                 ($ DropdownMenuRadioGroup {:value size
                                            :onValueChange handle-size-change}
-                   ($ DropdownMenuRadioItem {:value 10} "10")
-                   ($ DropdownMenuRadioItem {:value 20} "20")
-                   ($ DropdownMenuRadioItem {:value 50} "50")
-                   ($ DropdownMenuRadioItem {:value 100} "100"))))))))
+                   ($ DropdownMenuRadioItem {:value 10}
+                      ($ :button {:type "button"} "10"))
+                   ($ DropdownMenuRadioItem {:value 20}
+                      ($ :button {:type "button"} "20"))
+                   ($ DropdownMenuRadioItem {:value 50}
+                      ($ :button {:type "button"} "50"))
+                   ($ DropdownMenuRadioItem {:value 100}
+                      ($ :button {:type "button"} "100")))))))))

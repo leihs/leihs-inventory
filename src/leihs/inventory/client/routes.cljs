@@ -23,7 +23,7 @@
     [{:path "/inventory"
       :id "root"
       :element ($ root-layout)
-      :errorElement ($ notfound-page)
+      ;; :errorElement ($ notfound-page)
       :loader loader/root-layout
       :children
       (cj
@@ -43,6 +43,7 @@
 
                  {:path "models"
                   :loader loader/models-page
+                  :id "models-page"
                   :element ($ models-page)}
 
                  {:path "items"

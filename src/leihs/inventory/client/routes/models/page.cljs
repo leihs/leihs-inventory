@@ -2,218 +2,236 @@
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/calendar" :refer [Calendar]]
    ["@@/card" :refer [Card CardContent CardHeader]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuCheckboxItem
-                               DropdownMenuContent DropdownMenuItem
-                               DropdownMenuTrigger]]
-   ["@@/input" :refer [Input]]
-   ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
-   ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
-                        SelectValue]]
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+                               DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["date-fns" :as date-fns]
-   ["lucide-react" :refer [CalendarDays Download Ellipsis Image Tags]]
+   ["lucide-react" :refer [Download Ellipsis Image Tags ListRestart]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [goog.functions]
    [leihs.inventory.client.components.pagination :as pagination]
+   [leihs.inventory.client.routes.models.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
+   [leihs.inventory.client.routes.models.components.borrowable-filter :refer [BorrowableFilter]]
+   [leihs.inventory.client.routes.models.components.category-filter :refer [CategoryFilter]]
+   [leihs.inventory.client.routes.models.components.inventory-pool-filter :refer [InventoryPoolFilter]]
+   [leihs.inventory.client.routes.models.components.retired-filter :refer [RetiredFilter]]
+   [leihs.inventory.client.routes.models.components.search-filter :refer [SearchFilter]]
+   [leihs.inventory.client.routes.models.components.status-filter :refer [StatusFilter]]
+   [leihs.inventory.client.routes.models.components.type-filter :refer [TypeFilter]]
+   [leihs.inventory.client.routes.models.components.with-items-filter :refer [WithItemsFilter]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(defn find-category-name [tree-list category-id]
+  (when tree-list
+    (some (fn [node]
+            (if (= (:category_id node) category-id)
+              (:name node)
+              (find-category-name (:children node) category-id)))
+          tree-list)))
+
 (defui page [{:keys [data]}]
-  (let [models (:data (router/useLoaderData))
+  (let [models (:data (:models (router/useLoaderData)))
         [t] (useTranslation)
         location (router/useLocation)
+        categories (:children (:categories (router/useRouteLoaderData "models-page")))
+        inventory-pools (:available_inventory_pools (router/useRouteLoaderData "root"))
         [search-params set-search-params!] (router/useSearchParams)
-        pagination (:pagination (router/useLoaderData))
+        pagination (:pagination (:models (router/useLoaderData)))
+        handle-reset (fn []
+                       (.delete search-params "owned")
+                       (.delete search-params "in_stock")
+                       (.delete search-params "incomplete")
+                       (.delete search-params "broken")
+                       (.delete search-params "before_last_check")
+                       (.delete search-params "category_id")
+                       (.delete search-params "inventory_pool_id")
+                       (.delete search-params "type")
+                       (.delete search-params "retired")
+                       (.delete search-params "borrowable")
+                       (.delete search-params "search")
 
-        retired (js/JSON.parse (.. search-params (get "retired")))
-        handle-retired (fn [e]
-                         (if (= e nil)
-                           (.delete search-params "retired")
-                           (.set search-params "retired" e))
-                         (set-search-params! search-params))
+                       (.set search-params "with_items" "true")
+                       (.set search-params "page" 1)
+                       (.set search-params "size" 50)
 
-        with_items (js/JSON.parse (.. search-params (get "with_items")))
-        handle-with-items (fn [e]
-                            (if (= e nil)
-                              (.delete search-params "with_items")
-                              (.set search-params "with_items" e))
-                            (set-search-params! search-params))
-
-        borrowable (js/JSON.parse (.. search-params (get "borrowable")))
-        handle-borrowable (fn [e]
-                            (if (= e nil)
-                              (.delete search-params "borrowable")
-                              (.set search-params "borrowable" e))
-                            (set-search-params! search-params))
-
-        before-last-check (.. search-params (get "before_last_check"))
-        handle-before-last-check (fn [date]
-                                   (let [formatted-date (date-fns/format date "yyyy-MM-dd")]
-                                     (if (= date nil)
-                                       (.delete search-params "before_last_check")
-                                       (.set search-params "before_last_check" formatted-date))
-                                     (set-search-params! search-params)))]
+                       (set-search-params! search-params))]
 
     ($ Card {:className "my-4"}
-       ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
+       ($ CardHeader {:className "flex sticky top-12 
+                      bg-white rounded-md z-10"}
           ($ :div
              ($ :div {:className "flex gap-2"}
-                ($ Input {:placeholder (t "pool.models.filters.search.placeholder")
-                          :name "search"
-                          :className "w-fit py-0"
-                          :onChange (fn [e]
-                                      (let [value (.. e -target -value)]
-                                        (if (= value "")
-                                          (.delete search-params "search")
-                                          (.set search-params "search" value))
-                                        (set-search-params! search-params)))})
-
-                ($ DropdownMenu
-                   ($ DropdownMenuTrigger {:asChild "true"}
-                      ($ Button {:variant "outline"}
-                         ($ Tags {:className "h-4 w-4 mr-2"}) "Inventar-Typ"))
-                   ($ DropdownMenuContent {:align "start"}
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Paket"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Model"))
-                      ($ DropdownMenuCheckboxItem
-                         ($ Link "Item"))))
-
-                ($ Button {:variant "outline"}
-                   ($ Tags {:className "h-4 w-4 mr-2"}) "Status")
-                ($ Button {:variant "outline"}
-                   ($ Tags {:className "h-4 w-4 mr-2"}) "Geraetepark")
-                ($ Button {:variant "outline"}
-                   ($ Tags {:className "h-4 w-4 mr-2"}) "Kategorien")
-
-                ($ Popover
-                   ($ PopoverTrigger {:asChild true}
-                      ($ Button {:variant "outline"}
-                         ($ CalendarDays {:className "h-4 w-4 mr-2"}) "Inventur vor"))
-
-                   ($ PopoverContent {:className "w-[280px]"}
-                      ($ Calendar {:mode "single"
-                                   :selected before-last-check
-                                   :onSelect handle-before-last-check})))
+                ($ SearchFilter)
+                ($ TypeFilter)
+                ($ StatusFilter)
+                ($ InventoryPoolFilter)
+                ($ CategoryFilter)
+                ($ BeforeLastCheckFilter)
 
                 ($ Button {:variant "outline" :className "ml-auto"}
                    ($ Download {:className "h-4 w-4 mr-2"}) "Export"))
 
              ($ :div {:className "flex gap-2 mt-2"}
-                ($ Select {:value retired
-                           :onValueChange handle-retired}
-                   ($ SelectTrigger {:name "retired"
-                                     :className "w-[240px]"}
-                      ($ SelectValue))
-                   ($ SelectContent
-                      ($ SelectItem {:data-test-id "all"
-                                     :value nil}
-                         (t "pool.models.filters.retired.all"))
-                      ($ SelectItem {:data-test-id "retired"
-                                     :value true}
-                         (t "pool.models.filters.retired.retired"))
-                      ($ SelectItem {:data-test-id "not_retired"
-                                     :value false}
-                         (t "pool.models.filters.retired.not_retired"))))
+                ($ RetiredFilter)
+                ($ WithItemsFilter)
+                ($ BorrowableFilter)
+                ($ Button {:size "icon"
+                           :variant "secondary"
+                           :on-click handle-reset}
+                   ($ ListRestart)))
 
-                ($ Select {:value with_items
-                           :onValueChange handle-with-items}
-                   ($ SelectTrigger {:name "with_items"
-                                     :className "w-[240px]"}
-                      ($ SelectValue))
-                   ($ SelectContent
-                      ($ SelectItem {:data-test-id "all"
-                                     :value nil}
-                         (t "pool.models.filters.with_items.all"))
-                      ($ SelectItem {:data-test-id "with_items"
-                                     :value true}
-                         (t "pool.models.filters.with_items.with_items"))
-                      ($ SelectItem {:data-test-id "without_items"
-                                     :value false}
-                         (t "pool.models.filters.with_items.without_items"))))
+             ($ :div {:className "flex space-x-2 mt-2"}
+                (let [entries (.. search-params (entries))]
+                  (for [[key value] entries]
+                    ($ :<> {:key (str key value)}
+                       (cond
+                         (= key "owned")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.status.owned")
+                                 ": "
+                                 (if (= value "true") (t "pool.models.filters.status.yes")
+                                     (t "pool.models.filters.status.no"))))
 
-                ($ Select {:value borrowable
-                           :onValueChange handle-borrowable}
-                   ($ SelectTrigger {:name "borrowable"
-                                     :className "w-[240px]"}
-                      ($ SelectValue))
-                   ($ SelectContent
-                      ($ SelectItem {:data-test-id "all"
-                                     :value nil}
-                         (t "pool.models.filters.borrowable.all"))
-                      ($ SelectItem {:data-test-id "borrowable"
-                                     :value true}
-                         (t "pool.models.filters.borrowable.borrowable"))
-                      ($ SelectItem {:data-test-id "not_borrowable"
-                                     :value false}
-                         (t "pool.models.filters.borrowable.not_borrowable")))))))
+                         (= key "in_stock")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.status.in_stock")
+                                 ": "
+                                 (if (= value "true") (t "pool.models.filters.status.yes")
+                                     (t "pool.models.filters.status.no"))))
+
+                         (= key "incomplete")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.status.incomplete")
+                                 ": "
+                                 (if (= value "true") (t "pool.models.filters.status.yes")
+                                     (t "pool.models.filters.status.no"))))
+
+                         (= key "broken")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.status.broken")
+                                 ": "
+                                 (if (= value "true") (t "pool.models.filters.status.yes")
+                                     (t "pool.models.filters.status.no"))))
+
+                         (= key "before_last_check")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.before_last_check.title")
+                                 ": "
+                                 (str value)))
+
+                         (= key "category_id")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.categories.title")
+                                 ": "
+                                 (find-category-name categories value)))
+
+                         (= key "inventory_pool_id")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.inventory_pool.title")
+                                 ": "
+                                 (:name (first (filter #(= (:id %) value) inventory-pools)))))
+
+                         (= key "type")
+                         ($ Badge {:key (str key value)
+                                   :variant "secondary"
+                                   :class-name "rounded-full"}
+                            (str (t "pool.models.filters.type.title")
+                                 ": "
+                                 (t (str "pool.models.filters.type." value)))))))))))
 
        ($ pagination/main {:pagination pagination
                            :class-name "justify-start p-6"})
 
        ($ CardContent
           ($ :section {:className "rounded-md border"}
-             ($ Table
-                ($ TableHeader
-                   ($ TableRow
-                      ($ TableHead "")
-                      ($ TableHead (t "pool.models.list.header.amount"))
-                      ($ TableHead "")
-                      ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
-                      ($ TableHead (t "pool.models.list.header.availability"))
-                      ($ TableHead "")))
-                ($ TableBody
-                   (for [model models]
-                     ($ TableRow {:key (-> model :id)}
-                        ($ TableCell
-                           ($ Button {:variant "outline"
-                                      :size "icon"} "+"))
 
-                        ($ TableCell (-> model :total str))
+             (if (not (seq models))
+               ($ :div {:className "flex p-6 justify-center"}
+                  (t "pool.models.list.empty"))
 
-                        ($ TableCell
-                           ($ :div {:className "flex gap-2"}
-                              ($ Image)
-                              ($ Badge {:className (if (= (-> model :type) "Paket")
-                                                     "bg-lime-500"
-                                                     "bg-slate-600")}
-                                 (str (-> model :type)))))
+               ($ Table
+                  ($ TableHeader
+                     ($ TableRow
+                        ($ TableHead "")
+                        ($ TableHead (t "pool.models.list.header.amount"))
+                        ($ TableHead "")
+                        ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
+                        ($ TableHead (t "pool.models.list.header.availability"))
+                        ($ TableHead "")))
+                  ($ TableBody
 
-                        ($ TableCell {:className "font-bold"}
-                           (str (:product model) " " (:version model)))
+                     (for [model models]
+                       ($ TableRow {:key (-> model :id)}
+                          ($ TableCell
+                             ($ Button {:variant "outline"
+                                        :size "icon"} "+"))
 
-                        ($ TableCell {:className "text-right"}
-                           (str (-> model :available str) " | " (-> model :total str)))
+                          ($ TableCell (-> model :total str))
 
-                        ($ TableCell {:className "fit-content"}
-                           ($ :div {:className "flex gap-2"}
+                          ($ TableCell
+                             ($ :div {:className "flex gap-2"}
+                                ($ Image)
+                                ($ Badge {:className (cond
+                                                       (-> model :is_package)
+                                                       "bg-lime-500"
 
-                              ($ Button {:variant "outline"}
-                                 ($ Link {:state #js {:searchParams (.. location -search)}
-                                          :to (str (:id model))
-                                          :viewTransition true}
-                                    (t "pool.models.list.actions.edit")))
+                                                       (and (= (-> model :type) "Model")
+                                                            (not (:is_package model)))
+                                                       "bg-slate-500"
 
-                              ($ DropdownMenu
-                                 ($ DropdownMenuTrigger {:asChild "true"}
-                                    ($ Button {:variant "secondary"
-                                               :size "icon"}
-                                       ($ Ellipsis {:className "h-4 w-4"})))
-                                 ($ DropdownMenuContent {:align "start"}
-                                    ($ DropdownMenuItem
-                                       ($ Link {:to (str (:id model) "/items/create")
-                                                :state #js {:searchParams (.. location -search)}
-                                                :viewTransition true}
-                                          (t "pool.models.list.actions.add_item")))))))))))))
+                                                       (= (-> model :type) "Option")
+                                                       "bg-emerald-500"
+
+                                                       (= (-> model :type) "Software")
+                                                       "bg-orange-500")}
+
+                                   (str (if (:is_package model)
+                                          (t "pool.models.filters.type.package")
+                                          (-> model :type))))))
+
+                          ($ TableCell {:className "font-bold"}
+                             (str (:product model) " " (:version model)))
+
+                          ($ TableCell {:className "text-right"}
+                             (str (-> model :available str) " | " (-> model :total str)))
+
+                          ($ TableCell {:className "fit-content"}
+                             ($ :div {:className "flex gap-2"}
+
+                                ($ Button {:variant "outline"}
+                                   ($ Link {:state #js {:searchParams (.. location -search)}
+                                            :to (str (:id model))
+                                            :viewTransition true}
+                                      (t "pool.models.list.actions.edit")))
+
+                                ($ DropdownMenu
+                                   ($ DropdownMenuTrigger {:asChild "true"}
+                                      ($ Button {:variant "secondary"
+                                                 :size "icon"}
+                                         ($ Ellipsis {:className "h-4 w-4"})))
+                                   ($ DropdownMenuContent {:align "start"}
+                                      ($ DropdownMenuItem
+                                         ($ Link {:to (str (:id model) "/items/create")
+                                                  :state #js {:searchParams (.. location -search)}
+                                                  :viewTransition true}
+                                            (t "pool.models.list.actions.add_item"))))))))))))))
 
        ($ pagination/main {:pagination pagination
                            :class-name "p-6 pt-0"}))))
