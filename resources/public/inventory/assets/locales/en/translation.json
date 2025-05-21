@@ -45,6 +45,11 @@
           "incomplete": "Incomplete",
           "broken": "Broken"
         },
+        "inventory_pool": {
+          "title": "Inventory pool",
+          "placeholder": "Select inventory pool",
+          "not_found": "Inventory pool not found"
+        },
         "retired": {
           "all": "retired & not retired",
           "retired": "retired",

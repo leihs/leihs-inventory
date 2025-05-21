@@ -45,6 +45,11 @@
           "incomplete": "Unvollständig",
           "broken": "Defekt"
         },
+        "inventory_pool": {
+          "title": "Gerätepark",
+          "placeholder": "Gerätepark auswählen",
+          "not_found": "Gerätepark nicht gefunden"
+        },
         "retired": {
           "all": "nicht ausgemustert & ausgemustert",
           "retired": "ausgemustert",
