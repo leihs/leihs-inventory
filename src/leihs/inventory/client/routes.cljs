@@ -43,6 +43,7 @@
 
                  {:path "models"
                   :loader loader/models-page
+                  :id "models-page"
                   :element ($ models-page)}
 
                  {:path "items"

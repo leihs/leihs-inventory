@@ -14,6 +14,7 @@
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.routes.models.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.models.components.borrowable-filter :refer [BorrowableFilter]]
+   [leihs.inventory.client.routes.models.components.category-filter :refer [CategoryFilter]]
    [leihs.inventory.client.routes.models.components.inventory-pool-filter :refer [InventoryPoolFilter]]
    [leihs.inventory.client.routes.models.components.retired-filter :refer [RetiredFilter]]
    [leihs.inventory.client.routes.models.components.search-filter :refer [SearchFilter]]
@@ -24,10 +25,10 @@
    [uix.dom]))
 
 (defui page [{:keys [data]}]
-  (let [models (:data (router/useLoaderData))
+  (let [models (:data (:models (router/useLoaderData)))
         [t] (useTranslation)
         location (router/useLocation)
-        pagination (:pagination (router/useLoaderData))]
+        pagination (:pagination (:models (router/useLoaderData)))]
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
@@ -41,6 +42,7 @@
 
                 ($ Button {:variant "outline"}
                    ($ Tags {:className "h-4 w-4 mr-2"}) "Kategorien")
+                ($ CategoryFilter)
 
                 ($ BeforeLastCheckFilter)
 
