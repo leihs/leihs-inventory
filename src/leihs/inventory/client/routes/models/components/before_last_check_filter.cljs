@@ -14,7 +14,7 @@
         before-last-check (.. search-params (get "before_last_check"))
         handle-before-last-check (fn [date]
                                    (let [formatted-date (date-fns/format date "yyyy-MM-dd")]
-                                     (if (= date nil)
+                                     (if (or (= date nil) (= formatted-date before-last-check))
                                        (.delete search-params "before_last_check")
                                        (.set search-params "before_last_check" formatted-date))
                                      (set-search-params! search-params)))]

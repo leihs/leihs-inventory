@@ -5,7 +5,6 @@
    ["@@/card" :refer [Card CardContent CardHeader]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
-   ["@@/input" :refer [Input]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Download Ellipsis Image Tags]]
@@ -17,6 +16,7 @@
    [leihs.inventory.client.routes.models.components.borrowable-filter :refer [BorrowableFilter]]
    [leihs.inventory.client.routes.models.components.inventory-pool-filter :refer [InventoryPoolFilter]]
    [leihs.inventory.client.routes.models.components.retired-filter :refer [RetiredFilter]]
+   [leihs.inventory.client.routes.models.components.search-filter :refer [SearchFilter]]
    [leihs.inventory.client.routes.models.components.status-filter :refer [StatusFilter]]
    [leihs.inventory.client.routes.models.components.type-filter :refer [TypeFilter]]
    [leihs.inventory.client.routes.models.components.with-items-filter :refer [WithItemsFilter]]
@@ -27,22 +27,13 @@
   (let [models (:data (router/useLoaderData))
         [t] (useTranslation)
         location (router/useLocation)
-        [search-params set-search-params!] (router/useSearchParams)
         pagination (:pagination (router/useLoaderData))]
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex sticky top-12 bg-white rounded-md z-10"}
           ($ :div
              ($ :div {:className "flex gap-2"}
-                ($ Input {:placeholder (t "pool.models.filters.search.placeholder")
-                          :name "search"
-                          :className "w-fit py-0"
-                          :onChange (fn [e]
-                                      (let [value (.. e -target -value)]
-                                        (if (= value "")
-                                          (.delete search-params "search")
-                                          (.set search-params "search" value))
-                                        (set-search-params! search-params)))})
+                ($ SearchFilter)
 
                 ($ TypeFilter)
                 ($ StatusFilter)
