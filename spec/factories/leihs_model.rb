@@ -17,6 +17,7 @@ end
 FactoryBot.modify do
   factory :leihs_model do
     product { Faker::Commerce.product_name }
+    version { Faker::Commerce.color }
 
     transient do
       categories { [] }

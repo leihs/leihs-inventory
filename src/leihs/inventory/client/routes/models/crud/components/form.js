@@ -70,7 +70,7 @@ export const structure = [
     title: "pool.model.product.title",
     blocks: [
       {
-        name: "is-package",
+        name: "is_package",
         label: "pool.model.product.blocks.package.label",
         component: "checkbox",
         props: {
