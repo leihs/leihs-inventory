@@ -13,10 +13,14 @@ feature "Create model", type: :feature do
   let(:internal_description) { Faker::Lorem.paragraph }
   let(:hand_over_note) { Faker::Lorem.paragraph }
 
-  let!(:entitlement_group_1) { FactoryBot.create(:entitlement_group,
-                                                 inventory_pool: pool) }
-  let!(:entitlement_group_2) { FactoryBot.create(:entitlement_group,
-                                                 inventory_pool: pool) }
+  let!(:entitlement_group_1) {
+    FactoryBot.create(:entitlement_group,
+      inventory_pool: pool)
+  }
+  let!(:entitlement_group_2) {
+    FactoryBot.create(:entitlement_group,
+      inventory_pool: pool)
+  }
 
   let!(:parent_category_1) { FactoryBot.create(:category) }
   let!(:parent_category_1_1) { FactoryBot.create(:category) }
@@ -45,9 +49,9 @@ feature "Create model", type: :feature do
 
   before(:each) do
     FactoryBot.create(:access_right,
-                      inventory_pool: pool,
-                      user: user,
-                      role: :inventory_manager)
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
 
     parent_category_1.add_child(parent_category_1_1)
     parent_category_1.add_child(parent_category_1_2)
@@ -64,8 +68,7 @@ feature "Create model", type: :feature do
     click_on "Add inventory"
     click_on "New model"
 
-    # FIXME:
-    # click_on "this is a package"
+    click_on "this is a package"
     fill_in "Product", with: product
     fill_in "Version", with: version
     # FIXME:
@@ -176,12 +179,10 @@ feature "Create model", type: :feature do
     end
 
     within id: "pool.model.compatible_models.title" do
-      # FIXME: version is not displayed
-      # find("tr", text: "#{compatible_model_1.product} #{compatible_model_1.version}")
-      # find("tr", text: "#{compatible_model_2.product} #{compatible_model_2.version}")
- 
-      # FIXME: exclude self in the list
+      find("tr", text: "#{compatible_model_1.product} #{compatible_model_1.version}")
+      find("tr", text: "#{compatible_model_2.product} #{compatible_model_2.version}")
     end
+    # FIXME: exclude self in the list
 
     within id: "pool.model.model_properties.title" do
       assert_field("properties.0.key", first_property_key)
