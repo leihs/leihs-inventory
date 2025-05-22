@@ -1,4 +1,5 @@
 class EntitlementGroup < Sequel::Model(:entitlement_groups)
+  many_to_one :inventory_pool
 end
 
 FactoryBot.define do

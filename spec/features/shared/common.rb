@@ -6,3 +6,19 @@ def login(user)
   fill_in("password", with: user.password)
   click_on("Continue")
 end
+
+def assert_checked(el)
+  expect(el["data-state"]).to eq "checked"
+end
+
+def assert_unchecked(el)
+  expect(el["data-state"]).to eq "unchecked"
+end
+
+def assert_field(label, value)
+  expect(find_field(label).value).to eq value
+end
+
+def fill_in_command_field(placeholder, value)
+  find("input[placeholder='#{placeholder}']").set value
+end
