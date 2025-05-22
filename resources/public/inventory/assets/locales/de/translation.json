@@ -35,10 +35,23 @@
           "title": "Inventar-Typ",
           "model": "Modell",
           "package": "Paket",
-          "item": "Gegenstand",
           "option": "Option",
-          "software": "Software",
-          "software-license": "Software-Lizenz"
+          "software": "Software"
+        },
+        "status": {
+          "title": "Status",
+          "owned": "Im Besitz",
+          "in_stock": "An Lager",
+          "incomplete": "Unvollständig",
+          "broken": "Defekt"
+        },
+        "categories": {
+          "title": "Kategorien"
+        },
+        "inventory_pool": {
+          "title": "Gerätepark",
+          "placeholder": "Gerätepark auswählen",
+          "not_found": "Gerätepark nicht gefunden"
         },
         "retired": {
           "all": "nicht ausgemustert & ausgemustert",
@@ -68,6 +81,7 @@
         "entitlement_groups": "Anspruchsgruppen"
       },
       "list": {
+        "empty": "Keine Modelle gefunden",
         "header": {
           "amount": "Menge",
           "name": "Name",
