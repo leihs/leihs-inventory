@@ -58,16 +58,13 @@
       (sql/from :models)
       (sql/order-by [[:trim [:|| :models.product :models.version]] :asc])))
 
-(def DEFAULT-ORDER-BY
-  [[:trim [:|| :inventory.product :inventory.version]] :asc])
-
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*)
       (sql/from :inventory)
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])
-      (sql/order-by DEFAULT-ORDER-BY)))
+      (sql/order-by :name)))
 
 (defn filter-by-type [query type]
   (-> query
