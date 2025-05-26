@@ -32,13 +32,26 @@
           "placeholder": "Filter by term"
         },
         "type": {
-          "title": "Inventory Type",
+          "title": "Inventory type",
           "model": "Model",
           "package": "Package",
-          "item": "Item",
           "option": "Option",
-          "software": "Software",
-          "software-license": "Software License"
+          "software": "Software"
+        },
+        "status": {
+          "title": "Status",
+          "owned": "Owned",
+          "in_stock": "In stock",
+          "incomplete": "Incomplete",
+          "broken": "Broken"
+        },
+        "categories": {
+          "title": "Categories"
+        },
+        "inventory_pool": {
+          "title": "Inventory pool",
+          "placeholder": "Select inventory pool",
+          "not_found": "Inventory pool not found"
         },
         "retired": {
           "all": "retired & not retired",
@@ -68,6 +81,7 @@
         "entitlement_groups": "Entitlement Groups"
       },
       "list": {
+        "empty": "No models found",
         "header": {
           "amount": "Amount",
           "name": "Name",
