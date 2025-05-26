@@ -11,6 +11,7 @@ response = {
   "manufacturer" => [NilClass, String], # TODO: remove
   "product" => String,
   "version" => [NilClass, String],
+  "name" => String,
   "price" => [NilClass, Numeric]
 }
 

@@ -22,45 +22,9 @@ post_response = {
   "info_url" => [NilClass, String],
   "id" => String,
   "manufacturer" => String,
-  "version" => String,
+  "version" => [NilClass, String],
+  "name" => String,
   "created_at" => String,
-  "technical_detail" => String
-}
-{
-  "description" => String,
-  "is_package" => [TrueClass, FalseClass],
-  "maintenance_period" => Numeric,
-  "type" => String,
-  "cover_image_id" => [NilClass, String],
-  "hand_over_note" => String,
-  "updated_at" => String,
-  "internal_description" => String,
-  "product" => String,
-  "info_url" => [NilClass, String],
-  "id" => String,
-  "manufacturer" => String,
-  "version" => String,
-  "created_at" => String,
-  "technical_detail" => String
-}
-
-{
-  "description" => String,
-  "properties" => Array,
-  "is_package" => [TrueClass, FalseClass],
-  "accessories" => Array,
-  "entitlements" => Array,
-  "images" => Array,
-  "attachments" => Array,
-  "type" => String,
-  "hand_over_note" => String,
-  "internal_description" => String,
-  "product" => String,
-  "categories" => Array,
-  "id" => String,
-  "compatibles" => Array,
-  "manufacturer" => String,
-  "version" => String,
   "technical_detail" => String
 }
 

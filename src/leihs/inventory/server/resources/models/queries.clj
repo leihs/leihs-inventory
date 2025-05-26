@@ -64,7 +64,7 @@
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])
-      (sql/order-by :name)))
+      (sql/order-by [[:regexp_replace :inventory.name "^\\s+|\\s+$" ""]])))
 
 (defn filter-by-type [query type]
   (-> query
@@ -124,13 +124,14 @@
                 (cond-> (boolean? incomplete)
                   (sql/where [:= :items.is_incomplete incomplete])))]))
 
-(defn without-items [query]
+(defn without-items [query pool-id]
   (-> query
       (sql/where [:<> :inventory.type "Option"])
       (sql/where
        [:not [:exists (-> (sql/select 1)
                           (sql/from :items)
-                          (sql/where [:= :items.model_id :inventory.id]))]])))
+                          (sql/where [:= :items.model_id :inventory.id])
+                          (sql/where (owner-or-responsible-cond pool-id)))]])))
 
 (defn with-search [query search]
   (sql/where query [:ilike

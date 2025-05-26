@@ -82,7 +82,7 @@
                        :before_last_check before_last_check)
 
                      (and pool_id (false? with_items))
-                     without-items
+                     (without-items pool_id)
 
                      (and pool_id (presence search))
                      (with-search search))

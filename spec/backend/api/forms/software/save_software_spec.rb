@@ -91,7 +91,7 @@ describe "Inventory Model Management" do
       expect(resp.status).to eq(200)
       expect(resp.body["data"].count).to be
       expect(resp.body["validation"].count).to eq(0)
-      expect(resp.body["data"].keys.count).to eq(16)
+      expect(resp.body["data"].keys.count).to eq(17) # including `name`
 
       model_id = resp.body["data"]["id"]
       expect(Attachment.where(model_id: model_id).count).to eq(1)

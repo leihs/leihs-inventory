@@ -211,8 +211,9 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/models"
     select_value("with_items", "without_items")
 
-    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr").count).to eq 2
     expect(all("table tbody tr")[0]).to have_content(model_1.version)
+    expect(all("table tbody tr")[1]).to have_content(model_7.version)
 
     visit "/inventory/#{pool_1.id}/models?page=1&size=20"
     expect(all("table tbody tr").count).to eq 11
