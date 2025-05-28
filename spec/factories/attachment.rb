@@ -5,6 +5,9 @@ end
 
 FactoryBot.define do
   factory :attachment do
+    leihs_model
+    item { nil }
+
     transient do
       real_filename { "secd.pdf" }
     end

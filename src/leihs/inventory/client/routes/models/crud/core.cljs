@@ -7,13 +7,12 @@
   (js/Promise.
    (fn [resolve reject]
      (-> http-client
-         (.get url #js {:headers #js {:Accept type
-                                      :Content-Type type}
+         (.get url #js {:headers #js {:Accept "image/*"}
                         :responseType "blob"})
 
          (.then (fn [response]
                   (let [blob (.-data response)
-                        file (js/File. #js [blob] name #js {:type type})]
+                        file (js/File. #js [blob] name #js {:type "image/*"})]
                     (resolve file))))
 
          (.catch (fn [error]

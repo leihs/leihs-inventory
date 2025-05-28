@@ -51,7 +51,7 @@
     (jdbc/execute! tx query)))
 
 (defn fetch-compatibles [tx model-id]
-  (let [query (-> (sql/select :mm.id :mm.product
+  (let [query (-> (sql/select :mm.id :mm.product :mm.version
                               (create-image-url :mm :cover_image_url)
                               :mm.cover_image_id)
                   (sql/from [:models_compatibles :mc])

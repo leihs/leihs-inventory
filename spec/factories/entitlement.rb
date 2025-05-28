@@ -9,6 +9,6 @@ FactoryBot.define do
     # updated_at { Time.now }
     entitlement_group
     leihs_model
-    # quantity
+    quantity { 1 }
   end
 end

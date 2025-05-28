@@ -43,7 +43,7 @@ describe "Inventory API Endpoints" do
 
         before :each do
           compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-          model_with_props.add_recommend(compatible_model)
+          model_with_props.add_compatible_model(compatible_model)
         end
 
         it "returns paginated compatible models with status 200" do

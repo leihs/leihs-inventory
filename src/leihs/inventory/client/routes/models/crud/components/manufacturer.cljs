@@ -17,8 +17,10 @@
         [t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
+
         get-values (aget form "getValues")
         set-value (aget form "setValue")
+
         input-ref (uix/use-ref nil)
         list-ref (uix/use-ref nil)
 
@@ -31,11 +33,6 @@
                                 (.preventDefault e)
                                 (.stopPropagation e)
                                 (when open (set-open! false)))
-
-                              (and (not (= key "Escape"))
-                                   (not (= key "Tab"))
-                                   (not (= key "ArrowDown")))
-                              (set-open! true)
 
                               (= key "ArrowDown")
                               (do
@@ -82,7 +79,18 @@
                                              (.focus)))
 
                                    :else
-                                   nil)))]
+                                   nil)))
+
+        handle-change (fn [e]
+                        (let [value (.. e -target -value)
+                              has-items? (some #(str/includes? (str/lower-case %)
+                                                               (str/lower-case value))
+                                               manufacturers)]
+
+                          (set-value "manufacturer" value)
+                          (if (or (str/blank? value) (= has-items? nil))
+                            (set-open! false)
+                            (set-open! true))))]
 
     (uix/use-effect
      (fn []
@@ -101,10 +109,10 @@
                           ($ PopoverAnchor {:asChild true}
                              ($ :div {:ref input-ref}
                                 ($ FormControl
-                                   ($ Input (merge {:auto-complete "off"
-                                                    :on-key-down handle-key-down}
-
-                                                   (:field (jc %)))))))
+                                   ($ Input (merge (:field (jc %))
+                                                   {:auto-complete "off"
+                                                    :on-key-down handle-key-down
+                                                    :on-change handle-change})))))
 
                           ($ PopoverContent {:class-name "p-0"
                                              :on-key-down handle-key-down-list
@@ -128,7 +136,8 @@
                                                                         (.focus)))
                                              :style {:width (str width "px")}}
 
-                             ($ :ul {:ref list-ref}
+                             ($ :ul {:class-name "max-h-60 overflow-y-auto overflow-x-hidden p-2"
+                                     :ref list-ref}
                                 (for [manufacturer manufacturers]
                                   (when (str/includes? (str/lower-case manufacturer)
                                                        (str/lower-case (get-values "manufacturer")))

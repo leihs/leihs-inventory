@@ -135,7 +135,7 @@
 
 (defn with-search [query search]
   (sql/where query [:ilike
-                    [:concat_ws ", "
+                    [:concat_ws " "
                      :inventory.manufacturer :inventory.product :inventory.version]
                     (str "%" search "%")]))
 
