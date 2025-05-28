@@ -83,7 +83,7 @@ describe "Inventory Model" do
 
         it "ensures models compatible data is fetched" do
           expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(3)
+          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
         end
 
         it "ensures model groups data is fetched" do

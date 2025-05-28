@@ -89,7 +89,9 @@
 
                                      ($ Button {:variant "outline"
                                                 :size "icon"
-                                                :className "cursor-pointer"
+
+                                                ;; not sure why this is not added automatically
+                                                :type "button"
                                                 :on-click #(remove index)}
                                         ($ Trash {:className "w-4 h-4"})))))))
                        fields)))))))

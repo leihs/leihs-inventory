@@ -280,11 +280,4 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_5.id}/models?with_items=true"
     expect(all("table tbody tr").count).to eq 0
   end
-
-  def select_value(name, value)
-    filter = find("button[name='#{name}']")
-    filter.click
-    expect(page).to have_css("[data-test-id='#{value}']", wait: 10)
-    find("div[data-test-id='#{value}']", match: :first).click
-  end
 end

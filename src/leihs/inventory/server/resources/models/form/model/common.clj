@@ -18,7 +18,7 @@
    [pantomime.extract :as extract]
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [error spy]])
   (:import [java.io File FileInputStream ByteArrayOutputStream]
            [java.net URL JarURLConnection]
            (java.time LocalDateTime)
@@ -76,36 +76,14 @@
     (response/response result)))
 
 (defn delete-image
-  "Process:
-            - Reset `cover_image_id` in the model if it matches the image ID.
-            - Delete the image and its related entries."
   [req]
   (let [tx (:tx req)
         {:keys [model_id image_id]} (:path (:parameters req))
-        id (to-uuid image_id)
-        row (jdbc/execute-one! tx
-                               (-> (sql/select :cover_image_id)
-                                   (sql/from :models)
-                                   (sql/where [:= :id model_id])
-                                   sql-format))]
-
-    (when (= (:cover_image_id row) id)
-      (jdbc/execute! tx
-                     (-> (sql/update :models)
-                         (sql/set {:cover_image_id nil})
-                         (sql/where [:= :id model_id])
-                         sql-format)))
-
+        id (to-uuid image_id)]
     (let [res (jdbc/execute-one! tx
                                  (sql-format
-                                  {:with [[:ordered_images
-                                           {:select [:id]
-                                            :from [:images]
-                                            :where [:or [:= :parent_id id] [:= :id id]]
-                                            :order-by [[:parent_id :asc]]}]]
-                                   :delete-from :images
-                                   :where [:in :id {:select [:id] :from [:ordered_images]}]}))]
-      (if (= (:next.jdbc/update-count res) 2)
+                                  {:delete-from :images :where [:= :id id]}))]
+      (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
         (bad-request {:error "Failed to delete image"})))))
 

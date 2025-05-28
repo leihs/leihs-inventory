@@ -16,7 +16,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error spy]])
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
@@ -58,15 +58,17 @@
   (try
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
-          base-query (-> (sql/select-distinct [:m2.id :model_id] :m2.product
-                                              (create-image-url :m2 :cover_image_url)
-                                              :m2.cover_image_id)
-                         (sql/from [:models_compatibles :mc])
-                         (sql/join [:models :m] [:= :mc.model_id :m.id])
-                         (sql/join [:models :m2] [:= :mc.compatible_id :m2.id])
-                         (sql/left-join [:images :i] [:= :m.cover_image_id :i.id])
-                         (cond-> model_id (sql/where [:= :m.id model_id]))
-                         (sql/order-by [:m2.product :asc]))
+          base-query (-> (sql/select [:models.id :model_id]
+                                     :models.product
+                                     :models.version
+                                     (create-image-url :models :cover_image_url)
+                                     :models.cover_image_id)
+                         (sql/from :models)
+                         (sql/left-join :images [:= :models.cover_image_id :images.id])
+                         (cond-> model_id
+                           (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
+                               (sql/where [:= :models.id model_id])))
+                         (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
         (-> (jdbc/execute! tx (-> base-query sql-format))

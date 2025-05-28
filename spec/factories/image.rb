@@ -9,14 +9,17 @@ FactoryBot.define do
     transient do
       real_filename { "lisp-machine.jpg" }
       thumbnails { [] }
+      target { create(:leihs_model) }
     end
 
     trait :for_leihs_model do
       target_type { "Model" }
+      target_id { target&.id || create(:leihs_model).id }
     end
 
     trait :for_category do
       target_type { "ModelGroup" }
+      target_id { target&.id || create(:category).id }
     end
 
     filename { real_filename }

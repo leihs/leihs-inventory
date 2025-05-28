@@ -30,11 +30,24 @@
         [t] (useTranslation)
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
+        [search set-search!] (uix/use-state "")
         buttonRef (uix/use-ref nil)
+        [filtered-models set-filtered-models!] (uix/use-state [])
 
         {:keys [fields append remove]} (jc (hook-form/useFieldArray
                                             (cj {:control control
                                                  :name "compatibles"})))]
+
+    (uix/use-effect
+     (fn []
+       (let [filtered (filter #(str/starts-with?
+                                (str/lower-case (:product %))
+                                (str/lower-case search))
+                              models)]
+         (if (= search "")
+           (set-filtered-models! [])
+           (set-filtered-models! filtered))))
+     [models search])
 
     (uix/use-effect
      (fn []
@@ -44,7 +57,10 @@
 
     ($ :div {:class-name "flex flex-col gap-2"}
        ($ Popover {:open open
-                   :on-open-change #(set-open! %)}
+                   :on-open-change #(do
+                                      (set-search! "")
+                                      (set-filtered-models! [])
+                                      (set-open! %))}
           ($ PopoverTrigger {:as-child true}
              ($ Button {:variant "outline"
                         :role "combobox"
@@ -56,23 +72,21 @@
 
           ($ PopoverContent {:class-name "p-0"
                              :style {:width (str width "px")}}
-             ($ Command
-                {:filter (fn [value search]
-                           (let [lSearch (str/lower-case search)
-                                 lValue (str/lower-case value)]
-                             (if (str/includes? lValue lSearch) 1 0)))}
+
+             ($ Command {:on-change #(set-search! (.. % -target -value))}
                 ($ CommandInput {:placeholder (t "pool.model.compatible_models.blocks.compatible_models.search")})
-                ($ CommandList
+                ($ CommandList {:data-test-id "compatible-models-list"}
 
                    ($ CommandEmpty (t "pool.model.compatible_models.blocks.compatible_models.not_found"))
 
-                   (for [model models]
+                   (for [model filtered-models]
                      ($ CommandItem {:key (:model_id model)
-                                     :value (:product model)
+                                     :value (str (:product model) " " (:version model))
                                      :on-select #(do (set-open! false)
                                                      (if
                                                       (not (check-path-existing (:product model) fields))
                                                        (append (cj {:product (:product model)
+                                                                    :version (:version model)
                                                                     :id (:model_id model)
                                                                     :cover_image_id (:cover_image_id model)
                                                                     :cover_image_url (:cover_image_url model)}))
@@ -87,7 +101,7 @@
                            {:class-name (str (when (= 1 (:level model)) " font-bold ")
                                              (when (= 2 (:level model)) " font-medium ")
                                              " truncate")}
-                           (:product model))))))))
+                           (str (:product model) " " (:version model)))))))))
 
        (when (not-empty fields)
          ($ :div {:class-name "rounded-md border overflow-hidden"}
@@ -102,7 +116,7 @@
                          ($ TableCell {:class-name "w-0"}
                             ($ Image {:class-name "w-10 h-10"}))
 
-                         ($ TableCell {:class-name ""} (:product field))
+                         ($ TableCell {:class-name ""} (str (:product field) " " (:version field)))
 
                          ($ TableCell {:class-name "flex gap-2 justify-end"}
                             ($ Button {:variant "outline"

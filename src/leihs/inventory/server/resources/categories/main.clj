@@ -39,6 +39,7 @@
                     ;(sql/where [:= :gar.inventory_pool_id pool_id])
                     (cond-> group_id (sql/where [:= :g.id group_id]))
                     (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
+                    (sql/order-by :g.name)
                     (sql/limit 50)
                     sql-format)
           result (jdbc/query tx query)]

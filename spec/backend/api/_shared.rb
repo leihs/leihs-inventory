@@ -223,7 +223,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model1)
+    model.add_compatible_model(compatible_model1)
 
     image = add_image_to_model(compatible_model1)
     update_cover_image(compatible_model1, image)
@@ -231,12 +231,12 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model2)
+    model.add_compatible_model(compatible_model2)
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
     @models << model
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model3)
+    model.add_compatible_model(compatible_model3)
 
     image = add_image_to_model(compatible_model3)
     update_cover_image(compatible_model3, image)
@@ -263,15 +263,15 @@ shared_context :setup_models_api_license do |role = "inventory_manager"|
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model1)
+    model.add_compatible_model(compatible_model1)
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model2)
+    model.add_compatible_model(compatible_model2)
 
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-    model.add_recommend(compatible_model3)
+    model.add_compatible_model(compatible_model3)
 
     @software_model = model
 

@@ -7,16 +7,18 @@ class LeihsModel < Sequel::Model(:models)
   one_to_many(:images, key: :target_id)
   one_to_many(:attachments, key: :model_id)
   one_to_many(:properties, key: :model_id)
-  many_to_many(:recommends,
+  many_to_many(:compatible_models,
     class: :LeihsModel,
     left_key: :model_id,
     right_key: :compatible_id,
     join_table: :models_compatibles)
+  one_to_many(:entitlements, key: :model_id)
 end
 
 FactoryBot.modify do
   factory :leihs_model do
     product { Faker::Commerce.product_name }
+    version { Faker::Commerce.color }
 
     transient do
       categories { [] }
@@ -47,7 +49,7 @@ FactoryBot.modify do
       end
 
       trans.recommends.each do |recommend|
-        model.add_recommend(recommend)
+        model.add_compatible_model(recommend)
       end
     end
   end

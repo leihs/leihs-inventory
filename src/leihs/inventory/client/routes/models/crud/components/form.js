@@ -26,11 +26,7 @@ export const schema = z.object({
     .array(
       z.object({
         id: z.string().nullish(),
-        file: z
-          .instanceof(File)
-          .refine((file) =>
-            ["image/png", "image/jpeg", "image/jpg"].includes(file.type),
-          ),
+        file: z.instanceof(File).optional(),
         is_cover: z.boolean(),
       }),
     )
@@ -70,7 +66,7 @@ export const structure = [
     title: "pool.model.product.title",
     blocks: [
       {
-        name: "is-package",
+        name: "is_package",
         label: "pool.model.product.blocks.package.label",
         component: "checkbox",
         props: {

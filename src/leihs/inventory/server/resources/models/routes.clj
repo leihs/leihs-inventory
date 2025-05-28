@@ -73,7 +73,8 @@
 (def compatible-data {(s/optional-key :cover_image_id) s/Uuid
                       (s/optional-key :cover_image_url) s/Str
                       :model_id s/Any
-                      (s/optional-key :product) s/Str})
+                      :product s/Str
+                      (s/optional-key :version) s/Str})
 
 (def compatible-response
   (s/->Either [[compatible-data] {:data [compatible-data] :pagination s/Any}]))

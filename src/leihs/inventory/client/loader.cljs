@@ -38,13 +38,20 @@
 
         models (-> http-client
                    (.get "/inventory/models-compatibles")
-                   (.then #(jc (.-data %))))
+                   (.then (fn [res]
+                            (if (:model-id (jc params))
+                              ;; If a model-id is provided, filter out the current model
+                              (filter #(not= (:model_id %) (:model-id (jc params)))
+                                      (jc (.-data res)))
+                              ;; Otherwise, return all models
+                              (jc (.-data res))))))
 
         manufacturers (-> http-client
                           (.get "/inventory/manufacturers?type=Model")
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
-        model-path (when (:model-id (jc params)) (router/generatePath "/inventory/:pool-id/model/:model-id" params))
+        model-path (when (:model-id (jc params))
+                     (router/generatePath "/inventory/:pool-id/model/:model-id" params))
 
         model (when model-path
                 (-> http-client

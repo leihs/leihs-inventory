@@ -22,7 +22,7 @@ describe "Swagger Inventory Endpoints - Models" do
       it "retrieves all models and returns status 200" do
         resp = client.get url
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(3) # all empty models
+        expect(resp.body["data"].count).to eq(4) # all empty models
       end
 
       it "supports pagination and returns status 200 with limited results" do

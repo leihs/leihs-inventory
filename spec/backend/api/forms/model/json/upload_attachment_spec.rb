@@ -67,7 +67,7 @@ describe "Inventory Model" do
 
         it "retrieves compatible models list" do
           expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(3)
+          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
         end
 
         it "retrieves model groups list" do
@@ -130,32 +130,34 @@ describe "Inventory Model" do
           end
         end
 
-        if ENV["RAILS_ENV"] == "test"
-          it "rejects attachments exceeding maximum size" do
-            [path_invalid_pdf].each do |file_path|
-              file = File.open(file_path, "rb")
-              content_type = Marcel::MimeType.for(file)
+        # TODO: Different limit for test env has been dropped. Do we still need this?
+        #
+        # if ENV["RAILS_ENV"] == "test"
+        #   it "rejects attachments exceeding maximum size" do
+        #     [path_invalid_pdf].each do |file_path|
+        #       file = File.open(file_path, "rb")
+        #       content_type = Marcel::MimeType.for(file)
 
-              headers = cookie_header.merge(
-                "Content-Type" => content_type,
-                "X-Filename" => File.basename(file.path),
-                "Content-Length" => File.size(file.path).to_s
-              )
+        #       headers = cookie_header.merge(
+        #         "Content-Type" => content_type,
+        #         "X-Filename" => File.basename(file.path),
+        #         "Content-Length" => File.size(file.path).to_s
+        #       )
 
-              response = json_client_post(
-                "/inventory/models/#{model_id}/attachments",
-                body: file,
-                headers: headers,
-                is_binary: true
-              )
+        #       response = json_client_post(
+        #         "/inventory/models/#{model_id}/attachments",
+        #         body: file,
+        #         headers: headers,
+        #         is_binary: true
+        #       )
 
-              expect(response.status).to eq(400)
-              expect(response.body["error"]).to eq("Failed to upload attachment")
-              expect(response.body["details"]).to eq("File size exceeds limit")
-              file.close
-            end
-          end
-        end
+        #       expect(response.status).to eq(400)
+        #       expect(response.body["error"]).to eq("Failed to upload attachment")
+        #       expect(response.body["details"]).to eq("File size exceeds limit")
+        #       file.close
+        #     end
+        #   end
+        # end
       end
     end
   end
