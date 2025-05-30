@@ -67,7 +67,7 @@ describe "Inventory Model" do
 
         it "retrieves compatible models list" do
           expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(3)
+          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
         end
 
         it "retrieves model groups list" do

@@ -18,12 +18,10 @@
   (catcher/snatch
    {:return-fn (fn [e] (System/exit -1))}
    (info 'leihs.inventory.server.run "initializing ...")
-   (let [db-name (System/getenv "RAILS_ENV")
-         filenames (cond-> ["./config/settings.yml"
-                            "../config/settings.yml",
-                            "./config/settings.local.yml"
-                            "../config/settings.local.yml"]
-                     (= db-name "test") (conj "./config/test-settings.yml"))]
+   (let [filenames ["./config/settings.yml"
+                    "../config/settings.yml",
+                    "./config/settings.local.yml"
+                    "../config/settings.local.yml"]]
      (initialize {:filenames filenames}))
    (info "Effective startup options " options)
    (info "Effective startup config " (get-config))

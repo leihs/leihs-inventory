@@ -65,13 +65,15 @@
                                      :models.cover_image_id)
                          (sql/from :models)
                          (sql/left-join :images [:= :models.cover_image_id :images.id])
-                         (cond-> model_id (sql/where [:= :models.id model_id]))
+                         (cond-> model_id
+                           (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
+                               (sql/where [:= :models.id model_id])))
                          (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
         (-> (jdbc/execute! tx (-> base-query sql-format))
             remove-nil-entries-fnc
-            response spy)
+            response)
         (response (create-paginated-response base-query tx size page remove-nil-entries-fnc))))
     (catch Exception e
       (error "Failed to get models-compatible" e)

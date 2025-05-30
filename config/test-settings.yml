@@ -1,5 +1,0 @@
-api:
-  images:
-    max-size-mb: 1
-  attachments:
-    max-size-mb: 1
