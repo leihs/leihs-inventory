@@ -68,16 +68,18 @@ describe "Inventory Model" do
           end
         end
 
-        if ENV["RAILS_ENV"] == "test"
-          it "rejects images exceeding size limit" do
-            [path_invalid_png, path_invalid_jpg, path_invalid_jpeg].each do |path|
-              response = upload_image(path)
-              expect(response.status).to eq(400)
-              expect(response.body["error"]).to eq("Failed to upload image")
-              expect(response.body["details"]).to eq("File size exceeds limit")
-            end
-          end
-        end
+        # TODO: Different limit for test env has been dropped. Do we still need this?
+        #
+        # if ENV["RAILS_ENV"] == "test"
+        #   it "rejects images exceeding size limit" do
+        #     [path_invalid_png, path_invalid_jpg, path_invalid_jpeg].each do |path|
+        #       response = upload_image(path)
+        #       expect(response.status).to eq(400)
+        #       expect(response.body["error"]).to eq("Failed to upload image")
+        #       expect(response.body["details"]).to eq("File size exceeds limit")
+        #     end
+        #   end
+        # end
       end
     end
   end
