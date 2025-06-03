@@ -2,23 +2,23 @@ require "spec_helper"
 require_relative "../shared/common"
 
 feature "Inventory Page", type: :feature do
-  scenario "default filter" do
-    # |----------|---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
-    # | model    | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
-    # |----------|---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
-    # | model_1  | false   |        |        |        |         |            |          |            |        |            |
-    # | model_2  | false   | PA100  | pool_1 | pool_1 | false   | true       | true     | false      | false  | 2024-12-31 |
-    # | model_3  | false   | PA101  | pool_1 | pool_1 | true    | true       | true     | false      | false  |            |
-    # | model_4  | false   | PA102  | pool_1 | pool_1 | true    | false      | true     | true       | false  |            |
-    # | model_5  | false   | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |            |
-    # | model_6  | false   | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |            |
-    # | model_7  | false   | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |            |
-    # |          |
-    # |-PACKAGE--|---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
-    # | model_8  | true    | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
-    # | model_9  | false   | PA107  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
-    # | model_10 | false   | PA108  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
-    # |----------|---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+  scenario "filters" do
+    # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    # | model      | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
+    # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    # | model_1    | false   |        |        |        |         |            |          |            |        |            |
+    # | model_2    | false   | PA100  | pool_1 | pool_1 | false   | true       | true     | false      | false  | 2024-12-31 |
+    # | model_3    | false   | PA101  | pool_1 | pool_1 | true    | true       | true     | false      | false  |            |
+    # | model_4    | false   | PA102  | pool_1 | pool_1 | true    | false      | true     | true       | false  |            |
+    # | model_5    | false   | PA103  | pool_1 | pool_2 | true    | true       | true     | false      | false  |            |
+    # | model_6    | false   | PC104  | pool_3 | pool_1 | false   | true       | true     | false      | true   |            |
+    # | model_7    | false   | PD105  | pool_4 | pool_4 | false   | true       | true     | false      | false  |            |
+    # |            |
+    # |-PACKAGE--  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
+    # | model_8    | true    | PA106  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
+    # |   model_9  | false   | PA107  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
+    # |   model_10 | false   | PA108  | pool_1 | pool_1 | false   | true       | false    | false      | false  |            |
+    # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     #
     # |---------|--------|--------|
     # | model   | cat_1  | cat_2  |
@@ -65,15 +65,17 @@ feature "Inventory Page", type: :feature do
       inventory_code: "OP02",
       inventory_pool: pool_2)
 
+    search_term = "XYZ"
+
     model_1 = FactoryBot.create(:leihs_model, product: "Model", version: "AA1")
-    model_2 = FactoryBot.create(:leihs_model, product: "Model", version: "AA2")
+    model_2 = FactoryBot.create(:leihs_model, product: "Model", version: "AA2 #{search_term}")
     model_3 = FactoryBot.create(:leihs_model, product: "Model", version: "AA3")
     model_4 = FactoryBot.create(:leihs_model, product: "Model", version: "AA4")
     model_5 = FactoryBot.create(:leihs_model, product: "Model", version: "AA5")
     model_6 = FactoryBot.create(:leihs_model, product: "Model", version: "AA6")
     model_7 = FactoryBot.create(:leihs_model, product: "Model", version: "AA7")
     model_8 = FactoryBot.create(:leihs_model, product: "Model", version: "AA8", is_package: true)
-    model_9 = FactoryBot.create(:leihs_model, product: "Model", version: "AA9")
+    model_9 = FactoryBot.create(:leihs_model, product: "Model", version: "AA9 #{search_term}")
     model_10 = FactoryBot.create(:leihs_model, product: "Model", version: "AA10")
 
     model_1.add_category(cat_1)
@@ -95,7 +97,8 @@ feature "Inventory Page", type: :feature do
       leihs_model: model_3,
       is_borrowable: true,
       retired: Date.yesterday,
-      retired_reason: Faker::Lorem.sentence)
+      retired_reason: Faker::Lorem.sentence,
+      note: search_term)
 
     FactoryBot.create(:item,
       inventory_code: "#{pool_1.shortname}102",
@@ -250,10 +253,13 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[10]).to have_content(option_1.version)
 
     visit "/inventory/#{pool_1.id}/models"
-    find("input[name='search']").set(model_2.version.to_s)
+    find("input[name='search']").set(search_term)
 
-    expect(all("table tbody tr").count).to eq 1
+    expect(all("table tbody tr").count).to eq 4
     expect(all("table tbody tr")[0]).to have_content(model_2.version)
+    expect(all("table tbody tr")[1]).to have_content(model_3.version)
+    expect(all("table tbody tr")[2]).to have_content(model_8.version)
+    expect(all("table tbody tr")[3]).to have_content(model_9.version)
 
     # pool 1
     # with_items=true
@@ -354,6 +360,24 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(model_8.version)
 
+    # type=model
+    visit "/inventory/#{pool_1.id}/models"
+    click_on "Inventory type"
+    click_on "Model"
+    expect(page).to have_content("Inventory type: Model")
+
+    expect(all("table tbody tr").count).to eq 9
+    expect(all("table tbody tr")[0]).to have_content(model_1.version)
+    expect(all("table tbody tr")[1]).to have_content(model_10.version) # package child model
+    expect(all("table tbody tr")[2]).to have_content(model_2.version)
+    expect(all("table tbody tr")[3]).to have_content(model_3.version)
+    expect(all("table tbody tr")[4]).to have_content(model_4.version)
+    expect(all("table tbody tr")[5]).to have_content(model_5.version)
+    expect(all("table tbody tr")[6]).to have_content(model_6.version)
+    expect(all("table tbody tr")[7]).to have_content(model_7.version)
+    expect(all("table tbody tr")[8]).to have_content(model_9.version)  # package child model
+
+    # type=option
     visit "/inventory/#{pool_1.id}/models"
     click_on "Inventory type"
     click_on "Option"
