@@ -9,10 +9,12 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [clojure.string :as str]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui file-tree-item [{:keys [name category_id searching children]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+
         handle-select (fn [e]
                         (let [id (.. e -currentTarget -value)]
                           (if (= id (.. search-params (get "category_id")))
@@ -72,6 +74,10 @@
 
 (defui main [{:keys [class-name]}]
   (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         [search set-search!] (uix/use-state categories)
         [is-searching? set-is-searching!] (uix/use-state false)
         handle-search (fn [e]
@@ -89,7 +95,9 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :class-name class-name}
+                     :name "category-filter"
+                     :class-name (str (when (-> state :hidden :categories) "hidden ")
+                                      class-name)}
              ($ List {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.categories.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))

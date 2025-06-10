@@ -4,15 +4,18 @@
    ["@@/calendar" :refer [Calendar]]
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["date-fns" :as date-fns]
-
    ["lucide-react" :refer [CalendarDays]]
    ["react-i18next" :refer [useTranslation]]
-
    ["react-router-dom" :as router]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         [t] (useTranslation)
         before-last-check (.. search-params (get "before_last_check"))
         handle-before-last-check (fn [date]
@@ -28,7 +31,9 @@
 
     ($ Popover
        ($ PopoverTrigger {:asChild true}
-          ($ Button {:variant "outline"}
+          ($ Button {:variant "outline"
+                     :class-name (when (-> state :hidden :before_last_check) "hidden")
+                     :name "before-last-check-filter"}
              ($ CalendarDays {:className (str "h-4 w-4 mr-2" class-name)})
              (t "pool.models.filters.before_last_check.title")))
 
