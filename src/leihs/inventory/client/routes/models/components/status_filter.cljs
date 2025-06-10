@@ -9,10 +9,15 @@
    ["lucide-react" :refer [Check ChevronDown CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         [t] (useTranslation)
         with_items (.. search-params (get "with_items"))
         owned (.. search-params (get "owned"))
@@ -75,7 +80,9 @@
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
                      :disabled (= with_items "false")
-                     :class-name class-name}
+                     :name "status-filter"
+                     :class-name (str (when (-> state :hidden :status) "hidden ")
+                                      class-name)}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.status.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
@@ -141,8 +148,9 @@
                                     ($ Check {:className "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
-                ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                ($ DropdownMenuSubTrigger {:class-name (when (-> state :hidden :broken) "hidden")}
+                   ($ :button {:type "button"
+                               :name "broken-filter"}
                       (t "pool.models.filters.status.broken"))
 
                    ($ DropdownMenuPortal
@@ -170,8 +178,9 @@
                                     ($ Check {:className "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
-                ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                ($ DropdownMenuSubTrigger {:class-name (when (-> state :hidden :broken) "hidden")}
+                   ($ :button {:type "button"
+                               :name "incomplete-filter"}
                       (t "pool.models.filters.status.incomplete"))
 
                    ($ DropdownMenuPortal
