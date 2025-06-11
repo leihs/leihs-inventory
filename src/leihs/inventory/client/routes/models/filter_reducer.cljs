@@ -9,14 +9,14 @@
 (defui FilterProvider [{:keys [children]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
 
-        update-search-params (fn [state current-filter value]
-                               (doseq [filter state]
-                                 (when (not= (name filter) current-filter)
+        update-search-params (fn [enabled-filter last-filter value]
+                               (doseq [filter enabled-filter]
+                                 (when (not= (name filter) last-filter)
                                    (.delete search-params (name filter))))
 
                                (if (not= value nil)
-                                 (.set search-params current-filter value)
-                                 (.delete search-params current-filter))
+                                 (.set search-params last-filter value)
+                                 (.delete search-params last-filter))
 
                                (.set search-params "page" "1")
                                (set-search-params! search-params))
@@ -27,27 +27,36 @@
 
                            (cond
                            ;; reset filters
-                             (= (:value action) nil)
-                             (let [new-state []]
+                             #_(= (:delete action) nil)
+                             #_(let [new-state []]
 
-                               (update-search-params new-state filter value)
-                               new-state)
+                                 (update-search-params new-state filter value)
+                                 new-state)
 
-                             (= (:value action) "option")
-                             (let [new-state [:inventory_pool_id
-                                              :category_id
-                                              :before_last_check
-                                              :borrowable
-                                              :retired
-                                              :with_items
-                                              :status
-                                              :broken
-                                              :incomplete
-                                              :owned
-                                              :in_stock]]
+                             (= (:filter action) "type")
+                             (when (= (:value action) "option")
+                               (let [disabled-filter [:inventory_pool_id
+                                                      :category_id
+                                                      :before_last_check
+                                                      :borrowable
+                                                      :retired
+                                                      :with_items
+                                                      :status
+                                                      :broken
+                                                      :incomplete
+                                                      :owned
+                                                      :in_stock]
 
-                               (update-search-params new-state filter value)
-                               new-state)
+                                     new-state (if (:delete action)
+                                                 (do
+                                                   (js/console.debug "deleting" action state disabled-filter)
+                                                   (into [] (remove (set disabled-filter) state)))
+                                                 (into state disabled-filter))]
+
+                                 (js/console.debug new-state)
+
+                                 (update-search-params new-state filter value)
+                                 new-state))
 
                              (= (:value action) "model")
                              (let [new-state []]
@@ -68,6 +77,14 @@
                                               :before_last_check]]
 
                                (update-search-params new-state filter value)
+                               new-state)
+
+                             (or (= (:filter action) "incomplete")
+                                 (= (:filter action) "broken"))
+                             (let [new-state [:option
+                                              :model]]
+
+                               (update-search-params new-state filter value)
                                new-state))))
 
         create-initial-state (fn []
@@ -84,11 +101,12 @@
                                      borrowable (.get search-params "borrowable")]
 
                                  (cond-> []
-                                   true
+                                   false
                                    (conj :type)
 
                                    (or (= broken "true")
-                                       (= incomplete "true"))
+                                       (= incomplete "true")
+                                       (= type "software"))
                                    (conj :model)
 
                                    (or (= broken "true")
@@ -102,7 +120,7 @@
                                        before_last_check)
                                    (conj :software)
 
-                                   true
+                                   false
                                    (conj :package)
 
                                    (= type "option")
@@ -128,10 +146,10 @@
                                    (= type "option")
                                    (conj :status)
 
-                                   true
+                                   false
                                    (conj :owned)
 
-                                   true
+                                   false
                                    (conj :in_stock)
 
                                    (= type "software")

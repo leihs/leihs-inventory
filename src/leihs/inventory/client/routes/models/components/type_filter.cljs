@@ -22,12 +22,11 @@
         handle-type (fn [selected-type]
                       (if (= selected-type type)
                         (dispatch {:filter "type"
-                                   :value nil
-                                   :active false})
+                                   :value selected-type
+                                   :delete true})
 
                         (dispatch {:filter "type"
-                                   :value selected-type
-                                   :active true})))]
+                                   :value selected-type})))]
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
@@ -42,10 +41,13 @@
           ($ DropdownMenuRadioGroup {:value type
                                      :onValueChange handle-type}
 
-             ($ DropdownMenuRadioItem {:value "model"}
-                ($ :button {:type "button"
-                            :disabled (some #{:model} state)
-                            :name "model-filter"}
+             ($ DropdownMenuRadioItem {:value "model"
+                                       :disabled (some #{:model} state)}
+                ($ Button {:type "button"
+                           :variant "ghost"
+                           :class-name "p-0 h-auto font-normal"
+                           :disabled (some #{:model} state)
+                           :name "model-filter"}
                    ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500"}
                       (t "pool.models.filters.type.model"))))
 
@@ -56,10 +58,13 @@
                    ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500"}
                       (t "pool.models.filters.type.package"))))
 
-             ($ DropdownMenuRadioItem {:value "option"}
-                ($ :button {:type "button"
-                            :disabled (some #{:option} state)
-                            :name "option-filter"}
+             ($ DropdownMenuRadioItem {:disabled (some #{:option} state)
+                                       :value "option"}
+                ($ Button {:type "button"
+                           :variant "ghost"
+                           :class-name "p-0 h-auto fornt-normal"
+                           :disabled (some #{:option} state)
+                           :name "option-filter"}
                    ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500"}
                       (t "pool.models.filters.type.option"))))
 
