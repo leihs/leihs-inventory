@@ -83,71 +83,62 @@
                                      before_last_check (.get search-params "before_last_check")
                                      borrowable (.get search-params "borrowable")]
 
-                                 (cond -> []
-                                  true 
-                                  (conj :type )
+                                 (cond-> []
+                                   true
+                                   (conj :type)
 
-                                  (when
                                    (or (= broken "true")
-                                       (= incomplete "true")))
-                                  (conj :model )
+                                       (= incomplete "true"))
+                                   (conj :model)
 
-                                  (when
                                    (or (= broken "true")
                                        (= incomplete "true")
                                        inventory_pool_id
                                        category_id
-                                       before_last_check))
-                                    (conj :option)
+                                       before_last_check)
+                                   (conj :option)
 
-                                  (when
                                    (or category_id
                                        before_last_check)
-                                    :software)
+                                   (conj :software)
 
-                                  :package
-                                  (when
+                                   true
+                                   (conj :package)
+
                                    (= type "option")
-                                    :inventory_pool_id)
+                                   (conj :inventory_pool_id)
 
-                                  (when
                                    (or (= type "option")
                                        (= type "software"))
-                                    :before_last_check)
+                                   (conj :before_last_check)
 
-                                  (when
                                    (or (= type "option")
                                        (= type "software"))
-                                    :category_id)
+                                   (conj :category_id)
 
-                                  (when
                                    (= type "option")
-                                    :borrowable)
+                                   (conj :borrowable)
 
-                                  (when
                                    (= type "option")
-                                    :retired)
+                                   (conj :retired)
 
-                                  (when
                                    (= type "option")
-                                    :with_items)
+                                   (conj :with_items)
 
-                                  (when
                                    (= type "option")
-                                    :status)
+                                   (conj :status)
 
-                                  :owned
+                                   true
+                                   (conj :owned)
 
-                                  :in_stock
+                                   true
+                                   (conj :in_stock)
 
-                                  (when
                                    (= type "software")
-                                    :imcomplete)
+                                   (conj :incomplete)
 
-                                  (when
                                    (= type "software")
-                                    :broken)]
-                                       )))
+                                   (conj :broken))))
 
         [state dispatch] (uix/use-reducer filter-reducer [] create-initial-state)]
 
