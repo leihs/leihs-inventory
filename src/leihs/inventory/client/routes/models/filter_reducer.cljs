@@ -9,14 +9,17 @@
 (defui FilterProvider [{:keys [children]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
 
-        update-search-params (fn [enabled-filter last-filter value]
-                               (doseq [filter enabled-filter]
-                                 (when (not= (name filter) last-filter)
-                                   (.delete search-params (name filter))))
+        update-search-params (fn [disabled-filter last-filter value]
+                               (doseq [filter disabled-filter]
+                                 (.delete search-params (name filter)))
 
-                               (if (not= value nil)
-                                 (.set search-params last-filter value)
-                                 (.delete search-params last-filter))
+                               (js/console.debug "last-filter" last-filter)
+                               (if (.get search-params last-filter)
+                                 (do
+                                   (js/console.debug "deleting" last-filter)
+                                   ;; delete the last filter if it exists
+                                   (.delete search-params last-filter))
+                                 (.set search-params last-filter value))
 
                                (.set search-params "page" "1")
                                (set-search-params! search-params))
@@ -48,12 +51,10 @@
                                                       :in_stock]
 
                                      new-state (if (:delete action)
-                                                 (do
-                                                   (js/console.debug "deleting" action state disabled-filter)
-                                                   (into [] (remove (set disabled-filter) state)))
-                                                 (into state disabled-filter))]
+                                                 (into [] (remove (set disabled-filter) state))
+                                                 (vec (into state disabled-filter)))]
 
-                                 (js/console.debug new-state)
+                                 (js/console.debug "new state" new-state)
 
                                  (update-search-params new-state filter value)
                                  new-state))
