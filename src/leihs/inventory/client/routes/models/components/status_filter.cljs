@@ -35,10 +35,10 @@
                               (.delete search-params "owned")
 
                               (= value "true")
-                              (.set search-params "owned" true)
+                              (dispatch {:filter "owned" :value true})
 
                               (= value "false")
-                              (.set search-params "owned" false))
+                              (dispatch {:filter "owned" :value false}))
 
                             (= name "in_stock")
                             (cond
@@ -46,10 +46,10 @@
                               (.delete search-params "in_stock")
 
                               (= value "true")
-                              (.set search-params "in_stock" true)
+                              (dispatch {:filter "in_stock" :value true})
 
                               (= value "false")
-                              (.set search-params "in_stock" false))
+                              (dispatch {:filter "in_stock" :value false}))
 
                             (= name "incomplete")
                             (cond
@@ -57,10 +57,10 @@
                               (.delete search-params "incomplete")
 
                               (= value "true")
-                              (.set search-params "incomplete" true)
+                              (dispatch {:filter "incomplete" :value true})
 
                               (= value "false")
-                              (.set search-params "incomplete" false))
+                              (dispatch {:filter "incomplete" :value false}))
 
                             (= name "broken")
                             (cond
@@ -68,13 +68,10 @@
                               (.delete search-params "broken")
 
                               (= value "true")
-                              (.set search-params "broken" true)
+                              (dispatch {:filter "broken" :value true})
 
                               (= value "false")
-                              (.set search-params "broken" false)))
-
-                          (.set search-params "page" "1")
-                          (set-search-params! search-params)))]
+                              (dispatch {:filter "broken" :value false})))))]
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
@@ -129,7 +126,7 @@
                       (t "pool.models.filters.status.in_stock"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent
+                      ($ DropdownMenuSubContent {:class-name (when (some #{:in_stock} state) "hidden")}
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
