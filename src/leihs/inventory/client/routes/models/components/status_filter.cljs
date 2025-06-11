@@ -79,7 +79,7 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :disabled (some #{:broken} state)
+                     :disabled (some #{:status} state)
                      :name "status-filter"
                      :class-name class-name}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
