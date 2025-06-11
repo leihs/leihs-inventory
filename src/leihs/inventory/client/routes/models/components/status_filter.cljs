@@ -79,10 +79,9 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :disabled (= with_items "false")
+                     :disabled (some #{:broken} state)
                      :name "status-filter"
-                     :class-name (str (when (-> state :hidden :status) "hidden ")
-                                      class-name)}
+                     :class-name class-name}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.status.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
@@ -91,7 +90,8 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ :button {:type "button"
+                               :disabled (some #{:broken} state)}
                       (t "pool.models.filters.status.owned"))
 
                    ($ DropdownMenuPortal
@@ -120,7 +120,8 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ :button {:type "button"
+                               :disabled (some #{:broken} state)}
                       (t "pool.models.filters.status.in_stock"))
 
                    ($ DropdownMenuPortal
@@ -148,8 +149,9 @@
                                     ($ Check {:className "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
-                ($ DropdownMenuSubTrigger {:class-name (when (-> state :hidden :broken) "hidden")}
+                ($ DropdownMenuSubTrigger
                    ($ :button {:type "button"
+                               :disabled (some #{:broken} state)
                                :name "broken-filter"}
                       (t "pool.models.filters.status.broken"))
 
@@ -178,8 +180,9 @@
                                     ($ Check {:className "ml-auto h-4 w-4"})))))))))
 
              ($ DropdownMenuSub
-                ($ DropdownMenuSubTrigger {:class-name (when (-> state :hidden :broken) "hidden")}
+                ($ DropdownMenuSubTrigger
                    ($ :button {:type "button"
+                               :disabled (some #{:broken} state)
                                :name "incomplete-filter"}
                       (t "pool.models.filters.status.incomplete"))
 

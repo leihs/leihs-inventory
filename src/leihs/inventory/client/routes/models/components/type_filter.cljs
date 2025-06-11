@@ -32,7 +32,7 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:name "type-filter"
-                     :class-name (when (-> state :hidden :type) "hidden ")
+                     :class-name (when (contains? state :type) "hidden ")
 
                      :variant "outline"}
              ($ Tags {:className (str "h-4 w-4 mr-2 " class-name)})
@@ -42,30 +42,31 @@
           ($ DropdownMenuRadioGroup {:value type
                                      :onValueChange handle-type}
 
-             ($ DropdownMenuRadioItem {:class-name (when (-> state :hidden :model) "hidden")
-                                       :value "model"}
+             ($ DropdownMenuRadioItem {:value "model"}
                 ($ :button {:type "button"
+                            :disabled (some #{:model} state)
                             :name "model-filter"}
                    ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500"}
                       (t "pool.models.filters.type.model"))))
 
-             ($ DropdownMenuRadioItem {:value "package"
-                                       :class-name (when (-> state :hidden :package) "hidden")}
+             ($ DropdownMenuRadioItem {:value "package"}
                 ($ :button {:type "button"
+                            :disabled (some #{:package} state)
                             :name "package-filter"}
                    ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500"}
                       (t "pool.models.filters.type.package"))))
 
-             ($ DropdownMenuRadioItem {:value "option"
-                                       :class-name (when (-> state :hidden :option) "hidden")}
+             ($ DropdownMenuRadioItem {:value "option"}
                 ($ :button {:type "button"
+                            :disabled (some #{:option} state)
                             :name "option-filter"}
                    ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500"}
                       (t "pool.models.filters.type.option"))))
 
-             ($ DropdownMenuRadioItem {:value "software"
-                                       :class-name (when (-> state :hidden :software) "hidden")}
+             ($ DropdownMenuRadioItem {:value "software"}
                 ($ :button {:type "button"
+                            :disabled (some #{:software} state)
+
                             :name "software-filter"}
                    ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500"}
                       (t "pool.models.filters.type.software")))))))))

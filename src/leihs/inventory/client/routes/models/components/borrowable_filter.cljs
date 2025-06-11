@@ -15,6 +15,7 @@
         state (filter-reducer/use-filter-state)
 
         borrowable (js/JSON.parse (.. search-params (get "borrowable")))
+
         handle-borrowable (fn [value]
                             (if (= value nil)
                               (.delete search-params "borrowable")
@@ -25,7 +26,7 @@
     ($ Select {:value borrowable
                :onValueChange handle-borrowable}
        ($ SelectTrigger {:name "borrowable"
-                         :disabled (-> state :hidden :borrowable)
+                         :disabled (some #{:borrowable} state)
                          :className (str "w-[260px] " class-name)}
           ($ SelectValue))
        ($ SelectContent

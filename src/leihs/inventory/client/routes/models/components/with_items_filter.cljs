@@ -34,7 +34,7 @@
        ($ SelectTrigger {:name "with_items"
 
                          :className (str "w-[260px] "
-                                         (when (-> state :hidden :borrowable) "hidden ")
+                                         (when (contains? state :borrowable) "hidden ")
                                          class-name)}
           ($ SelectValue))
        ($ SelectContent

@@ -32,7 +32,7 @@
     ($ Popover
        ($ PopoverTrigger {:asChild true}
           ($ Button {:variant "outline"
-                     :class-name (when (-> state :hidden :before_last_check) "hidden")
+                     :disabled (some #{:before_last_check} state)
                      :name "before-last-check-filter"}
              ($ CalendarDays {:className (str "h-4 w-4 mr-2" class-name)})
              (t "pool.models.filters.before_last_check.title")))

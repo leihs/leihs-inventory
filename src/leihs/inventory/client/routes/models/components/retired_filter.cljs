@@ -25,9 +25,8 @@
     ($ Select {:value retired
                :onValueChange handle-retired}
        ($ SelectTrigger {:name "retired"
-                         :className (str "w-[280px] "
-                                         (when (-> state :hidden :retired) "hidden ")
-                                         class-name)}
+                         :disabled (some #{:retired} state)
+                         :className (str "w-[280px] " class-name)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"
