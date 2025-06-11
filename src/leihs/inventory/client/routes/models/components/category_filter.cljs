@@ -96,7 +96,7 @@
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
                      :name "category-filter"
-                     :class-name (str (when (-> state :hidden :categories) "hidden ")
+                     :class-name (str (when (-> state :hidden :category_id) "hidden ")
                                       class-name)}
              ($ List {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.categories.title")

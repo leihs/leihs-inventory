@@ -36,7 +36,7 @@
        ($ PopoverTrigger {:as-child true}
           ($ Button {:ref buttonRef
                      :on-click #(set-open! (not open))
-                     :class-name (str (when (-> state :hidden :inventory-pool) "hidden ")
+                     :class-name (str (when (-> state :hidden :inventory_pool_id) "hidden ")
                                       class-name)
                      :name "inventory-pool-filter"
                      :variant "outline"

@@ -41,25 +41,30 @@
        ($ DropdownMenuContent {:align "start"}
           ($ DropdownMenuRadioGroup {:value type
                                      :onValueChange handle-type}
-             ($ DropdownMenuRadioItem {:value "model"}
+
+             ($ DropdownMenuRadioItem {:class-name (when (-> state :hidden :model) "hidden")
+                                       :value "model"}
                 ($ :button {:type "button"
                             :name "model-filter"}
                    ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500"}
                       (t "pool.models.filters.type.model"))))
 
-             ($ DropdownMenuRadioItem {:value "package"}
+             ($ DropdownMenuRadioItem {:value "package"
+                                       :class-name (when (-> state :hidden :package) "hidden")}
                 ($ :button {:type "button"
                             :name "package-filter"}
                    ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500"}
                       (t "pool.models.filters.type.package"))))
 
-             ($ DropdownMenuRadioItem {:value "option"}
+             ($ DropdownMenuRadioItem {:value "option"
+                                       :class-name (when (-> state :hidden :option) "hidden")}
                 ($ :button {:type "button"
                             :name "option-filter"}
                    ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500"}
                       (t "pool.models.filters.type.option"))))
 
-             ($ DropdownMenuRadioItem {:value "software"}
+             ($ DropdownMenuRadioItem {:value "software"
+                                       :class-name (when (-> state :hidden :software) "hidden")}
                 ($ :button {:type "button"
                             :name "software-filter"}
                    ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500"}
