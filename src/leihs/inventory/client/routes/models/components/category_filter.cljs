@@ -96,8 +96,8 @@
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
                      :name "category-filter"
-                     :class-name (str (when (-> state :hidden :category_id) "hidden ")
-                                      class-name)}
+                     :disabled (some #{:category_id} state)
+                     :class-name class-name}
              ($ List {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.categories.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))

@@ -3,101 +3,72 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(def initial-state
-  {:filter nil
-   :value nil
-   :hidden {:type false
-            :model false
-            :option false
-            :software false
-            :package false
-            :inventory_pool_id false
-            :before_last_check false
-            :category_id false
-            :borrowable false
-            :retired false
-            :with_items false
-            :status false
-            :owned false
-            :in_stock false
-            :incomplete false
-            :broken false}})
-
 (def ctx (uix/create-context))
 (def dispatcher (uix/create-context))
 
 (defui FilterProvider [{:keys [children]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
 
-        update-search-params (fn [state]
-                               (doseq [[filter is-hidden] (:hidden state)]
-                                 (when (and is-hidden
-                                            (not= (name filter) (:filter state)))
+        update-search-params (fn [state current-filter value]
+                               (doseq [filter state]
+                                 (when (not= (name filter) current-filter)
                                    (.delete search-params (name filter))))
 
-                               (if (not= (:value state) nil)
-                                 (.set search-params (:filter state) (:value state))
-                                 (.delete search-params (:filter state)))
+                               (if (not= value nil)
+                                 (.set search-params current-filter value)
+                                 (.delete search-params current-filter))
 
                                (.set search-params "page" "1")
                                (set-search-params! search-params))
 
         filter-reducer (fn [state action]
-                         (cond
+                         (let [filter (:filter action)
+                               value (:value action)]
+
+                           (cond
                            ;; reset filters
-                           (= (:value action) nil)
-                           (let [new-state (assoc initial-state
-                                                  :filter (:filter action)
-                                                  :value nil)]
-                             (update-search-params new-state)
-                             new-state)
+                             (= (:value action) nil)
+                             (let [new-state []]
 
-                           (= (:value action) "option")
-                           (let [new-state (assoc initial-state
-                                                  :filter (:filter action)
-                                                  :value (:value action)
-                                                  :hidden {:inventory_pool_id true
-                                                           :category_id true
-                                                           :before_last_check true
-                                                           :borrowable true
-                                                           :retired true
-                                                           :with_items true
-                                                           :status true
-                                                           :broken true
-                                                           :incomplete true
-                                                           :owned true
-                                                           :in_stock true})]
+                               (update-search-params new-state filter value)
+                               new-state)
 
-                             (update-search-params new-state)
-                             new-state)
+                             (= (:value action) "option")
+                             (let [new-state [:inventory_pool_id
+                                              :category_id
+                                              :before_last_check
+                                              :borrowable
+                                              :retired
+                                              :with_items
+                                              :status
+                                              :broken
+                                              :incomplete
+                                              :owned
+                                              :in_stock]]
 
-                           (= (:value action) "model")
-                           (let [new-state (assoc initial-state
-                                                  :filter (:filter action)
-                                                  :value (:value action))]
+                               (update-search-params new-state filter value)
+                               new-state)
 
-                             (update-search-params new-state)
-                             new-state)
+                             (= (:value action) "model")
+                             (let [new-state []]
 
-                           (= (:value action) "package")
-                           (let [new-state (assoc initial-state
-                                                  :filter (:filter action)
-                                                  :value (:value action))]
+                               (update-search-params new-state filter value)
+                               new-state)
 
-                             (update-search-params new-state)
-                             new-state)
+                             (= (:value action) "package")
+                             (let [new-state []]
 
-                           (= (:value action) "software")
-                           (let [new-state (assoc initial-state
-                                                  :filter (:filter action)
-                                                  :value (:value action)
-                                                  :hidden {:broken true
-                                                           :incomplete true
-                                                           :category_id true
-                                                           :before_last_check true})]
+                               (update-search-params new-state filter value)
+                               new-state)
 
-                             (update-search-params new-state)
-                             new-state)))
+                             (= (:value action) "software")
+                             (let [new-state [:broken
+                                              :incomplete
+                                              :category_id
+                                              :before_last_check]]
+
+                               (update-search-params new-state filter value)
+                               new-state))))
 
         create-initial-state (fn []
                                (let [type (.get search-params "type")
@@ -112,133 +83,73 @@
                                      before_last_check (.get search-params "before_last_check")
                                      borrowable (.get search-params "borrowable")]
 
-                                 (js/console.debug (boolean inventory_pool_id))
+                                 (cond -> []
+                                  true 
+                                  (conj :type )
 
-                                 {:filter nil
-                                  :value nil
-                                  :hidden {:type false
-                                           :model (cond
-                                                    (or (= broken "true")
-                                                        (= incomplete "true"))
-                                                    true
+                                  (when
+                                   (or (= broken "true")
+                                       (= incomplete "true")))
+                                  (conj :model )
 
-                                                    :else
-                                                    false)
-                                           :option (cond
-                                                     (or (= broken "true")
-                                                         (= incomplete "true")
-                                                         inventory_pool_id
-                                                         category_id
-                                                         before_last_check)
-                                                     true
+                                  (when
+                                   (or (= broken "true")
+                                       (= incomplete "true")
+                                       inventory_pool_id
+                                       category_id
+                                       before_last_check))
+                                    (conj :option)
 
-                                                     :else
-                                                     false)
-                                           :software (cond
-                                                       (or category_id
-                                                           before_last_check)
-                                                       true
+                                  (when
+                                   (or category_id
+                                       before_last_check)
+                                    :software)
 
-                                                       :else
-                                                       false)
-                                           :package false
-                                           :inventory_pool_id (cond
-                                                                (= type "option")
-                                                                true
+                                  :package
+                                  (when
+                                   (= type "option")
+                                    :inventory_pool_id)
 
-                                                                :else
-                                                                false)
-                                           :before_last_check (cond
-                                                                (or (= type "option")
-                                                                    (= type "software"))
-                                                                true
+                                  (when
+                                   (or (= type "option")
+                                       (= type "software"))
+                                    :before_last_check)
 
-                                                                :else
-                                                                false)
-                                           :category_id (cond
-                                                          (or (= type "option")
-                                                              (= type "software"))
-                                                          true
+                                  (when
+                                   (or (= type "option")
+                                       (= type "software"))
+                                    :category_id)
 
-                                                          :else
-                                                          false)
-                                           :borrowable (cond
-                                                         (= type "option")
-                                                         true
+                                  (when
+                                   (= type "option")
+                                    :borrowable)
 
-                                                         :else
-                                                         false)
-                                           :retired (cond
-                                                      (= type "option")
-                                                      true
+                                  (when
+                                   (= type "option")
+                                    :retired)
 
-                                                      :else
-                                                      false)
-                                           :with_items (cond
-                                                         (= type "option")
-                                                         true
+                                  (when
+                                   (= type "option")
+                                    :with_items)
 
-                                                         :else
-                                                         false)
-                                           :status (cond
-                                                     (= type "option")
-                                                     true
+                                  (when
+                                   (= type "option")
+                                    :status)
 
-                                                     :else
-                                                     false)
-                                           :owned (cond
-                                                    :else
-                                                    false)
-                                           :in_stock (cond
-                                                       :else
-                                                       false)
-                                           :incomplete (cond
-                                                         (= type "software")
-                                                         true
+                                  :owned
 
-                                                         :else
-                                                         false)
-                                           :broken (cond
-                                                     (= type "software")
-                                                     true
+                                  :in_stock
 
-                                                     :else
-                                                     false)}}))
+                                  (when
+                                   (= type "software")
+                                    :imcomplete)
 
-        [state dispatch] (uix/use-reducer filter-reducer nil create-initial-state)
-        prev-state (uix/use-ref nil)]
+                                  (when
+                                   (= type "software")
+                                    :broken)]
+                                       )))
 
-    #_(uix/use-effect
-       (fn []
-         (let [prev-state @prev-state]
-           (js/console.debug prev-state state)
-
-         ;; Check if `state` changed
-           (when (not= prev-state state)
-             (doseq [[filter is-hidden] (:hidden state)]
-               (when (and is-hidden
-                          (not= (name filter) (:filter state)))
-                 (.delete search-params (name filter))))
-
-             (if (not= (:value state) nil)
-               (.set search-params (:filter state) (:value state))
-               (.delete search-params (:filter state)))
-
-             (.set search-params "page" "1")
-             (set-search-params! search-params)))
-
-       ;; Update the ref with the current dependencies
-         (reset! prev-state state))
-       [state search-params set-search-params!])
-
-    #_(uix/use-effect
-       (fn []
-       ;; Reset the state when the component unmounts
-         (js/console.debug "Initalizing filter state")
-         #_(dispatch {:filter nil
-                      :value nil
-                      :hidden {}}))
-       [search-params])
+        [state dispatch] (uix/use-reducer filter-reducer [] create-initial-state)]
 
     ($ ctx
        {:value state}
