@@ -32,10 +32,8 @@
     ($ Select {:value with_items
                :onValueChange handle-with-items}
        ($ SelectTrigger {:name "with_items"
-
-                         :className (str "w-[260px] "
-                                         (when (contains? state :borrowable) "hidden ")
-                                         class-name)}
+                         :disabled (some #{:with_items} state)
+                         :className (str "w-[260px] " class-name)}
           ($ SelectValue))
        ($ SelectContent
           ($ SelectItem {:data-test-id "all"
