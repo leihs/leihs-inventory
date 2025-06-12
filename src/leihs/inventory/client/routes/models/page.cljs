@@ -17,23 +17,29 @@
    [leihs.inventory.client.routes.models.components.category-filter :refer [CategoryFilter]]
    [leihs.inventory.client.routes.models.components.filter-indicator :refer [FilterIndicator]]
    [leihs.inventory.client.routes.models.components.inventory-pool-filter :refer [InventoryPoolFilter]]
+   [leihs.inventory.client.routes.models.components.reset :refer [FilterReset]]
    [leihs.inventory.client.routes.models.components.retired-filter :refer [RetiredFilter]]
    [leihs.inventory.client.routes.models.components.search-filter :as search :refer [SearchFilter]]
    [leihs.inventory.client.routes.models.components.status-filter :refer [StatusFilter]]
    [leihs.inventory.client.routes.models.components.type-filter :refer [TypeFilter]]
    [leihs.inventory.client.routes.models.components.with-items-filter :refer [WithItemsFilter]]
-   [leihs.inventory.client.routes.models.filter-reducer :refer [FilterProvider]]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer :refer [FilterProvider]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui page [{:keys [data]}]
   (let [models (:data (:models (router/useLoaderData)))
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         [t] (useTranslation)
         location (router/useLocation)
         navigate (router/useNavigate)
         pagination (:pagination (:models (router/useLoaderData)))
-        handle-reset (fn []
-                       (navigate "?page=1&size=50&with_items=true"))]
+        handle-reset (fn [e]
+                       (js/console.debug "hello")
+                       (dispatch {:filter "owned" :value nil :delete true}))]
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex sticky top-12 
@@ -56,11 +62,7 @@
                    ($ RetiredFilter)
                    ($ WithItemsFilter)
                    ($ BorrowableFilter)
-                   ($ Button {:size "icon"
-                              :variant "outline"
-                              :class-name "ml-2"
-                              :on-click handle-reset}
-                      ($ ListRestart)))
+                   ($ FilterReset))
 
                 ($ :div {:className "flex space-x-2 mt-2"}
                    ($ FilterIndicator))))

@@ -32,7 +32,7 @@
                             (= name "owned")
                             (cond
                               (= owned value)
-                              (.delete search-params "owned")
+                              (dispatch {:filter "owned" :value nil :delete true})
 
                               (= value "true")
                               (dispatch {:filter "owned" :value true})
@@ -43,7 +43,7 @@
                             (= name "in_stock")
                             (cond
                               (= in_stock value)
-                              (.delete search-params "in_stock")
+                              (dispatch {:filter "in_stock" :value nil :delete true})
 
                               (= value "true")
                               (dispatch {:filter "in_stock" :value true})
@@ -54,7 +54,7 @@
                             (= name "incomplete")
                             (cond
                               (= incomplete value)
-                              (.delete search-params "incomplete")
+                              (dispatch {:filter "incomplete" :value nil :delete true})
 
                               (= value "true")
                               (dispatch {:filter "incomplete" :value true})
@@ -65,7 +65,7 @@
                             (= name "broken")
                             (cond
                               (= broken value)
-                              (.delete search-params "broken")
+                              (dispatch {:filter "broken" :value nil :delete true})
 
                               (= value "true")
                               (dispatch {:filter "broken" :value true})
