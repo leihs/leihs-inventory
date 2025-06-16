@@ -7,10 +7,15 @@
    ["lucide-react" :refer [Check ChevronsUpDown Building]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
   (let [inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         buttonRef (uix/use-ref nil)
         [open set-open!] (uix/use-state false)
         [search-params set-search-params!] (router/useSearchParams)
@@ -31,7 +36,9 @@
        ($ PopoverTrigger {:as-child true}
           ($ Button {:ref buttonRef
                      :on-click #(set-open! (not open))
+                     :disabled (some #{:inventory_pool_id} state)
                      :class-name class-name
+                     :name "inventory-pool-filter"
                      :variant "outline"
                      :role "combobox"}
              ($ Building {:className "h-4 w-4 mr-2"})

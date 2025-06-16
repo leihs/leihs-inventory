@@ -9,10 +9,15 @@
    ["lucide-react" :refer [Check ChevronDown CirclePlus]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         [t] (useTranslation)
         with_items (.. search-params (get "with_items"))
         owned (.. search-params (get "owned"))
@@ -27,54 +32,52 @@
                             (= name "owned")
                             (cond
                               (= owned value)
-                              (.delete search-params "owned")
+                              (dispatch {:filter "owned" :value nil :delete true})
 
                               (= value "true")
-                              (.set search-params "owned" true)
+                              (dispatch {:filter "owned" :value true})
 
                               (= value "false")
-                              (.set search-params "owned" false))
+                              (dispatch {:filter "owned" :value false}))
 
                             (= name "in_stock")
                             (cond
                               (= in_stock value)
-                              (.delete search-params "in_stock")
+                              (dispatch {:filter "in_stock" :value nil :delete true})
 
                               (= value "true")
-                              (.set search-params "in_stock" true)
+                              (dispatch {:filter "in_stock" :value true})
 
                               (= value "false")
-                              (.set search-params "in_stock" false))
+                              (dispatch {:filter "in_stock" :value false}))
 
                             (= name "incomplete")
                             (cond
                               (= incomplete value)
-                              (.delete search-params "incomplete")
+                              (dispatch {:filter "incomplete" :value nil :delete true})
 
                               (= value "true")
-                              (.set search-params "incomplete" true)
+                              (dispatch {:filter "incomplete" :value true})
 
                               (= value "false")
-                              (.set search-params "incomplete" false))
+                              (dispatch {:filter "incomplete" :value false}))
 
                             (= name "broken")
                             (cond
                               (= broken value)
-                              (.delete search-params "broken")
+                              (dispatch {:filter "broken" :value nil :delete true})
 
                               (= value "true")
-                              (.set search-params "broken" true)
+                              (dispatch {:filter "broken" :value true})
 
                               (= value "false")
-                              (.set search-params "broken" false)))
-
-                          (.set search-params "page" "1")
-                          (set-search-params! search-params)))]
+                              (dispatch {:filter "broken" :value false})))))]
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :disabled (= with_items "false")
+                     :disabled (some #{:status} state)
+                     :name "status-filter"
                      :class-name class-name}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.status.title")
@@ -84,11 +87,14 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ Button {:type "button"
+                              :class-name "p-0 h-auto font-normal"
+                              :variant "ghost"
+                              :disabled (some #{:owned} state)}
                       (t "pool.models.filters.status.owned"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent
+                      ($ DropdownMenuSubContent {:class-name (when (some #{:owned} state) "hidden")}
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
@@ -113,11 +119,14 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ Button {:type "button"
+                              :class-name "p-0 h-auto font-normal"
+                              :variant "ghost"
+                              :disabled (some #{:in_stock} state)}
                       (t "pool.models.filters.status.in_stock"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent
+                      ($ DropdownMenuSubContent {:class-name (when (some #{:in_stock} state) "hidden")}
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
@@ -142,11 +151,15 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ Button {:type "button"
+                              :class-name "p-0 h-auto font-normal"
+                              :variant "ghost"
+                              :disabled (some #{:broken} state)
+                              :name "broken-filter"}
                       (t "pool.models.filters.status.broken"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent
+                      ($ DropdownMenuSubContent {:class-name (when (some #{:broken} state) "hidden")}
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
@@ -171,11 +184,15 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ :button {:type "button"}
+                   ($ Button {:type "button"
+                              :variant "ghost"
+                              :class-name "p-0 h-auto font-normal"
+                              :disabled (some #{:broken} state)
+                              :name "incomplete-filter"}
                       (t "pool.models.filters.status.incomplete"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent
+                      ($ DropdownMenuSubContent {:class-name (when (some #{:incomplete} state) "hidden")}
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"

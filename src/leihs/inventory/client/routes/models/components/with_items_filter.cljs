@@ -4,11 +4,15 @@
                         SelectValue]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
 
         with_items (js/JSON.parse (.. search-params (get "with_items")))
         handle-with-items (fn [value]
@@ -28,6 +32,7 @@
     ($ Select {:value with_items
                :onValueChange handle-with-items}
        ($ SelectTrigger {:name "with_items"
+                         :disabled (some #{:with_items} state)
                          :className (str "w-[260px] " class-name)}
           ($ SelectValue))
        ($ SelectContent
