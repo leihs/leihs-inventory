@@ -9,13 +9,20 @@
 (defui FilterProvider [{:keys [children]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
 
-        update-search-params (fn [disabled current-filter value & [delete?]]
-                               (doseq [filter disabled]
-                                 (.delete search-params (name filter)))
+        update-search-params (fn [{:keys [remove-params update-param]
+                                   :or {remove-params []
+                                        update-param {:param nil
+                                                      :value nil
+                                                      :delete true}}}]
 
-                               (if delete?
-                                 (.delete search-params current-filter)
-                                 (.set search-params current-filter value))
+                               (doseq [param remove-params]
+                                 (.delete search-params (name param)))
+
+                               (if (:delete update-param)
+                                 (.delete search-params (:param update-param))
+                                 (.set search-params
+                                       (:param update-param)
+                                       (:value update-param)))
 
                                (.set search-params "page" "1")
                                (set-search-params! search-params))
@@ -24,9 +31,8 @@
                          (let [filter (:filter action)
                                value (:value action)]
 
-                           (js/console.debug filter value)
                            (cond
-                           ;; reset filters
+                             ;; reset filters
                              (:reset action)
                              (let [remove-filter [:type
                                                   :inventory_pool_id
@@ -39,7 +45,9 @@
                                                   :owned
                                                   :in_stock]]
 
-                               (update-search-params remove-filter "with_items" true)
+                               (update-search-params {:remove-params remove-filter
+                                                      :update-param {:param "with_items"
+                                                                     :delete true}})
                                [:status])
 
                              (= (:filter action) "with_items")
@@ -49,7 +57,11 @@
                                                (into [] (remove (set disable) state))
                                                disable)]
 
-                               (update-search-params new-state filter value (:delete action))
+                               (update-search-params {:remove-params new-state
+                                                      :update-param {:param filter
+                                                                     :value value
+                                                                     :delete (:delete action)}})
+
                                new-state)
 
                              (= (:filter action) "type")
@@ -71,7 +83,10 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params new-state filter value (:delete action))
+                                 (update-search-params {:remove-params new-state
+                                                        :update-param {:param filter
+                                                                       :value value
+                                                                       :delete (:delete action)}})
                                  new-state)
 
                                (= (:value action) "model")
@@ -80,7 +95,10 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params new-state filter value (boolean (:delete action)))
+                                 (update-search-params {:remove-params new-state
+                                                        :update-param {:param filter
+                                                                       :value value
+                                                                       :delete (:delete action)}})
                                  new-state)
 
                                (= (:value action) "package")
@@ -89,7 +107,10 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params new-state filter value (boolean (:delete action)))
+                                 (update-search-params {:remove-params new-state
+                                                        :update-param {:param filter
+                                                                       :value value
+                                                                       :delete (:delete action)}})
                                  new-state)
 
                                (= (:value action) "software")
@@ -102,7 +123,10 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params new-state filter value (boolean (:delete action)))
+                                 (update-search-params {:remove-params new-state
+                                                        :update-param {:param filter
+                                                                       :value value
+                                                                       :delete (:delete action)}})
                                  new-state))
 
                              :else
@@ -111,38 +135,15 @@
                                                (into [] (remove (set disable) state))
                                                (into state filter))]
 
-                               (update-search-params new-state filter value (boolean (:delete action)))
+                               (update-search-params {:remove-params new-state
+                                                      :update-param {:param filter
+                                                                     :value value
+                                                                     :delete (:delete action)}})
                                new-state))))
 
         create-initial-state (fn []
-                               (let [type (.get search-params "type")
-                                     owned (.get search-params "owned")
-                                     in_stock (.get search-params "in_stock")
-                                     incomplete (.get search-params "incomplete")
-                                     broken (.get search-params "broken")
-                                     with_items (.get search-params "with_items")
-                                     retired (.get search-params "retired")
-                                     inventory_pool_id (.get search-params "inventory_pool_id")
-                                     category_id (.get search-params "category_id")
-                                     before_last_check (.get search-params "before_last_check")
-                                     borrowable (.get search-params "borrowable")]
-
+                               (let [type (.get search-params "type")]
                                  (cond-> []
-                                   false
-                                   (conj :type)
-
-                                   false
-                                   (conj :model)
-
-                                   false
-                                   (conj :option)
-
-                                   false
-                                   (conj :software)
-
-                                   false
-                                   (conj :package)
-
                                    (= type "option")
                                    (conj :inventory_pool_id)
 
@@ -165,12 +166,6 @@
 
                                    (= type "option")
                                    (conj :status)
-
-                                   false
-                                   (conj :owned)
-
-                                   false
-                                   (conj :in_stock)
 
                                    (= type "software")
                                    (conj :incomplete)
