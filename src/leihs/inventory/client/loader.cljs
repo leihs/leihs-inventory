@@ -49,7 +49,7 @@
                        (.then #(jc (.-data %))))
 
         models (-> http-client
-                   (.get "/inventory/models-compatibles" #js {:cache false})
+                   (.get "/inventory/models-compatibles" #js {:id "compatible-models"})
                    (.then (fn [res]
                             (if (:model-id (jc params))
                               ;; If a model-id is provided, filter out the current model
@@ -59,15 +59,17 @@
                               (jc (.-data res))))))
 
         manufacturers (-> http-client
-                          (.get "/inventory/manufacturers?type=Model" #js {:cache false})
+                          (.get "/inventory/manufacturers?type=Model" #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
-        model-path (when (:model-id (jc params))
+        model-id (or (:model-id (jc params)) nil)
+
+        model-path (when model-id
                      (router/generatePath "/inventory/:pool-id/model/:model-id" params))
 
         model (when model-path
                 (-> http-client
-                    (.get model-path #js {:cache false})
+                    (.get model-path #js {:id model-id})
                     (.then (fn [res]
                              (let [kv (jc (.-data res))]
                                (->> kv

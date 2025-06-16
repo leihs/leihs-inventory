@@ -9,21 +9,18 @@
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
-   ["@@/dropdown-menu" :refer [DropdownMenu
-                               DropdownMenuContent
-                               DropdownMenuItem
-                               DropdownMenuLabel
-                               DropdownMenuSeparator
+   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
+                               DropdownMenuItem DropdownMenuSeparator
                                DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
-   ["lucide-react" :refer [Trash Pencil CirclePlus ChevronDown]]
+   ["lucide-react" :refer [ChevronDown]]
    ["react-hook-form" :refer [useForm]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link useLoaderData]]
    ["sonner" :refer [toast]]
-   [cljs.core.async :as async :refer [go <!]]
+   [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
@@ -54,7 +51,14 @@
         location (router/useLocation)
         navigate (router/useNavigate)
 
+        ;; state to get search-params from pevious route
         state (.. location -state)
+        ;; remove "with_items" from the URL params
+        params-with-all-items (fn []
+                                (let [params (js/URLSearchParams. (.-searchParams state))]
+                                  (.delete params "with_items")
+                                  (.. params (toString))))
+
         is-create (.. location -pathname (includes "create"))
         is-delete (.. location -pathname (includes "delete"))
 
@@ -78,8 +82,11 @@
                                 model-id (aget params "model-id")
                                 res (<p! (-> http-client
                                              (.delete (str "/inventory/" pool-id "/model/" model-id))
-                                             (.then #(.-data %))))
-                                status (.. res -status)]
+                                             (.then (fn [data]
+                                                      {:status (.. data -status)
+                                                       :statusText (.. data -statusText)
+                                                       :data (.. data -data)}))))
+                                status (:status res)]
 
                             (if (= status 200)
                               (do
@@ -123,22 +130,34 @@
                                                          (dissoc (jc data) :images :attachments))))
 
                             pool-id (aget params "pool-id")
+
                             model-res (if is-create
                                         (<p! (-> http-client
                                                  (.post (str "/inventory/" pool-id "/model/")
-                                                        (js/JSON.stringify (cj model-data)))
+                                                        (js/JSON.stringify (cj model-data))
+                                                        (cj {:cache
+                                                             {:update {:models "delete"
+                                                                       :compatible-models "delete"
+                                                                       :manufacturers "delete"}}}))
+
                                                  (.then (fn [res]
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
                                                            :id (.. res -data -data -id)}))))
 
-                                        (<p! (-> http-client
-                                                 (.put (str "/inventory/" pool-id "/model/" (aget params "model-id") "/")
-                                                       (js/JSON.stringify (cj model-data)))
-                                                 (.then (fn [res]
-                                                          {:status (.. res -status)
-                                                           :statusText (.. res -statusText)
-                                                           :id (.. res -data -data -id)})))))
+                                        (<p! (let [model-id (aget params "model-id")]
+                                               (-> http-client
+                                                   (.put (str "/inventory/" pool-id "/model/" model-id "/")
+                                                         (js/JSON.stringify (cj model-data))
+                                                         (cj {:cache
+                                                              {:update {:models "delete"
+                                                                        (keyword model-id) "delete"
+                                                                        :compatible-models "delete"
+                                                                        :manufacturers "delete"}}}))
+                                                   (.then (fn [res]
+                                                            {:status (.. res -status)
+                                                             :statusText (.. res -statusText)
+                                                             :id (.. res -data -data -id)}))))))
 
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
@@ -218,13 +237,21 @@
                                            "/inventory/:pool-id/models/:model-id/items/create"
                                            #js {:pool-id pool-id
                                                 :model-id model-id})
-                                          #js {:viewTransition true})
-
-                                (navigate (router/generatePath
-                                           "/inventory/:pool-id/models?with_items=false"
-                                           #js {:pool-id pool-id})
                                           #js {:state state
-                                               :viewTransition true}))))))))]
+                                               :viewTransition true})
+
+                                (if is-create
+                                  (navigate (str (router/generatePath
+                                                  "/inventory/:pool-id/models"
+                                                  #js {:pool-id pool-id}) "?" (params-with-all-items))
+                                            #js {:state state
+                                                 :viewTransition true})
+
+                                  (navigate (str (router/generatePath
+                                                  "/inventory/:pool-id/models"
+                                                  #js {:pool-id pool-id}) (some-> state .-searchParams))
+                                            #js {:state state
+                                                 :viewTransition true})))))))))]
 
     (uix/use-effect
      (fn []
