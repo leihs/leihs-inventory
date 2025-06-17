@@ -6,8 +6,8 @@
 (def ctx (uix/create-context))
 (def dispatcher (uix/create-context))
 
-(defui FilterProvider [{:keys [children]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+(defui main [{:keys [children]}]
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
 
         update-search-params (fn [{:keys [remove-params update-param]
                                    :or {remove-params []
@@ -25,7 +25,11 @@
                                        (:value update-param)))
 
                                (.set search-params "page" "1")
-                               (set-search-params! search-params))
+
+                               (let [url (str (.-pathname js/window.location)
+                                              "?"
+                                              (str search-params))]
+                                 (.pushState js/history #js {} "" url)))
 
         filter-reducer (fn [state action]
                          (let [filter (:filter action)
@@ -34,7 +38,7 @@
                            (cond
                              ;; reset filters
                              (:reset action)
-                             (let [remove-filter [:type
+                             (let [remove-params [:type
                                                   :inventory_pool_id
                                                   :category_id
                                                   :before_last_check
@@ -45,24 +49,19 @@
                                                   :owned
                                                   :in_stock]]
 
-                               (update-search-params {:remove-params remove-filter
+                               (update-search-params {:remove-params remove-params
                                                       :update-param {:param "with_items"
                                                                      :delete true}})
                                [:status])
 
                              (= (:filter action) "with_items")
-                             (let [disable [:status]
+                             (let [disable [(when (= value true) :status)]]
 
-                                   new-state (if (:delete action)
-                                               (into [] (remove (set disable) state))
-                                               disable)]
-
-                               (update-search-params {:remove-params new-state
-                                                      :update-param {:param filter
+                               (update-search-params {:update-param {:param filter
                                                                      :value value
                                                                      :delete (:delete action)}})
 
-                               new-state)
+                               disable)
 
                              (= (:filter action) "type")
                              (cond
@@ -83,8 +82,7 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params {:remove-params new-state
-                                                        :update-param {:param filter
+                                 (update-search-params {:update-param {:param filter
                                                                        :value value
                                                                        :delete (:delete action)}})
                                  new-state)
@@ -95,8 +93,7 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params {:remove-params new-state
-                                                        :update-param {:param filter
+                                 (update-search-params {:update-param {:param filter
                                                                        :value value
                                                                        :delete (:delete action)}})
                                  new-state)
@@ -107,8 +104,7 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params {:remove-params new-state
-                                                        :update-param {:param filter
+                                 (update-search-params {:update-param {:param filter
                                                                        :value value
                                                                        :delete (:delete action)}})
                                  new-state)
@@ -123,8 +119,7 @@
                                                  (into [] (remove (set disable) state))
                                                  disable)]
 
-                                 (update-search-params {:remove-params new-state
-                                                        :update-param {:param filter
+                                 (update-search-params {:update-param {:param filter
                                                                        :value value
                                                                        :delete (:delete action)}})
                                  new-state))
@@ -135,14 +130,14 @@
                                                (into [] (remove (set disable) state))
                                                (into state filter))]
 
-                               (update-search-params {:remove-params new-state
-                                                      :update-param {:param filter
+                               (update-search-params {:update-param {:param filter
                                                                      :value value
                                                                      :delete (:delete action)}})
                                new-state))))
 
         create-initial-state (fn []
-                               (let [type (.get search-params "type")]
+                               (let [type (.get search-params "type")
+                                     with_items (.get search-params "with_items")]
                                  (cond-> []
                                    (= type "option")
                                    (conj :inventory_pool_id)
@@ -164,7 +159,8 @@
                                    (= type "option")
                                    (conj :with_items)
 
-                                   (= type "option")
+                                   (or (= type "option")
+                                       (= with_items "true"))
                                    (conj :status)
 
                                    (= type "software")
@@ -173,7 +169,39 @@
                                    (= type "software")
                                    (conj :broken))))
 
-        [state dispatch] (uix/use-reducer filter-reducer [] create-initial-state)]
+        [state dispatch] (uix/use-reducer filter-reducer nil create-initial-state)
+        prev-state (uix/use-ref nil)]
+
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (let [prev-state @prev-state]
+    ;;      (js/console.debug prev-state state)
+    ;;      ;; Check if `state` changed
+    ;;      (when (not= prev-state state)
+    ;;        (doseq [[filter is-hidden] (:hidden state)]
+    ;;          (when (and is-hidden
+    ;;                     (not= (name filter) (:filter state)))
+    ;;            (.delete search-params (name filter))))
+    ;;
+    ;;        (if (not= (:value state) nil)
+    ;;          (.set search-params (:filter state) (:value state))
+    ;;          (.delete search-params (:filter state)))
+    ;;
+    ;;        (.set search-params "page" "1")
+    ;;        (set-search-params! search-params)))
+    ;;
+    ;;    ;; Update the ref with the current dependencies
+    ;;    (reset! prev-state state))
+    ;;  [state search-params set-search-params!])
+
+;; Provide the state and dispatcher to the context
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (update-search-params {:remove-params [:page]
+    ;;                           :update-param {:param "type"
+    ;;                                          :value (.get search-params "type")
+    ;;                                          :delete true}}))
+    ;;  [])
 
     ($ ctx
        {:value state}

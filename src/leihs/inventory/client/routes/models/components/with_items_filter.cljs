@@ -8,7 +8,7 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [[search-params _] (router/useSearchParams)
         [t] (useTranslation)
 
         dispatch (filter-reducer/use-filter-dispatcher)
@@ -16,18 +16,9 @@
 
         with_items (js/JSON.parse (.. search-params (get "with_items")))
         handle-with-items (fn [value]
-                            (when (not value)
-                              (.delete search-params "in_stock")
-                              (.delete search-params "owned")
-                              (.delete search-params "incomplete")
-                              (.delete search-params "broken"))
-
                             (if (= value nil)
-                              (.delete search-params "with_items")
-                              (.set search-params "with_items" value))
-
-                            (.set search-params "page" "1")
-                            (set-search-params! search-params))]
+                              (dispatch {:filter "with_items" :value nil :delete true})
+                              (dispatch {:filter "with_items" :value value})))]
 
     ($ Select {:value with_items
                :onValueChange handle-with-items}

@@ -23,7 +23,7 @@
    [leihs.inventory.client.routes.models.components.status-filter :refer [StatusFilter]]
    [leihs.inventory.client.routes.models.components.type-filter :refer [TypeFilter]]
    [leihs.inventory.client.routes.models.components.with-items-filter :refer [WithItemsFilter]]
-   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer :refer [FilterProvider]]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -45,7 +45,7 @@
        ($ CardHeader {:className "flex sticky top-12 
                       bg-white rounded-xl z-10"
                       :style {:background "linear-gradient(to bottom, white 90%, transparent 100%)"}}
-          ($ FilterProvider
+          ($ filter-reducer/main
              ($ :div
                 ($ :div {:className "flex flex-wrap gap-2"}
                    ($ SearchFilter)
