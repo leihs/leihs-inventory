@@ -6,28 +6,24 @@
    ["date-fns" :as date-fns]
    ["lucide-react" :refer [CalendarDays]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
    [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
 
         dispatch (filter-reducer/use-filter-dispatcher)
         state (filter-reducer/use-filter-state)
 
         [t] (useTranslation)
-        before-last-check (.. search-params (get "before_last_check"))
+        before-last-check (.get search-params "before_last_check")
         handle-before-last-check (fn [date]
                                    (let [formatted-date (if date
                                                           (date-fns/format date "yyyy-MM-dd")
                                                           nil)]
                                      (if (or (= date nil) (= formatted-date before-last-check))
-                                       (.delete search-params "before_last_check")
-                                       (.set search-params "before_last_check" formatted-date))
-
-                                     (.set search-params "page" "1")
-                                     (set-search-params! search-params)))]
+                                       (dispatch {:filter "before_last_check" :value formatted-date :delete true})
+                                       (dispatch {:filter "before_last_check" :value formatted-date}))))]
 
     ($ Popover
        ($ PopoverTrigger {:asChild true}

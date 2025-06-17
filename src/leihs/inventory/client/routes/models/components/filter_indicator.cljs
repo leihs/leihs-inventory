@@ -6,6 +6,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -32,7 +33,11 @@
         ($ X {:class-name "p-[3px]"}))))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
+
+        dispatch (filter-reducer/use-filter-dispatcher)
+        state (filter-reducer/use-filter-state)
+
         categories (:children (:categories (router/useRouteLoaderData "models-page")))
         inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
         [t] (useTranslation)
@@ -49,9 +54,7 @@
 
         handle-click (fn [e]
                        (let [val (.. e -target -value)]
-                         (.delete search-params val)
-                         (.set search-params "page" "1")
-                         (set-search-params! search-params)))]
+                         (dispatch {:filter val :value nil :delete true})))]
 
     (for [[key value] sorted-map]
       ($ :<> {:key (str key value)}

@@ -13,7 +13,7 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
 
         dispatch (filter-reducer/use-filter-dispatcher)
         state (filter-reducer/use-filter-state)

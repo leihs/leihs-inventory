@@ -127,12 +127,13 @@
                              :else
                              (let [disable []
                                    new-state (if (:delete action)
-                                               (into [] (remove (set disable) state))
-                                               (into state filter))]
+                                               (into [] (remove filter state))
+                                               (into state [filter]))]
 
                                (update-search-params {:update-param {:param filter
                                                                      :value value
                                                                      :delete (:delete action)}})
+                               (js/console.debug "new state" new-state filter)
                                new-state))))
 
         create-initial-state (fn []
@@ -169,39 +170,7 @@
                                    (= type "software")
                                    (conj :broken))))
 
-        [state dispatch] (uix/use-reducer filter-reducer nil create-initial-state)
-        prev-state (uix/use-ref nil)]
-
-    ;; (uix/use-effect
-    ;;  (fn []
-    ;;    (let [prev-state @prev-state]
-    ;;      (js/console.debug prev-state state)
-    ;;      ;; Check if `state` changed
-    ;;      (when (not= prev-state state)
-    ;;        (doseq [[filter is-hidden] (:hidden state)]
-    ;;          (when (and is-hidden
-    ;;                     (not= (name filter) (:filter state)))
-    ;;            (.delete search-params (name filter))))
-    ;;
-    ;;        (if (not= (:value state) nil)
-    ;;          (.set search-params (:filter state) (:value state))
-    ;;          (.delete search-params (:filter state)))
-    ;;
-    ;;        (.set search-params "page" "1")
-    ;;        (set-search-params! search-params)))
-    ;;
-    ;;    ;; Update the ref with the current dependencies
-    ;;    (reset! prev-state state))
-    ;;  [state search-params set-search-params!])
-
-;; Provide the state and dispatcher to the context
-    ;; (uix/use-effect
-    ;;  (fn []
-    ;;    (update-search-params {:remove-params [:page]
-    ;;                           :update-param {:param "type"
-    ;;                                          :value (.get search-params "type")
-    ;;                                          :delete true}}))
-    ;;  [])
+        [state dispatch] (uix/use-reducer filter-reducer nil create-initial-state)]
 
     ($ ctx
        {:value state}

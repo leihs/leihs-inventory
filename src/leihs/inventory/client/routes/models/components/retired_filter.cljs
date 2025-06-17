@@ -8,7 +8,7 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
         [t] (useTranslation)
 
         dispatch (filter-reducer/use-filter-dispatcher)
@@ -17,10 +17,8 @@
         retired (js/JSON.parse (.. search-params (get "retired")))
         handle-retired (fn [value]
                          (if (= value nil)
-                           (.delete search-params "retired")
-                           (.set search-params "retired" value))
-                         (.set search-params "page" "1")
-                         (set-search-params! search-params))]
+                           (dispatch {:filter "retired" :value nil :delete true})
+                           (dispatch {:filter "retired" :value value})))]
 
     ($ Select {:value retired
                :onValueChange handle-retired}

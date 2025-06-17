@@ -13,15 +13,14 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui file-tree-item [{:keys [name category_id searching children]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
+        dispatch (filter-reducer/use-filter-dispatcher)
 
         handle-select (fn [e]
                         (let [id (.. e -currentTarget -value)]
                           (if (= id (.. search-params (get "category_id")))
-                            (.delete search-params "category_id")
-                            (.set search-params "category_id" id))
-                          (.set search-params "page" "1")
-                          (set-search-params! search-params)))]
+                            (dispatch {:filter "category_id" :value nil :delete true})
+                            (dispatch {:filter "category_id" :value id}))))]
 
     (if (not (seq children))
       ($ :div {:class-name "relative"}
@@ -75,7 +74,6 @@
 (defui main [{:keys [class-name]}]
   (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
 
-        dispatch (filter-reducer/use-filter-dispatcher)
         state (filter-reducer/use-filter-state)
 
         [search set-search!] (uix/use-state categories)

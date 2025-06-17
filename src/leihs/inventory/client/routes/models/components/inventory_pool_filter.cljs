@@ -18,17 +18,15 @@
 
         buttonRef (uix/use-ref nil)
         [open set-open!] (uix/use-state false)
-        [search-params set-search-params!] (router/useSearchParams)
+        search-params (js/URLSearchParams. (.. js/window -location -search))
         [t] (useTranslation)
 
         pool-id (.get search-params "inventory_pool_id")
         handle-select (fn [id]
                         (if (= pool-id id)
-                          (.delete search-params "inventory_pool_id")
-                          (.set search-params "inventory_pool_id" id))
+                          (dispatch {:filter "inventory_pool_id" :value nil :delete true})
+                          (dispatch {:filter "inventory_pool_id" :value id}))
 
-                        (.set search-params "page" "1")
-                        (set-search-params! search-params)
                         (set-open! false))]
 
     ($ Popover {:open open

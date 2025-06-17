@@ -3,12 +3,11 @@
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router]
    [leihs.inventory.client.routes.models.filter-reducer :as filter-reducer]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+  (let [search-params (js/URLSearchParams. (.. js/window -location -search))
         [t] (useTranslation)
 
         dispatch (filter-reducer/use-filter-dispatcher)
@@ -18,10 +17,8 @@
 
         handle-borrowable (fn [value]
                             (if (= value nil)
-                              (.delete search-params "borrowable")
-                              (.set search-params "borrowable" value))
-                            (.set search-params "page" "1")
-                            (set-search-params! search-params))]
+                              (dispatch {:filter "borrowable" :value nil :delete true})
+                              (dispatch {:filter "borrowable" :value value})))]
 
     ($ Select {:value borrowable
                :onValueChange handle-borrowable}
