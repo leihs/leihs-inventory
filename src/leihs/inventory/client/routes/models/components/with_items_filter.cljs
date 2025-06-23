@@ -8,16 +8,11 @@
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+        type (.. search-params (get "type"))
         [t] (useTranslation)
 
         with_items (js/JSON.parse (.. search-params (get "with_items")))
         handle-with-items (fn [value]
-                            (when (not value)
-                              (.delete search-params "in_stock")
-                              (.delete search-params "owned")
-                              (.delete search-params "incomplete")
-                              (.delete search-params "broken"))
-
                             (if (= value nil)
                               (.delete search-params "with_items")
                               (.set search-params "with_items" value))
@@ -26,6 +21,7 @@
                             (set-search-params! search-params))]
 
     ($ Select {:value with_items
+               :disabled (= type "option")
                :onValueChange handle-with-items}
        ($ SelectTrigger {:name "with_items"
                          :className (str "w-[260px] " class-name)}

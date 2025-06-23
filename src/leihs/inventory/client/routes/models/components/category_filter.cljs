@@ -60,7 +60,7 @@
 (defn filter-categories [categories names]
   (letfn [(filter-helper [nodes]
             (reduce
-             (fn [acc {:keys [name children category_id] :as node}]
+             (fn [acc {:keys [name children _] :as node}]
                (let [matched (if (some #(str/starts-with? name %) names)
                                [(assoc node :children [])]
                                [])]
@@ -73,6 +73,8 @@
 (defui main [{:keys [class-name]}]
   (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
         [search set-search!] (uix/use-state categories)
+        [search-params _] (router/useSearchParams)
+        type (.. search-params (get "type"))
         [is-searching? set-is-searching!] (uix/use-state false)
         handle-search (fn [e]
                         (let [value (.. e -target -value)
@@ -89,6 +91,8 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
+                     :disabled (or (= type "option")
+                                   (= type "software"))
                      :class-name class-name}
              ($ List {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.categories.title")

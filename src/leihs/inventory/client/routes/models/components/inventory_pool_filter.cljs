@@ -11,9 +11,10 @@
 
 (defui main [{:keys [class-name]}]
   (let [inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
+        [search-params set-search-params!] (router/useSearchParams)
         buttonRef (uix/use-ref nil)
         [open set-open!] (uix/use-state false)
-        [search-params set-search-params!] (router/useSearchParams)
+        type (.. search-params (get "type"))
         [t] (useTranslation)
 
         pool-id (.get search-params "inventory_pool_id")
@@ -30,6 +31,7 @@
                 :on-open-change #(set-open! %)}
        ($ PopoverTrigger {:as-child true}
           ($ Button {:ref buttonRef
+                     :disabled (= type "option")
                      :on-click #(set-open! (not open))
                      :class-name class-name
                      :variant "outline"

@@ -33,6 +33,8 @@
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+        type (.. search-params (get "type"))
+        with_items (.. search-params (get "with_items"))
         categories (:children (:categories (router/useRouteLoaderData "models-page")))
         inventory-pools (:responsible-pools (router/useRouteLoaderData "models-page"))
         [t] (useTranslation)
@@ -56,7 +58,9 @@
     (for [[key value] sorted-map]
       ($ :<> {:key (str key value)}
          (cond
-           (= key :owned)
+           (and (not (= type "option"))
+                (not (= with_items "false"))
+                (= key :owned))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
               ($ CirclePlus {:className "h-3 w-3 mr-2 "})
@@ -65,7 +69,9 @@
                    (if (= value "true") (t "pool.models.filters.status.yes")
                        (t "pool.models.filters.status.no"))))
 
-           (= key :in_stock)
+           (and (not (= type "option"))
+                (not (= with_items "false"))
+                (= key :in_stock))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
 
@@ -75,7 +81,10 @@
                    (if (= value "true") (t "pool.models.filters.status.yes")
                        (t "pool.models.filters.status.no"))))
 
-           (= key :incomplete)
+           (and (not (= type "option"))
+                (not (= with_items "false"))
+                (not (= type "software"))
+                (= key :incomplete))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
 
@@ -85,7 +94,10 @@
                    (if (= value "true") (t "pool.models.filters.status.yes")
                        (t "pool.models.filters.status.no"))))
 
-           (= key :broken)
+           (and (not (= type "option"))
+                (not (= with_items "false"))
+                (not (= type "software"))
+                (= key :broken))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
               ($ CirclePlus {:className "h-3 w-3 mr-2 "})
@@ -94,19 +106,24 @@
                    (if (= value "true") (t "pool.models.filters.status.yes")
                        (t "pool.models.filters.status.no"))))
 
-           (= key :before_last_check)
+           (and (not (= type "option"))
+                (not (= type "software"))
+                (= key :before_last_check))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
               ($ CalendarDays {:className "h-3 w-3 mr-2 "})
               (str value))
 
-           (= key :category_id)
+           (and (not (= type "option"))
+                (not (= type "software"))
+                (= key :category_id))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
               ($ List {:className "h-3 w-3 mr-2 "})
               (find-category-name categories value))
 
-           (= key :inventory_pool_id)
+           (and (not (= type "option"))
+                (= key :inventory_pool_id))
            ($ interactive-badge {:value (name key)
                                  :on-click handle-click}
               ($ Building {:className "h-3 w-3 mr-2"})
