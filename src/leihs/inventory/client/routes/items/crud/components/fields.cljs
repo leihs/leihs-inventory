@@ -14,8 +14,8 @@
    ["@@/textarea" :refer [Textarea]]
    ["date-fns" :refer [format]]
    ["lucide-react" :refer [CalendarIcon]]
+   [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.items.crud.components.attachments :refer [Attachments]]
    [leihs.inventory.client.routes.items.crud.components.inventory-code :refer [InventoryCode]]
    [leihs.inventory.client.routes.items.crud.components.models :refer [Models]]
    [uix.core :as uix :refer [$ defui]]))
@@ -32,8 +32,7 @@
                       :props (:props block)})
 
     (-> block :component (= "attachments"))
-    ($ Attachments {:control control
-                    :form form
+    ($ Attachments {:form form
                     :props (:props block)})
 
     (-> block :component (= "models"))

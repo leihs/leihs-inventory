@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.crud.components.manufacturer
+(ns leihs.inventory.client.components.form.manufacturer
   (:require
    ["@/components/ui/popover" :refer [Popover PopoverAnchor PopoverContent]]
    ["@@/button" :refer [Button]]
@@ -12,7 +12,7 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui main [{:keys [form control]}]
+(defui main [{:keys [form control props]}]
   (let [{:keys [manufacturers]} (useLoaderData)
         [t] (useTranslation)
         [open set-open!] (uix/use-state false)
@@ -103,7 +103,7 @@
           {:name "manufacturer"
            :control (cj control)
            :render #($ FormItem {:class-name "flex flex-col mt-6"}
-                       ($ FormLabel (t "pool.model.product.blocks.manufacturer.label"))
+                       ($ FormLabel (t (-> props :text :label)))
 
                        ($ Popover {:open open}
                           ($ PopoverAnchor {:asChild true}

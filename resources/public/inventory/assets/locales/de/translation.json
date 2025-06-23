@@ -77,7 +77,8 @@
       "dropdown": {
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",
-        "add_item": "Neuen Gegenstand"
+        "add_item": "Neuen Gegenstand",
+        "add_software": "Neue Software"
       },
       "tabs": {
         "inventory_list": "Inventarliste",
@@ -95,6 +96,68 @@
         "actions": {
           "edit": "editieren",
           "add_item": "Gegenstand hinzufügen"
+        }
+      }
+    },
+    "software": {
+      "title": "Software bearbeiten",
+      "submit": "Speichern",
+      "cancel": "Abbrechen",
+      "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+      "create": {
+        "title": "Neue Software erstellen",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Software speichern",
+        "cancel": "Abbrechen",
+        "success": "Software wurde erfolgreich erstellt",
+        "invalid_one": "Software konnte nicht erstellt werden, da ein Feld ungültig ist",
+        "invalid_other": "Software konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+        "409": "Software konnte nicht erstellt werden, da eine Software mit dem gleichen Namen bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
+      },
+      "edit": {
+        "delete": "Löschen",
+        "success": "Software wurde erfolgreich gespeichert",
+        "invalid_one": "Software konnte nicht gespeichert werden, da ein Feld ungültig ist",
+        "invalid_other": "Software konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+      },
+      "delete": {
+        "title": "Software löschen",
+        "description": "Sind Sie sicher, dass Sie diese Software löschen möchten?",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "success": "Software wurde erfolgreich gelöscht",
+        "500": "Software konnte nicht gelöscht werden"
+      },
+      "software": {
+        "title": "Software",
+        "blocks": {
+          "product": {
+            "label": "Produkt"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Hersteller",
+            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
+          },
+          "software_information": {
+            "label": "Software Informationen"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Anhänge",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Bezeichnung"
+            },
+            "label": "Datei",
+            "select": "Datei auswählen",
+            "not_found": "Datei nicht gefunden"
+          }
         }
       }
     },
