@@ -1,25 +1,28 @@
 (ns leihs.inventory.server.resources.models.models-by-pool
   (:require
    [clojure.set]
+   [clojure.string :refer [capitalize]]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-inventory-query
-                                                            entitlements-query item-query
-                                                            model-links-query properties-query
-                                                            with-items without-items with-search filter-by-type
-                                                            from-category]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.resources.models.queries :refer [base-inventory-query
+                                                            filter-by-type
+                                                            from-category
+                                                            with-items
+                                                            with-search
+                                                            without-items]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params
+                                                           query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist
+                                                url-ends-with-uuid?]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
+                                                    fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
-  (:import [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util.jar JarFile]))
+  (:import
+   (java.time LocalDateTime)))
 
 (defn- extract-option-type-from-uri [input-str]
   (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
@@ -70,23 +73,24 @@
          query (-> (base-inventory-query pool_id)
                    (cond-> type (filter-by-type type))
                    (cond->
-                    (and pool_id (true? with_items))
-                     (with-items pool_id
-                       :retired retired
-                       :borrowable borrowable
-                       :incomplete incomplete
-                       :broken broken
-                       :inventory_pool_id inventory_pool_id
-                       :owned owned
-                       :in_stock in_stock
-                       :before_last_check before_last_check)
-
-                     (and pool_id (false? with_items))
-                     (without-items pool_id)
-
-                     (and pool_id (presence search))
+                    (not= type :option)
+                     (cond->
+                      (and pool_id (true? with_items))
+                       (with-items pool_id
+                         (cond-> {:retired retired
+                                  :borrowable borrowable
+                                  :incomplete incomplete
+                                  :broken broken
+                                  :inventory_pool_id inventory_pool_id
+                                  :owned owned
+                                  :in_stock in_stock}
+                           (not= type :software)
+                           (assoc :before_last_check before_last_check)))
+                       (and pool_id (false? with_items))
+                       (without-items pool_id)))
+                   (cond-> (and pool_id (presence search))
                      (with-search search))
-                   (cond-> category_id
+                   (cond-> (and category_id (not (some #{type} [:option :software])))
                      (#(from-category tx % category_id))))]
      (debug (sql-format query :inline true))
 

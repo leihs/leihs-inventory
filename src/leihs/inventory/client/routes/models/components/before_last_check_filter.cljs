@@ -13,6 +13,7 @@
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+        type (.. search-params (get "type"))
         [t] (useTranslation)
         before-last-check (.. search-params (get "before_last_check"))
         handle-before-last-check (fn [date]
@@ -28,7 +29,10 @@
 
     ($ Popover
        ($ PopoverTrigger {:asChild true}
-          ($ Button {:variant "outline"}
+          ($ Button {:variant "outline"
+                     :disabled (or (= type "software")
+                                   (= type "option"))}
+
              ($ CalendarDays {:className (str "h-4 w-4 mr-2" class-name)})
              (t "pool.models.filters.before_last_check.title")))
 

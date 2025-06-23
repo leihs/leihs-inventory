@@ -8,8 +8,8 @@
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
+        type (.. search-params (get "type"))
         [t] (useTranslation)
-
         retired (js/JSON.parse (.. search-params (get "retired")))
         handle-retired (fn [value]
                          (if (= value nil)
@@ -19,6 +19,7 @@
                          (set-search-params! search-params))]
 
     ($ Select {:value retired
+               :disabled (= type "option")
                :onValueChange handle-retired}
        ($ SelectTrigger {:name "retired"
                          :className (str "w-[280px]" class-name)}

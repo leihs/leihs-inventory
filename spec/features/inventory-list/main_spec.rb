@@ -226,7 +226,31 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=false
     visit "/inventory/#{pool_1.id}/models"
+
+    click_on "Status"
+    click_on "Broken"
+    click_on "Yes"
+
+    click_on "Status"
+    click_on "In stock"
+    click_on "No"
+
+    click_on "Status"
+    click_on "Owned"
+    click_on "Yes"
+
+    click_on "Status"
+    click_on "Incomplete"
+    click_on "Yes"
+
     select_value("with_items", "without_items")
+
+    expect(page).to have_button("Status", disabled: true)
+
+    expect(page).not_to have_content("Broken - Yes")
+    expect(page).not_to have_content("In Stock - No")
+    expect(page).not_to have_content("Owned - Yes")
+    expect(page).not_to have_content("Incomplete - Yes")
 
     expect(all("table tbody tr").count).to eq 2
     expect(all("table tbody tr")[0]).to have_content(model_1.version)
@@ -391,15 +415,62 @@ feature "Inventory Page", type: :feature do
 
     # type=option
     visit "/inventory/#{pool_1.id}/models"
+
+    # set some filters to check if they are ignored
+    # before selecting option
+    click_on "Categories"
+    click_on cat_1.id
+    find("html").click
+    find("html").click
+
+    click_on "Status"
+    click_on "Broken"
+    click_on "Yes"
+
+    click_on "Status"
+    click_on "In stock"
+    click_on "No"
+
+    click_on "Inventory before"
+    within ".rdp" do
+      all(:button, Date.today.day.to_s).last.click
+    end
+    click_on "Inventory before"
+
+    select_value("with_items", "with_items")
+    select_value("borrowable", "borrowable")
+    select_value("retired", "retired")
+
+    click_on "Inventory pool"
+    find("[data-value='#{pool_2.id}']").click
+    find("html").click
+    find("html").click
+
+    expect(page).to have_content(cat_1.name.to_s)
+    expect(page).to have_content("Audio")
+    expect(page).to have_content("Broken - Yes")
+    expect(page).to have_content("In stock - No")
+    expect(page).to have_content(pool_2.name)
+    expect(page).to have_content(Date.today.day.to_s)
+
     click_on "Inventory type"
     click_on "Option"
+
     expect(page).to have_content("Option")
+
+    expect(page).to have_button("Status", disabled: true)
+    expect(page).to have_button("Inventory pool", disabled: true)
+    expect(page).to have_button("Categories", disabled: true)
+    expect(page).to have_button("Inventory before", disabled: true)
+    expect(page).to have_button("retired", disabled: true)
+    expect(page).to have_button("only models with items", disabled: true)
+    expect(page).to have_button("borrowable", disabled: true)
 
     expect(all("table tbody tr").count).to eq 1
     expect(all("table tbody tr")[0]).to have_content(option_1.version)
 
     # pool 5
-    # with_items=false
+    # with_items=true
     visit "/inventory/#{pool_5.id}/models"
     select_value("with_items", "with_items")
 
