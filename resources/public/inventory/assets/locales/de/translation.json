@@ -77,7 +77,8 @@
       "dropdown": {
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",
-        "add_item": "Neuen Gegenstand"
+        "add_item": "Neuen Gegenstand",
+        "add_software": "Neue Software"
       },
       "tabs": {
         "inventory_list": "Inventarliste",
@@ -95,6 +96,57 @@
         "actions": {
           "edit": "editieren",
           "add_item": "Gegenstand hinzufügen"
+        }
+      }
+    },
+    "software": {
+      "create": {
+        "title": "Neue Software erstellen",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Software speichern",
+        "cancel": "Abbrechen",
+        "success": "Software wurde erfolgreich erstellt"
+      },
+      "edit": {
+        "success": "Modell wurde erfolgreich gespeichert",
+        "add_item": "Speichern und Gegenstand hinzufügen"
+      },
+      "delete": {
+        "title": "Software löschen",
+        "description": "Sind Sie sicher, dass Sie diese Software löschen möchten?",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "success": "Software wurde erfolgreich gelöscht",
+        "error": "Software konnte nicht gelöscht werden"
+      },
+      "software": {
+        "title": "Software",
+        "blocks": {
+          "product": {
+            "label": "Produkt"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Hersteller"
+          },
+          "software_information": {
+            "label": "Software information"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Anhänge",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Bezeichnung"
+            },
+            "label": "Datei",
+            "select": "Datei auswählen",
+            "not_found": "Datei nicht gefunden"
+          }
         }
       }
     },

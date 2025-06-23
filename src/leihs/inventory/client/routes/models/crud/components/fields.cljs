@@ -9,12 +9,10 @@
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.crud.components.accessories-list :refer [AccessoryList]]
-   [leihs.inventory.client.routes.models.crud.components.attachments :refer [Attachments]]
    [leihs.inventory.client.routes.models.crud.components.category-assignment :refer [CategoryAssignment]]
    [leihs.inventory.client.routes.models.crud.components.compatible-models :refer [CompatibleModels]]
    [leihs.inventory.client.routes.models.crud.components.entitlement-allocations :refer [EntitlementAllocations]]
    [leihs.inventory.client.routes.models.crud.components.image-upload :refer [ImageUpload]]
-   [leihs.inventory.client.routes.models.crud.components.manufacturer :refer [Manufacturer]]
    [leihs.inventory.client.routes.models.crud.components.model-properties :refer [ModelProperties]]
    [uix.core :as uix :refer [defui $]]))
 
@@ -47,8 +45,7 @@
                       :props (:props block)})
 
       (-> block :component (= "attachments"))
-      ($ Attachments {:control control
-                      :form form
+      ($ Attachments {:form form
                       :props (:props block)})
 
       (-> block :component (= "compatible-models"))
