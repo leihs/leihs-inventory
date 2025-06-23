@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.models.crud.components.attachments
+(ns leihs.inventory.client.components.form.attachments
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropzone" :refer [Dropzone DropzoneArea DropzoneFiles ErrorMessages
@@ -21,11 +21,11 @@
   (when (seq items)
     (some #(when (= id (:id %)) (:url %)) items)))
 
-(defui main [{:keys [control form props]}]
+(defui main [{:keys [form props]}]
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         [t] (useTranslation)
-        {:keys [model]} (useLoaderData)
+        {:keys [data]} (useLoaderData)
 
         [attachments set-attachments!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -73,7 +73,7 @@
             ($ Table
                ($ TableHeader
                   ($ TableRow
-                     ($ TableHead (t "pool.model.attachments.blocks.attachments.table.description"))
+                     ($ TableHead (t (-> props :text :description)))
                      ($ TableHead "")))
                ($ TableBody
                   (for [[index attachment] (map-indexed vector attachments)]
@@ -92,7 +92,7 @@
                                    ($ :a {:target "_blank"
                                           :href (get-url-from-id
                                                  (:id attachment)
-                                                 (:attachments model))}
+                                                 (:attachments data))}
                                       ($ Eye {:className "w-4 h-4"})))
 
                                 ($ Button {:variant "outline"

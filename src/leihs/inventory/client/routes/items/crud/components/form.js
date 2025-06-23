@@ -144,6 +144,9 @@ export const structure = [
         name: "attachments",
         component: "attachments",
         props: {
+          text: {
+            description: "Anhänge zu diesem Gegenstand",
+          },
           multiple: true,
           sortable: false,
         },

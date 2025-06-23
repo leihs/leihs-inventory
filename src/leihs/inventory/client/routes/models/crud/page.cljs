@@ -64,10 +64,10 @@
 
         is-edit (not (or is-create is-delete))
 
-        model (into {} (:model (jc (router/useLoaderData))))
+        {:keys [data]} (useLoaderData)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values model))
+                                            (fn [] (core/prepare-default-values data))
                                             default-values)})
 
         is-loading (.. form -formState -isLoading)
@@ -109,7 +109,7 @@
                             image-id (atom nil)
 
                             images-to-delete (if is-edit
-                                               (->> (:images model)
+                                               (->> (:images data)
                                                     (map :id)
                                                     (remove (set (map :id (:images (jc data))))))
                                                nil)
@@ -120,7 +120,7 @@
                                                   (:attachments (jc data))))
 
                             attachments-to-delete (if is-edit
-                                                    (->> (:attachments model)
+                                                    (->> (:attachments data)
                                                          (map :id)
                                                          (remove (set (map :id (:attachments (jc data))))))
                                                     nil)

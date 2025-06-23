@@ -5,6 +5,15 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc]]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This file contains the loaders for the inventory routes.
+;; The loaders are used to fetch data before rendering the components.
+;; The root layout loader fetches the user profile and sets the language for i18n.
+;; The other loaders fetch data for the specific pages, such as models, software, etc.
+;;
+;; Generic view data should be named with the `data` key in the returned map.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn root-layout []
   (-> http-client
       (.get "/inventory/profile")
@@ -37,6 +46,28 @@
                  :responsible-pools responsible-pools
                  :models models})))))
 
+(defn software-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        manufacturers (-> http-client
+                          (.get "/inventory/manufacturers?type=Software" #js {:id "manufacturers"})
+                          (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
+
+        software-id (or (:software-id (jc params)) nil)
+
+        software-path (when software-id
+                        (router/generatePath "/inventory/:pool-id/software/:software-id" params))
+
+        data (when software-path
+               (-> http-client
+                   (.get software-path #js {:id software-id})
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [manufacturers]
+                          data (conj data)))
+        (then (fn [[manufacturers & [data]]]
+                {:manufacturers manufacturers
+                 :data (if data data nil)})))))
+
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
         path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
@@ -67,24 +98,19 @@
         model-path (when model-id
                      (router/generatePath "/inventory/:pool-id/model/:model-id" params))
 
-        model (when model-path
-                (-> http-client
-                    (.get model-path #js {:id model-id})
-                    (.then (fn [res]
-                             (let [kv (jc (.-data res))]
-                               (->> kv
-                                    (vals)
-                                    (map (fn [el] (if (nil? el) "" el)))
-                                    (zipmap (keys kv))))))))]
+        data (when model-path
+               (-> http-client
+                   (.get model-path #js {:id model-id})
+                   (.then #(jc (.-data %)))))]
 
     (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
-                          model (conj model)))
-        (then (fn [[categories models manufacturers entitlement-groups & [model]]]
+                          data (conj data)))
+        (then (fn [[categories models manufacturers entitlement-groups & [data]]]
                 {:categories categories
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
                  :models models
-                 :model (if model model nil)})))))
+                 :data (if data data nil)})))))
 
 (defn items-crud-page [route-data]
   (let [models (-> http-client
