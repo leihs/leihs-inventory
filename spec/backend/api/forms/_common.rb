@@ -33,6 +33,15 @@ def expected_form_fields(fields, expected_fields)
   expect(form_field_ids).to eq(expected_fields)
 end
 
+def extract_first_level_of_tree(body)
+  body["children"].map do |child|
+    {
+      "id" => child["category_id"],
+      "name" => child["name"]
+    }
+  end
+end
+
 def compare_values(hash1, hash2, keys)
   keys.all? do |key|
     if !hash1.key?(key) || !hash2.key?(key)

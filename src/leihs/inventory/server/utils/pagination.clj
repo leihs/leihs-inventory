@@ -1,15 +1,11 @@
 (ns leihs.inventory.server.utils.pagination
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+   [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc.sql :as jdbc]
-   [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [ring.middleware.accept]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
@@ -78,19 +74,22 @@
 
 (defn create-pagination-response
   "To receive a paginated response, the request must contain the query parameters `page` and `size`."
-  [request base-query with-pagination?]
 
-  (let [{:keys [page size]} (fetch-pagination-params-raw request)
-        tx (:tx request)]
-    (cond
-      (and (or (nil? with-pagination?) (= with-pagination? false))
-           (single-entity-get-request? request))
-      (jdbc/query tx (-> base-query sql-format))
+  ([request base-query with-pagination?]
+   (create-pagination-response request base-query with-pagination? nil))
 
-      (and (or (nil? with-pagination?) with-pagination?)
-           (or (some? page) (some? size)))
-      (pagination-response request base-query)
+  ([request base-query with-pagination? post-fnc]
+   (let [{:keys [page size]} (fetch-pagination-params-raw request)
+         tx (:tx request)]
+     (cond
+       (and (or (nil? with-pagination?) (= with-pagination? false))
+            (single-entity-get-request? request))
+       (jdbc/query tx (-> base-query sql-format))
 
-      with-pagination? (pagination-response request base-query)
+       (and (or (nil? with-pagination?) with-pagination?)
+            (or (some? page) (some? size)))
+       (pagination-response request base-query post-fnc)
 
-      :else (jdbc/query tx (-> base-query sql-format)))))
+       with-pagination? (pagination-response request base-query post-fnc)
+
+       :else (jdbc/query tx (-> base-query sql-format))))))

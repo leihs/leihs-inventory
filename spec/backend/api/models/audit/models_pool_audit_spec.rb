@@ -16,7 +16,7 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
       session_auth_plain_faraday_json_client(cookies: @user_cookies, headers: headers)
     }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/models" }
+    let(:url) { "/inventory/#{inventory_pool_id}/models/" }
 
     context "CRUD operations for model management" do
       let(:category) { FactoryBot.create(:category) }
@@ -38,15 +38,14 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
 
       it "creates a model and returns status 200" do
         expect(response.status).to eq(200)
-        expect(response.body[0]["id"]).to be_present
-        expect(response.body.count).to eq(1)
-        expect_audit_entries_count(1, 8, 1)
+        expect(response.body["id"]).to be_present
+        expect_audit_entries_count(2, 8, 2)
       end
 
       it "updates a model and returns status 200" do
-        model_id = response.body[0]["id"]
+        model_id = response.body["id"]
 
-        updated_response = client.put("#{url}/#{model_id}") do |req|
+        updated_response = client.put("#{url}#{model_id}") do |req|
           req.body = {
             product: "Example Model 2",
             type: "Model",
@@ -59,21 +58,21 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
         end
 
         expect(updated_response.status).to eq(200)
-        expect(updated_response.body[0]["id"]).to eq(model_id)
-        expect_audit_entries_count(2, 9, 2)
+        expect(updated_response.body["id"]).to eq(model_id)
+        expect_audit_entries_count(3, 9, 3)
       end
 
       it "deletes a model and verifies it is removed" do
-        model_id = response.body[0]["id"]
-        delete_response = client.delete("#{url}/#{model_id}")
+        model_id = response.body["id"]
+        delete_response = client.delete("#{url}#{model_id}")
 
         expect(delete_response.status).to eq(200)
-        expect(delete_response.body[0]["id"]).to eq(model_id)
-        expect_audit_entries_count(2, 9, 2)
+        expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
+        expect_audit_entries_count(3, 9, 3)
 
-        check_deleted_response = client.get("#{url}/#{model_id}")
+        check_deleted_response = client.get("#{url}#{model_id}")
         expect(check_deleted_response.status).to eq(404)
-        expect_audit_entries_count(2, 9, 2)
+        expect_audit_entries_count(3, 9, 3)
       end
     end
   end

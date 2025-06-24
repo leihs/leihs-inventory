@@ -11,7 +11,7 @@ describe "Inventory API Endpoints - Model Links" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:url) { "/inventory/#{@inventory_pool.id}/entitlement-groups" }
+    let(:url) { "/inventory/#{@inventory_pool.id}/entitlement-groups/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:model_id) { resp.body[0]["id"] }
@@ -26,13 +26,6 @@ describe "Inventory API Endpoints - Model Links" do
         resp = client.get "#{url}?page=1&size=1"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(2)
-      end
-
-      it "retrieves a specific compatible model by ID and returns status 200" do
-        resp = client.get "#{url}/#{model_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-        expect(resp.body[0]["id"]).to eq(model_id)
       end
     end
   end
