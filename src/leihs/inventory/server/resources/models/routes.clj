@@ -51,7 +51,7 @@
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
-   [leihs.inventory.server.utils.config :refer [get-config]]
+   [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -329,10 +329,10 @@
      ["/images"
       ["" {:post {:accept "application/json"
                   :summary "Create image [v1]"
-                  :description (str "- Limitations: " (get-in (get-config) [:api :images :max-size-mb]) " MB\n"
-                                    "- Allowed File types: " (str/join ", " (get-in (get-config) [:api :images :allowed-file-types])) "\n"
-                                    "- Creates automatically a thumbnail (" (get-in (get-config) [:api :images :thumbnail :width-px])
-                                    "px x " (get-in (get-config) [:api :images :thumbnail :height-px]) "px)\n")
+                  :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
+                                    "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
+                                    "- Creates automatically a thumbnail (" (config-get :api :images :thumbnail :width-px)
+                                    "px x " (config-get :api :images :thumbnail :height-px) "px)\n")
                   :swagger {:consumes ["application/json"]
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
@@ -372,8 +372,8 @@
 
         :post {:accept "application/json"
                :summary "Create attachment [v1]"
-               :description (str "- Limitations: " (get-in (get-config) [:api :attachments :max-size-mb]) " MB\n"
-                                 "- Allowed File types: " (str/join ", " (get-in (get-config) [:api :attachments :allowed-file-types])))
+               :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
+                                 "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware]
                :swagger {:produces ["application/json"]}

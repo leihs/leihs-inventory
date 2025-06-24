@@ -129,35 +129,6 @@ describe "Inventory Model" do
             file.close
           end
         end
-
-        # TODO: Different limit for test env has been dropped. Do we still need this?
-        #
-        # if ENV["RAILS_ENV"] == "test"
-        #   it "rejects attachments exceeding maximum size" do
-        #     [path_invalid_pdf].each do |file_path|
-        #       file = File.open(file_path, "rb")
-        #       content_type = Marcel::MimeType.for(file)
-
-        #       headers = cookie_header.merge(
-        #         "Content-Type" => content_type,
-        #         "X-Filename" => File.basename(file.path),
-        #         "Content-Length" => File.size(file.path).to_s
-        #       )
-
-        #       response = json_client_post(
-        #         "/inventory/models/#{model_id}/attachments",
-        #         body: file,
-        #         headers: headers,
-        #         is_binary: true
-        #       )
-
-        #       expect(response.status).to eq(400)
-        #       expect(response.body["error"]).to eq("Failed to upload attachment")
-        #       expect(response.body["details"]).to eq("File size exceeds limit")
-        #       file.close
-        #     end
-        #   end
-        # end
       end
     end
   end
