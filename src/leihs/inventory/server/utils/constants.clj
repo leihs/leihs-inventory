@@ -16,11 +16,6 @@
     :attachments {:max-size-mb       100
                   :allowed-file-types ["pdf"]}}})
 
-
-;(defn get-config
-;  "Return the full config map." []
-;  config)
-
 (defn config-get
   "Fetch a nested config value. E.g. (config-get :api :images :thumbnail :width-px)"
   [& ks]

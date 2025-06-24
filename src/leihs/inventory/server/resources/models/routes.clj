@@ -91,35 +91,35 @@
    {:swagger {:conflicting true
               :tags ["Models"]}}
 
-   ["manufacturers"
-    {:get {:conflicting true
-           :summary "Get manufacturers [v0]"
-           :accept "application/json"
-           :description "'search-term' works with at least one character, considers:\n
-- manufacturer
-- product
-\nEXCLUDES manufacturers
-- .. starting with space
-- .. with empty string
-\nHINT
-- 'in-detail'-option works for models with set 'search-term' only\n"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :handler get-manufacturer-handler
-           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
-                                (s/optional-key :search-term) s/Str
-                                (s/optional-key :in-detail) (s/enum "true" "false")}}
-           :responses {200 {:description "OK"
-                            :body [(s/conditional
-                                    map? {:id s/Uuid
-                                          :manufacturer s/Str
-                                          :product s/Str
-                                          :version (s/maybe s/Str)
-                                          :model_id s/Uuid}
-                                    string? s/Str)]}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
+;   ["manufacturers"
+;    {:get {:conflicting true
+;           :summary "Get manufacturers [v0]"
+;           :accept "application/json"
+;           :description "'search-term' works with at least one character, considers:\n
+;- manufacturer
+;- product
+;\nEXCLUDES manufacturers
+;- .. starting with space
+;- .. with empty string
+;\nHINT
+;- 'in-detail'-option works for models with set 'search-term' only\n"
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json"]}
+;           :handler get-manufacturer-handler
+;           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+;                                (s/optional-key :search-term) s/Str
+;                                (s/optional-key :in-detail) (s/enum "true" "false")}}
+;           :responses {200 {:description "OK"
+;                            :body [(s/conditional
+;                                    map? {:id s/Uuid
+;                                          :manufacturer s/Str
+;                                          :product s/Str
+;                                          :version (s/maybe s/Str)
+;                                          :model_id s/Uuid}
+;                                    string? s/Str)]}
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}}]
 
    ["models-compatibles"
     {:get {:conflicting true
@@ -470,143 +470,143 @@
    {:swagger {:conflicting true
               :tags ["Models by pool"]}}
 
-   ["/item" ;; form/item new
-    {:swagger {:conflicting true
-               :tags ["form / item"]}}
+   ;["/item" ;; form/item new
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / item"]}}
+   ;
+   ; [""
+   ;  {:post {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :multipart :item/multipart}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler create-items-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           :body mc/item-response-post}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;   :get {:accept "application/json"
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?}}
+   ;         :handler fetch-items-handler-by-pool-form
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :responses {200 {:description "OK"
+   ;                          ;; TODO
+   ;                          :body mc/item-response-get}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]]
 
-    [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :item/multipart}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-items-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :body mc/item-response-post}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
+   ;["/models/:model_id/item" ;; new
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / item"]}}
+   ;
+   ; ["/:item_id"
+   ;  {:put {:accept "application/json"
+   ;         :swagger {:consumes ["multipart/form-data"]
+   ;                   :produces "application/json"}
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?
+   ;                             :model_id uuid?
+   ;                             :item_id uuid?}
+   ;                      :multipart :item/multipart}
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :handler update-items-handler-by-pool-form
+   ;         :responses {200 {:description "OK"
+   ;                          :body {:data :item/response
+   ;                                 :validation [any?]}}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}
+   ;
+   ;   :get {:accept "application/json" ;;new
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?
+   ;                             :model_id uuid?
+   ;                             :item_id uuid?}}
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :handler fetch-items-handler-by-pool-form
+   ;         :responses {200 {:description "OK"
+   ;                          :body {:data :item/response
+   ;                                 :fields [any?]}}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]]
 
-      :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?}}
-            :handler fetch-items-handler-by-pool-form
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:description "OK"
-                             ;; TODO
-                             :body mc/item-response-get}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
+   ;["/package" ;; new
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / package"]}}
+   ;
+   ; [""
+   ;  {:post {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :multipart :package/payload}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler create-package-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           :body :package-put-response2/inventory-item}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;   :get {:accept "application/json"
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;         :description "Permitted access for:\n- lending_manager\n- inventory_manager"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?}}
+   ;         :handler fetch-package-handler-by-pool-form
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :responses {200 {:body {:data {:inventory_code string?
+   ;                                        :inventory_pool_id uuid?
+   ;                                        :responsible_department any?}
+   ;                                 :fields [any?]}
+   ;                          :description "OK"}
+   ;                     401 {:description "Unauthorized: invalid role for the requested pool or method"
+   ;                          :body {:error string?}}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]]
 
-   ["/models/:model_id/item" ;; new
-    {:swagger {:conflicting true
-               :tags ["form / item"]}}
-
-    ["/:item_id"
-     {:put {:accept "application/json"
-            :swagger {:consumes ["multipart/form-data"]
-                      :produces "application/json"}
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                :model_id uuid?
-                                :item_id uuid?}
-                         :multipart :item/multipart}
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :handler update-items-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             :body {:data :item/response
-                                    :validation [any?]}}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      :get {:accept "application/json" ;;new
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                :model_id uuid?
-                                :item_id uuid?}}
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :handler fetch-items-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             :body {:data :item/response
-                                    :fields [any?]}}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
-   ["/package" ;; new
-    {:swagger {:conflicting true
-               :tags ["form / package"]}}
-
-    [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :package/payload}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-package-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :body :package-put-response2/inventory-item}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-      :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-            :description "Permitted access for:\n- lending_manager\n- inventory_manager"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?}}
-            :handler fetch-package-handler-by-pool-form
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:body {:data {:inventory_code string?
-                                           :inventory_pool_id uuid?
-                                           :responsible_department any?}
-                                    :fields [any?]}
-                             :description "OK"}
-                        401 {:description "Unauthorized: invalid role for the requested pool or method"
-                             :body {:error string?}}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
-   ["/models/:model_id/package" ;; new
-    {:swagger {:conflicting true
-               :tags ["form / package"]}}
-
-    ["/:item_id"
-     {:put {:accept "application/json"
-            :swagger {:consumes ["multipart/form-data"]
-                      :produces "application/json"}
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                :model_id uuid?
-                                :item_id uuid?}
-                         :multipart :package/payload}
-            :handler update-package-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             :body :package-put-response2/inventory-item}
-                        ;; FIXME
-                        ;:body :package-put-response/inventory-item}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      :get {:accept "application/json" ;;new
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?
-                                :model_id uuid?
-                                :item_id uuid?}}
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :handler fetch-package-handler-by-pool-form
-            :responses {200 {:description "OK"
-                             :body :package-put-response2/inventory-item}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
+   ;["/models/:model_id/package" ;; new
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / package"]}}
+   ;
+   ; ["/:item_id"
+   ;  {:put {:accept "application/json"
+   ;         :swagger {:consumes ["multipart/form-data"]
+   ;                   :produces "application/json"}
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?
+   ;                             :model_id uuid?
+   ;                             :item_id uuid?}
+   ;                      :multipart :package/payload}
+   ;         :handler update-package-handler-by-pool-form
+   ;         :responses {200 {:description "OK"
+   ;                          :body :package-put-response2/inventory-item}
+   ;                     ;; FIXME
+   ;                     ;:body :package-put-response/inventory-item}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}
+   ;
+   ;   :get {:accept "application/json" ;;new
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?
+   ;                             :model_id uuid?
+   ;                             :item_id uuid?}}
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :handler fetch-package-handler-by-pool-form
+   ;         :responses {200 {:description "OK"
+   ;                          :body :package-put-response2/inventory-item}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]]
 
    ["/model"
     {:swagger {:conflicting true
@@ -628,30 +628,30 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]
 
-    ["/inventory-list"
-     {:get {:accept "application/json"
-            :summary "(DEV) | Inventory-List [v0]"
-            :description "- Default: process_grouping=true page=1 size=300\n- Format: last_check='2025-03-21'"
-            :coercion reitit.coercion.schema/coercion
-            ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :parameters {:path {:pool_id s/Uuid}
-                         :query {:entry_type (s/enum "Model" "Package" "Option" "Software" "All")
-                                 (s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :process_grouping) (s/enum "true" "false")
-
-                                 (s/optional-key :inventory_pool_id) s/Uuid
-                                 (s/optional-key :search_term) s/Str
-                                 (s/optional-key :last_check) s/Str}}
-            :handler inventory-list-handler
-            :responses {200 {:description "OK"
-                             :body {:data [s/Any]
-                                    :pagination {:page s/Int
-                                                 :size s/Int
-                                                 :total_rows s/Int
-                                                 :total_pages s/Int}}}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
+    ;["/inventory-list"
+    ; {:get {:accept "application/json"
+    ;        :summary "(DEV) | Inventory-List [v0]"
+    ;        :description "- Default: process_grouping=true page=1 size=300\n- Format: last_check='2025-03-21'"
+    ;        :coercion reitit.coercion.schema/coercion
+    ;        ;:middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+    ;        :parameters {:path {:pool_id s/Uuid}
+    ;                     :query {:entry_type (s/enum "Model" "Package" "Option" "Software" "All")
+    ;                             (s/optional-key :page) s/Int
+    ;                             (s/optional-key :size) s/Int
+    ;                             (s/optional-key :process_grouping) (s/enum "true" "false")
+    ;
+    ;                             (s/optional-key :inventory_pool_id) s/Uuid
+    ;                             (s/optional-key :search_term) s/Str
+    ;                             (s/optional-key :last_check) s/Str}}
+    ;        :handler inventory-list-handler
+    ;        :responses {200 {:description "OK"
+    ;                         :body {:data [s/Any]
+    ;                                :pagination {:page s/Int
+    ;                                             :size s/Int
+    ;                                             :total_rows s/Int
+    ;                                             :total_pages s/Int}}}
+    ;                    404 {:description "Not Found"}
+    ;                    500 {:description "Internal Server Error"}}}}]
 
     ["/"
      {:post {:accept "application/json"
@@ -734,194 +734,194 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]
 
-   ["/option"
-    {:swagger {:conflicting true
-               :tags ["form / option"]}}
-    [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
-             ;:description (str
-             ;              " - Upload images and attachments \n"
-             ;              " - Save data \n"
-             ;              " - images: additional handling needed to process no/one/multiple files \n"
-             ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
-             ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :option/multipart}
-             :handler create-option-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              ;:body :res2/request ;; FIXME: shows key-prefixes
-                              :body {:data {:product string?
-                                            :inventory_pool_id uuid?
-                                            :version (sa/nilable string?)
-                                            :price any?
-                                            :id uuid?
-                                            :inventory_code string?}
-                                     :validation any?}}
+   ;["/option"
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / option"]}}
+   ; [""
+   ;  {:post {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :summary "(DEV) | Form-Handler: Save data of 'Create model by form' | [v0]"
+   ;          ;:description (str
+   ;          ;              " - Upload images and attachments \n"
+   ;          ;              " - Save data \n"
+   ;          ;              " - images: additional handling needed to process no/one/multiple files \n"
+   ;          ;              " - Browser creates thumbnails and attaches them as '*_thumb' \n\n\n"
+   ;          ;              " IMPORTANT\n - Upload of images with thumbnail (*_thumb) only")
+   ;          :coercion spec/coercion
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :multipart :option/multipart}
+   ;          :handler create-option-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           ;:body :res2/request ;; FIXME: shows key-prefixes
+   ;                           :body {:data {:product string?
+   ;                                         :inventory_pool_id uuid?
+   ;                                         :version (sa/nilable string?)
+   ;                                         :price any?
+   ;                                         :id uuid?
+   ;                                         :inventory_code string?}
+   ;                                  :validation any?}}
+   ;
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}}]
+   ;
+   ; ["/:option_id"
+   ;  [""
+   ;   {:get {:accept "application/json"
+   ;          :summary "(DEV) | Form-Handler: Fetch form data [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :option_id uuid?}}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler fetch-option-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           :body mc/response-option}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;    :put {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :summary "(DEV) | [v0]"
+   ;          :coercion spec/coercion
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :option_id uuid?}
+   ;                       :multipart :option/multipart}
+   ;          :handler update-option-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           :content_type "multipart/form-data"
+   ;                           :body mc/response-option}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}}]]]
 
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+   ;["/license" ;;new
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / licenses"]}}
+   ;
+   ; [""
+   ;  {:post {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"
+   ;                    :deprecated true}
+   ;          :summary "(DEV) | Dynamic-Form-Handler [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :multipart :license/multipart}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler create-license-handler-by-pool-form
+   ;          :responses {200 {:description "OK"}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;   :get {:accept "application/json"
+   ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+   ;         :coercion spec/coercion
+   ;         :parameters {:path {:pool_id uuid?}}
+   ;         :handler fetch-license-handler-by-pool-form-fetch
+   ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;         :responses {200 {:description "OK"
+   ;                          :body {:data :license/data-schema
+   ;                                 :fields [:license/field-schema]}}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]
+   ;
+   ; ["/:model_id"
+   ;  [""
+   ;   {:get {:accept "application/json"
+   ;          :summary "(DEV) | Form-Handler: Fetch form data"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :model_id uuid?}}
+   ;          :handler fetch-license-handler-by-pool-form-fetch
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :swagger {:deprecated true}
+   ;          :responses {200 {:description "OK"}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;    :put {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"
+   ;                    :deprecated true}
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :model_id uuid?}
+   ;                       :multipart :software/multipart}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler update-license-handler-by-pool-form
+   ;          :responses {200 {:description "OK"}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}}]]]
 
-    ["/:option_id"
-     [""
-      {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :option_id uuid?}}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler fetch-option-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :body mc/response-option}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-       :put {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | [v0]"
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?
-                                 :option_id uuid?}
-                          :multipart :option/multipart}
-             :handler update-option-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :content_type "multipart/form-data"
-                              :body mc/response-option}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
-
-   ["/license" ;;new
-    {:swagger {:conflicting true
-               :tags ["form / licenses"]}}
-
-    [""
-     {:post {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"
-                       :deprecated true}
-             :summary "(DEV) | Dynamic-Form-Handler [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :license/multipart}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-license-handler-by-pool-form
-             :responses {200 {:description "OK"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-      :get {:accept "application/json"
-            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-            :coercion spec/coercion
-            :parameters {:path {:pool_id uuid?}}
-            :handler fetch-license-handler-by-pool-form-fetch
-            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-            :responses {200 {:description "OK"
-                             :body {:data :license/data-schema
-                                    :fields [:license/field-schema]}}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ["/:model_id"
-     [""
-      {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}}
-             :handler fetch-license-handler-by-pool-form-fetch
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :swagger {:deprecated true}
-             :responses {200 {:description "OK"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-       :put {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"
-                       :deprecated true}
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :multipart :software/multipart}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler update-license-handler-by-pool-form
-             :responses {200 {:description "OK"}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
-
-   ["/software"
-    {:swagger {:conflicting true
-               :tags ["form / software"]}}
-    [""
-     {:post {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?}
-                          :multipart :software/multipart}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-software-handler-by-pool-form
-             :responses {200 {:description "OK"
-                              :body {:data :software/response
-                                     :validation [any?]}}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
-
-    ["/:model_id"
-     [""
-      {:get {:accept "application/json"
-             :summary "(DEV) | Form-Handler: Fetch form data  [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}}
-             :handler create-software-handler-by-pool-form-fetch
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :responses {200 {:description "OK"
-                              :body [:software/response]}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-       :put {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Fetch form data [v0]"
-             :coercion spec/coercion
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :multipart :software/multipart}
-             :handler update-software-handler-by-pool-form
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :responses {200 {:description "OK"
-                              :body [:software/response]}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-       :delete {:accept "application/json"
-                :swagger {:consumes ["multipart/form-data"]
-                          :produces "application/json"}
-                :summary "(DEV) | Form-Handler: Delete form data [v0]"
-                :coercion spec/coercion
-                :parameters {:path {:pool_id uuid?
-                                    :model_id uuid?}}
-                :handler delete-software-handler-by-pool-form
-                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-                :responses {200 {:description "OK"
-                                 :body {:deleted_attachments [{:id uuid?
-                                                               :model_id uuid?
-                                                               :filename string?
-                                                               :size number?}]
-                                        :deleted_model [{:id uuid?
-                                                         :product string?
-                                                         :manufacturer any?}]}}
-                            404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]
+   ;["/software"
+   ; {:swagger {:conflicting true
+   ;            :tags ["form / software"]}}
+   ; [""
+   ;  {:post {:accept "application/json"
+   ;          :summary "(DEV) | Form-Handler: Fetch form data [v0]"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :multipart :software/multipart}
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :handler create-software-handler-by-pool-form
+   ;          :responses {200 {:description "OK"
+   ;                           :body {:data :software/response
+   ;                                  :validation [any?]}}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}}]
+   ;
+   ; ["/:model_id"
+   ;  [""
+   ;   {:get {:accept "application/json"
+   ;          :summary "(DEV) | Form-Handler: Fetch form data  [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :model_id uuid?}}
+   ;          :handler create-software-handler-by-pool-form-fetch
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :responses {200 {:description "OK"
+   ;                           :body [:software/response]}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;    :put {:accept "application/json"
+   ;          :swagger {:consumes ["multipart/form-data"]
+   ;                    :produces "application/json"}
+   ;          :summary "(DEV) | Form-Handler: Fetch form data [v0]"
+   ;          :coercion spec/coercion
+   ;          :parameters {:path {:pool_id uuid?
+   ;                              :model_id uuid?}
+   ;                       :multipart :software/multipart}
+   ;          :handler update-software-handler-by-pool-form
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :responses {200 {:description "OK"
+   ;                           :body [:software/response]}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}
+   ;
+   ;    :delete {:accept "application/json"
+   ;             :swagger {:consumes ["multipart/form-data"]
+   ;                       :produces "application/json"}
+   ;             :summary "(DEV) | Form-Handler: Delete form data [v0]"
+   ;             :coercion spec/coercion
+   ;             :parameters {:path {:pool_id uuid?
+   ;                                 :model_id uuid?}}
+   ;             :handler delete-software-handler-by-pool-form
+   ;             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;             :responses {200 {:description "OK"
+   ;                              :body {:deleted_attachments [{:id uuid?
+   ;                                                            :model_id uuid?
+   ;                                                            :filename string?
+   ;                                                            :size number?}]
+   ;                                     :deleted_model [{:id uuid?
+   ;                                                      :product string?
+   ;                                                      :manufacturer any?}]}}
+   ;                         404 {:description "Not Found"}
+   ;                         500 {:description "Internal Server Error"}}}}]]]
 
    ;; Routes for /inventory/<pool-id>/*
    ["/models"
@@ -1042,57 +1042,57 @@
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]]
 
-     ["/licenses" ;; new
-      {:swagger {:conflicting true
-                 :tags ["form / licenses"]}}
-
-      [""
-       {:post {:accept "application/json"
-               :swagger {:consumes ["multipart/form-data"]
-                         :produces "application/json"}
-               :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-               :coercion spec/coercion
-               :parameters {:path {:pool_id uuid?
-                                   :model_id uuid?}
-                            :multipart :license/multipart}
-               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-               :handler create-license-handler-by-pool-form
-               :responses {200 {:description "OK"
-                                :body {:data :license/post-license
-                                       :validation [any?]}}
-                           404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-      ["/:item_id"
-       {:put {:accept "application/json"
-              :swagger {:consumes ["multipart/form-data"]
-                        :produces "application/json"}
-              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
-              :coercion spec/coercion
-              :parameters {:path {:pool_id uuid?
-                                  :model_id uuid?
-                                  :item_id uuid?}
-                           :multipart :license/multipart}
-              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-              :handler update-license-handler-by-pool-form
-              :responses {200 {:description "OK"
-                               :body [:license/post-license]}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}
-
-        :get {:accept "application/json" ;;new
-              :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
-              :coercion spec/coercion
-              :parameters {:path {:pool_id uuid?
-                                  :model_id uuid?
-                                  :item_id uuid?}}
-              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-              :handler fetch-license-handler-by-pool-form-fetch
-              :responses {200 {:description "OK"
-                               :body {:data :license/post-license
-                                      :fields [any?]}}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]]
+     ;["/licenses" ;; new
+     ; {:swagger {:conflicting true
+     ;            :tags ["form / licenses"]}}
+     ;
+     ; [""
+     ;  {:post {:accept "application/json"
+     ;          :swagger {:consumes ["multipart/form-data"]
+     ;                    :produces "application/json"}
+     ;          :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+     ;          :coercion spec/coercion
+     ;          :parameters {:path {:pool_id uuid?
+     ;                              :model_id uuid?}
+     ;                       :multipart :license/multipart}
+     ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+     ;          :handler create-license-handler-by-pool-form
+     ;          :responses {200 {:description "OK"
+     ;                           :body {:data :license/post-license
+     ;                                  :validation [any?]}}
+     ;                      404 {:description "Not Found"}
+     ;                      500 {:description "Internal Server Error"}}}}]
+     ;
+     ; ["/:item_id"
+     ;  {:put {:accept "application/json"
+     ;         :swagger {:consumes ["multipart/form-data"]
+     ;                   :produces "application/json"}
+     ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
+     ;         :coercion spec/coercion
+     ;         :parameters {:path {:pool_id uuid?
+     ;                             :model_id uuid?
+     ;                             :item_id uuid?}
+     ;                      :multipart :license/multipart}
+     ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+     ;         :handler update-license-handler-by-pool-form
+     ;         :responses {200 {:description "OK"
+     ;                          :body [:license/post-license]}
+     ;                     404 {:description "Not Found"}
+     ;                     500 {:description "Internal Server Error"}}}
+     ;
+     ;   :get {:accept "application/json" ;;new
+     ;         :summary "(DEV) | Dynamic-Form-Handler: Fetch form data [v0]"
+     ;         :coercion spec/coercion
+     ;         :parameters {:path {:pool_id uuid?
+     ;                             :model_id uuid?
+     ;                             :item_id uuid?}}
+     ;         :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+     ;         :handler fetch-license-handler-by-pool-form-fetch
+     ;         :responses {200 {:description "OK"
+     ;                          :body {:data :license/post-license
+     ;                                 :fields [any?]}}
+     ;                     404 {:description "Not Found"}
+     ;                     500 {:description "Internal Server Error"}}}}]]
 
      ["/properties"
       ["" {:get {:accept "application/json"
