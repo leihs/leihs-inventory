@@ -108,8 +108,7 @@
         "success": "Software wurde erfolgreich erstellt"
       },
       "edit": {
-        "success": "Modell wurde erfolgreich gespeichert",
-        "add_item": "Speichern und Gegenstand hinzufügen"
+        "success": "Software wurde erfolgreich gespeichert"
       },
       "delete": {
         "title": "Software löschen",

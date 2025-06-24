@@ -30,7 +30,7 @@
    [uix.dom]))
 
 (defn- on-invalid [data]
-  (.. toast (error "Invalid Data"))
+  #_(.. toast (error "Invalid Data"))
   (js/console.debug "is invalid: " data))
 
 (def default-values (cj {:product ""

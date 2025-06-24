@@ -132,7 +132,12 @@
 
                                 ($ Button {:variant "outline"}
                                    ($ Link {:state #js {:searchParams (.. location -search)}
-                                            :to (str (:id model))
+                                            :to (cond
+                                                  (= (-> model :type) "Model")
+                                                  (str (:id model))
+
+                                                  (= (-> model :type) "Software")
+                                                  (str "../software/" (:id model)))
                                             :viewTransition true}
                                       (t "pool.models.list.actions.edit")))
 
