@@ -91,24 +91,24 @@
                               ;; show error message
                               (.. toast (error (t "pool.software.delete.error")))))))
 
-        on-submit (fn [data event]
+        on-submit (fn [submitted-data event]
                     (go
                       (let [attachments (if is-create
-                                          (:attachments (jc data))
+                                          (:attachments (jc submitted-data))
                                           (filter (fn [el] (= (:id el) nil))
-                                                  (:attachments (jc data))))
+                                                  (:attachments (jc submitted-data))))
 
                             attachments-to-delete (if is-edit
                                                     (->> (:attachments data)
                                                          (map :id)
-                                                         (remove (set (map :id (:attachments (jc data))))))
+                                                         (remove (set (map :id (:attachments (jc submitted-data))))))
                                                     nil)
 
                             ;; remove empty attachments from the data, 
                             ;; because they have theit own endpoint
                             software-data (core/remove-nil-values
                                            (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                            (dissoc (jc data) :attachments))))
+                                                            (dissoc (jc submitted-data) :attachments))))
 
                             pool-id (aget params "pool-id")
 
