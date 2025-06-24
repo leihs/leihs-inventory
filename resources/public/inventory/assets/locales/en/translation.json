@@ -60,6 +60,9 @@
           "retired": "retired",
           "not_retired": "not retired"
         },
+        "before_last_check": {
+          "title": "Inventory before"
+        },
         "with_items": {
           "all": "All Models",
           "with_items": "only models with items",
@@ -69,15 +72,13 @@
           "all": "borrowable & not borrowable",
           "borrowable": "borrowable",
           "not_borrowable": "not borrowable"
-        },
-        "before_last_check": {
-          "title": "Inventory before"
         }
       },
       "dropdown": {
         "title": "Add inventory",
         "add_model": "New model",
-        "add_item": "New item"
+        "add_item": "New item",
+        "add_software": "Add Software"
       },
       "tabs": {
         "inventory_list": "Inventory List",
@@ -95,6 +96,56 @@
         "actions": {
           "edit": "edit",
           "add_item": "Add Item"
+        }
+      }
+    },
+    "software": {
+      "create": {
+        "title": "Create new software",
+        "description": "Insert all required information",
+        "submit": "Save Software",
+        "cancel": "Cancel",
+        "success": "Software successfully created"
+      },
+      "edit": {
+        "success": "Software successfully saved"
+      },
+      "delete": {
+        "title": "Delete software",
+        "description": "Are you sure you want to delete this software?",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "success": "Software successfully deleted",
+        "error": "Software could not be deleted"
+      },
+      "software": {
+        "title": "Software",
+        "blocks": {
+          "product": {
+            "label": "Product"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "manufacturer": {
+            "label": "Manufacturer"
+          },
+          "software_information": {
+            "label": "Software information"
+          }
+        }
+      },
+      "attachments": {
+        "title": "Attachments",
+        "blocks": {
+          "attachments": {
+            "table": {
+              "description": "Description"
+            },
+            "label": "File",
+            "select": "Select file",
+            "not_found": "File not found"
+          }
         }
       }
     },
