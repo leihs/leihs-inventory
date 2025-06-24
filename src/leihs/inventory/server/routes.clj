@@ -6,14 +6,17 @@
    [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.core.constants :as constants]
+
+
+
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-   [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS HIDE_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler
-                                                              update-role-handler token-routes]]
+                                                              update-role-handler session-token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
@@ -55,6 +58,10 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
+(def CONST_PROD_ENDPOINTS_ONLY true)
+
+
+
 (defn incl-other-routes []
   ["" (get-model-route)
    (get-model-by-pool-route)
@@ -69,10 +76,14 @@
    (get-supplier-routes)
    (get-fields-routes)
    (get-export-routes)
+
    (get-attachments-routes)
    (get-images-routes)
+
    (get-user-routes)
-   (token-routes)])
+   (when (not CONST_PROD_ENDPOINTS_ONLY) (session-token-routes))
+
+   ])
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
@@ -128,13 +139,20 @@
                            :count-of-direct-access-right-should-be-one s/Int
                            (s/optional-key :update-result) s/Any})
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
 (defn basic-routes []
 
   ["/"
 
    [["sign-in"
      {:swagger {:tags ["Login"]}
-      :no-doc false
+      :no-doc HIDE_BASIC_ENDPOINTS
 
       :post {:accept "application/json"
              :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
@@ -151,7 +169,7 @@
 
     ["sign-out"
      {:swagger {:tags ["Login"]}
-      :no-doc false
+      :no-doc HIDE_BASIC_ENDPOINTS
       :post {:accept "application/json"
              :swagger {:produces ["text/html" "application/json"]}
              :handler post-sign-out}
@@ -162,7 +180,9 @@
    ["inventory"
 
     ["/"
-     {:swagger {:tags ["Auth"]}}
+     {:swagger {:tags ["Auth"]}
+      :no-doc HIDE_DEV_ENDPOINTS
+      }
 
      ["login"
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
@@ -202,7 +222,7 @@
      {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
 
      ["test-csrf"
-      {:no-doc false
+      {:no-doc HIDE_BASIC_ENDPOINTS
        :get {:accept "application/json"
              :description "Access allowed without x-csrf-token"
              :handler (fn [_] {:status 200})}

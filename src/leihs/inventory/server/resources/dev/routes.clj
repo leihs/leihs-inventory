@@ -1,6 +1,9 @@
 (ns leihs.inventory.server.resources.dev.routes
   (:require
    [clojure.set]
+
+   [leihs.inventory.server.constants :refer [HIDE_DEV_ENDPOINTS]]
+
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
                                                       search-in-tables
@@ -17,7 +20,9 @@
 
    ["/dev"
     {:swagger {:conflicting true
-               :tags ["Dev"]}}
+               :tags ["Dev"]}
+     :no-doc HIDE_DEV_ENDPOINTS
+     }
     ["/update-accounts" {:put {:conflicting true
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:

@@ -339,7 +339,7 @@
         (handler (assoc request AUTHENTICATED_ENTITY verification-result))
         (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
 
-(defn token-routes []
+(defn session-token-routes []
   [["/"
 
     ["session"

@@ -50,19 +50,21 @@
               :tags ["User"]}}
 
    ["pools"
-    [""
-     {:get {:conflicting true
-            :summary (i/session "Get pools of the authenticated user.")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [wrap-authenticate! accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :handler get-pools-of-user-handler
-            :responses {200 {:description "OK"
-                             ;:body [schema-min] ;; FIXME
-                             }
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
+
+    ;; TODO: move to DEV?
+    ;[""
+    ; {:get {:conflicting true
+    ;        :summary (i/session "Get pools of the authenticated user.")
+    ;        :accept "application/json"
+    ;        :coercion reitit.coercion.schema/coercion
+    ;        :middleware [wrap-authenticate! accept-json-middleware]
+    ;        :swagger {:produces ["application/json"]}
+    ;        :handler get-pools-of-user-handler
+    ;        :responses {200 {:description "OK"
+    ;                         ;:body [schema-min] ;; FIXME
+    ;                         }
+    ;                    404 {:description "Not Found"}
+    ;                    500 {:description "Internal Server Error"}}}}]
 
     ["-by-access-right"
      {:get {:conflicting true
@@ -89,20 +91,22 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
-    ["/:user_id" {:get {:conflicting true
-                        :summary (i/admin "Get pools of any user.")
-                        :coercion reitit.coercion.schema/coercion
-                        :accept "application/json"
-                        :middleware [wrap-is-admin! accept-json-middleware]
-                        :swagger {:produces ["application/json"]
-                                  :deprecated true}
-                        :parameters {:path {:user_id s/Uuid}}
-                        :handler get-pools-of-user-handler
-                        :responses {200 {:description "OK"
-                                         ;:body [schema-min] ;; FIXME: merge with "user-pools-info"
-                                         }
-                                    404 {:description "Not Found"}
-                                    500 {:description "Internal Server Error"}}}}]]
+    ;["/:user_id" {:get {:conflicting true
+    ;                    :summary (i/admin "Get pools of any user.")
+    ;                    :coercion reitit.coercion.schema/coercion
+    ;                    :accept "application/json"
+    ;                    :middleware [wrap-is-admin! accept-json-middleware]
+    ;                    :swagger {:produces ["application/json"]
+    ;                              :deprecated true}
+    ;                    :parameters {:path {:user_id s/Uuid}}
+    ;                    :handler get-pools-of-user-handler
+    ;                    :responses {200 {:description "OK"
+    ;                                     ;:body [schema-min] ;; FIXME: merge with "user-pools-info"
+    ;                                     }
+    ;                                404 {:description "Not Found"}
+    ;                                500 {:description "Internal Server Error"}}}}]
+
+    ]
 
    ["profile"
     {:get {:conflicting true
@@ -118,32 +122,35 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["details"
-    [""
-     {:get {:conflicting true
-            :accept "application/json"
-            :summary (i/session "Get details of the authenticated user.")
-            :coercion reitit.coercion.schema/coercion
-            :middleware [wrap-authenticate! accept-json-middleware]
-            :swagger {:produces ["application/json"]
-                      :deprecated true}
-            :handler get-user-details-handler
-            :responses {200 {:description "OK"
-                             :body s/Any}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
+   ;; TO DEV?
+   ;["details"
+   ; [""
+   ;  {:get {:conflicting true
+   ;         :accept "application/json"
+   ;         :summary (i/session "Get details of the authenticated user.")
+   ;         :coercion reitit.coercion.schema/coercion
+   ;         :middleware [wrap-authenticate! accept-json-middleware]
+   ;         :swagger {:produces ["application/json"]
+   ;                   :deprecated true}
+   ;         :handler get-user-details-handler
+   ;         :responses {200 {:description "OK"
+   ;                          :body s/Any}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]
+   ;
+   ; ["/:user_id"
+   ;  {:get {:conflicting true
+   ;         :summary (i/admin "Get details of any user.")
+   ;         :accept "application/json"
+   ;         :coercion reitit.coercion.schema/coercion
+   ;         :middleware [wrap-is-admin! accept-json-middleware]
+   ;         :swagger {:produces ["application/json"]}
+   ;         :parameters {:path {:user_id s/Uuid}}
+   ;         :handler get-user-details-handler
+   ;         :responses {200 {:description "OK"
+   ;                          :body s/Any}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}}]]
 
-    ["/:user_id"
-     {:get {:conflicting true
-            :summary (i/admin "Get details of any user.")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [wrap-is-admin! accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:user_id s/Uuid}}
-            :handler get-user-details-handler
-            :responses {200 {:description "OK"
-                             :body s/Any}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+   ])
 
