@@ -12,7 +12,7 @@
 (defn get-attachments-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Attachments"]}}
+              :tags ["Attachments [v1]"]}}
 
    ["attachments/:id"
     {:get {:conflicting true
