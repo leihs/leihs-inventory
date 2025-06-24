@@ -11,7 +11,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.helper :refer [normalize-model-data str-to-bool]]
-   [leihs.inventory.server.utils.config :refer [get-config]]
+   [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]
@@ -91,9 +91,9 @@
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
-          allowed-file-types (get-in (get-config) [:api :images :allowed-file-types])
-          max-size-mb (get-in (get-config) [:api :images :max-size-mb])
-          upload-path (get-in (get-config) [:api :upload-dir])
+          allowed-file-types (config-get :api :images :allowed-file-types)
+          max-size-mb (config-get :api :images :max-size-mb)
+          upload-path (config-get :api :upload-dir)
           tx (:tx req)
           content-type (get-in req [:headers "content-type"])
           filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
@@ -139,9 +139,9 @@
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
-          allowed-file-types (get-in (get-config) [:api :attachments :allowed-file-types])
-          max-size-mb (get-in (get-config) [:api :attachments :max-size-mb])
-          upload-path (get-in (get-config) [:api :upload-dir])
+          allowed-file-types (config-get :api :attachments :allowed-file-types)
+          max-size-mb (config-get :api :attachments :max-size-mb)
+          upload-path (config-get :api :upload-dir)
           tx (:tx req)
           content-type (get-in req [:headers "content-type"])
           filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))

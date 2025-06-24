@@ -9,26 +9,18 @@
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
    [leihs.inventory.server.swagger-api :as sui]
-   [leihs.inventory.server.utils.config :refer [initialize get-config]]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
    [taoensso.timbre :refer [info]]))
 
 (defn run [options]
   (catcher/snatch
-   {:return-fn (fn [e] (System/exit -1))}
-   (info 'leihs.inventory.server.run "initializing ...")
-   (let [filenames ["./config/settings.yml"
-                    "../config/settings.yml",
-                    "./config/settings.local.yml"
-                    "../config/settings.local.yml"]]
-     (initialize {:filenames filenames}))
-   (info "Effective startup options " options)
-   (info "Effective startup config " (get-config))
-   (shutdown/init options)
-   (let [status (status/init)]
-     (db/init options (:health-check-registry status)))
-   (http-server/start options (sui/create-app options))))
+    {:return-fn (fn [e] (System/exit -1))}
+    (info "Invoking run with options: " options)
+    (shutdown/init options)
+    (let [status (status/init)]
+      (db/init options (:health-check-registry status)))
+    (http-server/start options (sui/create-app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
