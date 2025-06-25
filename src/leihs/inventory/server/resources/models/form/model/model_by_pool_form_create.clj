@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.models.form.model.model-by-pool-json-create
+(ns leihs.inventory.server.resources.models.form.model.model-by-pool-form-create
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
@@ -10,7 +10,6 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.models.form.model.common :refer [prepare-image-attributes
                                                                       extract-model-form-data
-                                                                      extract-model-form-data-new
                                                                       create-images-and-prepare-image-attributes]]
    [leihs.inventory.server.resources.models.form.model.model-by-pool-form-update :refer [filter-response process-image-attributes]]
    [leihs.inventory.server.resources.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
@@ -24,6 +23,16 @@
            (java.time LocalDateTime)
            [java.util UUID]
            [java.util.jar JarFile]))
+
+(defn prepare-model-data
+  [data]
+  (let [normalize-data (normalize-model-data data)
+        created-ts (LocalDateTime/now)
+        normalize-data (dissoc normalize-data :id)]
+    (assoc normalize-data
+           :type "Model"
+           :created_at created-ts
+           :updated_at created-ts)))
 
 (defn create-or-use-existing
   [tx table where-values insert-values]
@@ -44,16 +53,15 @@
    :validation validation})
 
 (defn process-entitlements [tx entitlements model-id]
-  (when (seq entitlements)
-    (doseq [entry entitlements]
-      (create-or-use-existing tx
-                              :entitlements
-                              [:and
-                               [:= :model_id model-id]
-                               [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
-                              {:model_id model-id
-                               :entitlement_group_id (to-uuid (:entitlement_group_id entry))
-                               :quantity (:quantity entry)}))))
+  (doseq [entry entitlements]
+    (create-or-use-existing tx
+                            :entitlements
+                            [:and
+                             [:= :model_id model-id]
+                             [:= :entitlement_group_id (to-uuid (:entitlement_group_id entry))]]
+                            {:model_id model-id
+                             :entitlement_group_id (to-uuid (:entitlement_group_id entry))
+                             :quantity (:quantity entry)})))
 
 (defn process-properties [tx properties model-id]
   (doseq [entry properties]
@@ -110,7 +118,6 @@
                              [:= :model_group_id (to-uuid (:id category))]]
                             {:inventory_pool_id pool-id
                              :model_group_id (to-uuid (:id category))})))
-
 (defn create-model-handler-by-pool-form [request create-all]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
@@ -118,7 +125,7 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties
                 entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data-new request create-all)]
+        (extract-model-form-data request create-all)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
@@ -126,8 +133,12 @@
                                           (sql/returning :*)
                                           sql-format))
             res (filter-response res [:rental_price])
-            model-id (:id res)]
-
+            model-id (:id res)
+            {:keys [created-images-attr all-image-attributes]}
+            (when create-all (prepare-image-attributes tx images model-id validation-result new-images-attr existing-images-attr))]
+        (when create-all
+          (process-attachments tx attachments "model_id" model-id)
+          (process-image-attributes tx all-image-attributes model-id))
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
@@ -149,9 +160,10 @@
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (do
-                  (error "Failed to create model" e)
-                  (bad-request {:status "failure" :error "Failed to create model" :details (.getMessage e)})))))))
+          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 
-(defn create-model-handler-by-pool-model-json [request]
+(defn create-model-handler-by-pool-model-only [request]
+  (create-model-handler-by-pool-form request false))
+
+(defn create-model-handler-by-pool-with-attachment-images [request]
   (create-model-handler-by-pool-form request true))
