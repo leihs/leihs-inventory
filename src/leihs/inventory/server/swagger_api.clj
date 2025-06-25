@@ -111,8 +111,8 @@
                                      wrap-authenticate!
                                      leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                                      wrap-cookies
-                                     csrf/wrap-csrf
-                                     leihs.core.anti-csrf.back/wrap
+                                     ;csrf/wrap-csrf
+                                     ;leihs.core.anti-csrf.back/wrap
                                      dm/extract-dev-cookie-params
 
                                       ;locale/wrap
