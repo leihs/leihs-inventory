@@ -608,7 +608,7 @@
    ;                     404 {:description "Not Found"}
    ;                     500 {:description "Internal Server Error"}}}}]]
 
-   ["/model"
+   ["/models"
     {:swagger {:conflicting true
                :tags ["form / model"]}}
     [""
