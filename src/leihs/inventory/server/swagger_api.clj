@@ -44,7 +44,22 @@
             [ring.util.response :as response]
             [taoensso.timbre :refer [debug error warn]]))
 
-(def middlewares [wrap-handle-coercion-error
+
+(defn wrap-rewrite-urls [handler]
+  (fn [request]
+
+
+    (handler request)
+
+
+
+    ))
+
+
+
+
+(def middlewares [
+                  wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware

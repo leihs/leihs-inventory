@@ -91,35 +91,35 @@
    {:swagger {:conflicting true
               :tags ["Models"]}}
 
-;   ["manufacturers"
-;    {:get {:conflicting true
-;           :summary "Get manufacturers [v0]"
-;           :accept "application/json"
-;           :description "'search-term' works with at least one character, considers:\n
-;- manufacturer
-;- product
-;\nEXCLUDES manufacturers
-;- .. starting with space
-;- .. with empty string
-;\nHINT
-;- 'in-detail'-option works for models with set 'search-term' only\n"
-;           :coercion reitit.coercion.schema/coercion
-;           :middleware [accept-json-middleware]
-;           :swagger {:produces ["application/json"]}
-;           :handler get-manufacturer-handler
-;           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
-;                                (s/optional-key :search-term) s/Str
-;                                (s/optional-key :in-detail) (s/enum "true" "false")}}
-;           :responses {200 {:description "OK"
-;                            :body [(s/conditional
-;                                    map? {:id s/Uuid
-;                                          :manufacturer s/Str
-;                                          :product s/Str
-;                                          :version (s/maybe s/Str)
-;                                          :model_id s/Uuid}
-;                                    string? s/Str)]}
-;                       404 {:description "Not Found"}
-;                       500 {:description "Internal Server Error"}}}}]
+   ["manufacturers"
+    {:get {:conflicting true
+           :summary "Get manufacturers [v1]"
+           :accept "application/json"
+           :description "'search-term' works with at least one character, considers:\n
+- manufacturer
+- product
+\nEXCLUDES manufacturers
+- .. starting with space
+- .. with empty string
+\nHINT
+- 'in-detail'-option works for models with set 'search-term' only\n"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :handler get-manufacturer-handler
+           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+                                (s/optional-key :search-term) s/Str
+                                (s/optional-key :in-detail) (s/enum "true" "false")}}
+           :responses {200 {:description "OK"
+                            :body [(s/conditional
+                                    map? {:id s/Uuid
+                                          :manufacturer s/Str
+                                          :product s/Str
+                                          :version (s/maybe s/Str)
+                                          :model_id s/Uuid}
+                                    string? s/Str)]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]
 
    ["models-compatibles"
     {:get {:conflicting true
@@ -155,7 +155,7 @@
 
    ;; /inventory/models/*
    ["models"
-    [""
+    ["/"
      {:get {:conflicting true
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -608,7 +608,7 @@
    ;                     404 {:description "Not Found"}
    ;                     500 {:description "Internal Server Error"}}}}]]
 
-   ["/models"
+   ["/model"
     {:swagger {:conflicting true
                :tags ["form / model"]}}
     [""
@@ -924,9 +924,11 @@
    ;                         500 {:description "Internal Server Error"}}}}]]]
 
    ;; Routes for /inventory/<pool-id>/*
+   ;; TODO: should be? ["/models/list"
    ["/models"
     [""
      {:get {:accept "application/json"
+            :summary "Models-List for table"
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
