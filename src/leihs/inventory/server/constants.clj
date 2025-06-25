@@ -15,4 +15,4 @@
   "- update login
 - login / logout
 - set password
-" false)
+" true)
