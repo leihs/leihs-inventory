@@ -26,6 +26,7 @@
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
+   [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
@@ -68,13 +69,14 @@
                      (get-tree-route)
                      (get-pools-routes)
                      (get-categories-routes)
-                     (get-owner-department-routes)
                      (get-attachments-routes)
                      (get-images-routes)
                      (session-token-routes)]
         additional-routes (concat
                             (when CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                               [
+                     (get-owner-department-routes)
+                               (get-supplier-routes)
                                (get-fields-routes)
                                (get-export-routes)
                                (get-items-routes)
