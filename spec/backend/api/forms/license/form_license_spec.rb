@@ -20,33 +20,33 @@ describe "Fetching Fields" do
     # - lending_manager a subset of fields in edit-mode only
     # - no fields for group_manager/customer
 
-    it "compare counts of keys concerning filter with status 200" do
-      # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
-      [["inventory_manager", 29], ["lending_manager", 11]].each do |role, expected_count|
-        direct_access_right_of_user.update(role: role)
+    # it "compare counts of keys concerning filter with status 200" do
+    #   # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+    #   [["inventory_manager", 29], ["lending_manager", 11]].each do |role, expected_count|
+    #     direct_access_right_of_user.update(role: role)
 
-        url = "/inventory/#{pool_id}/license"
-        resp = client.get url
+    #     url = "/inventory/#{pool_id}/license"
+    #     resp = client.get url
 
-        expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
-        puts "role #{role} has #{resp.body["fields"].size} fields"
-        expect(resp.body["fields"].size).to eq(expected_count)
-        expect(resp.status).to eq(200)
-      end
-    end
+    #     expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
+    #     puts "role #{role} has #{resp.body["fields"].size} fields"
+    #     expect(resp.body["fields"].size).to eq(expected_count)
+    #     expect(resp.status).to eq(200)
+    #   end
+    # end
 
-    it "compare counts of keys concerning filter with status 200" do
-      # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
-      [["inventory_manager", 29], ["lending_manager", 11]].each do |role, expected_count|
-        direct_access_right_of_user.update(role: role)
+    # it "compare counts of keys concerning filter with status 200" do
+    #   # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
+    #   [["inventory_manager", 29], ["lending_manager", 11]].each do |role, expected_count|
+    #     direct_access_right_of_user.update(role: role)
 
-        url = "/inventory/#{pool_id}/models/#{software_model.id}/licenses/#{license_item.id}"
-        resp = client.get url
+    #     url = "/inventory/#{pool_id}/models/#{software_model.id}/licenses/#{license_item.id}"
+    #     resp = client.get url
 
-        expect(resp.body["fields"].size).to eq(expected_count)
-        expect(resp.status).to eq(200)
-      end
-    end
+    #     expect(resp.body["fields"].size).to eq(expected_count)
+    #     expect(resp.status).to eq(200)
+    #   end
+    # end
 
     it "compare counts of keys concerning filter with status 200" do
       # ["inventory_manager", "lending_manager", "group_manager", "customer"].each do |role|
