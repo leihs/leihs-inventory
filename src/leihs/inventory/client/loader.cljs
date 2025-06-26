@@ -2,9 +2,6 @@
   (:require
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
-
-   [cljs.core.async :as async :refer [go]]
-   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
@@ -105,6 +102,22 @@
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
                  :data (if data data nil)})))))
+
+(defn options-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        option-id (or (aget params "option-id") nil)
+
+        option-path (when option-id
+                      (str "/inventory/" pool-id "/options/" option-id))
+
+        data (when option-path
+               (-> http-client
+                   (.get option-path #js {:id option-id})
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))
 
 (defn items-crud-page [route-data]
   (let [models (-> http-client

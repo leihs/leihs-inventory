@@ -140,6 +140,9 @@
                                                   (= (-> model :type) "Package")
                                                   (str (:id model))
 
+                                                  (= (-> model :type) "Option")
+                                                  (str "../options/" (:id model))
+
                                                   (= (-> model :type) "Software")
                                                   (str "../software/" (:id model)))
                                             :viewTransition true}

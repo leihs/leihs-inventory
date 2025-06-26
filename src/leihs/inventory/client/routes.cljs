@@ -10,6 +10,7 @@
    [leihs.inventory.client.routes.layout :rename {layout root-layout}]
    [leihs.inventory.client.routes.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.models.layout :rename {layout models-layout}]
+   [leihs.inventory.client.routes.models.options.crud.page :rename {page options-crud-page}]
    [leihs.inventory.client.routes.models.page :rename {page models-page}]
    [leihs.inventory.client.routes.models.software.crud.page :rename {page software-crud-page}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
@@ -47,6 +48,9 @@
                   :id "models-page"
                   :element ($ models-page)}
 
+                 {:path "options"
+                  :loader #(router/redirect "create")}
+
                  {:path "items"
                   :loader #(router/redirect "create")}
 
@@ -61,6 +65,15 @@
 
                  {:path "entitlement-groups"
                   :element ($ entitlement-groups-page)}])}
+
+              ;; options crud 
+              {:path "options/create"
+               :loader loader/options-crud-page
+               :element ($ options-crud-page)}
+
+              {:path "options/:option-id/delete?"
+               :loader loader/options-crud-page
+               :element ($ options-crud-page)}
 
               ;; models crud 
               {:path "models/create"

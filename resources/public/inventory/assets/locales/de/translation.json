@@ -78,6 +78,7 @@
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",
         "add_item": "Neuen Gegenstand",
+        "add_option": "Neue Option",
         "add_software": "Neue Software"
       },
       "tabs": {
@@ -127,6 +128,7 @@
         "confirm": "Löschen",
         "cancel": "Abbrechen",
         "success": "Software wurde erfolgreich gelöscht",
+        "error": "Software konnte nicht gelöscht werden",
         "500": "Software konnte nicht gelöscht werden"
       },
       "software": {
@@ -157,6 +159,56 @@
             "label": "Datei",
             "select": "Datei auswählen",
             "not_found": "Datei nicht gefunden"
+          }
+        }
+      }
+    },
+    "option": {
+      "create": {
+        "title": "Neue Option erstellen",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Option speichern",
+        "cancel": "Abbrechen",
+        "success": "Option wurde erfolgreich erstellt",
+        "invalid_one": "Option konnte nicht erstellt werden, da ein Feld ungültig ist",
+        "invalid_other": "Option konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+        "409": "Option konnte nicht erstellt werden, da eine Option mit dem gleichen Iventarcode bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
+      },
+      "edit": {
+        "title": "Option bearbeiten",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Option speichern",
+        "cancel": "Abbrechen",
+        "success": "Option wurde erfolgreich gespeichert",
+        "invalid_one": "Option konnte nicht erstellt werden, da ein Feld ungültig ist",
+        "invalid_other": "Option konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+        "409": "Option konnte nicht erstellt werden, da eine Option mit dem gleichen Iventarcode bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
+      },
+      "delete": {
+        "title": "Option löschen",
+        "description": "Sind Sie sicher, dass Sie diese Option löschen möchten?",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "success": "Option wurde erfolgreich gelöscht",
+        "error": "Option konnte nicht gelöscht werden"
+      },
+      "option": {
+        "title": "Option",
+        "blocks": {
+          "product": {
+            "label": "Produkt"
+          },
+          "inventory_code": {
+            "label": "Inventarcode",
+            "description": "Alphanumerischer Code, der die Option eindeutig identifiziert. Kein Sonderzeichen erlaubt ausser \"-\"."
+          },
+          "version": {
+            "label": "Version"
+          },
+          "price": {
+            "label": "Preis"
           }
         }
       }

@@ -13,7 +13,6 @@
   (let [attachments (:attachments model)
         model (merge default-values
                      (form-helper/replace-nil-values model))]
-    (js/console.debug model)
 
     (-> (js/Promise.all
          (if (seq attachments)
