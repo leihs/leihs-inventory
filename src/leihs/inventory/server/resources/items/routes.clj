@@ -87,8 +87,8 @@
 
     ["/items"
 
-     {:swagger {:conflicting true
-                :tags ["Dev"]}}
+     ;{:swagger {:conflicting true
+     ;           :tags ["Dev"]}}
 
      {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
             :conflicting true

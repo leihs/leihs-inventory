@@ -24,8 +24,8 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns all inventory pools with access via /inventory/profile" do
-        resp = admin_client.get "/inventory/profile"
+      it "returns all inventory pools with access via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
@@ -80,8 +80,8 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns group-accessible pools via /inventory/profile" do
-        resp = admin_client.get "/inventory/profile"
+      it "returns group-accessible pools via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
@@ -119,8 +119,8 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns directly accessible pools via /inventory/profile" do
-        resp = admin_client.get "/inventory/profile"
+      it "returns directly accessible pools via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
