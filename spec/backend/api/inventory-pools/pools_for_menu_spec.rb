@@ -59,7 +59,7 @@ describe "Call inventory-pool endpoints" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
 
-        profile = admin_client.get "/inventory/dev/profile"
+        profile = admin_client.get "/inventory/profile"
         expect(profile.status).to eq(200)
         expect(profile.body["available_inventory_pools"].count).to eq(4)
       end
@@ -86,8 +86,8 @@ describe "Call inventory-pool endpoints" do
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns group-accessible pools via /inventory/dev/profile" do
-        resp = admin_client.get "/inventory/dev/profile"
+      it "returns group-accessible pools via /inventory/profile" do
+        resp = admin_client.get "/inventory/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
@@ -125,8 +125,8 @@ describe "Call inventory-pool endpoints" do
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns directly accessible pools via /inventory/dev/profile" do
-        resp = admin_client.get "/inventory/dev/profile"
+      it "returns directly accessible pools via /inventory/profile" do
+        resp = admin_client.get "/inventory/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end

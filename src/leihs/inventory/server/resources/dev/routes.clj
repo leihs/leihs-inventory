@@ -112,20 +112,20 @@
      :no-doc (not APPLY_DEV_ENDPOINTS)
      }
 
-    ;; TODO: move to DEV?
-    ["/pools"
-     {:get {:conflicting true
-            :summary (i/session "Get pools of the authenticated user.")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [wrap-authenticate! accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :handler get-pools-of-user-handler
-            :responses {200 {:description "OK"
-                             ;:body [schema-min] ;; FIXME
-                             }
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
+    ;;; TODO: move to DEV?
+    ;["/pools"
+    ; {:get {:conflicting true
+    ;        :summary (i/session "Get pools of the authenticated user.")
+    ;        :accept "application/json"
+    ;        :coercion reitit.coercion.schema/coercion
+    ;        :middleware [wrap-authenticate! accept-json-middleware]
+    ;        :swagger {:produces ["application/json"]}
+    ;        :handler get-pools-of-user-handler
+    ;        :responses {200 {:description "OK"
+    ;                         ;:body [schema-min] ;; FIXME
+    ;                         }
+    ;                    404 {:description "Not Found"}
+    ;                    500 {:description "Internal Server Error"}}}}]
 
     ["/update-accounts" {:put {:conflicting true
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
