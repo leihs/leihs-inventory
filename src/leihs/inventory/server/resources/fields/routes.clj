@@ -16,9 +16,9 @@
 (defn get-fields-routes []
   [""
 
-   ["/fields-for-form"
+   ["fields-for-form"
     {:swagger {:conflicting true
-               :tags ["Dev"]}}
+               :tags ["Fields"]}}
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"
                :description (str "<ul>"
@@ -44,7 +44,7 @@
 
    ["/fields-license"
     {:swagger {:conflicting true
-               :tags ["Dev"]}}
+               :tags ["2222"]}}
 
     ["" {:get {:conflicting true
                :summary "Used by license form"
@@ -70,7 +70,7 @@
 
    ["/fields"
     {:swagger {:conflicting true
-               :tags ["Dev"]}}
+               :tags ["333"]}}
 
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"
@@ -125,7 +125,7 @@
 
    ["/:pool_id/search"
     {:swagger {:conflicting true
-               :tags ["Dev"]}}
+               :tags ["Dev33"]}}
     ["" {:get {:conflicting true
                :description (str "- https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/inventory.json?search_term=abc&retired=false&used=true&page=1&include_package_models=true&sort=name&order=ASC"
                                  "- TODO: add facets / fix software-query")
@@ -143,4 +143,6 @@
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]])
+                           500 {:description "Internal Server Error"}}}}]]
+]
+)

@@ -66,9 +66,9 @@
 
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
-  [& extra-routes]
-  (into [""
-    (get-user-routes)
+  []
+   [""
+         (get-user-routes)
          (get-model-route)
          (get-model-by-pool-route)
          (get-tree-route)
@@ -77,21 +77,18 @@
          (get-owner-department-routes)
          (get-attachments-routes)
          (get-images-routes)
-         (session-token-routes)]
-    extra-routes))
+         (session-token-routes)
 
-(when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE
-  (apply incl-other-routes
-    (get-fields-routes)
-    (get-export-routes)
-    (get-items-routes)
-    ;(get-dev-routes)
-    (get-properties-routes)))
+    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-fields-routes))
+    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-export-routes))
+    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-items-routes))
+    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-properties-routes))
 
-(when CONST_APPLY_DEV_ENDPOINTS
-  (apply incl-other-routes
-    (get-dev-routes)))
+    (when CONST_APPLY_DEV_ENDPOINTS (get-dev-routes))
 
+
+    ]
+    )
 
 
 
@@ -286,4 +283,6 @@
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]
+    ;(all-routes)]])
+    ;all-routes]])
     (incl-other-routes)]])
