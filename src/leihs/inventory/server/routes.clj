@@ -13,7 +13,9 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS HIDE_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler
-                                                              update-role-handler session-token-routes]]
+                                                              update-role-handler
+                                                              ;token-routes
+                                                              session-token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
@@ -66,11 +68,11 @@
    (get-properties-routes)
    (get-pools-routes)
    (get-categories-routes)
-   (get-buildings-rooms-routes)
+   ;(get-buildings-rooms-routes)
    (get-dev-routes)
    (get-owner-department-routes)
    (get-items-routes)
-   (get-supplier-routes)
+   ;(get-supplier-routes)
    (get-fields-routes)
    (get-export-routes)
 
@@ -81,6 +83,7 @@
    ;(when (not CONST_PROD_ENDPOINTS_ONLY) (session-token-routes))
 
    (session-token-routes)
+   ;(token-routes)
 
    ])
 
