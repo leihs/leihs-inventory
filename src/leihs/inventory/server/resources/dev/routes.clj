@@ -79,6 +79,13 @@
             :handler status/status-handler
             :middleware [wrap-is-admin!]}}]
 
+   ["set-password"
+    {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :parameters {:body {:new-password1 s/Str}}
+            :handler set-password-handler}}]
+
    ["admin/update-role"
     {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
            :accept "application/json"
