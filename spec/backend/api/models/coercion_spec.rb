@@ -42,15 +42,15 @@ describe "Coercion test" do
 
     context "fetch of form" do
       it "ensures form manufacturer data is fetched" do
-        resp = client.get "/inventory/#{pool_id}/item"
-        expect(resp.status).to be(200)
+        resp = client.get "/inventory/#{pool_id}/items?result_type=Normal"
+        expect(resp.status).to eq(200)
       end
 
       it "return 422 with invalid uuid" do
-        resp = client.get "/inventory/invalid-uuid/item"
-        expect(resp.status).to be(422)
+        resp = client.get "/inventory/invalid-uuid/items"
+        expect(resp.status).to eq(422)
         expect(resp.body).to eq({"reason" => "Coercion-Error", "scope" => "request/path-params",
-                                 "coercion-type" => "spec", "uri" => "GET /inventory/invalid-uuid/item"})
+                                 "coercion-type" => "schema", "uri" => "GET /inventory/invalid-uuid/items"})
       end
     end
   end
