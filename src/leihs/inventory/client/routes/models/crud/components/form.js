@@ -95,6 +95,11 @@ export const structure = [
         name: "manufacturers",
         label: "pool.model.product.blocks.manufacturer.label",
         component: "manufacturers",
+        props: {
+          text: {
+            label: "pool.model.product.blocks.manufacturer.label",
+          },
+        },
       },
       {
         name: "description",
@@ -174,6 +179,10 @@ export const structure = [
         label: "pool.model.attachments.blocks.attachments.label",
         component: "attachments",
         props: {
+          text: {
+            description:
+              "pool.model.attachments.blocks.attachments.table.description",
+          },
           multiple: true,
           sortable: false,
         },
