@@ -28,7 +28,7 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "successfully retrieves available models with a 200 status" do
-        resp = client.get "/inventory/profile
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 1
       end
@@ -36,7 +36,7 @@ describe "Call inventory-pool endpoints" do
 
     context "User without any access rights" do
       it "returns no models with a 200 status" do
-        resp = client.get "/inventory/profile
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 0
       end
@@ -50,7 +50,7 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "does not retrieve the new model without access rights, returns 200 status" do
-        resp = client.get "/inventory/profile
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 0
       end
@@ -60,7 +60,7 @@ describe "Call inventory-pool endpoints" do
           group_id: Leihs::Constants::ALL_USERS_GROUP_UUID)
         FactoryBot.create(:group_access_right, inventory_pool_id: @inventory_pool.id, group_id: group_user.group_id, role: "group_manager")
 
-        resp = client.get "/inventory/profile
+        resp = client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to be 1
       end
