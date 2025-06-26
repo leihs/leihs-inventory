@@ -149,6 +149,43 @@
         }
       }
     },
+    "option": {
+      "create": {
+        "title": "Neue Option erstellen",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Option speichern",
+        "cancel": "Abbrechen",
+        "success": "Option wurde erfolgreich erstellt"
+      },
+      "edit": {
+        "success": "Option wurde erfolgreich gespeichert"
+      },
+      "delete": {
+        "title": "Option löschen",
+        "description": "Sind Sie sicher, dass Sie diese Option löschen möchten?",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "success": "Option wurde erfolgreich gelöscht",
+        "error": "Option konnte nicht gelöscht werden"
+      },
+      "option": {
+        "title": "Option",
+        "blocks": {
+          "product": {
+            "label": "Produkt"
+          },
+          "inventory_code": {
+            "label": "Inventarcode"
+          },
+          "version": {
+            "label": "Version"
+          },
+          "price": {
+            "label": "Preis"
+          }
+        }
+      }
+    },
     "model": {
       "title": "Modell bearbeiten",
       "submit": "Speichern",

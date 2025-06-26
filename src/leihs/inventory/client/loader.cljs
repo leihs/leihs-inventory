@@ -114,18 +114,18 @@
         option-path (when option-id
                       (router/generatePath "/inventory/:pool-id/options/:option-id" params))
 
-        option (when option-path
-                 (-> http-client
-                     (.get option-path #js {:id option-id})
-                     (.then (fn [res]
-                              (let [kv (jc (.-data res))]
-                                (->> kv
-                                     (vals)
-                                     (map (fn [el] (if (nil? el) "" el)))
-                                     (zipmap (keys kv))))))))]
+        data (when option-path
+               (-> http-client
+                   (.get option-path #js {:id option-id})
+                   (.then (fn [res]
+                            (let [kv (jc (.-data res))]
+                              (->> kv
+                                   (vals)
+                                   (map (fn [el] (if (nil? el) "" el)))
+                                   (zipmap (keys kv))))))))]
 
-    (.. (js/Promise.all (cond-> [] option (conj option)))
-        (then (fn [[& [option]]] {:option (if option option nil)})))))
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))
 
 (defn items-crud-page [route-data]
   (let [models (-> http-client
