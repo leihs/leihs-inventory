@@ -3,21 +3,18 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
-   [leihs.core.auth.session :refer [wrap-authenticate]]
+   [leihs.core.anti-csrf.back :refer [anti-csrf-token]]
    [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-   [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS HIDE_DEV_ENDPOINTS]]
+   [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler
-                                                              update-role-handler
+   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler session-token-routes
                                                               ;token-routes
-                                                              session-token-routes]]
+                                                              ]]
    [leihs.inventory.server.resources.auth.session :as ab]
-   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
@@ -29,9 +26,8 @@
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
-   [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
    [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! restrict-uri-middleware]]
+   [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [muuntaja.core :as m]
@@ -57,38 +53,35 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(def CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE true)
+(def CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE true)
 (def CONST_APPLY_DEV_ENDPOINTS false)
 
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
 ; 3. Dev routes
-
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-   [""
-         (get-user-routes)
-         (get-model-route)
-         (get-model-by-pool-route)
-         (get-tree-route)
-         (get-pools-routes)
-         (get-categories-routes)
-         (get-owner-department-routes)
-         (get-attachments-routes)
-         (get-images-routes)
-         (session-token-routes)
-
-    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-fields-routes))
-    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-export-routes))
-    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-items-routes))
-    (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE (get-properties-routes))
-
-    (when CONST_APPLY_DEV_ENDPOINTS (get-dev-routes))
-
-
-    ]
-    )
+  (let [core-routes [(get-user-routes)
+                     (get-model-route)
+                     (get-model-by-pool-route)
+                     (get-tree-route)
+                     (get-pools-routes)
+                     (get-categories-routes)
+                     (get-owner-department-routes)
+                     (get-attachments-routes)
+                     (get-images-routes)
+                     (session-token-routes)]
+        additional-routes (concat
+                            (when CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                              [
+                               (get-fields-routes)
+                               (get-export-routes)
+                               (get-items-routes)
+                               (get-properties-routes)])
+                            (when CONST_APPLY_DEV_ENDPOINTS
+                              [(get-dev-routes)]))]
+    (vec (concat core-routes additional-routes))))
 
 
 
@@ -97,10 +90,10 @@
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
                     :flashMessages []}
-                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                       {:name "csrf-token" :value mtoken}))
-                   (cond-> (:message query)
-                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+                 (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
+                                     {:name "csrf-token" :value mtoken}))
+                 (cond-> (:message query)
+                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     (if (str/includes? accept "application/json")
@@ -133,8 +126,8 @@
      :body html}))
 (defn post-sign-out [request]
   (let [params (-> request
-                   convert-params
-                   (assoc-in [:accept :mime] :html))
+                 convert-params
+                 (assoc-in [:accept :mime] :html))
         accept (get-in params [:headers "accept"])]
     (if (str/includes? accept "application/json")
       {:status (if (so/routes params) 200 409)}

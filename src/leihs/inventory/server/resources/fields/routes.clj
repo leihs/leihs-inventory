@@ -44,7 +44,7 @@
 
    ["/fields-license"
     {:swagger {:conflicting true
-               :tags ["2222"]}}
+               :tags ["Fields"]}}
 
     ["" {:get {:conflicting true
                :summary "Used by license form"
@@ -70,7 +70,7 @@
 
    ["/fields"
     {:swagger {:conflicting true
-               :tags ["333"]}}
+               :tags ["Fields"]}}
 
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"
@@ -123,26 +123,26 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/:pool_id/search"
-    {:swagger {:conflicting true
-               :tags ["Dev33"]}}
-    ["" {:get {:conflicting true
-               :description (str "- https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/inventory.json?search_term=abc&retired=false&used=true&page=1&include_package_models=true&sort=name&order=ASC"
-                                 "- TODO: add facets / fix software-query")
-               :accept "application/json"
-               :coercion reitit.coercion.schema/coercion
-               :middleware [accept-json-middleware
-                            ;session/wrap
-                            ]
-               :swagger {:produces ["application/json"]}
-               :parameters {:path {:pool_id s/Uuid}
-                            :query {(s/optional-key :type) (s/enum "Software" "Model")
-                                    (s/optional-key :page) s/Int
-                                    (s/optional-key :size) s/Int}}
-               :handler get-search-with-pagination-handler
-               :responses {200 {:description "OK"
-                                :body s/Any}
-                           404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]
+   ;["/:pool_id/search"
+   ; {:swagger {:conflicting true
+   ;            :tags ["Dev33"]}}
+   ; ["" {:get {:conflicting true
+   ;            :description (str "- https://test.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/inventory.json?search_term=abc&retired=false&used=true&page=1&include_package_models=true&sort=name&order=ASC"
+   ;                              "- TODO: add facets / fix software-query")
+   ;            :accept "application/json"
+   ;            :coercion reitit.coercion.schema/coercion
+   ;            :middleware [accept-json-middleware
+   ;                         ;session/wrap
+   ;                         ]
+   ;            :swagger {:produces ["application/json"]}
+   ;            :parameters {:path {:pool_id s/Uuid}
+   ;                         :query {(s/optional-key :type) (s/enum "Software" "Model")
+   ;                                 (s/optional-key :page) s/Int
+   ;                                 (s/optional-key :size) s/Int}}
+   ;            :handler get-search-with-pagination-handler
+   ;            :responses {200 {:description "OK"
+   ;                             :body s/Any}
+   ;                        404 {:description "Not Found"}
+   ;                        500 {:description "Internal Server Error"}}}}]]
 ]
 )
