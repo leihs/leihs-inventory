@@ -24,8 +24,8 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.models.crud.components.fields :as form-fields]
-   [leihs.inventory.client.routes.models.crud.core :as core]
+   [leihs.inventory.client.routes.models.options.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.models.options.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -36,7 +36,7 @@
 (def default-values (cj {:product ""
                          :inventory_code ""
                          :version ""
-                         :price ""}))
+                         :price 0}))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -71,9 +71,9 @@
         handle-delete (fn []
                         (go
                           (let [pool-id (aget params "pool-id")
-                                model-id (aget params "model-id")
+                                option-id (aget params "option-id")
                                 res (<p! (-> http-client
-                                             (.delete (str "/inventory/" pool-id "/model/" model-id))
+                                             (.delete (str "/inventory/" pool-id "/options/" option-id))
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
@@ -93,44 +93,32 @@
 
         on-submit (fn [submit-data event]
                     (go
-                      (let [model-data (core/remove-nil-values data)
+                      (let [pool-id (aget params "pool-id")
 
-                            pool-id (aget params "pool-id")
+                            option-res (if is-create
+                                         (<p! (-> http-client
+                                                  (.post (str "/inventory/" pool-id "/options/")
+                                                         (js/JSON.stringify (cj submit-data)))
 
-                            model-res (if is-create
-                                        (<p! (-> http-client
-                                                 (.post (str "/inventory/" pool-id "/model/")
-                                                        (js/JSON.stringify (cj model-data))
-                                                        (cj {:cache
-                                                             {:update {:models "delete"
-                                                                       :compatible-models "delete"
-                                                                       :manufacturers "delete"}}}))
+                                                  (.then (fn [res]
+                                                           {:status (.. res -status)
+                                                            :statusText (.. res -statusText)
+                                                            :id (.. res -data -data -id)}))))
 
-                                                 (.then (fn [res]
-                                                          {:status (.. res -status)
-                                                           :statusText (.. res -statusText)
-                                                           :id (.. res -data -data -id)}))))
-
-                                        (<p! (let [model-id (aget params "model-id")]
-                                               (-> http-client
-                                                   (.put (str "/inventory/" pool-id "/model/" model-id "/")
-                                                         (js/JSON.stringify (cj model-data))
-                                                         (cj {:cache
-                                                              {:update {:models "delete"
-                                                                        (keyword model-id) "delete"
-                                                                        :compatible-models "delete"
-                                                                        :manufacturers "delete"}}}))
-                                                   (.then (fn [res]
-                                                            {:status (.. res -status)
-                                                             :statusText (.. res -statusText)
-                                                             :id (.. res -data -data -id)}))))))
-
-                            model-id (when (not= (:status model-res) "200") (:id model-res))]
-
+                                         (<p! (let [option-id (aget params "option-id")]
+                                                (-> http-client
+                                                    (.put (str "/inventory/" pool-id "/options/" option-id "/")
+                                                          (js/JSON.stringify (cj submit-data))
+                                                          (cj {:cache
+                                                               {:update {(keyword option-id) "delete"}}}))
+                                                    (.then (fn [res]
+                                                             {:status (.. res -status)
+                                                              :statusText (.. res -statusText)
+                                                              :id (.. res -data -data -id)}))))))]
                         (.. event (preventDefault))
 
-                        (if (not= (:status model-res) 200)
-                          (.. toast (error (:statusText model-res)))
+                        (if (not= (:status option-res) 200)
+                          (.. toast (error (:statusText option-res)))
 
                           (do
                             ;; patch cover-image when needed
@@ -152,13 +140,6 @@
                                         #js {:state state
                                              :viewTransition true})))))))]
 
-    ;; (uix/use-effect
-    ;;  (fn []
-    ;;    (when (and is-edit (not is-loading))
-    ;;      (let [package (.. js/document (querySelector "[data-id='is-package']"))]
-    ;;        (set! (.. package -disabled) true))))
-    ;;  [is-edit is-loading])
-
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
          ($ Spinner))
@@ -167,12 +148,12 @@
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
             (if is-create
               (t "pool.option.create.title")
-              (t "pool.option.title")))
+              (t "pool.option.edit.title")))
 
          ($ :h3 {:className "text-sm mb-6 text-gray-500"}
             (if is-create
               (t "pool.option.create.description")
-              (t "pool.option.description")))
+              (t "pool.option.edit.description")))
 
          ($ Card {:className "py-8 mb-12"}
             ($ CardContent
@@ -206,7 +187,7 @@
                                    :form "create-option"}
                            (if is-create
                              (t "pool.option.create.submit")
-                             (t "pool.option.submit")))
+                             (t "pool.option.edit.submit")))
 
                         ($ DropdownMenu
                            ($ DropdownMenuTrigger {:asChild true}
@@ -219,11 +200,11 @@
                                           :viewTransition true}
                                     (if is-create
                                       (t "pool.option.create.cancel")
-                                      (t "pool.option.cancel"))))
+                                      (t "pool.option.edit.cancel"))))
 
                               (when (not is-create)
                                 ($ DropdownMenuItem {:asChild true}
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id/delete" params)
+                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/options/:option-id/delete" params)
                                             :state state}
                                       "Delete"))))))
 
@@ -242,7 +223,7 @@
                                                       :onClick handle-delete}
                                    (t "pool.option.delete.confirm"))
                                 ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
+                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:option-id" params)
                                             :state state}
 
                                       (t "pool.option.delete.cancel")))))))))))))))
