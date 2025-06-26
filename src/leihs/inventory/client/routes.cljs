@@ -12,6 +12,7 @@
    [leihs.inventory.client.routes.models.layout :rename {layout models-layout}]
    [leihs.inventory.client.routes.models.options.crud.page :rename {page options-crud-page}]
    [leihs.inventory.client.routes.models.page :rename {page models-page}]
+   [leihs.inventory.client.routes.models.software.crud.page :rename {page software-crud-page}]
    [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
    [leihs.inventory.client.routes.statistics.page :rename {page statistics-page}]
@@ -53,6 +54,9 @@
                  {:path "items"
                   :loader #(router/redirect "create")}
 
+                 {:path "software"
+                  :loader #(router/redirect "create")}
+
                  {:path "advanced-search"
                   :element ($ advanced-search-page)}
 
@@ -80,11 +84,20 @@
                :loader loader/models-crud-page
                :element ($ models-crud-page)}
 
+              ;; software crud 
+              {:path "software/create"
+               :loader loader/software-crud-page
+               :element ($ software-crud-page)}
+
+              {:path "software/:software-id/delete?"
+               :loader loader/software-crud-page
+               :element ($ software-crud-page)}
+
               ;; items crud 
               {:path "items/create"
                :loader loader/items-crud-page
                :element ($ items-crud-page)}
 
-              {:path "models/:model-id/items/create"
+              {:path "models/:item-id/items/create"
                :loader loader/items-crud-page
                :element ($ items-crud-page)}])}])}])))
