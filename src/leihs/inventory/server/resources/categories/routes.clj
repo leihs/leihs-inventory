@@ -112,6 +112,7 @@
     ["/groups"
      ["" {:get {:conflicting true
                 :accept "application/json"
+                :summary "[v1]"
                 :coercion reitit.coercion.schema/coercion
                 :middleware [accept-json-middleware]
                 :swagger {:produces ["application/json"]}
