@@ -24,8 +24,8 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns all inventory pools with access via /inventory/profile do
-        resp = admin_client.get "/inventory/profile
+      it "returns all inventory pools with access via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
@@ -59,7 +59,7 @@ describe "Call inventory-pool endpoints" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
 
-        profile = admin_client.get "/inventory/profile"
+        profile = admin_client.get "/inventory/dev/profile"
         expect(profile.status).to eq(200)
         expect(profile.body["available_inventory_pools"].count).to eq(4)
       end
@@ -80,14 +80,14 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns group-accessible pools via /inventory/profile do
-        resp = admin_client.get "/inventory/profile
+      it "returns group-accessible pools via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns group-accessible pools via /inventory/profile" do
-        resp = admin_client.get "/inventory/profile"
+      it "returns group-accessible pools via /inventory/dev/profile" do
+        resp = admin_client.get "/inventory/dev/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
@@ -119,14 +119,14 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns directly accessible pools via /inventory/profile do
-        resp = admin_client.get "/inventory/profile
+      it "returns directly accessible pools via /inventory/pools" do
+        resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns directly accessible pools via /inventory/profile" do
-        resp = admin_client.get "/inventory/profile"
+      it "returns directly accessible pools via /inventory/dev/profile" do
+        resp = admin_client.get "/inventory/dev/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end

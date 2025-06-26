@@ -108,19 +108,19 @@
 
     ]
 
-   ["profile"
-    {:get {:conflicting true
-           :accept "application/json"
-           :summary (i/session "Get details of the authenticated user. [fe]")
-           :description "Uses /inventory/pools-by-access-right for the pools."
-           :coercion reitit.coercion.schema/coercion
-           :middleware [wrap-authenticate! accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :handler get-user-profile
-           :responses {200 {:description "OK"
-                            :body profile-response-schema}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
+   ;["profile"
+   ; {:get {:conflicting true
+   ;        :accept "application/json"
+   ;        :summary (i/session "Get details of the authenticated user. [fe]")
+   ;        :description "Uses /inventory/pools-by-access-right for the pools."
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [wrap-authenticate! accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :handler get-user-profile
+   ;        :responses {200 {:description "OK"
+   ;                         :body profile-response-schema}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
 
    ;; TO DEV?
    ;["details"
