@@ -4,15 +4,15 @@
 (def ACTIVATE-CSRF true)
 (def ACTIVATE-SET-CSRF true)
 
+
+
+
+(def CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE false)
+(def CONST_APPLY_DEV_ENDPOINTS false)
 (def HIDE_BASIC_ENDPOINTS
   "- sign-in / sign-out (html/endpoints)
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-" false)
+" true)
 
-(def HIDE_DEV_ENDPOINTS
-  "- update login
-- login / logout
-- set password
-" false)

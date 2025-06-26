@@ -34,6 +34,8 @@
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.constants :refer [CONST_APPLY_DEV_ENDPOINTS
+                                                              CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
    [reitit.openapi :as openapi]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.swagger :as swagger]
@@ -54,8 +56,7 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(def CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE true)
-(def CONST_APPLY_DEV_ENDPOINTS false)
+
 
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
@@ -75,7 +76,7 @@
         additional-routes (concat
                             (when CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                               [
-                     (get-owner-department-routes)
+                               (get-owner-department-routes)
                                (get-supplier-routes)
                                (get-fields-routes)
                                (get-export-routes)
