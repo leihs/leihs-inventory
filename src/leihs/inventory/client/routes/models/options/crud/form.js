@@ -2,21 +2,18 @@ import { z } from "zod"
 
 export const schema = z.object({
   product: z.string().min(1),
-  inventory_code: z
-    .string()
-    .regex(/^[a-zA-Z0-9]*$/)
-    .optional(),
+  inventory_code: z.string().regex(/^[a-zA-Z0-9]*$/),
   version: z.string().optional(),
-  price: z.string().optional(),
+  price: z.number().optional(),
 })
 
 export const structure = [
   {
-    title: "pool.model.product.title",
+    title: "pool.option.option.title",
     blocks: [
       {
         name: "product",
-        label: "pool.model.product.blocks.product.label",
+        label: "pool.option.option.blocks.product.label",
         component: "input",
         props: {
           required: true,
@@ -25,7 +22,7 @@ export const structure = [
       },
       {
         name: "inventory_code",
-        label: "pool.model.product.blocks.version.label",
+        label: "pool.option.option.blocks.inventory_code.label",
         component: "input",
         props: {
           required: true,
@@ -35,7 +32,7 @@ export const structure = [
       },
       {
         name: "version",
-        label: "pool.model.product.blocks.version.label",
+        label: "pool.option.option.blocks.version.label",
         component: "input",
         props: {
           type: "text",
@@ -44,7 +41,7 @@ export const structure = [
       },
       {
         name: "price",
-        label: "pool.model.product.blocks.hand_over_note.label",
+        label: "pool.option.option.blocks.price.label",
         component: "input",
         props: {
           "auto-complete": "off",
