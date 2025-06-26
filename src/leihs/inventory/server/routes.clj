@@ -85,7 +85,7 @@
     (get-fields-routes)
     (get-export-routes)
     (get-items-routes)
-    (get-dev-routes)
+    ;(get-dev-routes)
     (get-properties-routes)))
 
 (when CONST_APPLY_DEV_ENDPOINTS
@@ -187,7 +187,7 @@
 
     ["/"
      {:swagger {:tags ["Auth"]}
-      :no-doc HIDE_DEV_ENDPOINTS
+      :no-doc HIDE_BASIC_ENDPOINTS
       }
 
      ["login"
@@ -217,12 +217,14 @@
              :middleware [ab/wrap]
              :handler logout-handler}}]
 
-     ["set-password"
-      {:post {:summary "OK | Set password by basicAuth for already authenticated user"
-              :accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:body {:new-password1 s/Str}}
-              :handler set-password-handler}}]]
+     ;["set-password"
+     ; {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+     ;         :accept "application/json"
+     ;         :coercion reitit.coercion.schema/coercion
+     ;         :parameters {:body {:new-password1 s/Str}}
+     ;         :handler set-password-handler}}]
+
+     ]
 
     ["/"
      {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
