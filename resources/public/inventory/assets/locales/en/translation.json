@@ -78,6 +78,7 @@
         "title": "Add inventory",
         "add_model": "New model",
         "add_item": "New item",
+        "add_option": "",
         "add_software": "Add Software"
       },
       "tabs": {
@@ -145,6 +146,48 @@
             "label": "File",
             "select": "Select file",
             "not_found": "File not found"
+          }
+        }
+      }
+    },
+    "option": {
+      "create": {
+        "title": "Create new option",
+        "description": "Insert all required information",
+        "submit": "Save Option",
+        "cancel": "Cancel",
+        "success": "Option successfully created"
+      },
+      "edit": {
+        "title": "Edit Option",
+        "description": "Make changes and then save",
+        "submit": "Save",
+        "success": "Option successfully saved",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete option",
+        "description": "Are you sure you want to delete this option?",
+        "confirm": "Delete",
+        "cancel": "Cancel",
+        "success": "Option successfully deleted",
+        "error": "Option could not be deleted"
+      },
+      "option": {
+        "title": "Option",
+        "blocks": {
+          "product": {
+            "label": "Product"
+          },
+          "inventory_code": {
+            "label": "Inventory Code",
+            "description": "Alphanumeric code that uniquely identifies the option. No special characters allowed beside \"-\"."
+          },
+          "version": {
+            "label": "Version"
+          },
+          "price": {
+            "label": "Price"
           }
         }
       }

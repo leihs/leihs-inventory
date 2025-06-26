@@ -181,7 +181,7 @@
           },
           "inventory_code": {
             "label": "Inventarcode",
-            "description": "Alphanumerischer Code, der die Option eindeutig identifiziert. Kein Sonderzeichen erlaubt."
+            "description": "Alphanumerischer Code, der die Option eindeutig identifiziert. Kein Sonderzeichen erlaubt ausser \"-\"."
           },
           "version": {
             "label": "Version"
