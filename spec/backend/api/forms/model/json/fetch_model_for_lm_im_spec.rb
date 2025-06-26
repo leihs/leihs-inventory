@@ -211,23 +211,23 @@ describe "Inventory Model" do
 
           # Optional request, if is_cover has been set/modified
           # data = [{"id" => model_id, "is_cover" => @image_id}]
-          data = [{"is_cover" => @image_id}]
+          data = {"is_cover" => @image_id}
           resp = json_client_patch(
             "/inventory/#{pool_id}/model/#{model_id}",
             body: data,
             headers: cookie_header
           )
 
-          # binding.pry
+          binding.pry
 
           expect(resp.status).to eq(200)
 
           # FIXME
-          # expect(resp.body.first["id"]).to eq(model_id)
-          # expect(resp.body.first["cover_image_id"]).to eq(@image_id)
+          expect(resp.body.first["id"]).to eq(model_id)
+          expect(resp.body.first["cover_image_id"]).to eq(@image_id)
 
-          expect(resp.body["data"]["id"]).to eq(model_id)
-          expect(resp.body["data"]["cover_image_id"]).to eq(@image_id)
+          # expect(resp.body["data"]["id"]).to eq(model_id)
+          # expect(resp.body["data"]["cover_image_id"]).to eq(@image_id)
 
 
 
