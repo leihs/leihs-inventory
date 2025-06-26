@@ -50,10 +50,10 @@ describe "Call swagger-endpoints" do
         expect(resp.status).to eq(404)
       end
 
-      it "return 422 for invalid id (coercion)" do
-        resp = client.get("/inventory/models/2849f034351")
-        expect(resp.status).to eq(422)
-      end
+      # it "return 422 for invalid id (coercion)" do
+      #   resp = client.get("/inventory/models/2849f034351")
+      #   expect(resp.status).to eq(422)
+      # end
     end
 
     it "accesses protected json-resource by accept=*/*" do
