@@ -51,20 +51,20 @@
 
    ["pools"
 
-    ; TODO: move to DEV?
-    [""
-     {:get {:conflicting true
-            :summary (i/session "Get pools of the authenticated user.")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [wrap-authenticate! accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :handler get-pools-of-user-handler
-            :responses {200 {:description "OK"
-                             ;:body [schema-min] ;; FIXME
-                             }
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
+    ;; TODO: move to DEV?
+    ;[""
+    ; {:get {:conflicting true
+    ;        :summary (i/session "Get pools of the authenticated user.")
+    ;        :accept "application/json"
+    ;        :coercion reitit.coercion.schema/coercion
+    ;        :middleware [wrap-authenticate! accept-json-middleware]
+    ;        :swagger {:produces ["application/json"]}
+    ;        :handler get-pools-of-user-handler
+    ;        :responses {200 {:description "OK"
+    ;                         ;:body [schema-min] ;; FIXME
+    ;                         }
+    ;                    404 {:description "Not Found"}
+    ;                    500 {:description "Internal Server Error"}}}}]
 
     ["-by-access-right"
      {:get {:conflicting true

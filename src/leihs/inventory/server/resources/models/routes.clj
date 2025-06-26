@@ -1017,7 +1017,10 @@
                                400 {:description "Bad Request"
                                     :body s/Any}}}}]
 
+
      ["/items"
+      {:swagger {:conflicting true
+                 :tags ["Dev"]}}
       ["" {:get {:accept "application/json"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]

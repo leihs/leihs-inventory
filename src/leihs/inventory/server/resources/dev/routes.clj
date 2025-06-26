@@ -2,10 +2,11 @@
   (:require
    [clojure.set]
 
+   [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
 
    [leihs.core.status :as status]
-   [leihs.inventory.server.constants :refer [HIDE_DEV_ENDPOINTS]]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS CONST_APPLY_DEV_ENDPOINTS]]
 
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
@@ -15,6 +16,11 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
+
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
+
+   [leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler get-pools-access-rights-of-user-handler
+                                                       get-user-profile get-user-details-handler]]
 
 
    ;[cheshire.core :as json]
@@ -103,8 +109,24 @@
    ["/dev"
     {:swagger {:conflicting true
                :tags ["Dev"]}
-     :no-doc HIDE_DEV_ENDPOINTS
+     :no-doc (not CONST_APPLY_DEV_ENDPOINTS)
      }
+
+    ;; TODO: move to DEV?
+    ["/pools"
+     {:get {:conflicting true
+            :summary (i/session "Get pools of the authenticated user.")
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [wrap-authenticate! accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :handler get-pools-of-user-handler
+            :responses {200 {:description "OK"
+                             ;:body [schema-min] ;; FIXME
+                             }
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
+
     ["/update-accounts" {:put {:conflicting true
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
