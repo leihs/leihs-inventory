@@ -75,6 +75,27 @@
                  :entitlement-groups entitlement-groups
                  :data (if data data nil)})))))
 
+(defn options-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+
+        option-id (or (:model-id (jc params)) nil)
+
+        option-path (when option-id
+                      (router/generatePath "/inventory/:pool-id/options/:option-id" params))
+
+        option (when option-path
+                 (-> http-client
+                     (.get option-path #js {:id option-id})
+                     (.then (fn [res]
+                              (let [kv (jc (.-data res))]
+                                (->> kv
+                                     (vals)
+                                     (map (fn [el] (if (nil? el) "" el)))
+                                     (zipmap (keys kv))))))))]
+
+    (.. (js/Promise.all (cond-> [] option (conj option)))
+        (then (fn [[& [option]]] {:option (if option option nil)})))))
+
 (defn items-crud-page [route-data]
   (let [models (-> http-client
                    (.get "/inventory/models-compatibles")
