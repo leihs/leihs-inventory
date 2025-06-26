@@ -34,8 +34,8 @@
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.constants :refer [CONST_APPLY_DEV_ENDPOINTS
-                                                              CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
+   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
+                                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
    [reitit.openapi :as openapi]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.swagger :as swagger]
@@ -74,7 +74,7 @@
                      (get-images-routes)
                      (session-token-routes)]
         additional-routes (concat
-                            (when CONST_APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                               [
                                (get-owner-department-routes)
                                (get-supplier-routes)
@@ -82,7 +82,7 @@
                                (get-export-routes)
                                (get-items-routes)
                                (get-properties-routes)])
-                            (when CONST_APPLY_DEV_ENDPOINTS
+                            (when APPLY_DEV_ENDPOINTS
                               [(get-dev-routes)]))]
     (vec (concat core-routes additional-routes))))
 

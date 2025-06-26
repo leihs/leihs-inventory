@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
 
    [leihs.core.status :as status]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS CONST_APPLY_DEV_ENDPOINTS]]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
 
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
@@ -109,7 +109,7 @@
    ["/dev"
     {:swagger {:conflicting true
                :tags ["Dev"]}
-     :no-doc (not CONST_APPLY_DEV_ENDPOINTS)
+     :no-doc (not APPLY_DEV_ENDPOINTS)
      }
 
     ;; TODO: move to DEV?

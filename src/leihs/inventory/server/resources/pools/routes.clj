@@ -18,7 +18,7 @@
 
    ["/:pool_id/responsible-inventory-pools"
     {:get {:conflicting true
-           :summary "[v1]"
+           :summary "[fe]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate accept-json-middleware]
