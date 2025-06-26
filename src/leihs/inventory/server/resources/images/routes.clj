@@ -21,7 +21,7 @@
 (defn get-images-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Images [v1]"]}}
+              :tags ["Images [fe]"]}}
 
    ["images/:id/thumbnail"
     {:get {:conflicting true

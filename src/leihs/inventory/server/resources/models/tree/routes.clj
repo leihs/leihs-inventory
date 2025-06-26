@@ -33,7 +33,7 @@
 
    [""
     {:get {:accept "application/json"
-           :summary "Dynamic-Tree-Handler [v1]"
+           :summary "Dynamic-Tree-Handler [fe]"
            :description "Fetch tree
 
 - `with-metadata` provides additional metadata, including a base64-encoded image URL.

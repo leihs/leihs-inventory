@@ -68,7 +68,7 @@
 
     ["-by-access-right"
      {:get {:conflicting true
-            :summary (i/session "Get pools-access for menu of the authenticated user. [v1]")
+            :summary (i/session "Get pools-access for menu of the authenticated user. [fe]")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [wrap-authenticate! accept-json-middleware]
@@ -111,7 +111,7 @@
    ["profile"
     {:get {:conflicting true
            :accept "application/json"
-           :summary (i/session "Get details of the authenticated user. [v1]")
+           :summary (i/session "Get details of the authenticated user. [fe]")
            :description "Uses /inventory/pools-by-access-right for the pools."
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate! accept-json-middleware]

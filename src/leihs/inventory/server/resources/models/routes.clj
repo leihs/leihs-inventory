@@ -93,7 +93,7 @@
 
    ["manufacturers"
     {:get {:conflicting true
-           :summary "Get manufacturers [v1]"
+           :summary "Get manufacturers [fe]"
            :accept "application/json"
            :description "'search-term' works with at least one character, considers:\n
 - manufacturer
@@ -123,7 +123,7 @@
 
    ["models-compatibles"
     {:get {:conflicting true
-           :summary "[v1]"
+           :summary "[fe]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -143,7 +143,7 @@
 
    ["models-compatibles/:model_id"
     {:get {:conflicting true
-           :summary "[v1]"
+           :summary "[fe]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
@@ -330,7 +330,7 @@
 
      ["/images"
       ["" {:post {:accept "application/json"
-                  :summary "Create image [v1]"
+                  :summary "Create image [fe]"
                   :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
                                     "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
                                     "- Creates automatically a thumbnail (" (config-get :api :images :thumbnail :width-px)
@@ -350,7 +350,7 @@
 
       ["/:image_id"
        {:delete {:accept "application/json"
-                 :summary "Delete image [v1]"
+                 :summary "Delete image [fe]"
                  :coercion reitit.coercion.schema/coercion
                  :parameters {:path {:model_id s/Uuid
                                      :image_id s/Uuid}}
@@ -373,7 +373,7 @@
                           500 {:description "Internal Server Error"}}}
 
         :post {:accept "application/json"
-               :summary "Create attachment [v1]"
+               :summary "Create attachment [fe]"
                :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
                                  "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
                :coercion reitit.coercion.schema/coercion
@@ -403,7 +403,7 @@
                           500 {:description "Internal Server Error"}}}
 
         :delete {:accept "application/json"
-                 :summary "Delete attachment [v1]"
+                 :summary "Delete attachment [fe]"
                  :coercion reitit.coercion.schema/coercion
                  :parameters {:path {:model_id s/Uuid
                                      :attachments_id s/Uuid}}
@@ -659,7 +659,7 @@
 
     ["/"
      {:post {:accept "application/json"
-             :summary "Form-Handler: Create model (JSON) [v1]"
+             :summary "Form-Handler: Create model (JSON) [fe]"
              :description description-model-form
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
@@ -675,7 +675,7 @@
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "Form-Handler: Fetch model data (JSON) [v1]"
+             :summary "Form-Handler: Fetch model data (JSON) [fe]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
@@ -687,7 +687,7 @@
                          500 {:description "Internal Server Error"}}}
 
        :patch {:accept "application/json"
-               :summary "Form-Handler: Used to patch model-attributes (JSON) | [v1]"
+               :summary "Form-Handler: Used to patch model-attributes (JSON) | [fe]"
                :coercion reitit.coercion.schema/coercion
                :description description-model-form
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
@@ -702,7 +702,7 @@
                            500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-                :summary "Form-Handler: Delete form data (JSON) [v1]"
+                :summary "Form-Handler: Delete form data (JSON) [fe]"
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
                 :description description-model-form
@@ -724,7 +724,7 @@
                             500 {:description "Internal Server Error"}}}}]
      ["/"
       {:put {:accept "application/json"
-             :summary "Form-Handler: Update model data (JSON) [v1]"
+             :summary "Form-Handler: Update model data (JSON) [fe]"
              :coercion spec/coercion
              :description description-model-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
