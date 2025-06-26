@@ -18,6 +18,7 @@
 
    ["/:pool_id/responsible-inventory-pools"
     {:get {:conflicting true
+           :summary "[v1]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate accept-json-middleware]
@@ -29,16 +30,18 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["/user-pools-info"
-    {:get {:conflicting true
-           :summary (-> "(DEV)" session)
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [wrap-is-admin! accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:query {:login s/Str}}
-           :handler get-pools-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+   ;["/user-pools-info"
+   ; {:get {:conflicting true
+   ;        :summary (-> "(DEV)" session)
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [wrap-is-admin! accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:query {:login s/Str}}
+   ;        :handler get-pools-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+
+   ])

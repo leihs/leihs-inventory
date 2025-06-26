@@ -6,9 +6,6 @@
    [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.core.constants :as constants]
-
-
-
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
@@ -81,7 +78,9 @@
    (get-images-routes)
 
    (get-user-routes)
-   (when (not CONST_PROD_ENDPOINTS_ONLY) (session-token-routes))
+   ;(when (not CONST_PROD_ENDPOINTS_ONLY) (session-token-routes))
+
+   (session-token-routes)
 
    ])
 
@@ -250,7 +249,7 @@
              :handler get-sign-in}}]]
 
     ["/"
-     {:swagger {:tags ["Status"]}}
+     {:swagger {:tags ["Dev"]}}
      ["admin/status"
       {:get {:accept "application/json"
              :handler status/status-handler

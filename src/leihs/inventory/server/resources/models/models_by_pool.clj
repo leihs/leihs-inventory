@@ -55,6 +55,7 @@
         (sql/from [[base-query] :wrapped_query])
         (sql/where [:= :wrapped_query.is_deletable is_deletable]))))
 
+;; THIS by pool
 (defn get-models-handler
   ([request]
    (get-models-handler request false))

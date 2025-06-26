@@ -9,10 +9,10 @@
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-" true)
+" false)
 
 (def HIDE_DEV_ENDPOINTS
   "- update login
 - login / logout
 - set password
-" true)
+" false)
