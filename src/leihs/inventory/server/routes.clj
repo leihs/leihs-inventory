@@ -68,6 +68,7 @@
   "Returns a vector of the core routes plus any additional routes passed in."
   [& extra-routes]
   (into [""
+    (get-user-routes)
          (get-model-route)
          (get-model-by-pool-route)
          (get-tree-route)
@@ -81,7 +82,6 @@
 
 (when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE
   (apply incl-other-routes
-    (get-user-routes)
     (get-fields-routes)
     (get-export-routes)
     (get-items-routes)
@@ -143,11 +143,7 @@
       {:status (if (so/routes params) 200 409)}
       (so/routes params))))
 
-(def update-role-response {:role-before s/Str
-                           :role-after s/Str
-                           :inventory_pool_id s/Uuid
-                           :count-of-direct-access-right-should-be-one s/Int
-                           (s/optional-key :update-result) s/Any})
+
 
 
 (defn pr [str fnc]
@@ -201,18 +197,18 @@
              :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
              :handler authenticate-handler}}]
 
-     ["admin/update-role"
-      {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
-             :accept "application/json"
-             :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
-             :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                  (s/optional-key :pool_id) s/Uuid}}
-             :coercion reitit.coercion.schema/coercion
-             :middleware [wrap-is-admin!]
-             :handler update-role-handler
-             :responses {200 {:description "OK" :body update-role-response}
-                         409 {:description "Conflict" :body update-role-response}
-                         500 {:description "Internal Server Error"}}}}]
+     ;["admin/update-role"
+     ; {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
+     ;        :accept "application/json"
+     ;        :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
+     ;        :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+     ;                             (s/optional-key :pool_id) s/Uuid}}
+     ;        :coercion reitit.coercion.schema/coercion
+     ;        :middleware [wrap-is-admin!]
+     ;        :handler update-role-handler
+     ;        :responses {200 {:description "OK" :body update-role-response}
+     ;                    409 {:description "Conflict" :body update-role-response}
+     ;                    500 {:description "Internal Server Error"}}}}]
 
      ["logout"
       {:get {:accept "application/json"
@@ -259,12 +255,12 @@
              :swagger {:produces ["application/json"]}
              :handler get-sign-in}}]]
 
-    ["/"
-     {:swagger {:tags ["Dev"]}}
-     ["admin/status"
-      {:get {:accept "application/json"
-             :handler status/status-handler
-             :middleware [wrap-is-admin!]}}]]
+    ;["/"
+    ; {:swagger {:tags ["Dev"]}}
+    ; ["admin/status"
+    ;  {:get {:accept "application/json"
+    ;         :handler status/status-handler
+    ;         :middleware [wrap-is-admin!]}}]]
 
     ["/api-docs"
      {:get {:conflicting true
