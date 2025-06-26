@@ -78,6 +78,7 @@
         "title": "Inventar Hinzufügen",
         "add_model": "Neues Modell",
         "add_item": "Neuen Gegenstand",
+        "add_option": "Neue Option",
         "add_software": "Neue Software"
       },
       "tabs": {
@@ -158,7 +159,11 @@
         "success": "Option wurde erfolgreich erstellt"
       },
       "edit": {
-        "success": "Option wurde erfolgreich gespeichert"
+        "title": "Option bearbeiten",
+        "description": "Geben Sie alle erforderlichen Informationen an",
+        "submit": "Option speichern",
+        "success": "Option wurde erfolgreich gespeichert",
+        "cancel": "Abbrechen"
       },
       "delete": {
         "title": "Option löschen",
@@ -175,7 +180,8 @@
             "label": "Produkt"
           },
           "inventory_code": {
-            "label": "Inventarcode"
+            "label": "Inventarcode",
+            "description": "Alphanumerischer Code, der die Option eindeutig identifiziert. Kein Sonderzeichen erlaubt."
           },
           "version": {
             "label": "Version"
