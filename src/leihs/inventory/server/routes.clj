@@ -57,35 +57,43 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(def CONST_PROD_ENDPOINTS_ONLY true)
+(def CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE true)
+(def CONST_APPLY_DEV_ENDPOINTS false)
+
+; 1. Base routes (current state)
+; 2. Already existing routes (not used by FE)
+; 3. Dev routes
+
+(defn incl-other-routes
+  "Returns a vector of the core routes plus any additional routes passed in."
+  [& extra-routes]
+  (into [""
+         (get-model-route)
+         (get-model-by-pool-route)
+         (get-tree-route)
+         (get-pools-routes)
+         (get-categories-routes)
+         (get-owner-department-routes)
+         (get-attachments-routes)
+         (get-images-routes)
+         (session-token-routes)]
+    extra-routes))
+
+(when CONST_APPLY_ENDPOINTS_NOT_USED_BY_FE
+  (apply incl-other-routes
+    (get-user-routes)
+    (get-fields-routes)
+    (get-export-routes)
+    (get-items-routes)
+    (get-dev-routes)
+    (get-properties-routes)))
+
+(when CONST_APPLY_DEV_ENDPOINTS
+  (apply incl-other-routes
+    (get-dev-routes)))
 
 
 
-(defn incl-other-routes []
-  ["" (get-model-route)
-   (get-model-by-pool-route)
-   (get-tree-route)
-   (get-properties-routes)
-   (get-pools-routes)
-   (get-categories-routes)
-   ;(get-buildings-rooms-routes)
-   (get-dev-routes)
-   (get-owner-department-routes)
-   (get-items-routes)
-   ;(get-supplier-routes)
-   (get-fields-routes)
-   (get-export-routes)
-
-   (get-attachments-routes)
-   (get-images-routes)
-
-   (get-user-routes)
-   ;(when (not CONST_PROD_ENDPOINTS_ONLY) (session-token-routes))
-
-   (session-token-routes)
-   ;(token-routes)
-
-   ])
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
