@@ -5,7 +5,7 @@ export const schema = z.object({
   inventory_code: z
     .string()
     .min(1)
-    .regex(/^[a-zA-Z0-9]*$/),
+    .regex(/^[a-zA-Z0-9-]*$/),
   version: z.string().optional(),
   price: z.number().optional(),
 })
