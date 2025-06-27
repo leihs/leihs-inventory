@@ -1,7 +1,7 @@
-(ns leihs.inventory.server.resources.pool.groups.routes
+(ns leihs.inventory.server.resources.pool.groups.group.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.groups.main :refer [
+   [leihs.inventory.server.resources.pool.groups.group.main :refer [
                                                          ;get-model-groups-of-pool-handler
                                                              get-groups-of-pool-handler
                                                              ;get-entitlement-groups-of-pool-handler
@@ -24,7 +24,7 @@
    [schema.core :as s]))
 
 
-(defn get-groups-routes []
+(defn get-groups-single-routes []
 
   [""
 
@@ -35,22 +35,20 @@
 
 
 
-    ["/groups"
-     ["" {:get {:conflicting true
-                :accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-                :middleware [accept-json-middleware]
-                :swagger {:produces ["application/json"]}
-                :parameters {:path {:pool_id s/Uuid}}
-                :handler get-groups-of-pool-handler
-                :responses {200 {:description "OK"
-                                 :body s/Any}
-                            404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
-
-
-     ]
+     ["/groups/:group_id"
+      {:get {:conflicting true
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :middleware [accept-json-middleware]
+             :swagger {:produces ["application/json"]}
+             :parameters {:path {:pool_id s/Uuid :group_id s/Uuid}}
+             :handler get-groups-of-pool-handler
+             :responses {200 {:description "OK"
+                              :body s/Any}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}]]
 
 
 
-    ]])
+
+])
