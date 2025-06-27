@@ -6,8 +6,6 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   ;[leihs.inventory.server.resources.pool.user.languages :as l]
-   ;[leihs.inventory.server.resources.pool.user.profile :refer [get-current get-navigation get-one get-settings]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
    [next.jdbc.sql :as jdbc]
@@ -101,18 +99,3 @@
       (error "Failed to get user" e)
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
-;(defn get-user-profile [request]
-;  (try
-;    (let [tx (:tx request)
-;          user-id (or (presence (-> request :path-params :user_id))
-;                      (:id (:authenticated-entity request)))
-;          auth (convert-to-map (:authenticated-entity request))
-;          user-details (get-one tx (:target-user-id request) user-id)
-;          pools (jdbc/query tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
-;      (response {:navigation (snake-case-keys (get-navigation tx auth))
-;                 :available_inventory_pools pools
-;                 :user_details (snake-case-keys user-details)
-;                 :languages (snake-case-keys (l/get-multiple tx))}))
-;    (catch Exception e
-;      (error "Failed to get user" e)
-;      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
