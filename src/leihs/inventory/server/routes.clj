@@ -30,6 +30,7 @@
    [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
    [leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
+   [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
 
 
@@ -92,6 +93,7 @@
                      (get-entitlement-groups-single-routes)
 
                      (get-groups-routes)
+                     (get-groups-single-routes)
 
                      (get-profile-routes)
 
