@@ -54,21 +54,6 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
-    ;["/:supplier_id"
-    ; {:get {:conflicting true
-    ;        :summary "OK | Lieferant anzeigen [v0]"
-    ;        :accept "application/json"
-    ;        :coercion reitit.coercion.schema/coercion
-    ;        :middleware [accept-json-middleware session/wrap]
-    ;
-    ;        :swagger {:produces ["application/json"]}
-    ;        :parameters {:path {:supplier_id s/Uuid}}
-    ;        :handler get-suppliers-auto-pagination-handler
-    ;        :responses {200 {:description "OK"
-    ;                         :body resp-supplier}
-    ;                    404 {:description "Not Found"}
-    ;                    500 {:description "Internal Server Error"}}}}]
-
 
     ]
 
