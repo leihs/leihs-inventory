@@ -43,7 +43,8 @@
    [leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
    [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
-   [leihs.inventory.server.resources.pool.supplier.routes :refer [get-supplier-routes]]
+   [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
+   [leihs.inventory.server.resources.pool.suppliers.supplier.routes :refer [get-suppliers-single-routes]]
    [leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
@@ -108,7 +109,10 @@
                             (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                               [
                                (get-owner-department-routes)
-                               (get-supplier-routes)
+
+                               (get-suppliers-routes)
+                               (get-suppliers-single-routes)
+
                                (get-fields-routes)
                                (get-export-routes)
                                (get-items-routes)

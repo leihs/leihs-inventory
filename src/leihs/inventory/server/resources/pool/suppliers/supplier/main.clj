@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.supplier.main
+(ns leihs.inventory.server.resources.pool.suppliers.supplier.main
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
