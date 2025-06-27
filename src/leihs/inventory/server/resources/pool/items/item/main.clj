@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.items.main
+(ns leihs.inventory.server.resources.pool.items.item.main
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -111,4 +111,8 @@
 
 (defn get-items-of-pool-with-pagination-handler [request]
   (response (get-items-handler request true)))
+
+(defn get-items-of-pool-handler [request]
+  (let [result (get-items-handler request)]
+    (response result)))
 

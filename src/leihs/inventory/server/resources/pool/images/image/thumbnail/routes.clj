@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.images.image.thumbnail.image.thumbnail.routes
+(ns leihs.inventory.server.resources.pool.images.image.thumbnail.routes
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.images.image.thumbnail.main :refer [get-image-thumbnail-handler]]
