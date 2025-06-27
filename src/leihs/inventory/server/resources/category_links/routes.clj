@@ -1,9 +1,10 @@
 (ns leihs.inventory.server.resources.category-links.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.category-links.main :refer [get-model-groups-of-pool-handler
-                                                             get-groups-of-pool-handler
-                                                             get-entitlement-groups-of-pool-handler
+   [leihs.inventory.server.resources.category-links.main :refer [
+                                                                 ;get-model-groups-of-pool-handler
+                                                             ;get-groups-of-pool-handler
+                                                             ;get-entitlement-groups-of-pool-handler
                                                              get-model-group-links-of-pool-handler]]
    ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
    ;                                                      create-model-handler

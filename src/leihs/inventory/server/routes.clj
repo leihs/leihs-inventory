@@ -21,8 +21,18 @@
    [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+
+
+
+   [leihs.inventory.server.resources.category-links.routes :refer [get-category-links-routes]]
+   [leihs.inventory.server.resources.categories.tree.routes :refer [get-category-tree-route]]
+   [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.categories.category.routes :refer [get-categories-category-route]]
+
+
+
    [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
-   [leihs.inventory.server.resources.category-links.tree.routes :refer [get-tree-route]]
+   ;[leihs.inventory.server.resources.categories.tree.routes :refer [get-tree-route]]
    [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
    [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
@@ -67,10 +77,16 @@
   (let [core-routes [(get-user-routes)
                      (get-model-route)
                      (get-model-by-pool-route)
-                     (get-tree-route)
+                     ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
                      (get-categories-routes)
                      (get-attachments-routes)
+
+                     (get-category-links-routes)
+                     (get-category-tree-route)
+                     (get-categories-routes)
+                     (get-categories-category-route)
+
                      (get-images-routes)
                      (session-token-routes)]
         additional-routes (concat
