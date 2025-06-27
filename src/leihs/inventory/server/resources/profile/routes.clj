@@ -2,9 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.profile.main :refer [
-                                                          ;get-pools-of-user-handler get-pools-access-rights-of-user-handler
                                                        get-user-profile
-                                                          ;get-user-details-handler
                                                           ]]
    [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
