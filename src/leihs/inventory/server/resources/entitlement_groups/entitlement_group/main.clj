@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.entitlement-groups.main
+(ns leihs.inventory.server.resources.entitlement-groups.entitlement-group.main
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -48,7 +48,7 @@
       (error "Failed to get groups" e)
       (bad-request {:error "Failed to get groups" :details (.getMessage e)}))))
 
-;; model_groups / model_group_links == category / category_links
+;;; model_groups / model_group_links == category / category_links
 ;(defn get-model-groups-of-pool-handler [request]
 ;  (try
 ;    (let [tx (:tx request)

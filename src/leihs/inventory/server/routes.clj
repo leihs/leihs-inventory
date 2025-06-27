@@ -28,6 +28,10 @@
    [leihs.inventory.server.resources.categories.tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.categories.category.routes :refer [get-categories-category-route]]
+   [leihs.inventory.server.resources.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+
+
+   [leihs.inventory.server.resources.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
 
 
 
@@ -81,6 +85,9 @@
                      (get-responsible-inventory-pools-routes)
                      (get-categories-routes)
                      (get-attachments-routes)
+
+                     (get-entitlement-groups-routes)
+                     (get-entitlement-groups-single-routes)
 
                      (get-category-links-routes)
                      (get-category-tree-route)
