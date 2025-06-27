@@ -23,18 +23,6 @@
    {:swagger {:conflicting true
               :tags ["Images [fe]"]}}
 
-   ;["images/:id/thumbnail"
-   ; {:get {:conflicting true
-   ;        :description "Determines image thumbnail by targetID"
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-image-middleware]
-   ;        :swagger {:produces ["application/json" "image/jpeg"]}
-   ;        :parameters {:path {:id s/Uuid}}
-   ;        :handler get-image-thumbnail-handler
-   ;        :responses {200 {:description "OK"}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
 
    ["images/:id"
     {:get {:conflicting true
@@ -48,15 +36,6 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ;["images/"
-   ; {:get {:conflicting true
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-middleware]
-   ;        :swagger {:produces ["application/json"]}
-   ;        :handler get-image-thumbnail-handler
-   ;        :responses {200 {:description "OK"}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
+
 
    ])
