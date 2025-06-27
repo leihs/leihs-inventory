@@ -25,7 +25,7 @@
 (defn create-description [url]
   (str "- GET " url " Accept: application/json "))
 
-(defn get-categories-category -routes []
+(defn get-categories-category-route []
 
   ;[""
 

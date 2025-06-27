@@ -1,10 +1,10 @@
-(ns leihs.inventory.server.resources.category-links.tree.routes
+(ns leihs.inventory.server.resources.categories.tree.routes
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
 
-   [leihs.inventory.server.resources.category-links.tree.types :as t]
-   [leihs.inventory.server.resources.category-links.tree.main :refer [term-filter get-categories-hierarchically]]
+   [leihs.inventory.server.resources.categories.tree.types :as t]
+   [leihs.inventory.server.resources.categories.tree.main :refer [ get-categories-hierarchically]]
 
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
@@ -17,7 +17,7 @@
    [schema.core :as s]))
 
 
-(defn get-tree-route []
+(defn get-category-tree-route []
   ;["/:pool_id"
   ;
   ; {:swagger {:conflicting true

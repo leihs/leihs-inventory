@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.category-links.tree.main
+(ns leihs.inventory.server.resources.categories.tree.main
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
@@ -12,7 +12,7 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-(defn term-filter [tree request]
+(defn- term-filter [tree request]
   (if-let [term (-> request :query-params-raw :term presence)]
     (filter/deep-filter #(re-matches (re-pattern (str "(?i).*" term ".*"))
                                      (:name %))
@@ -22,8 +22,10 @@
 
 
 
-(defn get-categories-hierarchically [request tree tx]
-                   (let [with-metadata (or (-> request :parameters :query :with-metadata) false)
+(defn get-categories-hierarchically [{{:keys [pool_id]} :path-params :as request}]
+                   (let [
+                         tx (:tx request)
+                         with-metadata (or (-> request :parameters :query :with-metadata) false)
                          res {:body {:name "categories"
                                      :children (-> (tree tx {:with-metadata with-metadata})
                                                    (term-filter request))}}]
