@@ -7,41 +7,30 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.profile.languages :as l]
-   [leihs.inventory.server.resources.profile.profile :refer [get-current get-navigation get-one get-settings]]
+   [leihs.core.remote-navbar.shared :refer [sub-apps]]
+   [leihs.core.settings :refer [settings!]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
+   [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
+
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-pools-of-user-handler [request]
-  (try
-    (let [tx (:tx request)
-          user-id (or (presence (-> request path-params :user_id))
-                      (:id (:authenticated-entity request)))
-          select (sql/select :ip.*)
-          ;; TODO: remove is_active?
-          query (-> (sql/union-all
-                     (-> select
-                         (sql/from [:users :u])
-                         (sql/join [:groups_users :gu] [:= :u.id :gu.user_id])
-                         (sql/join [:groups :g] [:= :gu.group_id :g.id])
-                         (sql/join [:direct_access_rights :dar] [:= :u.id :dar.user_id])
-                         (sql/join [:inventory_pools :ip] [:= :dar.inventory_pool_id :ip.id])
-                         (sql/where [:and [:= :u.id user-id] [:= :ip.is_active true]]))
-                     (-> select
-                         (sql/from [:users :u])
-                         (sql/join [:groups_users :gu] [:= :u.id :gu.user_id])
-                         (sql/join [:groups :g] [:= :gu.group_id :g.id])
-                         (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
-                         (sql/join [:inventory_pools :ip] [:= :gar.inventory_pool_id :ip.id])
-                         (sql/where [:and [:= :u.id user-id] [:= :ip.is_active true]])))
-                    sql-format)
-          result (jdbc/query tx query)]
-      (response result))
-    (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
+
+(defn get-one [tx target-user-id user-id]
+  (get-by-id tx (or user-id target-user-id)))
+
+
+(defn get-navigation [tx authenticated-entity]
+  (let [settings (settings! tx [:external_base_url :documentation_link])
+        base-url (:external_base_url settings)
+        sub-apps (sub-apps tx authenticated-entity)]
+    {:borrow-url (when (:borrow sub-apps) (str base-url "/borrow/"))
+     :admin-url (when (:admin sub-apps) (str base-url "/admin/"))
+     :procure-url (when (:procure sub-apps) (str base-url "/procure/"))
+     :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
+     :documentation-url (:documentation_link settings)}))
 
 (defn get-pools-access-rights-of-user-query [min-raw user-id access-right-raw]
   (let [min (boolean min-raw)
@@ -58,48 +47,6 @@
                   sql-format)]
     query))
 
-(defn get-pools-access-rights-of-user-handler [request]
-  (try
-    (let [tx (:tx request)
-          user-id (or (presence (-> request path-params :user_id))
-                      (:id (:authenticated-entity request)))
-          min-raw (boolean (-> request query-params :min))
-          access-right-raw (-> request query-params :access_rights)
-          query (get-pools-access-rights-of-user-query min-raw user-id access-right-raw)
-          result (jdbc/query tx query)]
-      (response result))
-    (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
-
-(defn get-user-details-handler [request]
-  (try
-    (let [tx (:tx request)
-          user-id (or (presence (-> request path-params :user_id))
-                      (:id (:authenticated-entity request)))
-          user-query (-> (sql/select :u.id :u.login :u.email :u.firstname :u.lastname :u.organization :u.is_admin :u.org_id)
-                         (sql/from [:users :u])
-                         (sql/where [:= :u.id user-id])
-                         sql-format)
-          user-res (jdbc/query tx user-query)
-          auth-query (-> (sql/select :a.id :a.authentication_system_id :a.created_at :a.updated_at)
-                         (sql/from [:users :u])
-                         (sql/join [:authentication_systems_users :a] [:= :u.id :a.user_id])
-                         (sql/where [:= :u.id user-id])
-                         sql-format)
-          auth-res (jdbc/query tx auth-query)
-          token-res (vec (map #(dissoc % :token_hash :user_id :description)
-                              (jdbc/query tx (-> (sql/select :t.*)
-                                                 (sql/from [:users :u])
-                                                 (sql/join [:api_tokens :t] [:= :u.id :t.user_id])
-                                                 (sql/where [:= :u.id user-id])
-                                                 sql-format))))]
-      (response {:user user-res
-                 :token token-res
-                 :auth auth-res}))
-    (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
 (defn get-user-profile [request]
   (try

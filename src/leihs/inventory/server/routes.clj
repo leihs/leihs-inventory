@@ -47,7 +47,7 @@
    [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
    [leihs.inventory.server.resources.pool.suppliers.supplier.routes :refer [get-suppliers-single-routes]]
-   [leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
+   ;[leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
@@ -84,7 +84,11 @@
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [(get-user-routes)
+  (let [core-routes [
+
+                     ;(get-user-routes)
+
+
                      (get-model-route)
                      (get-model-by-pool-route)
                      ;(get-tree-route)
