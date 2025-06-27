@@ -20,7 +20,14 @@
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
    [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
+
+
    [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
+   [leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
+   [leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
+
+
+
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
 
 
@@ -116,6 +123,13 @@
                      (get-categories-category-route)
 
                      (get-images-routes)
+                     (get-images-image-routes)
+                     (get-images-image-thumbnail-routes)
+
+
+
+
+
                      (session-token-routes)]
         additional-routes (concat
                             (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
