@@ -27,6 +27,6 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get groups" e)
-      (bad-request {:error "Failed to get groups" :details (.getMessage e)}))))
+      (error "Failed to get entitlement-group" e)
+      (bad-request {:error "Failed to get entitlement-group" :details (.getMessage e)}))))
 
