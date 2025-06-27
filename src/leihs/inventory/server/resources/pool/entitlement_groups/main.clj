@@ -13,13 +13,11 @@
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)
-          group_id (-> request path-params :entitlement_group_id)
           query (-> (sql/select :g.*)
                     (sql/from [:entitlement_groups :g])
                     (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
                     ;(sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
                     ;(sql/where [:= :gar.inventory_pool_id pool_id])
-                    (cond-> group_id (sql/where [:= :g.id group_id]))
                     (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
                     (sql/order-by :g.name)
                     (sql/limit 50)
@@ -27,6 +25,6 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get groups" e)
-      (bad-request {:error "Failed to get groups" :details (.getMessage e)}))))
+      (error "Failed to get entitlement-groups" e)
+      (bad-request {:error "Failed to get entitlement-groups" :details (.getMessage e)}))))
 
