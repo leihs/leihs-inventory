@@ -52,21 +52,16 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          image_id (-> request path-params :id)
-          is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
 
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
-                    (sql/where [:= :i.thumbnail is-thumbnail?])
-                    (cond-> image_id
-                      (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
+
                     sql-format)
           result (jdbc/query tx query)]
 
       (cond
-        (and json-request? image_id) (response result)
-        (and json-request? (nil? image_id)) (response {:data result})
-        (and (not json-request?) image_id) (convert-base64-to-byte-stream (first result))))
+        json-request?  (response {:data result})
+       :else   (convert-base64-to-byte-stream (first result))))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

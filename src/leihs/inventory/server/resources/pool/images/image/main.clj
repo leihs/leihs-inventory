@@ -53,11 +53,9 @@
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
           image_id (-> request path-params :id)
-          is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
 
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
-                    (sql/where [:= :i.thumbnail is-thumbnail?])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
                     sql-format)
