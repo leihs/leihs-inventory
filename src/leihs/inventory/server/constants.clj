@@ -6,6 +6,7 @@
 
 (def APPLY_ENDPOINTS_NOT_YET_USED_BY_FE true)
 (def APPLY_DEV_ENDPOINTS false)
+;(def APPLY_DEV_ENDPOINTS true)
 (def HIDE_BASIC_ENDPOINTS
   "- sign-in / sign-out (html/endpoints)
 - csrf-token / test-endpoints

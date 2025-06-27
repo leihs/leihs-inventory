@@ -1,8 +1,10 @@
-(ns leihs.inventory.server.resources.pools.routes
+(ns leihs.inventory.server.resources.responsible-inventory-pools.routes
   (:require
    [clojure.set]
    [leihs.core.auth.session :refer [wrap-authenticate]]
-   [leihs.inventory.server.resources.pools.main :refer [get-pools-handler get-responsible-pools-handler]]
+   [leihs.inventory.server.resources.responsible-inventory-pools.main :refer [
+                                                                              ;get-pools-handler
+                                                                              get-responsible-pools-handler]]
    [leihs.inventory.server.resources.utils.flag :refer [session admin]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -11,7 +13,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-pools-routes []
+(defn get-responsible-inventory-pools-routes []
   [""
    {:swagger {:conflicting true
               :tags ["Pool"]}}
