@@ -70,32 +70,4 @@
       (error "Failed to get user" e)
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
-(defn get-user-details-handler [request]
-  (try
-    (let [tx (:tx request)
-          user-id (or (presence (-> request path-params :user_id))
-                      (:id (:authenticated-entity request)))
-          user-query (-> (sql/select :u.id :u.login :u.email :u.firstname :u.lastname :u.organization :u.is_admin :u.org_id)
-                         (sql/from [:users :u])
-                         (sql/where [:= :u.id user-id])
-                         sql-format)
-          user-res (jdbc/query tx user-query)
-          auth-query (-> (sql/select :a.id :a.authentication_system_id :a.created_at :a.updated_at)
-                         (sql/from [:users :u])
-                         (sql/join [:authentication_systems_users :a] [:= :u.id :a.user_id])
-                         (sql/where [:= :u.id user-id])
-                         sql-format)
-          auth-res (jdbc/query tx auth-query)
-          token-res (vec (map #(dissoc % :token_hash :user_id :description)
-                              (jdbc/query tx (-> (sql/select :t.*)
-                                                 (sql/from [:users :u])
-                                                 (sql/join [:api_tokens :t] [:= :u.id :t.user_id])
-                                                 (sql/where [:= :u.id user-id])
-                                                 sql-format))))]
-      (response {:user user-res
-                 :token token-res
-                 :auth auth-res}))
-    (catch Exception e
-      (error "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
 
