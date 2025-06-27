@@ -19,6 +19,7 @@
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
    [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
+   [leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
    [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
 
@@ -123,6 +124,7 @@
                                (get-suppliers-single-routes)
 
                                (get-fields-routes)
+                               (get-fields-single-routes)
                                (get-export-routes)
                                (get-items-routes)
                                (get-properties-routes)])
