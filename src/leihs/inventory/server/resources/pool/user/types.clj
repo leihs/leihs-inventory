@@ -1,15 +1,6 @@
 (ns leihs.inventory.server.resources.pool.user.types
   (:require
    [clojure.set]
-   ;[leihs.inventory.server.resources.pool.user.main :refer [
-   ;                                                         get-pools-of-user-handler get-pools-access-rights-of-user-handler
-   ;                                                         ]]
-   ;[leihs.inventory.server.resources.utils.flag :as i]
-   ;[leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
-   ;[leihs.inventory.server.utils.response_helper :as rh]
-   ;[reitit.coercion.schema]
-   ;[reitit.coercion.spec]
-   ;[ring.middleware.accept]
    [schema.core :as s]))
 
 
