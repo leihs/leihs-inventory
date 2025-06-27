@@ -31,6 +31,10 @@
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
 
 
+   [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
+   [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
+
+
 
    [leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
    [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
@@ -112,6 +116,8 @@
 
                      (get-profile-routes)
 
+                     (get-models-compatibles-route)
+                     (get-manufacturers-routes)
 
 
                      (get-pool-by-access-right-routes)
