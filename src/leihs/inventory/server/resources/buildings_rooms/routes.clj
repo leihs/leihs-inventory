@@ -23,75 +23,75 @@
    {:swagger {:conflicting true
               :tags ["Buildings / Rooms"]}}
 
-   ;["/buildings"
-   ;
-   ; ["/:building_id"
-   ;  {:get {:conflicting true
-   ;         :summary "Get building by id [v0]"
-   ;         :accept "application/json"
-   ;         :coercion reitit.coercion.schema/coercion
-   ;         :middleware [accept-json-middleware]
-   ;         :swagger {:produces ["application/json"]}
-   ;         :parameters {:path {:building_id s/Uuid}}
-   ;         :handler get-buildings-handler
-   ;         :responses {200 {:description "OK"
-   ;                          :body [{:id s/Uuid
-   ;                                  :name s/Str
-   ;                                  :code (s/maybe s/Str)}]}
-   ;                     404 {:description "Not Found"}
-   ;                     500 {:description "Internal Server Error"}}}}]
-   ;
-   ; [""
-   ;  {:get {:conflicting true
-   ;         :summary "Get buildings [v0]"
-   ;         :accept "application/json"
-   ;         :coercion reitit.coercion.schema/coercion
-   ;         :middleware [accept-json-middleware]
-   ;         :swagger {:produces ["application/json"]}
-   ;         :handler get-buildings-handler
-   ;         :responses {200 {:description "OK"
-   ;                          :body [{:id s/Uuid
-   ;                                  :name s/Str
-   ;                                  :code (s/maybe s/Str)}]}
-   ;                     404 {:description "Not Found"}
-   ;                     500 {:description "Internal Server Error"}}}}]]
+   ["/buildings"
 
-   ;["/rooms"
-   ;
-   ; ["/:room_id"
-   ;  {:get {:conflicting true
-   ;         :summary "Get room by id [v0]"
-   ;         :accept "application/json"
-   ;         :coercion reitit.coercion.schema/coercion
-   ;         :middleware [accept-json-middleware]
-   ;         :swagger {:produces ["application/json"]}
-   ;         :parameters {:path {:room_id s/Uuid}}
-   ;         :handler get-rooms-handler
-   ;         :responses {200 {:description "OK"
-   ;                          :body [{:building_id s/Uuid
-   ;                                  :description (s/maybe s/Str)
-   ;                                  :id s/Uuid
-   ;                                  :name s/Str
-   ;                                  :general s/Bool}]}
-   ;                     404 {:description "Not Found"}
-   ;                     500 {:description "Internal Server Error"}}}}]
-   ;
-   ; [""
-   ;  {:get {:conflicting true
-   ;         :summary "Get rooms of building [v0]"
-   ;         :accept "application/json"
-   ;         :coercion reitit.coercion.schema/coercion
-   ;         :middleware [accept-json-middleware]
-   ;         :swagger {:produces ["application/json"]}
-   ;         :parameters {:query {(s/optional-key :building_id) s/Uuid}}
-   ;         :handler get-rooms-handler
-   ;         :responses {200 {:description "OK"
-   ;                          :body [{:building_id s/Uuid
-   ;                                  :description (s/maybe s/Str)
-   ;                                  :id s/Uuid
-   ;                                  :name s/Str
-   ;                                  :general s/Bool}]}
-   ;                     404 {:description "Not Found"}
-   ;                     500 {:description "Internal Server Error"}}}}]]
+    ["/:building_id"
+     {:get {:conflicting true
+            :summary "Get building by id [v0]"
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :parameters {:path {:building_id s/Uuid}}
+            :handler get-buildings-handler
+            :responses {200 {:description "OK"
+                             :body [{:id s/Uuid
+                                     :name s/Str
+                                     :code (s/maybe s/Str)}]}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
+
+    [""
+     {:get {:conflicting true
+            :summary "Get buildings [v0]"
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :handler get-buildings-handler
+            :responses {200 {:description "OK"
+                             :body [{:id s/Uuid
+                                     :name s/Str
+                                     :code (s/maybe s/Str)}]}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]]
+
+   ["/rooms"
+
+    ["/:room_id"
+     {:get {:conflicting true
+            :summary "Get room by id [v0]"
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :parameters {:path {:room_id s/Uuid}}
+            :handler get-rooms-handler
+            :responses {200 {:description "OK"
+                             :body [{:building_id s/Uuid
+                                     :description (s/maybe s/Str)
+                                     :id s/Uuid
+                                     :name s/Str
+                                     :general s/Bool}]}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]
+
+    [""
+     {:get {:conflicting true
+            :summary "Get rooms of building [v0]"
+            :accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :middleware [accept-json-middleware]
+            :swagger {:produces ["application/json"]}
+            :parameters {:query {(s/optional-key :building_id) s/Uuid}}
+            :handler get-rooms-handler
+            :responses {200 {:description "OK"
+                             :body [{:building_id s/Uuid
+                                     :description (s/maybe s/Str)
+                                     :id s/Uuid
+                                     :name s/Str
+                                     :general s/Bool}]}
+                        404 {:description "Not Found"}
+                        500 {:description "Internal Server Error"}}}}]]
 
    ])

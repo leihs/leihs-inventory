@@ -3,7 +3,9 @@
    [clojure.set]
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.tree.descendents :refer [descendent-ids]]
+   [hugsql.core :as hugsql]
+   ;[leihs.inventory.server.resources.models.tree.descendents :refer [descendent-ids]]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn item-query [query item-id]
@@ -170,6 +172,18 @@
           [:or
            (matches-model-columns-expr search :child_models)
            (matches-item-columns-expr search :child_items)]))]]))
+
+
+;[hugsql.core :as hugsql]
+;[next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
+
+(hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
+
+(defn descendent-ids [tx category-id]
+  (-> {:category-id category-id}
+    descendent-ids-sqlvec
+    (->> (jdbc-query tx))
+    (->> (map :id))))
 
 (defn from-category [tx query category-id]
   (let [ids (-> (descendent-ids tx category-id)

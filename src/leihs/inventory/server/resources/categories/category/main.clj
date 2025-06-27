@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.categories.main
+(ns leihs.inventory.server.resources.categories.category.main
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -8,6 +8,7 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
+
 
 
 
@@ -35,5 +36,4 @@
     (catch Exception e
       (error "Failed to get items" e)
       (bad-request {:error "Failed to get items" :details (.getMessage e)}))))
-
 
