@@ -33,6 +33,8 @@
    [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
 
+   [leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
+
 
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
 
@@ -97,6 +99,9 @@
                      (get-groups-single-routes)
 
                      (get-profile-routes)
+
+                     (get-pool-by-access-right-routes)
+
 
                      (get-category-links-routes)
                      (get-category-tree-route)
