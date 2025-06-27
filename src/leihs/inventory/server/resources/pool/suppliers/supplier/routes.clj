@@ -2,16 +2,17 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.auth.session :as session]
-   [leihs.inventory.server.resources.pool.models.main :refer [get-models-handler
-                                                         create-model-handler
-                                                         update-model-handler
-                                                         delete-model-handler]]
-   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-of-pool-handler
-                                                                   create-model-handler-by-pool
-                                                                   get-models-of-pool-handler
-                                                                   update-model-handler-by-pool
-                                                                   delete-model-handler-by-pool]]
-   [leihs.inventory.server.resources.pool.suppliers.supplier.main :refer [get-suppliers-handler
+   ;[leihs.inventory.server.resources.pool.models._main :refer [get-models-handler
+   ;                                                      create-model-handler
+   ;                                                      update-model-handler
+   ;                                                      delete-model-handler]]
+   ;[leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-of-pool-handler
+   ;                                                                create-model-handler-by-pool
+   ;                                                                get-models-of-pool-handler
+   ;                                                                update-model-handler-by-pool
+   ;                                                                delete-model-handler-by-pool]]
+   [leihs.inventory.server.resources.pool.suppliers.supplier.main :refer [
+                                                                          ;get-suppliers-handler
                                                            get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.coercion.core :refer [pagination]]
