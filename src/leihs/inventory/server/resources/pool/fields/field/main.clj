@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.fields.main
+(ns leihs.inventory.server.resources.pool.fields.field.main
   (:require
    [clojure.set]
    [honey.sql :as sq]
@@ -13,7 +13,6 @@
    [taoensso.timbre :refer [error]]))
 
 ;TODO: common
-
 (defn get-form-fields
   ([request]
    (get-form-fields request false))
@@ -101,7 +100,8 @@
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
-(defn get-form-fields-auto-pagination-handler [request]
-  (response (get-form-fields request nil)))
 
 
+(defn get-form-fields-handler [request]
+  (let [result (get-form-fields request)]
+    (response result)))
