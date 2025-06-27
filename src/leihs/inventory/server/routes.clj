@@ -10,38 +10,39 @@
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
+   [leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler session-token-routes
                                                               ;token-routes
                                                               ]]
    [leihs.inventory.server.resources.auth.session :as ab]
-   [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
-   [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
-   [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
-   [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
-   [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
+   [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
+   [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
+   [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
 
 
 
-   [leihs.inventory.server.resources.category-links.routes :refer [get-category-links-routes]]
-   [leihs.inventory.server.resources.categories.tree.routes :refer [get-category-tree-route]]
-   [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
-   [leihs.inventory.server.resources.categories.category.routes :refer [get-categories-category-route]]
-   [leihs.inventory.server.resources.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+   [leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
+   [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
+   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+   [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
 
 
-   [leihs.inventory.server.resources.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
 
 
 
-   [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
-   ;[leihs.inventory.server.resources.categories.tree.routes :refer [get-tree-route]]
-   [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
-   [leihs.inventory.server.resources.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
-   [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
-   [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
-   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
+   [leihs.inventory.server.resources.pool.models.routes :refer [get-model-by-pool-route get-model-route]]
+   ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
+   [leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
+   [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
+   [leihs.inventory.server.resources.pool.supplier.routes :refer [get-supplier-routes]]
+   [leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
@@ -88,6 +89,8 @@
 
                      (get-entitlement-groups-routes)
                      (get-entitlement-groups-single-routes)
+
+                     (get-profile-routes)
 
                      (get-category-links-routes)
                      (get-category-tree-route)
