@@ -35,6 +35,9 @@
    [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
 
 
+   [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
+
+
 
    [leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
    [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
@@ -123,6 +126,8 @@
                      (get-models-single-route)
                      (get-models-model-attachments-route)
                     (get-models-model-images-route)
+
+                     (get-buildings-rooms-routes)
 
 
                      ;(get-tree-route)

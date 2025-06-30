@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.departments.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.departments.department.main :refer [get-owner-department-of-pool-auto-pagination-handler]]
+   [leihs.inventory.server.resources.pool.departments.main :refer [get-owner-department-of-pool-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]

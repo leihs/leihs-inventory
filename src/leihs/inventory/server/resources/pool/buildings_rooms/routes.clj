@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.buildings_rooms.routes
+(ns leihs.inventory.server.resources.pool.buildings-rooms.routes
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.buildings-rooms.main :refer [get-buildings-handler get-rooms-handler]]

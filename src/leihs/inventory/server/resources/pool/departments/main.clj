@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.owner-department.main
+(ns leihs.inventory.server.resources.pool.departments.main
   (:require
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -21,11 +21,9 @@
    (try
      (let [tx (:tx request)
            pool_id (-> request path-params :pool_id)
-           id (-> request path-params :id)
            {:keys [page size]} (fetch-pagination-params request)
            base-query (-> (sql/select :i.id :i.name)
                           (sql/from [:inventory_pools :i])
-                          (cond-> id (sql/where [:= :i.id id]))
                           (sql/order-by :i.name))]
        (create-pagination-response request base-query with-pagination?))
      (catch Exception e
