@@ -1,28 +1,10 @@
 (ns leihs.inventory.server.resources.pool.models.model.delete-model-form
   (:require
-   ;[honey.sql :as sql]
-   ;[honey.sql.helpers :as sql]
-   ;[leihs.inventory.server.resources.pool.models.form.common :refer [filter-keys db-operation]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]
-
-   ;[clojure.data.codec.base64 :as b64]
-   ;[clojure.data.json :as json]
-   ;[clojure.java.io :as io]
-   ;[clojure.set :as set]
-   ;[clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   ;[leihs.inventory.server.resources.pool.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
-   ;                                                             parse-json-array process-attachments ]]
-   ;[leihs.inventory.server.resources.pool.common :refer [str-to-bool    ]]
-   ;
-   ;[leihs.inventory.server.utils.converter :refer [to-uuid]]
-   ;[next.jdbc :as jdbc]
-   ;[ring.util.response :refer [bad-request response status]]
-   ;[taoensso.timbre :refer [error]]
-
    [taoensso.timbre :refer [error]])
   (:import [java.util UUID]))
 

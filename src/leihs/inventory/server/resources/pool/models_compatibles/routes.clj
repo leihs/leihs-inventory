@@ -59,19 +59,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def description-model-form "CAUTION:\n
-- Model\n
-   - Modifies all attributes except: Images/Attachments\n
-   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
-   - GET: contains all data for fields (attachment, image included)\n
-- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
-- Image\n
-   - Use POST /inventory/models/<model-id>/images to upload image\n
-   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
-- Attachment\n
-   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
-   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
-
 (def compatible-data {(s/optional-key :cover_image_id) s/Uuid
                       (s/optional-key :cover_image_url) s/Str
                       :model_id s/Any
@@ -81,47 +68,12 @@
 (def compatible-response
   (s/->Either [[compatible-data] {:data [compatible-data] :pagination s/Any}]))
 
-(def FileUpload
-  "Schema describing a typical Ring multipart file map."
-  {:filename s/Str
-   :size s/Int
-   :content-type s/Str
-   :tempfile s/Any})
+
 
 (defn get-models-compatibles-route []
   ["/"
    {:swagger {:conflicting true
               :tags ["Models"]}}
-
-;   ["manufacturers"
-;    {:get {:conflicting true
-;           :summary "Get manufacturers [fe]"
-;           :accept "application/json"
-;           :description "'search-term' works with at least one character, considers:\n
-;- manufacturer
-;- product
-;\nEXCLUDES manufacturers
-;- .. starting with space
-;- .. with empty string
-;\nHINT
-;- 'in-detail'-option works for models with set 'search-term' only\n"
-;           :coercion reitit.coercion.schema/coercion
-;           :middleware [accept-json-middleware]
-;           :swagger {:produces ["application/json"]}
-;           :handler get-manufacturer-handler
-;           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
-;                                (s/optional-key :search-term) s/Str
-;                                (s/optional-key :in-detail) (s/enum "true" "false")}}
-;           :responses {200 {:description "OK"
-;                            :body [(s/conditional
-;                                    map? {:id s/Uuid
-;                                          :manufacturer s/Str
-;                                          :product s/Str
-;                                          :version (s/maybe s/Str)
-;                                          :model_id s/Uuid}
-;                                    string? s/Str)]}
-;                       404 {:description "Not Found"}
-;                       500 {:description "Internal Server Error"}}}}]
 
    ["models-compatibles"
     {:get {:conflicting true
@@ -155,10 +107,7 @@
            :responses {200 {:description "OK"
                             :body s/Any}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-
-   ;; /inventory/models/*
-   ])
+                       500 {:description "Internal Server Error"}}}}] ])
 
 
 
