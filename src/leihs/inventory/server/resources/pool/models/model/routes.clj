@@ -39,7 +39,7 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags ["Models by pool"]}}
+              :tags []}}
 
 ;; DB-Entity endpoints
    ["/models"

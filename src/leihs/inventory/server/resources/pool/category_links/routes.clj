@@ -28,13 +28,9 @@
 
   [""
 
-   ;["/:pool_id"
-   ; {:swagger {:conflicting true
-   ;            :tags ["Categories / Model-Groups"]}}
-
    ["/category_links"
     {:swagger {:conflicting true
-               :tags ["Category-Links"]}}
+               :tags []}}
     ["" {:get {:conflicting true
                :summary "OK | Kategorie-Links anzeigen / category_links == model_group_links"
                :description (create-description "https://staging.leihs.zhdk.ch/category_links")

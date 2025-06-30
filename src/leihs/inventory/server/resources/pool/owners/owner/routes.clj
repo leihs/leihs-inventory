@@ -16,7 +16,7 @@
 (defn get-owners-single-routes []
   [""
    {:swagger {:conflicting true
-              :tags ["Owner / Department"]}}
+              :tags []}}
 
    ["/owners"
     ;["" {:get {:conflicting true

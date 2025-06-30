@@ -15,7 +15,7 @@
 
    ["fields-for-form"
     {:swagger {:conflicting true
-               :tags ["Fields"]}}
+               :tags []}}
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"
                :description (str "<ul>"

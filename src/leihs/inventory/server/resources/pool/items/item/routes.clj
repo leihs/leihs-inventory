@@ -19,7 +19,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Items by pool"]}}
+               :tags []}}
 
     ["/items/:item_id"
      {:get {:conflicting true

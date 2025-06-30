@@ -22,7 +22,7 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags ["Models by pool"]}}
+              :tags []}}
 
 ;; Routes for /inventory/<pool-id>/*
    ;; TODO: should be? ["/models/list"

@@ -12,10 +12,11 @@
 (defn get-attachments-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Attachments [fe]"]}}
+              :tags []}}
 
    ["attachments/:id"
     {:get {:conflicting true
+           :summary "[fe]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json" "application/octet-stream"]}

@@ -28,7 +28,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Groups"]}}
+               :tags []}}
 
     ["/groups"
      ["" {:get {:conflicting true

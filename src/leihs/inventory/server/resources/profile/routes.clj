@@ -46,7 +46,7 @@
 (defn get-profile-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["User"]}}
+              :tags []}}
 
    ["profile"
     {:get {:conflicting true

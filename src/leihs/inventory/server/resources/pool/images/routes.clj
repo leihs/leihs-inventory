@@ -13,7 +13,7 @@
 (defn get-images-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Images [fe]"]}}
+              :tags []}}
 
    ["images/"
     {:get {:conflicting true

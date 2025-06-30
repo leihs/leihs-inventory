@@ -21,7 +21,7 @@
 (defn get-buildings-rooms-routes []
   [""
    {:swagger {:conflicting true
-              :tags ["Buildings / Rooms"]}}
+              :tags []}}
 
    ["/buildings"
 

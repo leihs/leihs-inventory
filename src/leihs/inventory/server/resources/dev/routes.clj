@@ -104,7 +104,7 @@
 
    ["/dev"
     {:swagger {:conflicting true
-               :tags ["Dev"]}
+               :tags []}
      :no-doc (not APPLY_DEV_ENDPOINTS)}
 
 ;;; TODO: move to DEV?

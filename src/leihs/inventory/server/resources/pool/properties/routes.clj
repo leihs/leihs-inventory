@@ -12,7 +12,7 @@
 (defn get-properties-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Properties"]}}
+              :tags []}}
 
    ["properties/"
     {:get {:conflicting true

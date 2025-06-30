@@ -90,7 +90,7 @@
 (defn get-manufacturers-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Models"]}}
+              :tags []}}
 
    ["manufacturers"
     {:get {:conflicting true

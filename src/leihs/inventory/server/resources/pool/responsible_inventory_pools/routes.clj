@@ -14,7 +14,7 @@
 (defn get-responsible-inventory-pools-routes []
   [""
    {:swagger {:conflicting true
-              :tags ["Pool"]}}
+              :tags []}}
 
    ["/:pool_id/responsible-inventory-pools"
     {:get {:conflicting true

@@ -31,7 +31,7 @@
 
   ["/:pool_id"
    {:swagger {:conflicting true
-              :tags ["Categories / Model-Groups"]}}
+              :tags []}}
 
    ["/model-groups"
     ["" {:get {:conflicting true

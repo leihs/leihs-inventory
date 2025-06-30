@@ -16,7 +16,7 @@
 
    ["/license"
     {:swagger {:conflicting true
-               :tags ["Fields"]}}
+               :tags []}}
 
     ["" {:get {:conflicting true
                :summary "Used by license form"

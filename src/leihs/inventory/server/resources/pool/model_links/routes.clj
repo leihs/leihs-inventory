@@ -21,7 +21,7 @@
 (defn get-model-links-routes []
   ["/:pool_id"
    {:swagger {:conflicting true
-              :tags ["Model-Links"]}}
+              :tags []}}
 
    ["/model_links/:id"
     {:get {:conflicting true

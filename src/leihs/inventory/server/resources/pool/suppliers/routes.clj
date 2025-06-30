@@ -19,7 +19,7 @@
   [""
    ["/supplier"
     {:swagger {:conflicting true
-               :tags ["Supplier"]}}
+               :tags []}}
     ["" {:get {:conflicting true
                :summary "OK | Lieferanten anzeigen [v0]"
                :description (str

@@ -13,7 +13,7 @@
 (defn get-departments-single-routes []
   [""
    {:swagger {:conflicting true
-              :tags ["Owner / Department"]}}
+              :tags []}}
 
    ["/departments"
 

@@ -20,7 +20,7 @@
   [""
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags ["Categories / Model-Groups"]}}
+               :tags []}}
 
     ["/entitlement-groups/:entitlement_group_id"
      {:get {:conflicting true

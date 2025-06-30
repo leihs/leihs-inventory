@@ -23,7 +23,7 @@
 (defn get-models-compatibles-route []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Models"]}}
+              :tags []}}
 
    ["models-compatibles"
     {:get {:conflicting true

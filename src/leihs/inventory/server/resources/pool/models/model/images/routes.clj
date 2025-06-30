@@ -20,7 +20,7 @@
 (defn get-models-model-images-route []
   ["/"
    {:swagger {:conflicting true
-              :tags ["Models"]}}
+              :tags []}}
 
 ;; /inventory/models/*
    ["models"

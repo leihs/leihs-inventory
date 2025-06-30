@@ -14,7 +14,7 @@
 (defn get-pool-by-access-right-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags ["User"]}}
+              :tags []}}
 
    ["pools"
 

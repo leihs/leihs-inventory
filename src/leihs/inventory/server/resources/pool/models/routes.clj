@@ -33,7 +33,7 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags ["Models by pool"]}}
+              :tags []}}
 
    ["/model"
 
@@ -57,7 +57,7 @@
    ["/models"
     [""
      {:get {:accept "application/json"
-            :summary "Models-List for table"
+            :summary "Models-List for table [fe]"
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -93,7 +93,7 @@
       :post {:conflicting true
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
-             :description "FYI: Use /model-group for category_id"
+             :description "FYI: Use /model-group endpoint to view the category_id's"
              :middleware [accept-json-middleware]
              :swagger {:produces ["application/json" "text/html"]}
              :parameters {:path {:pool_id s/Uuid}

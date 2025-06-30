@@ -24,7 +24,7 @@
 
   ["/tree"
    {:swagger {:conflicting true
-              :tags ["tree"]}}
+              :tags []}}
 
    [""
     {:get {:accept "application/json"

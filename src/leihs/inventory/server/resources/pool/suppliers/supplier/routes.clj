@@ -19,7 +19,7 @@
   [""
    ["/supplier"
     {:swagger {:conflicting true
-               :tags ["Supplier"]}}
+               :tags []}}
 
     ["/:supplier_id"
      {:get {:conflicting true

@@ -15,7 +15,7 @@
 
    ["/fields"
     {:swagger {:conflicting true
-               :tags ["Fields"]}}
+               :tags []}}
 
     ["" {:get {:conflicting true
                :summary "(admin-endpoint?)"

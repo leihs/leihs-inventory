@@ -22,11 +22,11 @@
 
   ["/"
    {:swagger {:conflicting true
-              :tags ["Accessories"]}}
+              :tags []}}
 
    [":pool_id/models/:model_id"
     {:swagger {:conflicting true
-               :tags ["Accessories by Model"]}}
+               :tags []}}
 
     ;["/accessories"
     ; {:get {:conflicting true
