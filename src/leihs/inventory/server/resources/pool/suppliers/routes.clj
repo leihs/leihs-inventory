@@ -21,7 +21,7 @@
     {:swagger {:conflicting true
                :tags []}}
     ["" {:get {:conflicting true
-               :summary "OK | Lieferanten anzeigen [v0]"
+               :summary "OK | Lieferanten anzeigen [fe]"
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "

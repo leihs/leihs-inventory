@@ -178,7 +178,7 @@
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
 (sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))
-(sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [v0]
+(sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
 
 (sa/def ::properties string?)
 (sa/def ::serial_number string?)

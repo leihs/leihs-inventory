@@ -155,8 +155,7 @@
                      (session-token-routes)]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                             [;(get-owner-department-routes)
-
+                             [
                               (get-suppliers-routes)
                               (get-suppliers-single-routes)
 
@@ -166,7 +165,10 @@
                               (get-items-routes)
                               (get-properties-routes)])
                            (when APPLY_DEV_ENDPOINTS
-                             [(get-dev-routes)]))]
+                             [(get-dev-routes)
+
+
+                              ]))]
     (vec (concat core-routes additional-routes))))
 
 (defn get-sign-in [request]
@@ -260,14 +262,14 @@
       :no-doc HIDE_BASIC_ENDPOINTS}
 
      ["login"
-      {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
+      {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [fe]"
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
              :handler authenticate-handler}}]
 
      ;["admin/update-role"
-     ; {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
+     ; {:put {:summary "[] OK | DEV | Update direct-user-role [fe]"
      ;        :accept "application/json"
      ;        :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
      ;        :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")

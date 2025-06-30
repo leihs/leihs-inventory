@@ -90,7 +90,7 @@
             :handler set-password-handler}}]
 
    ["admin/update-role"
-    {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
+    {:put {:summary "[] OK | DEV | Update direct-user-role [fe]"
            :accept "application/json"
            :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
            :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")

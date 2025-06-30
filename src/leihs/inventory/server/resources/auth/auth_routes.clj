@@ -6,6 +6,7 @@
    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
    [clojure.set]
    [clojure.string :as str]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
    [crypto.random]
@@ -342,8 +343,14 @@
 (defn session-token-routes []
   [["/"
 
+
+    {      :no-doc HIDE_BASIC_ENDPOINTS}
+
     ["session"
-     {:tags ["Auth / Session"]}
+     {:tags ["Auth / Session"]
+
+      ;:no-doc HIDE_BASIC_ENDPOINTS
+      }
 
      ["/public"
       {:get {:swagger {:security []}
@@ -356,9 +363,13 @@
              :middleware [ab/wrap]}}]]
 
     ["token"
-     {:tags ["Auth / Token"]}
+     {:tags ["Auth / Token"]
+      ;:no-doc HIDE_BASIC_ENDPOINTS
+       }
 
      ["/"
+
+
       {:post {:summary "Create an API token with creds for a user"
               :description "Generates an API token for a user with specific permissions and scopes"
               :accept "application/json"

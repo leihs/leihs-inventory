@@ -21,7 +21,7 @@
    ["/owners"
     ["" {:get {:conflicting true
                :accept "application/json"
-               :summary "Get owner department by id [v0]"
+               :summary "Get owner department by id [fe]"
                :description "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest"
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware]

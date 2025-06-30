@@ -27,7 +27,7 @@
 
     ["/:building_id"
      {:get {:conflicting true
-            :summary "Get building by id [v0]"
+            :summary "Get building by id [fe]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -43,7 +43,7 @@
 
     [""
      {:get {:conflicting true
-            :summary "Get buildings [v0]"
+            :summary "Get buildings [fe]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -60,7 +60,7 @@
 
     ["/:room_id"
      {:get {:conflicting true
-            :summary "Get room by id [v0]"
+            :summary "Get room by id [fe]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -78,7 +78,7 @@
 
     [""
      {:get {:conflicting true
-            :summary "Get rooms of building [v0]"
+            :summary "Get rooms of building [fe]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
