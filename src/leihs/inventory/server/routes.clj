@@ -50,6 +50,7 @@
 
    [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
 
+   [leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
 
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
@@ -124,6 +125,8 @@
                      (get-groups-single-routes)
 
                      (get-profile-routes)
+
+                     (get-models-single-properties-route)
 
                      (get-models-compatibles-route)
                      (get-manufacturers-routes)
