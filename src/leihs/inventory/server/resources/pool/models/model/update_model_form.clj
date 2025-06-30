@@ -1,8 +1,8 @@
-(ns leihs.inventory.server.resources.pool.models.form.model.update-model-form
+(ns leihs.inventory.server.resources.pool.models.model.update-model-form
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer :all]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]

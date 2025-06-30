@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.form.model.common-model-form
+(ns leihs.inventory.server.resources.pool.models.model.common-model-form
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]

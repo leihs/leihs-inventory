@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.form.model.create-model-form
+(ns leihs.inventory.server.resources.pool.models.model.create-model-form
   (:require
    [cheshire.core :as cjson]
    [clojure.data.codec.base64 :as b64]
@@ -8,8 +8,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer :all]
-   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer [extract-model-form-data
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                       filter-response]]
    [leihs.inventory.server.resources.pool.models.helper :refer [base-filename
                                                            normalize-files normalize-model-data

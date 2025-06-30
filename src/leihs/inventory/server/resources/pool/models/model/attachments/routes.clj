@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
    [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer [
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [
                                                                       upload-attachment
     ]]
 
