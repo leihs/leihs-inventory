@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.main :refer [get-models-of-pool-with-pagination-handler]]
+   [leihs.inventory.server.resources.pool.models.main :refer [create-model-handler-by-pool get-models-of-pool-with-pagination-handler]]
 
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -88,4 +88,43 @@
             :responses {200 {:description "OK"
                              :body (s/->Either [s/Any mc/models-response-payload])}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+                        500 {:description "Internal Server Error"}}}
+
+
+
+
+
+      :post {:conflicting true
+             :accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :description "FYI: Use /model-group for category_id"
+             :middleware [accept-json-middleware]
+             :swagger {:produces ["application/json" "text/html"]}
+             :parameters {:path {:pool_id s/Uuid}
+                          :body {:product s/Str
+                                 :category_ids [s/Uuid]
+                                 :version s/Str
+                                 (s/optional-key :type) (s/enum "Software" "Model")
+                                 (s/optional-key :is_package) s/Bool}}
+
+             :handler create-model-handler-by-pool
+             :responses {200 {:description "OK"
+                              :body s/Any}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}
+     ;]
+
+
+
+
+
+
+
+
+
+
+
+
+      ;}
+
+]]])
