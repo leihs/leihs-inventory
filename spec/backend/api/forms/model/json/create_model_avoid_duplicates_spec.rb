@@ -21,7 +21,7 @@ describe "Inventory Model" do
 
       before do
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/manufacturers?type=Model"
+        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Model"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
@@ -29,7 +29,7 @@ describe "Inventory Model" do
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/models-compatibles"
+        resp = client.get "/inventory/#{pool_id}/models-compatibles"
         @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
 

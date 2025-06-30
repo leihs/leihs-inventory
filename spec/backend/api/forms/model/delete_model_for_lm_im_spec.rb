@@ -53,6 +53,8 @@ describe "Inventory Model" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
 
+      let(:any_uuid) { Faker::Internet.uuid }
+
       let(:pool_id) { @inventory_pool.id }
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
@@ -67,19 +69,19 @@ describe "Inventory Model" do
         end
 
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/manufacturers?type=Model"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/models-compatibles"
+        resp = client.get "/inventory/models-compatibles/"
         @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/model-groups"
+        resp = client.get "/inventory/#{pool_id}/model-groups/"
         @form_model_groups = resp.body
         raise "Failed to fetch model groups" unless resp.status == 200
       end
@@ -122,7 +124,7 @@ describe "Inventory Model" do
 
           # fetch created model
           model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
 
           expect(resp.body["images"].count).to eq(0)
           expect(resp.body["attachments"].count).to eq(0)
@@ -195,7 +197,7 @@ describe "Inventory Model" do
               "Content-Length" => File.size(image.path).to_s
             )
             resp = json_client_post(
-              "/inventory/models/#{model_id}/images",
+              "/inventory/#{pool_id}/models/#{model_id}/images/",
               body: image,
               headers: headers,
               is_binary: true
@@ -216,7 +218,7 @@ describe "Inventory Model" do
           attachment_responses = [path_test_pdf].map { |path|
             attachment = File.open(path, "rb")
             file_name = File.basename(attachment)
-            resp = common_plain_faraday_client(:post, "/inventory/models/#{model_id}/attachments",
+            resp = common_plain_faraday_client(:post, "/inventory/#{pool_id}/models/#{model_id}/attachments/",
               body: attachment.read,
               headers: cookie_header.merge({"X-Filename" => file_name,
                                              "Content-Type" => "application/pdf"}),
@@ -278,14 +280,14 @@ describe "Inventory Model" do
           # delete image & attachment
           image_id = image_responses.first["image"]["id"]
           resp = json_client_delete(
-            "/inventory/models/#{model_id}/images/#{image_id}",
+            "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}",
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
 
           attachment_id = attachment_responses.first.first["id"]
           resp = json_client_delete(
-            "/inventory/models/#{model_id}/attachments/#{attachment_id}",
+            "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}",
             headers: cookie_header
           )
           expect(resp.status).to eq(200)

@@ -26,14 +26,14 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers"
+          resp = client.get "/inventory/#{pool_id}/manufacturers"
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
           expect(resp.status).to eq(200)
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=true"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=true"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(Hash)).to eq(true)
@@ -41,7 +41,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=false"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=false"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
@@ -62,7 +62,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?type=Software"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Software"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
@@ -70,7 +70,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=true&type=Software"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=true&type=Software"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(Hash)).to eq(true)
@@ -78,7 +78,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=false&type=Software"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=false&type=Software"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
@@ -99,14 +99,14 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?type=Model"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
           expect(resp.status).to eq(200)
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=true&type=Model"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=true&type=Model"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(Hash)).to eq(true)
@@ -114,7 +114,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/manufacturers?in-detail=false&type=Model"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?in-detail=false&type=Model"
 
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)

@@ -20,7 +20,7 @@ describe "Fetching Fields" do
       "inventory_manager" => 32
     }.each do |role, expected_count|
       context "GET /inventory/:pool_id/fields for role #{role}" do
-        let(:url) { "/inventory/fields?page=1&size=10&role=#{role}" }
+        let(:url) { "/inventory/#{pool_id}/fields?page=1&size=10&role=#{role}" }
 
         it "returns #{expected_count} fields for role #{role} and status 200" do
           resp = client.get url
@@ -33,7 +33,7 @@ describe "Fetching Fields" do
     end
 
     context "GET /inventory/:pool_id/fields without specifying a role" do
-      let(:url) { "/inventory/fields?page=1&size=10" }
+      let(:url) { "/inventory/#{pool_id}/fields?page=1&size=10" }
 
       it "returns 46 total records and status 200" do
         resp = client.get url
@@ -46,7 +46,7 @@ describe "Fetching Fields" do
     end
 
     context "GET /inventory/:pool_id/fields without specifying a role" do
-      let(:url) { "/inventory/fields" }
+      let(:url) { "/inventory/#{pool_id}/fields" }
 
       it "returns 46 total records and status 200" do
         resp = client.get url
@@ -57,7 +57,7 @@ describe "Fetching Fields" do
     end
 
     context "GET /inventory/:pool_id/fields and retrieve specific field details" do
-      let(:url) { "/inventory/fields" }
+      let(:url) { "/inventory/#{pool_id}/fields" }
 
       it "returns the details of a specific field with status 200" do
         resp = client.get "#{url}?page=1&size=10"

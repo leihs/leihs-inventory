@@ -10,7 +10,9 @@ describe "Inventory API Endpoints - Image Handling" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:url) { "/inventory/images/" }
+    let(:any_uuid) {  Faker::Internet.uuid }
+
+    let(:url) { "/inventory/#{any_uuid}/images/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:image_id) { resp.body["data"][0]["id"] }
