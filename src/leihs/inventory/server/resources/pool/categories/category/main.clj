@@ -9,9 +9,6 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
-
-
 ;; model_groups / model_group_links == category / category_links
 (defn get-model-groups-of-pool-handler [request]
   (try

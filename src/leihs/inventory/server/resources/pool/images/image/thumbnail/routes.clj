@@ -26,7 +26,4 @@
            :handler get-image-thumbnail-handler
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-
-
-   ])
+                       500 {:description "Internal Server Error"}}}}]])

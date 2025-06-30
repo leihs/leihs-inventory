@@ -4,10 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.main :refer [
-
-                                                              get-models-of-pool-with-pagination-handler
-                                                              ]]
+   [leihs.inventory.server.resources.pool.models.main :refer [get-models-of-pool-with-pagination-handler]]
 
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -32,17 +29,13 @@
    - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
    - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 
-
-
 (defn get-models-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"]}}
 
-
    ["/model"
-
 
     ["/"
      {:post {:accept "application/json"
@@ -57,12 +50,9 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+                         500 {:description "Internal Server Error"}}}}]]
 
-    ]
-
-
-   ;; Routes for /inventory/<pool-id>/*
+;; Routes for /inventory/<pool-id>/*
    ;; TODO: should be? ["/models/list"
    ["/models"
     [""
@@ -98,6 +88,4 @@
             :responses {200 {:description "OK"
                              :body (s/->Either [s/Any mc/models-response-payload])}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-      }]]])
+                        500 {:description "Internal Server Error"}}}}]]])

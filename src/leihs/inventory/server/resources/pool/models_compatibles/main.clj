@@ -17,21 +17,21 @@
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
           base-query (-> (sql/select [:models.id :model_id]
-                           :models.product
-                           :models.version
-                           (create-image-url :models :cover_image_url)
-                           :models.cover_image_id)
-                       (sql/from :models)
-                       (sql/left-join :images [:= :models.cover_image_id :images.id])
-                       (cond-> model_id
-                         (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
-                           (sql/where [:= :models.id model_id])))
-                       (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
+                                     :models.product
+                                     :models.version
+                                     (create-image-url :models :cover_image_url)
+                                     :models.cover_image_id)
+                         (sql/from :models)
+                         (sql/left-join :images [:= :models.cover_image_id :images.id])
+                         (cond-> model_id
+                           (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
+                               (sql/where [:= :models.id model_id])))
+                         (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
         (-> (jdbc/execute! tx (-> base-query sql-format))
-          remove-nil-entries-fnc
-          response)
+            remove-nil-entries-fnc
+            response)
         (response (create-paginated-response base-query tx size page remove-nil-entries-fnc))))
     (catch Exception e
       (error "Failed to get models-compatible" e)

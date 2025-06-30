@@ -2,8 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.auth.session :as session]
-   [leihs.inventory.server.resources.pool.suppliers.supplier.main :refer [
-                                                           get-suppliers-auto-pagination-handler]]
+   [leihs.inventory.server.resources.pool.suppliers.supplier.main :refer [get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -35,4 +34,4 @@
             :responses {200 {:description "OK"
                              :body resp-supplier}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]   ])
+                        500 {:description "Internal Server Error"}}}}]]])

@@ -9,7 +9,6 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error spy]]))
 
-
 (defn get-responsible-pools-handler [request]
   (let [tx (:tx request)
         pool-id (-> request :parameters :path :pool_id)

@@ -4,10 +4,8 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.images.main :refer [
-    delete-image
-                                                                           upload-image
-    ]]
+   [leihs.inventory.server.resources.pool.models.model.images.main :refer [delete-image
+                                                                           upload-image]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -19,20 +17,15 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
-
 (defn get-models-model-images-route []
   ["/"
    {:swagger {:conflicting true
               :tags ["Models"]}}
 
-
-
-   ;; /inventory/models/*
+;; /inventory/models/*
    ["models"
 
     ["/:model_id"
-
 
      ["/images"
       ["" {:post {:accept "application/json"
@@ -63,11 +56,7 @@
                  :handler delete-image
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]
-
-
-
-     ]]])
+                             500 {:description "Internal Server Error"}}}}]]]]])
 
 
 

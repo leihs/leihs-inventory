@@ -19,14 +19,10 @@
                         tree)
     tree))
 
-
-
-
 (defn get-categories-hierarchically [{{:keys [pool_id]} :path-params :as request}]
-                   (let [
-                         tx (:tx request)
-                         with-metadata (or (-> request :parameters :query :with-metadata) false)
-                         res {:body {:name "categories"
-                                     :children (-> (tree tx {:with-metadata with-metadata})
-                                                   (term-filter request))}}]
-                     res))
+  (let [tx (:tx request)
+        with-metadata (or (-> request :parameters :query :with-metadata) false)
+        res {:body {:name "categories"
+                    :children (-> (tree tx {:with-metadata with-metadata})
+                                  (term-filter request))}}]
+    res))

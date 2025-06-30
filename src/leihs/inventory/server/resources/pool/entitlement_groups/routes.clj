@@ -1,9 +1,7 @@
 (ns leihs.inventory.server.resources.pool.entitlement-groups.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.entitlement-groups.main :refer [
-                                                             get-entitlement-groups-of-pool-handler
-                                                             ]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.main :refer [get-entitlement-groups-of-pool-handler]]
    [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [response-body]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -23,7 +21,6 @@
     {:swagger {:conflicting true
                :tags ["Categories / Model-Groups"]}}
 
-
     ["/entitlement-groups"
      ["" {:get {:conflicting true
                 :summary "OK | a.k.a 'Anspruchsgruppen' [fe]"
@@ -37,5 +34,4 @@
                 :responses {200 {:description "OK"
                                  :body [response-body]}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
-     ]]])
+                            500 {:description "Internal Server Error"}}}}]]]])

@@ -2,9 +2,7 @@
   (:require
    [cheshire.core :as json]
    [clojure.set :as set]
-   [leihs.inventory.server.resources.pool.items.main :refer [
-                                                        get-items-of-pool-with-pagination-handler
-                                                         ]]
+   [leihs.inventory.server.resources.pool.items.main :refer [get-items-of-pool-with-pagination-handler]]
    [leihs.inventory.server.resources.pool.models.main :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
@@ -15,15 +13,12 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-
-
 (defn get-items-routes []
   [""
 
    ["/:pool_id"
     {:swagger {:conflicting true
                :tags ["Items by pool"]}}
-
 
     ["/items"
 
@@ -48,6 +43,4 @@
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ]])
+                        500 {:description "Internal Server Error"}}}}]]])

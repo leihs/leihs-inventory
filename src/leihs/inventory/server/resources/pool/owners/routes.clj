@@ -33,9 +33,4 @@
                                 :body (s/->Either [resp-owners {:data resp-owners
                                                                 :pagination pagination}])}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-
-
-    ]
-])
+                           500 {:description "Internal Server Error"}}}}]]])

@@ -10,13 +10,10 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
 (defn get-departments-routes []
   [""
    {:swagger {:conflicting true
               :tags ["Owner / Department"]}}
-
-
 
    ["/departments"
     ["" {:get {:conflicting true
@@ -32,7 +29,4 @@
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-
-    ]])
+                           500 {:description "Internal Server Error"}}}}]]])

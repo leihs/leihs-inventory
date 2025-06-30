@@ -6,7 +6,7 @@
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries create-image-url apply-is_deleted-context-if-valid
-                                                                        apply-is_deleted-where-context-if-valid]]
+                                                         apply-is_deleted-where-context-if-valid]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
@@ -15,8 +15,8 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error spy]])
   (:import [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util.jar JarFile]))
+           (java.time LocalDateTime)
+           [java.util.jar JarFile]))
 
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
@@ -33,16 +33,16 @@
                        (sql/select-distinct :m.manufacturer))
 
           base-query (-> select-stm
-                       (sql/from [:models :m])
-                       (sql/where [:is-not-null :m.manufacturer])
-                       (sql/where [:not-like :m.manufacturer " %"])
-                       (sql/where [:not-in :m.manufacturer [""]])
-                       (sql/order-by [:m.manufacturer :asc])
-                       (cond-> (not (str/blank? search-term))
-                         (sql/where [:or [:ilike :m.manufacturer (str "%" search-term "%")]
-                                     [:ilike :m.product (str "%" search-term "%")]]))
-                       (cond-> (some? mtype)
-                         (sql/where [:= :m.type mtype])))
+                         (sql/from [:models :m])
+                         (sql/where [:is-not-null :m.manufacturer])
+                         (sql/where [:not-like :m.manufacturer " %"])
+                         (sql/where [:not-in :m.manufacturer [""]])
+                         (sql/order-by [:m.manufacturer :asc])
+                         (cond-> (not (str/blank? search-term))
+                           (sql/where [:or [:ilike :m.manufacturer (str "%" search-term "%")]
+                                       [:ilike :m.product (str "%" search-term "%")]]))
+                         (cond-> (some? mtype)
+                           (sql/where [:= :m.type mtype])))
 
           result (jdbc/execute! tx (-> base-query sql-format))]
 
@@ -56,21 +56,21 @@
     (let [tx (:tx request)
           model_id (-> request path-params :model_id)
           base-query (-> (sql/select [:models.id :model_id]
-                           :models.product
-                           :models.version
-                           (create-image-url :models :cover_image_url)
-                           :models.cover_image_id)
-                       (sql/from :models)
-                       (sql/left-join :images [:= :models.cover_image_id :images.id])
-                       (cond-> model_id
-                         (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
-                           (sql/where [:= :models.id model_id])))
-                       (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
+                                     :models.product
+                                     :models.version
+                                     (create-image-url :models :cover_image_url)
+                                     :models.cover_image_id)
+                         (sql/from :models)
+                         (sql/left-join :images [:= :models.cover_image_id :images.id])
+                         (cond-> model_id
+                           (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
+                               (sql/where [:= :models.id model_id])))
+                         (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
           {:keys [page size]} (fetch-pagination-params-raw request)]
       (if (or model_id (and (nil? page) (nil? size)))
         (-> (jdbc/execute! tx (-> base-query sql-format))
-          remove-nil-entries-fnc
-          response)
+            remove-nil-entries-fnc
+            response)
         (response (create-paginated-response base-query tx size page remove-nil-entries-fnc))))
     (catch Exception e
       (error "Failed to get models-compatible" e)
@@ -91,12 +91,12 @@
         filter-product (if-not model_id (:filter_product query-params) nil)
         is_deletable (if-not model_id (:is_deletable query-params) nil)
         base-query (-> (apply-is_deleted-context-if-valid is_deletable)
-                     (cond-> filter-manufacturer
-                       (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
-                     (cond-> filter-product
-                       (sql/where [:ilike :m.product (str "%" filter-product "%")]))
-                     (cond-> model_id (sql/where [:= :m.id model_id]))
-                     (sql/order-by sort-by))
+                       (cond-> filter-manufacturer
+                         (sql/where [:ilike :m.manufacturer (str "%" filter-manufacturer "%")]))
+                       (cond-> filter-product
+                         (sql/where [:ilike :m.product (str "%" filter-product "%")]))
+                       (cond-> model_id (sql/where [:= :m.id model_id]))
+                       (sql/order-by sort-by))
         base-query (apply-is_deleted-where-context-if-valid base-query is_deletable)]
     (if (url-ends-with-uuid? (:uri request))
       (let [res (jdbc/execute-one! tx (-> base-query sql-format))]
@@ -111,13 +111,13 @@
         body-params (:body-params request)
         tx (:tx request)
         model (assoc body-params
-                :created_at created_ts
-                :updated_at created_ts)]
+                     :created_at created_ts
+                     :updated_at created_ts)]
     (try
       (let [res (jdbc/execute! tx (-> (sql/insert-into :models)
-                                    (sql/values [model])
-                                    (sql/returning :*)
-                                    sql-format))
+                                      (sql/values [model])
+                                      (sql/returning :*)
+                                      sql-format))
             model-id (:id res)]
         (if res
           (response res)
@@ -133,10 +133,10 @@
         model body-params]
     (try
       (let [res (jdbc/execute! tx (-> (sql/update :models)
-                                    (sql/set (convert-map-if-exist body-params))
-                                    (sql/where [:= :id (to-uuid model-id)])
-                                    (sql/returning :*)
-                                    sql-format))]
+                                      (sql/set (convert-map-if-exist body-params))
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
         (if (= 1 (count res))
           (response res)
           (bad-request {:error "Failed to update model" :details "Model not found"})))
@@ -149,9 +149,9 @@
         model-id (get-in request [:path-params :model_id])]
     (try
       (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
-                                    (sql/where [:= :id (to-uuid model-id)])
-                                    (sql/returning :*)
-                                    sql-format))]
+                                      (sql/where [:= :id (to-uuid model-id)])
+                                      (sql/returning :*)
+                                      sql-format))]
         (if (= 1 (count res))
           (response res)
           (bad-request {:error "Failed to delete model" :details "Model not found"})))

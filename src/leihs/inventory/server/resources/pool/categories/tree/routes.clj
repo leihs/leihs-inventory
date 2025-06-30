@@ -3,11 +3,11 @@
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
 
-   [leihs.inventory.server.resources.pool.categories.tree.types :as t]
-   [leihs.inventory.server.resources.pool.categories.tree.main :refer [ get-categories-hierarchically]]
-
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
+
+   [leihs.inventory.server.resources.pool.categories.tree.main :refer [get-categories-hierarchically]]
+   [leihs.inventory.server.resources.pool.categories.tree.types :as t]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -15,7 +15,6 @@
    [ring.middleware.accept]
    [ring.util.response :as response]
    [schema.core :as s]))
-
 
 (defn get-category-tree-route []
   ;["/:pool_id"

@@ -1,11 +1,10 @@
 (ns leihs.inventory.server.resources.pool.category-links.category-link.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.category-links.category-link.main :refer [
-                                                                               ;get-model-groups-of-pool-handler
+   [leihs.inventory.server.resources.pool.category-links.category-link.main :refer [;get-model-groups-of-pool-handler
                                                              ;get-groups-of-pool-handler
                                                              ;get-entitlement-groups-of-pool-handler
-                                                             get-model-group-links-of-pool-handler]]
+                                                                                    get-model-group-links-of-pool-handler]]
    ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
    ;                                                      create-model-handler
    ;                                                      update-model-handler
@@ -33,8 +32,7 @@
    ; {:swagger {:conflicting true
    ;            :tags ["Categories / Model-Groups"]}}
 
-
-   ;["/category_links"
+;["/category_links"
    ; {:swagger {:conflicting true
    ;            :tags ["Category-Links"]}}
     ;["" {:get {:conflicting true
@@ -54,25 +52,22 @@
     ;                       404 {:description "Not Found"}
     ;                       500 {:description "Internal Server Error"}}}}]
 
-    ["/category_links/:category_link_id"
-     {:get {:conflicting true
-            :summary "Kategorie-Links anzeigen / category_links"
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {;:pool_id s/Uuid
-                                :category_link_id s/Uuid}}
-            :handler get-model-group-links-of-pool-handler
-            :responses {200 {:description "OK"
-                             :body [{:id s/Uuid
-                                     :parent_id s/Uuid
-                                     :child_id s/Uuid
-                                     :label s/Str}]}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}
+   ["/category_links/:category_link_id"
+    {:get {:conflicting true
+           :summary "Kategorie-Links anzeigen / category_links"
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {;:pool_id s/Uuid
+                               :category_link_id s/Uuid}}
+           :handler get-model-group-links-of-pool-handler
+           :responses {200 {:description "OK"
+                            :body [{:id s/Uuid
+                                    :parent_id s/Uuid
+                                    :child_id s/Uuid
+                                    :label s/Str}]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}
      ;]
-      ]
-
-
-   ])
+    ]])

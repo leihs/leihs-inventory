@@ -10,72 +10,62 @@
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
+   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
+                                             APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
    [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler session-token-routes
                                                               ;token-routes
                                                               ]]
    [leihs.inventory.server.resources.auth.session :as ab]
-   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
-   [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
-   [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
-   [leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
-
-
-   [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
-   [leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
-   [leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
-
-
-
-   [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
-
-
-   [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
-   [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
-
-
+   [leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
+   [leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
+   [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
 
-
+   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
 
    [leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
-   [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
-   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
-   [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
 
-
-   [leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
-   [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
-
-   [leihs.inventory.server.resources.pool.owners.routes :refer [get-owners-routes]]
-   [leihs.inventory.server.resources.pool.owners.owner.routes :refer [get-owners-single-routes]]
-
-   [leihs.inventory.server.resources.pool.departments.routes :refer [get-departments-routes]]
    [leihs.inventory.server.resources.pool.departments.department.routes :refer [get-departments-single-routes]]
-
-
-   [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
-
-   [leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
-
+   [leihs.inventory.server.resources.pool.departments.routes :refer [get-departments-routes]]
 
    [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
 
+   [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+   [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
+   [leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
+   [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
+   [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
 
+   [leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
+   [leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
 
-   [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route ]]
-   [leihs.inventory.server.resources.pool.models.model.routes :refer [ get-models-single-route]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [ get-models-model-attachments-route]]
-   [leihs.inventory.server.resources.pool.models.model.images.routes :refer [ get-models-model-images-route]]
+   [leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
+   [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
 
+   [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
+
+   [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
+
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
+
+   [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
+
+   [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
+   [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
+   [leihs.inventory.server.resources.pool.owners.owner.routes :refer [get-owners-single-routes]]
+   [leihs.inventory.server.resources.pool.owners.routes :refer [get-owners-routes]]
+
+   [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
    ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
    ;[leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
-   [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
    [leihs.inventory.server.resources.pool.suppliers.supplier.routes :refer [get-suppliers-single-routes]]
+   [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
    ;[leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
@@ -83,8 +73,6 @@
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
-                                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
    [reitit.openapi :as openapi]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.swagger :as swagger]
@@ -105,32 +93,26 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-
-
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
 ; 3. Dev routes
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [
-
-                     (get-departments-routes)
+  (let [core-routes [(get-departments-routes)
                      (get-departments-single-routes)
 
                      (get-owners-routes)
                      (get-owners-single-routes)
 
-
                      (get-models-route)
                      (get-models-single-route)
                      (get-models-model-attachments-route)
-                    (get-models-model-images-route)
+                     (get-models-model-images-route)
 
                      (get-buildings-rooms-routes)
 
-
-                     ;(get-tree-route)
+;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
                      (get-categories-routes)
                      (get-attachments-routes)
@@ -146,9 +128,7 @@
                      (get-models-compatibles-route)
                      (get-manufacturers-routes)
 
-
                      (get-pool-by-access-right-routes)
-
 
                      (get-category-links-routes)
                      (get-category-tree-route)
@@ -159,39 +139,32 @@
                      (get-images-image-routes)
                      (get-images-image-thumbnail-routes)
 
-
-
-
-
                      (session-token-routes)]
         additional-routes (concat
-                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                              [
-                               ;(get-owner-department-routes)
+                           (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                             [;(get-owner-department-routes)
 
-                               (get-suppliers-routes)
-                               (get-suppliers-single-routes)
+                              (get-suppliers-routes)
+                              (get-suppliers-single-routes)
 
-                               (get-fields-routes)
-                               (get-fields-single-routes)
-                               (get-export-routes)
-                               (get-items-routes)
-                               (get-properties-routes)])
-                            (when APPLY_DEV_ENDPOINTS
-                              [(get-dev-routes)]))]
+                              (get-fields-routes)
+                              (get-fields-single-routes)
+                              (get-export-routes)
+                              (get-items-routes)
+                              (get-properties-routes)])
+                           (when APPLY_DEV_ENDPOINTS
+                             [(get-dev-routes)]))]
     (vec (concat core-routes additional-routes))))
-
-
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
                     :flashMessages []}
-                 (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                     {:name "csrf-token" :value mtoken}))
-                 (cond-> (:message query)
-                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
+                                       {:name "csrf-token" :value mtoken}))
+                   (cond-> (:message query)
+                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     (if (str/includes? accept "application/json")
@@ -224,21 +197,17 @@
      :body html}))
 (defn post-sign-out [request]
   (let [params (-> request
-                 convert-params
-                 (assoc-in [:accept :mime] :html))
+                   convert-params
+                   (assoc-in [:accept :mime] :html))
         accept (get-in params [:headers "accept"])]
     (if (str/includes? accept "application/json")
       {:status (if (so/routes params) 200 409)}
       (so/routes params))))
 
-
-
-
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
 (defn basic-routes []
 
@@ -275,8 +244,7 @@
 
     ["/"
      {:swagger {:tags ["Auth"]}
-      :no-doc HIDE_BASIC_ENDPOINTS
-      }
+      :no-doc HIDE_BASIC_ENDPOINTS}
 
      ["login"
       {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
@@ -311,9 +279,7 @@
      ;         :coercion reitit.coercion.schema/coercion
      ;         :parameters {:body {:new-password1 s/Str}}
      ;         :handler set-password-handler}}]
-
      ]
-
     ["/"
      {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
 

@@ -9,7 +9,6 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
 ;; TODO: hierarchies resolution
 (defn get-model-group-links-of-pool-handler [request]
   (try

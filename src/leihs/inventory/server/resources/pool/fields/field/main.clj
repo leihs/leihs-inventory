@@ -100,8 +100,6 @@
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
-
-
 (defn get-form-fields-handler [request]
   (let [result (get-form-fields request)]
     (response result)))

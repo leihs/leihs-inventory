@@ -10,8 +10,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
-
 (defn get-departments-single-routes []
   [""
    {:swagger {:conflicting true

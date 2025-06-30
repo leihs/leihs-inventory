@@ -3,9 +3,8 @@
    [cheshire.core :as json]
    [clojure.set]
    [clojure.set :as set]
-   [leihs.inventory.server.resources.pool.items.item.main :refer [get-items-of-pool-handler
+   [leihs.inventory.server.resources.pool.items.item.main :refer [get-items-of-pool-handler]]
 
-                                                         ]]
    [leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
@@ -16,16 +15,12 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-
-
 (defn get-items-item-routes []
   [""
 
    ["/:pool_id"
     {:swagger {:conflicting true
                :tags ["Items by pool"]}}
-
-
 
     ["/items/:item_id"
      {:get {:conflicting true

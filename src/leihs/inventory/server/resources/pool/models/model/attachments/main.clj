@@ -10,21 +10,21 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.models.queries :refer [accessories-query attachments-query base-inventory-query
                                                                  entitlements-query item-query
                                                                  model-links-query properties-query
                                                                  with-items without-items with-search filter-by-type
                                                                  from-category]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
 
-   [leihs.inventory.server.utils.pagination :refer [pagination-response create-pagination-response]]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data ]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
+   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
@@ -47,11 +47,8 @@
 (defn filter-keys [m keys-to-keep]
   (select-keys m keys-to-keep))
 
-
-
 (defn filter-keys-attachments [m]
   (filter-keys m [:filename :content_type :size :model_id :item_id :content]))
-
 
 (defn attachment-response-format [s]
   (sql/returning s :id :filename))
@@ -98,9 +95,6 @@
       (error "Failed to upload attachment" e)
       (bad-request {:error "Failed to upload attachment" :details (.getMessage e)}))))
 
-
-
-
 (defn validate-empty-string!
   ([k vec-of-maps]
    (validate-empty-string! k vec-of-maps nil))
@@ -109,9 +103,6 @@
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
-
-
-
 
 ;; THIS by pool
 (defn get-models-handler
@@ -127,26 +118,26 @@
                  search before_last_check]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> (base-inventory-query pool_id)
-                 (cond-> type (filter-by-type type))
-                 (cond->
-                   (and pool_id (true? with_items))
-                   (with-items pool_id
-                     :retired retired
-                     :borrowable borrowable
-                     :incomplete incomplete
-                     :broken broken
-                     :inventory_pool_id inventory_pool_id
-                     :owned owned
-                     :in_stock in_stock
-                     :before_last_check before_last_check)
+                   (cond-> type (filter-by-type type))
+                   (cond->
+                    (and pool_id (true? with_items))
+                     (with-items pool_id
+                       :retired retired
+                       :borrowable borrowable
+                       :incomplete incomplete
+                       :broken broken
+                       :inventory_pool_id inventory_pool_id
+                       :owned owned
+                       :in_stock in_stock
+                       :before_last_check before_last_check)
 
-                   (and pool_id (false? with_items))
-                   (without-items pool_id)
+                     (and pool_id (false? with_items))
+                     (without-items pool_id)
 
-                   (and pool_id (presence search))
-                   (with-search search))
-                 (cond-> category_id
-                   (#(from-category tx % category_id))))]
+                     (and pool_id (presence search))
+                     (with-search search))
+                   (cond-> category_id
+                     (#(from-category tx % category_id))))]
      (debug (sql-format query :inline true))
 
      (if (url-ends-with-uuid? (:uri request))
@@ -163,13 +154,12 @@
   (let [result (get-models-handler request)]
     result))
 
-
 (defn delete-attachments [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)
         res (jdbc/execute-one! tx
-              (-> (sql/delete-from :attachments)
-                (sql/where [:= :id attachments_id])
-                sql-format))]
+                               (-> (sql/delete-from :attachments)
+                                   (sql/where [:= :id attachments_id])
+                                   sql-format))]
     (if (= (:next.jdbc/update-count res) 1)
       (response {:status "ok" :attachments_id attachments_id})
       (bad-request {:error "Failed to delete attachment"}))))

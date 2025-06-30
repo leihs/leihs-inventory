@@ -3,18 +3,17 @@
    [clojure.set]
    [schema.core :as s]))
 
-
 (s/defschema response-pbar {:id s/Uuid
- :name s/Str
- (s/optional-key :inventory_pool_id) s/Uuid
- (s/optional-key :user_id) s/Uuid
- (s/optional-key :group_access_right_id) (s/maybe s/Uuid)
- (s/optional-key :direct_access_right_id) (s/maybe s/Uuid)
- (s/optional-key :role) s/Str
- (s/optional-key :created_at) s/Any
- (s/optional-key :updated_at) s/Any
- (s/optional-key :origin_table) s/Str
- (s/optional-key :is_active) s/Bool})
+                            :name s/Str
+                            (s/optional-key :inventory_pool_id) s/Uuid
+                            (s/optional-key :user_id) s/Uuid
+                            (s/optional-key :group_access_right_id) (s/maybe s/Uuid)
+                            (s/optional-key :direct_access_right_id) (s/maybe s/Uuid)
+                            (s/optional-key :role) s/Str
+                            (s/optional-key :created_at) s/Any
+                            (s/optional-key :updated_at) s/Any
+                            (s/optional-key :origin_table) s/Str
+                            (s/optional-key :is_active) s/Bool})
 
 (s/defschema manage-nav-item-schema
   {:name s/Str

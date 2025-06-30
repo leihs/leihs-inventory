@@ -173,7 +173,6 @@
            (matches-model-columns-expr search :child_models)
            (matches-item-columns-expr search :child_items)]))]]))
 
-
 ;[hugsql.core :as hugsql]
 ;[next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
@@ -181,9 +180,9 @@
 
 (defn descendent-ids [tx category-id]
   (-> {:category-id category-id}
-    descendent-ids-sqlvec
-    (->> (jdbc-query tx))
-    (->> (map :id))))
+      descendent-ids-sqlvec
+      (->> (jdbc-query tx))
+      (->> (map :id))))
 
 (defn from-category [tx query category-id]
   (let [ids (-> (descendent-ids tx category-id)

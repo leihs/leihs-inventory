@@ -17,7 +17,6 @@
    [ring.util.response :as response :refer [bad-request response status]]
    [taoensso.timbre :refer [error spy]]))
 
-
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
 
@@ -30,16 +29,14 @@
 (defn image-response-format [s]
   (sql/returning s :id :filename :thumbnail))
 
-
-
 (defn delete-image
   [req]
   (let [tx (:tx req)
         {:keys [model_id image_id]} (:path (:parameters req))
         id (to-uuid image_id)]
     (let [res (jdbc/execute-one! tx
-                (sql-format
-                  {:delete-from :images :where [:= :id id]}))]
+                                 (sql-format
+                                  {:delete-from :images :where [:= :id id]}))]
       (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
         (bad-request {:error "Failed to delete image"})))))
@@ -70,21 +67,21 @@
 
       (let [file-content-main (file-to-base64 entry)
             main-image-data (-> entry
-                              (assoc :content file-content-main :target_id model_id :target_type "Model" :thumbnail false)
-                              filter-keys-images)
+                                (assoc :content file-content-main :target_id model_id :target_type "Model" :thumbnail false)
+                                filter-keys-images)
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                      (sql/values [main-image-data])
-                                                      image-response-format
-                                                      sql-format))
+                                                        (sql/values [main-image-data])
+                                                        image-response-format
+                                                        sql-format))
 
             thumb-data (resize-and-convert-to-base64 file-full-path)
 
             thumbnail-data (-> (assoc main-image-data :content (:base64 thumb-data) :size (:file-size thumb-data) :thumbnail true :parent_id (:id main-image-result))
-                             filter-keys-images)
+                               filter-keys-images)
             thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                     (sql/values [thumbnail-data])
-                                                     image-response-format
-                                                     sql-format))
+                                                       (sql/values [thumbnail-data])
+                                                       image-response-format
+                                                       sql-format))
             data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
         (status (response data) 200)))
 
@@ -99,5 +96,5 @@
    (doseq [m vec-of-maps]
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                (merge {:key k :map m} (when scope {:scope scope}))))))))
+                       (merge {:key k :map m} (when scope {:scope scope}))))))))
 

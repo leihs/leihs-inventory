@@ -10,9 +10,9 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data ]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
@@ -26,7 +26,6 @@
            [java.util.jar JarFile]
            [org.im4java.core ConvertCmd IMOperation]))
 
-
 (defn patch-model-handler [req]
   (let [model-id (to-uuid (get-in req [:path-params :model_id]))
         pool-id (to-uuid (get-in req [:path-params :pool_id]))
@@ -38,7 +37,6 @@
                                      (sql/returning :id :cover_image_id)
                                      sql-format))]
     (response/response result)))
-
 
 (defn prepare-model-data
   [data]

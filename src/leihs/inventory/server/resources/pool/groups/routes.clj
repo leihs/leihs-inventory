@@ -1,12 +1,11 @@
 (ns leihs.inventory.server.resources.pool.groups.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.groups.main :refer [
-                                                         ;get-model-groups-of-pool-handler
-                                                             get-groups-of-pool-handler
+   [leihs.inventory.server.resources.pool.groups.main :refer [;get-model-groups-of-pool-handler
+                                                              get-groups-of-pool-handler
                                                              ;get-entitlement-groups-of-pool-handler
                                                              ;get-model-group-links-of-pool-handler
-                                                         ]]
+                                                              ]]
    ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
    ;                                                      create-model-handler
    ;                                                      update-model-handler
@@ -23,17 +22,13 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
 (defn get-groups-routes []
 
   [""
 
-
    ["/:pool_id"
     {:swagger {:conflicting true
                :tags ["Groups"]}}
-
-
 
     ["/groups"
      ["" {:get {:conflicting true
@@ -46,11 +41,4 @@
                 :responses {200 {:description "OK"
                                  :body s/Any}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
-
-
-     ]
-
-
-
-    ]])
+                            500 {:description "Internal Server Error"}}}}]]]])

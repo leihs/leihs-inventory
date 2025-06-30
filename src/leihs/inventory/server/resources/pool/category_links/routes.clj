@@ -1,11 +1,10 @@
 (ns leihs.inventory.server.resources.pool.category-links.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.category-links.main :refer [
-                                                                 ;get-model-groups-of-pool-handler
+   [leihs.inventory.server.resources.pool.category-links.main :refer [;get-model-groups-of-pool-handler
                                                              ;get-groups-of-pool-handler
                                                              ;get-entitlement-groups-of-pool-handler
-                                                             get-model-group-links-of-pool-handler]]
+                                                                      get-model-group-links-of-pool-handler]]
    ;[leihs.inventory.server.resources.models.main :refer [get-models-handler
    ;                                                      create-model-handler
    ;                                                      update-model-handler
@@ -33,7 +32,6 @@
    ; {:swagger {:conflicting true
    ;            :tags ["Categories / Model-Groups"]}}
 
-
    ["/category_links"
     {:swagger {:conflicting true
                :tags ["Category-Links"]}}
@@ -52,9 +50,4 @@
                                         :child_id s/Uuid
                                         :label s/Str}]}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-]
-
-
-   ])
+                           500 {:description "Internal Server Error"}}}}]]])

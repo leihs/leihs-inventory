@@ -15,7 +15,6 @@
    {:swagger {:conflicting true
               :tags ["Images [fe]"]}}
 
-
    ["images/"
     {:get {:conflicting true
            :accept "application/json"

@@ -2,8 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.auth.session :as session]
-   [leihs.inventory.server.resources.pool.fields.form.main :refer [
-                                                         get-form-fields-auto-pagination-handler]]
+   [leihs.inventory.server.resources.pool.fields.form.main :refer [get-form-fields-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -38,9 +37,4 @@
                :responses {200 {:description "OK"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]
-
-
-
-]
-)
+                           500 {:description "Internal Server Error"}}}}]]])

@@ -9,7 +9,6 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-
 ;; TODO: hierarchies resolution
 (defn get-model-group-links-of-pool-handler [request]
   (try
@@ -17,13 +16,13 @@
           pool_id (-> request path-params :pool_id)
           group_id (-> request path-params :category_link_id)
           query (-> (sql/select :mgl.*)
-                  (sql/from [:model_group_links :mgl])
+                    (sql/from [:model_group_links :mgl])
                   ;(sql/join [:inventory_pools_model_groups :ipmg] [:= :mgl.id :ipmg.model_group_id])
                   ;(sql/join [:inventory_pools :ip] [:= :ipmg.inventory_pool_id :ip.id])
                   ;(sql/where [:= :ip.id pool_id])
-                  (cond-> group_id (sql/where [:= :mgl.id group_id]))
-                  (sql/limit 50)
-                  sql-format)
+                    (cond-> group_id (sql/where [:= :mgl.id group_id]))
+                    (sql/limit 50)
+                    sql-format)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e

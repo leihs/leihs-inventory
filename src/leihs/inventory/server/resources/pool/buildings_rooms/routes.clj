@@ -92,6 +92,4 @@
                                      :name s/Str
                                      :general s/Bool}]}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-
-   ])
+                        500 {:description "Internal Server Error"}}}}]]])

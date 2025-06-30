@@ -6,21 +6,19 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.core.remote-navbar.shared :refer [sub-apps]]
    [leihs.core.settings :refer [settings!]]
+   [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
+   [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
-   [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
 
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
 
-
 (defn get-one [tx target-user-id user-id]
   (get-by-id tx (or user-id target-user-id)))
-
 
 (defn get-navigation [tx authenticated-entity]
   (let [settings (settings! tx [:external_base_url :documentation_link])
@@ -46,7 +44,6 @@
                           (= access-right "group_access_rights") (sql/where [:is-not :u.group_access_right_id nil]))
                   sql-format)]
     query))
-
 
 (defn get-user-profile [request]
   (try

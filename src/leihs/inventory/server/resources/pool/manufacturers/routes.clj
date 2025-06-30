@@ -2,9 +2,6 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   ;[leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
-   ;[leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
    ;[leihs.inventory.server.resources.pool.models.entitlements.main :refer [get-entitlements-with-pagination-handler]]
    ;[leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
    ;[leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
@@ -33,13 +30,15 @@
    ;                                                                                         update-software-handler-by-pool-form]]
    ;[leihs.inventory.server.resources.pool.models.inventory-list :refer [inventory-list-handler]]
    ;[leihs.inventory.server.resources.pool.models.items.main :refer [get-items-with-pagination-handler]]
-   [leihs.inventory.server.resources.pool.manufacturers.main :refer [
-                                                                          ;create-model-handler
+   [leihs.inventory.server.resources.pool.manufacturers.main :refer [;create-model-handler
                                                          ;delete-model-handler
-                                                         get-manufacturer-handler
+                                                                     get-manufacturer-handler
                                                          ;get-models-compatible-handler
                                                          ;update-model-handler
-                                                                          ]]
+                                                                     ]]
+   ;[leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
+   ;[leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
+   [leihs.inventory.server.resources.pool.models.coercion :as mc]
    ;[leihs.inventory.server.resources.pool.models.model-links.main :refer [get-model-links-with-pagination-handler]]
    ;[leihs.inventory.server.resources.pool.models.models-by-pool :refer [create-model-handler-by-pool
    ;                                                                delete-model-handler-by-pool

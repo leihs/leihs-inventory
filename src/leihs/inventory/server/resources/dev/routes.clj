@@ -2,27 +2,10 @@
   (:require
    [clojure.set]
 
-   [leihs.inventory.server.resources.utils.flag :as i]
-   [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
-
-   [leihs.core.status :as status]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-
    [leihs.core.auth.session :refer [wrap-authenticate]]
-   [leihs.inventory.server.resources.dev.main :refer [run-get-views
-                                                      search-in-tables
-                                                      update-and-fetch-accounts]]
-   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
-   [reitit.coercion.schema]
-   [reitit.coercion.spec]
-   [ring.middleware.accept]
+   [leihs.core.status :as status]
 
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
-
-   ;[leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler get-pools-access-rights-of-user-handler
-   ;                                                    get-user-profile get-user-details-handler]]
-
-
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    ;[cheshire.core :as json]
    ;[clojure.java.io :as io]
    ;[clojure.string :as str]
@@ -39,6 +22,22 @@
                                                               update-role-handler
                                                               ;token-routes
                                                               session-token-routes]]
+
+   [leihs.inventory.server.resources.dev.main :refer [run-get-views
+                                                      search-in-tables
+                                                      update-and-fetch-accounts]]
+   [leihs.inventory.server.resources.utils.flag :as i]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
+   [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
+   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
+   [reitit.coercion.schema]
+
+   [reitit.coercion.spec]
+
+   ;[leihs.inventory.server.resources.user.main :refer [get-pools-of-user-handler get-pools-access-rights-of-user-handler
+   ;                                                    get-user-profile get-user-details-handler]]
+
+   [ring.middleware.accept]
    ;[leihs.inventory.server.resources.auth.session :as ab]
    ;[leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
    ;[leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
@@ -68,7 +67,6 @@
 
    [schema.core :as s]))
 
-
 (def update-role-response {:role-before s/Str
                            :role-after s/Str
                            :inventory_pool_id s/Uuid
@@ -79,11 +77,10 @@
 
   [""
 
-
-    ["/admin/status"
-     {:get {:accept "application/json"
-            :handler status/status-handler
-            :middleware [wrap-is-admin!]}}]
+   ["/admin/status"
+    {:get {:accept "application/json"
+           :handler status/status-handler
+           :middleware [wrap-is-admin!]}}]
 
    ["set-password"
     {:post {:summary "OK | Set password by basicAuth for already authenticated user"
@@ -105,14 +102,12 @@
                        409 {:description "Conflict" :body update-role-response}
                        500 {:description "Internal Server Error"}}}}]
 
-
    ["/dev"
     {:swagger {:conflicting true
                :tags ["Dev"]}
-     :no-doc (not APPLY_DEV_ENDPOINTS)
-     }
+     :no-doc (not APPLY_DEV_ENDPOINTS)}
 
-    ;;; TODO: move to DEV?
+;;; TODO: move to DEV?
     ;["/pools"
     ; {:get {:conflicting true
     ;        :summary (i/session "Get pools of the authenticated user.")

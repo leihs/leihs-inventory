@@ -1,10 +1,8 @@
 (ns leihs.inventory.server.resources.pool-by-access-right.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.resources.pool-by-access-right.main :refer [get-pools-of-user-handler get-pools-access-rights-of-user-handler]]
    [leihs.inventory.server.resources.pool-by-access-right.types :refer :all]
-   [leihs.inventory.server.resources.pool-by-access-right.main :refer [
-                                                            get-pools-of-user-handler get-pools-access-rights-of-user-handler
-                                                            ]]
    [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -12,7 +10,6 @@
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
 
 (defn get-pool-by-access-right-routes []
   ["/"
@@ -49,5 +46,5 @@
             :responses {200 {:description "OK"
                              :body [response-pbar]}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]   ] ])
+                        500 {:description "Internal Server Error"}}}}]]])
 

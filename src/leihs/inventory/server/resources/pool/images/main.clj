@@ -60,8 +60,8 @@
           result (jdbc/query tx query)]
 
       (cond
-        json-request?  (response {:data result})
-       :else   (convert-base64-to-byte-stream (first result))))
+        json-request? (response {:data result})
+        :else (convert-base64-to-byte-stream (first result))))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

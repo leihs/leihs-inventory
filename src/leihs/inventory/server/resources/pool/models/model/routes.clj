@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [  patch-model-handler ]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-model-handler]]
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-model-handler-by-pool-json]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
@@ -38,17 +38,13 @@
                       :product s/Str
                       (s/optional-key :version) s/Str})
 
-
-
 (defn get-models-single-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"]}}
 
-
    ["/model"
-
 
     ["/"
      {:post {:accept "application/json"
@@ -129,8 +125,4 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]
-
-
-
-    ]])
+                         500 {:description "Internal Server Error"}}}}]]]])

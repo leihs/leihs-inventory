@@ -15,12 +15,12 @@
           pool_id (-> request path-params :pool_id)
           group_id (-> request path-params :group_id)
           query (-> (sql/select :g.*)
-                  (sql/from [:groups :g])
-                  (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
-                  (sql/where [:= :gar.inventory_pool_id pool_id])
-                  (cond-> group_id (sql/where [:= :g.id group_id]))
-                  (sql/limit 50)
-                  sql-format)
+                    (sql/from [:groups :g])
+                    (sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
+                    (sql/where [:= :gar.inventory_pool_id pool_id])
+                    (cond-> group_id (sql/where [:= :g.id group_id]))
+                    (sql/limit 50)
+                    sql-format)
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e

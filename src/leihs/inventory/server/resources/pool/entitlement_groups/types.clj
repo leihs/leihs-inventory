@@ -12,7 +12,6 @@
    ;[ring.middleware.accept]
    [schema.core :as s]))
 
-
 (def response-body {:id s/Uuid
                     :name s/Str
                     :inventory_pool_id s/Uuid

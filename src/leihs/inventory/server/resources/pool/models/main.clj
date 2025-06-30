@@ -5,10 +5,10 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.models.queries :refer [accessories-query attachments-query base-inventory-query
-                                                            entitlements-query item-query
-                                                            model-links-query properties-query
-                                                            with-items without-items with-search filter-by-type
-                                                            from-category]]
+                                                                 entitlements-query item-query
+                                                                 model-links-query properties-query
+                                                                 with-items without-items with-search filter-by-type
+                                                                 from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
@@ -20,7 +20,6 @@
   (:import [java.net URL JarURLConnection]
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
-
 
 ;(defn apply-is_deleted-context-if-valid
 ;  "setups base-query for is_deletable and references:

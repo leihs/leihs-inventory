@@ -1,13 +1,12 @@
 (ns leihs.inventory.server.resources.pool.models.model.delete-model-form
   (:require
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
    [taoensso.timbre :refer [error]])
   (:import [java.util UUID]))
-
 
 (defn db-operation
   "Executes a SELECT or DELETE operation on the given table based on the operation keyword using next.jdbc and HoneySQL."
@@ -15,12 +14,12 @@
   (let [query (case operation
                 :select
                 (-> (sql/select :*)
-                  (sql/from (keyword table))
-                  (sql/where where-clause)
-                  sql-format)
+                    (sql/from (keyword table))
+                    (sql/where where-clause)
+                    sql-format)
                 :delete (-> (sql/delete-from table)
-                          (sql/where where-clause)
-                          sql-format)
+                            (sql/where where-clause)
+                            sql-format)
                 (throw (IllegalArgumentException. "Unsupported operation")))]
     (jdbc/execute! tx query)))
 

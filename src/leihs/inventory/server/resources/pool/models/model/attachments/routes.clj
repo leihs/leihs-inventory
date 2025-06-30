@@ -5,12 +5,10 @@
    [leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [
-                                                                      upload-attachment
+   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [upload-attachment
                                                                                 delete-attachments
-                                                                   get-models-of-pool-handler
-                                                                   get-models-of-pool-with-pagination-handler
-    ]]
+                                                                                get-models-of-pool-handler
+                                                                                get-models-of-pool-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -21,24 +19,17 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
-
-
 (defn get-models-model-attachments-route []
   ["/"
    {:swagger {:conflicting true
               :tags ["Models"]}}
 
-
-
-   ;; /inventory/models/*
+;; /inventory/models/*
    ["models"
 
     ["/:model_id"
 
-
-
-     ;; inventory/models/m-id/attachments
+;; inventory/models/m-id/attachments
      ["/attachments"
       [""
        {:get {:accept "application/json"
@@ -90,9 +81,7 @@
                  :handler delete-attachments
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]
-
-     ]]])
+                             500 {:description "Internal Server Error"}}}}]]]]])
 
 
 

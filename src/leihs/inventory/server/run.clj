@@ -15,12 +15,12 @@
 
 (defn run [options]
   (catcher/snatch
-    {:return-fn (fn [e] (System/exit -1))}
-    (info "Invoking run with options: " options)
-    (shutdown/init options)
-    (let [status (status/init)]
-      (db/init options (:health-check-registry status)))
-    (http-server/start options (sui/create-app options))))
+   {:return-fn (fn [e] (System/exit -1))}
+   (info "Invoking run with options: " options)
+   (shutdown/init options)
+   (let [status (status/init)]
+     (db/init options (:health-check-registry status)))
+   (http-server/start options (sui/create-app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

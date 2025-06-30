@@ -48,7 +48,6 @@
    {:swagger {:conflicting true
               :tags ["User"]}}
 
-
    ["profile"
     {:get {:conflicting true
            :accept "application/json"
