@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.export.routes
   (:require
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.pool.export.main :refer [csv-handler excel-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]))
@@ -8,7 +9,8 @@
   ["/export"
 
    {:swagger {:conflicting true
-              :tags []}}
+              :tags []}
+    :no-doc HIDE_BASIC_ENDPOINTS}
 
    ["/csv" {:get {:summary "Export CSV ( test-dummy )"
                   :accept "text/csv"

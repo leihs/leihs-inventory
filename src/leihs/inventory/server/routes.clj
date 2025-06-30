@@ -50,14 +50,14 @@
 
    [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
 
+   [leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
    [leihs.inventory.server.resources.pool.models.model.entitlements.routes :refer [get-models-single-entitlements-route]]
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
    [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
-   [leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
 
+   [leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
    [leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
-   [leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
 
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
@@ -155,8 +155,7 @@
                      (session-token-routes)]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                             [
-                              (get-suppliers-routes)
+                             [(get-suppliers-routes)
                               (get-suppliers-single-routes)
 
                               (get-fields-routes)
@@ -165,10 +164,8 @@
                               (get-items-routes)
                               (get-properties-routes)])
                            (when APPLY_DEV_ENDPOINTS
-                             [(get-dev-routes)
+                             [(get-dev-routes)]))]
 
-
-                              ]))]
     (vec (concat core-routes additional-routes))))
 
 (defn get-sign-in [request]

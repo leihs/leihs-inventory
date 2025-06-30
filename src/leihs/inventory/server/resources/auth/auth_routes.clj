@@ -6,7 +6,6 @@
    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
    [clojure.set]
    [clojure.string :as str]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [clojure.test :refer :all]
    [clojure.tools.logging :as log]
    [crypto.random]
@@ -14,6 +13,7 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
@@ -343,8 +343,7 @@
 (defn session-token-routes []
   [["/"
 
-
-    {      :no-doc HIDE_BASIC_ENDPOINTS}
+    {:no-doc HIDE_BASIC_ENDPOINTS}
 
     ["session"
      {:tags ["Auth / Session"]
@@ -365,10 +364,9 @@
     ["token"
      {:tags ["Auth / Token"]
       ;:no-doc HIDE_BASIC_ENDPOINTS
-       }
+      }
 
      ["/"
-
 
       {:post {:summary "Create an API token with creds for a user"
               :description "Generates an API token for a user with specific permissions and scopes"
