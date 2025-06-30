@@ -21,14 +21,6 @@
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
 
-(defn- extract-option-type-from-uri [input-str]
-  (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
-        last-segment (-> input-str
-                         (clojure.string/split #"/")
-                         last)]
-    (if (some #(= last-segment %) valid-segments)
-      last-segment
-      nil)))
 
 (defn apply-is_deleted-context-if-valid
   "setups base-query for is_deletable and references:
@@ -100,74 +92,3 @@
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (get-models-handler request true))
-
-(defn get-models-of-pool-auto-pagination-handler [request]
-  (get-models-handler request nil))
-
-(defn get-models-of-pool-handler [request]
-  (let [result (get-models-handler request)]
-    result))
-
-;;  ------------
-
-(defn create-model-handler-by-pool [request]
-  (let [created_ts (LocalDateTime/now)
-        model-id (get-in request [:path-params :model_id])
-        pool-id (get-in request [:path-params :pool_id])
-        body-params (:body-params request)
-        tx (:tx request)
-        model (assoc body-params :created_at created_ts :updated_at created_ts)
-        categories (:category_ids model)
-        model (dissoc model :category_ids)]
-    (try
-      (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [model])
-                                          (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
-        (doseq [category-id categories]
-          (jdbc/execute! tx (-> (sql/insert-into :model_links)
-                                (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
-                                sql-format))
-          (jdbc/execute! tx (-> (sql/insert-into :inventory_pools_model_groups)
-                                (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
-                                sql-format)))
-        (if res
-          (response [res])
-          (bad-request {:error "Failed to create model"})))
-      (catch Exception e
-        (error "Failed to create model" e)
-        (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
-
-(defn update-model-handler-by-pool [request]
-  (let [model-id (get-in request [:path-params :model_id])
-        body-params (:body-params request)
-        tx (:tx request)]
-    (try
-      (let [res (jdbc/execute! tx (-> (sql/update :models)
-                                      (sql/set (convert-map-if-exist body-params))
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
-        (if (= 1 (count res))
-          (response res)
-
-          (bad-request {:error "Failed to update model" :details "Model not found"})))
-      (catch Exception e
-        (error "Failed to update model" e)
-        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
-
-(defn delete-model-handler-by-pool [request]
-  (let [tx (:tx request)
-        model-id (get-in request [:path-params :model_id])]
-    (try
-      (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
-        (if (= 1 (count res))
-          (response res)
-          (bad-request {:error "Failed to delete model" :details "Model not found"})))
-      (catch Exception e
-        (error "Failed to delete model" e)
-        (status (bad-request {:error "Failed to delete model" :details (.getMessage e)}) 409)))))
