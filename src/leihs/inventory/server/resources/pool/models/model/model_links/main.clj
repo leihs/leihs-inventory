@@ -17,10 +17,10 @@
          {:keys [model_id model_link_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
          base-query (-> (sql/select :model_links.*)
-                      (sql/from :model_links)
-                      (sql/where [:= :model_links.model_id model_id])
-                      (cond-> model_link_id
-                        (sql/where [:= :model_links.id model_link_id])))]
+                        (sql/from :model_links)
+                        (sql/where [:= :model_links.model_id model_id])
+                        (cond-> model_link_id
+                          (sql/where [:= :model_links.id model_link_id])))]
      (create-pagination-response request base-query with-pagination?))))
 
 (defn get-model-links-with-pagination-handler [request]

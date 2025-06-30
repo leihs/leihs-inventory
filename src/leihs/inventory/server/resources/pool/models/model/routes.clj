@@ -2,18 +2,15 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.model.main :refer [
-
-                                                                    update-model-handler
-                                                                    delete-model-handler
-                                                                    ;get-models-of-pool-handler
-                                                                    get-models-handler
-                                                                  ]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-model-handler]]
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-model-handler-by-pool-json]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
+                                                                    delete-model-handler
+                                                                    ;get-models-of-pool-handler
+                                                                    get-models-handler]]
    [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -38,65 +35,51 @@
    - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
    - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 
-
-
 (defn get-models-single-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"]}}
 
-
-
-
-
-
-     ;; DB-Entity endpoints
+;; DB-Entity endpoints
    ["/models"
 
+    [["/:model_id"
 
-    [
+      {:get {:accept "application/json"
+             :conflicting true
+             :coercion reitit.coercion.schema/coercion
+             :middleware [accept-json-middleware]
+             :swagger {:produces ["application/json"]}
+             :handler get-models-handler
+             :parameters {:path {:model_id s/Uuid}}
+             :responses {200 {:description "OK"
+                              :body s/Any}
+                         204 {:description "No Content"}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
 
-     ["/:model_id"
+       :put {:accept "application/json"
+             :coercion reitit.coercion.schema/coercion
+             :parameters {:path {:model_id s/Uuid}
+                          :body mc/models-request-payload}
+             :middleware [accept-json-middleware]
+             :handler update-model-handler
+             :responses {200 {:description "Returns the updated model."
+                              :body s/Any}}}
 
+       :delete {:accept "application/json"
+                :coercion reitit.coercion.schema/coercion
+                :parameters {:path {:model_id s/Uuid}}
+                :middleware [accept-json-middleware]
+                :handler delete-model-handler
+                :responses {200 {:description "Returns the deleted model."
+                                 :body s/Any}
+                            400 {:description "Bad Request"
+                                 :body s/Any}}}}]]]
 
-       {:get {:accept "application/json"
-              :conflicting true
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :handler get-models-handler
-              :parameters {:path {:model_id s/Uuid}}
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          204 {:description "No Content"}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}
-
-        :put {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:path {:model_id s/Uuid}
-                           :body mc/models-request-payload}
-              :middleware [accept-json-middleware]
-              :handler update-model-handler
-              :responses {200 {:description "Returns the updated model."
-                               :body s/Any}}}
-
-        :delete {:accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :parameters {:path {:model_id s/Uuid}}
-                 :middleware [accept-json-middleware]
-                 :handler delete-model-handler
-                 :responses {200 {:description "Returns the deleted model."
-                                  :body s/Any}
-                             400 {:description "Bad Request"
-                                  :body s/Any}}}}]
-
-     ]
-    ]
-
-   ;; Model-Form endpoints
-    ["/model"
+;; Model-Form endpoints
+   ["/model"
     ["/"
      {:post {:accept "application/json"
              :summary "Form-Handler: Create model (JSON) [fe]"

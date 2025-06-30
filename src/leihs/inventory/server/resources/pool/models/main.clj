@@ -92,8 +92,6 @@
 (defn get-models-of-pool-with-pagination-handler [request]
   (get-models-handler request true))
 
-
-
 (defn create-model-handler-by-pool [request]
   (let [created_ts (LocalDateTime/now)
         model-id (get-in request [:path-params :model_id])
@@ -105,17 +103,17 @@
         model (dissoc model :category_ids)]
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                        (sql/values [model])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [model])
+                                          (sql/returning :*)
+                                          sql-format))
             model-id (:id res)]
         (doseq [category-id categories]
           (jdbc/execute! tx (-> (sql/insert-into :model_links)
-                              (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
-                              sql-format))
+                                (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
+                                sql-format))
           (jdbc/execute! tx (-> (sql/insert-into :inventory_pools_model_groups)
-                              (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
-                              sql-format)))
+                                (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
+                                sql-format)))
         (if res
           (response [res])
           (bad-request {:error "Failed to create model"})))

@@ -6,7 +6,6 @@
 
    [leihs.inventory.server.resources.pool.models.model.accessories.main :refer [get-accessories-of-pool-handler]]
 
-
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -16,15 +15,13 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
 (defn get-models-single-accessories-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true
               :tags ["Models by pool"]}}
 
-
-   ;; Routes for /inventory/<pool-id>/*
+;; Routes for /inventory/<pool-id>/*
    ;; TODO: should be? ["/models/list"
    ["/models/:model_id"
 
@@ -59,6 +56,4 @@
                               :body s/Any}
 
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]
-
-    ]])
+                         500 {:description "Internal Server Error"}}}}]]]])

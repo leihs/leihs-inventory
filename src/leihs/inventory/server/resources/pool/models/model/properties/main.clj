@@ -17,10 +17,10 @@
          {:keys [model_id property_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
          base-query (-> (sql/select :properties.*)
-                      (sql/from :properties)
-                      (sql/where [:= :properties.model_id model_id])
-                      (cond-> property_id
-                        (sql/where [:= :properties.id property_id])))]
+                        (sql/from :properties)
+                        (sql/where [:= :properties.model_id model_id])
+                        (cond-> property_id
+                          (sql/where [:= :properties.id property_id])))]
      (create-pagination-response request base-query with-pagination?))))
 
 (defn get-properties-with-pagination-handler [request]

@@ -17,13 +17,13 @@
          {:keys [pool_id model_id item_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
          base-query (-> (sql/select :items.*)
-                      (sql/from :items)
-                      (sql/where [:or
-                                  [:= :items.inventory_pool_id pool_id]
-                                  [:= :items.owner_id pool_id]])
-                      (sql/where [:= :items.model_id model_id])
-                      (cond-> item_id
-                        (sql/where [:= :items.id item_id])))]
+                        (sql/from :items)
+                        (sql/where [:or
+                                    [:= :items.inventory_pool_id pool_id]
+                                    [:= :items.owner_id pool_id]])
+                        (sql/where [:= :items.model_id model_id])
+                        (cond-> item_id
+                          (sql/where [:= :items.id item_id])))]
      (debug (sql-format base-query :inline true))
      (create-pagination-response request base-query with-pagination?))))
 
