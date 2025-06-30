@@ -17,12 +17,8 @@
    [schema.core :as s]))
 
 (defn get-category-tree-route []
-  ;["/:pool_id"
-  ;
-  ; {:swagger {:conflicting true
-  ;            :tags ["Tree by pool"] :security []}}
 
-  ["/tree"
+  ["/:pool_id/tree"
    {:swagger {:conflicting true
               :tags []}}
 

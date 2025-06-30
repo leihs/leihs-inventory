@@ -26,7 +26,7 @@
 
 (defn get-category-links-routes []
 
-  [""
+  ["/:pool_id"
 
    ["/category_links"
     {:swagger {:conflicting true

@@ -11,7 +11,7 @@
    [schema.core :as s]))
 
 (defn get-fields-single-routes []
-  [""
+  ["/:pool_id"
 
    ["/fields/:field_id"
     {:get {:conflicting true

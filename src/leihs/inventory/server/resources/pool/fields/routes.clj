@@ -11,7 +11,7 @@
    [schema.core :as s]))
 
 (defn get-fields-routes []
-  [""
+  ["/:pool_id"
 
    ["/fields"
     {:swagger {:conflicting true

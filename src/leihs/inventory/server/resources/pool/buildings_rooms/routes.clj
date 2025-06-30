@@ -23,9 +23,9 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/buildings"
+   ["/buildings/"
 
-    ["/:building_id"
+    [":building_id"
      {:get {:conflicting true
             :summary "Get building by id [fe]"
             :accept "application/json"
@@ -56,9 +56,9 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["/rooms"
+   ["/rooms/"
 
-    ["/:room_id"
+    [":room_id"
      {:get {:conflicting true
             :summary "Get room by id [fe]"
             :accept "application/json"

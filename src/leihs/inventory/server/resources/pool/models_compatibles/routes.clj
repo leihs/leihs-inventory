@@ -21,7 +21,7 @@
   (s/->Either [[compatible-data] {:data [compatible-data] :pagination s/Any}]))
 
 (defn get-models-compatibles-route []
-  ["/"
+  ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 
