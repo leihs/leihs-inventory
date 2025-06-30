@@ -55,7 +55,7 @@
 ;; Routes for /inventory/<pool-id>/*
    ;; TODO: should be? ["/models/list"
    ["/models"
-    [""
+    ["/"
      {:get {:accept "application/json"
             :summary "Models-List for table [fe]"
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
@@ -108,7 +108,5 @@
                               :body s/Any}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}
-     ;]
 
-;}
      ]]])

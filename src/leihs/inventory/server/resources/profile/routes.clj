@@ -48,7 +48,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["profile"
+   ["profile/"
     {:get {:conflicting true
            :accept "application/json"
            :summary (i/session "Get details of the authenticated user. [fe]")

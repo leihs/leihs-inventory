@@ -31,7 +31,7 @@
    ["/category_links"
     {:swagger {:conflicting true
                :tags []}}
-    ["" {:get {:conflicting true
+    ["/" {:get {:conflicting true
                :summary "OK | Kategorie-Links anzeigen / category_links == model_group_links"
                :description (create-description "https://staging.leihs.zhdk.ch/category_links")
                :accept "application/json"

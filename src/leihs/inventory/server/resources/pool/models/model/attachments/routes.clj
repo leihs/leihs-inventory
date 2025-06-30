@@ -28,8 +28,8 @@
    [":pool_id/models"
 
     ["/:model_id"
-     ["/attachments/"
-      [""
+     ["/attachments"
+      ["/"
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]

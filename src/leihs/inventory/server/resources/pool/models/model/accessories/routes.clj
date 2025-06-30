@@ -27,7 +27,7 @@
 
     ;; by pool id
     ["/accessories"
-     ["" {:get {:accept "application/json"
+     ["/" {:get {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :middleware [accept-json-middleware]
                 :swagger {:produces ["application/json"]}
