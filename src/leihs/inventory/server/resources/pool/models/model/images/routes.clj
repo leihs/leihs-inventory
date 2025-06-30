@@ -18,11 +18,10 @@
    [schema.core :as s]))
 
 (defn get-models-model-images-route []
-  ["/"
+  ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 
-;; /inventory/models/*
    ["models"
 
     ["/:model_id"

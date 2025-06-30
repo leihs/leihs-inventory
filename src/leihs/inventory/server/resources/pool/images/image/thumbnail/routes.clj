@@ -11,7 +11,7 @@
    [schema.core :as s]))
 
 (defn get-images-image-thumbnail-routes []
-  ["/"
+  ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 

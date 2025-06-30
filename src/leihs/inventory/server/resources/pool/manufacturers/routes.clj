@@ -88,7 +88,7 @@
    :tempfile s/Any})
 
 (defn get-manufacturers-routes []
-  ["/"
+  ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 
@@ -122,41 +122,6 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ;["models-compatibles"
-   ; {:get {:conflicting true
-   ;        :summary "[fe]"
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-middleware]
-   ;        :swagger {:produces ["application/json"]}
-   ;
-   ;        :parameters {:query {(s/optional-key :page) s/Int
-   ;                             (s/optional-key :size) s/Int
-   ;                             ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-   ;                             ;(s/optional-key :filter_manufacturer) s/Str
-   ;                             ;(s/optional-key :filter_product) s/Str
-   ;                             }}
-   ;        :handler get-models-compatible-handler
-   ;        :responses {200 {:description "OK"
-   ;                         :body compatible-response}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
-   ;
-   ;["models-compatibles/:model_id"
-   ; {:get {:conflicting true
-   ;        :summary "[fe]"
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-middleware]
-   ;        :swagger {:produces ["application/json"]}
-   ;        :parameters {:path {:model_id s/Uuid}}
-   ;        :handler get-models-compatible-handler
-   ;        :responses {200 {:description "OK"
-   ;                         :body s/Any}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
-
-   ;; /inventory/models/*
    ])
 
 

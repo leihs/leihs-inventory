@@ -10,7 +10,7 @@
    [schema.core :as s]))
 
 (defn get-attachments-routes []
-  ["/"
+  ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 
