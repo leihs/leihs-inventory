@@ -1,11 +1,9 @@
 (ns leihs.inventory.server.resources.profile.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.profile.main :refer [
-                                                       get-user-profile
-                                                          ]]
+   [leihs.inventory.server.resources.profile.main :refer [get-user-profile]]
    [leihs.inventory.server.resources.utils.flag :as i]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -49,7 +47,7 @@
   ["/"
    {:swagger {:conflicting true
               :tags ["User"]}}
- 
+
 
    ["profile"
     {:get {:conflicting true
@@ -63,8 +61,5 @@
            :responses {200 {:description "OK"
                             :body profile-response-schema}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-
-
-   ])
+                       500 {:description "Internal Server Error"}}}}]])
 

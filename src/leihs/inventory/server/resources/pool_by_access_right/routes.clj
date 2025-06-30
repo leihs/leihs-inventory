@@ -1,9 +1,7 @@
 (ns leihs.inventory.server.resources.pool-by-access-right.routes
   (:require
    [clojure.set]
-
    [leihs.inventory.server.resources.pool-by-access-right.types :refer :all]
-
    [leihs.inventory.server.resources.pool-by-access-right.main :refer [
                                                             get-pools-of-user-handler get-pools-access-rights-of-user-handler
                                                             ]]
@@ -51,13 +49,5 @@
             :responses {200 {:description "OK"
                              :body [response-pbar]}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-
-
-    ]
-
-
-
-   ])
+                        500 {:description "Internal Server Error"}}}}]   ] ])
 

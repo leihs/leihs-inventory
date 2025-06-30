@@ -2,9 +2,7 @@
   (:require
    [clojure.set]
    [leihs.core.auth.session :refer [wrap-authenticate]]
-   [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [
-                                                                              ;get-pools-handler
-                                                                              get-responsible-pools-handler]]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [      get-responsible-pools-handler]]
    [leihs.inventory.server.resources.utils.flag :refer [session admin]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -30,5 +28,4 @@
            :responses {200 {:description "OK"
                             :body s/Any}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-   ])
+                       500 {:description "Internal Server Error"}}}}]   ])

@@ -41,8 +41,18 @@
    [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+
+
    [leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
    [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
+
+   [leihs.inventory.server.resources.pool.owners.routes :refer [get-owners-routes]]
+   [leihs.inventory.server.resources.pool.owners.owner.routes :refer [get-owners-single-routes]]
+
+   [leihs.inventory.server.resources.pool.departments.routes :refer [get-departments-routes]]
+   [leihs.inventory.server.resources.pool.departments.department.routes :refer [get-departments-single-routes]]
+
+
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
 
    [leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
@@ -58,7 +68,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [ get-models-model-images-route]]
 
    ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
-   [leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
+   ;[leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
    [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
@@ -102,7 +112,11 @@
   []
   (let [core-routes [
 
-                     ;(get-user-routes)
+                     (get-departments-routes)
+                     (get-departments-single-routes)
+
+                     (get-owners-routes)
+                     (get-owners-single-routes)
 
 
                      (get-models-route)
@@ -148,7 +162,7 @@
         additional-routes (concat
                             (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                               [
-                               (get-owner-department-routes)
+                               ;(get-owner-department-routes)
 
                                (get-suppliers-routes)
                                (get-suppliers-single-routes)
