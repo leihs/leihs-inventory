@@ -24,8 +24,8 @@
    {:swagger {:conflicting true
               :tags []}}
 
-;; /inventory/models/*
-   ["models"
+
+   [":pool_id/models"
 
     ["/:model_id"
 

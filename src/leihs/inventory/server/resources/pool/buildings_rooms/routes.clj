@@ -19,7 +19,7 @@
    [schema.core :as s]))
 
 (defn get-buildings-rooms-routes []
-  [""
+  ["/:pool_id"
    {:swagger {:conflicting true
               :tags []}}
 

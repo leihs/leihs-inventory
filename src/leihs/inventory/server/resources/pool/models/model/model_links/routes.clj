@@ -29,38 +29,6 @@
    ;; TODO: should be? ["/models/list"
    ["/models/:model_id"
 
-    ;["/properties"
-    ; ["" {:get {:accept "application/json"
-    ;            :coercion reitit.coercion.schema/coercion
-    ;            :middleware [accept-json-middleware]
-    ;            :swagger {:produces ["application/json"]}
-    ;            :parameters {:path {:pool_id s/Uuid
-    ;                                :model_id s/Uuid}}
-    ;            :handler get-properties-with-pagination-handler
-    ;            :responses {200 {:description "OK"
-    ;                             ;:body (s/->Either [s/Any schema])}
-    ;                             :body s/Any}
-    ;
-    ;                        404 {:description "Not Found"}
-    ;                        500 {:description "Internal Server Error"}}}}]
-    ;
-    ; ["/:property_id"
-    ;  {:get {:accept "application/json"
-    ;         :coercion reitit.coercion.schema/coercion
-    ;         :middleware [accept-json-middleware]
-    ;         :swagger {:produces ["application/json"]}
-    ;         :parameters {:path {:pool_id s/Uuid
-    ;                             :model_id s/Uuid
-    ;                             :property_id s/Uuid}}
-    ;         :handler get-properties-with-pagination-handler
-    ;
-    ;         :responses {200 {:description "OK"
-    ;                          ;:body (s/->Either [s/Any schema])}
-    ;                          :body s/Any}
-    ;
-    ;                     404 {:description "Not Found"}
-    ;                     500 {:description "Internal Server Error"}}}}]]
-
     ["/model-links"
      ["" {:get {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
