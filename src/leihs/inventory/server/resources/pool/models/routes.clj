@@ -4,12 +4,12 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
-
    [leihs.inventory.server.resources.pool.models.main :refer [
 
                                                               get-models-of-pool-with-pagination-handler
                                                               ]]
+
+   [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -100,4 +100,4 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      }     ]    ]])
+      }]]])

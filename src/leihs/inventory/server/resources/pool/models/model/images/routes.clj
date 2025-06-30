@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [
+   [leihs.inventory.server.resources.pool.models.model.images.main :refer [
     delete-image
                                                                            upload-image
     ]]
@@ -18,20 +18,6 @@
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
-(def description-model-form "CAUTION:\n
-- Model\n
-   - Modifies all attributes except: Images/Attachments\n
-   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
-   - GET: contains all data for fields (attachment, image included)\n
-- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
-- Image\n
-   - Use POST /inventory/models/<model-id>/images to upload image\n
-   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
-- Attachment\n
-   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
-   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
-
 
 
 

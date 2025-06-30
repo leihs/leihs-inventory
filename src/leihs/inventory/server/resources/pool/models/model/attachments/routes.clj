@@ -3,14 +3,11 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
-   [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [
+
+   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [
                                                                       upload-attachment
-    ]]
-
-   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [
-
+                                                                                delete-attachments
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
     ]]

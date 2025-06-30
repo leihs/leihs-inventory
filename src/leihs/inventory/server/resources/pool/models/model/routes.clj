@@ -4,23 +4,11 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [
-                                                                           delete-image
-                                                                      patch-model-handler
-                                                                      patch-models-handler
-                                                                      upload-attachment
-                                                                      upload-image
-    ]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [  patch-model-handler ]]
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-model-handler-by-pool-json]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
-
-   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [
-
-                                                                   get-models-of-pool-handler
-                                                                   get-models-of-pool-with-pagination-handler
-    ]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -50,112 +38,7 @@
                       :product s/Str
                       (s/optional-key :version) s/Str})
 
-(def compatible-response
-  (s/->Either [[compatible-data] {:data [compatible-data] :pagination s/Any}]))
 
-(def FileUpload
-  "Schema describing a typical Ring multipart file map."
-  {:filename s/Str
-   :size s/Int
-   :content-type s/Str
-   :tempfile s/Any})
-
-(defn get-model-single-route []
-  ["/"
-   {:swagger {:conflicting true
-              :tags ["Models"]}}
-
-   ;; /inventory/models/*
-   ["models"
-
-    ["/:model_id"
-
-
-     ["/images"
-      ["" {:post {:accept "application/json"
-                  :summary "Create image [fe]"
-                  :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
-                                    "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
-                                    "- Creates automatically a thumbnail (" (config-get :api :images :thumbnail :width-px)
-                                    "px x " (config-get :api :images :thumbnail :height-px) "px)\n")
-                  :swagger {:consumes ["application/json"]
-                            :produces "application/json"}
-                  :coercion reitit.coercion.schema/coercion
-                  :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}
-                               :header {:x-filename s/Str}}
-                  :handler upload-image
-                  :responses {200 {:description "OK" :body s/Any}
-                              404 {:description "Not Found"}
-                              411 {:description "Length Required"}
-                              413 {:description "Payload Too Large"}
-                              500 {:description "Internal Server Error"}}}}]
-
-      ["/:image_id"
-       {:delete {:accept "application/json"
-                 :summary "Delete image [fe]"
-                 :coercion reitit.coercion.schema/coercion
-                 :parameters {:path {:model_id s/Uuid
-                                     :image_id s/Uuid}}
-                 :handler delete-image
-                 :responses {200 {:description "OK"}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]
-     ;; inventory/models/m-id/attachments
-     ["/attachments"
-      [""
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}
-
-        :post {:accept "application/json"
-               :summary "Create attachment [fe]"
-               :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
-                                 "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
-               :coercion reitit.coercion.schema/coercion
-               :middleware [accept-json-middleware]
-               :swagger {:produces ["application/json"]}
-               :parameters {:path {:model_id s/Uuid}
-                            :header {:x-filename s/Str}}
-               :handler upload-attachment
-               :responses {200 {:description "OK"
-                                :body s/Any}
-                           400 {:description "Bad Request (Coercion error)"
-                                :body s/Any}
-                           404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-      ["/:attachments_id"
-       {:get {:accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :middleware [accept-json-middleware]
-              :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid
-                                  :attachments_id s/Uuid}}
-              :handler get-models-of-pool-handler
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}
-
-        :delete {:accept "application/json"
-                 :summary "Delete attachment [fe]"
-                 :coercion reitit.coercion.schema/coercion
-                 :parameters {:path {:model_id s/Uuid
-                                     :attachments_id s/Uuid}}
-                 :handler delete-attachments
-                 :responses {200 {:description "OK"}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]
-
-     ]]])
 
 (defn get-models-single-route []
   ["/:pool_id"
