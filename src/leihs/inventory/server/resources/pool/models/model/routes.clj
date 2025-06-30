@@ -1,52 +1,56 @@
-(ns leihs.inventory.server.resources.pool.models.routes
+(ns leihs.inventory.server.resources.pool.models.model.routes
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
    [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.entitlements.main :refer [get-entitlements-with-pagination-handler]]
-   [leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.model.common :refer [delete-image
+   ;[leihs.inventory.server.resources.pool.models.entitlements.main :refer [get-entitlements-with-pagination-handler]]
+   ;[leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-create :refer [create-items-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-fetch :refer [fetch-items-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.items.model-by-pool-form-update :refer [update-items-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-create :refer [create-license-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-fetch :refer [fetch-license-handler-by-pool-form-fetch]]
+   ;[leihs.inventory.server.resources.pool.models.form.license.model-by-pool-form-update :refer [update-license-handler-by-pool-form]]
+   [leihs.inventory.server.resources.pool.models.form.model.common :refer [
+                                                                           delete-image
                                                                       patch-model-handler
                                                                       patch-models-handler
                                                                       upload-attachment
-                                                                      upload-image]]
+                                                                      upload-image
+    ]]
    [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-delete :refer [delete-model-handler-by-pool-json]]
    [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-fetch :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-update :refer [update-model-handler-by-pool-model-json]]
-   [leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
-                                                                                            update-software-handler-by-pool-form]]
-   [leihs.inventory.server.resources.pool.models.inventory-list :refer [inventory-list-handler]]
-   [leihs.inventory.server.resources.pool.models.items.main :refer [get-items-with-pagination-handler]]
+   ;[leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-create :refer [create-option-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-fetch :refer [fetch-option-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.option.model-by-pool-form-update :refer [update-option-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-create :refer [create-package-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-fetch :refer [fetch-package-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.package.model-by-pool-form-update :refer [update-package-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-create :refer [create-software-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-fetch :refer [create-software-handler-by-pool-form-fetch]]
+   ;[leihs.inventory.server.resources.pool.models.form.software.model-by-pool-form-update :refer [delete-software-handler-by-pool-form
+   ;                                                                                         update-software-handler-by-pool-form]]
+   ;[leihs.inventory.server.resources.pool.models.inventory-list :refer [inventory-list-handler]]
+   ;[leihs.inventory.server.resources.pool.models.items.main :refer [get-items-with-pagination-handler]]
    ;[leihs.inventory.server.resources.pool.models._main :refer [create-model-handler
    ;                                                      delete-model-handler
    ;                                                      get-manufacturer-handler
    ;                                                      get-models-compatible-handler
    ;                                                      update-model-handler]]
-   [leihs.inventory.server.resources.pool.models.model-links.main :refer [get-model-links-with-pagination-handler]]
-   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [create-model-handler-by-pool
-                                                                   delete-model-handler-by-pool
-                                                                   get-models-handler
-                                                                   get-models-of-pool-auto-pagination-handler
+   ;[leihs.inventory.server.resources.pool.models.model-links.main :refer [get-model-links-with-pagination-handler]]
+   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [
+                                                                        ;create-model-handler-by-pool
+   ;                                                                delete-model-handler-by-pool
+   ;                                                                get-models-handler
+   ;                                                                get-models-of-pool-auto-pagination-handler
                                                                    get-models-of-pool-handler
                                                                    get-models-of-pool-with-pagination-handler
-                                                                   update-model-handler-by-pool]]
-   [leihs.inventory.server.resources.pool.models.properties.main :refer [get-properties-with-pagination-handler]]
+   ;                                                                update-model-handler-by-pool
+    ]]
+   ;[leihs.inventory.server.resources.pool.models.properties.main :refer [get-properties-with-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -86,74 +90,74 @@
    :content-type s/Str
    :tempfile s/Any})
 
-(defn get-model-route []
+(defn get-model-single-route []
   ["/"
    {:swagger {:conflicting true
               :tags ["Models"]}}
 
-   ["manufacturers"
-    {:get {:conflicting true
-           :summary "Get manufacturers [fe]"
-           :accept "application/json"
-           :description "'search-term' works with at least one character, considers:\n
-- manufacturer
-- product
-\nEXCLUDES manufacturers
-- .. starting with space
-- .. with empty string
-\nHINT
-- 'in-detail'-option works for models with set 'search-term' only\n"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :handler get-manufacturer-handler
-           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
-                                (s/optional-key :search-term) s/Str
-                                (s/optional-key :in-detail) (s/enum "true" "false")}}
-           :responses {200 {:description "OK"
-                            :body [(s/conditional
-                                    map? {:id s/Uuid
-                                          :manufacturer s/Str
-                                          :product s/Str
-                                          :version (s/maybe s/Str)
-                                          :model_id s/Uuid}
-                                    string? s/Str)]}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
+;   ["manufacturers"
+;    {:get {:conflicting true
+;           :summary "Get manufacturers [fe]"
+;           :accept "application/json"
+;           :description "'search-term' works with at least one character, considers:\n
+;- manufacturer
+;- product
+;\nEXCLUDES manufacturers
+;- .. starting with space
+;- .. with empty string
+;\nHINT
+;- 'in-detail'-option works for models with set 'search-term' only\n"
+;           :coercion reitit.coercion.schema/coercion
+;           :middleware [accept-json-middleware]
+;           :swagger {:produces ["application/json"]}
+;           :handler get-manufacturer-handler
+;           :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+;                                (s/optional-key :search-term) s/Str
+;                                (s/optional-key :in-detail) (s/enum "true" "false")}}
+;           :responses {200 {:description "OK"
+;                            :body [(s/conditional
+;                                    map? {:id s/Uuid
+;                                          :manufacturer s/Str
+;                                          :product s/Str
+;                                          :version (s/maybe s/Str)
+;                                          :model_id s/Uuid}
+;                                    string? s/Str)]}
+;                       404 {:description "Not Found"}
+;                       500 {:description "Internal Server Error"}}}}]
 
-   ["models-compatibles"
-    {:get {:conflicting true
-           :summary "[fe]"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-
-           :parameters {:query {(s/optional-key :page) s/Int
-                                (s/optional-key :size) s/Int
-                                ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                                ;(s/optional-key :filter_manufacturer) s/Str
-                                ;(s/optional-key :filter_product) s/Str
-                                }}
-           :handler get-models-compatible-handler
-           :responses {200 {:description "OK"
-                            :body compatible-response}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
-
-   ["models-compatibles/:model_id"
-    {:get {:conflicting true
-           :summary "[fe]"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:path {:model_id s/Uuid}}
-           :handler get-models-compatible-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
+   ;["models-compatibles"
+   ; {:get {:conflicting true
+   ;        :summary "[fe]"
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;
+   ;        :parameters {:query {(s/optional-key :page) s/Int
+   ;                             (s/optional-key :size) s/Int
+   ;                             ;(s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+   ;                             ;(s/optional-key :filter_manufacturer) s/Str
+   ;                             ;(s/optional-key :filter_product) s/Str
+   ;                             }}
+   ;        :handler get-models-compatible-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body compatible-response}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+   ;
+   ;["models-compatibles/:model_id"
+   ; {:get {:conflicting true
+   ;        :summary "[fe]"
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:path {:model_id s/Uuid}}
+   ;        :handler get-models-compatible-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
 
    ;; /inventory/models/*
    ["models"
@@ -336,54 +340,55 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]
+                         500 {:description "Internal Server Error"}}}}]]
+    ;]
 
 
 
 
-   ;; Routes for /inventory/<pool-id>/*
-   ;; TODO: should be? ["/models/list"
-   ["/models"
-    [""
-     {:get {:accept "application/json"
-            :summary "Models-List for table"
-            :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json" "text/html"]}
-            :parameters {:path {:pool_id s/Uuid}
-                         :query {(s/optional-key :before_last_check) Date
-                                 (s/optional-key :borrowable) s/Bool
-                                 (s/optional-key :broken) s/Bool
-                                 (s/optional-key :category_id) s/Uuid
-                                 (s/optional-key :filter_ids) [s/Uuid]
-                                 (s/optional-key :filter_manufacturer) s/Str
-                                 (s/optional-key :filter_product) s/Str
-                                 (s/optional-key :in_stock) s/Bool
-                                 (s/optional-key :incomplete) s/Bool
-                                 (s/optional-key :inventory_pool_id) s/Uuid
-                                 (s/optional-key :is_deletable) s/Bool
-                                 (s/optional-key :owned) s/Bool
-                                 (s/optional-key :page) s/Int
-                                 (s/optional-key :retired) s/Bool
-                                 (s/optional-key :search) s/Str
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                                 (s/optional-key :type) (s/enum :model :software :option :package)
-                                 (s/optional-key :with_items) s/Bool}}
-
-            :handler get-models-of-pool-with-pagination-handler
-
-            :responses {200 {:description "OK"
-                             :body (s/->Either [s/Any mc/models-response-payload])}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}
-
-
-
-
-      }
-     ]
+   ;;; Routes for /inventory/<pool-id>/*
+   ;;; TODO: should be? ["/models/list"
+   ;["/models"
+   ; [""
+   ;  {:get {:accept "application/json"
+   ;         :summary "Models-List for table"
+   ;         :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
+   ;         :coercion reitit.coercion.schema/coercion
+   ;         :middleware [accept-json-middleware]
+   ;         :swagger {:produces ["application/json" "text/html"]}
+   ;         :parameters {:path {:pool_id s/Uuid}
+   ;                      :query {(s/optional-key :before_last_check) Date
+   ;                              (s/optional-key :borrowable) s/Bool
+   ;                              (s/optional-key :broken) s/Bool
+   ;                              (s/optional-key :category_id) s/Uuid
+   ;                              (s/optional-key :filter_ids) [s/Uuid]
+   ;                              (s/optional-key :filter_manufacturer) s/Str
+   ;                              (s/optional-key :filter_product) s/Str
+   ;                              (s/optional-key :in_stock) s/Bool
+   ;                              (s/optional-key :incomplete) s/Bool
+   ;                              (s/optional-key :inventory_pool_id) s/Uuid
+   ;                              (s/optional-key :is_deletable) s/Bool
+   ;                              (s/optional-key :owned) s/Bool
+   ;                              (s/optional-key :page) s/Int
+   ;                              (s/optional-key :retired) s/Bool
+   ;                              (s/optional-key :search) s/Str
+   ;                              (s/optional-key :size) s/Int
+   ;                              (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
+   ;                              (s/optional-key :type) (s/enum :model :software :option :package)
+   ;                              (s/optional-key :with_items) s/Bool}}
+   ;
+   ;         :handler get-models-of-pool-with-pagination-handler
+   ;
+   ;         :responses {200 {:description "OK"
+   ;                          :body (s/->Either [s/Any mc/models-response-payload])}
+   ;                     404 {:description "Not Found"}
+   ;                     500 {:description "Internal Server Error"}}}
+   ;
+   ;
+   ;
+   ;
+   ;   }
+   ;  ]
 
 
 

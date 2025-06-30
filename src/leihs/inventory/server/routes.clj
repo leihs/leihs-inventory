@@ -53,6 +53,8 @@
 
 
    [leihs.inventory.server.resources.pool.models.routes :refer [get-model-by-pool-route get-model-route]]
+   [leihs.inventory.server.resources.pool.models.model.routes :refer [ get-model-single-route]]
+
    ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
    [leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
@@ -102,6 +104,7 @@
 
 
                      (get-model-route)
+                     (get-model-single-route)
                      (get-model-by-pool-route)
                      ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
