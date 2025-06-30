@@ -9,7 +9,9 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.helper :refer [base-filename file-to-base64 normalize-files normalize-model-data
-                                                           parse-json-array process-attachments str-to-bool]]
+                                                           parse-json-array process-attachments ]]
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool    ]]
+
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]

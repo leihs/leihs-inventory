@@ -10,7 +10,8 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data str-to-bool]]
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data ]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
@@ -27,9 +28,9 @@
            [java.util.jar JarFile]
            [org.im4java.core ConvertCmd IMOperation]))
 
-(defn create-image-url [col-name col-name-keyword]
-  [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
-   col-name-keyword])
+;(defn create-image-url [col-name col-name-keyword]
+;  [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
+;   col-name-keyword])
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
