@@ -57,6 +57,7 @@
    [leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
 
    [leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
+   [leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
 
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
@@ -117,6 +118,8 @@
                      (get-buildings-rooms-routes)
                      (get-models-single-items-route)
                      (get-models-single-entitlements-route)
+
+                     (get-models-single-accessories-route)
 
                      (get-models-single-model-links-route)
 

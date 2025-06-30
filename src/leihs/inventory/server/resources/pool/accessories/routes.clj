@@ -24,7 +24,22 @@
    {:swagger {:conflicting true
               :tags ["Accessories"]}}
 
-   [":pool_id"
+   [":pool_id/models/:model_id"
+    {:swagger {:conflicting true
+               :tags ["Accessories by Model"]}}
+
+    ;["/accessories"
+    ; {:get {:conflicting true
+    ;        :accept "application/json"
+    ;        :coercion reitit.coercion.schema/coercion
+    ;        :middleware [accept-json-middleware]
+    ;        :swagger {:produces ["application/json"]}
+    ;        :parameters {:path {:pool_id s/Uuid :model_id s/Uuid}}
+    ;        :handler get-accessories-of-pool-handler
+    ;        :responses {200 {:description "OK"
+    ;                         :body s/Any}
+    ;                    404 {:description "Not Found"}
+    ;                    500 {:description "Internal Server Error"}}}}]
 
     ["/accessories/:id"
      {:get {:conflicting true
@@ -52,28 +67,30 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]
 
-   ["accessories/:id"
-    {:get {:conflicting true
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:path {:id s/Uuid}}
-           :handler get-accessories-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]
+   ;["accessories/:id"
+   ; {:get {:conflicting true
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:path {:id s/Uuid}}
+   ;        :handler get-accessories-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+   ;
+   ;["accessories/"
+   ; {:get {:conflicting true
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;      ;:parameters {:path {:pool_id s/Uuid}}
+   ;        :handler get-accessories-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
 
-   ["accessories/"
-    {:get {:conflicting true
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-         ;:parameters {:path {:pool_id s/Uuid}}
-           :handler get-accessories-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+   ])
