@@ -5,7 +5,6 @@
    [clojure.set :as set]
    [leihs.inventory.server.resources.pool.items.item.main :refer [get-items-of-pool-handler]]
 
-   [leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [leihs.inventory.server.utils.response_helper :as rh]

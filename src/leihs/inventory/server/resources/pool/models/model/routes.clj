@@ -32,11 +32,7 @@
    - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
    - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 
-(def compatible-data {(s/optional-key :cover_image_id) s/Uuid
-                      (s/optional-key :cover_image_url) s/Str
-                      :model_id s/Any
-                      :product s/Str
-                      (s/optional-key :version) s/Str})
+
 
 (defn get-models-single-route []
   ["/:pool_id"
