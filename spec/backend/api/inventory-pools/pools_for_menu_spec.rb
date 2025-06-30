@@ -25,37 +25,37 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "returns all inventory pools with access via /inventory/pools" do
-        resp = admin_client.get "/inventory/pools"
+        resp = admin_client.get "/inventory/pools/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
 
       it "returns all inventory pools via /pools-by-access-right" do
-        resp = admin_client.get "/inventory/pools-by-access-right"
+        resp = admin_client.get "/inventory/pools-by-access-right/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
 
       it "returns all pools with min=false" do
-        resp = admin_client.get "/inventory/pools-by-access-right?min=false"
+        resp = admin_client.get "/inventory/pools-by-access-right/?min=false"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
 
       it "returns all pools with min=true" do
-        resp = admin_client.get "/inventory/pools-by-access-right?min=true"
+        resp = admin_client.get "/inventory/pools-by-access-right/?min=true"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
 
       it "returns all pools with access_rights=all" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=all"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=all"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(8)
       end
 
       it "returns only pools with direct access" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=direct_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=direct_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
 
@@ -65,7 +65,7 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "returns only pools with group access" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=group_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=group_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
@@ -80,13 +80,13 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns group-accessible pools via /inventory/pools" do
+      it "returns group-accessible pools via /inventory/pools/" do
         resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns group-accessible pools via /inventory/profile" do
+      it "returns group-accessible pools via /inventory/profile/" do
         resp = admin_client.get "/inventory/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
@@ -99,13 +99,13 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "returns only group-accessible pools" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=group_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=group_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns all accessible pools (group-only)" do
-        resp = admin_client.get "/inventory/pools-by-access-right"
+        resp = admin_client.get "/inventory/pools-by-access-right/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
@@ -119,32 +119,32 @@ describe "Call inventory-pool endpoints" do
         end
       end
 
-      it "returns directly accessible pools via /inventory/pools" do
+      it "returns directly accessible pools via /inventory/pools/" do
         resp = admin_client.get "/inventory/pools"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns directly accessible pools via /inventory/profile" do
+      it "returns directly accessible pools via /inventory/profile/" do
         resp = admin_client.get "/inventory/profile"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
-      it "returns only direct access pools via /pools-by-access-right" do
+      it "returns only direct access pools via /pools-by-access-right/" do
         resp = admin_client.get "/inventory/pools-by-access-right?access_rights=direct_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns zero group access pools" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=group_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=group_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(0)
       end
 
       it "returns all accessible pools (direct-only)" do
-        resp = admin_client.get "/inventory/pools-by-access-right"
+        resp = admin_client.get "/inventory/pools-by-access-right/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end

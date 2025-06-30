@@ -257,7 +257,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/model/#{model_id}",
             body: form_data,
             headers: cookie_header
           )

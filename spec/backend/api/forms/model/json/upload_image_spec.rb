@@ -44,7 +44,7 @@ describe "Inventory Model" do
           )
 
           response = json_client_post(
-            "/inventory/#{pool_id}/models/#{model_id}/images",
+            "/inventory/#{pool_id}/models/#{model_id}/images/",
             body: file,
             headers: headers,
             is_binary: true

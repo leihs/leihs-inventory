@@ -38,19 +38,19 @@ describe "Inventory Model" do
         end
 
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Model"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/models-compatibles"
+        resp = client.get "/inventory/#{pool_id}/models-compatibles/"
         @form_models_compatibles = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/model-groups"
+        resp = client.get "/inventory/#{pool_id}/model-groups/"
         @form_model_groups = resp.body
         raise "Failed to fetch model groups" unless resp.status == 200
       end

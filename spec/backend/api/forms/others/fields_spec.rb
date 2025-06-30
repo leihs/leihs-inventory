@@ -57,13 +57,13 @@ describe "Fetching Fields" do
     end
 
     context "GET /inventory/:pool_id/fields and retrieve specific field details" do
-      let(:url) { "/inventory/#{pool_id}/fields" }
+      let(:url) { "/inventory/#{pool_id}/fields/" }
 
       it "returns the details of a specific field with status 200" do
         resp = client.get "#{url}?page=1&size=10"
         id = resp.body["data"][0]["id"]
 
-        resp = client.get "#{url}/#{id}"
+        resp = client.get "#{url}#{id}"
         expect(resp.status).to eq(200)
         expect(resp.body["data"][0]["id"]).to eq(id)
       end

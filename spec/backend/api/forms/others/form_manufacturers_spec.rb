@@ -26,7 +26,7 @@ describe "Fetching Fields" do
         end
 
         it "returns #{expected_count} manufacturers for role #{role} and status 200" do
-          resp = client.get "/inventory/#{pool_id}/manufacturers"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/"
           expect(resp.body.size).to eq(expected_count)
           expect(resp.body[0].is_a?(String)).to eq(true)
           expect(resp.status).to eq(200)

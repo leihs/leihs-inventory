@@ -10,7 +10,7 @@ describe "Inventory API - Model Group Endpoints" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:url) { "/inventory/#{@inventory_pool.id}/model-groups" }
+    let(:url) { "/inventory/#{@inventory_pool.id}/model-groups/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:image_id) { resp.body[0]["id"] }
@@ -22,7 +22,7 @@ describe "Inventory API - Model Group Endpoints" do
       end
 
       it "returns details for a specific model group with paginated results and a 200 status" do
-        resp = client.get "#{url}/#{image_id}"
+        resp = client.get "#{url}#{image_id}"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(image_id)
