@@ -14,7 +14,7 @@
                    :name s/Str}])
 
 (defn get-owners-routes []
-  [""
+  ["/:pool_id"
    {:swagger {:conflicting true
               :tags []}}
 

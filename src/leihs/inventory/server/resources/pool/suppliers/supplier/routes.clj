@@ -17,7 +17,7 @@
 
 (defn get-suppliers-single-routes []
   [""
-   ["/supplier"
+   ["/:pool_id/suppliers"
     {:swagger {:conflicting true
                :tags []}}
 

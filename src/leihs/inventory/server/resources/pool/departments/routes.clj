@@ -11,11 +11,11 @@
    [schema.core :as s]))
 
 (defn get-departments-routes []
-  [""
+  ["/:pool_id"
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/departments"
+   ["/departments/"
     ["" {:get {:conflicting true
                :description "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest"
                :accept "application/json"

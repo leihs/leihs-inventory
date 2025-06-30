@@ -11,7 +11,7 @@
    [schema.core :as s]))
 
 (defn get-departments-single-routes []
-  [""
+  ["/:pool_id"
    {:swagger {:conflicting true
               :tags []}}
 
