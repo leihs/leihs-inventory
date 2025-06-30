@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json]]
+   [leihs.inventory.server.resources.pool.models.form.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
 
    [leihs.inventory.server.resources.pool.models.main :refer [
 

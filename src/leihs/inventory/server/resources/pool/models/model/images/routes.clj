@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.form.model.common :refer [
+   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer [
     delete-image
                                                                            upload-image
     ]]

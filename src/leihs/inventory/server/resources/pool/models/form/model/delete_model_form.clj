@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-delete
+(ns leihs.inventory.server.resources.pool.models.form.model.delete-model-form
   (:require
    [honey.sql :as sql]
    [honey.sql.helpers :as sql-helpers]

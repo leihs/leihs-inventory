@@ -4,17 +4,17 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.attachments.main :refer [delete-attachments]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.form.model.common :refer [
+   [leihs.inventory.server.resources.pool.models.form.model.common-model-form :refer [
                                                                            delete-image
                                                                       patch-model-handler
                                                                       patch-models-handler
                                                                       upload-attachment
                                                                       upload-image
     ]]
-   [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-create :refer [create-model-handler-by-pool-model-json]]
-   [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-delete :refer [delete-model-handler-by-pool-json]]
-   [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-fetch :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.pool.models.form.model.model-by-pool-json-update :refer [update-model-handler-by-pool-model-json]]
+   [leihs.inventory.server.resources.pool.models.form.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
+   [leihs.inventory.server.resources.pool.models.form.model.delete-model-form :refer [delete-model-handler-by-pool-json]]
+   [leihs.inventory.server.resources.pool.models.form.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
+   [leihs.inventory.server.resources.pool.models.form.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
 
    [leihs.inventory.server.resources.pool.models.models-by-pool :refer [
 
