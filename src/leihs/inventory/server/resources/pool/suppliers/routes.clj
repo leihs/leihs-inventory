@@ -17,7 +17,7 @@
 
 (defn get-suppliers-routes []
   [""
-   ["/:pool_id/suppliers"
+   ["/:pool_id/suppliers/"
     {:swagger {:conflicting true
                :tags []}}
     ["" {:get {:conflicting true

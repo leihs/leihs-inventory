@@ -19,7 +19,7 @@
               :tags []}}
 
    ["/owners"
-    ["" {:get {:conflicting true
+    ["/" {:get {:conflicting true
                :accept "application/json"
                :summary "Get owner department by id [fe]"
                :description "Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest"

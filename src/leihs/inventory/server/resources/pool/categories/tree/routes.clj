@@ -18,7 +18,7 @@
 
 (defn get-category-tree-route []
 
-  ["/:pool_id/tree"
+  ["/:pool_id/tree/"
    {:swagger {:conflicting true
               :tags []}}
 

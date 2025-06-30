@@ -16,7 +16,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/:pool_id/responsible-inventory-pools"
+   ["/:pool_id/responsible-inventory-pools/"
     {:get {:conflicting true
            :summary "[fe]"
            :accept "application/json"

@@ -26,7 +26,7 @@
 
     ["/:model_id"
 
-     ["/images"
+     ["/images/"
       ["" {:post {:accept "application/json"
                   :summary "Create image [fe]"
                   :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
@@ -46,7 +46,7 @@
                               413 {:description "Payload Too Large"}
                               500 {:description "Internal Server Error"}}}}]
 
-      ["/:image_id"
+      [":image_id"
        {:delete {:accept "application/json"
                  :summary "Delete image [fe]"
                  :coercion reitit.coercion.schema/coercion

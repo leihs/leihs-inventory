@@ -92,7 +92,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["manufacturers"
+   ["manufacturers/"
     {:get {:conflicting true
            :summary "Get manufacturers [fe]"
            :accept "application/json"

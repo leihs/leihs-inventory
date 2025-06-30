@@ -28,7 +28,7 @@
    ;; TODO: should be? ["/models/list"
    ["/models/:model_id"
 
-    ["/properties"
+    ["/properties/"
      ["" {:get {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :middleware [accept-json-middleware]
@@ -43,7 +43,7 @@
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]
 
-     ["/:property_id"
+     [":property_id"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :middleware [accept-json-middleware]

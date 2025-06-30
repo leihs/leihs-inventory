@@ -19,7 +19,7 @@
    ["pools"
 
     ; TODO: move to DEV?
-    [""
+    ["/"
      {:get {:conflicting true
             :summary (i/session "Get pools of the authenticated user.")
             :accept "application/json"
@@ -33,7 +33,7 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]
 
-    ["-by-access-right"
+    ["-by-access-right/"
      {:get {:conflicting true
             :summary (i/session "Get pools-access for menu of the authenticated user. [fe]")
             :accept "application/json"

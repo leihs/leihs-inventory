@@ -25,7 +25,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["models-compatibles"
+   ["models-compatibles/"
     {:get {:conflicting true
            :summary "[fe]"
            :accept "application/json"

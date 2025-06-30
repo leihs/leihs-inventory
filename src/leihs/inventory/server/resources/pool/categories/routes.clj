@@ -2,19 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.categories.main :refer [get-model-groups-of-pool-handler
-                                                             ;get-groups-of-pool-handler
-                                                             ;get-entitlement-groups-of-pool-handler
-                                                             ;get-model-group-links-of-pool-handler
                                                                   ]]
-   ;[leihs.inventory.server.resources.pool.models.main :refer [get-models-handler
-   ;                                                      create-model-handler
-   ;                                                      update-model-handler
-   ;                                                      delete-model-handler]]
-   ;[leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-of-pool-handler
-   ;                                                                create-model-handler-by-pool
-   ;                                                                get-models-of-pool-handler
-   ;                                                                update-model-handler-by-pool
-   ;                                                                delete-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -33,7 +21,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/model-groups"
+   ["/model-groups/"
     ["" {:get {:conflicting true
                :summary "OK | a.k.a 'Categories'"
                :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=")
@@ -54,23 +42,6 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
-     ;["/:model_group_id"
-     ; {:get {:conflicting true
-     ;        :summary "OK | a.k.a 'Categories'"
-     ;        :accept "application/json"
-     ;        :coercion reitit.coercion.schema/coercion
-     ;        :middleware [accept-json-middleware]
-     ;        :swagger {:produces ["application/json"]}
-     ;        :parameters {:path {:pool_id s/Uuid :model_group_id s/Uuid}}
-     ;        :handler get-model-groups-of-pool-handler
-     ;        :responses {200 {:description "OK"
-     ;                         :body [{:id s/Uuid
-     ;                                 :type s/Str
-     ;                                 :name s/Str
-     ;                                 :created_at s/Any
-     ;                                 :updated_at s/Any}]}
-     ;                    404 {:description "Not Found"}
-     ;                    500 {:description "Internal Server Error"}}}}]
     ]
-;]
+
    ])
