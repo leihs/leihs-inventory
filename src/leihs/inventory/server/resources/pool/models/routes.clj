@@ -252,7 +252,7 @@
 
     ]])
 
-(defn get-model-by-pool-route []
+(defn get-models-route []
   ["/:pool_id"
 
    {:swagger {:conflicting true

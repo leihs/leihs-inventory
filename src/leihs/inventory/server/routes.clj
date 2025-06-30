@@ -52,8 +52,9 @@
 
 
 
-   [leihs.inventory.server.resources.pool.models.routes :refer [get-model-by-pool-route get-model-route]]
-   [leihs.inventory.server.resources.pool.models.model.routes :refer [ get-model-single-route]]
+   [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route ]]
+   [leihs.inventory.server.resources.pool.models.model.routes :refer [ get-models-single-route]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [ get-models-model-attachments-route]]
 
    ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
    [leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
@@ -103,9 +104,12 @@
                      ;(get-user-routes)
 
 
-                     (get-model-route)
-                     (get-model-single-route)
-                     (get-model-by-pool-route)
+                     (get-models-route)
+                     (get-models-single-route)
+                     (get-models-model-attachments-route)
+
+
+
                      ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
                      (get-categories-routes)
