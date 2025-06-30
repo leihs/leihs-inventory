@@ -17,7 +17,7 @@ describe "Inventory API Endpoints - Model Properties" do
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     context "GET /inventory/models/:id/properties for a model with properties" do
-      let(:url) { "/inventory#{@path}models/#{model_with_properties.id}/properties" }
+      let(:url) { "/inventory#{@path}models/#{model_with_properties.id}/properties/" }
 
       it "retrieves all properties for the model and returns status 200" do
         resp = client.get url
@@ -50,7 +50,7 @@ describe "Inventory API Endpoints - Model Properties" do
     end
 
     context "GET /inventory/models/:id/properties for a model without properties" do
-      let(:url) { "/inventory#{@path}models/#{model_without_properties.id}/properties" }
+      let(:url) { "/inventory#{@path}models/#{model_without_properties.id}/properties/" }
 
       it "retrieves no properties for the model and returns status 200" do
         resp = client.get url

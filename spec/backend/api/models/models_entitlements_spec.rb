@@ -17,7 +17,7 @@ describe "Inventory API Endpoints - Entitlements" do
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     context "GET /inventory/models/:id/entitlements for a model with entitlements" do
-      let(:url) { "/inventory#{@path}models/#{model_with_entitlements.id}/entitlements" }
+      let(:url) { "/inventory#{@path}models/#{model_with_entitlements.id}/entitlements/" }
 
       it "retrieves all entitlements for the model and returns status 200" do
         resp = client.get url
@@ -51,7 +51,7 @@ describe "Inventory API Endpoints - Entitlements" do
     end
 
     context "GET /inventory/models/:id/entitlements for a model without entitlements" do
-      let(:url) { "/inventory#{@path}models/#{model_without_entitlements.id}/entitlements" }
+      let(:url) { "/inventory#{@path}models/#{model_without_entitlements.id}/entitlements/" }
 
       it "retrieves no entitlements for the model and returns status 200" do
         resp = client.get url

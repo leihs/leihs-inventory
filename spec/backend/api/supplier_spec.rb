@@ -10,7 +10,7 @@ describe "Inventory API Endpoints - Supplier" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:url) { "/inventory/supplier" }
+    let(:url) { "/inventory/#{pool_id}/supplier/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:supplier_id) { resp.body[0]["id"] }

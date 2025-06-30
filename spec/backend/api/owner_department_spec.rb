@@ -12,7 +12,7 @@ describe "Inventory API Endpoints - Departments and Owners" do
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
-    ["/inventory/departments", "/inventory/owners"].each do |url|
+    ["/inventory/#{pool_id}/departments/", "/inventory/#{pool_id}/owners/"].each do |url|
       context "GET #{url}" do
         it "retrieves all records and returns status 200" do
           resp = client.get url

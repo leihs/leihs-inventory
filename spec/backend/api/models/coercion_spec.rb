@@ -15,7 +15,7 @@ describe "Coercion test" do
     let(:url) { "/inventory/models" }
 
     context "GET /inventory/:pool_id/models for a specific pool" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
 
       it "returns paginated empty results for a new pool and returns status 200" do
         resp = client.get "#{url}?page=3&size=1"

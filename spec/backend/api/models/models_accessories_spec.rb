@@ -18,7 +18,7 @@ describe "Inventory API Endpoints - Accessories" do
       let(:path) { "/#{@inventory_pool_id}/" }
 
       context "GET /inventory/models/:id/accessories for a model with accessories" do
-        let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/accessories" }
+        let(:url) { "/inventory#{path}models/#{model_with_accessories.id}/accessories/" }
 
         it "retrieves all accessories for the model and returns status 200" do
           resp = client.get url
@@ -58,7 +58,7 @@ describe "Inventory API Endpoints - Accessories" do
       end
 
       context "GET /inventory/models/:id/accessories for a model without accessories" do
-        let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/accessories" }
+        let(:url) { "/inventory#{path}models/#{model_without_accessories.id}/accessories/" }
 
         it "retrieves no accessories for the model and returns status 200" do
           resp = client.get url
