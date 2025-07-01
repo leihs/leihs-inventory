@@ -45,8 +45,11 @@ describe "Call inventory-pool endpoints" do
     context "Creating and retrieving a new model" do
       before :each do
         category = FactoryBot.create(:category)
-        resp = create_model_post(client, @inventory_pool.id, "Example Model", [category.id])
-        expect(resp.status).to eq(200)
+
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
+                                  version: "1")
+        category.add_direct_model(model)
+
       end
 
       it "does not retrieve the new model without access rights, returns 200 status" do
