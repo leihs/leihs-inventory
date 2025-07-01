@@ -12,7 +12,7 @@ describe "Inventory API Endpoints - Departments and Owners" do
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
-    ["/inventory/#{pool_id}/departments/", "/inventory/#{pool_id}/owners/"].each do |url|
+    ["/inventory/45130fae-7bfe-4fe2-bc29-980f15c7dca8/departments/", "/inventory/45130fae-7bfe-4fe2-bc29-980f15c7dca8/owners/"].each do |url|
       context "GET #{url}" do
         it "retrieves all records and returns status 200" do
           resp = client.get url
@@ -27,7 +27,7 @@ describe "Inventory API Endpoints - Departments and Owners" do
           expect(resp.body["data"].count).to eq(1)
 
           id = resp.body["data"][0]["id"]
-          resp = client.get "#{url}/#{id}"
+          resp = client.get "#{url}#{id}"
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(1)
         end
