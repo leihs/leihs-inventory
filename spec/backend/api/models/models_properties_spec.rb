@@ -36,14 +36,14 @@ describe "Inventory API Endpoints - Model Properties" do
         expect(resp.status).to eq(200)
 
         property_id = resp.body["data"][0]["id"]
-        resp = client.get "#{url}/#{property_id}"
+        resp = client.get "#{url}#{property_id}"
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(1)
       end
 
       it "returns no results for an invalid property ID and status 200" do
         invalid_id = SecureRandom.uuid
-        resp = client.get "#{url}/#{invalid_id}"
+        resp = client.get "#{url}#{invalid_id}"
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(0)
       end

@@ -83,14 +83,14 @@
            :middleware [wrap-is-admin!]}}]
 
    ["set-password"
-    {:post {:summary "OK | Set password by basicAuth for already authenticated user"
+    {:post {:summary "Set password by basicAuth for already authenticated user"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :parameters {:body {:new-password1 s/Str}}
             :handler set-password-handler}}]
 
    ["admin/update-role"
-    {:put {:summary "[] OK | DEV | Update direct-user-role [fe]"
+    {:put {:summary "[] DEV | Update direct-user-role [fe]"
            :accept "application/json"
            :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
            :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")

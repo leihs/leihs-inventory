@@ -35,7 +35,7 @@
 
     ;["/model-groups"
     ; ["" {:get {:conflicting true
-    ;            :summary "OK | a.k.a 'Categories'"
+    ;            :summary "a.k.a 'Categories'"
     ;            :description (str (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/categories?search_term=")
     ;                              " - FYI: pool_id is not used by query")
     ;            :accept "application/json"
@@ -56,7 +56,7 @@
 
    ["/model-groups/:model_group_id"
     {:get {:conflicting true
-           :summary "OK | a.k.a 'Categories'"
+           :summary "a.k.a 'Categories'"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]

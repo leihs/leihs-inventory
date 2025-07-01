@@ -24,7 +24,7 @@
 
     ["/entitlement-groups/:entitlement_group_id"
      {:get {:conflicting true
-            :summary "OK | a.k.a 'Anspruchsgruppen'"
+            :summary "a.k.a 'Anspruchsgruppen'"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]

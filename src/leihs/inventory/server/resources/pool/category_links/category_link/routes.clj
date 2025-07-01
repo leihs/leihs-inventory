@@ -36,7 +36,7 @@
    ; {:swagger {:conflicting true
    ;            :tags ["Category-Links"]}}
     ;["" {:get {:conflicting true
-    ;           :summary "OK | Kategorie-Links anzeigen / category_links == model_group_links"
+    ;           :summary "Kategorie-Links anzeigen / category_links == model_group_links"
     ;           :description (create-description "https://staging.leihs.zhdk.ch/category_links")
     ;           :accept "application/json"
     ;           :coercion reitit.coercion.schema/coercion

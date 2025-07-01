@@ -23,7 +23,7 @@
 
     ["/:supplier_id"
      {:get {:conflicting true
-            :summary "OK | Lieferant anzeigen [fe]"
+            :summary "Lieferant anzeigen [fe]"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware session/wrap]
