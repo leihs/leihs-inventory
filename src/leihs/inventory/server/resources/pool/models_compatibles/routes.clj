@@ -25,7 +25,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["models-compatibles/"
+   ["models/compatibles/"
     {:get {:conflicting true
            :summary "[fe]"
            :accept "application/json"
@@ -45,16 +45,18 @@
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["models-compatibles/:model_id"
-    {:get {:conflicting true
-           :summary "[fe]"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
-           :swagger {:produces ["application/json"]}
-           :parameters {:path {:model_id s/Uuid}}
-           :handler get-models-compatible-handler
-           :responses {200 {:description "OK"
-                            :body s/Any}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+   ;["models-compatibles/:model_id"
+   ; {:get {:conflicting true
+   ;        :summary "[fe]"
+   ;        :accept "application/json"
+   ;        :coercion reitit.coercion.schema/coercion
+   ;        :middleware [accept-json-middleware]
+   ;        :swagger {:produces ["application/json"]}
+   ;        :parameters {:path {:model_id s/Uuid}}
+   ;        :handler get-models-compatible-handler
+   ;        :responses {200 {:description "OK"
+   ;                         :body s/Any}
+   ;                    404 {:description "Not Found"}
+   ;                    500 {:description "Internal Server Error"}}}}]
+
+   ])

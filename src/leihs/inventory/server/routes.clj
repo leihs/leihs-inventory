@@ -17,29 +17,30 @@
                                                               ]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
-   [leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
+   ;[leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
    [leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
-   [leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
+   ;[leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
 
-   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
-   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
-   [leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-category-tree-route]]
+   ;[leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   ;[leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
 
-   [leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
+   ;[leihs.inventory.server.resources.pool.category-links.routes :refer [get-category-links-routes]]
 
-   [leihs.inventory.server.resources.pool.departments.department.routes :refer [get-departments-single-routes]]
-   [leihs.inventory.server.resources.pool.departments.routes :refer [get-departments-routes]]
+   ;[leihs.inventory.server.resources.pool.departments.department.routes :refer [get-departments-single-routes]]
+   ;[leihs.inventory.server.resources.pool.departments.routes :refer [get-departments-routes]]
 
-   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
+   ;[leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :refer [get-entitlement-groups-single-routes]]
 
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
-   [leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
+   ;[leihs.inventory.server.resources.pool.fields.field.routes :refer [get-fields-single-routes]]
    [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
-   [leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
 
-   [leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
+   ;[leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
+   ;[leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
+
    [leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
 
    [leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
@@ -50,26 +51,26 @@
 
    [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
 
-   [leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
+   ;[leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
-   [leihs.inventory.server.resources.pool.models.model.entitlements.routes :refer [get-models-single-entitlements-route]]
+   ;[leihs.inventory.server.resources.pool.models.model.entitlements.routes :refer [get-models-single-entitlements-route]]
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
    [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
 
    [leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
-   [leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
+   ;[leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
 
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
-   [leihs.inventory.server.resources.pool.owners.owner.routes :refer [get-owners-single-routes]]
-   [leihs.inventory.server.resources.pool.owners.routes :refer [get-owners-routes]]
+   ;[leihs.inventory.server.resources.pool.owners.owner.routes :refer [get-owners-single-routes]]
+   ;[leihs.inventory.server.resources.pool.owners.routes :refer [get-owners-routes]]
 
-   [leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
-   ;[leihs.inventory.server.resources.pool.categories.tree.routes :refer [get-tree-route]]
+   ;[leihs.inventory.server.resources.pool.properties.routes :refer [get-properties-routes]]
+   ;[leihs.inventory.server.resources.pool.category-tree.routes :refer [get-tree-route]]
    ;[leihs.inventory.server.resources.pool.owner-department.routes :refer [get-owner-department-routes]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
-   [leihs.inventory.server.resources.pool.suppliers.supplier.routes :refer [get-suppliers-single-routes]]
+   ;[leihs.inventory.server.resources.pool.suppliers.supplier.routes :refer [get-suppliers-single-routes]]
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
    ;[leihs.inventory.server.resources.pool.user.routes :refer [get-user-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
@@ -104,11 +105,12 @@
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [(get-departments-routes)
-                     (get-departments-single-routes)
+  (let [core-routes [
+                     ;(get-departments-routes)
+                     ;(get-departments-single-routes)
 
-                     (get-owners-routes)
-                     (get-owners-single-routes)
+                     ;(get-owners-routes)
+                     ;(get-owners-single-routes)
 
                      (get-models-route)
                      (get-models-single-route)
@@ -117,36 +119,36 @@
 
                      (get-buildings-rooms-routes)
                      (get-models-single-items-route)
-                     (get-models-single-entitlements-route)
+                     ;(get-models-single-entitlements-route)
 
-                     (get-models-single-accessories-route)
+                     ;(get-models-single-accessories-route)
 
                      (get-models-single-model-links-route)
 
 ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
-                     (get-categories-routes)
+                     ;(get-categories-routes)
                      (get-attachments-routes)
 
                      (get-entitlement-groups-routes)
-                     (get-entitlement-groups-single-routes)
+                     ;(get-entitlement-groups-single-routes)
 
-                     (get-groups-routes)
-                     (get-groups-single-routes)
+                     ;(get-groups-routes)
+                     ;(get-groups-single-routes)
 
                      (get-profile-routes)
 
-                     (get-models-single-properties-route)
+                     ;(get-models-single-properties-route)
 
                      (get-models-compatibles-route)
                      (get-manufacturers-routes)
 
-                     (get-pool-by-access-right-routes)
+                     ;(get-pool-by-access-right-routes)
 
-                     (get-category-links-routes)
+                     ;(get-category-links-routes)
                      (get-category-tree-route)
-                     (get-categories-routes)
-                     (get-categories-category-route)
+                     ;(get-categories-routes)
+                     ;(get-categories-category-route)
 
                      (get-images-routes)
                      (get-images-image-routes)
@@ -156,13 +158,14 @@
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                              [(get-suppliers-routes)
-                              (get-suppliers-single-routes)
+                              ;(get-suppliers-single-routes)
 
                               (get-fields-routes)
-                              (get-fields-single-routes)
+                              ;(get-fields-single-routes)
                               (get-export-routes)
                               (get-items-routes)
-                              (get-properties-routes)])
+                              ;(get-properties-routes)
+                               ])
                            (when APPLY_DEV_ENDPOINTS
                              [(get-dev-routes)]))]
 

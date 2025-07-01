@@ -1,5 +1,7 @@
-(ns leihs.inventory.server.resources.pool.categories.tree.types
-  (:require
+;(ns leihs.inventory.server.resources.pool.category-tree.types
+  (ns leihs.inventory.server.resources.pool.category-tree.types
+
+    (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
    [leihs.core.resources.categories.filter :as filter]

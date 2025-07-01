@@ -15,6 +15,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
+   ;; TODO: move to *
    ["images/"
     {:get {:conflicting true
            :accept "application/json"

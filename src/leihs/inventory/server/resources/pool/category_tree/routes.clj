@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.categories.tree.routes
+(ns leihs.inventory.server.resources.pool.category-tree.routes
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
@@ -6,8 +6,8 @@
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
 
-   [leihs.inventory.server.resources.pool.categories.tree.main :refer [get-categories-hierarchically]]
-   [leihs.inventory.server.resources.pool.categories.tree.types :as t]
+   [leihs.inventory.server.resources.pool.category-tree.main :refer [get-categories-hierarchically]]
+   [leihs.inventory.server.resources.pool.category-tree.types :as t]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -18,13 +18,13 @@
 
 (defn get-category-tree-route []
 
-  ["/:pool_id/tree/"
+  ["/:pool_id/category-tree/"
    {:swagger {:conflicting true
               :tags []}}
 
    [""
     {:get {:accept "application/json"
-           :summary "Dynamic-Tree-Handler [fe]"
+           :summary "Dynamic-Tree-Handler [fe] DEPRECATED"
            :description "Fetch tree
 
 - `with-metadata` provides additional metadata, including a base64-encoded image URL.
