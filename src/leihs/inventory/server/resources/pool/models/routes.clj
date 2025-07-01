@@ -90,21 +90,25 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      :post {:conflicting true
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :description "FYI: Use /model-group endpoint to view the category_id's"
-             :middleware [accept-json-middleware]
-             :swagger {:produces ["application/json" "text/html"]}
-             :parameters {:path {:pool_id s/Uuid}
-                          :body {:product s/Str
-                                 :category_ids [s/Uuid]
-                                 :version s/Str
-                                 (s/optional-key :type) (s/enum "Software" "Model")
-                                 (s/optional-key :is_package) s/Bool}}
+      ;:post {:conflicting true
+      ;       :accept "application/json"
+      ;       :coercion reitit.coercion.schema/coercion
+      ;       :description "FYI: Use /model-group endpoint to view the category_id's"
+      ;       :middleware [accept-json-middleware]
+      ;       :swagger {:produces ["application/json" "text/html"]}
+      ;       :parameters {:path {:pool_id s/Uuid}
+      ;                    :body {:product s/Str
+      ;                           :category_ids [s/Uuid]
+      ;                           :version s/Str
+      ;                           (s/optional-key :type) (s/enum "Software" "Model")
+      ;                           (s/optional-key :is_package) s/Bool}}
+      ;
+      ;       :handler create-model-handler-by-pool
+      ;       :responses {200 {:description "OK"
+      ;                        :body s/Any}
+      ;                   404 {:description "Not Found"}
+      ;                   500 {:description "Internal Server Error"}}}
 
-             :handler create-model-handler-by-pool
-             :responses {200 {:description "OK"
-                              :body s/Any}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]])
+      }
+
+     ]]])
