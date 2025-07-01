@@ -91,7 +91,7 @@ describe "Inventory Model" do
           )
           expect(resp.status).to eq(401)
 
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(401)
 
           # update model request
@@ -107,7 +107,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(401)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(401)
         end
       end
@@ -140,7 +140,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(401)
 
           # fetch created model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(401)
 
           # update model request
@@ -166,7 +166,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(401)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(401)
         end
       end
