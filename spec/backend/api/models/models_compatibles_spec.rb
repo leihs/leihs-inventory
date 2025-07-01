@@ -9,6 +9,8 @@ describe "Inventory API Endpoints - Compatible Models" do
     @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
   end
 
+let(:pool_id) { Faker::Internet.uuid }
+
   context "when fetching specific compatible models" do
     let(:compatible1) { FactoryBot.create(:leihs_model, id: SecureRandom.uuid) }
     let(:compatible2) { FactoryBot.create(:leihs_model, id: SecureRandom.uuid) }
