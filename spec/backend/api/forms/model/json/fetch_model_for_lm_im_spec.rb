@@ -106,7 +106,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -114,7 +114,7 @@ describe "Inventory Model" do
 
           # fetch created model
           model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(0)
           expect(resp.body["attachments"].count).to eq(0)
@@ -132,7 +132,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
@@ -141,7 +141,7 @@ describe "Inventory Model" do
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(0)
           expect(resp.body["attachments"].count).to eq(0)
@@ -173,7 +173,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -181,7 +181,7 @@ describe "Inventory Model" do
 
           # fetch created model
           model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["compatibles"].count).to eq(1)
           expect(resp.body["categories"].count).to eq(1)
@@ -212,7 +212,7 @@ describe "Inventory Model" do
           # data = [{"id" => model_id, "is_cover" => @image_id}]
           data = {"is_cover" => @image_id}
           resp = json_client_patch(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: data,
             headers: cookie_header
           )
@@ -265,7 +265,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
@@ -274,7 +274,7 @@ describe "Inventory Model" do
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(2)
           expect(resp.body["attachments"].count).to eq(1)
@@ -342,7 +342,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -359,7 +359,7 @@ describe "Inventory Model" do
 
           # fetch created model
           model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           resp.body["images"]
           resp.body["attachments"]
 
@@ -430,7 +430,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
@@ -444,7 +444,7 @@ describe "Inventory Model" do
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           # expect(validate_map_structure(resp.body.first, get_response)).to eq(true)
           # expect(compare_values(resp.body, form_data,
