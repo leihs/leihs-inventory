@@ -38,7 +38,6 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
 
       it "creates a model and returns status 200" do
         expect(response.status).to eq(200)
-        # binding.pry
         expect(response.body["data"]["id"]).to be_present
         expect(response.body.count).to eq(2)
         expect_audit_entries_count(1, 8, 1)
@@ -60,18 +59,17 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
         end
 
         expect(updated_response.status).to eq(200)
-        binding.pry
+
         expect(updated_response.body["data"]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
       end
 
       it "deletes a model and verifies it is removed" do
-        # binding.pry
         model_id = response.body["data"]["id"]
         delete_response = client.delete("#{url}#{model_id}")
 
         expect(delete_response.status).to eq(200)
-        binding.pry
+
         # expect(delete_response.body["data"]["id"]).to eq(model_id)
         expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
