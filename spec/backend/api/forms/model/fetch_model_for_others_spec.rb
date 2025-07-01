@@ -85,14 +85,14 @@ describe "Inventory Model" do
           # create model request
           form_data = {"product" => Faker::Commerce.product_name}
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
 
           # update model request
           form_data = {
@@ -100,15 +100,15 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
         end
       end
 
@@ -133,15 +133,15 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch created model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
 
           # update model request
           form_data = {
@@ -159,15 +159,15 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
         end
       end
     end

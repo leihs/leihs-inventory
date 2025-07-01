@@ -48,8 +48,7 @@ def convert_to_id_correction(compatibles)
 end
 
 describe "Inventory Model" do
-  # ["inventory_manager", "lending_manager"].each do |role|
-  ["inventory_manager"].each do |role|
+  ["inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header

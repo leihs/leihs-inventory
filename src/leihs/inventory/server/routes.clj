@@ -293,7 +293,7 @@
      ;         :handler set-password-handler}}]
      ]
     ["/"
-     {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
+     {:swagger {:tags [] :security [{:csrfToken []}]}}
 
      ["test-csrf"
       {:no-doc HIDE_BASIC_ENDPOINTS
