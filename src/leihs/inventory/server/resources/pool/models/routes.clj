@@ -107,6 +107,4 @@
              :responses {200 {:description "OK"
                               :body s/Any}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}
-
-     ]]])
+                         500 {:description "Internal Server Error"}}}}]]])

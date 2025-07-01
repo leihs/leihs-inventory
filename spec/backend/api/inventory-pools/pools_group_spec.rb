@@ -46,10 +46,9 @@ describe "Call inventory-pool endpoints" do
       before :each do
         category = FactoryBot.create(:category)
 
-        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
-                                  version: "1")
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+          version: "1")
         category.add_direct_model(model)
-
       end
 
       it "does not retrieve the new model without access rights, returns 200 status" do

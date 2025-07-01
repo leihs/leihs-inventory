@@ -28,18 +28,18 @@
     ;; by pool id
     ["/accessories"
      ["/" {:get {:accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-                :middleware [accept-json-middleware]
-                :swagger {:produces ["application/json"]}
-                :parameters {:path {:pool_id s/Uuid
-                                    :model_id s/Uuid}}
-                :handler get-accessories-of-pool-handler
-                :responses {200 {:description "OK"
+                 :coercion reitit.coercion.schema/coercion
+                 :middleware [accept-json-middleware]
+                 :swagger {:produces ["application/json"]}
+                 :parameters {:path {:pool_id s/Uuid
+                                     :model_id s/Uuid}}
+                 :handler get-accessories-of-pool-handler
+                 :responses {200 {:description "OK"
                                  ;:body (s/->Either [s/Any schema])}
-                                 :body s/Any}
+                                  :body s/Any}
 
-                            404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
+                             404 {:description "Not Found"}
+                             500 {:description "Internal Server Error"}}}}]
 
      ["/:accessory_id"
       {:get {:accept "application/json"

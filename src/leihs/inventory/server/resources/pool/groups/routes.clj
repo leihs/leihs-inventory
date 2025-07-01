@@ -32,13 +32,13 @@
 
     ["/groups"
      ["/" {:get {:conflicting true
-                :accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-                :middleware [accept-json-middleware]
-                :swagger {:produces ["application/json"]}
-                :parameters {:path {:pool_id s/Uuid}}
-                :handler get-groups-of-pool-handler
-                :responses {200 {:description "OK"
-                                 :body s/Any}
-                            404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]])
+                 :accept "application/json"
+                 :coercion reitit.coercion.schema/coercion
+                 :middleware [accept-json-middleware]
+                 :swagger {:produces ["application/json"]}
+                 :parameters {:path {:pool_id s/Uuid}}
+                 :handler get-groups-of-pool-handler
+                 :responses {200 {:description "OK"
+                                  :body s/Any}
+                             404 {:description "Not Found"}
+                             500 {:description "Internal Server Error"}}}}]]]])

@@ -9,7 +9,6 @@ describe "Call inventory-pool endpoints" do
 
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
-
       @models = 3.times.map do
         FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
       end
@@ -22,7 +21,6 @@ describe "Call inventory-pool endpoints" do
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     let(:pool_id) { @inventory_pool.id }
-
 
     context "with direct access rights as a group manager" do
       before :each do
@@ -47,8 +45,8 @@ describe "Call inventory-pool endpoints" do
     context "when creating a new model and retrieving it from the pool" do
       before :each do
         category = FactoryBot.create(:category, name: "Test-ModelGroup")
-        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
-                          version: "1")
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+          version: "1")
 
         category.add_direct_model(model)
       end

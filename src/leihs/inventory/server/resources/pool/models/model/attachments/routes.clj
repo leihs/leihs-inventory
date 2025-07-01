@@ -24,7 +24,6 @@
    {:swagger {:conflicting true
               :tags []}}
 
-
    [":pool_id/models"
 
     ["/:model_id"

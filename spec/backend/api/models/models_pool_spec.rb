@@ -55,12 +55,11 @@ describe "Swagger Inventory Endpoints - Models" do
         # @model_id = resp.body[0]["id"]
 
         category = FactoryBot.create(:category, name: Faker::Company.name)
-        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
-                                  version: "1")
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+          version: "1")
 
         category.add_direct_model(model)
         @model_id = model.id
-
       end
 
       it "returns one model after creation and returns status 200" do
@@ -72,8 +71,8 @@ describe "Swagger Inventory Endpoints - Models" do
       context "when adding another model" do
         before :each do
           category = FactoryBot.create(:category, name: Faker::Company.name)
-          model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
-                                    version: "1")
+          model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+            version: "1")
 
           category.add_direct_model(model)
         end

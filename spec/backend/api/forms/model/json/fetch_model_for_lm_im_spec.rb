@@ -9,7 +9,7 @@ def add_delete_flag(map)
   map
 end
 
-post_response = {
+{
   "description" => String,
   "is_package" => [TrueClass, FalseClass],
   "maintenance_period" => Numeric,
@@ -206,7 +206,6 @@ describe "Inventory Model" do
             @image_id = resp.body["image"]["id"]
 
             puts "Created image with ID: #{@image_id}"
-
           end
 
           # Optional request, if is_cover has been set/modified
@@ -218,7 +217,6 @@ describe "Inventory Model" do
             headers: cookie_header
           )
 
-
           expect(resp.status).to eq(200)
 
           # FIXME
@@ -227,8 +225,6 @@ describe "Inventory Model" do
 
           # expect(resp.body["data"]["id"]).to eq(model_id)
           # expect(resp.body["data"]["cover_image_id"]).to eq(@image_id)
-
-
 
           # create attachment
           attachments = [File.open(path_test_pdf, "rb")]

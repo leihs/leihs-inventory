@@ -108,9 +108,6 @@ describe "Inventory Model" do
         end
       end
 
-
-
-
       context "create model (min)" do
         it "creates a model with all available attributes" do
           # create model request

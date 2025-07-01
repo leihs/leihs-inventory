@@ -1,8 +1,7 @@
 (ns leihs.inventory.server.resources.pool.categories.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.categories.main :refer [get-model-groups-of-pool-handler
-                                                                  ]]
+   [leihs.inventory.server.resources.pool.categories.main :refer [get-model-groups-of-pool-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -40,8 +39,4 @@
                                         :created_at s/Any
                                         :updated_at s/Any}]}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]
-
-    ]
-
-   ])
+                           500 {:description "Internal Server Error"}}}}]]])

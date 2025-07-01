@@ -31,5 +31,4 @@
             :responses {200 {:description "OK"
                              :body resp-owners}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-   ])
+                        500 {:description "Internal Server Error"}}}}]]])
