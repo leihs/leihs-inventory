@@ -19,6 +19,7 @@ def create_models(count = 3)
   @models
 end
 
+# FIXME: DEPRECATED
 def create_model_post(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
     req.body = {
