@@ -36,7 +36,7 @@ describe "Inventory API Endpoints - Entitlements" do
         expect(resp.status).to eq(200)
 
         entitlement_id = resp.body["data"][0]["id"]
-        resp = client.get "#{url}/#{entitlement_id}"
+        resp = client.get "#{url}#{entitlement_id}"
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(1)
         expect(resp.body["data"][0]["id"]).to eq(entitlement_id)
@@ -44,7 +44,7 @@ describe "Inventory API Endpoints - Entitlements" do
 
       it "returns no results for an invalid entitlement ID with status 200" do
         invalid_id = SecureRandom.uuid
-        resp = client.get "#{url}/#{invalid_id}"
+        resp = client.get "#{url}#{invalid_id}"
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(0)
       end
