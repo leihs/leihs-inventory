@@ -77,7 +77,7 @@ describe "Inventory Model" do
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/models-compatibles/"
+        resp = client.get "/inventory/#{pool_id}/models-compatibles/"
         @form_models_compatibles = convert_to_id_correction(resp.body)
         raise "Failed to fetch compatible models" unless resp.status == 200
 
@@ -107,6 +107,9 @@ describe "Inventory Model" do
           expect(@form_model_groups.count).to eq(2)
         end
       end
+
+
+
 
       context "create model (min)" do
         it "creates a model with all available attributes" do
@@ -150,7 +153,7 @@ describe "Inventory Model" do
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
 
           expect(resp.body["images"].count).to eq(0)
           expect(resp.body["attachments"].count).to eq(0)
@@ -208,7 +211,7 @@ describe "Inventory Model" do
 
           image_id = image_responses.first["image"]["id"]
           resp = json_client_patch(
-            "/inventory/#{pool_id}/model/#{model_id}",
+            "/inventory/#{pool_id}/model/#{model_id}/",
             body: {"is_cover" => image_id},
             headers: cookie_header
           )
@@ -229,7 +232,7 @@ describe "Inventory Model" do
           }
 
           # fetch created model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
 
           expect(resp.body["images"].count).to eq(2)
           expect(resp.body["attachments"].count).to eq(1)
@@ -257,7 +260,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}",
+            "/inventory/#{pool_id}/model/#{model_id}/",
             body: form_data,
             headers: cookie_header
           )
@@ -265,7 +268,7 @@ describe "Inventory Model" do
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
 
           expect(resp.body["images"].count).to eq(2)
           expect(resp.body["attachments"].count).to eq(1)
@@ -293,7 +296,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # verify deleted image & attachment
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.body["images"].count).to eq(1)
           expect(resp.body["attachments"].count).to eq(0)
         end
@@ -316,12 +319,12 @@ describe "Inventory Model" do
 
           # fetch created model
           model_id = resp.body["data"]["id"]
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(200)
 
           # delete model request
           resp = json_client_delete(
-            "/inventory/#{pool_id}/model/#{model_id}",
+            "/inventory/#{pool_id}/model/#{model_id}/",
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -330,14 +333,14 @@ describe "Inventory Model" do
 
           # retry to delete model request
           resp = json_client_delete(
-            "/inventory/#{pool_id}/model/#{model_id}",
+            "/inventory/#{pool_id}/model/#{model_id}/",
             headers: cookie_header
           )
           expect(resp.status).to eq(404)
           expect(resp.body["error"]).to eq("Model not found")
 
           # no results when fetching deleted model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
+          resp = client.get "/inventory/#{pool_id}/model/#{model_id}/"
           expect(resp.status).to eq(404)
         end
       end

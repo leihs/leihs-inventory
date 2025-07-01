@@ -96,7 +96,7 @@
                          500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
-     [""
+     ["/"
       {:get {:accept "application/json"
              :summary "Form-Handler: Fetch model data (JSON) [fe]"
              :coercion spec/coercion
@@ -144,19 +144,49 @@
                                                          :product string?
                                                          :manufacturer any?}]}}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]
-     ["/"
-      {:put {:accept "application/json"
-             :summary "Form-Handler: Update model data (JSON) [fe]"
-             :coercion spec/coercion
-             :description description-model-form
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}
-                          :body :model/multipart}
-             :handler update-model-handler-by-pool-model-json
-             :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]])
+                            500 {:description "Internal Server Error"}}}
+
+       ;["/"
+       ; {
+
+         :put {:accept "application/json"
+               :summary "Form-Handler: Update model data (JSON) [fe]"
+               :coercion spec/coercion
+               :description description-model-form
+               :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+               :parameters {:path {:pool_id uuid?
+                                   :model_id uuid?}
+                            :body :model/multipart}
+               :handler update-model-handler-by-pool-model-json
+               :responses {200 {:description "OK"
+                                :body {:data :model-optional-response/inventory-model
+                                       :validation any?}}
+                           404 {:description "Not Found"}
+                           500 {:description "Internal Server Error"}}}
+
+         ;}]
+
+
+       }]
+     ;["/"
+     ; {
+     ;
+     ;  :put {:accept "application/json"
+     ;        :summary "Form-Handler: Update model data (JSON) [fe]"
+     ;        :coercion spec/coercion
+     ;        :description description-model-form
+     ;        :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+     ;        :parameters {:path {:pool_id uuid?
+     ;                            :model_id uuid?}
+     ;                     :body :model/multipart}
+     ;        :handler update-model-handler-by-pool-model-json
+     ;        :responses {200 {:description "OK"
+     ;                         :body {:data :model-optional-response/inventory-model
+     ;                                :validation any?}}
+     ;                    404 {:description "Not Found"}
+     ;                    500 {:description "Internal Server Error"}}}
+     ;
+     ;  }]
+
+
+     ]]])
