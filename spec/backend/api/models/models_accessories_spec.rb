@@ -43,7 +43,7 @@ describe "Inventory API Endpoints - Accessories" do
 
           # accessory_id = resp.body["data"][0]["id"]
           accessory_id = resp.body.first["id"]
-          resp = client.get "#{url}/#{accessory_id}"
+          resp = client.get "#{url}#{accessory_id}"
           expect(resp.body.count).to eq(1)
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(1)
@@ -51,7 +51,7 @@ describe "Inventory API Endpoints - Accessories" do
 
         it "returns empty results for an invalid accessory ID with status 200" do
           invalid_id = SecureRandom.uuid
-          resp = client.get "#{url}/#{invalid_id}"
+          resp = client.get "#{url}#{invalid_id}"
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(0)
         end
