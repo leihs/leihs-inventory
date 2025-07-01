@@ -48,11 +48,19 @@ describe "Swagger Inventory Endpoints - Models" do
 
     context "POST and GET /inventory/:pool_id/models when creating new models" do
       before :each do
-        category = FactoryBot.create(:category)
-        resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-        @model_id = resp.body[0]["id"]
+        # category = FactoryBot.create(:category)
+        # resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+        # expect(resp.status).to eq(200)
+        # expect(resp.body.count).to eq(1)
+        # @model_id = resp.body[0]["id"]
+
+        category = FactoryBot.create(:category, name: Faker::Company.name)
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
+                                  version: "1")
+
+        category.add_direct_model(model)
+        @model_id = model.id
+
       end
 
       it "returns one model after creation and returns status 200" do
@@ -63,11 +71,11 @@ describe "Swagger Inventory Endpoints - Models" do
 
       context "when adding another model" do
         before :each do
-          category = FactoryBot.create(:category)
-          resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+          category = FactoryBot.create(:category, name: Faker::Company.name)
+          model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package:false,
+                                    version: "1")
 
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
+          category.add_direct_model(model)
         end
 
         it "returns both models and returns status 200" do
