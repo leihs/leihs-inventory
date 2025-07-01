@@ -16,7 +16,7 @@ describe "Swagger Inventory Endpoints - Models with audits" do
       session_auth_plain_faraday_json_client(cookies: @user_cookies, headers: headers)
     }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/model/" }
+    let(:url) { "/inventory/#{inventory_pool_id}/models/" }
     let(:delete_url) { "/inventory/#{inventory_pool_id}/models/" }
 
     context "CRUD operations for model management" do
@@ -47,7 +47,7 @@ describe "Swagger Inventory Endpoints - Models with audits" do
         # binding.pry
         model_id = response.body["data"]["id"]
 
-        updated_response = client.put("#{url}#{model_id}/") do |req|
+        updated_response = client.put("#{url}#{model_id}") do |req|
           req.body = {
             product: "Example Model 2",
             # type: "Model",
@@ -71,9 +71,10 @@ describe "Swagger Inventory Endpoints - Models with audits" do
         model_id = response.body["data"]["id"]
         delete_response = client.delete("#{delete_url}#{model_id}")
 
+        # binding.pry
         expect(delete_response.status).to eq(200)
-        # expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
-        expect(delete_response.body[0]["id"]).to eq(model_id)
+        expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
+        # expect(delete_response.body[0]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
 
         check_deleted_response = client.get("#{url}#{model_id}")
