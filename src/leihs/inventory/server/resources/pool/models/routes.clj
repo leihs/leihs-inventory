@@ -35,7 +35,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/model"
+   ["/models"
 
     ["/"
      {:post {:accept "application/json"

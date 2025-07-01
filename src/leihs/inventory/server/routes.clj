@@ -314,7 +314,7 @@
                 :handler (fn [_] {:status 200})}}]]
 
     ["/"
-     {:swagger {:tags ["CSRF"] :security []}}
+     {:swagger {:tags [] :security []}}
 
      ["csrf-token"
       {:no-doc false
