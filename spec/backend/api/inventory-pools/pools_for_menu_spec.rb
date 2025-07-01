@@ -59,7 +59,7 @@ describe "Call inventory-pool endpoints" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
 
-        profile = admin_client.get "/inventory/profile"
+        profile = admin_client.get "/inventory/profile/"
         expect(profile.status).to eq(200)
         expect(profile.body["available_inventory_pools"].count).to eq(4)
       end
@@ -81,19 +81,19 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "returns group-accessible pools via /inventory/pools/" do
-        resp = admin_client.get "/inventory/pools"
+        resp = admin_client.get "/inventory/pools/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns group-accessible pools via /inventory/profile/" do
-        resp = admin_client.get "/inventory/profile"
+        resp = admin_client.get "/inventory/profile/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns zero direct access pools" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=direct_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=direct_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(0)
       end
@@ -120,19 +120,19 @@ describe "Call inventory-pool endpoints" do
       end
 
       it "returns directly accessible pools via /inventory/pools/" do
-        resp = admin_client.get "/inventory/pools"
+        resp = admin_client.get "/inventory/pools/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns directly accessible pools via /inventory/profile/" do
-        resp = admin_client.get "/inventory/profile"
+        resp = admin_client.get "/inventory/profile/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
 
       it "returns only direct access pools via /pools-by-access-right/" do
-        resp = admin_client.get "/inventory/pools-by-access-right?access_rights=direct_access_rights"
+        resp = admin_client.get "/inventory/pools-by-access-right/?access_rights=direct_access_rights"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(4)
       end
