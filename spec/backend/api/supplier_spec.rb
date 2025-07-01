@@ -10,7 +10,8 @@ describe "Inventory API Endpoints - Supplier" do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
     end
 
-    let(:url) { "/inventory/#{pool_id}/supplier/" }
+    let(:pool_id) { @inventory_pool.id }
+    let(:url) { "/inventory/#{pool_id}/suppliers/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:supplier_id) { resp.body[0]["id"] }
@@ -29,7 +30,7 @@ describe "Inventory API Endpoints - Supplier" do
       end
 
       it "retrieves specific supplier details by ID and returns status 200" do
-        resp = client.get "#{url}/#{supplier_id}"
+        resp = client.get "#{url}#{supplier_id}"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)
         expect(resp.body[0]["id"]).to eq(supplier_id)
