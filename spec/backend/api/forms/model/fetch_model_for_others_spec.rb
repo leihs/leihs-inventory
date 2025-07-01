@@ -46,7 +46,7 @@ describe "Inventory Model" do
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/models-compatibles/"
+        resp = client.get "/inventory/#{pool_id}/models/compatibles/"
         @form_models_compatibles = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
