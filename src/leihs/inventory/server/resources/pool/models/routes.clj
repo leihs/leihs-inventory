@@ -35,22 +35,22 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["/models"
-
-    ["/"
-     {:post {:accept "application/json"
-             :summary "Form-Handler: Create model (JSON) [fe]"
-             :description description-model-form
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?}
-                          :body :model/multipart}
-             :handler create-model-handler-by-pool-model-json
-             :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]
+   ;["/models"
+   ;
+   ; ["/"
+   ;  {:post {:accept "application/json"
+   ;          :summary "Form-Handler: Create model (JSON) [fe]"
+   ;          :description description-model-form
+   ;          :coercion spec/coercion
+   ;          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+   ;          :parameters {:path {:pool_id uuid?}
+   ;                       :body :model/multipart}
+   ;          :handler create-model-handler-by-pool-model-json
+   ;          :responses {200 {:description "OK"
+   ;                           :body {:data :model-optional-response/inventory-model
+   ;                                  :validation any?}}
+   ;                      404 {:description "Not Found"}
+   ;                      500 {:description "Internal Server Error"}}}}]]
 
 ;; Routes for /inventory/<pool-id>/*
    ;; TODO: should be? ["/models/list"
@@ -90,22 +90,22 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-      ;:post {:conflicting true
-      ;       :accept "application/json"
-      ;       :coercion reitit.coercion.schema/coercion
-      ;       :description "FYI: Use /model-group endpoint to view the category_id's"
-      ;       :middleware [accept-json-middleware]
-      ;       :swagger {:produces ["application/json" "text/html"]}
-      ;       :parameters {:path {:pool_id s/Uuid}
-      ;                    :body {:product s/Str
-      ;                           :category_ids [s/Uuid]
-      ;                           :version s/Str
-      ;                           (s/optional-key :type) (s/enum "Software" "Model")
-      ;                           (s/optional-key :is_package) s/Bool}}
-      ;
-      ;       :handler create-model-handler-by-pool
-      ;       :responses {200 {:description "OK"
-      ;                        :body s/Any}
-      ;                   404 {:description "Not Found"}
-      ;                   500 {:description "Internal Server Error"}}}
-      }]]])
+
+
+      :post {:accept "application/json"
+             :summary "Form-Handler: Create model (JSON) [fe]"
+             :description description-model-form
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?}
+                          :body :model/multipart}
+             :handler create-model-handler-by-pool-model-json
+             :responses {200 {:description "OK"
+                              :body {:data :model-optional-response/inventory-model
+                                     :validation any?}}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}
+
+      }
+    ]
+   ]])

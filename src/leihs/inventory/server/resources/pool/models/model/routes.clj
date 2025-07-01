@@ -80,20 +80,20 @@
 
 ;; Model-Form endpoints
    ["/models"
-    ["/"
-     {:post {:accept "application/json"
-             :summary "Form-Handler: Create model (JSON) [fe]"
-             :description description-model-form
-             :coercion spec/coercion
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :parameters {:path {:pool_id uuid?}
-                          :body :model/multipart}
-             :handler create-model-handler-by-pool-model-json
-             :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
-                         404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]
+;    ["/"
+;     {:post {:accept "application/json"
+;             :summary "Form-Handler: Create model (JSON) [fe]"
+;             :description description-model-form
+;             :coercion spec/coercion
+;             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+;             :parameters {:path {:pool_id uuid?}
+;                          :body :model/multipart}
+;             :handler create-model-handler-by-pool-model-json
+;             :responses {200 {:description "OK"
+;                              :body {:data :model-optional-response/inventory-model
+;                                     :validation any?}}
+;                         404 {:description "Not Found"}
+;                         500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
      [""
