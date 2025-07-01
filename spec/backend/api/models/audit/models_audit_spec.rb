@@ -17,6 +17,7 @@ describe "Swagger Inventory Endpoints - Models with audits" do
     }
     let(:inventory_pool_id) { @inventory_pool.id }
     let(:url) { "/inventory/#{inventory_pool_id}/model/" }
+    let(:delete_url) { "/inventory/#{inventory_pool_id}/models/" }
 
     context "CRUD operations for model management" do
       let(:response) {
@@ -36,7 +37,6 @@ describe "Swagger Inventory Endpoints - Models with audits" do
 
       it "creates a model and returns status 200" do
         expect(response.status).to eq(200)
-        binding.pry
         # expect(response.body[0]["id"]).to be_present
         expect(response.body["data"]["id"]).to be_present
         # expect(response.body.count).to eq(1)
@@ -69,11 +69,11 @@ describe "Swagger Inventory Endpoints - Models with audits" do
 
       it "deletes a model and verifies it is removed" do
         model_id = response.body["data"]["id"]
-        delete_response = client.delete("#{url}#{model_id}")
+        delete_response = client.delete("#{delete_url}#{model_id}")
 
         expect(delete_response.status).to eq(200)
-        binding.pry
-        expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
+        # expect(delete_response.body["deleted_model"][0]["id"]).to eq(model_id)
+        expect(delete_response.body[0]["id"]).to eq(model_id)
         expect_audit_entries_count(2, 9, 2)
 
         check_deleted_response = client.get("#{url}#{model_id}")
