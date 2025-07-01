@@ -19,6 +19,8 @@ describe "Inventory API Endpoints" do
       end
     end
 
+    let(:pool_id) { @inventory_pool.id }
+
     before do
       @admin, @admin_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
     end
