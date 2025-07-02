@@ -49,7 +49,7 @@
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
 
-   [leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
+   ;[leihs.inventory.server.resources.pool.models-compatibles.routes :refer [get-models-compatibles-route]]
 
    ;[leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
@@ -140,7 +140,7 @@
 
                      ;(get-models-single-properties-route)
 
-                     (get-models-compatibles-route)
+                     ;(get-models-compatibles-route)
                      (get-manufacturers-routes)
 
                      ;(get-pool-by-access-right-routes)
