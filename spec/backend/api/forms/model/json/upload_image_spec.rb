@@ -5,6 +5,25 @@ require_relative "../../_common"
 require "faker"
 require "marcel"
 
+def upload_image(file_path)
+  file = File.open(file_path, "rb")
+  content_type = Marcel::MimeType.for(file)
+  headers = cookie_header.merge(
+    "Content-Type" => content_type,
+    "X-Filename" => File.basename(file.path),
+    "Content-Length" => File.size(file.path).to_s
+  )
+
+  response = json_client_post(
+    "/inventory/models/#{model_id}/images",
+    body: file,
+    headers: headers,
+    is_binary: true
+  )
+  file.close
+  response
+end
+
 describe "Inventory Model" do
   ["inventory_manager", "customer"].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -67,6 +86,27 @@ describe "Inventory Model" do
             expect(response.body["error"]).to eq("Failed to upload image")
           end
         end
+
+        context 'upload & fetch image' do
+          before :each do
+            @upload_response = upload_image(path_valid_png)
+          end
+
+          it 'fetches image' do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/images/#{image_id}"
+            expect(resp.status).to eq(200)
+          end
+
+          it 'fetches image-thumbnail' do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/images/#{image_id}/thumbnail"
+            expect(resp.status).to eq(200)
+          end
+        end
+
       end
     end
   end
