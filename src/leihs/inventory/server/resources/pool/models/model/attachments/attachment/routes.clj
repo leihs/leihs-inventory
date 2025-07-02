@@ -1,7 +1,7 @@
-(ns leihs.inventory.server.resources.pool.attachments.routes
+(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.attachments.main :refer [get-attachments-handler]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :refer [get-attachments-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -9,12 +9,12 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-attachments-routes []
+(defn get-models-model-attachments-single-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}
 
-   ["attachments/:id"
+   ["models/:model_id/attachments/:id"
     {:get {:conflicting true
            :summary "[fe]"
            :accept "application/json"

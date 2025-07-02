@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.images.image.main
+(ns leihs.inventory.server.resources.pool.models.model.images.image.main
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]

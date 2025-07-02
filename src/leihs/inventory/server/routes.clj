@@ -18,7 +18,7 @@
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    ;[leihs.inventory.server.resources.pool-by-access-right.routes :refer [get-pool-by-access-right-routes]]
-   [leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
+   ;[leihs.inventory.server.resources.pool.attachments.routes :refer [get-attachments-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    ;[leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
 
@@ -41,9 +41,9 @@
    ;[leihs.inventory.server.resources.pool.groups.group.routes :refer [get-groups-single-routes]]
    ;[leihs.inventory.server.resources.pool.groups.routes :refer [get-groups-routes]]
 
-   [leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
+   ;[leihs.inventory.server.resources.pool.images.image.routes :refer [get-images-image-routes]]
 
-   [leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
+   ;[leihs.inventory.server.resources.pool.images.image.thumbnail.routes :refer [get-images-image-thumbnail-routes]]
    [leihs.inventory.server.resources.pool.images.routes :refer [get-images-routes]]
 
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
@@ -53,6 +53,12 @@
 
    ;[leihs.inventory.server.resources.pool.models.model.accessories.routes :refer [get-models-single-accessories-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :refer [get-models-model-attachments-single-routes]]
+
+   [leihs.inventory.server.resources.pool.models.model.images.image.routes :refer [get-models-images-image-routes]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :refer [get-models-images-single-thumbnail-routes]]
+
+
    ;[leihs.inventory.server.resources.pool.models.model.entitlements.routes :refer [get-models-single-entitlements-route]]
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
    [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
@@ -114,7 +120,13 @@
 
                      (get-models-route)
                      (get-models-single-route)
+
+                     (get-models-images-image-routes)
+
+                     (get-models-images-single-thumbnail-routes)
+
                      (get-models-model-attachments-route)
+                     (get-models-model-attachments-single-routes)
                      (get-models-model-images-route)
 
                      (get-buildings-rooms-routes)
@@ -128,7 +140,7 @@
 ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)
                      ;(get-categories-routes)
-                     (get-attachments-routes)
+                     ;(get-attachments-routes)
 
                      (get-entitlement-groups-routes)
                      ;(get-entitlement-groups-single-routes)
@@ -151,8 +163,8 @@
                      ;(get-categories-category-route)
 
                      (get-images-routes)
-                     (get-images-image-routes)
-                     (get-images-image-thumbnail-routes)
+                     ;(get-images-image-routes)
+                     ;(get-images-image-thumbnail-routes)
 
                      (session-token-routes)]
         additional-routes (concat

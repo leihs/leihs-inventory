@@ -1,7 +1,7 @@
-(ns leihs.inventory.server.resources.pool.images.image.thumbnail.routes
+(ns leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.images.image.thumbnail.main :refer [get-image-thumbnail-handler]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :refer [get-image-thumbnail-handler]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -10,7 +10,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-images-image-thumbnail-routes []
+(defn get-models-images-single-thumbnail-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
               :tags []}}

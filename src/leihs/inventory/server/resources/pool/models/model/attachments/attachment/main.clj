@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.attachments.main
+(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.main
   (:require
    [clojure.data.codec.base64 :as b64]
    [clojure.java.io :as io]
