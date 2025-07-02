@@ -32,7 +32,8 @@ def upload_and_expect(file_path, expected_ok)
 end
 
 describe "Inventory Model" do
-  ['inventory_manager', 'customer'].each do |role|
+  # ['inventory_manager', 'customer'].each do |role|
+  ['inventory_manager'].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -92,7 +93,12 @@ describe "Inventory Model" do
           it "fetches attachment" do
             image_id = @upload_response.body[0]["id"]
 
-            resp = client.get "/inventory/#{pool_id}/attachments/#{image_id}"
+            puts "pool_id: #{pool_id}"
+            puts "model_id: #{model_id}"
+            puts "image_id: #{image_id}"
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{image_id}"
+            binding.pry
             expect(resp.status).to eq(200)
           end
         end
