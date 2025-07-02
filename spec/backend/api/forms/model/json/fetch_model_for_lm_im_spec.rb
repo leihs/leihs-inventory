@@ -66,7 +66,6 @@ describe "Inventory Model" do
         @form_models_compatibles =  resp.body["data"].map do |h|
           h.select { |k,_v| k == "id" || k == "product" }
         end
-        binding.pry
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups/"
@@ -311,9 +310,6 @@ describe "Inventory Model" do
       def select_two_variants_of_compatibles(compatibles)
         compatible_with_cover_image = find_with_cover(compatibles)
         compatible_without_cover_image = find_without_cover(compatibles)
-
-        binding.pry
-
         [compatible_with_cover_image, compatible_without_cover_image]
       end
 

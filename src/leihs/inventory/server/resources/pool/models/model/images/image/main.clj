@@ -5,7 +5,11 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
+   ;[next.jdbc.sql :as jdbc]
+
+
+   [next.jdbc :as jdbc]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import [java.io ByteArrayInputStream]
@@ -52,14 +56,20 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          image_id (-> request path-params :id)
+
+          image_id (-> request path-params :image_id)
+          pool_id (-> request path-params :pool_id)
+          model_id (-> request path-params :model_id)
 
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
+
+                  ;; TODO: pool_id / model_id restrictions
                     sql-format)
-          result (jdbc/query tx query)]
+          ;result (jdbc/query tx query)]
+          result (jdbc/execute! tx query)]
 
       (cond
         (and json-request? image_id) (response result)
@@ -68,3 +78,16 @@
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
+
+
+(defn delete-image
+  [req]
+  (let [tx (:tx req)
+        {:keys [model_id image_id]} (:path (:parameters req))
+        id (to-uuid image_id)]
+    (let [res (jdbc/execute-one! tx
+                (sql-format
+                  {:delete-from :images :where [:= :id id]}))]
+      (if (= (:next.jdbc/update-count res) 1)
+        (response {:status "ok" :image_id image_id})
+        (bad-request {:error "Failed to delete image"})))))

@@ -98,7 +98,6 @@ describe "Inventory Model" do
             puts "image_id: #{image_id}"
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{image_id}"
-            binding.pry
             expect(resp.status).to eq(200)
           end
         end
