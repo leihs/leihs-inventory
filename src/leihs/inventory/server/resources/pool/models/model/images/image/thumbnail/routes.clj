@@ -15,7 +15,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["images/:id/thumbnail"
+   ["models/:model_id/images/:id/thumbnail"
     {:get {:conflicting true
            :description "Determines image thumbnail by targetID"
            :accept "application/json"

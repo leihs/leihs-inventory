@@ -5,7 +5,9 @@
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
    [leihs.inventory.server.resources.pool.models.model.images.main :refer [delete-image
-                                                                           upload-image]]
+                                                                           upload-image
+                                                                           get-image-thumbnail-handler
+                                                                           ]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -44,7 +46,21 @@
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
                               413 {:description "Payload Too Large"}
-                              500 {:description "Internal Server Error"}}}}]
+                              500 {:description "Internal Server Error"}}}
+
+
+           ;;
+           :get {:conflicting true
+                 :accept "application/json"
+                 :coercion reitit.coercion.schema/coercion
+                 :middleware [accept-json-middleware]
+                 :swagger {:produces ["application/json"]}
+                 :handler get-image-thumbnail-handler
+                 :responses {200 {:description "OK"}
+                             404 {:description "Not Found"}
+                             500 {:description "Internal Server Error"}}}
+
+           }]
 
       [":image_id"
        {:delete {:accept "application/json"

@@ -12,7 +12,7 @@ describe "Inventory API Endpoints - Image Handling" do
 
     let(:any_uuid) { Faker::Internet.uuid }
 
-    let(:url) { "/inventory/#{any_uuid}/images/" }
+    let(:url) { "/inventory/#{any_uuid}/models/#{any_uuid}/images/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:image_id) { resp.body["data"][0]["id"] }

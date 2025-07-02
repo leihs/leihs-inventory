@@ -99,14 +99,14 @@ describe "Inventory Model" do
           it "fetches image" do
             image_id = @upload_response.body["image"]["id"]
 
-            resp = client.get "/inventory/#{pool_id}/images/#{image_id}"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}"
             expect(resp.status).to eq(200)
           end
 
           it "fetches image-thumbnail" do
             image_id = @upload_response.body["image"]["id"]
 
-            resp = client.get "/inventory/#{pool_id}/images/#{image_id}/thumbnail"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail"
             expect(resp.status).to eq(200)
           end
         end
