@@ -15,12 +15,15 @@ def upload_image(file_path)
   )
 
   response = json_client_post(
-    "/inventory/models/#{model_id}/images",
+    "/inventory/#{@inventory_pool.id}/models/#{model_id}/images/",
     body: file,
     headers: headers,
     is_binary: true
   )
   file.close
+
+  expect(response.status).to eq(200)
+
   response
 end
 
@@ -44,6 +47,7 @@ describe "Inventory Model" do
       let(:path_invalid_jpg) { File.expand_path("spec/files/2-mb.jpg", Dir.pwd) }
       let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
       let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
+      let(:pool_id) { @inventory_pool.id }
 
       before do
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
@@ -87,26 +91,25 @@ describe "Inventory Model" do
           end
         end
 
-        context 'upload & fetch image' do
+        context "upload & fetch image" do
           before :each do
             @upload_response = upload_image(path_valid_png)
           end
 
-          it 'fetches image' do
+          it "fetches image" do
             image_id = @upload_response.body["image"]["id"]
 
-            resp = client.get "/inventory/images/#{image_id}"
+            resp = client.get "/inventory/#{pool_id}/images/#{image_id}"
             expect(resp.status).to eq(200)
           end
 
-          it 'fetches image-thumbnail' do
+          it "fetches image-thumbnail" do
             image_id = @upload_response.body["image"]["id"]
 
-            resp = client.get "/inventory/images/#{image_id}/thumbnail"
+            resp = client.get "/inventory/#{pool_id}/images/#{image_id}/thumbnail"
             expect(resp.status).to eq(200)
           end
         end
-
       end
     end
   end

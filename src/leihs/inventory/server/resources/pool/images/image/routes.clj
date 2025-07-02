@@ -16,6 +16,7 @@
 
    ["images/:id"
     {:get {:conflicting true
+           :summary "Get image [fe]"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
