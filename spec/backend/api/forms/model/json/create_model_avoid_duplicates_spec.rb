@@ -29,8 +29,10 @@ describe "Inventory Model" do
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/models/"
-        @form_models_compatibles = convert_to_id_correction(resp.body)
+        resp = client.get "/inventory/#{pool_id}/models/?size=1000"
+        @form_models_compatibles =  resp.body["data"].map do |h|
+          h.select { |k,_v| k == "id" || k == "product" }
+        end
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups/"

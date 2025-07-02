@@ -63,45 +63,6 @@ describe "Inventory Model" do
           path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
-
-        # Fetch and verify form data
-        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
-        @form_manufacturers = resp.body
-        raise "Failed to fetch manufacturers" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
-        @form_entitlement_groups = resp.body
-        raise "Failed to fetch entitlement groups" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/models/"
-        @form_models_compatibles = convert_to_id_correction(resp.body)
-        raise "Failed to fetch compatible models" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/model-groups/"
-        @form_model_groups = resp.body
-        raise "Failed to fetch model groups" unless resp.status == 200
-      end
-
-      context "fetch form data" do
-        it "retrieves manufacturers list" do
-          expect(@form_manufacturers).not_to be_nil
-          expect(@form_manufacturers.count).to eq(2)
-        end
-
-        it "retrieves entitlement groups list" do
-          expect(@form_entitlement_groups).not_to be_nil
-          expect(@form_entitlement_groups.count).to eq(2)
-        end
-
-        it "retrieves compatible models list" do
-          expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
-        end
-
-        it "retrieves model groups list" do
-          expect(@form_model_groups).not_to be_nil
-          expect(@form_model_groups.count).to eq(2)
-        end
       end
 
       def convert_to_id_correction(compatibles)

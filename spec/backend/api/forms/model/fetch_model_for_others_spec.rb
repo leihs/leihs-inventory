@@ -14,6 +14,7 @@ end
 
 describe "Inventory Model" do
   ["group_manager", "customer"].each do |role|
+  # ["group_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -46,8 +47,10 @@ describe "Inventory Model" do
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/models/"
-        @form_models_compatibles = resp.body
+        resp = client.get "/inventory/#{pool_id}/models/?size=1000"
+        @form_models_compatibles =  resp.body["data"].map do |h|
+          h.select { |k,_v| k == "id" || k == "product" }
+        end
         raise "Failed to fetch compatible models" unless resp.status == 200
 
         resp = client.get "/inventory/#{pool_id}/model-groups/"
@@ -79,8 +82,6 @@ describe "Inventory Model" do
 
       context "create model (min)" do
         it "creates a model with all available attributes" do
-          compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {"product" => Faker::Commerce.product_name}
@@ -115,7 +116,6 @@ describe "Inventory Model" do
       context "create model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {
