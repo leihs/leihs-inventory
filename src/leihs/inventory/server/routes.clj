@@ -22,7 +22,7 @@
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    ;[leihs.inventory.server.resources.pool.categories.category.routes :refer [get-categories-category-route]]
 
-   ;[leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
+   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    ;[leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
 
@@ -159,7 +159,7 @@
 
                      ;(get-category-links-routes)
                      (get-category-tree-route)
-                     ;(get-categories-routes)
+                     (get-categories-routes)
                      ;(get-categories-category-route)
 
                      ;(get-images-routes)
