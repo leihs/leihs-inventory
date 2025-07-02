@@ -27,15 +27,15 @@ describe "Inventory API Endpoints" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
 
-    context "GET /inventory/models/compatibles" do
+    context "GET /inventory/models-compatibles" do
       it "retrieves all compatible models and returns status 200" do
-        resp = client.get "/inventory/#{pool_id}/models/compatibles/"
+        resp = client.get "/inventory/#{pool_id}/models-compatibles/"
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(LeihsModel.count)
       end
 
       it "retrieves paginated results with status 200 and 1 model" do
-        resp = client.get "/inventory/#{pool_id}/models/compatibles/?page=1&size=1"
+        resp = client.get "/inventory/#{pool_id}/models-compatibles/?page=1&size=1"
         expect(resp.status).to eq(200)
         expect(resp.body["pagination"]["total_rows"]).to eq(3)
         expect(resp.body["data"].count).to eq(1)
@@ -50,7 +50,7 @@ describe "Inventory API Endpoints" do
         end
 
         it "retrieves a specific compatible model by ID and returns status 200" do
-          resp = client.get "/inventory/#{pool_id}/models/compatibles/#{model_with_props.id}"
+          resp = client.get "/inventory/#{pool_id}/models-compatibles/#{model_with_props.id}"
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(1)
         end

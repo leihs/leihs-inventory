@@ -23,19 +23,19 @@ describe "Inventory API Endpoints - Compatible Models" do
     }
 
     it "returns status 200 and the compatible models for a given model" do
-      resp = client.get "/inventory/#{pool_id}/models/compatibles/#{model.id}"
+      resp = client.get "/inventory/#{pool_id}/models-compatibles/#{model.id}"
       expect(resp.status).to eq(200)
       expect(resp.body.count).to eq(2)
     end
 
     it "returns status 200 and no compatible models for a given compatible model" do
-      resp = client.get "/inventory/#{pool_id}/models/compatibles/#{compatible1.id}"
+      resp = client.get "/inventory/#{pool_id}/models-compatibles/#{compatible1.id}"
       expect(resp.status).to eq(200)
       expect(resp.body.count).to eq(0)
     end
 
     it "returns status 200 and no compatible models for another given compatible model" do
-      resp = client.get "/inventory/#{pool_id}/models/compatibles/#{compatible2.id}"
+      resp = client.get "/inventory/#{pool_id}/models-compatibles/#{compatible2.id}"
       expect(resp.status).to eq(200)
       expect(resp.body.count).to eq(0)
     end

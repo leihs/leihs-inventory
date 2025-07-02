@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.compatibles.main
+(ns leihs.inventory.server.resources.pool.models-compatibles.main
   (:require
    [clojure.set]
    [clojure.string :as str]

@@ -1,8 +1,8 @@
-(ns leihs.inventory.server.resources.pool.models.compatibles.routes
+(ns leihs.inventory.server.resources.pool.models-compatibles.routes
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.compatibles.main :refer [get-models-compatible-handler]]
+   [leihs.inventory.server.resources.pool.models-compatibles.main :refer [get-models-compatible-handler]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.roles :as roles]
