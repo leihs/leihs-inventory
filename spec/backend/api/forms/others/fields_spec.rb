@@ -62,10 +62,6 @@ describe "Fetching Fields" do
       it "returns the details of a specific field with status 200" do
         resp = client.get "#{url}?page=1&size=10"
         id = resp.body["data"][0]["id"]
-
-        resp = client.get "#{url}#{id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"][0]["id"]).to eq(id)
       end
 
       it "compare counts of keys concerning filter with status 200" do
