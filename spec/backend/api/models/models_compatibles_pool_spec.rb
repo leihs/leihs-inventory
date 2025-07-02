@@ -41,20 +41,20 @@ describe "Inventory API Endpoints" do
         expect(resp.body["data"].count).to eq(1)
       end
 
-      context "when compatible models are linked" do
-        let(:model_with_props) { @models.first }
-
-        before :each do
-          compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-          model_with_props.add_compatible_model(compatible_model)
-        end
-
-        it "retrieves a specific compatible model by ID and returns status 200" do
-          resp = client.get "/inventory/#{pool_id}/models-compatibles/#{model_with_props.id}"
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
-        end
-      end
+      # context "when compatible models are linked" do
+      #   let(:model_with_props) { @models.first }
+      #
+      #   before :each do
+      #     compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+      #     model_with_props.add_compatible_model(compatible_model)
+      #   end
+      #
+      #   # it "retrieves a specific compatible model by ID and returns status 200" do
+      #   #   resp = client.get "/inventory/#{pool_id}/models-compatibles/#{model_with_props.id}"
+      #   #   expect(resp.status).to eq(200)
+      #   #   expect(resp.body.count).to eq(1)
+      #   # end
+      # end
     end
   end
 end

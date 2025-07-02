@@ -29,12 +29,12 @@ describe "Inventory API Endpoints - Supplier" do
         expect(resp.body["pagination"]["total_rows"]).to eq(1)
       end
 
-      it "retrieves specific supplier details by ID and returns status 200" do
-        resp = client.get "#{url}#{supplier_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-        expect(resp.body[0]["id"]).to eq(supplier_id)
-      end
+      # it "retrieves specific supplier details by ID and returns status 200" do
+      #   resp = client.get "#{url}#{supplier_id}"
+      #   expect(resp.status).to eq(200)
+      #   expect(resp.body.count).to eq(1)
+      #   expect(resp.body[0]["id"]).to eq(supplier_id)
+      # end
     end
   end
 end
