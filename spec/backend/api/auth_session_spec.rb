@@ -21,7 +21,7 @@ describe "Call swagger-endpoints" do
     # end
 
     it "returns 200 for correct credentials" do
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
+      resp = client.get("/sign-in")
       expect(resp.status).to eq(200)
     end
 
@@ -29,7 +29,7 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
+      resp = client.get("/sign-in")
       expect(resp.status).to eq(200)
 
       resp = client.get("/inventory/session/protected") do |req|
