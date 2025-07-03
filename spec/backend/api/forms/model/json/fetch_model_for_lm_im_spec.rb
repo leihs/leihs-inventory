@@ -70,13 +70,6 @@ describe "Inventory Model" do
 
         resp = client.get "/inventory/#{pool_id}/category-tree/"
         @form_model_groups = extract_first_level_of_tree(resp.body)
-        # @form_model_groups = resp.body
-        # @form_model_groups = resp.body['children'].map do |child|
-        #   {
-        #     "id"   => child["category_id"],
-        #     "name" => child["name"]
-        #   }
-        # end
         raise "Failed to fetch model groups" unless resp.status == 200
       end
 
