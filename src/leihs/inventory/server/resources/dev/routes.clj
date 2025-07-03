@@ -56,13 +56,13 @@
                        500 {:description "Internal Server Error"}}}}]
 
    ["/dev"
-    {:swagger {:conflicting true
+    {:swagger {
                :tags [""]}
      :no-doc (not APPLY_DEV_ENDPOINTS)}
 
 ;;; TODO: move to DEV?
     ;["/pools"
-    ; {:get {:conflicting true
+    ; {:get {
     ;        :summary (i/session "Get pools of the authenticated user.")
     ;        :accept "application/json"
     ;        :coercion reitit.coercion.schema/coercion
@@ -75,7 +75,7 @@
     ;                    404 {:description "Not Found"}
     ;                    500 {:description "Internal Server Error"}}}}]
 
-    ["/update-accounts" {:put {:conflicting true
+    ["/update-accounts" {:put {
                                :summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
 - role: inventory_manager, lending_manager, group_manager, customer\n
@@ -93,7 +93,7 @@
                                            404 {:description "Not Found"}
                                            500 {:description "Internal Server Error"}}}}]
 
-    ["/usage" {:get {:conflicting true
+    ["/usage" {:get {
                      :summary "Used to determine appearance of uuid in tables"
                      :accept "application/json"
                      :middleware [wrap-check-authenticated-admin]

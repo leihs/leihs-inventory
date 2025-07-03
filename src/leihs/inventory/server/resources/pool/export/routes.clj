@@ -8,7 +8,7 @@
 (defn get-export-routes []
   ["/export"
 
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 

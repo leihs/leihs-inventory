@@ -14,11 +14,11 @@
 
 (defn get-responsible-inventory-pools-routes []
   [""
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["/:pool_id/responsible-inventory-pools/"
-    {:get {:conflicting true
+    {:get {
            :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

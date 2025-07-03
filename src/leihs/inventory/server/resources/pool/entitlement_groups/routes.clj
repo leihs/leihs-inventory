@@ -19,11 +19,11 @@
 
   [""
    ["/:pool_id"
-    {:swagger {:conflicting true
+    {:swagger {
                :tags [""]}}
 
     ["/entitlement-groups"
-     ["/" {:get {:conflicting true
+     ["/" {:get {
                  :summary (fe "a.k.a 'Anspruchsgruppen'")
                  :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
                  :accept "application/json"

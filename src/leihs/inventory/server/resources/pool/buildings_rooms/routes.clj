@@ -12,13 +12,13 @@
 
 (defn get-buildings-rooms-routes []
   ["/:pool_id"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["/buildings/"
 
     [":building_id"
-     {:get {:conflicting true
+     {:get {
             :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -34,7 +34,7 @@
                         500 {:description "Internal Server Error"}}}}]
 
     [""
-     {:get {:conflicting true
+     {:get {
             :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -51,7 +51,7 @@
    ["/rooms/"
 
     [":room_id"
-     {:get {:conflicting true
+     {:get {
             :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -69,7 +69,7 @@
                         500 {:description "Internal Server Error"}}}}]
 
     [""
-     {:get {:conflicting true
+     {:get {
             :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion

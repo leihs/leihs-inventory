@@ -13,11 +13,11 @@
 
 (defn get-models-images-image-routes []
   ["/:pool_id/"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["models/:model_id/images/:image_id"
-    {:get {:conflicting true
+    {:get {
            :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

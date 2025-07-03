@@ -19,11 +19,11 @@
 
 (defn get-manufacturers-routes []
   ["/:pool_id/"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["manufacturers/"
-    {:get {:conflicting true
+    {:get {
            :summary (fe "")
            :accept "application/json"
            :description "'search-term' works with at least one character, considers:\n

@@ -22,7 +22,7 @@
 
 (defn get-models-model-images-route []
   ["/:pool_id/"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["models"
@@ -49,7 +49,7 @@
                               413 {:description "Payload Too Large"}
                               500 {:description "Internal Server Error"}}}
 
-           :get {:conflicting true
+           :get {
                  :accept "application/json"
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]

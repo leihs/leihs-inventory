@@ -240,7 +240,7 @@
              :handler get-sign-in}}]]
 
     ["/api-docs"
-     {:get {:conflicting true
+     {:get {
             :handler swagger-api-docs-handler
             :no-doc true}}]
 

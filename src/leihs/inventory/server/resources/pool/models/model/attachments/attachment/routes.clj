@@ -14,11 +14,11 @@
 
 (defn get-models-model-attachments-single-routes []
   ["/:pool_id/"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["models/:model_id/attachments/:attachments_id"
-    {:get {:conflicting true
+    {:get {
            :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

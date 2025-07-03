@@ -46,11 +46,11 @@
 
 (defn get-profile-routes []
   ["/"
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["profile/"
-    {:get {:conflicting true
+    {:get {
            :accept "application/json"
            :summary (fe "Get details of the authenticated user.")
            :description "Uses /inventory/pools-by-access-right for the pools."

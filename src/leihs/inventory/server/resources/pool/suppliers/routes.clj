@@ -19,9 +19,9 @@
 (defn get-suppliers-routes []
   [""
    ["/:pool_id/suppliers/"
-    {:swagger {:conflicting true
+    {:swagger {
                :tags [""]}}
-    ["" {:get {:conflicting true
+    ["" {:get {
                :summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"

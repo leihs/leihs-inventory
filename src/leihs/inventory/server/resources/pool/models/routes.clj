@@ -33,7 +33,7 @@
 (defn get-models-route []
   ["/:pool_id"
 
-   {:swagger {:conflicting true
+   {:swagger {
               :tags [""]}}
 
    ["/models"

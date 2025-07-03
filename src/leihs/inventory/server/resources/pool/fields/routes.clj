@@ -14,10 +14,10 @@
   ["/:pool_id"
 
    ["/fields"
-    {:swagger {:conflicting true
+    {:swagger {
                :tags [""]}}
 
-    ["/" {:get {:conflicting true
+    ["/" {:get {
                 :description (str "<ul>"
                                   "<li>Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest</li>"
                                   "<li>ToDo: Fields by User/:pool_id?</li>"
