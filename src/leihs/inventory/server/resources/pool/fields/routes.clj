@@ -15,7 +15,7 @@
 
    ["/fields"
     {:swagger {:conflicting true
-               :tags []}}
+               :tags [""]}}
 
     ["/" {:get {:conflicting true
                 :description (str "<ul>"

@@ -7,6 +7,7 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -46,12 +47,12 @@
 (defn get-profile-routes []
   ["/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["profile/"
     {:get {:conflicting true
            :accept "application/json"
-           :summary (i/session "Get details of the authenticated user. [fe]")
+           :summary (fe "Get details of the authenticated user.")
            :description "Uses /inventory/pools-by-access-right for the pools."
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate! accept-json-middleware]

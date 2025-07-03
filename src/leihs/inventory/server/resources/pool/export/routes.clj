@@ -9,7 +9,7 @@
   ["/export"
 
    {:swagger {:conflicting true
-              :tags []}
+              :tags [""]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
    ["/csv" {:get {:summary "Export CSV ( test-dummy )"

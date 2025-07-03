@@ -14,6 +14,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
@@ -38,14 +39,14 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["/models"
 
     ["/:model_id"
      [""
       {:get {:accept "application/json"
-             :summary "Form-Handler: Fetch model data (JSON) [fe]"
+             :summary (fe "Form-Handler: Fetch model")
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
@@ -57,7 +58,7 @@
                          500 {:description "Internal Server Error"}}}
 
        :patch {:accept "application/json"
-               :summary "Form-Handler: Used to patch model-attributes (JSON) | [fe]"
+               :summary (fe "Form-Handler: Used to patch model-attributes")
                :coercion reitit.coercion.schema/coercion
                :description description-model-form
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
@@ -72,7 +73,7 @@
                            500 {:description "Internal Server Error"}}}
 
        :delete {:accept "application/json"
-                :summary "Form-Handler: Delete form data (JSON) [fe]"
+                :summary (fe "Form-Handler: Delete model")
                 :swagger {:consumes ["multipart/form-data"]
                           :produces "application/json"}
                 :description description-model-form
@@ -95,7 +96,7 @@
 
 
        :put {:accept "application/json"
-             :summary "Form-Handler: Update model data (JSON) [fe]"
+             :summary (fe "Form-Handler: Update model")
              :coercion spec/coercion
              :description description-model-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]

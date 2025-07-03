@@ -12,11 +12,10 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler session-token-routes ]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [ logout-handler session-token-routes ]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
-   [leihs.inventory.server.resources.pool.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
@@ -80,7 +79,6 @@
                      (get-profile-routes)
                      (get-manufacturers-routes)
                      (get-category-tree-route)
-                     (get-categories-routes)
                      (session-token-routes)]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
@@ -183,12 +181,12 @@
      {:swagger {:tags ["Auth"]}
       :no-doc HIDE_BASIC_ENDPOINTS}
 
-     ["login"
-      {:get {:summary "[SIMPLE-LOGIN] DEV | Authenticate user by login (set cookie with token) [fe]"
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
-             :handler authenticate-handler}}]
+     ;["login"
+     ; {:get {:summary "[SIMPLE-LOGIN] DEV | Authenticate user by login (set cookie with token) [fe]"
+     ;        :accept "application/json"
+     ;        :coercion reitit.coercion.schema/coercion
+     ;        :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
+     ;        :handler authenticate-handler}}]
 
      ;["admin/update-role"
      ; {:put {:summary "[] DEV | Update direct-user-role [fe]"
@@ -209,16 +207,9 @@
              :swagger {:deprecated true}
              :middleware [ab/wrap]
              :handler logout-handler}}]
-
-     ;["set-password"
-     ; {:post {:summary "Set password by basicAuth for already authenticated user"
-     ;         :accept "application/json"
-     ;         :coercion reitit.coercion.schema/coercion
-     ;         :parameters {:body {:new-password1 s/Str}}
-     ;         :handler set-password-handler}}]
      ]
     ["/"
-     {:swagger {:tags [] :security [{:csrfToken []}]}}
+     {:swagger {:tags [""] :security [{:csrfToken []}]}}
 
      ["test-csrf"
       {:no-doc HIDE_BASIC_ENDPOINTS
@@ -239,11 +230,11 @@
                 :handler (fn [_] {:status 200})}}]]
 
     ["/"
-     {:swagger {:tags [] :security []}}
+     {:swagger {:tags [""] :security []}}
 
      ["csrf-token"
       {:no-doc false
-       :get {:summary "Retrieve X-CSRF-Token for request header"
+       :get {:summary "Retrieve X-CSRF-Token to use swagger-endpoints"
              :accept "application/json"
              :swagger {:produces ["application/json"]}
              :handler get-sign-in}}]]

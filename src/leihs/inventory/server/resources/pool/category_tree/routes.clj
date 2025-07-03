@@ -8,6 +8,7 @@
    [leihs.inventory.server.resources.pool.category-tree.types :as t]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
@@ -18,11 +19,11 @@
 
   ["/:pool_id/category-tree/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    [""
     {:get {:accept "application/json"
-           :summary "Dynamic-Tree-Handler [fe]"
+           :summary (fe "")
            :description "Fetch tree
 
 - `with-metadata` provides additional metadata, including a base64-encoded image URL.

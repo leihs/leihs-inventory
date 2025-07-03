@@ -6,19 +6,20 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn get-buildings-rooms-routes []
   ["/:pool_id"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["/buildings/"
 
     [":building_id"
      {:get {:conflicting true
-            :summary "Get building by id [fe]"
+            :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -34,7 +35,7 @@
 
     [""
      {:get {:conflicting true
-            :summary "Get buildings [fe]"
+            :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -51,7 +52,7 @@
 
     [":room_id"
      {:get {:conflicting true
-            :summary "Get room by id [fe]"
+            :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -69,7 +70,7 @@
 
     [""
      {:get {:conflicting true
-            :summary "Get rooms of building [fe]"
+            :summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]

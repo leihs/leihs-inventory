@@ -5,6 +5,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
@@ -13,11 +14,11 @@
 (defn get-models-images-image-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["models/:model_id/images/:image_id"
     {:get {:conflicting true
-           :summary "Get image [fe]"
+           :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
@@ -33,7 +34,7 @@
                        500 {:description "Internal Server Error"}}}
 
      :delete {:accept "application/json"
-              :summary "Delete image [fe]"
+              :summary (fe "")
               :coercion reitit.coercion.schema/coercion
               :parameters {:path {
                                   :pool_id s/Uuid

@@ -13,7 +13,7 @@
 (defn get-models-images-single-thumbnail-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["models/:model_id/images/:image_id/thumbnail"
     {:get {:conflicting true

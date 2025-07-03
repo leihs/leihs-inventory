@@ -8,17 +8,18 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn get-responsible-inventory-pools-routes []
   [""
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["/:pool_id/responsible-inventory-pools/"
     {:get {:conflicting true
-           :summary "[fe]"
+           :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate accept-json-middleware]

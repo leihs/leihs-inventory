@@ -12,6 +12,7 @@
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -33,12 +34,12 @@
   ["/:pool_id"
 
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["/models"
     ["/"
      {:get {:accept "application/json"
-            :summary "Models-List for table [fe]"
+            :summary (fe "Inventory list")
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -74,7 +75,7 @@
 
 
       :post {:accept "application/json"
-             :summary "Form-Handler: Create model (JSON) [fe]"
+             :summary (fe "Form-Handler: Create model")
              :description description-model-form
              :coercion spec/coercion
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]

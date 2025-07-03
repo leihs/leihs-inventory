@@ -18,7 +18,7 @@
 
    ["/:pool_id"
     {:swagger {:conflicting true
-               :tags []}}
+               :tags [""]}}
 
     ["/items/"
 

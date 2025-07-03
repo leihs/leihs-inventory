@@ -15,6 +15,7 @@
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -22,7 +23,7 @@
 (defn get-models-model-images-route []
   ["/:pool_id/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["models"
 
@@ -30,7 +31,7 @@
 
      ["/images/"
       ["" {:post {:accept "application/json"
-                  :summary "Create image [fe]"
+                  :summary (fe "")
                   :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
                                     "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
                                     "- Creates automatically a thumbnail (" (config-get :api :images :thumbnail :width-px)

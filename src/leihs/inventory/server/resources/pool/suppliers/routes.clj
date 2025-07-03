@@ -8,6 +8,7 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
+   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -19,9 +20,9 @@
   [""
    ["/:pool_id/suppliers/"
     {:swagger {:conflicting true
-               :tags []}}
+               :tags [""]}}
     ["" {:get {:conflicting true
-               :summary "Lieferanten anzeigen [fe]"
+               :summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "

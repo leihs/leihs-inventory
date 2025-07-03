@@ -13,17 +13,18 @@
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
+   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn get-manufacturers-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["manufacturers/"
     {:get {:conflicting true
-           :summary "Get manufacturers [fe]"
+           :summary (fe "")
            :accept "application/json"
            :description "'search-term' works with at least one character, considers:\n
 - manufacturer

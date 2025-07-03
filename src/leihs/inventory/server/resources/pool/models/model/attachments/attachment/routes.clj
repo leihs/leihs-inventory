@@ -7,6 +7,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -14,11 +15,11 @@
 (defn get-models-model-attachments-single-routes []
   ["/:pool_id/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    ["models/:model_id/attachments/:attachments_id"
     {:get {:conflicting true
-           :summary "[fe]"
+           :summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json" "application/octet-stream"]}
@@ -37,7 +38,7 @@
 
 
      :delete {:accept "application/json"
-              :summary "Delete attachment [fe]"
+              :summary (fe "")
               :coercion reitit.coercion.schema/coercion
               :parameters {:path {
                                   :pool_id s/Uuid

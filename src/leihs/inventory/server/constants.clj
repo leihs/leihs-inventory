@@ -12,3 +12,5 @@
 - session-endpoints
 - token-endpoints
 " true)
+
+(defn fe [s] (if false (str "[fe] | " s) s))

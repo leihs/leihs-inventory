@@ -15,6 +15,7 @@
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
+   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -22,7 +23,7 @@
 (defn get-models-model-attachments-route []
   ["/"
    {:swagger {:conflicting true
-              :tags []}}
+              :tags [""]}}
 
    [":pool_id/models"
 
@@ -41,7 +42,7 @@
                           500 {:description "Internal Server Error"}}}
 
         :post {:accept "application/json"
-               :summary "Create attachment [fe]"
+               :summary (fe "")
                :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
                                  "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
                :coercion reitit.coercion.schema/coercion
