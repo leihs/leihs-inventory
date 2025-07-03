@@ -197,21 +197,11 @@ end
 
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
-    resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
-    expect(resp.status).to eq(200)
-
-    cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookies = [
-      CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
-    ]
-    cookie_attributes.each do |cookie_hash|
-      cookies << CGI::Cookie.new(cookie_hash)
-    end
+    @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
 
     @cookie_header = {
       "Accept" => accept,
-      "Cookie" => cookies.map(&:to_s).join("; ")
+      "Cookie" => @user_cookies_str
     }
   end
 end
@@ -410,14 +400,14 @@ def create_and_login_by(user)
   token = resp.body["csrfToken"]["value"]
   _, cookie_str = generate_csrf_data(token)
 
-  response = common_plain_faraday_client(:post, "/sign-in", body: {
+  resp = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token  }, multipart: true, headers: {Cookie: cookie_str}
   )
 
   expect(resp.status).to eq(200)
-  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+  session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
 
-  generate_csrf_session_data(cookie_token) + [cookie_token]
+  generate_csrf_session_data(session_cookie) + [session_cookie]
 end

@@ -46,16 +46,32 @@ def plain_faraday_resource_client(headers = {})
   end
 end
 
-def plain_faraday_json_client(headers = nil)
-  cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+# def plain_faraday_json_client(headers = nil)
+#   cookie = CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+#
+#   binding.pry
+#
+#   @plain_faraday_json_client ||= Faraday.new(
+#     url: api_base_url,
+#     headers: headers || {:accept => "application/json", :Cookie => cookie.to_s, "x-csrf-token" => X_CSRF_TOKEN}
+#   ) do |conn|
+#     yield(conn) if block_given?
+#     conn.response :json, content_type: /\bjson$/
+#     conn.adapter Faraday.default_adapter
+#   end
+# end
 
-  @plain_faraday_json_client ||= Faraday.new(
+def plain_faraday_json_client(headers = {})
+  Faraday.new(
     url: api_base_url,
-    headers: headers || {:accept => "application/json", :Cookie => cookie.to_s, "x-csrf-token" => X_CSRF_TOKEN}
+    headers: {
+      accept:        "application/json",
+      "x-csrf-token" => X_CSRF_TOKEN
+    }.merge(headers)
   ) do |conn|
-    yield(conn) if block_given?
     conn.response :json, content_type: /\bjson$/
-    conn.adapter Faraday.default_adapter
+    conn.adapter   Faraday.default_adapter
+    yield(conn) if block_given?
   end
 end
 

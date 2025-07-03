@@ -57,20 +57,48 @@ describe "Inventory Model" do
       let(:any_uuid) { Faker::Internet.uuid }
 
       let(:pool_id) { @inventory_pool.id }
-      let(:cookie_header) { @cookie_header }
-      let(:client) { plain_faraday_json_client(cookie_header) }
 
       let(:path_arrow) { File.expand_path("spec/files/arrow.png", Dir.pwd) }
       let(:path_arrow_thumb) { File.expand_path("spec/files/arrow_thumb.png", Dir.pwd) }
       let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
 
+      let(:cookie_header) {
+        @cookie_header }
+
+      let(:client) {
+        plain_faraday_json_client(@cookie_header)
+      }
+
       before do
+
+
+        # @client = plain_faraday_json_client(@cookie_header)
+
+        # @plain_faraday_json_client
+
         [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
 
+        
+
         # Fetch shared data and set global instance variables
         resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
+        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do |req|
+        #   req.headers = @cookie_header
+        # end
+
+        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do |req|
+        #   # req.headers["Content-Type"] = "application/json"
+        #   req.headers["Cookie"] = @cookie_header
+        #   # req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        # end
+
+        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do
+        #   req.headers["Cookie"] = @user_cookies_str
+        # end
+
+        
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 

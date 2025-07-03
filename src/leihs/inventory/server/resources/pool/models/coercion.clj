@@ -132,7 +132,8 @@
   (sa/and string? #{"Category"}))
 
 (sa/def ::category (sa/keys :opt-un []
-                            :req-un [::id ::type ::name]))
+                            ;:req-un [::id ::type ::name]))
+                            :req-un [::id ::name]))
 (sa/def ::categories (sa/or
                       :single (sa/or :coll (sa/coll-of ::category)
                                      :str string?)
