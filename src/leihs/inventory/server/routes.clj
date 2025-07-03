@@ -63,7 +63,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
    [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
 
-   [leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
+   ;[leihs.inventory.server.resources.pool.models.model.model-links.routes :refer [get-models-single-model-links-route]]
    ;[leihs.inventory.server.resources.pool.models.model.properties.routes :refer [get-models-single-properties-route]]
 
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
@@ -135,7 +135,7 @@
 
                      ;(get-models-single-accessories-route)
 
-                     (get-models-single-model-links-route)
+                     ;(get-models-single-model-links-route)
 
 ;(get-tree-route)
                      (get-responsible-inventory-pools-routes)

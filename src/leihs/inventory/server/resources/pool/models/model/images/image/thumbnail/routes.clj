@@ -15,14 +15,14 @@
    {:swagger {:conflicting true
               :tags []}}
 
-   ["models/:model_id/images/:id/thumbnail"
+   ["models/:model_id/images/:image_id/thumbnail"
     {:get {:conflicting true
            :description "Determines image thumbnail by targetID"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
            :swagger {:produces ["application/json" "image/jpeg"]}
-           :parameters {:path {:id s/Uuid}}
+           :parameters {:path {:image_id s/Uuid}}
            :handler get-image-thumbnail-handler
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}

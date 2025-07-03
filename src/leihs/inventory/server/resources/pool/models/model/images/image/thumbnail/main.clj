@@ -52,7 +52,7 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          image_id (-> request path-params :id)
+          image_id (-> request path-params :image_id)
           is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
 
           query (-> (sql/select :i.*)
