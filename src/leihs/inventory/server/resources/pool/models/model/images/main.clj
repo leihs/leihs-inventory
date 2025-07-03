@@ -16,17 +16,6 @@
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
    [taoensso.timbre :refer [error spy]]
-
-   ;))
-
-;[clojure.java.io :as io]
-;[clojure.string :as str]
-;[honey.sql :refer [format] :rename {format sql-format}]
-;[honey.sql.helpers :as sql]
-;[leihs.inventory.server.resources.utils.request :refer [path-params]]
-;[next.jdbc.sql :as jdbc]
-;[ring.util.response :refer [bad-request response]]
-;[taoensso.timbre :refer [error]]
  )
 (:import [java.io ByteArrayInputStream]
  [java.util Base64]))
@@ -112,21 +101,6 @@
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
 
-
-
-
-;(:require
-; [clojure.java.io :as io]
-; [clojure.string :as str]
-; [honey.sql :refer [format] :rename {format sql-format}]
-; [honey.sql.helpers :as sql]
-; [leihs.inventory.server.resources.utils.request :refer [path-params]]
-; [next.jdbc.sql :as jdbc]
-; [ring.util.response :refer [bad-request response]]
-; [taoensso.timbre :refer [error]])
-;(:import [java.io ByteArrayInputStream]
-; [java.util Base64]))
-
 (defn- clean-base64-string [base64-str]
   (clojure.string/replace base64-str #"\s+" ""))
 
@@ -168,12 +142,9 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-
           query (-> (sql/select :i.*)
                   (sql/from [:images :i])
-
                   sql-format)
-          ;result (jdbc/query tx query)]
           result (jdbc/execute! tx query)]
 
       (cond
@@ -182,4 +153,3 @@
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
-

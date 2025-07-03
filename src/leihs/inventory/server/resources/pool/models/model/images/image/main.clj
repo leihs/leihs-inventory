@@ -5,9 +5,6 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   ;[next.jdbc.sql :as jdbc]
-
-
    [next.jdbc :as jdbc]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [ring.util.response :refer [bad-request response]]

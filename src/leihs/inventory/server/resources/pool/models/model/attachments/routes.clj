@@ -57,35 +57,6 @@
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]
 
-      ;["/:attachments_id"
-      ; {
-      ;  ;:get {:accept "application/json"
-      ;  ;      :coercion reitit.coercion.schema/coercion
-      ;  ;      :middleware [accept-json-middleware]
-      ;  ;      :swagger {:produces ["application/json"]}
-      ;  ;      :parameters {:path {:model_id s/Uuid
-      ;  ;                          :attachments_id s/Uuid}}
-      ;  ;      :handler get-models-of-pool-handler
-      ;  ;      :responses {200 {:description "OK"
-      ;  ;                       :body s/Any}
-      ;  ;                  404 {:description "Not Found"}
-      ;  ;                  500 {:description "Internal Server Error"}}}
-      ;
-      ;  ;:delete {:accept "application/json"
-      ;  ;         :summary "Delete attachment [fe]"
-      ;  ;         :coercion reitit.coercion.schema/coercion
-      ;  ;         :parameters {:path {:model_id s/Uuid
-      ;  ;                             :attachments_id s/Uuid}}
-      ;  ;         :handler delete-attachments
-      ;  ;         :responses {200 {:description "OK"}
-      ;  ;                     404 {:description "Not Found"}
-      ;  ;                     500 {:description "Internal Server Error"}}}
-      ;
-      ;
-      ;  }
-      ;
-      ; ]
-
       ]]]])
 
 

@@ -18,7 +18,6 @@
                                                                  with-items without-items with-search filter-by-type
                                                                  from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
@@ -36,10 +35,6 @@
            [java.util UUID]
            [java.util.jar JarFile]
            [org.im4java.core ConvertCmd IMOperation]))
-
-;(defn create-image-url [col-name col-name-keyword]
-;  [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
-;   col-name-keyword])
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))

@@ -48,8 +48,6 @@
                               413 {:description "Payload Too Large"}
                               500 {:description "Internal Server Error"}}}
 
-
-           ;;
            :get {:conflicting true
                  :accept "application/json"
                  :coercion reitit.coercion.schema/coercion
@@ -61,24 +59,4 @@
                              500 {:description "Internal Server Error"}}}
 
            }]
-
-      ;[":image_id"
-      ; {
-      ;
-      ;  :delete {:accept "application/json"
-      ;           :summary "Delete image [fe]"
-      ;           :coercion reitit.coercion.schema/coercion
-      ;           :parameters {:path {:model_id s/Uuid
-      ;                               :image_id s/Uuid}}
-      ;           :handler delete-image
-      ;           :responses {200 {:description "OK"}
-      ;                       404 {:description "Not Found"}
-      ;                       500 {:description "Internal Server Error"}}}
-      ;
-      ;  }
-      ; ]
-
       ]]]])
-
-
-

@@ -47,24 +47,5 @@
               :responses {200 {:description "OK"}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
-
-
-
-
-
-
-
      }]
-
-   ;["attachments/"
-   ; {:get {:conflicting true
-   ;        :accept "application/json"
-   ;        :coercion reitit.coercion.schema/coercion
-   ;        :middleware [accept-json-middleware]
-   ;        :swagger {:produces ["application/json"]}
-   ;        :handler get-attachments-handler
-   ;        :responses {200 {:description "OK"}
-   ;                    404 {:description "Not Found"}
-   ;                    500 {:description "Internal Server Error"}}}}]
-
    ])

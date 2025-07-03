@@ -14,8 +14,6 @@
 
 (defn get-categories-routes []
 
-  ;[""
-
   ["/:pool_id"
    {:swagger {:conflicting true
               :tags []}}

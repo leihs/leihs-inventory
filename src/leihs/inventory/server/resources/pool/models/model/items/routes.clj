@@ -3,9 +3,7 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-
    [leihs.inventory.server.resources.pool.models.model.items.main :refer [get-items-with-pagination-handler]]
-
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -21,8 +19,6 @@
    {:swagger {:conflicting true
               :tags []}}
 
-;; Routes for /inventory/<pool-id>/*
-   ;; TODO: should be? ["/models/list"
    ["/models/:model_id"
 
     ["/items/"
@@ -52,6 +48,5 @@
              :responses {200 {:description "OK"
                               ;:body (s/->Either [s/Any schema])} ;;FIXME
                               :body s/Any}
-
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])

@@ -27,4 +27,3 @@
     (catch Exception e
       (error "Failed to get entitlement-groups" e)
       (bad-request {:error "Failed to get entitlement-groups" :details (.getMessage e)}))))
-

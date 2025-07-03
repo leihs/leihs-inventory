@@ -9,7 +9,6 @@
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
    [leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
                                                                     delete-model-handler
-                                                                    ;get-models-of-pool-handler
                                                                     get-models-handler]]
    [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -41,59 +40,7 @@
    {:swagger {:conflicting true
               :tags []}}
 
-;;; DB-Entity endpoints
-;   ["/models"
-;
-;    [["/:model_id"
-;
-;      {:get {:accept "application/json"
-;             :conflicting true
-;             :coercion reitit.coercion.schema/coercion
-;             :middleware [accept-json-middleware]
-;             :swagger {:produces ["application/json"]}
-;             :handler get-models-handler
-;             :parameters {:path {:model_id s/Uuid}}
-;             :responses {200 {:description "OK"
-;                              :body s/Any}
-;                         204 {:description "No Content"}
-;                         404 {:description "Not Found"}
-;                         500 {:description "Internal Server Error"}}}
-;
-;       :put {:accept "application/json"
-;             :coercion reitit.coercion.schema/coercion
-;             :parameters {:path {:model_id s/Uuid}
-;                          :body mc/models-request-payload}
-;             :middleware [accept-json-middleware]
-;             :handler update-model-handler
-;             :responses {200 {:description "Returns the updated model."
-;                              :body s/Any}}}
-;
-;       :delete {:accept "application/json"
-;                :coercion reitit.coercion.schema/coercion
-;                :parameters {:path {:model_id s/Uuid}}
-;                :middleware [accept-json-middleware]
-;                :handler delete-model-handler
-;                :responses {200 {:description "Returns the deleted model."
-;                                 :body s/Any}
-;                            400 {:description "Bad Request"
-;                                 :body s/Any}}}}]]]
-
-;; Model-Form endpoints
    ["/models"
-;    ["/"
-;     {:post {:accept "application/json"
-;             :summary "Form-Handler: Create model (JSON) [fe]"
-;             :description description-model-form
-;             :coercion spec/coercion
-;             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-;             :parameters {:path {:pool_id uuid?}
-;                          :body :model/multipart}
-;             :handler create-model-handler-by-pool-model-json
-;             :responses {200 {:description "OK"
-;                              :body {:data :model-optional-response/inventory-model
-;                                     :validation any?}}
-;                         404 {:description "Not Found"}
-;                         500 {:description "Internal Server Error"}}}}]
 
     ["/:model_id"
      [""
@@ -146,8 +93,6 @@
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}
 
-       ;["/"
-       ; {
 
        :put {:accept "application/json"
              :summary "Form-Handler: Update model data (JSON) [fe]"
@@ -164,25 +109,7 @@
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
-         ;}]
+
        }]
-;["/"
-     ; {
-     ;
-     ;  :put {:accept "application/json"
-     ;        :summary "Form-Handler: Update model data (JSON) [fe]"
-     ;        :coercion spec/coercion
-     ;        :description description-model-form
-     ;        :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-     ;        :parameters {:path {:pool_id uuid?
-     ;                            :model_id uuid?}
-     ;                     :body :model/multipart}
-     ;        :handler update-model-handler-by-pool-model-json
-     ;        :responses {200 {:description "OK"
-     ;                         :body {:data :model-optional-response/inventory-model
-     ;                                :validation any?}}
-     ;                    404 {:description "Not Found"}
-     ;                    500 {:description "Internal Server Error"}}}
-     ;
-     ;  }]
+
      ]]])

@@ -4,7 +4,6 @@
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
-   ;[leihs.inventory.server.resources.models.tree.descendents :refer [descendent-ids]]
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
@@ -54,11 +53,6 @@
        (sql/join [:attachments :a] [:= :m.id :a.model_id])
        (cond-> attachment-id
          (sql/where [:= :a.id attachment-id])))))
-
-(def base-pool-query
-  (-> (sql/select :models.*)
-      (sql/from :models)
-      (sql/order-by [[:trim [:|| :models.product :models.version]] :asc])))
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*)
@@ -172,9 +166,6 @@
           [:or
            (matches-model-columns-expr search :child_models)
            (matches-item-columns-expr search :child_items)]))]]))
-
-;[hugsql.core :as hugsql]
-;[next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
 

@@ -2,10 +2,8 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]
-
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
-
    [leihs.inventory.server.resources.pool.category-tree.main :refer [get-categories-hierarchically]]
    [leihs.inventory.server.resources.pool.category-tree.types :as t]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -45,8 +43,7 @@ Example Metadata:
 }
 ```"
            :coercion spec/coercion
-           :parameters {;:path {:pool_id uuid?}
-                        :query (sa/keys :opt-un [::t/with-metadata])}
+           :parameters {:query (sa/keys :opt-un [::t/with-metadata])}
            :handler get-categories-hierarchically
            :responses {200 {:description "OK"
                             :body {:name string?

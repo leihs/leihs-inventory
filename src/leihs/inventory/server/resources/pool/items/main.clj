@@ -49,23 +49,6 @@
          {:keys [pool_id item_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
          {:keys [search_term not_packaged packages retired result_type]} (query-params request)
-         ;sort-by (case (:sort_by query-params)
-         ;          :manufacturer-asc [:m.manufacturer :asc]
-         ;          :manufacturer-desc [:m.manufacturer :desc]
-         ;          :product-asc [:m.product :asc]
-         ;          :product-desc [:m.product :desc]
-         ;          nil)
-
-         ;filter-manufacturer (if-not model_id (:filter_manufacturer query-params) nil)
-         ;filter-product (if-not model_id (:filter_product query-params) nil)
-
-         ;; TODO: missing
-         ;warranty_expiration (present within properties)
-         ;current_location
-         ;location
-         ;type
-         ;can_destroy
-         ;children
 
          base-select (cond
                        (= result_type "Distinct") (sql/select-distinct-on [:m.product]

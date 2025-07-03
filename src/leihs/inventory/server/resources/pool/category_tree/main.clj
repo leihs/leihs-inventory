@@ -1,6 +1,4 @@
-;(ns leihs.inventory.server.resources.pool.category-tree.main
-  (ns leihs.inventory.server.resources.pool.category-tree.main
-
+(ns leihs.inventory.server.resources.pool.category-tree.main
     (:require
    [clojure.spec.alpha :as sa]
    [leihs.core.core :refer [presence]]

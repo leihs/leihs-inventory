@@ -11,15 +11,6 @@
   (:import (java.security MessageDigest)
            (java.util Base64)))
 
-;(defn str-to-bool
-;  [s]
-;  (cond
-;    (string? s) (case (.toLowerCase s)
-;                  "true" true
-;                  "false" false
-;                  nil)
-;    :else (boolean s)))
-
 (defn normalize-model-data
   [data]
   (let [key-map {:type :type

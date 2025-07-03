@@ -23,12 +23,9 @@
            :middleware [accept-json-image-middleware]
            :swagger {:produces ["application/json" "image/jpeg"]}
            :parameters {:path {
-                               ;:id s/Uuid
-
                                :pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid
-
                                }}
            :handler get-image-thumbnail-handler
            :responses {200 {:description "OK"}
@@ -47,6 +44,4 @@
               :responses {200 {:description "OK"}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
-
-
      }]])

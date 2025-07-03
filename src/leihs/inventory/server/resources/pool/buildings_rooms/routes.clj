@@ -2,15 +2,6 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.buildings-rooms.main :refer [get-buildings-handler get-rooms-handler]]
-   ;[leihs.inventory.server.resources.pool.models._main :refer [get-models-handler
-   ;                                                      create-model-handler
-   ;                                                      update-model-handler
-   ;                                                      delete-model-handler]]
-   ;[leihs.inventory.server.resources.pool.models.models-by-pool :refer [get-models-of-pool-handler
-   ;                                                                create-model-handler-by-pool
-   ;                                                                get-models-of-pool-handler
-   ;                                                                update-model-handler-by-pool
-   ;                                                                delete-model-handler-by-pool]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
