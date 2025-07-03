@@ -61,7 +61,7 @@ describe "Call swagger-endpoints" do
         expect(resp.headers["set-cookie"]).to be
 
         cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-        _, cookies_str = generate_csrf_data(cookie_token)
+        _, cookies_str = generate_csrf_session_data(cookie_token)
 
         # logout fails due missing cookie
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|

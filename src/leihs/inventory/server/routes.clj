@@ -231,7 +231,7 @@
     ["/"
      {:swagger {:tags [""] :security []}}
 
-     ["csrf-token"
+     ["csrf-token/"
       {:no-doc false
        :get {:summary "Retrieve X-CSRF-Token to use swagger-endpoints"
              :accept "application/json"
@@ -248,8 +248,7 @@
                              :version "2.0.0"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
                       :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
-                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}
-                                            :basicAuth {:type "basic"}}
+                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
                       :security [{:csrfToken []}]}
             :handler (swagger/create-swagger-handler)}}]
     ["/api-docs/openapi.json"

@@ -2,6 +2,9 @@ require "spec_helper"
 require "pry"
 require "faker"
 
+require 'faraday'
+# require 'faraday-cookie_jar'
+
 def create_accessory(inventory_pool_id, model)
   accessory = FactoryBot.create(:accessory, leihs_model: model)
   database[:accessories_inventory_pools].insert(
@@ -173,7 +176,7 @@ shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
-def generate_csrf_data(cookie_token)
+def generate_csrf_session_data(cookie_token)
   cookies = [
     CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
     CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
@@ -183,9 +186,18 @@ def generate_csrf_data(cookie_token)
   [cookies, cookies_str]
 end
 
+def generate_csrf_data(cookie_token)
+  cookies = [
+    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+  ]
+
+  cookies_str = cookies.map(&:to_s).join("; ")
+  [cookies, cookies_str]
+end
+
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
-    resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+    resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
     expect(resp.status).to eq(200)
 
     cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
@@ -375,18 +387,37 @@ def create_and_login(role, login = nil, password = nil)
     FactoryBot.create(role, login: login, password: password)
   end
 
-  response = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  resp = plain_faraday_json_client().get("/inventory/csrf-token/")
+  token = resp.body["csrfToken"]["value"]
+  _, cookie_str = generate_csrf_data(token)
+
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
+    "user" => user.login,
+    "password" => user.password,
+    "csrf-token" => token  }, multipart: true, headers: {Cookie: cookie_str}
+  )
   expect(response.status).to eq(200)
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
-  [user] + generate_csrf_data(session_cookie) + [session_cookie]
+  [user] + generate_csrf_session_data(session_cookie) + [session_cookie]
 end
 
 def create_and_login_by(user)
-  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
+
+  resp = plain_faraday_json_client().get("/inventory/csrf-token/")
+  token = resp.body["csrfToken"]["value"]
+  _, cookie_str = generate_csrf_data(token)
+
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
+    "user" => user.login,
+    "password" => user.password,
+    "csrf-token" => token  }, multipart: true, headers: {Cookie: cookie_str}
+  )
+
   expect(resp.status).to eq(200)
   cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
 
-  generate_csrf_data(cookie_token) + [cookie_token]
+  generate_csrf_session_data(cookie_token) + [cookie_token]
 end

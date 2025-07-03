@@ -8,7 +8,7 @@ ACCEPT_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 X_CSRF_TOKEN = "test-csrf-123-456"
 
 def login_and_extract_session_token(user)
-  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
   expect(resp.status).to eq(200)
 
   parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
@@ -59,6 +59,7 @@ def plain_faraday_json_client(headers = nil)
   end
 end
 
+@deprecated
 def basic_auth_plain_faraday_json_client(login, password)
   @basic_auth_plain_faraday_json_client ||= Faraday.new(
     url: api_base_url,
@@ -88,6 +89,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
     conn.headers["Accept"] = "application/json"
     conn.headers["x-csrf-token"] = X_CSRF_TOKEN
     conn.headers["Content-Type"] = "application/json" unless multipart
+    # conn.headers["Content-Type"] = "application/x-www-form-urlencoded" if multipart
     conn.headers.update(headers)
     conn.request :multipart if multipart
     conn.request :url_encoded
@@ -96,7 +98,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
 
     yield(conn) if block_given?
   end.public_send(method, url) do |req|
-    if (multipart && body) || is_binary && body
+    if (multipart && body) || (is_binary && body)
       req.body = body
     elsif body
       req.body = body.to_json
