@@ -34,9 +34,9 @@ def expected_form_fields(fields, expected_fields)
 end
 
 def extract_first_level_of_tree(body)
-  body['children'].map do |child|
+  body["children"].map do |child|
     {
-      "id"   => child["category_id"],
+      "id" => child["category_id"],
       "name" => child["name"]
     }
   end

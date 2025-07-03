@@ -54,9 +54,9 @@
 (defn delete-attachments [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)
         res (jdbc/execute-one! tx
-              (-> (sql/delete-from :attachments)
-                (sql/where [:= :id attachments_id])
-                sql-format))]
+                               (-> (sql/delete-from :attachments)
+                                   (sql/where [:= :id attachments_id])
+                                   sql-format))]
     (if (= (:next.jdbc/update-count res) 1)
       (response {:status "ok" :attachments_id attachments_id})
       (bad-request {:error "Failed to delete attachment"}))))

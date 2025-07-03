@@ -12,16 +12,13 @@
 (defn get-accessories-routes []
 
   ["/"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    [":pool_id/models/:model_id"
-    {:swagger {
-               :tags [""]}}
+    {:swagger {:tags [""]}}
 
     ["/accessories/:id"
-     {:get {
-            :accept "application/json"
+     {:get {:accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
@@ -33,8 +30,7 @@
                         500 {:description "Internal Server Error"}}}}]
 
     ["/accessories/"
-     {:get {
-            :accept "application/json"
+     {:get {:accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}

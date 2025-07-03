@@ -5,8 +5,8 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc :as jdbc]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import [java.io ByteArrayInputStream]
@@ -76,15 +76,14 @@
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
 
-
 (defn delete-image
   [req]
   (let [tx (:tx req)
         {:keys [model_id image_id]} (:path (:parameters req))
         id (to-uuid image_id)]
     (let [res (jdbc/execute-one! tx
-                (sql-format
-                  {:delete-from :images :where [:= :id id]}))]
+                                 (sql-format
+                                  {:delete-from :images :where [:= :id id]}))]
       (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
         (bad-request {:error "Failed to delete image"})))))

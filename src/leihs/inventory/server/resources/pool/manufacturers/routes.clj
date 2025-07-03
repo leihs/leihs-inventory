@@ -2,9 +2,8 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-     [leihs.inventory.server.resources.pool.manufacturers.main :refer [
-                                                                     get-manufacturer-handler
-                                                                     ]]
+   [leihs.inventory.server.constants :refer [fe]]
+   [leihs.inventory.server.resources.pool.manufacturers.main :refer [get-manufacturer-handler]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -13,18 +12,15 @@
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn get-manufacturers-routes []
   ["/:pool_id/"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["manufacturers/"
-    {:get {
-           :summary (fe "")
+    {:get {:summary (fe "")
            :accept "application/json"
            :description "'search-term' works with at least one character, considers:\n
 - manufacturer

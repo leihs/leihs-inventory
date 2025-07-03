@@ -16,8 +16,7 @@
 (defn get-models-single-items-route []
   ["/:pool_id"
 
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["/models/:model_id"
 

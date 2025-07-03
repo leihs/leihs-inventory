@@ -4,7 +4,8 @@
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [ logout-handler set-password-handler
+   [leihs.inventory.server.constants :refer [fe]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler set-password-handler
                                                               update-role-handler
                                                               session-token-routes]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
@@ -15,10 +16,9 @@
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
    [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
    [reitit.coercion.schema]
-   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec]
    [ring.middleware.accept]
-      [schema.core :as s]))
+   [schema.core :as s]))
 
 (def update-role-response {:role-before s/Str
                            :role-after s/Str
@@ -56,8 +56,7 @@
                        500 {:description "Internal Server Error"}}}}]
 
    ["/dev"
-    {:swagger {
-               :tags [""]}
+    {:swagger {:tags [""]}
      :no-doc (not APPLY_DEV_ENDPOINTS)}
 
 ;;; TODO: move to DEV?
@@ -75,8 +74,7 @@
     ;                    404 {:description "Not Found"}
     ;                    500 {:description "Internal Server Error"}}}}]
 
-    ["/update-accounts" {:put {
-                               :summary "Overwrite pw for accounts with various roles OR is_admin"
+    ["/update-accounts" {:put {:summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
 - role: inventory_manager, lending_manager, group_manager, customer\n
 - is_admin: true\n
@@ -93,8 +91,7 @@
                                            404 {:description "Not Found"}
                                            500 {:description "Internal Server Error"}}}}]
 
-    ["/usage" {:get {
-                     :summary "Used to determine appearance of uuid in tables"
+    ["/usage" {:get {:summary "Used to determine appearance of uuid in tables"
                      :accept "application/json"
                      :middleware [wrap-check-authenticated-admin]
                      :coercion reitit.coercion.schema/coercion

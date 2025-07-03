@@ -15,10 +15,9 @@
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error spy]]
- )
-(:import [java.io ByteArrayInputStream]
- [java.util Base64]))
+   [taoensso.timbre :refer [error spy]])
+  (:import [java.io ByteArrayInputStream]
+           [java.util Base64]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -106,8 +105,8 @@
 
 (defn- url-safe-to-standard-base64 [base64-str]
   (-> base64-str
-    (clojure.string/replace "-" "+")
-    (clojure.string/replace "_" "/")))
+      (clojure.string/replace "-" "+")
+      (clojure.string/replace "_" "/")))
 
 (defn- add-padding [base64-str]
   (let [mod (mod (count base64-str) 4)]
@@ -118,9 +117,9 @@
 
 (defn- decode-base64-str [base64-str]
   (let [cleaned-str (-> base64-str
-                      clean-base64-string
-                      url-safe-to-standard-base64
-                      add-padding)
+                        clean-base64-string
+                        url-safe-to-standard-base64
+                        add-padding)
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
@@ -143,8 +142,8 @@
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
           query (-> (sql/select :i.*)
-                  (sql/from [:images :i])
-                  sql-format)
+                    (sql/from [:images :i])
+                    sql-format)
           result (jdbc/execute! tx query)]
 
       (cond

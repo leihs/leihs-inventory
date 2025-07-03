@@ -1,13 +1,13 @@
 (ns leihs.inventory.server.resources.profile.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :refer [get-user-profile]]
    [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -46,13 +46,11 @@
 
 (defn get-profile-routes []
   ["/"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["profile/"
-    {:get {
-           :accept "application/json"
-           :summary (fe "Get details of the authenticated user.")
+    {:get {:accept "application/json"
+           :summary (fe "Get details of the authenticated user")
            :description "Uses /inventory/pools-by-access-right for the pools."
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-authenticate! accept-json-middleware]

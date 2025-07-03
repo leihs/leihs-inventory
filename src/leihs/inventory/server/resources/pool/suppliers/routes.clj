@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.suppliers.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.auth.session :as session]
    [leihs.inventory.server.resources.pool.suppliers.main :refer [get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -8,7 +9,6 @@
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -19,10 +19,8 @@
 (defn get-suppliers-routes []
   [""
    ["/:pool_id/suppliers/"
-    {:swagger {
-               :tags [""]}}
-    ["" {:get {
-               :summary (fe "a.k.a 'Lieferanten'")
+    {:swagger {:tags [""]}}
+    ["" {:get {:summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "

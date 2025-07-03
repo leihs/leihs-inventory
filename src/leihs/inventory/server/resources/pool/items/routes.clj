@@ -17,8 +17,7 @@
   [""
 
    ["/:pool_id"
-    {:swagger {
-               :tags [""]}}
+    {:swagger {:tags [""]}}
 
     ["/items/"
 

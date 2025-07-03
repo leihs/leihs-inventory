@@ -12,12 +12,10 @@
 
 (defn get-models-images-single-thumbnail-routes []
   ["/:pool_id/"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["models/:model_id/images/:image_id/thumbnail"
-    {:get {
-           :description "Determines image thumbnail by targetID"
+    {:get {:description "Determines image thumbnail by targetID"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]

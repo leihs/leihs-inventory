@@ -1,25 +1,23 @@
 (ns leihs.inventory.server.resources.pool.buildings-rooms.routes
   (:require
    [clojure.set]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.buildings-rooms.main :refer [get-buildings-handler get-rooms-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [leihs.inventory.server.constants :refer [fe]]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn get-buildings-rooms-routes []
   ["/:pool_id"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["/buildings/"
 
     [":building_id"
-     {:get {
-            :summary (fe "")
+     {:get {:summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -34,8 +32,7 @@
                         500 {:description "Internal Server Error"}}}}]
 
     [""
-     {:get {
-            :summary (fe "")
+     {:get {:summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -51,8 +48,7 @@
    ["/rooms/"
 
     [":room_id"
-     {:get {
-            :summary (fe "")
+     {:get {:summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
@@ -69,8 +65,7 @@
                         500 {:description "Internal Server Error"}}}}]
 
     [""
-     {:get {
-            :summary (fe "")
+     {:get {:summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]

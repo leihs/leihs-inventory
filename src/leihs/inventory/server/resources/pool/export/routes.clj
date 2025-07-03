@@ -8,8 +8,7 @@
 (defn get-export-routes []
   ["/export"
 
-   {:swagger {
-              :tags [""]}
+   {:swagger {:tags [""]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
    ["/csv" {:get {:summary "Export CSV ( test-dummy )"

@@ -4,11 +4,11 @@
    [leihs.core.core :refer [presence]]
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.category-tree.main :refer [get-categories-hierarchically]]
    [leihs.inventory.server.resources.pool.category-tree.types :as t]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
-   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
    [ring.middleware.accept]
@@ -18,8 +18,7 @@
 (defn get-category-tree-route []
 
   ["/:pool_id/category-tree/"
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    [""
     {:get {:accept "application/json"

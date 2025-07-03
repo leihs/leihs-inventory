@@ -21,7 +21,6 @@
            (java.time LocalDateTime)
            [java.util.jar JarFile]))
 
-
 (defn get-models-handler
   ([request]
    (get-models-handler request false))

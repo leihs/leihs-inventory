@@ -2,6 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
+   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-model-handler]]
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
@@ -14,7 +15,6 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
@@ -38,8 +38,7 @@
 (defn get-models-single-route []
   ["/:pool_id"
 
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["/models"
 
@@ -94,7 +93,6 @@
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}
 
-
        :put {:accept "application/json"
              :summary (fe "Form-Handler: Update model")
              :coercion spec/coercion
@@ -108,9 +106,4 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-
-       }]
-
-     ]]])
+                         500 {:description "Internal Server Error"}}}}]]]])

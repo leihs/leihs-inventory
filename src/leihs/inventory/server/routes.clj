@@ -12,7 +12,7 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [ logout-handler session-token-routes ]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
@@ -22,8 +22,8 @@
    [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :refer [get-models-model-attachments-single-routes]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :refer [get-models-images-image-routes]]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :refer [get-models-images-single-thumbnail-routes]]
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
@@ -65,7 +65,7 @@
 (defn incl-other-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [                     (get-models-route)
+  (let [core-routes [(get-models-route)
                      (get-models-single-route)
                      (get-models-images-image-routes)
                      (get-models-images-single-thumbnail-routes)
@@ -85,7 +85,7 @@
                              [(get-suppliers-routes)
                               (get-fields-routes)
                               (get-export-routes)
-                              (get-items-routes)                               ])
+                              (get-items-routes)])
                            (when APPLY_DEV_ENDPOINTS
                              [(get-dev-routes)]))]
 
@@ -206,8 +206,7 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:deprecated true}
              :middleware [ab/wrap]
-             :handler logout-handler}}]
-     ]
+             :handler logout-handler}}]]
     ["/"
      {:swagger {:tags [""] :security [{:csrfToken []}]}}
 
@@ -240,8 +239,7 @@
              :handler get-sign-in}}]]
 
     ["/api-docs"
-     {:get {
-            :handler swagger-api-docs-handler
+     {:get {:handler swagger-api-docs-handler
             :no-doc true}}]
 
     ["/api-docs/swagger.json"

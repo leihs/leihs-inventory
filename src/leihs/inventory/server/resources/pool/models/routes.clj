@@ -2,17 +2,17 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
+   [leihs.inventory.server.constants :refer [fe]]
+
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
    [leihs.inventory.server.resources.pool.models.main :refer [create-model-handler-by-pool get-models-of-pool-with-pagination-handler]]
-
    [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [reitit.coercion.schema]
-   [leihs.inventory.server.constants :refer [fe]]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -33,8 +33,7 @@
 (defn get-models-route []
   ["/:pool_id"
 
-   {:swagger {
-              :tags [""]}}
+   {:swagger {:tags [""]}}
 
    ["/models"
     ["/"
@@ -72,8 +71,6 @@
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
-
-
       :post {:accept "application/json"
              :summary (fe "Form-Handler: Create model")
              :description description-model-form
@@ -86,8 +83,4 @@
                               :body {:data :model-optional-response/inventory-model
                                      :validation any?}}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}
-
-      }
-    ]
-   ]])
+                         500 {:description "Internal Server Error"}}}}]]])

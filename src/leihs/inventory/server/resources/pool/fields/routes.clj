@@ -14,11 +14,9 @@
   ["/:pool_id"
 
    ["/fields"
-    {:swagger {
-               :tags [""]}}
+    {:swagger {:tags [""]}}
 
-    ["/" {:get {
-                :description (str "<ul>"
+    ["/" {:get {:description (str "<ul>"
                                   "<li>Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest</li>"
                                   "<li>ToDo: Fields by User/:pool_id?</li>"
                                   "<ul/>")
