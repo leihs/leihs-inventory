@@ -98,7 +98,7 @@ describe "Call swagger-endpoints" do
 
   context "with accept=text/html" do
     it "returns 403 for incorrect credentials" do
-      resp = basic_auth_plain_faraday_json_client("invalid-login", "invalid-pw").get("/sign-in")
+      resp = plain_faraday_json_client("invalid-login", "invalid-pw").get("/sign-in")
       expect(resp.status).to eq(403)
     end
   end
