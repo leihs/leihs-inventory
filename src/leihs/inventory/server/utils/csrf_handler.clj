@@ -115,8 +115,7 @@
             (catch Exception e
               (println ">o> abc3" e)
               (let [uri (:uri request)
-                    p (println ">o> abc1.uri" uri)
-                    ]
+                    p (println ">o> abc1.uri" uri)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
                   {:status 400

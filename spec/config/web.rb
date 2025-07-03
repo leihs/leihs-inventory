@@ -65,12 +65,12 @@ def plain_faraday_json_client(headers = {})
   Faraday.new(
     url: api_base_url,
     headers: {
-      accept:        "application/json",
+      :accept => "application/json",
       "x-csrf-token" => X_CSRF_TOKEN
     }.merge(headers)
   ) do |conn|
     conn.response :json, content_type: /\bjson$/
-    conn.adapter   Faraday.default_adapter
+    conn.adapter Faraday.default_adapter
     yield(conn) if block_given?
   end
 end

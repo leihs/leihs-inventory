@@ -53,8 +53,7 @@
 
           p (println ">o> abc.auth" auth)
           p (println ">o> abc.swagger-resource?" swagger-resource?)
-          p (println ">o> abc.whitelisted?" whitelisted?)
-          ]
+          p (println ">o> abc.whitelisted?" whitelisted?)]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
         is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized2"}) 403)

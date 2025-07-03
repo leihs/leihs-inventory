@@ -63,15 +63,14 @@ describe "Inventory Model" do
       let(:path_test_pdf) { File.expand_path("spec/files/test.pdf", Dir.pwd) }
 
       let(:cookie_header) {
-        @cookie_header }
+        @cookie_header
+      }
 
       let(:client) {
         plain_faraday_json_client(@cookie_header)
       }
 
       before do
-
-
         # @client = plain_faraday_json_client(@cookie_header)
 
         # @plain_faraday_json_client
@@ -79,8 +78,6 @@ describe "Inventory Model" do
         [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
-
-        
 
         # Fetch shared data and set global instance variables
         resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
@@ -98,7 +95,6 @@ describe "Inventory Model" do
         #   req.headers["Cookie"] = @user_cookies_str
         # end
 
-        
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 

@@ -19,7 +19,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => "abc",
         "password" => "def",
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(403)
     end
 
@@ -28,7 +29,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(200)
     end
 
@@ -41,7 +43,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
 
       expect(resp.status).to eq(200)
 
@@ -69,7 +72,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(200)
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
@@ -127,7 +131,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(200)
     end
 
@@ -139,7 +144,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(200)
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
@@ -166,7 +172,8 @@ describe "Call swagger-endpoints" do
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
-        "csrf-token" => X_CSRF_TOKEN  })
+        "csrf-token" => X_CSRF_TOKEN
+      })
       expect(resp.status).to eq(200)
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]

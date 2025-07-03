@@ -17,7 +17,7 @@
             [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
             [leihs.inventory.server.routes :as routes]
 
-   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated]]
+            [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated]]
 
             [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.debug-handler :as debug-mw]
@@ -61,7 +61,6 @@
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
                   dm/extract-dev-cookie-params
-
 
                   leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                   wrap-params

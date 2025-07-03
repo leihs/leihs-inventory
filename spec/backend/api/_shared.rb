@@ -2,7 +2,7 @@ require "spec_helper"
 require "pry"
 require "faker"
 
-require 'faraday'
+require "faraday"
 # require 'faraday-cookie_jar'
 
 def create_accessory(inventory_pool_id, model)
@@ -377,15 +377,15 @@ def create_and_login(role, login = nil, password = nil)
     FactoryBot.create(role, login: login, password: password)
   end
 
-  resp = plain_faraday_json_client().get("/inventory/csrf-token/")
+  resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrfToken"]["value"]
   _, cookie_str = generate_csrf_data(token)
 
   response = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
-    "csrf-token" => token  }, multipart: true, headers: {Cookie: cookie_str}
-  )
+    "csrf-token" => token
+  }, multipart: true, headers: {Cookie: cookie_str})
   expect(response.status).to eq(200)
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
@@ -396,15 +396,15 @@ end
 def create_and_login_by(user)
   # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
 
-  resp = plain_faraday_json_client().get("/inventory/csrf-token/")
+  resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrfToken"]["value"]
   _, cookie_str = generate_csrf_data(token)
 
   resp = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
-    "csrf-token" => token  }, multipart: true, headers: {Cookie: cookie_str}
-  )
+    "csrf-token" => token
+  }, multipart: true, headers: {Cookie: cookie_str})
 
   expect(resp.status).to eq(200)
   session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
