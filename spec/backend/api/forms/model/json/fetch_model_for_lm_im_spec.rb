@@ -322,8 +322,6 @@ describe "Inventory Model" do
             "accessories" => [{name: "acc1", has_inventory_pool: false}, {name: "acc2", has_inventory_pool: true}],
             "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33},
               {group_id: @form_entitlement_groups.second["id"], quantity: 55}],
-            # "categories" => [@form_model_groups.first, @form_model_groups.second],
-
             "categories" => [
               @form_model_groups.first.except("created_at", "updated_at"),
               @form_model_groups.second.except("created_at", "updated_at")
@@ -344,9 +342,6 @@ describe "Inventory Model" do
               "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
-
-          #  FIXME: name IS MISSING
-          # binding.pry
           expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
 
           # fetch created model
@@ -426,21 +421,11 @@ describe "Inventory Model" do
             headers: cookie_header
           )
 
-          # expect(compare_values(resp.body, form_data,
-          #   ["product", "version", "manufacturer", "description", "technical_detail",
-          #     "internal_description", "hand_over_note", "is_package"])).to eq(true)
-
-          # expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
           expect(resp.status).to eq(200)
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
-
-          # expect(validate_map_structure(resp.body.first, get_response)).to eq(true)
-          # expect(compare_values(resp.body, form_data,
-          #   ["product", "version", "manufacturer", "description", "technical_detail",
-          #     "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
           expect(resp.body["images"].count).to eq(2)
           expect(resp.body["attachments"].count).to eq(2) # FIXME: wrong result, revise test
