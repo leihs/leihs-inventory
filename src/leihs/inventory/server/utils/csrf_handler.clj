@@ -6,13 +6,9 @@
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.constants :as constants]
    [leihs.core.core :refer [presence]]
-   [leihs.core.db :as db]
    [leihs.core.json :refer [to-json]]
-   [leihs.core.ring-audits :as ring-audits]
-   [leihs.core.routing.back :as core-routing]
-   [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-   [leihs.core.sign-in.back :as be]
    [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
@@ -91,7 +87,7 @@
         (catch Throwable e
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
-              (leihs.inventory.server.routes/get-sign-in request)
+              (get-sign-in request)
               (-> (response/response {:status "failure"
                                       :message "CSRF-Token/Session not valid"
                                       :detail (.getMessage e)})
@@ -105,7 +101,7 @@
           api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token"])
+        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e

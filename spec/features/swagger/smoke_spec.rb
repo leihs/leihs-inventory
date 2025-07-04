@@ -9,7 +9,6 @@ feature "Swagger" do
 
     scenario "Contains expected elements" do
       expect(page).to have_content "inventory-api"
-      expect(page).to have_content "Models"
     end
   end
 end

@@ -4,8 +4,8 @@ OPT_DISTINCT_CHANGE_AUDITS_ONLY = BASE_CHANGE_AUDIT_OPTIONS.merge(distinct: true
 
 def expect_audit_entries_count(expected_request_count, expected_change_count, expected_response_count)
   [AuditedRequest, AuditedChange, AuditedResponse].zip([expected_request_count, expected_change_count, expected_response_count]).each do |model, expected_count|
-    # puts "model: #{model}"
-    # puts "expected_count: #{expected_count}"
+    puts "model: #{model}"
+    puts "expected_count: #{expected_count}"
     expect(model.all.count).to eq(expected_count)
   end
 end
