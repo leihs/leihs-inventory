@@ -43,6 +43,6 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:csrfToken []}]}
              :handler protected-handler
-             :middleware [ab/wrap]}}]]
+             :middleware [ab/wrap-session-authorize!]}}]]
 
-   ]])
+    ]])

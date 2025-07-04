@@ -2,7 +2,8 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [extract-basic-auth-from-header verify-password-entry]]
+   ;[leihs.inventory.server.resources.auth.auth-routes :refer [extract-basic-auth-from-header verify-password-entry]]
+   [leihs.inventory.server.resources.dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]))
 

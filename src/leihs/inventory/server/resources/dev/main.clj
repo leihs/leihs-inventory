@@ -10,7 +10,33 @@
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [error]]
+   ;))
+
+   [buddy.auth.backends.token :refer [jws-backend]]
+   [buddy.auth.middleware :refer [wrap-authentication]]
+   [buddy.sign.jwt :as jwt]
+   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [clojure.set]
+   [clojure.string :as str]
+   [clojure.test :refer :all]
+   [clojure.tools.logging :as log]
+   [crypto.random]
+   [cryptohash-clj.api :refer :all]
+   [digest :as d]
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
+
+[leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+[next.jdbc :as jdbc]
+[reitit.coercion.schema]
+[reitit.coercion.spec]
+[ring.util.response :as response]
+[schema.core :as s])
+(:import (com.google.common.io BaseEncoding)
+ (java.time Duration Instant)
+ (java.util Base64 UUID)))
 
 (def get-views-query
   (sql-format
@@ -169,3 +195,100 @@
       (error "Failed to get items" e)
       (bad-request {:error "Failed to get items"
                     :details (.getMessage e)}))))
+
+ ; ##################################################################
+
+
+(defn fetch-hashed-password [request login]
+  (let [query (->
+                (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
+                (sql/from :authentication_systems_users)
+                (sql/join :users [:= :users.id :authentication_systems_users.user_id])
+                (sql/where [:= :users.login login]
+                  [:= :authentication_systems_users.authentication_system_id "password"])
+                sql-format)
+        result (jdbc/execute-one! (:tx request) query)]
+    (:data result)))
+
+(defn verify-password [request login password]
+
+  (if (or (nil? login) (nil? password))
+    false
+    (if-let [user (fetch-hashed-password request login)]
+      (try
+        (let [hashed-password user
+              res (checkpw password hashed-password)]
+          res)
+        (catch Exception e
+          (println "Error in verify-password:" e)
+          false))
+      false)))
+
+(defn verify-password-entry [request login password]
+  (let [verfication-ok (verify-password request login password)
+        query "SELECT * FROM users u WHERE u.login = ?"
+        result (jdbc/execute-one! (:tx request) [query login])]
+    (if verfication-ok
+      result
+      nil)))
+
+(defn extract-basic-auth-from-header [request]
+  (try
+    (let [auth-header (get-in request [:headers "authorization"])
+          res (if (nil? auth-header)
+                (vector nil nil)
+                (let [encoded-credentials (when auth-header
+                                            (second (re-find #"(?i)^Basic (.+)$" auth-header)))
+                      credentials (when encoded-credentials
+                                    (String. (.decode (Base64/getDecoder) encoded-credentials)))
+                      [login password] (str/split credentials #":")]
+                  (vector login password)))]
+      res)
+    (catch Exception e
+      (throw
+        (ex-info "BasicAuth header not found."
+          {:status 403})))))
+
+(defn update-role-handler [request]
+  (try
+    (let [[login password] (extract-basic-auth-from-header request)
+          user (verify-password-entry request login password)
+          default-pool-id #uuid "8bd16d45-056d-5590-bc7f-12849f034351"
+          pool-id (or (-> request :parameters :query :pool_id) default-pool-id)
+          role (or (-> request :parameters :query :role))
+          auth (-> request :authenticated-entity)]
+      (if (-> auth boolean)
+        (let [access-rights (-> auth :access-rights)
+              access-right (vec (filter #(= (:inventory_pool_id %) pool-id) access-rights))
+              result {:inventory_pool_id pool-id
+                      :role-before (-> access-right first :role)
+                      :role-after role}]
+          (if (nil? access-right)
+            (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)
+            (let [query (-> (sql/select :direct_access_rights.*)
+                          (sql/from :direct_access_rights)
+                          (sql/join :users [:= :users.id :direct_access_rights.user_id])
+                          (sql/join :inventory_pools [:= :inventory_pools.id :direct_access_rights.inventory_pool_id])
+                          (sql/where [:= :users.login (-> auth :login)]
+                            [:= :users.is_admin true]
+                            [:= :inventory_pools.id pool-id])
+                          sql-format)
+                  query-result (jdbc/execute! (:tx request) query)
+                  count-of-query-should-be-one (count query-result)
+                  dar-id (-> (first query-result) :id)
+                  result (assoc result :count-of-direct-access-right-should-be-one count-of-query-should-be-one)
+                  result (when (= count-of-query-should-be-one 1)
+                           (let [update-query (-> (sql/update :direct_access_rights)
+                                                (sql/set {:role (-> result :role-after)})
+                                                (sql/where [:= :id dar-id])
+                                                (sql/returning :*)
+                                                sql-format)
+                                 update-result (jdbc/execute! (:tx request) update-query)]
+                             (assoc result :update-result update-result)))]
+              (if (= count-of-query-should-be-one 1)
+                (response/response result)
+                (response/status (response/response result) 409)))))
+        (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)))
+    (catch Exception e
+      (println "Error in authenticate-handler:" (.getMessage e))
+      (response/status (response/response {:message (.getMessage e)}) 400))))

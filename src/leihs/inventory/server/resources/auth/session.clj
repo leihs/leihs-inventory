@@ -89,7 +89,7 @@
         {:status 401 :body {:message "The session is invalid or expired!"}}))
     (handler request)))
 
-(defn wrap [handler]
+(defn wrap-session-authorize! [handler]
   (fn [request]
     (handle request handler)))
 

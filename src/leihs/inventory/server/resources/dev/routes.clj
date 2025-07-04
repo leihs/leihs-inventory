@@ -5,11 +5,12 @@
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [
-                                                              update-role-handler
-                                                              ]]
+   ;[leihs.inventory.server.resources.auth.auth-routes :refer [
+   ;                                                           update-role-handler
+   ;                                                           ]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
                                                       search-in-tables
+                                                      update-role-handler
                                                       update-and-fetch-accounts]]
    [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
