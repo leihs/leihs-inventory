@@ -26,7 +26,7 @@
    ;[leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
-   [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
+   ;[leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
@@ -40,7 +40,15 @@
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
    [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
+
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
+   [leihs.inventory.server.resources.pool.rooms.room.routes :refer [get-rooms-single-routes]]
+   [leihs.inventory.server.resources.pool.rooms.routes :refer [get-rooms-routes]]
+
+
+   [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]
+   [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
+
    [leihs.inventory.server.resources.main :refer [post-sign-in get-sign-in post-sign-out get-sign-out swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
@@ -71,7 +79,7 @@
                      (get-models-model-attachments-route)
                      (get-models-model-attachments-single-routes)
                      (get-models-model-images-route)
-                     (get-buildings-rooms-routes)
+                     ;(get-buildings-rooms-routes)
                      (get-models-single-items-route)
                      (get-responsible-inventory-pools-routes)
                      (get-entitlement-groups-routes)
@@ -82,10 +90,12 @@
 
                      (get-token-routes)
                      (get-token-public-routes)
-                     ;(get-protected-token-routes)
 
-                     ;(get-public-session-routes)
-                     ;(get-protected-session-routes)
+        (get-buildings-routes)
+        (get-buildings-single-routes)
+
+                     (get-rooms-routes)
+                     (get-rooms-single-routes)
 
                      (get-token-protected-routes)
 (get-session-public-routes)

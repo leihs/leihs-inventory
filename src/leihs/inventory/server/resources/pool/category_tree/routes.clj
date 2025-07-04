@@ -46,7 +46,6 @@ Example Metadata:
            :parameters {:query (sa/keys :opt-un [::t/with-metadata])}
            :handler get-categories-hierarchically
            :responses {200 {:description "OK"
-                            :body {:name string?
-                                   :children [any?]}}
+                            :body ::t/response-body}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

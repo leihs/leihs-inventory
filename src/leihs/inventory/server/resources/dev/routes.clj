@@ -5,14 +5,10 @@
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.auth.auth-routes :refer [
-   ;                                                           update-role-handler
-   ;                                                           ]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
                                                       search-in-tables
                                                       update-role-handler
                                                       update-and-fetch-accounts]]
-   [leihs.inventory.server.resources.utils.flag :as i]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
    [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
@@ -28,9 +24,6 @@
                            (s/optional-key :update-result) s/Any})
 
 (defn get-dev-routes []
-
-  [""
-
     ["/dev"
     {:swagger {:tags [""]}
      :no-doc (not APPLY_DEV_ENDPOINTS)}
@@ -76,4 +69,4 @@
                      :responses {200 {:description "OK"
                                       :body s/Any}
                                  404 {:description "Not Found"}
-                                 500 {:description "Internal Server Error"}}}}]]])
+                                 500 {:description "Internal Server Error"}}}}]])

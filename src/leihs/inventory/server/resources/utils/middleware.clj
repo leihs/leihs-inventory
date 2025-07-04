@@ -49,11 +49,7 @@
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
                                                      "/inventory/csrf-token/"
                                                      "/inventory/token/public"
-                                                     "/inventory/session/public"])
-
-          p (println ">o> abc.auth" auth)
-          p (println ">o> abc.swagger-resource?" swagger-resource?)
-          p (println ">o> abc.whitelisted?" whitelisted?)]
+                                                     "/inventory/session/public"])]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
         is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)

@@ -13,35 +13,27 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   ;[leihs.inventory.server.resources.session.public.session :as ab]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.session.public.main :refer [public-endpoint-handler]]
-   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :as response]
-   [schema.core :as s])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
-
-
+   [schema.core :as s]))
 
 (defn get-session-public-routes []
-  [["/"
+  ["/"
 
-    {:no-doc HIDE_BASIC_ENDPOINTS}
+   {:no-doc HIDE_BASIC_ENDPOINTS}
 
-    ["session"
-     {:tags ["Auth / Session"]
-      }
+   ["session"
+    {:tags ["Auth / Session"]
+     }
 
-     ["/public"
-      {:get {:swagger {:security []}
-             :handler public-endpoint-handler}}]
+    ["/public"
+     {:get {:swagger {:security []}
+            :handler public-endpoint-handler}}]
 
-     ]
+    ]
 
-
-    ]])
+   ])

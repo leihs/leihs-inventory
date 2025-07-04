@@ -11,8 +11,6 @@
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]
-   ;))
-
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
    [buddy.sign.jwt :as jwt]

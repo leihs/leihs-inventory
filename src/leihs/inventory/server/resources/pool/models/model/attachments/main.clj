@@ -47,7 +47,7 @@
 
 (defn attachment-response-format [s]
   (sql/returning s :id :filename))
-<
+
 (defn upload-attachment [req]
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)

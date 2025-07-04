@@ -13,10 +13,7 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-
    [leihs.inventory.server.utils.auth.session :as ab]
-
-
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.session.protected.main :refer [protected-handler]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
@@ -30,8 +27,7 @@
            (java.util Base64 UUID)))
 
 (defn get-session-protected-routes []
-  [["/"
-
+  ["/"
     {:no-doc HIDE_BASIC_ENDPOINTS}
 
     ["session"
@@ -43,6 +39,4 @@
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:csrfToken []}]}
              :handler protected-handler
-             :middleware [ab/wrap-session-authorize!]}}]]
-
-    ]])
+             :middleware [ab/wrap-session-authorize!]}}]]])

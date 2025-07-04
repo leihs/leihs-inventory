@@ -5,8 +5,9 @@
    [leihs.inventory.server.resources.pool.items.main :refer [get-items-of-pool-with-pagination-handler]]
    [leihs.inventory.server.resources.pool.models.main :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.resources.utils.request :refer [query-params]]
+   ;[leihs.inventory.server.resources.utils.request :refer [query-params]]
    [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -28,13 +29,7 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid}
-                         :query {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :search_term) s/Str
-                                 (s/optional-key :not_packaged) s/Bool
-                                 (s/optional-key :packages) s/Bool
-                                 (s/optional-key :retired) s/Bool
-                                 :result_type (s/enum "Min" "Normal" "Distinct")}}
+                         :query query-params}
             :handler get-items-of-pool-with-pagination-handler
             :responses {200 {:description "OK"
                              :body s/Any}

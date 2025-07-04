@@ -13,14 +13,9 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   ;[leihs.inventory.server.resources.token.protected.session :as ab]
-
-   ;[leihs.inventory.server.resources.auth.auth-routes :refer [wrap-token-authentication]]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS ]]
    [leihs.inventory.server.resources.token.protected.main :refer [protected-handler wrap-token-authentication]]
-
-   ;[leihs.inventory.server.resources.token.protected.main :refer [protected-handler]]
-   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   ;[leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -35,12 +30,8 @@
 
     {:no-doc HIDE_BASIC_ENDPOINTS}
 
-
     ["token"
-     {:tags ["Auth / Token"]
-      }
-
-
+     {:tags ["Auth / Token"]      }
 
      ["/protected"
       {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
