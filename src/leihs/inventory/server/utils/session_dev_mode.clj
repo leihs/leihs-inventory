@@ -2,7 +2,7 @@
   (:require [byte-streams :as bs]
             [cheshire.core :as json]
             [clojure.walk :refer [keywordize-keys]]
-            [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
+            [leihs.inventory.server.utils.auth.session :refer [get-cookie-value]]
             [ring.util.codec :as codec]))
 
 ;; Format is an array of strings (needs to be url-encoded)

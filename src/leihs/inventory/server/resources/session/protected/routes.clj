@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
 
-   [leihs.inventory.server.resources.auth.session :as ab]
+   [leihs.inventory.server.utils.auth.session :as ab]
 
 
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]

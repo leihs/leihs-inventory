@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.auth.session
+(ns leihs.inventory.server.utils.auth.session
   (:require
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
