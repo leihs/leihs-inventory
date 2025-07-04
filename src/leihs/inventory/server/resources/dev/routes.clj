@@ -30,34 +30,23 @@
 
   [""
 
-   ["/admin/status"
-    {:get {:accept "application/json"
-           :handler status/status-handler
-           :middleware [wrap-is-admin!]}}]
-
-   ["set-password"
-    {:post {:summary "Set password by basicAuth for already authenticated user"
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :parameters {:body {:new-password1 s/Str}}
-            :handler set-password-handler}}]
-
-   ["admin/update-role"
-    {:put {:summary (fe "Update direct-user-role")
-           :accept "application/json"
-           :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
-           :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                (s/optional-key :pool_id) s/Uuid}}
-           :coercion reitit.coercion.schema/coercion
-           :middleware [wrap-is-admin!]
-           :handler update-role-handler
-           :responses {200 {:description "OK" :body update-role-response}
-                       409 {:description "Conflict" :body update-role-response}
-                       500 {:description "Internal Server Error"}}}}]
-
-   ["/dev"
+    ["/dev"
     {:swagger {:tags [""]}
      :no-doc (not APPLY_DEV_ENDPOINTS)}
+
+    ["update-role"
+     {:put {:summary (fe "Update direct-user-role")
+            :accept "application/json"
+            :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
+            :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                 (s/optional-key :pool_id) s/Uuid}}
+            :coercion reitit.coercion.schema/coercion
+            :middleware [wrap-is-admin!]
+            :handler update-role-handler
+            :responses {200 {:description "OK" :body update-role-response}
+                        409 {:description "Conflict" :body update-role-response}
+                        500 {:description "Internal Server Error"}}}}]
+
 
     ["/update-accounts" {:put {:summary "Overwrite pw for accounts with various roles OR is_admin"
                                :description "Fetch one account of each variant of:
