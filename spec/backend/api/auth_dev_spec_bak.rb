@@ -188,7 +188,7 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    it "forbidden access of resource with valid basicAuth" do
+    it "forbidden access of resource" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
       expect(resp.body["message"]).to eq("Unauthorized")
