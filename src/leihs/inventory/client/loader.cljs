@@ -7,7 +7,7 @@
 
 (defn root-layout []
   (-> http-client
-      (.get "/inventory/profile")
+      (.get "/inventory/profile/")
       (.then (fn [res]
                (let [data (jc (.. res -data))]
                  (.. i18n (changeLanguage (-> data :user_details :language_locale)))
@@ -16,20 +16,21 @@
 
 (defn models-page [route-data]
   (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
         url (js/URL. (.. route-data -request -url))
         categories (-> http-client
-                       (.get "/inventory/tree")
+                       (.get (str "/inventory/" pool-id "/category-tree/"))
                        (.then #(jc (.-data %))))
 
         responsible-pools (-> http-client
-                              (.get (router/generatePath
-                                     "/inventory/:pool-id/responsible-inventory-pools"
-                                     params))
+                              (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
                               (.then #(jc (.-data %))))
 
         models (-> http-client
-                   (.get (str (.-pathname url) (.-search url)) #js {:cache false})
+                   (.get (str (.-pathname url) "/" (.-search url)) #js {:cache false})
                    (.then #(jc (.. % -data))))]
+
+    (js/console.debug pool-id)
 
     (.. (js/Promise.all (cond-> [categories models responsible-pools]))
         (then (fn [[categories models responsible-pools]]
@@ -39,13 +40,15 @@
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
-        path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
+        pool-id (aget params "pool-id")
+        model-id (or (aget params "model-id") nil)
+
         entitlement-groups (-> http-client
-                               (.get path)
+                               (.get (str "/inventory/" pool-id "/entitlement-groups/"))
                                (.then #(jc (.-data %))))
 
         categories (-> http-client
-                       (.get "/inventory/tree")
+                       (.get (str "/inventory/" pool-id "/category-tree/"))
                        (.then #(jc (.-data %))))
 
         models (-> http-client
@@ -59,10 +62,8 @@
                               (jc (.-data res))))))
 
         manufacturers (-> http-client
-                          (.get "/inventory/manufacturers?type=Model" #js {:id "manufacturers"})
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
-
-        model-id (or (:model-id (jc params)) nil)
 
         model-path (when model-id
                      (router/generatePath "/inventory/:pool-id/model/:model-id" params))
