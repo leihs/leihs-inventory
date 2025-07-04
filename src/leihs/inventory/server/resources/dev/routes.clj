@@ -5,9 +5,9 @@
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler set-password-handler
+   [leihs.inventory.server.resources.auth.auth-routes :refer [
                                                               update-role-handler
-                                                              session-token-routes]]
+                                                              ]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
                                                       search-in-tables
                                                       update-and-fetch-accounts]]

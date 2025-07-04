@@ -12,8 +12,18 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
-   [leihs.inventory.server.resources.auth.session :as ab]
+   ;[leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
+
+
+[leihs.inventory.server.resources.token.routes :refer [get-token-routes]]
+[leihs.inventory.server.resources.token.public.routes :refer [get-token-public-routes]]
+[leihs.inventory.server.resources.token.protected.routes :refer [get-token-protected-routes]]
+
+[leihs.inventory.server.resources.session.public.routes :refer [get-session-public-routes]]
+[leihs.inventory.server.resources.session.protected.routes :refer [get-session-protected-routes]]
+
+
+   ;[leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
@@ -69,7 +79,20 @@
                      (get-manufacturers-routes)
                      (get-category-tree-route)
                               (get-admin-status-routes)
-                     (session-token-routes)]
+
+                     (get-token-routes)
+                     (get-token-public-routes)
+                     ;(get-protected-token-routes)
+
+                     ;(get-public-session-routes)
+                     ;(get-protected-session-routes)
+
+                     (get-token-protected-routes)
+(get-session-public-routes)
+(get-session-protected-routes)
+
+
+                     ]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                              [(get-suppliers-routes)

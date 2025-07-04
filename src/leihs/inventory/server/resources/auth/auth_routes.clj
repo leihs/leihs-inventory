@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.auth.session :as ab]
+   ;[leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
@@ -288,50 +288,50 @@
       (if verification-result
         (handler (assoc request AUTHENTICATED_ENTITY verification-result))
         (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
-
-(defn session-token-routes []
-  [["/"
-
-    {:no-doc HIDE_BASIC_ENDPOINTS}
-
-    ["session"
-     {:tags ["Auth / Session"]
-      }
-
-     ["/public"
-      {:get {:swagger {:security []}
-             :handler public-endpoint-handler}}]
-     ["/protected"
-      {:get {:accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:csrfToken []}]}
-             :handler protected-handler
-             :middleware [ab/wrap]}}]]
-
-    ["token"
-     {:tags ["Auth / Token"]
-      }
-
-     ["/"
-      {:post {:summary "Create an API token with creds for a user"
-              :description "Generates an API token for a user with specific permissions and scopes"
-              :accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:body {:description s/Str
-                                  :scopes {:read s/Bool
-                                           :write s/Bool
-                                           :admin_read s/Bool
-                                           :admin_write s/Bool}}}
-              :handler create-api-token-handler}}]
-
-     ["/public"
-      {:get {:swagger {:security []}
-             :handler public-endpoint-handler}}]
-
-     ["/protected"
-      {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:apiAuth []}]}
-             :handler protected-handler
-             :middleware [wrap-token-authentication]}}]]]])
+;
+;(defn session-token-routes []
+;  [["/"
+;
+;    {:no-doc HIDE_BASIC_ENDPOINTS}
+;
+;    ["session"
+;     {:tags ["Auth / Session"]
+;      }
+;
+;     ["/public"
+;      {:get {:swagger {:security []}
+;             :handler public-endpoint-handler}}]
+;     ["/protected"
+;      {:get {:accept "application/json"
+;             :coercion reitit.coercion.schema/coercion
+;             :swagger {:security [{:csrfToken []}]}
+;             :handler protected-handler
+;             :middleware [ab/wrap]}}]]
+;
+;    ["token"
+;     {:tags ["Auth / Token"]
+;      }
+;
+;     ["/"
+;      {:post {:summary "Create an API token with creds for a user"
+;              :description "Generates an API token for a user with specific permissions and scopes"
+;              :accept "application/json"
+;              :coercion reitit.coercion.schema/coercion
+;              :parameters {:body {:description s/Str
+;                                  :scopes {:read s/Bool
+;                                           :write s/Bool
+;                                           :admin_read s/Bool
+;                                           :admin_write s/Bool}}}
+;              :handler create-api-token-handler}}]
+;
+;     ["/public"
+;      {:get {:swagger {:security []}
+;             :handler public-endpoint-handler}}]
+;
+;     ["/protected"
+;      {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
+;             :accept "application/json"
+;             :coercion reitit.coercion.schema/coercion
+;             :swagger {:security [{:apiAuth []}]}
+;             :handler protected-handler
+;             :middleware [wrap-token-authentication]}}]]]])
