@@ -48,8 +48,6 @@
    [ring.util.response :refer [bad-request response status]]
    [schema.core :as s]))
 
-
-
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
 ; 3. Dev routes
@@ -82,12 +80,6 @@
                              [(get-dev-routes)]))]
 
     (vec (concat core-routes additional-routes))))
-
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
 
 (defn basic-routes []
 
@@ -125,9 +117,6 @@
     ["/"
      {:swagger {:tags ["Auth"]}
       :no-doc HIDE_BASIC_ENDPOINTS}
-
-    ;["/"
-    ; {:swagger {:tags [""] :security [{:csrfToken []}]}}
 
      ["test-csrf"
       {:no-doc HIDE_BASIC_ENDPOINTS
