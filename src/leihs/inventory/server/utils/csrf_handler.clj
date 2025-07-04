@@ -12,6 +12,7 @@
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.core.sign-in.back :as be]
+   [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
@@ -95,7 +96,7 @@
 
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
-              (leihs.inventory.server.routes/get-sign-in request)
+              (get-sign-in request)
               (-> (response/response {:status "failure"
                                       :message "CSRF-Token/Session not valid"
                                       :detail (.getMessage e)})
