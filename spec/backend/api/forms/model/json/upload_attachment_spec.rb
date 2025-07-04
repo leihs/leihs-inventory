@@ -93,10 +93,6 @@ describe "Inventory Model" do
           it "fetches attachment" do
             image_id = @upload_response.body[0]["id"]
 
-            puts "pool_id: #{pool_id}"
-            puts "model_id: #{model_id}"
-            puts "image_id: #{image_id}"
-
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{image_id}"
             expect(resp.status).to eq(200)
           end

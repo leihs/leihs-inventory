@@ -27,13 +27,6 @@ describe "Inventory API Endpoints - Model Links" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(2)
       end
-
-      # it "retrieves a specific compatible model by ID and returns status 200" do
-      #   resp = client.get "#{url}#{model_id}"
-      #   expect(resp.status).to eq(200)
-      #   expect(resp.body.count).to eq(1)
-      #   expect(resp.body[0]["id"]).to eq(model_id)
-      # end
     end
   end
 end
