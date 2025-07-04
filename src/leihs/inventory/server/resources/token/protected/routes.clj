@@ -16,9 +16,10 @@
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    ;[leihs.inventory.server.resources.token.protected.session :as ab]
 
-   [leihs.inventory.server.resources.auth.auth-routes :refer [wrap-token-authentication]]
+   ;[leihs.inventory.server.resources.auth.auth-routes :refer [wrap-token-authentication]]
+   [leihs.inventory.server.resources.token.protected.main :refer [protected-handler wrap-token-authentication]]
 
-   [leihs.inventory.server.resources.token.protected.main :refer [protected-handler]]
+   ;[leihs.inventory.server.resources.token.protected.main :refer [protected-handler]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
