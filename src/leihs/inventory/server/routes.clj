@@ -15,6 +15,7 @@
    [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
+   [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
    [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
@@ -79,6 +80,7 @@
                      (get-profile-routes)
                      (get-manufacturers-routes)
                      (get-category-tree-route)
+                              (get-admin-status-routes)
                      (session-token-routes)]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
