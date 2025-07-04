@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.auth.roles :as roles]
-   [ring.util.response :refer [response status]]))
+   [ring.util.response :refer [response status]]
+   [taoensso.timbre :refer [error]]))
 
 (defn determine-required-scope
   "Determines the required scope based on the HTTP method and URI."
@@ -44,7 +44,7 @@
                               (map (comp keyword :role))
                               set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
-      (throw (ex-info "invalid role for the requested pool or method" {:status 401})))
+      (throw (ex-info "invalid role for the requested pool or method" {:status 404})))
     roles-for-pool))
 
 (defn permission-by-role-and-pool
@@ -74,5 +74,5 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: " e)
+          (error "EXCEPTION-DETAIL: " e)
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))

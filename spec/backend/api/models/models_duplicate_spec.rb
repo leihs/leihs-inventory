@@ -18,7 +18,7 @@ describe "Inventory API Endpoints - Items" do
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     context "GET /inventory/models/*/items for a model with items" do
-      let(:url) { "/inventory#{@path}models/#{model_with_two_items.id}/items" }
+      let(:url) { "/inventory#{@path}models/#{model_with_two_items.id}/items/" }
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url
@@ -28,7 +28,7 @@ describe "Inventory API Endpoints - Items" do
     end
 
     context "GET /inventory/models/*/items for a model with items" do
-      let(:url) { "/inventory#{@path}models/#{package.id}/items" }
+      let(:url) { "/inventory#{@path}models/#{package.id}/items/" }
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url
@@ -38,7 +38,7 @@ describe "Inventory API Endpoints - Items" do
     end
 
     context "GET /inventory/models/*/items for a model with items" do
-      let(:url) { "/inventory#{@path}models/#{package.items.first.model_id}/items" }
+      let(:url) { "/inventory#{@path}models/#{package.items.first.model_id}/items/" }
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url

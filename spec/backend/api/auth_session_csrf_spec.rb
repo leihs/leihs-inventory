@@ -49,11 +49,6 @@ describe "Call swagger-endpoints" do
         resp = client.get("/inventory/8bd16d45-0000-0000-0000-12849f034351/models/8bd16d45-0000-0000-0000-12849f034351")
         expect(resp.status).to eq(404)
       end
-
-      it "return 422 for invalid id (coercion)" do
-        resp = client.get("/inventory/models/2849f034351")
-        expect(resp.status).to eq(422)
-      end
     end
 
     it "accesses protected json-resource by accept=*/*" do
@@ -73,9 +68,9 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    it "accesses protected json-resource by accept=*/*" do
+    it "protected access against json-resource by accept=*/*" do
       resp = plain_faraday_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(302)
+      expect(resp.status).to eq(404)
 
       resp = plain_faraday_client.post("/inventory/test-csrf")
       expect(resp.status).to eq(403)

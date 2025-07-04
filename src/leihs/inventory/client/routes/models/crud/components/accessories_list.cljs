@@ -38,7 +38,8 @@
         [t] (useTranslation)
         add-field (fn []
                     (uix-dom/flush-sync
-                     (append (cj {:name ""})))
+                     (append #js {:id nil
+                                  :name ""}))
 
                     (let [name (str "input[name='accessories." (count fields) ".name']")
                           next (js/document.querySelector name)]
@@ -78,18 +79,16 @@
                                                      ($ Input (merge
                                                                {:data-index index
                                                                 :on-key-down handle-enter}
-                                                               (:field (jc %))))))}
+                                                               (:field (jc %)))))
+                                                  ($ FormMessage))}))
 
-                                     ($ FormMessage)))
-
-                               ($ TableCell
+                               ($ TableCell {:className "align-top"}
                                   ($ :div {:className "flex gap-2 justify-end"}
                                      #_($ DragHandle {:id (:id field)
                                                       :className "cursor-move"})
 
                                      ($ Button {:variant "outline"
                                                 :size "icon"
-
                                                 ;; not sure why this is not added automatically
                                                 :type "button"
                                                 :on-click #(remove index)}

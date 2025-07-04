@@ -25,7 +25,7 @@
   (let [set-value (aget form "setValue")
         get-values (aget form "getValues")
         [t] (useTranslation)
-        {:keys [model]} (useLoaderData)
+        {:keys [data]} (useLoaderData)
 
         [attachments set-attachments!] (uix.core/use-state [])
         [error set-error!] (uix.core/use-state nil)
@@ -92,7 +92,7 @@
                                    ($ :a {:target "_blank"
                                           :href (get-url-from-id
                                                  (:id attachment)
-                                                 (:attachments model))}
+                                                 (:attachments data))}
                                       ($ Eye {:className "w-4 h-4"})))
 
                                 ($ Button {:variant "outline"

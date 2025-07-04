@@ -1,10 +1,11 @@
 (ns leihs.inventory.server.utils.auth.inventory-auth
   (:require
+   [dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [extract-basic-auth-from-header verify-password-entry]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug]]))
 
 (def CONST_LOG_AUTH false)
 
@@ -13,7 +14,7 @@
     (let [user (:login authenticated-entity)
           email (:email authenticated-entity)
           auth-meth (:authentication-method authenticated-entity)]
-      (println (str "> Authentication: " user " / " email ", authentication-method: " (name auth-meth))))))
+      (debug (str "> Authentication: " user " / " email ", authentication-method: " (name auth-meth))))))
 
 (defn access-rights [tx user-id]
   (-> (sql/select :role :inventory_pool_id)

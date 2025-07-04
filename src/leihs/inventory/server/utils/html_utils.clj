@@ -1,10 +1,9 @@
 (ns leihs.inventory.server.utils.html-utils
-  (:require [clojure.pprint :as pp]
-            [clojure.string :as str]
-            [clojure.walk :as walk]
-            [hickory.core :as h]
-            [hickory.render :as render]
-            [hickory.select :as s]))
+  (:require
+   [clojure.walk :as walk]
+   [hickory.core :as h]
+   [hickory.render :as render]
+   [taoensso.timbre :refer [error]]))
 
 (defn add-meta-tag [tree csrf-name csrf-value]
   (walk/postwalk
@@ -83,7 +82,7 @@
       raw-html)
 
     (catch Exception e
-      (println "Error in add-csrf-and-return-tags:" (.getMessage e))
+      (error "Error in add-csrf-and-return-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))
 
@@ -103,7 +102,7 @@
       html)
 
     (catch Exception e
-      (println "Error in add-csrf-tags:" (.getMessage e))
+      (error "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))
 
@@ -124,6 +123,6 @@
       html)
 
     (catch Exception e
-      (println "Error in add-csrf-tags:" (.getMessage e))
+      (error "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))

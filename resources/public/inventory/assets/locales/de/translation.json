@@ -116,7 +116,8 @@
             "label": "Version"
           },
           "manufacturer": {
-            "label": "Hersteller"
+            "label": "Hersteller",
+            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "description": {
             "label": "Beschreibung"
@@ -216,11 +217,17 @@
         "submit": "Erstellen",
         "add_item": "Erstellen und Gegenstand hinzufügen",
         "cancel": "Abbrechen",
-        "success": "Modell wurde erfolgreich erstellt"
+        "success": "Modell wurde erfolgreich erstellt",
+        "invalid_one": "Modell konnte nicht erstellt werden, da ein Feld ungültig ist",
+        "invalid_other": "Modell konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+        "409": "Modell konnte nicht erstellt werden, da ein Modell mit dem gleichen Namen bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
         "success": "Modell wurde erfolgreich gespeichert",
-        "add_item": "Speichern und Gegenstand hinzufügen"
+        "add_item": "Speichern und Gegenstand hinzufügen",
+        "invalid_one": "Modell konnte nicht gespeichert werden, da ein Feld ungültig ist",
+        "invalid_other": "Modell konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
       },
       "delete": {
         "title": "Modell löschen",
@@ -228,7 +235,7 @@
         "confirm": "Löschen",
         "cancel": "Abbrechen",
         "success": "Modell wurde erfolgreich gelöscht",
-        "error": "Modell konnte nicht gelöscht werden"
+        "500": "Modell konnte nicht gelöscht werden"
       }
     }
   },

@@ -20,12 +20,12 @@ export const schema = z.object({
     )
     .optional(),
   categories: z
-    .array(z.object({ id: z.string(), name: z.string(), type: z.string() }))
+    .array(z.object({ id: z.string(), name: z.string() }))
     .optional(),
   images: z
     .array(
       z.object({
-        id: z.string().nullish(),
+        id: z.string().nullable(),
         file: z.instanceof(File).optional(),
         is_cover: z.boolean(),
       }),
@@ -34,28 +34,33 @@ export const schema = z.object({
   attachments: z
     .array(
       z.object({
-        id: z.string().nullish(),
+        id: z.string().nullable(),
         file: z.instanceof(File).optional(),
       }),
     )
     .optional(),
-  accessories: z.array(z.object({ name: z.string() })).optional(),
+  accessories: z
+    .array(
+      z.object({
+        id: z.string().nullable(),
+        name: z.string().nonempty(),
+      }),
+    )
+    .optional(),
   compatibles: z
     .array(
       z.object({
         product: z.string(),
         id: z.string(),
-        cover_image_id: z.string().nullish(),
-        cover_image_url: z.string().nullish(),
       }),
     )
     .optional(),
   properties: z
     .array(
       z.object({
-        id: z.string().nullish(),
-        key: z.string(),
-        value: z.string(),
+        id: z.string().nullable(),
+        key: z.string().nonempty(),
+        value: z.string().nonempty(),
       }),
     )
     .optional(),
@@ -92,9 +97,15 @@ export const structure = [
         },
       },
       {
-        name: "manufacturers",
+        name: "manufacturer",
         label: "pool.model.product.blocks.manufacturer.label",
-        component: "manufacturers",
+        component: "instant-search",
+        props: {
+          "auto-complete": "off",
+          placeholder: "Hersteller auswählen",
+          resource: "/inventory/:pool-id/manufacturers/",
+          "not-found": "pool.model.product.blocks.manufacturer.not_found",
+        },
       },
       {
         name: "description",

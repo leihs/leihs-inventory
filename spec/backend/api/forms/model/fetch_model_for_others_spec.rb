@@ -14,6 +14,7 @@ end
 
 describe "Inventory Model" do
   ["group_manager", "customer"].each do |role|
+    # ["group_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -38,20 +39,22 @@ describe "Inventory Model" do
         end
 
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/manufacturers?type=Model"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = resp.body
+        resp = client.get "/inventory/#{pool_id}/models/?size=1000"
+        @form_models_compatibles = resp.body["data"].map do |h|
+          h.select { |k, _v| k == "id" || k == "product" }
+        end
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/model-groups"
-        @form_model_groups = resp.body
+        resp = client.get "/inventory/#{pool_id}/category-tree/"
+        @form_model_groups = extract_first_level_of_tree(resp.body)
         raise "Failed to fetch model groups" unless resp.status == 200
       end
 
@@ -79,20 +82,17 @@ describe "Inventory Model" do
 
       context "create model (min)" do
         it "creates a model with all available attributes" do
-          compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
-
           # create model request
           form_data = {"product" => Faker::Commerce.product_name}
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
 
           # update model request
           form_data = {
@@ -100,22 +100,21 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
         end
       end
 
       context "create model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
-          compatibles.first["id"] = compatibles.first.delete("model_id")
 
           # create model request
           form_data = {
@@ -133,15 +132,15 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch created model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
 
           # update model request
           form_data = {
@@ -159,15 +158,15 @@ describe "Inventory Model" do
           }
 
           resp = json_client_put(
-            "/inventory/#{pool_id}/model/#{model_id}/",
+            "/inventory/#{pool_id}/models/#{model_id}",
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch updated model
-          resp = client.get "/inventory/#{pool_id}/model/#{model_id}"
-          expect(resp.status).to eq(401)
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          expect(resp.status).to eq(404)
         end
       end
     end
