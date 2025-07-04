@@ -52,40 +52,35 @@
                        (.then #(jc (.-data %))))
 
         models (-> http-client
-                   (.get "/inventory/models-compatibles" #js {:id "compatible-models"})
+                   (.get (str "/inventory/" pool-id "/models/") #js {:id "compatible-models"})
                    (.then (fn [res]
                             (if (:model-id (jc params))
                               ;; If a model-id is provided, filter out the current model
                               (filter #(not= (:model_id %) (:model-id (jc params)))
                                       (jc (.-data res)))
                               ;; Otherwise, return all models
-                              (jc (.-data res))))))
+                              (jc (.. res -data -data))))))
 
         manufacturers (-> http-client
                           (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         model-path (when model-id
-                     (router/generatePath "/inventory/:pool-id/model/:model-id" params))
+                     (str "/inventory/" pool-id "/models/" model-id "/"))
 
-        model (when model-path
-                (-> http-client
-                    (.get model-path #js {:id model-id})
-                    (.then (fn [res]
-                             (let [kv (jc (.-data res))]
-                               (->> kv
-                                    (vals)
-                                    (map (fn [el] (if (nil? el) "" el)))
-                                    (zipmap (keys kv))))))))]
+        data (when model-path
+               (-> http-client
+                   (.get model-path #js {:id model-id})
+                   (.then #(jc (.-data %)))))]
 
     (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
-                          model (conj model)))
-        (then (fn [[categories models manufacturers entitlement-groups & [model]]]
+                          data (conj data)))
+        (then (fn [[categories models manufacturers entitlement-groups & [data]]]
                 {:categories categories
+                 :models models
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
-                 :models models
-                 :model (if model model nil)})))))
+                 :data (if data data nil)})))))
 
 (defn items-crud-page [route-data]
   (let [models (-> http-client
