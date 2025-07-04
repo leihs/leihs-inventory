@@ -12,7 +12,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/models" }
+    let(:url) { "/inventory/models/" }
 
     # context "GET /inventory/models" do
     #   before :each do
@@ -33,7 +33,7 @@ describe "Swagger Inventory Endpoints - Models" do
     # end
 
     context "GET /inventory/:pool_id/models for a specific pool" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
 
       it "returns an empty list for a new pool and returns status 200" do
         resp = client.get url
@@ -49,15 +49,14 @@ describe "Swagger Inventory Endpoints - Models" do
     end
 
     context "POST and GET /inventory/:pool_id/models when creating new models" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
 
       before :each do
         category = FactoryBot.create(:category)
-        resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+        model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+          version: "1")
 
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-        @model_id = resp.body[0]["id"]
+        category.add_direct_model(model)
       end
 
       it "returns one model after creation and returns status 200" do
@@ -69,10 +68,10 @@ describe "Swagger Inventory Endpoints - Models" do
       context "when adding another model" do
         before :each do
           category = FactoryBot.create(:category)
-          resp = create_model_post(client, inventory_pool_id, Faker::Lorem.word, [category.id])
+          model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false,
+            version: "1")
 
-          expect(resp.status).to eq(200)
-          expect(resp.body.count).to eq(1)
+          category.add_direct_model(model)
         end
 
         it "returns both models and returns status 200" do

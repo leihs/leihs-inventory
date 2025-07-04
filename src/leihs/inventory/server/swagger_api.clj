@@ -16,6 +16,9 @@
             [leihs.inventory.server.constants :as consts]
             [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
             [leihs.inventory.server.routes :as routes]
+
+            [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated]]
+
             [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.debug-handler :as debug-mw]
             [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
@@ -51,14 +54,15 @@
                   ring-audits/wrap
                   wrap-accept-with-image-rewrite
 
+                  ;wrap-check-authenticated
                   csrf/extract-header
                   wrap-authenticate!
-                  leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                   wrap-cookies
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
                   dm/extract-dev-cookie-params
 
+                  leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                   wrap-params
                   wrap-content-type
 

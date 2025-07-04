@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.core.db :as db]
    [leihs.core.json :refer [to-json]]
-   [leihs.inventory.server.utils.config :refer [get-config]]
+   [leihs.inventory.server.utils.constants :refer [config-get]]
    [ring.util.response :as response])
   (:import [java.io File FileInputStream ByteArrayOutputStream]
            [java.util Base64]
@@ -47,9 +47,9 @@
 (defn resize-and-convert-to-base64
   "Resize the image, convert it to Base64, and get the file size."
   [input-path]
-  (let [upload-dir (get-in (get-config) [:api :upload-dir])
-        width (get-in (get-config) [:api :images :thumbnail :width-px])
-        height (get-in (get-config) [:api :images :thumbnail :height-px])
+  (let [upload-dir (config-get :api :upload-dir)
+        width (config-get :api :images :thumbnail :width-px)
+        height (config-get :api :images :thumbnail :height-px)
         output-path (add-thumb-to-filename input-path)]
     (resize-image input-path output-path width height)
     {:base64 (file-to-base64 output-path)

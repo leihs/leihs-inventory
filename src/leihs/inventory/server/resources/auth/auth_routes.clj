@@ -13,6 +13,7 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
@@ -74,56 +75,56 @@
        (ex-info "BasicAuth header not found."
                 {:status 403})))))
 
-(defn sha256-hash [token]
-  (d/sha-256 token))
+;(defn sha256-hash [token]
+;  (d/sha-256 token))
 
-(defn authenticate-handler [request]
-  (try
-    (let [[login password] (extract-basic-auth-from-header request)
-          user (verify-password-entry request login password)]
-      (if user
-        (let [token (str (UUID/randomUUID))
-              hashed-token (sha256-hash token)
-              auth-system-id "password"
-              user-id (:id user)
-              check-query (-> (sql/select :*)
-                              (sql/from :user_sessions)
-                              (sql/where [:= :user_id [:cast user-id :uuid]]
-                                         [:= :authentication_system_id auth-system-id])
-                              sql-format)
-              existing-session (jdbc/execute-one! (:tx request) check-query)]
-
-          (when existing-session
-            (println "Hint: session already exists for user:" user-id))
-
-          (let [insert-query (-> (sql/insert-into :user_sessions)
-                                 (sql/values
-                                  [{:token_hash hashed-token
-                                    :user_id user-id
-                                    :authentication_system_id auth-system-id
-                                   ;:expires_at expires-at
-                                    }])
-                                 sql-format)
-                insert-res (jdbc/execute! (:tx request) insert-query)])
-
-          (let [max-age 3600
-                cookie {:http-only true
-                        :secure true
-                        :max-age max-age
-                        :path "/"}]
-            (->
-             (response/response
-              {:status "success" :message "User authenticated successfully"})
-             (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
-             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"}))))
-
-        (response/status
-         (response/response {:status "failure" :message "Invalid credentials"}) 403)))
-
-    (catch Exception e
-      (println "Error in authenticate-handler:" (.getMessage e))
-      (response/status
-       (response/response {:message (.getMessage e)}) 400))))
+;(defn authenticate-handler [request]
+;  (try
+;    (let [[login password] (extract-basic-auth-from-header request)
+;          user (verify-password-entry request login password)]
+;      (if user
+;        (let [token (str (UUID/randomUUID))
+;              hashed-token (sha256-hash token)
+;              auth-system-id "password"
+;              user-id (:id user)
+;              check-query (-> (sql/select :*)
+;                              (sql/from :user_sessions)
+;                              (sql/where [:= :user_id [:cast user-id :uuid]]
+;                                         [:= :authentication_system_id auth-system-id])
+;                              sql-format)
+;              existing-session (jdbc/execute-one! (:tx request) check-query)]
+;
+;          (when existing-session
+;            (println "Hint: session already exists for user:" user-id))
+;
+;          (let [insert-query (-> (sql/insert-into :user_sessions)
+;                                 (sql/values
+;                                  [{:token_hash hashed-token
+;                                    :user_id user-id
+;                                    :authentication_system_id auth-system-id
+;                                   ;:expires_at expires-at
+;                                    }])
+;                                 sql-format)
+;                insert-res (jdbc/execute! (:tx request) insert-query)])
+;
+;          (let [max-age 3600
+;                cookie {:http-only true
+;                        :secure true
+;                        :max-age max-age
+;                        :path "/"}]
+;            (->
+;             (response/response
+;              {:status "success" :message "User authenticated successfully"})
+;             (response/set-cookie "leihs-user-session" token cookie {:max-age max-age :path "/"})
+;             (response/set-cookie "leihs-session" user {:max-age max-age :path "/"}))))
+;
+;        (response/status
+;         (response/response {:status "failure" :message "Invalid credentials"}) 403)))
+;
+;    (catch Exception e
+;      (println "Error in authenticate-handler:" (.getMessage e))
+;      (response/status
+;       (response/response {:message (.getMessage e)}) 400))))
 
 (defn update-role-handler [request]
   (try
@@ -215,12 +216,12 @@
         {:message "Error updating password"})
        400))))
 
-(defn password-hash
-  ([password tx]
-   (-> (sql/select [[:crypt password [:gen_salt "bf"]] :pw_hash])
-       sql-format
-       (->> (jdbc/execute-one! tx))
-       :pw_hash)))
+;(defn password-hash
+;  ([password tx]
+;   (-> (sql/select [[:crypt password [:gen_salt "bf"]] :pw_hash])
+;       sql-format
+;       (->> (jdbc/execute-one! tx))
+;       :pw_hash)))
 
 (defn public-endpoint-handler [request]
   {:status 200
@@ -337,13 +338,18 @@
           verification-result (verify-token tx token)]
       (if verification-result
         (handler (assoc request AUTHENTICATED_ENTITY verification-result))
-        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
+        (response/status (response/response {:status "failure" :message "Unauthorized1"}) 401)))))
 
-(defn token-routes []
+(defn session-token-routes []
   [["/"
 
+    {:no-doc HIDE_BASIC_ENDPOINTS}
+
     ["session"
-     {:tags ["Auth / Session"]}
+     {:tags ["Auth / Session"]
+
+      ;:no-doc HIDE_BASIC_ENDPOINTS
+      }
 
      ["/public"
       {:get {:swagger {:security []}
@@ -356,9 +362,12 @@
              :middleware [ab/wrap]}}]]
 
     ["token"
-     {:tags ["Auth / Token"]}
+     {:tags ["Auth / Token"]
+      ;:no-doc HIDE_BASIC_ENDPOINTS
+      }
 
      ["/"
+
       {:post {:summary "Create an API token with creds for a user"
               :description "Generates an API token for a user with specific permissions and scopes"
               :accept "application/json"

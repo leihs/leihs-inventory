@@ -44,7 +44,7 @@
                               (map (comp keyword :role))
                               set))]
     (when-not (not-empty (clojure.set/intersection allowed-roles roles-for-pool))
-      (throw (ex-info "invalid role for the requested pool or method" {:status 401})))
+      (throw (ex-info "invalid role for the requested pool or method" {:status 404})))
     roles-for-pool))
 
 (defn permission-by-role-and-pool

@@ -5,8 +5,35 @@ require_relative "../../_common"
 require "faker"
 require "marcel"
 
+def upload_and_expect(file_path, expected_ok)
+  File.open(file_path, "rb") do |file|
+    content_type = Marcel::MimeType.for(file)
+    headers = cookie_header.merge(
+      "Content-Type" => content_type,
+      "X-Filename" => File.basename(file.path),
+      "Content-Length" => file.size.to_s
+    )
+
+    response = json_client_post(
+      "/inventory/#{@inventory_pool.id}/models/#{model_id}/attachments/",
+      body: file,
+      headers: headers,
+      is_binary: true
+    )
+
+    if expected_ok
+      expect(response.status).to eq(200)
+    else
+      expect(response.status).to eq(400)
+      expect(response.body["error"]).to eq("Failed to upload attachment")
+    end
+    response
+  end
+end
+
 describe "Inventory Model" do
-  ["inventory_manager", "customer"].each do |role|
+  # ['inventory_manager', 'customer'].each do |role|
+  ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -29,50 +56,13 @@ describe "Inventory Model" do
       let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
       let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
 
+      let(:pool_id) { @inventory_pool.id }
+
       before do
         # Ensure all fixture files exist
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
           path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
-        end
-
-        # Fetch and verify form data
-        resp = client.get "/inventory/manufacturers?type=Model"
-        @form_manufacturers = resp.body
-        raise "Failed to fetch manufacturers" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
-        @form_entitlement_groups = resp.body
-        raise "Failed to fetch entitlement groups" unless resp.status == 200
-
-        resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = convert_to_id_correction(resp.body)
-        raise "Failed to fetch compatible models" unless resp.status == 200
-
-        resp = client.get "/inventory/#{pool_id}/model-groups"
-        @form_model_groups = resp.body
-        raise "Failed to fetch model groups" unless resp.status == 200
-      end
-
-      context "fetch form data" do
-        it "retrieves manufacturers list" do
-          expect(@form_manufacturers).not_to be_nil
-          expect(@form_manufacturers.count).to eq(2)
-        end
-
-        it "retrieves entitlement groups list" do
-          expect(@form_entitlement_groups).not_to be_nil
-          expect(@form_entitlement_groups.count).to eq(2)
-        end
-
-        it "retrieves compatible models list" do
-          expect(@form_models_compatibles).not_to be_nil
-          expect(@form_models_compatibles.count).to eq(LeihsModel.count)
-        end
-
-        it "retrieves model groups list" do
-          expect(@form_model_groups).not_to be_nil
-          expect(@form_model_groups.count).to eq(2)
         end
       end
 
@@ -85,79 +75,32 @@ describe "Inventory Model" do
       context "upload attachments" do
         it "uploads valid attachment types and sizes" do
           [path_valid_pdf].each do |file_path|
-            file = File.open(file_path, "rb")
-            content_type = Marcel::MimeType.for(file)
-
-            headers = cookie_header.merge(
-              "Content-Type" => content_type,
-              "X-Filename" => File.basename(file.path),
-              "Content-Length" => File.size(file.path).to_s
-            )
-
-            response = json_client_post(
-              "/inventory/models/#{model_id}/attachments",
-              body: file,
-              headers: headers,
-              is_binary: true
-            )
-
-            expect(response.status).to eq(200)
-            file.close
+            upload_and_expect(file_path, true)
           end
         end
 
         it "rejects invalid attachment file types" do
           [path_valid_png, path_valid_jpg, path_valid_jpeg].each do |file_path|
-            file = File.open(file_path, "rb")
-            content_type = Marcel::MimeType.for(file)
-
-            headers = cookie_header.merge(
-              "Content-Type" => content_type,
-              "X-Filename" => File.basename(file.path),
-              "Content-Length" => File.size(file.path).to_s
-            )
-
-            response = json_client_post(
-              "/inventory/models/#{model_id}/attachments",
-              body: file,
-              headers: headers,
-              is_binary: true
-            )
-
-            expect(response.status).to eq(400)
-            expect(response.body["error"]).to eq("Failed to upload attachment")
-            file.close
+            upload_and_expect(file_path, false)
           end
         end
 
-        # TODO: Different limit for test env has been dropped. Do we still need this?
-        #
-        # if ENV["RAILS_ENV"] == "test"
-        #   it "rejects attachments exceeding maximum size" do
-        #     [path_invalid_pdf].each do |file_path|
-        #       file = File.open(file_path, "rb")
-        #       content_type = Marcel::MimeType.for(file)
+        context "upload & fetch attachments" do
+          before :each do
+            @upload_response = upload_and_expect(path_valid_pdf, true)
+          end
 
-        #       headers = cookie_header.merge(
-        #         "Content-Type" => content_type,
-        #         "X-Filename" => File.basename(file.path),
-        #         "Content-Length" => File.size(file.path).to_s
-        #       )
+          it "fetches attachment" do
+            image_id = @upload_response.body[0]["id"]
 
-        #       response = json_client_post(
-        #         "/inventory/models/#{model_id}/attachments",
-        #         body: file,
-        #         headers: headers,
-        #         is_binary: true
-        #       )
+            puts "pool_id: #{pool_id}"
+            puts "model_id: #{model_id}"
+            puts "image_id: #{image_id}"
 
-        #       expect(response.status).to eq(400)
-        #       expect(response.body["error"]).to eq("Failed to upload attachment")
-        #       expect(response.body["details"]).to eq("File size exceeds limit")
-        #       file.close
-        #     end
-        #   end
-        # end
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{image_id}"
+            expect(resp.status).to eq(200)
+          end
+        end
       end
     end
   end

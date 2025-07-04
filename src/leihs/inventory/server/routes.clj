@@ -3,33 +3,37 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.core.anti-csrf.back :refer [anti-csrf-props anti-csrf-token]]
-   [leihs.core.auth.session :refer [wrap-authenticate]]
+   [leihs.core.anti-csrf.back :refer [anti-csrf-token]]
    [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-   [leihs.inventory.server.constants :as consts]
-   [leihs.inventory.server.resources.attachments.routes :refer [get-attachments-routes]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [authenticate-handler logout-handler set-password-handler
-                                                              update-role-handler token-routes]]
+   [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
+   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
+                                             APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
+   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
    [leihs.inventory.server.resources.auth.session :as ab]
-   [leihs.inventory.server.resources.buildings_rooms.routes :refer [get-buildings-rooms-routes]]
-   [leihs.inventory.server.resources.categories.routes :refer [get-categories-routes]]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
-   [leihs.inventory.server.resources.export.routes :refer [get-export-routes]]
-   [leihs.inventory.server.resources.fields.routes :refer [get-fields-routes]]
-   [leihs.inventory.server.resources.images.routes :refer [get-images-routes]]
-   [leihs.inventory.server.resources.items.routes :refer [get-items-routes]]
-   [leihs.inventory.server.resources.models.routes :refer [get-model-by-pool-route get-model-route]]
-   [leihs.inventory.server.resources.models.tree.routes :refer [get-tree-route]]
-   [leihs.inventory.server.resources.owner-department.routes :refer [get-owner-department-routes]]
-   [leihs.inventory.server.resources.pools.routes :refer [get-pools-routes]]
-   [leihs.inventory.server.resources.properties.routes :refer [get-properties-routes]]
-   [leihs.inventory.server.resources.supplier.routes :refer [get-supplier-routes]]
-   [leihs.inventory.server.resources.user.routes :refer [get-user-routes]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! restrict-uri-middleware]]
+   [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
+   [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
+   [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
+   [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
+   [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
+   [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :refer [get-models-model-attachments-single-routes]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.routes :refer [get-models-images-image-routes]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :refer [get-models-images-single-thumbnail-routes]]
+   [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
+   [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
+   [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
+   [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
+   [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
+   [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
+   [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [muuntaja.core :as m]
@@ -55,24 +59,37 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(defn incl-other-routes []
-  ["" (get-model-route)
-   (get-model-by-pool-route)
-   (get-tree-route)
-   (get-properties-routes)
-   (get-pools-routes)
-   (get-categories-routes)
-   (get-buildings-rooms-routes)
-   (get-dev-routes)
-   (get-owner-department-routes)
-   (get-items-routes)
-   (get-supplier-routes)
-   (get-fields-routes)
-   (get-export-routes)
-   (get-attachments-routes)
-   (get-images-routes)
-   (get-user-routes)
-   (token-routes)])
+; 1. Base routes (current state)
+; 2. Already existing routes (not used by FE)
+; 3. Dev routes
+(defn incl-other-routes
+  "Returns a vector of the core routes plus any additional routes passed in."
+  []
+  (let [core-routes [(get-models-route)
+                     (get-models-single-route)
+                     (get-models-images-image-routes)
+                     (get-models-images-single-thumbnail-routes)
+                     (get-models-model-attachments-route)
+                     (get-models-model-attachments-single-routes)
+                     (get-models-model-images-route)
+                     (get-buildings-rooms-routes)
+                     (get-models-single-items-route)
+                     (get-responsible-inventory-pools-routes)
+                     (get-entitlement-groups-routes)
+                     (get-profile-routes)
+                     (get-manufacturers-routes)
+                     (get-category-tree-route)
+                     (session-token-routes)]
+        additional-routes (concat
+                           (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                             [(get-suppliers-routes)
+                              (get-fields-routes)
+                              (get-export-routes)
+                              (get-items-routes)])
+                           (when APPLY_DEV_ENDPOINTS
+                             [(get-dev-routes)]))]
+
+    (vec (concat core-routes additional-routes))))
 
 (defn get-sign-in [request]
   (let [mtoken (anti-csrf-token request)
@@ -122,11 +139,10 @@
       {:status (if (so/routes params) 200 409)}
       (so/routes params))))
 
-(def update-role-response {:role-before s/Str
-                           :role-after s/Str
-                           :inventory_pool_id s/Uuid
-                           :count-of-direct-access-right-should-be-one s/Int
-                           (s/optional-key :update-result) s/Any})
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc)
 
 (defn basic-routes []
 
@@ -134,7 +150,7 @@
 
    [["sign-in"
      {:swagger {:tags ["Login"]}
-      :no-doc false
+      :no-doc HIDE_BASIC_ENDPOINTS
 
       :post {:accept "application/json"
              :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
@@ -151,7 +167,7 @@
 
     ["sign-out"
      {:swagger {:tags ["Login"]}
-      :no-doc false
+      :no-doc HIDE_BASIC_ENDPOINTS
       :post {:accept "application/json"
              :swagger {:produces ["text/html" "application/json"]}
              :handler post-sign-out}
@@ -162,47 +178,40 @@
    ["inventory"
 
     ["/"
-     {:swagger {:tags ["Auth"]}}
+     {:swagger {:tags ["Auth"]}
+      :no-doc HIDE_BASIC_ENDPOINTS}
 
-     ["login"
-      {:get {:summary "[SIMPLE-LOGIN] OK | DEV | Authenticate user by login (set cookie with token) [v0]"
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
-             :handler authenticate-handler}}]
+     ;["login"
+     ; {:get {:summary "[SIMPLE-LOGIN] DEV | Authenticate user by login (set cookie with token) [fe]"
+     ;        :accept "application/json"
+     ;        :coercion reitit.coercion.schema/coercion
+     ;        :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
+     ;        :handler authenticate-handler}}]
 
-     ["admin/update-role"
-      {:put {:summary "[] OK | DEV | Update direct-user-role [v0]"
-             :accept "application/json"
-             :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
-             :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                  (s/optional-key :pool_id) s/Uuid}}
-             :coercion reitit.coercion.schema/coercion
-             :middleware [wrap-is-admin!]
-             :handler update-role-handler
-             :responses {200 {:description "OK" :body update-role-response}
-                         409 {:description "Conflict" :body update-role-response}
-                         500 {:description "Internal Server Error"}}}}]
+     ;["admin/update-role"
+     ; {:put {:summary "[] DEV | Update direct-user-role [fe]"
+     ;        :accept "application/json"
+     ;        :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
+     ;        :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+     ;                             (s/optional-key :pool_id) s/Uuid}}
+     ;        :coercion reitit.coercion.schema/coercion
+     ;        :middleware [wrap-is-admin!]
+     ;        :handler update-role-handler
+     ;        :responses {200 {:description "OK" :body update-role-response}
+     ;                    409 {:description "Conflict" :body update-role-response}
+     ;                    500 {:description "Internal Server Error"}}}}]
 
      ["logout"
       {:get {:accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:deprecated true}
              :middleware [ab/wrap]
-             :handler logout-handler}}]
-
-     ["set-password"
-      {:post {:summary "OK | Set password by basicAuth for already authenticated user"
-              :accept "application/json"
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:body {:new-password1 s/Str}}
-              :handler set-password-handler}}]]
-
+             :handler logout-handler}}]]
     ["/"
-     {:swagger {:tags ["CSRF"] :security [{:csrfToken []}]}}
+     {:swagger {:tags [""] :security [{:csrfToken []}]}}
 
      ["test-csrf"
-      {:no-doc false
+      {:no-doc HIDE_BASIC_ENDPOINTS
        :get {:accept "application/json"
              :description "Access allowed without x-csrf-token"
              :handler (fn [_] {:status 200})}
@@ -220,25 +229,17 @@
                 :handler (fn [_] {:status 200})}}]]
 
     ["/"
-     {:swagger {:tags ["CSRF"] :security []}}
+     {:swagger {:tags [""] :security []}}
 
-     ["csrf-token"
+     ["csrf-token/"
       {:no-doc false
-       :get {:summary "Retrieve X-CSRF-Token for request header"
+       :get {:summary "Retrieve X-CSRF-Token to use swagger-endpoints"
              :accept "application/json"
              :swagger {:produces ["application/json"]}
              :handler get-sign-in}}]]
 
-    ["/"
-     {:swagger {:tags ["Status"]}}
-     ["admin/status"
-      {:get {:accept "application/json"
-             :handler status/status-handler
-             :middleware [wrap-is-admin!]}}]]
-
     ["/api-docs"
-     {:get {:conflicting true
-            :handler swagger-api-docs-handler
+     {:get {:handler swagger-api-docs-handler
             :no-doc true}}]
 
     ["/api-docs/swagger.json"
@@ -247,8 +248,7 @@
                              :version "2.0.0"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
                       :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
-                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}
-                                            :basicAuth {:type "basic"}}
+                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
                       :security [{:csrfToken []}]}
             :handler (swagger/create-swagger-handler)}}]
     ["/api-docs/openapi.json"
