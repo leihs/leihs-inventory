@@ -16,6 +16,11 @@
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
+
+   [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
+                                                     put-response
+                                                     delete-response]]
+
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -66,8 +71,7 @@
                             :body {:is_cover (s/maybe s/Uuid)}}
                :handler patch-model-handler
                :responses {200 {:description "OK"
-                                :body [{:id s/Uuid
-                                        :cover_image_id s/Uuid}]}
+                                :body patch-response}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}
 
@@ -82,14 +86,7 @@
                                     :model_id uuid?}}
                 :handler delete-model-handler-by-pool-json
                 :responses {200 {:description "OK"
-                                 :body {:deleted_attachments [{:id uuid?
-                                                               :model_id uuid?
-                                                               :filename string?
-                                                               :size number?}]
-                                        :deleted_images [any?]
-                                        :deleted_model [{:id uuid?
-                                                         :product string?
-                                                         :manufacturer any?}]}}
+                                 :body delete-response}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}
 
@@ -103,7 +100,6 @@
                           :body :model/multipart}
              :handler update-model-handler-by-pool-model-json
              :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
+                              :body put-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])
