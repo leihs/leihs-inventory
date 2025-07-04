@@ -20,7 +20,8 @@
             [leihs.inventory.server.utils.debug-handler :as debug-mw]
             [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
                                                                      wrap-accept-with-image-rewrite
-                                                                     wrap-authenticate!]]
+                                                                     wrap-session-token-authenticate!]]
+   [leihs.inventory.server.resources.utils.middleware :refer [wrap-authenticate!]]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -52,6 +53,7 @@
                   wrap-accept-with-image-rewrite
 
                   csrf/extract-header
+                  wrap-session-token-authenticate!
                   wrap-authenticate!
                   wrap-cookies
                   csrf/wrap-csrf
