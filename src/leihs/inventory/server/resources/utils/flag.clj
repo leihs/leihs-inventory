@@ -11,8 +11,3 @@
 (defn admin [s]
   (str "Session/Admin: " s))
 
-(defn fe-comp [s]
-  (str "FE-Component Endpoint | " s))
-
-(defn dev-v0 [s]
-  (str "Dev-Form v0 | " s))

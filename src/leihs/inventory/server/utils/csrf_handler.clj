@@ -89,6 +89,10 @@
       (try
         (handler request)
         (catch Throwable e
+
+          (println ">o> abc" e)
+          (println ">o> abc2.uri" (:uri request))
+
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (leihs.inventory.server.routes/get-sign-in request)
@@ -105,11 +109,13 @@
           api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token"])
+        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (let [uri (:uri request)]
+              (println ">o> abc3" e)
+              (let [uri (:uri request)
+                    p (println ">o> abc1.uri" uri)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
                   {:status 400

@@ -21,20 +21,22 @@ describe "Inventory Model" do
 
       before do
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/manufacturers?type=Model"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+        resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
         @form_entitlement_groups = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/models-compatibles"
-        @form_models_compatibles = convert_to_id_correction(resp.body)
+        resp = client.get "/inventory/#{pool_id}/models/?size=1000"
+        @form_models_compatibles = resp.body["data"].map do |h|
+          h.select { |k, _v| k == "id" || k == "product" }
+        end
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/#{pool_id}/model-groups"
-        @form_model_groups = resp.body
+        resp = client.get "/inventory/#{pool_id}/category-tree/"
+        @form_model_groups = extract_first_level_of_tree(resp.body)
         raise "Failed to fetch model groups" unless resp.status == 200
       end
 
@@ -77,7 +79,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -85,7 +87,7 @@ describe "Inventory Model" do
 
           # retry to create model request
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -99,7 +101,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -117,7 +119,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -125,7 +127,7 @@ describe "Inventory Model" do
 
           # retry to create model request
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -139,7 +141,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/model/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )

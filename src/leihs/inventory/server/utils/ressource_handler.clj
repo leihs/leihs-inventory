@@ -78,24 +78,11 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
-;; TODO: remove DEV-FORMS-HANDLING if not used anymore (start)
-(defn extract-filetype [uri]
-  (when-let [filename (last (str/split uri #"/"))]
-    (second (re-matches #".*\.([a-zA-Z0-9]+)$" filename))))
-
 (defn extract-filename [uri]
   (let [filename (last (str/split uri #"/"))]
     (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
       filename
       nil)))
-
-(def CONST_ALLOWED_TYPES #{"software" "license" "item" "option" "package" "stable" "mtable" "upload"})
-
-(defn generate-content-type [filetype]
-  (let [charset "; charset=utf-8"]
-    (if (= filetype "js")
-      (str "application/javascript" charset)
-      (str "text/" filetype charset))))
 
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
@@ -109,19 +96,6 @@
 
     (cond
       (= uri "/") (create-root-page)
-
-      (and (dm/has-admin-permission request) (str/starts-with? uri "/inventory/dev/") file)
-      {:status 200
-       :headers {"Content-Type" (generate-content-type (extract-filetype uri))}
-       :body (slurp (io/resource (str "public/dev/" file)))}
-
-      (and (dm/has-admin-permission request) (re-matches #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))
-      (let [type (second (re-find #"/inventory/[a-f0-9\-]+/dev/([a-z]+)" uri))]
-        (if (CONST_ALLOWED_TYPES type)
-          {:status 200
-           :headers {"Content-Type" "text/html"}
-           :body (slurp (io/resource (str "public/dev/create-" type ".html")))}
-          {:status 400 :body "Invalid type"}))
 
       (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
            (contains-one-of? uri CONST_SUPPORTED_LOCALES))

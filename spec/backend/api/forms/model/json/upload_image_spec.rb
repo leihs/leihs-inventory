@@ -5,6 +5,28 @@ require_relative "../../_common"
 require "faker"
 require "marcel"
 
+def upload_image(file_path)
+  file = File.open(file_path, "rb")
+  content_type = Marcel::MimeType.for(file)
+  headers = cookie_header.merge(
+    "Content-Type" => content_type,
+    "X-Filename" => File.basename(file.path),
+    "Content-Length" => File.size(file.path).to_s
+  )
+
+  response = json_client_post(
+    "/inventory/#{@inventory_pool.id}/models/#{model_id}/images/",
+    body: file,
+    headers: headers,
+    is_binary: true
+  )
+  file.close
+
+  expect(response.status).to eq(200)
+
+  response
+end
+
 describe "Inventory Model" do
   ["inventory_manager", "customer"].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -25,6 +47,7 @@ describe "Inventory Model" do
       let(:path_invalid_jpg) { File.expand_path("spec/files/2-mb.jpg", Dir.pwd) }
       let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
       let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
+      let(:pool_id) { @inventory_pool.id }
 
       before do
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
@@ -44,7 +67,7 @@ describe "Inventory Model" do
           )
 
           response = json_client_post(
-            "/inventory/models/#{model_id}/images",
+            "/inventory/#{pool_id}/models/#{model_id}/images/",
             body: file,
             headers: headers,
             is_binary: true
@@ -68,18 +91,25 @@ describe "Inventory Model" do
           end
         end
 
-        # TODO: Different limit for test env has been dropped. Do we still need this?
-        #
-        # if ENV["RAILS_ENV"] == "test"
-        #   it "rejects images exceeding size limit" do
-        #     [path_invalid_png, path_invalid_jpg, path_invalid_jpeg].each do |path|
-        #       response = upload_image(path)
-        #       expect(response.status).to eq(400)
-        #       expect(response.body["error"]).to eq("Failed to upload image")
-        #       expect(response.body["details"]).to eq("File size exceeds limit")
-        #     end
-        #   end
-        # end
+        context "upload & fetch image" do
+          before :each do
+            @upload_response = upload_image(path_valid_png)
+          end
+
+          it "fetches image" do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}"
+            expect(resp.status).to eq(200)
+          end
+
+          it "fetches image-thumbnail" do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail"
+            expect(resp.status).to eq(200)
+          end
+        end
       end
     end
   end

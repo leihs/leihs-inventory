@@ -5,7 +5,7 @@
    [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.models.helper :refer [parse-json-array]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [parse-json-array]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
