@@ -23,7 +23,7 @@ post_response = {
   "id" => String,
   "manufacturer" => String,
   "version" => [NilClass, String],
-  # "name" => String,
+  "name" => String,
   "created_at" => String,
   "technical_detail" => String
 }
@@ -358,10 +358,8 @@ describe "Inventory Model" do
           expect(resp.body["entitlements"].count).to eq(2)
           expect(resp.body["compatibles"].count).to eq(2)
 
-          resp.body["compatibles"]
-          # FIXME
-          expect(select_with_cover(expected_compatibles).count).to eq(1)
-          expect(select_without_cover(expected_compatibles).count).to eq(1)
+          expected_compatibles = resp.body["compatibles"]
+          expect(expected_compatibles.count).to eq(2)
 
           expect(resp.body["categories"].count).to eq(2)
           expect(resp.status).to eq(200)

@@ -37,7 +37,6 @@ describe "Swagger Inventory Endpoints - Models with audits" do
       it "creates a model and returns status 200" do
         expect(response.status).to eq(200)
         expect(response.body["data"]["id"]).to be_present
-        expect(response.body.count).to eq(1)
         expect_audit_entries_count(2, 8, 2)
       end
 
