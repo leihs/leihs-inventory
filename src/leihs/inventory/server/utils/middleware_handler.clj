@@ -11,7 +11,8 @@
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.util.response :refer [bad-request response status]]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -49,7 +50,7 @@
     (let [handler (try
                     (session/wrap-authenticate handler)
                     (catch Exception e
-                      (println ">> Error in session-authenticate!" e)
+                      (error "Error in session-authenticate!" e)
                       handler))
           token (get-in request [:headers "authorization"])
           handler (if (and token
@@ -57,7 +58,7 @@
                     (try
                       (token/wrap-authenticate handler)
                       (catch Exception e
-                        (println ">> Error in token-authenticate!" e)
+                        (error "Error in token-authenticate!" e)
                         handler))
                     handler)]
       (handler request))))

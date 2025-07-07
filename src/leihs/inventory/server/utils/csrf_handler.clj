@@ -16,7 +16,8 @@
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (def WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out"])
 
@@ -111,9 +112,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (println ">o> abc3" e)
-              (let [uri (:uri request)
-                    p (println ">o> abc1.uri" uri)]
+              (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
                   {:status 400

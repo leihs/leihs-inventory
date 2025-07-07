@@ -12,7 +12,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug info warn error spy]])
   (:import [java.math BigDecimal RoundingMode]
            [java.net URL JarURLConnection]
            (java.time LocalDateTime)
@@ -61,11 +61,11 @@
 
 (defn int-to-numeric [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
-       (catch Exception e (println "Error in int-to-numeric" e) (BigDecimal. 0))))
+       (catch Exception e (error "Error in int-to-numeric" e) (BigDecimal. 0))))
 
 (defn int-to-numeric-or-nil [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
-       (catch Exception e (println "Error in int-to-numeric" e) nil)))
+       (catch Exception e (error "Error in int-to-numeric" e) nil)))
 
 (defn double-to-numeric-or-zero [int-value]
   (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]

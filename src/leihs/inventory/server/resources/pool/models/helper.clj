@@ -7,7 +7,8 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc])
+   [next.jdbc :as jdbc]
+   [taoensso.timbre :refer [debug info warn error spy]])
   (:import (java.security MessageDigest)
            (java.util Base64)))
 
@@ -40,8 +41,8 @@
          :number (Integer/parseInt number)})
 
       (do
-        (println (str "Caution: Code format is invalid! Current=" code
-                      "\n         Expected formats: 'P-AUS<number>' or 'UPPERCASE followed by digits'"))
+        (error (str "Caution: Code format is invalid! Current=" code
+                    "\n         Expected formats: 'P-AUS<number>' or 'UPPERCASE followed by digits'"))
         (throw (ex-info "Caution: Format of inventoryCode is invalid!" {:status 500}))
         nil))))
 
@@ -64,7 +65,7 @@
 
         res (if (nil? res)
               (let [default {:next-code "DEFAULT-0001"}]
-                (println ">> INFO: no inventory_code found, use default: " (:next-code default))
+                (info "INFO: no inventory_code found, use default: " (:next-code default))
                 default)
               (let [shortname-and-number (extract-shortname-and-number (:inventory_code res))]
                 (if shortname-and-number

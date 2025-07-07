@@ -31,7 +31,7 @@
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
    [schema.core :as s]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [error info]])
   (:import (com.google.common.io BaseEncoding)
            (java.time Duration Instant)
            (java.util Base64 UUID)))
@@ -47,7 +47,7 @@
 
 (defn run-get-views [request]
   (doseq [{:keys [table_schema table_name]} (get-views (:tx request))]
-    (println (format "✅ %s.%s" table_schema table_name)))
+    (info (format "✅ %s.%s" table_schema table_name)))
   (response {:status 200 :body "Search completed."}))
 
 (defn get-columns-query [columns]
@@ -74,8 +74,8 @@
         count (:count result 0)]
     (if (> count 0)
       (do
-        (println (format "✅ Found %d occurrences in table: %s, column: %s"
-                         count table column))
+        (info (format "✅ Found %d occurrences in table: %s, column: %s"
+                      count table column))
         (conj results {:table table :column column :count count}))
       results)))
 
@@ -91,7 +91,7 @@
                             (search-in-columns tx table_name column_name search-value acc))
                           []
                           (get-uuid-columns tx columns))]
-      (println "✅ Search completed.")
+      (info "✅ Search completed.")
       (response {:status 200 :body {:id search-value
                                     :columns columns
                                     :result results}}))))
@@ -217,7 +217,7 @@
               res (checkpw password hashed-password)]
           res)
         (catch Exception e
-          (println "Error in verify-password:" e)
+          (error "Error in verify-password:" e)
           false))
       false)))
 
@@ -287,5 +287,5 @@
                 (response/status (response/response result) 409)))))
         (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)))
     (catch Exception e
-      (println "Error in authenticate-handler:" (.getMessage e))
+      (error "Error in authenticate-handler:" (.getMessage e))
       (response/status (response/response {:message (.getMessage e)}) 400))))
