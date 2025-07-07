@@ -9,22 +9,22 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :refer [debug error info spy warn]]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
-      (sql/from [[base-query] :subquery])
-      sql-format
-      (->> (jdbc/query tx))
-      first
-      :total_count))
+    (sql/from [[base-query] :subquery])
+    sql-format
+    (->> (jdbc/query tx))
+    first
+    :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
   (let [paginated-query (-> base-query
-                            (sql/limit per_page)
-                            (sql/offset offset)
-                            sql-format
-                            (->> (jdbc/query tx)))]
+                          (sql/limit per_page)
+                          (sql/offset offset)
+                          sql-format
+                          (->> (jdbc/query tx)))]
     (mapv identity paginated-query)))
 
 (defn set-default-pagination [size page]
@@ -49,7 +49,7 @@
                           :size size}
 
          paginated-products (if (nil? post-data-fnc) paginated-products
-                                (post-data-fnc paginated-products))]
+                                                     (post-data-fnc paginated-products))]
      {:data paginated-products
       :pagination pagination-info})))
 
@@ -76,44 +76,25 @@
          tx (:tx request)]
      (create-paginated-response base-query tx size page post-data-fnc))))
 
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
 (defn create-pagination-response
   "To receive a paginated response, the request must contain the query parameters `page` and `size`."
 
-  (  [request base-query with-pagination? ]
-   (create-pagination-response request base-query with-pagination? nil)
-   )
+  ([request base-query with-pagination?]
+   (create-pagination-response request base-query with-pagination? nil))
 
-  (  [request base-query with-pagination? post-fnc]
+  ([request base-query with-pagination? post-fnc]
 
-  (let [{:keys [page size]} (fetch-pagination-params-raw request)
-        tx (:tx request)
+   (let [{:keys [page size]} (fetch-pagination-params-raw request)
+         tx (:tx request)]
+     (cond
+       (and (or (nil? with-pagination?) (= with-pagination? false))
+         (single-entity-get-request? request))
+       (jdbc/query tx (-> base-query sql-format))
 
-        p (println ">o> abc.with-pagination?" with-pagination?)
-        p (println ">o> abc.page" page)
-        p (println ">o> abc.size" size)
-        ]
-    (cond
-      (and (or (nil? with-pagination?) (= with-pagination? false))
-           (single-entity-get-request? request))
-      (pr ">1" (jdbc/query tx (-> base-query sql-format)))
+       (and (or (nil? with-pagination?) with-pagination?)
+         (or (some? page) (some? size)))
+       (pagination-response request base-query post-fnc)
 
-      (and (or (nil? with-pagination?) with-pagination?)
-           (or (some? page) (some? size)))
-      (pagination-response request base-query post-fnc)
+       with-pagination? (pagination-response request base-query post-fnc)
 
-      ;(and with-pagination? (not (nil? post-fnc)))
-      ;(pr ">4 >>>< here" (pagination-response request base-query post-fnc))
-
-      with-pagination? (pr ">3" (pagination-response request base-query post-fnc))
-
-      :else (jdbc/query tx (-> base-query sql-format)))))
-
-
-  )
+       :else (jdbc/query tx (-> base-query sql-format))))))

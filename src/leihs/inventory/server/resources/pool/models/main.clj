@@ -13,74 +13,12 @@
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
-   ;[honeysql.core :as h]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
+  (:import  (java.time LocalDateTime)
+   [java.util.jar JarFile]))
 
-(:import [java.net URL JarURLConnection]
- (java.time LocalDateTime)
- [java.util.jar JarFile]))
-
-
-
-(defn get-first-thumbnail-query [ids]
-  (let [ids (or ids [])
-
-        p (println ">o> abc.type?" (type ids))
-        ]
-    (when (seq ids)
-      {:select [:id :target_id :thumbnail :filename]
-       :from [[{:select [:id :target_id :thumbnail :filename
-                         [[:row-number
-                           [:over {:partition-by [:target_id]
-                                   :order-by [[:id :asc]]}]] :rn]]
-                :from [:images]
-                :where [:and
-                        [:in :target_id ids]
-                        [:= :thumbnail true]]}
-               :t]]
-       :where [:= :rn 1]})))
-
-
-
-(defn get-first-thumbnail-query [ids]
-  (-> (sql/select :id :target_id :thumbnail :filename)
-    (sql/from [[:raw
-                (str "(SELECT id, target_id, thumbnail, filename, "
-                  "ROW_NUMBER() OVER (PARTITION BY target_id ORDER BY id ASC) AS rn "
-                  "FROM images "
-                  "WHERE target_id IN ("
-                  (clojure.string/join "," (repeat (count ids) "?")) ;; parameterized!
-                  ") AND thumbnail = TRUE) t")]])
-    (sql/where [:= :rn 1])))
-
-(defn get-first-thumbnail-query [ids]
-  (let [placeholders (clojure.string/join "," (repeat (count ids) "?"))
-
-        _ (println ">o> abc.placeholders" placeholders)
-        subquery
-        (str "(SELECT id, target_id, thumbnail, filename, "
-          "ROW_NUMBER() OVER (PARTITION BY target_id ORDER BY id ASC) AS rn "
-          "FROM images "
-          "WHERE target_id IN (" placeholders ") AND thumbnail = TRUE) t")]
-    (-> (sql/select :id :target_id :thumbnail :filename)
-      (sql/from [[:raw subquery]])
-      (sql/where [:= :rn 1]))))
-
-
-(defn get-first-thumbnail-query [ids]
-  (let [placeholders (clojure.string/join "," (repeat (count ids) "?"))
-        subquery
-        (str "(SELECT id, target_id, thumbnail, filename, "
-          "ROW_NUMBER() OVER (PARTITION BY target_id ORDER BY id ASC) AS rn "
-          "FROM images "
-          "WHERE target_id IN (" placeholders ") AND thumbnail = TRUE) t")]
-    (-> (sql/select :id :target_id :thumbnail :filename)
-      (sql/from [[:raw subquery]])
-      (sql/where [:= :rn 1]))))
-
-
-(defn get-one-thumbnail-query [tx id]
+   (defn get-one-thumbnail-query [tx id]
   (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
                           (sql/from :images)
                           (sql/where [:and
@@ -88,41 +26,31 @@
                                       [:= :thumbnail true]])
                           sql-format)))
 
-
 (defn fetch-thumbnails-for-ids [tx ids]
   (vec (map #(get-one-thumbnail-query tx %) ids)))
 
 (defn create-url [pool_id model_id type cover_image_id]
-    (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
+  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
 
-(defn add-cover-image-urls [items res pool_id]
+(defn apply-cover-image-urls [models thumbnails pool_id]
   (vec
     (map-indexed
-      (fn [idx item]
-        (let [
-              cover-image-id (:cover_image_id item)
-              origin_table (:origin_table item)
-              ;res-id (get-in res [idx :id])
-              ;res-id   (res.target_id == item.id ])
-              res-entry (first (vec (filter #(= (:target_id %) (:id item)) res)))
-              res-id (:id res-entry)
-              p (println ">o> abc.res-entry" res-entry)
-              p (println ">o> abc.res-id" res-id)
+      (fn [idx model]
+        (let [cover-image-id (:cover_image_id model)
+              origin_table (:origin_table model)
+              thumbnail (first (vec (filter #(= (:target_id %) (:id model)) thumbnails)))
+              thumbnail-id (:id thumbnail)]
 
-              ]
           (cond
             (and (= "models" origin_table) cover-image-id)
-            (assoc item :cover_image_url (create-url pool_id (:id item) "images" cover-image-id))
+            (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
 
-            (and (= "models" origin_table) res-id )
-            (assoc item :cover_image_url (create-url pool_id (:id item) "images" res-id))
+            (and (= "models" origin_table) thumbnail-id)
+            (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
 
             :else
-            item)))
-      items)))
-
-
-
+            model)))
+      models)))
 
 (defn get-models-handler
   ([request]
@@ -158,61 +86,11 @@
                  (cond-> category_id
                    (#(from-category tx % category_id))))
 
-
-
-
-         ;; FIXME: remove this
-         post-fnc (fn [items]
-                    ;(println ">o> abc.items??" items)
-
-                    ;extract all id's
-
-                    (let [
-                          ;ids (vec (keep :id items))
-
-
-                          ids (->> items
-                                (keep :id)
-                                ;(take 2)
-                                vec)
-
-                          p (println ">o> abc.ids" ids)
-
-
-                          res (vec (keep identity (fetch-thumbnails-for-ids tx ids)))
-
-                          ;query (get-first-thumbnail-query ids)
-                          p (println ">o> abc.res" res)
-
-                          ; [sql-str & _] (sql-format query)
-                          ;
-                          ;;result (jdbc/execute! tx (-> query sql-format))
-                          ;result   (jdbc/execute! tx (into [sql-str] ids))
-                          ; p (println ">o> abc.result" result)
-
-
-                          items (add-cover-image-urls items res pool_id )
-p (println ">o> abc.items" items)
-                          ]
-                      items
-                      )
-
-
-                    ;; merge items.id==res.target_id if cover_image_id is null then cover_image_url="/inventory/images/{res.id}"
-
-                    ;(mapv (fn [item]
-                    ;        (-> item
-                    ;          (assoc :cover_image_url
-                    ;            "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models/847906e1-8e03-57bb-a4d5-bf68d70ab706/images/9c5284a4-c907-4944-9fe2-d29579126213")
-                    ;          ;(assoc :cover_image_id
-                    ;          ;  "9c5284a4-c907-4944-9fe2-d29579126213")
-                    ;          ))
-                    ;  items)
-
-
-                    ;items
-                    )
-         ]
+         post-fnc (fn [models]
+                    (let [ids (->> models (keep :id) vec)
+                          thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
+                          models (apply-cover-image-urls models thumbnails pool_id)]
+                      models))]
      (debug (sql-format query :inline true))
 
      (if (url-ends-with-uuid? (:uri request))

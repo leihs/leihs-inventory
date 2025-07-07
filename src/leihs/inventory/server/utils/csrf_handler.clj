@@ -91,9 +91,6 @@
         (handler request)
         (catch Throwable e
 
-          (println ">o> error" e)
-          ;(println ">o> abc2.uri" (:uri request))
-
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (get-sign-in request)

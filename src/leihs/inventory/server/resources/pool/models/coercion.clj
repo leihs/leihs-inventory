@@ -30,8 +30,7 @@
    :created_at s/Inst
    :updated_at s/Inst
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   (s/optional-key :cover_image_url) (s/maybe s/Str)
-   })
+   (s/optional-key :cover_image_url) (s/maybe s/Str)})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by def
