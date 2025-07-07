@@ -57,6 +57,8 @@
                  :parameters {:path {
                                      :pool_id s/Uuid
                                      :model_id s/Uuid
+                                     (s/optional-key :page) s/Int
+                                     (s/optional-key :size) s/Int
                                      }}
                  :handler get-image-thumbnail-handler
                  :responses {200 {:description "OK"}
