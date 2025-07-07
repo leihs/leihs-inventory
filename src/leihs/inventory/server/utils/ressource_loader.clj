@@ -6,7 +6,7 @@
             [leihs.core.db :as db]
             [leihs.core.ring-audits :as ring-audits]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-            [leihs.inventory.server.routes :as routes]
+            [leihs.inventory.server.resources.routes :as routes]
             [leihs.inventory.server.utils.response_helper :as rh]
             [muuntaja.core :as m]
             [reitit.coercion.schema]

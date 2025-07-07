@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.routes
+(ns leihs.inventory.server.resources.routes
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
@@ -12,10 +12,17 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
-   [leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
-   [leihs.inventory.server.resources.auth.session :as ab]
+   ;[leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
+
+   [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
+;[leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
-   [leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
+   [leihs.inventory.server.resources.main :refer [post-sign-in get-sign-in post-sign-out get-sign-out swagger-api-docs-handler]]
+
+   [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
+   [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]
+
+;[leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
    [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
@@ -31,8 +38,18 @@
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
+
+   [leihs.inventory.server.resources.pool.rooms.room.routes :refer [get-rooms-single-routes]]
+   [leihs.inventory.server.resources.pool.rooms.routes :refer [get-rooms-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
+
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
+   [leihs.inventory.server.resources.session.protected.routes :refer [get-session-protected-routes]]
+
+   [leihs.inventory.server.resources.session.public.routes :refer [get-session-public-routes]]
+   [leihs.inventory.server.resources.token.protected.routes :refer [get-token-protected-routes]]
+   [leihs.inventory.server.resources.token.public.routes :refer [get-token-public-routes]]
+   [leihs.inventory.server.resources.token.routes :refer [get-token-routes]]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
@@ -45,19 +62,6 @@
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
    [schema.core :as s]))
-
-(defn swagger-api-docs-handler [request]
-  (let [path (:uri request)]
-    (cond
-      (= path "/inventory/api-docs") (response/redirect "/inventory/api-docs/index.html")
-      (= path "/inventory/index.html") (response/redirect "/inventory")
-      :else (response/status (response/response "File not found") 404))))
-
-(defn convert-params [request]
-  (if-let [form-params (:form-params request)]
-    (let [converted-form-params (into {} (map (fn [[k v]] [(keyword k) v]) form-params))]
-      (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
-    request))
 
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
@@ -72,14 +76,28 @@
                      (get-models-model-attachments-route)
                      (get-models-model-attachments-single-routes)
                      (get-models-model-images-route)
-                     (get-buildings-rooms-routes)
+                     ;(get-buildings-rooms-routes)
                      (get-models-single-items-route)
                      (get-responsible-inventory-pools-routes)
                      (get-entitlement-groups-routes)
                      (get-profile-routes)
                      (get-manufacturers-routes)
                      (get-category-tree-route)
-                     (session-token-routes)]
+                     (get-admin-status-routes)
+
+                     (get-token-routes)
+                     (get-token-public-routes)
+
+                     (get-buildings-routes)
+                     (get-buildings-single-routes)
+
+                     (get-rooms-routes)
+                     (get-rooms-single-routes)
+
+                     (get-token-protected-routes)
+                     (get-session-public-routes)
+                     (get-session-protected-routes)]
+
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                              [(get-suppliers-routes)
@@ -90,59 +108,6 @@
                              [(get-dev-routes)]))]
 
     (vec (concat core-routes additional-routes))))
-
-(defn get-sign-in [request]
-  (let [mtoken (anti-csrf-token request)
-        query (convert-to-map (:query-params request))
-        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
-                    :flashMessages []}
-                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                       {:name "csrf-token" :value mtoken}))
-                   (cond-> (:message query)
-                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-        accept (get-in request [:headers "accept"])
-        html (add-csrf-tags (sign-in-view params) params)]
-    (if (str/includes? accept "application/json")
-      {:status 200 :body params}
-      {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html})))
-
-(defn post-sign-in [request]
-  (let [form-data (:form-params request)
-        username (:user form-data)
-        password (:password form-data)
-        csrf-token (:csrf-token form-data)]
-    (if (or (str/blank? username) (str/blank? password))
-      (be/create-error-response username request)
-      (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
-                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
-                      request)
-            resp (be/routes (convert-params request))
-            created-session (get-in resp [:cookies "leihs-user-session" :value])
-            request (assoc request :sessions created-session :cookies {"leihs-user-session" {:value created-session}})]
-        resp))))
-
-(defn get-sign-out [request]
-  (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
-        params {:authFlow {:returnTo "/inventory/models"}
-                :csrfToken (when consts/ACTIVATE-SET-CSRF
-                             {:name "csrf-token" :value uuid})}
-        html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
-    {:status 200
-     :headers {"Content-Type" "text/html"}
-     :body html}))
-(defn post-sign-out [request]
-  (let [params (-> request
-                   convert-params
-                   (assoc-in [:accept :mime] :html))
-        accept (get-in params [:headers "accept"])]
-    (if (str/includes? accept "application/json")
-      {:status (if (so/routes params) 200 409)}
-      (so/routes params))))
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
 
 (defn basic-routes []
 
@@ -180,35 +145,6 @@
     ["/"
      {:swagger {:tags ["Auth"]}
       :no-doc HIDE_BASIC_ENDPOINTS}
-
-     ;["login"
-     ; {:get {:summary "[SIMPLE-LOGIN] DEV | Authenticate user by login (set cookie with token) [fe]"
-     ;        :accept "application/json"
-     ;        :coercion reitit.coercion.schema/coercion
-     ;        :swagger {:security [{:basicAuth []} {:csrfToken []}] :deprecated true}
-     ;        :handler authenticate-handler}}]
-
-     ;["admin/update-role"
-     ; {:put {:summary "[] DEV | Update direct-user-role [fe]"
-     ;        :accept "application/json"
-     ;        :description "- default pool-id: 8bd16d45-056d-5590-bc7f-12849f034351"
-     ;        :parameters {:query {:role (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-     ;                             (s/optional-key :pool_id) s/Uuid}}
-     ;        :coercion reitit.coercion.schema/coercion
-     ;        :middleware [wrap-is-admin!]
-     ;        :handler update-role-handler
-     ;        :responses {200 {:description "OK" :body update-role-response}
-     ;                    409 {:description "Conflict" :body update-role-response}
-     ;                    500 {:description "Internal Server Error"}}}}]
-
-     ["logout"
-      {:get {:accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:deprecated true}
-             :middleware [ab/wrap]
-             :handler logout-handler}}]]
-    ["/"
-     {:swagger {:tags [""] :security [{:csrfToken []}]}}
 
      ["test-csrf"
       {:no-doc HIDE_BASIC_ENDPOINTS

@@ -9,7 +9,7 @@ def add_delete_flag(map)
   map
 end
 
-{
+post_response = {
   "description" => String,
   "is_package" => [TrueClass, FalseClass],
   "maintenance_period" => Numeric,
@@ -23,14 +23,13 @@ end
   "id" => String,
   "manufacturer" => String,
   "version" => [NilClass, String],
-  # "name" => String,
+  "name" => String,
   "created_at" => String,
   "technical_detail" => String
 }
 
 describe "Inventory Model" do
   ["inventory_manager", "lending_manager"].each do |role|
-    # ["inventory_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -207,27 +206,18 @@ describe "Inventory Model" do
             )
             expect(resp.status).to eq(200)
             @image_id = resp.body["image"]["id"]
-
-            puts "Created image with ID: #{@image_id}"
           end
 
           # Optional request, if is_cover has been set/modified
-          # data = [{"id" => model_id, "is_cover" => @image_id}]
           data = {"is_cover" => @image_id}
           resp = json_client_patch(
             "/inventory/#{pool_id}/models/#{model_id}",
             body: data,
             headers: cookie_header
           )
-
           expect(resp.status).to eq(200)
-
-          # FIXME
           expect(resp.body.first["id"]).to eq(model_id)
           expect(resp.body.first["cover_image_id"]).to eq(@image_id)
-
-          # expect(resp.body["data"]["id"]).to eq(model_id)
-          # expect(resp.body["data"]["cover_image_id"]).to eq(@image_id)
 
           # create attachment
           attachments = [File.open(path_test_pdf, "rb")]
@@ -332,14 +322,10 @@ describe "Inventory Model" do
             "accessories" => [{name: "acc1", has_inventory_pool: false}, {name: "acc2", has_inventory_pool: true}],
             "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33},
               {group_id: @form_entitlement_groups.second["id"], quantity: 55}],
-            # "categories" => [@form_model_groups.first, @form_model_groups.second],
-
             "categories" => [
               @form_model_groups.first.except("created_at", "updated_at"),
               @form_model_groups.second.except("created_at", "updated_at")
             ],
-
-            # "compatibles" => two_variants_of_compatibles,
             "compatibles" => [compatibles.first, compatibles.second],
             "is_package" => true
           }
@@ -351,15 +337,12 @@ describe "Inventory Model" do
           )
 
           # binding.pry
-          # expect(compare_values(resp.body["data"], form_data.to_hash,
-          #   ["version", "description", "technical_detail", "internal_description", "hand_over_note",
-          #     "is_package"])).to eq(true)
+          expect(compare_values(resp.body["data"], form_data.to_hash,
+            ["version", "description", "technical_detail", "internal_description", "hand_over_note",
+              "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
-
-          #  FIXME: name IS MISSING
-          # binding.pry
-          # expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
+          expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
 
           # fetch created model
           model_id = resp.body["data"]["id"]
@@ -370,10 +353,8 @@ describe "Inventory Model" do
           expect(resp.body["entitlements"].count).to eq(2)
           expect(resp.body["compatibles"].count).to eq(2)
 
-          resp.body["compatibles"]
-          # FIXME
-          # expect(select_with_cover(expected_compatibles).count).to eq(1)
-          # expect(select_without_cover(expected_compatibles).count).to eq(1)
+          expected_compatibles = resp.body["compatibles"]
+          expect(expected_compatibles.count).to eq(2)
 
           expect(resp.body["categories"].count).to eq(2)
           expect(resp.status).to eq(200)
@@ -430,7 +411,6 @@ describe "Inventory Model" do
             "accessories" => [{name: "acc1", has_inventory_pool: false}],
             "entitlements" => [{group_id: @form_entitlement_groups.first["id"], quantity: 33}],
             "categories" => [@form_model_groups.first.except("created_at", "updated_at")],
-            # "compatibles" => [two_variants_of_compatibles.first],
             "compatibles" => [compatibles.first, compatibles.second],
             "is_package" => false
           }
@@ -441,21 +421,11 @@ describe "Inventory Model" do
             headers: cookie_header
           )
 
-          # expect(compare_values(resp.body, form_data,
-          #   ["product", "version", "manufacturer", "description", "technical_detail",
-          #     "internal_description", "hand_over_note", "is_package"])).to eq(true)
-
-          # expect(validate_map_structure(resp.body.first, put_response)).to eq(true)
           expect(resp.status).to eq(200)
           expect(resp.body["data"]["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
-
-          # expect(validate_map_structure(resp.body.first, get_response)).to eq(true)
-          # expect(compare_values(resp.body, form_data,
-          #   ["product", "version", "manufacturer", "description", "technical_detail",
-          #     "internal_description", "hand_over_note", "is_package"])).to eq(true)
 
           expect(resp.body["images"].count).to eq(2)
           expect(resp.body["attachments"].count).to eq(2) # FIXME: wrong result, revise test

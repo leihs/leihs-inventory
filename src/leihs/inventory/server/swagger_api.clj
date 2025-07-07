@@ -14,16 +14,14 @@
             [leihs.core.routing.back :as core-routing]
             [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
             [leihs.inventory.server.constants :as consts]
+            [leihs.inventory.server.resources.routes :as routes]
             [leihs.inventory.server.resources.utils.coercion :refer [wrap-handle-coercion-error]]
-            [leihs.inventory.server.routes :as routes]
-
-            [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated]]
-
+            [leihs.inventory.server.resources.utils.middleware :refer [wrap-authenticate!]]
             [leihs.inventory.server.utils.csrf-handler :as csrf]
             [leihs.inventory.server.utils.debug-handler :as debug-mw]
             [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
                                                                      wrap-accept-with-image-rewrite
-                                                                     wrap-authenticate!]]
+                                                                     wrap-session-token-authenticate!]]
             [leihs.inventory.server.utils.response_helper :as rh]
             [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
             [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -54,20 +52,17 @@
                   ring-audits/wrap
                   wrap-accept-with-image-rewrite
 
-                  ;wrap-check-authenticated
                   csrf/extract-header
+                  wrap-session-token-authenticate!
                   wrap-authenticate!
                   wrap-cookies
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
                   dm/extract-dev-cookie-params
 
-                  leihs.inventory.server.resources.utils.middleware/wrap-authenticate!
                   wrap-params
                   wrap-content-type
-
                   dispatch-content-type/wrap-accept
-
                   default-handler-fetch-resource
 
                   swagger/swagger-feature

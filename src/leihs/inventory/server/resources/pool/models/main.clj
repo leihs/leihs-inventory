@@ -4,22 +4,53 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [accessories-query attachments-query base-inventory-query
-                                                                 entitlements-query item-query
-                                                                 model-links-query properties-query
-                                                                 with-items without-items with-search filter-by-type
-                                                                 from-category]]
+   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
+                                                                 filter-by-type
+                                                                 from-category with-items with-search
+                                                                 without-items]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
+   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
-  (:import [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
+  (:import (java.time LocalDateTime)
            [java.util.jar JarFile]))
+
+(defn get-one-thumbnail-query [tx id]
+  (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
+                            (sql/from :images)
+                            (sql/where [:and
+                                        [:= :target_id id]
+                                        [:= :thumbnail true]])
+                            sql-format)))
+
+(defn fetch-thumbnails-for-ids [tx ids]
+  (vec (map #(get-one-thumbnail-query tx %) ids)))
+
+(defn create-url [pool_id model_id type cover_image_id]
+  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
+
+(defn apply-cover-image-urls [models thumbnails pool_id]
+  (vec
+   (map-indexed
+    (fn [idx model]
+      (let [cover-image-id (:cover_image_id model)
+            origin_table (:origin_table model)
+            thumbnail (first (vec (filter #(= (:target_id %) (:id model)) thumbnails)))
+            thumbnail-id (:id thumbnail)]
+
+        (cond
+          (and (= "models" origin_table) cover-image-id)
+          (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
+
+          (and (= "models" origin_table) thumbnail-id)
+          (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
+
+          :else
+          model)))
+    models)))
 
 (defn get-models-handler
   ([request]
@@ -53,7 +84,13 @@
                      (and pool_id (presence search))
                      (with-search search))
                    (cond-> category_id
-                     (#(from-category tx % category_id))))]
+                     (#(from-category tx % category_id))))
+
+         post-fnc (fn [models]
+                    (let [ids (->> models (keep :id) vec)
+                          thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
+                          models (apply-cover-image-urls models thumbnails pool_id)]
+                      models))]
      (debug (sql-format query :inline true))
 
      (if (url-ends-with-uuid? (:uri request))
@@ -61,10 +98,12 @@
          (if res
            (response res)
            (status 404)))
-       (response (create-pagination-response request query with-pagination?))))))
+       (response (create-pagination-response request query with-pagination? post-fnc))))))
 
 (defn get-models-of-pool-with-pagination-handler [request]
   (get-models-handler request true))
+
+;###################################################################################
 
 (defn create-model-handler-by-pool [request]
   (let [created_ts (LocalDateTime/now)
