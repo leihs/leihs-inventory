@@ -20,10 +20,9 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json" "application/octet-stream"]}
-           :parameters {:path {:attachments_id s/Uuid
-                               :pool_id s/Uuid
-                               :model_id s/Uuid}
-
+           :parameters {:path { :pool_id s/Uuid
+                               :model_id s/Uuid
+                               :attachments_id s/Uuid}
                         :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
            :handler get-attachments-handler
            :responses {200 {:description "OK"}

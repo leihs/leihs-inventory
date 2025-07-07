@@ -33,7 +33,10 @@
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
-              :parameters {:path {:model_id s/Uuid}}
+              :parameters {:path {
+                                  :pool_id s/Uuid
+                                  :model_id s/Uuid
+                                  }}
               :handler get-models-of-pool-with-pagination-handler
               :responses {200 {:description "OK"
                                :body s/Any}
@@ -47,7 +50,8 @@
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware]
                :swagger {:produces ["application/json"]}
-               :parameters {:path {:model_id s/Uuid}
+               :parameters {:path {                              :pool_id s/Uuid
+                                   :model_id s/Uuid}
                             :header {:x-filename s/Str}}
                :handler upload-attachment
                :responses {200 {:description "OK"
