@@ -22,23 +22,23 @@
 
 (defn fetch-attachments [tx model-id pool-id]
   (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
-       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id  "/attachments/" (:id %))))))
+       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))))))
 
 (defn fetch-image-attributes [tx model-id pool-id]
-                     (let [query (-> (sql/select
-                                      :i.id
-                                      :i.filename
-                                      [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
-                                       :is_cover])
-                                     (sql/from [:models :m])
-                                     (sql/right-join [:images :i] [:= :i.target_id :m.id])
-                                     (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
-                                     sql-format)
-                           images (jdbc/execute! tx query)]
-                       (map (fn [row]
-                              (assoc row :url (str  "/inventory/" pool-id "/models/" model-id  "/images/" (:id row))
-                                     :thumbnail_url (str "/inventory/" pool-id "/models/" model-id  "/images/" (:id row) "/thumbnail")))
-                            images)))
+  (let [query (-> (sql/select
+                   :i.id
+                   :i.filename
+                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
+                    :is_cover])
+                  (sql/from [:models :m])
+                  (sql/right-join [:images :i] [:= :i.target_id :m.id])
+                  (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
+                  sql-format)
+        images (jdbc/execute! tx query)]
+    (map (fn [row]
+           (assoc row :url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row))
+                  :thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row) "/thumbnail")))
+         images)))
 
 (defn fetch-accessories [tx model-id]
   (let [query (-> (sql/select :a.id :a.name)

@@ -13,10 +13,10 @@
    [digest :as d]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.auth.session :as ab]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.resources.session.protected.main :refer [protected-handler]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   [leihs.inventory.server.utils.auth.session :as ab]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -28,15 +28,14 @@
 
 (defn get-session-protected-routes []
   ["/"
-    {:no-doc HIDE_BASIC_ENDPOINTS}
+   {:no-doc HIDE_BASIC_ENDPOINTS}
 
-    ["session"
-     {:tags ["Auth / Session"]
-      }
+   ["session"
+    {:tags ["Auth / Session"]}
 
-     ["/protected"
-      {:get {:accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:csrfToken []}]}
-             :handler protected-handler
-             :middleware [ab/wrap-session-authorize!]}}]]])
+    ["/protected"
+     {:get {:accept "application/json"
+            :coercion reitit.coercion.schema/coercion
+            :swagger {:security [{:csrfToken []}]}
+            :handler protected-handler
+            :middleware [ab/wrap-session-authorize!]}}]]])

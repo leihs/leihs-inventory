@@ -11,15 +11,15 @@
    [leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
                                                                     delete-model-handler
                                                                     get-models-handler]]
+   [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
+                                                                     put-response
+                                                                     delete-response]]
    [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
 
-   [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
-                                                     put-response
-                                                     delete-response]]
+   [leihs.inventory.server.utils.coercion.core :refer [Date]]
 
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]

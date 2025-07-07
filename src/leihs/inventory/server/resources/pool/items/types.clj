@@ -11,14 +11,12 @@
    ;[reitit.coercion.spec]
    ;[ring.middleware.accept]
    ;[ring.util.response :as response]
-   [schema.core :as s]
-   ))
-
+   [schema.core :as s]))
 
 (s/defschema query-params {(s/optional-key :page) s/Int
-                                 (s/optional-key :size) s/Int
-                                 (s/optional-key :search_term) s/Str
-                                 (s/optional-key :not_packaged) s/Bool
-                                 (s/optional-key :packages) s/Bool
-                                 (s/optional-key :retired) s/Bool
-                                 :result_type (s/enum "Min" "Normal" "Distinct")})
+                           (s/optional-key :size) s/Int
+                           (s/optional-key :search_term) s/Str
+                           (s/optional-key :not_packaged) s/Bool
+                           (s/optional-key :packages) s/Bool
+                           (s/optional-key :retired) s/Bool
+                           :result_type (s/enum "Min" "Normal" "Distinct")})

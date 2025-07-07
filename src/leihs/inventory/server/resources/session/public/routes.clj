@@ -27,13 +27,8 @@
    {:no-doc HIDE_BASIC_ENDPOINTS}
 
    ["session"
-    {:tags ["Auth / Session"]
-     }
+    {:tags ["Auth / Session"]}
 
     ["/public"
      {:get {:swagger {:security []}
-            :handler public-endpoint-handler}}]
-
-    ]
-
-   ])
+            :handler public-endpoint-handler}}]]])

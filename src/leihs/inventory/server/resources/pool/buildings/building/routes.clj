@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.building.main :refer [get-buildings-handler ]]
+   [leihs.inventory.server.resources.pool.buildings.building.main :refer [get-buildings-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -29,7 +29,4 @@
                                      :name s/Str
                                      :code (s/maybe s/Str)}]}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]
-
-    ]
-])
+                        500 {:description "Internal Server Error"}}}}]]])

@@ -38,10 +38,8 @@
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {
-                                      :pool_id s/Uuid
-                                      :model_id s/Uuid
-                                      }
+                  :parameters {:path {:pool_id s/Uuid
+                                      :model_id s/Uuid}
                                :header {:x-filename s/Str}}
                   :handler upload-image
                   :responses {200 {:description "OK" :body s/Any}
@@ -54,12 +52,10 @@
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
-                 :parameters {:path {
-                                     :pool_id s/Uuid
+                 :parameters {:path {:pool_id s/Uuid
                                      :model_id s/Uuid
                                      (s/optional-key :page) s/Int
-                                     (s/optional-key :size) s/Int
-                                     }}
+                                     (s/optional-key :size) s/Int}}
                  :handler get-images
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}

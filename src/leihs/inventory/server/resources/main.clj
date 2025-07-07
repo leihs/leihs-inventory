@@ -23,7 +23,6 @@
    [taoensso.timbre :refer [debug error info warn]])
   (:gen-class))
 
-
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
@@ -32,7 +31,6 @@
       :else (response/status (response/response "File not found") 404))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 (defn convert-params [request]
   (if-let [form-params (:form-params request)]
@@ -45,10 +43,10 @@
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
                     :flashMessages []}
-                 (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                     {:name "csrf-token" :value mtoken}))
-                 (cond-> (:message query)
-                   (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
+                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
+                                       {:name "csrf-token" :value mtoken}))
+                   (cond-> (:message query)
+                     (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     (if (str/includes? accept "application/json")
@@ -81,8 +79,8 @@
      :body html}))
 (defn post-sign-out [request]
   (let [params (-> request
-                 convert-params
-                 (assoc-in [:accept :mime] :html))
+                   convert-params
+                   (assoc-in [:accept :mime] :html))
         accept (get-in params [:headers "accept"])]
     (if (str/includes? accept "application/json")
       {:status (if (so/routes params) 200 409)}

@@ -8,7 +8,7 @@
   ;(:import (com.google.common.io BaseEncoding)
   ;         (java.time Duration Instant)
   ;         (java.util Base64 UUID))
-   )
+  )
 
 (defn public-endpoint-handler [request]
   {:status 200

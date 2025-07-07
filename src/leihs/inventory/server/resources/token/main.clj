@@ -25,7 +25,6 @@
            (java.time Duration Instant)
            (java.util Base64 UUID)))
 
-
 (def b32 (BaseEncoding/base32))
 
 (defn secret [n]

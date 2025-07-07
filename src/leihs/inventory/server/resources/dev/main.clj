@@ -1,20 +1,11 @@
 (ns leihs.inventory.server.resources.dev.main
   (:require
-   [cheshire.core :as json]
-   [clojure.set]
-   [honey.sql :as sq]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.helper :refer [parse-json-array]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [next.jdbc :as jdbc]
-   [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
    [buddy.sign.jwt :as jwt]
+   [cheshire.core :as json]
    [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [clojure.set]
    [clojure.set]
    [clojure.string :as str]
    [clojure.test :refer :all]
@@ -22,19 +13,28 @@
    [crypto.random]
    [cryptohash-clj.api :refer :all]
    [digest :as d]
+   [honey.sql :as sq]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [parse-json-array]]
+   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [next.jdbc :as jdbc]
+   [next.jdbc :as jdbc]
+   [reitit.coercion.schema]
 
-[leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
-[next.jdbc :as jdbc]
-[reitit.coercion.schema]
-[reitit.coercion.spec]
-[ring.util.response :as response]
-[schema.core :as s])
-(:import (com.google.common.io BaseEncoding)
- (java.time Duration Instant)
- (java.util Base64 UUID)))
+   [reitit.coercion.spec]
+   [ring.middleware.accept]
+   [ring.util.response :as response]
+   [ring.util.response :refer [bad-request response status]]
+   [schema.core :as s]
+   [taoensso.timbre :refer [error]])
+  (:import (com.google.common.io BaseEncoding)
+           (java.time Duration Instant)
+           (java.util Base64 UUID)))
 
 (def get-views-query
   (sql-format
@@ -196,15 +196,14 @@
 
  ; ##################################################################
 
-
 (defn fetch-hashed-password [request login]
   (let [query (->
-                (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
-                (sql/from :authentication_systems_users)
-                (sql/join :users [:= :users.id :authentication_systems_users.user_id])
-                (sql/where [:= :users.login login]
-                  [:= :authentication_systems_users.authentication_system_id "password"])
-                sql-format)
+               (sql/select :users.id :users.login :authentication_systems_users.authentication_system_id :authentication_systems_users.data)
+               (sql/from :authentication_systems_users)
+               (sql/join :users [:= :users.id :authentication_systems_users.user_id])
+               (sql/where [:= :users.login login]
+                          [:= :authentication_systems_users.authentication_system_id "password"])
+               sql-format)
         result (jdbc/execute-one! (:tx request) query)]
     (:data result)))
 
@@ -244,8 +243,8 @@
       res)
     (catch Exception e
       (throw
-        (ex-info "BasicAuth header not found."
-          {:status 403})))))
+       (ex-info "BasicAuth header not found."
+                {:status 403})))))
 
 (defn update-role-handler [request]
   (try
@@ -264,23 +263,23 @@
           (if (nil? access-right)
             (response/status (response/response {:status "failure" :message "Invalid credentials"}) 403)
             (let [query (-> (sql/select :direct_access_rights.*)
-                          (sql/from :direct_access_rights)
-                          (sql/join :users [:= :users.id :direct_access_rights.user_id])
-                          (sql/join :inventory_pools [:= :inventory_pools.id :direct_access_rights.inventory_pool_id])
-                          (sql/where [:= :users.login (-> auth :login)]
-                            [:= :users.is_admin true]
-                            [:= :inventory_pools.id pool-id])
-                          sql-format)
+                            (sql/from :direct_access_rights)
+                            (sql/join :users [:= :users.id :direct_access_rights.user_id])
+                            (sql/join :inventory_pools [:= :inventory_pools.id :direct_access_rights.inventory_pool_id])
+                            (sql/where [:= :users.login (-> auth :login)]
+                                       [:= :users.is_admin true]
+                                       [:= :inventory_pools.id pool-id])
+                            sql-format)
                   query-result (jdbc/execute! (:tx request) query)
                   count-of-query-should-be-one (count query-result)
                   dar-id (-> (first query-result) :id)
                   result (assoc result :count-of-direct-access-right-should-be-one count-of-query-should-be-one)
                   result (when (= count-of-query-should-be-one 1)
                            (let [update-query (-> (sql/update :direct_access_rights)
-                                                (sql/set {:role (-> result :role-after)})
-                                                (sql/where [:= :id dar-id])
-                                                (sql/returning :*)
-                                                sql-format)
+                                                  (sql/set {:role (-> result :role-after)})
+                                                  (sql/where [:= :id dar-id])
+                                                  (sql/returning :*)
+                                                  sql-format)
                                  update-result (jdbc/execute! (:tx request) update-query)]
                              (assoc result :update-result update-result)))]
               (if (= count-of-query-should-be-one 1)

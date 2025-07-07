@@ -35,9 +35,9 @@
         query-result (if (not (nil? token))
                        (let [token-part (subs token 0 5)
                              query-result (jdbc/execute-one! tx
-                                            ["SELECT * FROM api_tokens WHERE token_part = ? AND expires_at > ?"
-                                             token-part
-                                             current-time])]
+                                                             ["SELECT * FROM api_tokens WHERE token_part = ? AND expires_at > ?"
+                                                              token-part
+                                                              current-time])]
                          query-result)
                        nil)
 

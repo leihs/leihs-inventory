@@ -14,10 +14,10 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
+   [leihs.inventory.server.resources.token.main :refer [create-api-token-handler]]
+
    ;[leihs.inventory.server.resources.token.public.session :as ab]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
-
-   [leihs.inventory.server.resources.token.main :refer [create-api-token-handler]]
 
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
@@ -28,17 +28,13 @@
            (java.time Duration Instant)
            (java.util Base64 UUID)))
 
-
 (defn get-token-routes []
   [["/"
 
     {:no-doc HIDE_BASIC_ENDPOINTS}
 
-
-
     ["token"
-     {:tags ["Auth / Token"]
-      }
+     {:tags ["Auth / Token"]}
 
      ["/"
       {:post {:summary "Create an API token with creds for a user"
@@ -50,8 +46,4 @@
                                            :write s/Bool
                                            :admin_read s/Bool
                                            :admin_write s/Bool}}}
-              :handler create-api-token-handler}}]
-
-
-
-     ]]])
+              :handler create-api-token-handler}}]]]])

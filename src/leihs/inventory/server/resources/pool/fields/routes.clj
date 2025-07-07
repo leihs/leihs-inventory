@@ -2,9 +2,9 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :refer [get-form-fields-auto-pagination-handler]]
+   [leihs.inventory.server.resources.pool.fields.types :refer [query-params]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
-   [leihs.inventory.server.resources.pool.fields.types :refer [query-params]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

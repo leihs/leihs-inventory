@@ -2,10 +2,10 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.main :refer [get-buildings-handler ]]
+   [leihs.inventory.server.resources.pool.buildings.main :refer [get-buildings-handler]]
+   [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
-   [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -27,5 +27,4 @@
             :responses {200 {:description "OK"
                              :body [response-body]}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]
-])
+                        500 {:description "Internal Server Error"}}}}]]])

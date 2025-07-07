@@ -12,8 +12,7 @@
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params
-                                                    ]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
@@ -37,8 +36,8 @@
         {:keys [model_id image_id]} (:path (:parameters req))
         id (to-uuid image_id)]
     (let [res (jdbc/execute-one! tx
-                (sql-format
-                  {:delete-from :images :where [:= :id id]}))]
+                                 (sql-format
+                                  {:delete-from :images :where [:= :id id]}))]
       (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
         (bad-request {:error "Failed to delete image"})))))
@@ -69,21 +68,21 @@
 
       (let [file-content-main (file-to-base64 entry)
             main-image-data (-> entry
-                              (assoc :content file-content-main :target_id model_id :target_type "Model" :thumbnail false)
-                              filter-keys-images)
+                                (assoc :content file-content-main :target_id model_id :target_type "Model" :thumbnail false)
+                                filter-keys-images)
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                      (sql/values [main-image-data])
-                                                      image-response-format
-                                                      sql-format))
+                                                        (sql/values [main-image-data])
+                                                        image-response-format
+                                                        sql-format))
 
             thumb-data (resize-and-convert-to-base64 file-full-path)
 
             thumbnail-data (-> (assoc main-image-data :content (:base64 thumb-data) :size (:file-size thumb-data) :thumbnail true :parent_id (:id main-image-result))
-                             filter-keys-images)
+                               filter-keys-images)
             thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
-                                                     (sql/values [thumbnail-data])
-                                                     image-response-format
-                                                     sql-format))
+                                                       (sql/values [thumbnail-data])
+                                                       image-response-format
+                                                       sql-format))
             data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
         (status (response data) 200)))
 
@@ -98,18 +97,16 @@
    (doseq [m vec-of-maps]
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                (merge {:key k :map m} (when scope {:scope scope}))))))))
+                       (merge {:key k :map m} (when scope {:scope scope}))))))))
 (defn get-images [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
           base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail)
-                       (sql/from [:images :i])
-                       )]
+                         (sql/from [:images :i]))]
       (let [{:keys [page size]} (fetch-pagination-params request)]
-        (response (create-paginated-response base-query tx size page))
-        ))
+        (response (create-paginated-response base-query tx size page))))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

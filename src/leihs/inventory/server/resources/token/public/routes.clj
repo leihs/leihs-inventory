@@ -30,13 +30,9 @@
 
     {:no-doc HIDE_BASIC_ENDPOINTS}
 
-
     ["token"
      {:tags ["Auth / Token"]}
 
      ["/public"
       {:get {:swagger {:security []}
-             :handler public-endpoint-handler}}]
-
-
-     ]]])
+             :handler public-endpoint-handler}}]]]])

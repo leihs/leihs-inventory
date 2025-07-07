@@ -10,7 +10,7 @@
    [schema.core :as s]))
 
 (s/defschema query-params {(s/optional-key :page) s/Int
-                                     (s/optional-key :size) s/Int
-                                     (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                                     (s/optional-key :owner) s/Bool
-                                     (s/optional-key :type) (s/enum "license")})
+                           (s/optional-key :size) s/Int
+                           (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                           (s/optional-key :owner) s/Bool
+                           (s/optional-key :type) (s/enum "license")})
