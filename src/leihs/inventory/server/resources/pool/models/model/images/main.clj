@@ -12,14 +12,12 @@
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params-raw
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params
+                                                    ]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error spy]])
-  (:import [java.io ByteArrayInputStream]
-           [java.util Base64]))
+   [taoensso.timbre :refer [error spy]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -101,72 +99,17 @@
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                 (merge {:key k :map m} (when scope {:scope scope}))))))))
-
-(defn- clean-base64-string [base64-str]
-  (clojure.string/replace base64-str #"\s+" ""))
-
-(defn- url-safe-to-standard-base64 [base64-str]
-  (-> base64-str
-    (clojure.string/replace "-" "+")
-    (clojure.string/replace "_" "/")))
-
-(defn- add-padding [base64-str]
-  (let [mod (mod (count base64-str) 4)]
-    (cond
-      (= mod 2) (str base64-str "==")
-      (= mod 3) (str base64-str "=")
-      :else base64-str)))
-
-(defn- decode-base64-str [base64-str]
-  (let [cleaned-str (-> base64-str
-                      clean-base64-string
-                      url-safe-to-standard-base64
-                      add-padding)
-        decoder (Base64/getDecoder)]
-    (.decode decoder cleaned-str)))
-
-(defn convert-base64-to-byte-stream [result]
-  (try
-    (let [content-type (:content_type result)
-          base64-str (:content result)
-          decoded-bytes (decode-base64-str base64-str)]
-      {:status 200
-       :headers {"Content-Type" content-type
-                 "Content-Disposition" "inline"}
-       :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
-    (catch IllegalArgumentException e
-      {:status 400
-       :body (str "Failed to decode Base64 string: " (.getMessage e))})))
-
-(defn get-image-thumbnail-handler [request]
+(defn get-images [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          ;query (-> (sql/select :i.*)
           base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail)
                        (sql/from [:images :i])
-                       ;(sql/limit 10)
-                       ;  sql-format
-                       )
-          ;result (jdbc/execute! tx query)
-          ]
-
-      ;(response {:data result})
-
-
+                       )]
       (let [{:keys [page size]} (fetch-pagination-params request)]
-        ;(if (or (nil? page) (nil? size))
-        ;  (response (jdbc/execute! tx (-> base-query sql-format)))
-            (response (create-paginated-response base-query tx size page))
-            )
-      ;)
-
-
-      ;(cond
-      ;  json-request? (response {:data result})
-      ;  :else (convert-base64-to-byte-stream (first result)))
-      )
+        (response (create-paginated-response base-query tx size page))
+        ))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

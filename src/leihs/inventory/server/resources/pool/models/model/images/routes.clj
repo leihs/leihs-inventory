@@ -8,7 +8,7 @@
 
    [leihs.inventory.server.resources.pool.models.model.images.main :refer [delete-image
                                                                            upload-image
-                                                                           get-image-thumbnail-handler]]
+                                                                           get-images]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -60,7 +60,7 @@
                                      (s/optional-key :page) s/Int
                                      (s/optional-key :size) s/Int
                                      }}
-                 :handler get-image-thumbnail-handler
+                 :handler get-images
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]]]]])
