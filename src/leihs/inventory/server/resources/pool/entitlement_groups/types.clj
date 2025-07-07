@@ -8,3 +8,4 @@
                     :is_verification_required s/Bool
                     :created_at s/Any
                     :updated_at s/Any})
+

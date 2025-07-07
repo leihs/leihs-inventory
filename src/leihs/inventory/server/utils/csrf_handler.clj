@@ -13,9 +13,11 @@
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.core.sign-in.back :as be]
    [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (def WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out"])
 
@@ -90,12 +92,9 @@
         (handler request)
         (catch Throwable e
 
-          (println ">o> abc" e)
-          (println ">o> abc2.uri" (:uri request))
-
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
-              (leihs.inventory.server.routes/get-sign-in request)
+              (get-sign-in request)
               (-> (response/response {:status "failure"
                                       :message "CSRF-Token/Session not valid"
                                       :detail (.getMessage e)})
@@ -113,9 +112,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (println ">o> abc3" e)
-              (let [uri (:uri request)
-                    p (println ">o> abc1.uri" uri)]
+              (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
                   {:status 400

@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.auth.session
+(ns leihs.inventory.server.utils.auth.session
   (:require
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
@@ -89,7 +89,7 @@
         {:status 401 :body {:message "The session is invalid or expired!"}}))
     (handler request)))
 
-(defn wrap [handler]
+(defn wrap-session-authorize! [handler]
   (fn [request]
     (handle request handler)))
 

@@ -15,7 +15,6 @@ describe "Call swagger-endpoints" do
     end
 
     it "returns 403 for incorrect credentials" do
-      # resp = basic_auth_plain_faraday_json_client("abc", "def").get("/sign-in")
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => "abc",
         "password" => "def",
@@ -25,7 +24,6 @@ describe "Call swagger-endpoints" do
     end
 
     it "returns 200 for correct credentials" do
-      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
@@ -38,14 +36,11 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
-
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
         "csrf-token" => X_CSRF_TOKEN
       })
-
       expect(resp.status).to eq(200)
 
       cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
@@ -119,13 +114,6 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    # FIXME: returns 200, shouldn't be possible
-    # it "returns 403 for incorrect credentials" do
-    #   resp = basic_auth_plain_faraday_json_client("invalid-login", "invalid-pw").get("/sign-in")
-    #   binding.pry
-    #   expect(resp.status).to eq(403)
-    # end
-
     it "returns 200 for correct credentials" do
       # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
@@ -140,7 +128,6 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,
@@ -168,7 +155,6 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
 
       puts "before login login #{@user.login} password #{@user.password}"
-      # resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/sign-in")
       resp = common_plain_faraday_login_client(:post, "/sign-in", body: {
         "user" => @user.login,
         "password" => @user.password,

@@ -4,7 +4,6 @@
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [get-responsible-pools-handler]]
-   [leihs.inventory.server.resources.utils.flag :refer [session admin]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]

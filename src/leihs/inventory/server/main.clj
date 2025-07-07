@@ -50,7 +50,7 @@
                                   args cli-options :in-order true)
         cmd (some-> arguments first keyword)
         options (into (sorted-map) options)
-        print-summary #(println (main-usage summary {:args args :options options}))]
+        print-summary #(info (main-usage summary {:args args :options options}))]
     (repl/init options)
     (cond (:help options) (print-summary)
           :else (case cmd

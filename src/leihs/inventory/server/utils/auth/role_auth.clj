@@ -2,7 +2,8 @@
   (:require
    [clojure.string :as str]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [ring.util.response :refer [response status]]))
+   [ring.util.response :refer [response status]]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (defn determine-required-scope
   "Determines the required scope based on the HTTP method and URI."
@@ -74,5 +75,5 @@
           (handler request))
 
         (catch Exception e
-          (println "EXCEPTION-DETAIL: " e)
+          (error "EXCEPTION-DETAIL: " e)
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))

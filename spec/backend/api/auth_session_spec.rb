@@ -14,12 +14,6 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(200)
     end
 
-    # FIXME uses session instead of basicAuth
-    # it "returns 403 for incorrect credentials" do
-    #   resp = basic_auth_plain_faraday_json_client("abc", "def").get("/sign-in")
-    #   expect(resp.status).to eq(403)
-    # end
-
     it "returns 200 for correct credentials" do
       resp = client.get("/sign-in")
       expect(resp.status).to eq(200)

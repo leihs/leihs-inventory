@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.auth.session :as session]
+   ;[leihs.inventory.server.resources.auth.session :as session]
    [leihs.inventory.server.resources.pool.suppliers.main :refer [get-suppliers-auto-pagination-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.coercion.core :refer [pagination]]

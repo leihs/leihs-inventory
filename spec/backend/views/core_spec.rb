@@ -3,20 +3,20 @@ require "pry"
 require_relative "../api/_shared"
 
 describe "Request " do
-  # context " with accept=text/html" do
-  #   before :each do
-  #     @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
-  #   end
-  #
-  #   let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
-  #
-  #   context "against /inventory/admin/status" do
-  #     scenario "status-check for cider" do
-  #       resp = client.get "/inventory/admin/status"
-  #       expect(resp.status).to be == 200
-  #     end
-  #   end
-  # end
+  context " with accept=text/html" do
+    before :each do
+      @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
+    end
+
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
+
+    context "against /inventory/admin/status/" do
+      scenario "status-check for cider" do
+        resp = client.get "/inventory/admin/status/"
+        expect(resp.status).to be == 200
+      end
+    end
+  end
 
   context "with accept=application/json" do
     let :http_client do
@@ -39,11 +39,11 @@ describe "Request " do
       end
     end
 
-    # context "against /inventory/admin/status" do
-    #   scenario "status-check for cider" do
-    #     resp = http_client.get "/inventory/admin/status"
-    #     expect(resp.status).to be == 403
-    #   end
-    # end
+    context "against /inventory/admin/status/" do
+      scenario "status-check for cider" do
+        resp = http_client.get "/inventory/admin/status/"
+        expect(resp.status).to be == 403
+      end
+    end
   end
 end

@@ -20,7 +20,9 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
            :swagger {:produces ["application/json" "image/jpeg"]}
-           :parameters {:path {:image_id s/Uuid}}
+           :parameters {:path {:pool_id s/Uuid
+                               :model_id s/Uuid
+                               :image_id s/Uuid}}
            :handler get-image-thumbnail-handler
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}

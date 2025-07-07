@@ -52,5 +52,5 @@
                           flatten (into []))
         options (merge gopts options)]
     (cond
-      (:help options) (println (main-usage summary {:args args :options options}))
+      (:help options) (info (main-usage summary {:args args :options options}))
       :else (run options))))

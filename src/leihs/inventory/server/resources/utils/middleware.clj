@@ -36,7 +36,7 @@
     (let [is-admin (get-in request [:authenticated-entity :is_admin] false)]
       (if is-admin
         (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized3"}) 401)))))
+        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]
@@ -49,12 +49,8 @@
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
                                                      "/inventory/csrf-token/"
                                                      "/inventory/token/public"
-                                                     "/inventory/session/public"])
-
-          p (println ">o> abc.auth" auth)
-          p (println ">o> abc.swagger-resource?" swagger-resource?)
-          p (println ">o> abc.whitelisted?" whitelisted?)]
+                                                     "/inventory/session/public"])]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
-        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized2"}) 403)
+        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
         :else (handler request)))))

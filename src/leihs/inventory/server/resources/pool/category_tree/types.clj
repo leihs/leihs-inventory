@@ -13,3 +13,5 @@
      [schema.core :as s]))
 
 (sa/def ::with-metadata boolean?)
+(sa/def ::response-body {:name string?
+                         :children [any?]})

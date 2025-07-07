@@ -8,7 +8,7 @@
 
    [leihs.inventory.server.resources.pool.models.model.images.main :refer [delete-image
                                                                            upload-image
-                                                                           get-image-thumbnail-handler]]
+                                                                           get-images]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -38,7 +38,8 @@
                             :produces "application/json"}
                   :coercion reitit.coercion.schema/coercion
                   :middleware [accept-json-middleware]
-                  :parameters {:path {:model_id s/Uuid}
+                  :parameters {:path {:pool_id s/Uuid
+                                      :model_id s/Uuid}
                                :header {:x-filename s/Str}}
                   :handler upload-image
                   :responses {200 {:description "OK" :body s/Any}
@@ -51,7 +52,11 @@
                  :coercion reitit.coercion.schema/coercion
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
-                 :handler get-image-thumbnail-handler
+                 :parameters {:path {:pool_id s/Uuid
+                                     :model_id s/Uuid
+                                     (s/optional-key :page) s/Int
+                                     (s/optional-key :size) s/Int}}
+                 :handler get-images
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]]]]])

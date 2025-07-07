@@ -9,7 +9,7 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :refer [debug error info spy warn]]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
@@ -78,19 +78,23 @@
 
 (defn create-pagination-response
   "To receive a paginated response, the request must contain the query parameters `page` and `size`."
-  [request base-query with-pagination?]
 
-  (let [{:keys [page size]} (fetch-pagination-params-raw request)
-        tx (:tx request)]
-    (cond
-      (and (or (nil? with-pagination?) (= with-pagination? false))
-           (single-entity-get-request? request))
-      (jdbc/query tx (-> base-query sql-format))
+  ([request base-query with-pagination?]
+   (create-pagination-response request base-query with-pagination? nil))
 
-      (and (or (nil? with-pagination?) with-pagination?)
-           (or (some? page) (some? size)))
-      (pagination-response request base-query)
+  ([request base-query with-pagination? post-fnc]
 
-      with-pagination? (pagination-response request base-query)
+   (let [{:keys [page size]} (fetch-pagination-params-raw request)
+         tx (:tx request)]
+     (cond
+       (and (or (nil? with-pagination?) (= with-pagination? false))
+            (single-entity-get-request? request))
+       (jdbc/query tx (-> base-query sql-format))
 
-      :else (jdbc/query tx (-> base-query sql-format)))))
+       (and (or (nil? with-pagination?) with-pagination?)
+            (or (some? page) (some? size)))
+       (pagination-response request base-query post-fnc)
+
+       with-pagination? (pagination-response request base-query post-fnc)
+
+       :else (jdbc/query tx (-> base-query sql-format))))))
