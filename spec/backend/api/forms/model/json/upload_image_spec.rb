@@ -34,6 +34,7 @@ describe "Inventory Model" do
       include_context :generate_session_header
 
       let(:pool_id) { @inventory_pool.id }
+      let(:model) { @models.first }
       let(:model_id) { @models.first.id }
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
@@ -51,7 +52,7 @@ describe "Inventory Model" do
 
       before do
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -76,14 +77,14 @@ describe "Inventory Model" do
           response
         end
 
-        it "accepts valid image file types" do
+        it "accepts valid image file types (PNG, JPG, JPEG)" do
           [path_valid_png, path_valid_jpg, path_valid_jpeg].each do |path|
             response = upload_image(path)
             expect(response.status).to eq(200)
           end
         end
 
-        it "rejects unsupported image formats" do
+        it "rejects unsupported image formats (PDF)" do
           [path_valid_pdf].each do |path|
             response = upload_image(path)
             expect(response.status).to eq(400)
@@ -96,19 +97,52 @@ describe "Inventory Model" do
             @upload_response = upload_image(path_valid_png)
           end
 
-          it "fetches image" do
+          it "allows fetching the uploaded image" do
             image_id = @upload_response.body["image"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}"
             expect(resp.status).to eq(200)
           end
 
-          it "fetches image-thumbnail" do
+          it "allows fetching the uploaded image thumbnail" do
             image_id = @upload_response.body["image"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail"
             expect(resp.status).to eq(200)
           end
+
+          it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do
+            image_id = @upload_response.body["image"]["id"]
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+
+            if role == "customer"
+              expect(resp.status).to eq(404)
+              next
+            end
+
+            expect(resp.status).to eq(200)
+            expect(resp.body["images"][0]["is_cover"]).to eq(false)
+            expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
+            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail")
+          end
+
+          it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
+            image_id = @upload_response.body["image"]["id"]
+            model.update(cover_image_id: image_id)
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+
+            if role == "customer"
+              expect(resp.status).to eq(404)
+              next
+            end
+
+            expect(resp.status).to eq(200)
+            expect(resp.body["images"][0]["is_cover"]).to eq(true)
+            expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
+            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail")
+          end
+
         end
       end
     end
