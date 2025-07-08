@@ -41,8 +41,7 @@
             thumbnail-id (when (nil? cover-image-id)
                         (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
                          first
-                          :id
-                          ))  ]
+                          :id                          ))  ]
 
         (cond
           (and (= "models" origin_table) cover-image-id)
@@ -91,7 +90,6 @@
 
          post-fnc (fn [models]
                     (let [ids (->> models (keep :id) vec)
-                          p (println ">o> abc.models" models)
                           thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
                           models (apply-cover-image-urls models thumbnails pool_id)]
                       models))]
