@@ -30,19 +30,9 @@
 (defn image-response-format [s]
   (sql/returning s :id :filename :thumbnail))
 
-(defn delete-image
-  [req]
-  (let [tx (:tx req)
-        {:keys [model_id image_id]} (:path (:parameters req))
-        id (to-uuid image_id)]
-    (let [res (jdbc/execute-one! tx
-                                 (sql-format
-                                  {:delete-from :images :where [:= :id id]}))]
-      (if (= (:next.jdbc/update-count res) 1)
-        (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"})))))
 
-(defn upload-image [req]
+
+(defn post-resource [req]
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
@@ -98,7 +88,7 @@
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
-(defn get-images [request]
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])

@@ -7,7 +7,7 @@
   ;         (java.util Base64 UUID))
   )
 
-(defn public-endpoint-handler [request]
+(defn get-resource [request]
   {:status 200
    :body {:reuqest-method (:request-method request)
           :request-url (:uri request)

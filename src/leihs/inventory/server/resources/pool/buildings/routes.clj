@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.main :refer [get-buildings-handler]]
+   [leihs.inventory.server.resources.pool.buildings.main :refer [index-resources]]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -23,7 +23,7 @@
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
-            :handler get-buildings-handler
+            :handler index-resources
             :responses {200 {:description "OK"
                              :body [response-body]}
                         404 {:description "Not Found"}

@@ -36,5 +36,5 @@
         (error "Failed to update model" e)
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
-(defn update-model-handler-by-pool-model-json [request]
+(defn put-resource [request]
   (update-model-handler-by-pool-form request))

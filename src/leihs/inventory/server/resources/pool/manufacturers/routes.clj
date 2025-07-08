@@ -3,7 +3,8 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.manufacturers.main :refer [get-manufacturer-handler]]
+   [leihs.inventory.server.resources.pool.manufacturers.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.manufacturers.types :refer [response-schema]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -33,20 +34,11 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :handler get-manufacturer-handler
+           :handler index-resources
            :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
                                 (s/optional-key :search-term) s/Str
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
-                            :body [(s/conditional
-                                    map? {:id s/Uuid
-                                          :manufacturer s/Str
-                                          :product s/Str
-                                          :version (s/maybe s/Str)
-                                          :model_id s/Uuid}
-                                    string? s/Str)]}
+                            :body [response-schema]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])
-
-
-

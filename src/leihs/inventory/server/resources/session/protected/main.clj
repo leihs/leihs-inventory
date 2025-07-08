@@ -3,7 +3,7 @@
    [leihs.inventory.server.resources.utils.request :refer [authenticated? get-auth-entity]]
    [taoensso.timbre :refer [debug info warn error spy]]))
 
-(defn protected-handler [request]
+(defn get-resource [request]
   (if (authenticated? request)
     (do
       (debug "User authenticated with:" (get-auth-entity request))

@@ -48,7 +48,7 @@
 (defn attachment-response-format [s]
   (sql/returning s :id :filename))
 
-(defn upload-attachment [req]
+(defn post-resource [req]
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
@@ -142,19 +142,6 @@
            (status 404)))
        (response (create-pagination-response request query with-pagination?))))))
 
-(defn get-models-of-pool-with-pagination-handler [request]
+(defn index-resources [request]
   (get-models-handler request true))
 
-(defn get-models-of-pool-handler [request]
-  (let [result (get-models-handler request)]
-    result))
-
-(defn delete-attachments [{:keys [tx] :as request}]
-  (let [{:keys [attachments_id]} (path-params request)
-        res (jdbc/execute-one! tx
-                               (-> (sql/delete-from :attachments)
-                                   (sql/where [:= :id attachments_id])
-                                   sql-format))]
-    (if (= (:next.jdbc/update-count res) 1)
-      (response {:status "ok" :attachments_id attachments_id})
-      (bad-request {:error "Failed to delete attachment"}))))

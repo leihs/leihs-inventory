@@ -2,7 +2,7 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
+   [dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug info warn error spy]]))

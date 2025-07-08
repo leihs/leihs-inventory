@@ -6,8 +6,10 @@
 
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.main :refer [create-model-handler-by-pool get-models-of-pool-with-pagination-handler]]
-   [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
+
+   [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response]]
+
+   [leihs.inventory.server.resources.pool.models.main :refer [post-resource index-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -64,10 +66,10 @@
                                  (s/optional-key :type) (s/enum :model :software :option :package)
                                  (s/optional-key :with_items) s/Bool}}
 
-            :handler get-models-of-pool-with-pagination-handler
+            :handler index-resources
 
             :responses {200 {:description "OK"
-                             :body (s/->Either [s/Any mc/models-response-payload])}
+                             :body get-response}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}
 
@@ -78,9 +80,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :body :model/multipart}
-             :handler create-model-handler-by-pool-model-json
+             :handler post-resource
              :responses {200 {:description "OK"
-                              :body {:data :model-optional-response/inventory-model
-                                     :validation any?}}
+                              :body post-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]])

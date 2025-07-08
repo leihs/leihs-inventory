@@ -3,7 +3,7 @@
    [clojure.set]
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [get-responsible-pools-handler]]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [get-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -22,7 +22,7 @@
            :middleware [wrap-authenticate accept-json-middleware]
            :swagger {:produces ["application/json"]}
            :parameters {:path {:pool_id s/Uuid}}
-           :handler get-responsible-pools-handler
+           :handler get-resources
            :responses {200 {:description "OK"
                             :body s/Any}
                        404 {:description "Not Found"}

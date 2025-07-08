@@ -40,9 +40,5 @@
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
-(defn get-suppliers-auto-pagination-handler [request]
+(defn index-resources [request]
   (response (get-suppliers request nil)))
-
-(defn get-suppliers-handler [request]
-  (let [result (get-suppliers request)]
-    (response result)))

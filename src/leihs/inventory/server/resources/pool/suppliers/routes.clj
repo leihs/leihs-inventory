@@ -2,8 +2,8 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.auth.session :as session]
-   [leihs.inventory.server.resources.pool.suppliers.main :refer [get-suppliers-auto-pagination-handler]]
+   [leihs.inventory.server.resources.pool.suppliers.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.coercion.core :refer [pagination]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -11,10 +11,6 @@
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
-(def resp-supplier [{:id s/Uuid
-                     :name s/Str
-                     :note (s/maybe s/Str)}])
 
 (defn get-suppliers-routes []
   [""
@@ -29,16 +25,13 @@
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware
                             ;session/wrap
-                            ]
+                             ]
                :swagger {:produces ["application/json"]}
-
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int
                                     (s/optional-key :search-term) s/Str}}
-
-               :handler get-suppliers-auto-pagination-handler
+               :handler index-resources
                :responses {200 {:description "OK"
-                                :body (s/->Either [resp-supplier {:data resp-supplier
-                                                                  :pagination pagination}])}
+                                :body get-response}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]]])

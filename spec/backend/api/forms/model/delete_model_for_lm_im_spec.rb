@@ -19,19 +19,19 @@ def find_with_cover2(compatibles)
 end
 
 def find_with_cover(compatibles)
-  compatibles.find { |c| !c["cover_image_url"].nil? }
+  compatibles.find { |c| !c["image_url"].nil? }
 end
 
 def find_without_cover(compatibles)
-  compatibles.find { |c| c["cover_image_url"].nil? }
+  compatibles.find { |c| c["image_url"].nil? }
 end
 
 def select_with_cover(compatibles)
-  compatibles.select { |c| !c["cover_image_url"].nil? }
+  compatibles.select { |c| !c["image_url"].nil? }
 end
 
 def select_without_cover(compatibles)
-  compatibles.select { |c| c["cover_image_url"].nil? }
+  compatibles.select { |c| c["image_url"].nil? }
 end
 
 def select_two_variants_of_compatibles(compatibles)

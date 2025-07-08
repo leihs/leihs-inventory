@@ -47,17 +47,16 @@
       {:status 400
        :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
-(defn get-image-thumbnail-handler [request]
+(defn get-resource [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
           image_id (-> request path-params :image_id)
-          is-thumbnail? (str/ends-with? (:uri request) "/thumbnail")
 
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
-                    (sql/where [:= :i.thumbnail is-thumbnail?])
+                    (sql/where [:= :i.thumbnail true])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
                     sql-format)

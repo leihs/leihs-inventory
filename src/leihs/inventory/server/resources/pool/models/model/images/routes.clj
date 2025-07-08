@@ -6,9 +6,8 @@
 
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.images.main :refer [delete-image
-                                                                           upload-image
-                                                                           get-images]]
+   [leihs.inventory.server.resources.pool.models.model.images.main :refer [                                                                           post-resource
+                                                                           index-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -41,7 +40,7 @@
                   :parameters {:path {:pool_id s/Uuid
                                       :model_id s/Uuid}
                                :header {:x-filename s/Str}}
-                  :handler upload-image
+                  :handler post-resource
                   :responses {200 {:description "OK" :body s/Any}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
@@ -56,7 +55,7 @@
                                      :model_id s/Uuid
                                      (s/optional-key :page) s/Int
                                      (s/optional-key :size) s/Int}}
-                 :handler get-images
+                 :handler index-resources
                  :responses {200 {:description "OK"}
                              404 {:description "Not Found"}
                              500 {:description "Internal Server Error"}}}}]]]]])

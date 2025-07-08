@@ -4,17 +4,16 @@
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-model-handler]]
-   [leihs.inventory.server.resources.pool.models.model.create-model-form :refer [create-model-handler-by-pool-model-json]]
-   [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-model-handler-by-pool-json]]
-   [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [create-model-handler-by-pool-form-fetch]]
-   [leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
-                                                                    delete-model-handler
-                                                                    get-models-handler]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
+   [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
+   [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
+   ;[leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
+   ;                                                                 delete-model-handler
+   ;                                                                 get-models-handler]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]
-   [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [update-model-handler-by-pool-model-json]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -55,7 +54,7 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler create-model-handler-by-pool-form-fetch
+             :handler get-resource
              :responses {200 {:description "OK"
                               :body :model-get-put-response/inventory-model}
                          404 {:description "Not Found"}
@@ -69,7 +68,7 @@
                :parameters {:path {:pool_id s/Uuid
                                    :model_id s/Uuid}
                             :body {:is_cover (s/maybe s/Uuid)}}
-               :handler patch-model-handler
+               :handler patch-resource
                :responses {200 {:description "OK"
                                 :body patch-response}
                            404 {:description "Not Found"}
@@ -84,7 +83,7 @@
                 :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                 :parameters {:path {:pool_id uuid?
                                     :model_id uuid?}}
-                :handler delete-model-handler-by-pool-json
+                :handler delete-resource
                 :responses {200 {:description "OK"
                                  :body delete-response}
                             404 {:description "Not Found"}
@@ -98,7 +97,7 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :body :model/multipart}
-             :handler update-model-handler-by-pool-model-json
+             :handler put-resource
              :responses {200 {:description "OK"
                               :body put-response}
                          404 {:description "Not Found"}

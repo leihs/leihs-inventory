@@ -5,7 +5,7 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries create-image-url apply-is_deleted-context-if-valid
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries  apply-is_deleted-context-if-valid
                                                          apply-is_deleted-where-context-if-valid]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
@@ -21,7 +21,7 @@
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
 
-(defn get-manufacturer-handler [request]
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           query-params (query-params request)

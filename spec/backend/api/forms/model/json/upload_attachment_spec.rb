@@ -31,6 +31,11 @@ def upload_and_expect(file_path, expected_ok)
   end
 end
 
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
+
 describe "Inventory Model" do
   # ['inventory_manager', 'customer'].each do |role|
   ["inventory_manager"].each do |role|
@@ -39,6 +44,8 @@ describe "Inventory Model" do
       include_context :generate_session_header
 
       let(:pool_id) { @inventory_pool.id }
+      let(:first_model) { @models.first }
+      let(:model) { @models.first }
       let(:model_id) { @models.first.id }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:cookie_header) { @cookie_header }
@@ -61,7 +68,7 @@ describe "Inventory Model" do
       before do
         # Ensure all fixture files exist
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -91,10 +98,21 @@ describe "Inventory Model" do
           end
 
           it "fetches attachment" do
-            image_id = @upload_response.body[0]["id"]
+            attachment_id = @upload_response.body[0]["id"]
 
-            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{image_id}"
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}"
             expect(resp.status).to eq(200)
+          end
+
+          it "fetches attachment22" do
+            attachment_id = @upload_response.body[0]["id"]
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            expect(resp.status).to eq(200)
+            expect(resp.body["attachments"][0]["url"]).to end_with(attachment_id)
+            expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}")
+
+            expect_correct_url(resp.body["attachments"][0]["url"])
           end
         end
       end

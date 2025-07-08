@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.session.protected.main :refer [protected-handler]]
+   [leihs.inventory.server.resources.session.protected.main :refer [get-resource]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [leihs.inventory.server.utils.auth.session :as ab]
    [next.jdbc :as jdbc]
@@ -37,5 +37,5 @@
      {:get {:accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :swagger {:security [{:csrfToken []}]}
-            :handler protected-handler
+            :handler get-resource
             :middleware [ab/wrap-session-authorize!]}}]]])
