@@ -307,9 +307,6 @@ describe "Inventory Model" do
         it "creates a model with all available attributes" do
           compatibles = @form_models_compatibles
 
-          # FIXME - id is valid, but what happens with model_id-entry? Why is coercion not working?
-          select_two_variants_of_compatibles(compatibles)
-
           form_data = {
             "product" => Faker::Commerce.product_name,
             "version" => "v1.0",
@@ -336,7 +333,6 @@ describe "Inventory Model" do
             headers: cookie_header
           )
 
-          # binding.pry
           expect(compare_values(resp.body["data"], form_data.to_hash,
             ["version", "description", "technical_detail", "internal_description", "hand_over_note",
               "is_package"])).to eq(true)
@@ -432,6 +428,7 @@ describe "Inventory Model" do
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["compatibles"].count).to eq(2)
           expect(resp.body["categories"].count).to eq(1)
+          
           expect(resp.status).to eq(200)
         end
       end
