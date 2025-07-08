@@ -31,6 +31,11 @@ def upload_and_expect(file_path, expected_ok)
   end
 end
 
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
+
 describe "Inventory Model" do
   # ['inventory_manager', 'customer'].each do |role|
   ["inventory_manager"].each do |role|
@@ -106,6 +111,8 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
             expect(resp.body["attachments"][0]["url"]).to end_with(attachment_id)
             expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}")
+
+            expect_correct_url(resp.body["attachments"][0]["url"])
           end
         end
       end
