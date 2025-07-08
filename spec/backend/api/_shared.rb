@@ -223,7 +223,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
 
     @models = []
-    # create model relating compatible with cover_image
+    # create model with relating compatible with cover_image
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -232,13 +232,13 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     image = add_image_to_model(compatible_model1)
     update_cover_image(compatible_model1, image)
 
-    # create model relating compatible only
+    # create model with relating compatible only
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_compatible_model(compatible_model2)
 
-    # create software-model relating compatible only
+    # create software-model with relating compatible only
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
     @models << model
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
