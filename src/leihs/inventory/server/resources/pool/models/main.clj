@@ -38,8 +38,17 @@
     (fn [idx model]
       (let [cover-image-id (:cover_image_id model)
             origin_table (:origin_table model)
-            thumbnail (first (vec (filter #(= (:target_id %) (:id model)) thumbnails)))
-            thumbnail-id (:id thumbnail)]
+            thumbnail-id (when (nil? cover-image-id)
+                        (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
+                         first
+                          :id
+                          ))
+            ;thumbnail-id (:id thumbnail)
+
+
+            p (println ">o> abc.cover-image-id" cover-image-id)
+            p (println ">o> abc.thumbnail-id" thumbnail-id)
+            ]
 
         (cond
           (and (= "models" origin_table) cover-image-id)
@@ -88,6 +97,7 @@
 
          post-fnc (fn [models]
                     (let [ids (->> models (keep :id) vec)
+                          p (println ">o> abc.models" models)
                           thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
                           models (apply-cover-image-urls models thumbnails pool_id)]
                       models))]

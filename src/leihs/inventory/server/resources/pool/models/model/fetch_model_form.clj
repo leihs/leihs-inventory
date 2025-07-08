@@ -49,17 +49,93 @@
                   sql-format)]
     (jdbc/execute! tx query)))
 
-(defn fetch-compatibles [tx model-id]
+(defn get-one-thumbnail-query [tx id]
+  (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
+                          (sql/from :images)
+                          (sql/where [:and
+                                      [:= :target_id id]
+                                      [:= :thumbnail true]])
+                          sql-format)))
+
+(defn fetch-thumbnails-for-ids [tx ids]
+  (vec (map #(get-one-thumbnail-query tx %) ids)))
+
+(defn create-url [pool_id model_id type cover_image_id]
+  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id "/thumbnail"))
+
+(defn apply-cover-image-urls [models thumbnails pool_id]
+  (vec
+    (map-indexed
+      (fn [idx model]
+        (let [cover-image-id (:cover_image_id model)
+              origin_table (:origin_table model)
+              thumbnail-id (when (nil? cover-image-id)
+                             (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
+                               first
+                               :id
+                               ))
+              ;thumbnail-id (:id thumbnail)
+
+
+              p (println ">o> abc.cover-image-id" cover-image-id)
+              p (println ">o> abc.thumbnail-id" thumbnail-id)
+              p (println ">o> abc.origin_table" origin_table) ;; nil
+              ]
+
+          (cond
+            (and (= "models" origin_table) cover-image-id)
+             ;cover-image-id
+            (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
+
+            (and (= "models" origin_table) thumbnail-id)
+             ;thumbnail-id
+            (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
+
+            :else
+            model)))
+      models)))
+
+;; broken, works only if cover_image_id is set,
+(defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version
-                              (create-image-url :mm :cover_image_url)
+                              ;(create-image-url :mm :cover_image_url)
+                    ["models" :origin_table]
+                              ;[:mm.cover_image_id :cover_image_id])
                               :mm.cover_image_id)
                   (sql/from [:models_compatibles :mc])
-                  (sql/left-join [:models :m] [:= :mc.model_id :m.id])
+                  ;(sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
-                  (sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
+                  ;(sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
                   (sql/where [:= :mc.model_id model-id])
-                  sql-format)]
-    (-> (jdbc/execute! tx query) remove-nil-entries-fnc)))
+                  sql-format)
+
+        models   (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
+        p (println ">o> abc.models1" models)
+
+
+        ids (->> models (keep :id) vec)
+        p (println ">o> abc.models2" models)
+
+        thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
+        p (println ">o> abc.thumbnails" thumbnails)
+
+        models        (map #(if (contains? % :cover_image_id)
+                          %
+                          (assoc % :cover_image_id nil))
+                    models)
+
+        p (println ">o> abc.models3" models)
+
+
+        models (apply-cover-image-urls models thumbnails pool-id)
+
+        models (map #(dissoc % :origin_table) models)
+
+        p (println ">o> abc.models3" models)
+        ]
+    models
+    )
+  )
 
 (defn fetch-properties [tx model-id]
   (select-entries tx :properties [:id :key :value] [:= :model_id model-id]))
@@ -100,7 +176,7 @@
             attachments (fetch-attachments tx model-id pool-id)
             image-attributes (fetch-image-attributes tx model-id pool-id)
             accessories (fetch-accessories tx model-id)
-            compatibles (fetch-compatibles tx model-id)
+            compatibles (fetch-compatibles tx model-id pool-id)
             properties (fetch-properties tx model-id)
             entitlements (fetch-entitlements tx model-id)
             categories (fetch-categories tx model-id)
