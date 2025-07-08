@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.main :refer [get-entitlement-groups-of-pool-handler]]
+   [leihs.inventory.server.resources.pool.entitlement-groups.main :refer [index-resources]]
    [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [response-body]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -28,7 +28,7 @@
                  :middleware [accept-json-middleware]
                  :swagger {:produces ["application/json"]}
                  :parameters {:path {:pool_id s/Uuid}}
-                 :handler get-entitlement-groups-of-pool-handler
+                 :handler index-resources
                  :responses {200 {:description "OK"
                                   :body [response-body]}
                              404 {:description "Not Found"}

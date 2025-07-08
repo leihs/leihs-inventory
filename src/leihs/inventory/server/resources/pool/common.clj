@@ -52,9 +52,6 @@
                   "false" false
                   nil)
     :else (boolean s)))
-(defn create-image-url [col-name col-name-keyword]
-  [[[:raw (str "CASE WHEN " (name col-name) ".cover_image_id IS NOT NULL THEN CONCAT('/inventory/images/', " (name col-name) ".cover_image_id, '/thumbnail') ELSE NULL END")]]
-   col-name-keyword])
 
 (defn- customized-empty? [value]
   (or (= value "null") (nil? value) (empty? value)))

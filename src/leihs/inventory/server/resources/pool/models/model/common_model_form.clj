@@ -26,7 +26,7 @@
            [java.util.jar JarFile]
            [org.im4java.core ConvertCmd IMOperation]))
 
-(defn patch-model-handler [req]
+(defn patch-resource [req]
   (let [model-id (to-uuid (get-in req [:path-params :model_id]))
         pool-id (to-uuid (get-in req [:path-params :pool_id]))
         tx (:tx req)

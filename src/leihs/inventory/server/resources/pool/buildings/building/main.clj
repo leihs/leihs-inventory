@@ -9,7 +9,7 @@
    [ring.util.response :refer [bad-request response status header]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-buildings-handler [request]
+(defn get-resource [request]
   (try
     (let [tx (:tx request)
           building-id (-> request path-params :building_id)

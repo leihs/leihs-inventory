@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [get-image-thumbnail-handler delete-image]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [get-resource delete-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [next.jdbc :as jdbc]
@@ -24,7 +24,7 @@
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid}}
-           :handler get-image-thumbnail-handler
+           :handler get-resource
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
@@ -35,7 +35,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :image_id s/Uuid}}
-              :handler delete-image
+              :handler delete-resource
               :responses {200 {:description "OK"}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]])

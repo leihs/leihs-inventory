@@ -30,7 +30,9 @@
    :created_at s/Inst
    :updated_at s/Inst
    (s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   (s/optional-key :cover_image_url) (s/maybe s/Str)})
+   (s/optional-key :image_url) (s/maybe s/Str)
+   (s/optional-key :thumb_url) (s/maybe s/Str)
+   })
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by def
@@ -122,7 +124,8 @@
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::cover_image_id (sa/nilable uuid?))
-(sa/def ::cover_image_url (sa/nilable string?))
+(sa/def ::image_url (sa/nilable string?))
+(sa/def ::thumb_url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
 (sa/def ::name string?)
@@ -144,10 +147,10 @@
                               :single (sa/or :coll (sa/coll-of ::id)
                                              :str string?)
                               :none nil?))
-(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
+(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumb_url]
                                  :req-un [:nil/id :nil/product]))
 
-(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::cover_image_url]
+(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumb_url]
                               :req-un [::id ::product]))
 
 (sa/def ::compatibles (sa/or

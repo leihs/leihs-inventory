@@ -80,7 +80,7 @@
 
 (defn create-app [options]
   (let [router (ring/router
-                (routes/basic-routes)
+                (routes/all-api-endpoints)
                 {:conflicts nil
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion

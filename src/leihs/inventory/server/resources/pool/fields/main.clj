@@ -101,7 +101,7 @@
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
-(defn get-form-fields-auto-pagination-handler [request]
+(defn index-resources [request]
   (response (get-form-fields request nil)))
 
 

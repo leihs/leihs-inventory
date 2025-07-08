@@ -2,11 +2,9 @@
   (:require
    [cheshire.core :as json]
    [clojure.set :as set]
-   [leihs.inventory.server.resources.pool.items.main :refer [get-items-of-pool-with-pagination-handler]]
+   [leihs.inventory.server.resources.pool.items.main :refer [index-resources]]
    [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
-   [leihs.inventory.server.resources.pool.models.main :refer [get-models-handler]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   ;[leihs.inventory.server.resources.utils.request :refer [query-params]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -30,7 +28,7 @@
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid}
                          :query query-params}
-            :handler get-items-of-pool-with-pagination-handler
+            :handler index-resources
             :responses {200 {:description "OK"
                              :body s/Any}
                         404 {:description "Not Found"}

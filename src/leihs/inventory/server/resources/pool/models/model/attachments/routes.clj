@@ -3,13 +3,9 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.pool.accessories.main :refer [get-accessories-of-pool-handler]]
-
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [upload-attachment
-                                                                                delete-attachments
-                                                                                get-models-of-pool-handler
-                                                                                get-models-of-pool-with-pagination-handler]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [post-resource
+                                                                                index-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -35,7 +31,7 @@
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid}}
-              :handler get-models-of-pool-with-pagination-handler
+              :handler index-resources
               :responses {200 {:description "OK"
                                :body s/Any}
                           404 {:description "Not Found"}
@@ -51,7 +47,7 @@
                :parameters {:path {:pool_id s/Uuid
                                    :model_id s/Uuid}
                             :header {:x-filename s/Str}}
-               :handler upload-attachment
+               :handler post-resource
                :responses {200 {:description "OK"
                                 :body s/Any}
                            400 {:description "Bad Request (Coercion error)"

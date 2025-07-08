@@ -52,7 +52,7 @@
      :expires_at expires-at
      :scopes scopes}))
 
-(defn create-api-token-handler [request]
+(defn post-resource [request]
   (let [user (-> request :authenticated-entity)
         {:keys [description scopes]} (:body-params request)
         user_id (:id user)

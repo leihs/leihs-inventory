@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.main :refer [create-api-token-handler]]
+   [leihs.inventory.server.resources.token.main :refer [post-resource]]
 
    ;[leihs.inventory.server.resources.token.public.session :as ab]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
@@ -46,4 +46,4 @@
                                            :write s/Bool
                                            :admin_read s/Bool
                                            :admin_write s/Bool}}}
-              :handler create-api-token-handler}}]]]])
+              :handler post-resource}}]]]])

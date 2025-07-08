@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.building.main :refer [get-buildings-handler]]
+   [leihs.inventory.server.resources.pool.buildings.building.main :refer [get-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -23,7 +23,7 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
             :parameters {:path {:building_id s/Uuid}}
-            :handler get-buildings-handler
+            :handler get-resource
             :responses {200 {:description "OK"
                              :body [{:id s/Uuid
                                      :name s/Str

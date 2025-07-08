@@ -92,6 +92,6 @@
        with-pagination? (pagination-response request base-query)
        :else (jdbc/query tx (-> base-query sql-format))))))
 
-(defn get-items-of-pool-with-pagination-handler [request]
+(defn index-resources [request]
   (response (get-items-handler request true)))
 

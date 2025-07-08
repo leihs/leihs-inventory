@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.dev.main
+(ns dev.main
   (:require
    [buddy.auth.backends.token :refer [jws-backend]]
    [buddy.auth.middleware :refer [wrap-authentication]]
@@ -79,7 +79,7 @@
         (conj results {:table table :column column :count count}))
       results)))
 
-(defn search-in-tables [request]
+(defn get-resource [request]
   (let [tx (:tx request)
         tables-to-search ["models" "items" "images" "attachments"]
         query-params (query-params request)
@@ -96,7 +96,7 @@
                                     :columns columns
                                     :result results}}))))
 
-(defn update-and-fetch-accounts [request]
+(defn put-account-resource [request]
   (try
     (let [tx (:tx request)
           query-params (query-params request)
@@ -246,7 +246,7 @@
        (ex-info "BasicAuth header not found."
                 {:status 403})))))
 
-(defn update-role-handler [request]
+(defn put-role-resource [request]
   (try
     (let [[login password] (extract-basic-auth-from-header request)
           user (verify-password-entry request login password)
