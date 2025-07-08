@@ -22,7 +22,7 @@ describe "Swagger Inventory Endpoints - Models" do
           @image = FactoryBot.create(:image, :for_leihs_model, target: @model, real_filename: "anon.jpg")
         end
 
-        it "does not include cover_image_url when only a regular image (no thumbnail) exists" do
+        it "returns cover_image_url as nil when the model has images but none are marked as thumbnails" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
@@ -33,7 +33,7 @@ describe "Swagger Inventory Endpoints - Models" do
       end
 
       context "when a model has no images or thumbnails" do
-        it "does not include cover_image_url when there is no image or thumbnail" do
+        it "returns cover_image_url as nil when the model has no images at all" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
@@ -73,7 +73,7 @@ describe "Swagger Inventory Endpoints - Models" do
                                       real_filename: "anon.jpg")
         end
 
-        it "returns the model with the default cover_image_url set to the first thumbnail" do
+        it "returns cover_image_url for the first thumbnail if cover_image_id is not set" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
@@ -82,14 +82,25 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.body["data"].count).to eq(1)
         end
 
-        it "returns the model with cover_image_url matching the explicitly set cover_image_id" do
-          @model.update(cover_image_id: @thumbnail2.id)
+        it "returns cover_image_url for the image specified by cover_image_id (@image)" do
+          @model.update(cover_image_id: @image.id)
 
           resp = client.get url
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["cover_image_url"]).to end_with(@thumbnail2.id)
+          expect(resp.body["data"][0]["cover_image_url"]).to end_with(@image.id)
+          expect(resp.body["data"].count).to eq(1)
+        end
+
+        it "returns cover_image_url for the image specified by cover_image_id (@image2)" do
+          @model.update(cover_image_id: @image2.id)
+
+          resp = client.get url
+
+          expect(resp.status).to eq(200)
+          expect(resp.body["data"][0]["id"]).to eq(@model.id)
+          expect(resp.body["data"][0]["cover_image_url"]).to end_with(@image2.id)
           expect(resp.body["data"].count).to eq(1)
         end
       end
@@ -101,7 +112,7 @@ describe "Swagger Inventory Endpoints - Models" do
                                      real_filename: "anon.jpg")
         end
 
-        it "does not include the cover_image_url key when there are no thumbnails" do
+        it "omits the cover_image_url key entirely if the model has images but no thumbnails and no cover_image_id" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
