@@ -90,6 +90,7 @@
                    (cond-> category_id
                      (#(from-category tx % category_id))))
 
+         ;; FIXME: seems to break if multiple images are related to the model
          post-fnc (fn [models]
                     (let [ids (->> models (keep :id) vec)
                           thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)

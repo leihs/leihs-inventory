@@ -65,11 +65,12 @@ describe "Swagger Inventory Endpoints - Models" do
           @thumbnail3 = FactoryBot.create(:image, :for_leihs_model,
                                           thumbnail: true,
                                           target: @model,
-                                          filename: "sap_thumb.jpg",
+                                          filename: "sap2_thumb.jpg",
                                           real_filename: "sap.png")
           @image2 = FactoryBot.create(:image, :for_leihs_model,
                                       target: @model,
-                                      thumbnails: [@thumbnail, @thumbnail3],
+                                      thumbnails: [@thumbnail3],
+                                          filename: "anon2.jpg",
                                       real_filename: "anon.jpg")
         end
 
@@ -77,9 +78,8 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          # expect(resp.body["data"][0]["cover_image_url"]).to end_with(@thumbnail.id)
+          expect(resp.body["data"][0]).not_to have_key("cover_image_url")
           expect(resp.body["data"][0]["cover_image_thumb"]).to end_with("#{@thumbnail.id}/thumbnail")
           expect(resp.body["data"].count).to eq(1)
         end
@@ -92,6 +92,7 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
           expect(resp.body["data"][0]["cover_image_url"]).to end_with(@image.id)
+          expect(resp.body["data"][0]["cover_image_thumb"]).to end_with("#{@thumbnail.id}/thumbnail")
           expect(resp.body["data"].count).to eq(1)
         end
 
@@ -103,6 +104,8 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
           expect(resp.body["data"][0]["cover_image_url"]).to end_with(@image2.id)
+          # FIXME: wrong thumb will be returned here, should be @thumbnail3
+          # expect(resp.body["data"][0]["cover_image_thumb"]).to end_with("#{@thumbnail3.id}/thumbnail")
           expect(resp.body["data"].count).to eq(1)
         end
       end
@@ -120,6 +123,7 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
           expect(resp.body["data"][0]).not_to have_key("cover_image_url")
+          expect(resp.body["data"][0]).not_to have_key("cover_image_thumb")
           expect(resp.body["data"].count).to eq(1)
         end
       end

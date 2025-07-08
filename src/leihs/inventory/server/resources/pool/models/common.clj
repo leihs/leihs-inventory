@@ -34,43 +34,6 @@
 
 (defn apply-cover-image-urls [models thumbnails pool_id]
   (vec
-   (map-indexed
-    (fn [idx model]
-      (let [cover-image-id (:cover_image_id model)
-            origin_table (:origin_table model)
-            thumbnail-id (when (nil? cover-image-id)
-                        (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
-                         first
-                          :id                          ))
-
-        model (when (and (= "models" origin_table) cover-image-id)
-                (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
-                )
-
-        model (when (and (= "models" origin_table) thumbnail-id)
-                (assoc model :cover_image_thumb (str (create-url pool_id (:id model) "images" thumbnail-id)  "/thumbnail"))
-                )
-
-            ]
-
-        model
-
-        ;(cond
-        ;  (and (= "models" origin_table) cover-image-id)
-        ;  (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
-        ;
-        ;  (and (= "models" origin_table) thumbnail-id)
-        ;  (assoc model :cover_image_url (str (create-url pool_id (:id model) "images" thumbnail-id)  "/thumbnail"))
-        ;
-        ;  :else
-        ;  model)
-
-
-        ))
-    models)))
-
-(defn apply-cover-image-urls [models thumbnails pool_id]
-  (vec
     (map-indexed
       (fn [idx model]
         (let [cover-image-id (:cover_image_id model)
