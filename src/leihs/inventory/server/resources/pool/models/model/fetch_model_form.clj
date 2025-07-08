@@ -64,78 +64,36 @@
   (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id "/thumbnail"))
 
 (defn apply-cover-image-urls [models thumbnails pool_id]
-  (vec
-    (map-indexed
-      (fn [idx model]
-        (let [cover-image-id (:cover_image_id model)
-              origin_table (:origin_table model)
-              thumbnail-id (when (nil? cover-image-id)
-                             (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
-                               first
-                               :id
-                               ))
-              ;thumbnail-id (:id thumbnail)
+                (map
+                  (fn [model]
+                    (let [cover-image-id (:cover_image_id model)
+                          origin-table (:origin_table model)
+                          thumbnail-id (->> thumbnails
+                                            (filter #(= (:target_id %) (:id model)))
+                                            first
+                                            :id)]
+                      (cond
+                        (and (= "models" origin-table) cover-image-id)
+                        (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
 
+                        (and (= "models" origin-table) thumbnail-id)
+                        (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
 
-              p (println ">o> abc.cover-image-id" cover-image-id)
-              p (println ">o> abc.thumbnail-id" thumbnail-id)
-              p (println ">o> abc.origin_table" origin_table) ;; nil
-              ]
+                        :else model)))
+                  models))
 
-          (cond
-            (and (= "models" origin_table) cover-image-id)
-             ;cover-image-id
-            (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
-
-            (and (= "models" origin_table) thumbnail-id)
-             ;thumbnail-id
-            (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
-
-            :else
-            model)))
-      models)))
-
-;; broken, works only if cover_image_id is set,
 (defn fetch-compatibles [tx model-id pool-id]
-  (let [query (-> (sql/select :mm.id :mm.product :mm.version
-                              ;(create-image-url :mm :cover_image_url)
-                    ["models" :origin_table]
-                              ;[:mm.cover_image_id :cover_image_id])
-                              :mm.cover_image_id)
+  (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
                   (sql/from [:models_compatibles :mc])
-                  ;(sql/left-join [:models :m] [:= :mc.model_id :m.id])
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
-                  ;(sql/left-join [:images :i] [:= :mm.cover_image_id :i.id])
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)
-
-        models   (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
-        p (println ">o> abc.models1" models)
-
-
-        ids (->> models (keep :id) vec)
-        p (println ">o> abc.models2" models)
-
-        thumbnails (->> (fetch-thumbnails-for-ids tx ids) (keep identity) vec)
-        p (println ">o> abc.thumbnails" thumbnails)
-
-        models        (map #(if (contains? % :cover_image_id)
-                          %
-                          (assoc % :cover_image_id nil))
-                    models)
-
-        p (println ">o> abc.models3" models)
-
-
-        models (apply-cover-image-urls models thumbnails pool-id)
-
-        models (map #(dissoc % :origin_table) models)
-
-        p (println ">o> abc.models3" models)
-        ]
-    models
-    )
-  )
+        models (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
+        ids (mapv :id models)
+        thumbnails (fetch-thumbnails-for-ids tx ids)
+        models (map #(assoc % :cover_image_id (or (:cover_image_id %) nil)) models)
+        models (apply-cover-image-urls models thumbnails pool-id)]
+    (map #(dissoc % :origin_table) models)))
 
 (defn fetch-properties [tx model-id]
   (select-entries tx :properties [:id :key :value] [:= :model_id model-id]))

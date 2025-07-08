@@ -42,13 +42,7 @@
                         (-> (vec (filter #(= (:target_id %) (:id model)) thumbnails))
                          first
                           :id
-                          ))
-            ;thumbnail-id (:id thumbnail)
-
-
-            p (println ">o> abc.cover-image-id" cover-image-id)
-            p (println ">o> abc.thumbnail-id" thumbnail-id)
-            ]
+                          ))  ]
 
         (cond
           (and (= "models" origin_table) cover-image-id)

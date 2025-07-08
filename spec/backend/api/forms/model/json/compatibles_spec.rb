@@ -32,8 +32,7 @@ def upload_and_expect(file_path, expected_ok)
 end
 
 describe "Inventory Model" do
-  # ['inventory_manager', 'customer'].each do |role|
-  ["inventory_manager"].each do |role|
+  ['inventory_manager', 'customer'].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model_compatible, role
       include_context :generate_session_header
