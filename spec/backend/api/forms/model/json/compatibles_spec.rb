@@ -43,29 +43,7 @@ describe "Inventory Model" do
       let(:model_id) { @model.id }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:cookie_header) { @cookie_header }
-
-      # let(:form_categories) { @form_categories }
-      # let(:form_compatible_models) { @compatible_model }
-
-      # let(:path_valid_png) { File.expand_path("spec/files/500-kb.png", Dir.pwd) }
-      # let(:path_valid_jpg) { File.expand_path("spec/files/600-kb.jpg", Dir.pwd) }
-      # let(:path_valid_jpeg) { File.expand_path("spec/files/600-kb.jpeg", Dir.pwd) }
-      # let(:path_valid_pdf) { File.expand_path("spec/files/300-kb.pdf", Dir.pwd) }
-      #
-      # let(:path_invalid_png) { File.expand_path("spec/files/2-mb.png", Dir.pwd) }
-      # let(:path_invalid_jpg) { File.expand_path("spec/files/2-mb.jpg", Dir.pwd) }
-      # let(:path_invalid_jpeg) { File.expand_path("spec/files/2-mb.jpeg", Dir.pwd) }
-      # let(:path_invalid_pdf) { File.expand_path("spec/files/2-mb.pdf", Dir.pwd) }
-
       let(:pool_id) { @inventory_pool.id }
-
-      # before do
-      #   # Ensure all fixture files exist
-      #   [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-      #    path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
-      #     raise "File not found: #{path}" unless File.exist?(path)
-      #   end
-      # end
 
       context "upload attachments" do
         it "fetches compatibles without images" do
@@ -89,36 +67,50 @@ describe "Inventory Model" do
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
         end
 
-        it "fetches compatibles with two images (cover_image)" do
-          @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                         thumbnail: true,
-                                         target: @compatible_model,
-                                         filename: "anon_thumb.jpg",
-                                         real_filename: "anon.jpg")
+        context "fetches compatibles with images with thumb" do
+          before do
+            @thumbnail = FactoryBot.create(:image, :for_leihs_model,
+                                           thumbnail: true,
+                                           target: @compatible_model,
+                                           filename: "anon_thumb.jpg",
+                                           real_filename: "anon.jpg")
 
-          @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @compatible_model,
-                                     thumbnails: [@thumbnail],
-                                     real_filename: "anon.jpg")
+            @image = FactoryBot.create(:image, :for_leihs_model,
+                                       target: @compatible_model,
+                                       thumbnails: [@thumbnail],
+                                       real_filename: "anon.jpg")
 
-          @thumbnail2 = FactoryBot.create(:image, :for_leihs_model,
-                                          thumbnail: true,
-                                          target: @compatible_model,
-                                          filename: "anon_thumb.jpg",
-                                          real_filename: "anon.jpg")
+            @thumbnail2 = FactoryBot.create(:image, :for_leihs_model,
+                                            thumbnail: true,
+                                            target: @compatible_model,
+                                            filename: "anon_thumb.jpg",
+                                            real_filename: "anon.jpg")
 
-          @image2 = FactoryBot.create(:image, :for_leihs_model,
-                                      target: @compatible_model,
-                                      thumbnails: [@thumbnail2],
-                                      real_filename: "anon.jpg")
+            @image2 = FactoryBot.create(:image, :for_leihs_model,
+                                        target: @compatible_model,
+                                        thumbnails: [@thumbnail2],
+                                        real_filename: "anon.jpg")
+          end
 
-          @compatible_model.update(cover_image_id: @thumbnail2.id)
+          it "fetches compatibles with two images (cover_image)" do
+            @compatible_model.update(cover_image_id: @image2.id)
 
-          resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
-          expect(resp.status).to eq(200)
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            expect(resp.status).to eq(200)
 
-          expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail2.id}/thumbnail")
-          expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@thumbnail2.id)
+            expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image2.id}/thumbnail")
+            expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image2.id)
+          end
+
+          it "fetches compatibles with two images (cover_image)" do
+            @compatible_model.update(cover_image_id: @image.id)
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            expect(resp.status).to eq(200)
+
+            expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image.id}/thumbnail")
+            expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image.id)
+          end
         end
 
         it "fetches compatibles with single image (default image)" do
