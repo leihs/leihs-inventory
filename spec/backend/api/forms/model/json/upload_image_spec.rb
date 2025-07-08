@@ -141,6 +141,10 @@ describe "Inventory Model" do
             expect(resp.body["images"][0]["is_cover"]).to eq(true)
             expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
             expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail")
+
+            expect_correct_url(resp.body["images"][0]["url"])
+            expect_correct_url(resp.body["images"][0]["thumbnail_url"])
+
           end
 
         end

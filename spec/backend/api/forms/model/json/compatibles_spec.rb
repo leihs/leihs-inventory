@@ -31,6 +31,11 @@ def upload_and_expect(file_path, expected_ok)
   end
 end
 
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
+
 describe "Inventory Model" do
   ['inventory_manager', 'customer'].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -47,6 +52,11 @@ describe "Inventory Model" do
       context "upload attachments" do
         it "fetches compatibles without images" do
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+
+          if role == "customer"
+            expect(resp.status).to eq(404)
+            next
+          end
           expect(resp.status).to eq(200)
 
           expect(resp.body["compatibles"][0]["cover_image_url"]).to be_nil
@@ -60,6 +70,11 @@ describe "Inventory Model" do
                                      real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          if role == "customer"
+            expect(resp.status).to eq(404)
+            next
+          end
+
           expect(resp.status).to eq(200)
 
           expect(resp.body["compatibles"][0]["cover_image_url"]).to be_nil
@@ -95,20 +110,36 @@ describe "Inventory Model" do
             @compatible_model.update(cover_image_id: @image2.id)
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            if role == "customer"
+              expect(resp.status).to eq(404)
+              next
+            end
+
             expect(resp.status).to eq(200)
 
             expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image2.id}/thumbnail")
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image2.id)
+
+            expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+
           end
 
           it "fetches compatibles with two images (cover_image)" do
             @compatible_model.update(cover_image_id: @image.id)
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            if role == "customer"
+              expect(resp.status).to eq(404)
+              next
+            end
+
             expect(resp.status).to eq(200)
 
             expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image.id}/thumbnail")
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image.id)
+
+            expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+
           end
         end
 
@@ -126,10 +157,18 @@ describe "Inventory Model" do
                                      real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          if role == "customer"
+            expect(resp.status).to eq(404)
+            next
+          end
+
           expect(resp.status).to eq(200)
 
           expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
+
+          expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+
         end
 
         it "fetches compatibles and verifies order (default image)" do
@@ -164,10 +203,17 @@ describe "Inventory Model" do
                                       real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+          if role == "customer"
+            expect(resp.status).to eq(404)
+            next
+          end
+
           expect(resp.status).to eq(200)
 
           expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
+
+          expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
         end
 
       end
