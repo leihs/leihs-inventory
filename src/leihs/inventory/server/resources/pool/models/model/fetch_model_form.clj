@@ -5,7 +5,7 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc create-image-url]]
+   [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -15,38 +15,291 @@
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx
-                 (-> (apply sql/select columns)
-                     (sql/from table)
-                     (sql/where where-clause)
-                     sql-format)))
+    (-> (apply sql/select columns)
+      (sql/from table)
+      (sql/where where-clause)
+      sql-format)))
 
 (defn fetch-attachments [tx model-id pool-id]
   (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
-       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))))))
+    (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))))))
 
-(defn fetch-image-attributes [tx model-id pool-id]
+(defn filtered-cover-ids
+  "Given a cover_image_id and a collection of images,
+   returns {:main main-id, :thumbnail thumb-id} for the filtered cover images."
+  [cover_image_id images]
+  (let [filtered-cover (when cover_image_id
+                         (vec
+                           (filter #(or (= (:id %) cover_image_id)
+                                      (= (:parent_id %) cover_image_id))
+                             images)))
+
+        p (println ">o> abc" filtered-cover)
+        p (println ">o> abc" (count filtered-cover))
+
+        ;main-id   (when filtered-cover
+        ;            (filter #(= (:thumbnail %) false) filtered-cover))
+        ;p (println ">o> abc.main-id1" main-id)
+
+
+        main-id (when filtered-cover
+                  (:id (first (filter #(= (:thumbnail %) false) filtered-cover))))
+        p (println ">o> abc.main-id2" main-id)
+
+        thumb-id (when filtered-cover
+                   (:id (first (filter #(= (:thumbnail %) true) filtered-cover))))
+        p (println ">o> abc.main-id2" thumb-id)
+
+        ;main-id   (when filtered-cover
+        ;            (:id (filter #(= (:thumbnail %) false) filtered-cover)))
+        ;p (println ">o> abc.main-id3" main-id)
+        ;
+        ;
+        ;thumb-id  (when filtered-cover
+        ;            (:id  (filter #(= (:thumbnail %) true) filtered-cover)))
+
+        p (println ">o> abc.thumb-id4" thumb-id)
+        ]
+    {:main main-id
+     :thumbnail thumb-id})
+
+  )
+
+
+(defn group-by-parent
+  [images]
+  (let [group-key (fn [img]
+                    (or (:parent_id img) (:id img)))]
+    (group-by group-key images)))
+
+
+;(defn add-cover-image-urls
+;  [images pool-id model-id]
+;  (let [groups (group-by-parent images)]
+;    (mapcat
+;      (fn [[group-id entries]]
+;        (let [cover-image-id (:cover_image_id (first entries))
+;              default-id     (:id (first entries))
+;              {:keys [main thumbnail]} (if cover-image-id
+;                                         (filtered-cover-ids cover-image-id entries)
+;                                         (filtered-cover-ids default-id entries))]
+;
+;          ;; TODO choose entry with thumbnail false and assoc
+;          ; :cover_image_url (str "/inventory/" pool-id "/models/" model-id "/images/" main)
+;          ; :cover_image_thumb (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail")
+;
+;          ;(map #(assoc % :cover_image_url
+;          ;        (cond
+;          ;          (and thumbnail (= (:thumbnail %) true))  (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail")
+;          ;          (and main (= (:thumbnail %) false)) (str "/inventory/" pool-id "/models/" model-id "/images/" main)
+;          ;          :else nil))
+;          ;  entries))
+;
+;
+;        )
+;      groups)))
+
+
+  ;(defn add-cover-image-urls
+  ;  [images pool-id model-id]
+  ;  (let [groups (group-by-parent images)]
+  ;    (vec (mapcat
+  ;      (fn [[group-id entries]]
+  ;        (let [cover-image-id (:cover_image_id (first entries))
+  ;              default-id     (:id (first entries))
+  ;              {:keys [main thumbnail]} (if cover-image-id
+  ;                                         (filtered-cover-ids cover-image-id entries)
+  ;                                         (filtered-cover-ids default-id entries))
+  ;
+  ;              p (println ">o> abc???" main thumbnail)
+  ;              ]
+  ;          ;(map #(cond
+  ;          ;        ;(and main (false? (:thumbnail %)))
+  ;          ;        main
+  ;          ;        (assoc % :cover_image_url
+  ;          ;          (str "/inventory/" pool-id "/models/" model-id "/images/" main))
+  ;          ;
+  ;          ;        ;(and thumbnail (true? (:thumbnail %)))
+  ;          ;        thumbnail
+  ;          ;        (assoc % :cover_image_thumb
+  ;          ;          (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail"))
+  ;          ;
+  ;          ;        :else %)
+  ;          ;  entries)
+  ;
+  ;          (map #(-> %
+  ;                  (cond-> main
+  ;                    (assoc % :cover_image_url
+  ;                      (str "/inventory/" pool-id "/models/" model-id "/images/" main)))
+  ;                  (cond-> thumbnail
+  ;                    (assoc % :cover_image_thumb
+  ;                      (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail"))))
+  ;            entries)
+  ;
+  ;          ))
+  ;      groups))))
+
+
+
+(defn add-cover-image-urls
+  [images pool-id model-id]
+  (let [groups (group-by-parent images)]
+    (vec (mapcat
+           (fn [[group-id entries]]
+             (let [cover-image-id (:cover_image_id (first entries))
+                   default-id     (:id (first entries))
+                   {:keys [main thumbnail]} (if cover-image-id
+                                              (filtered-cover-ids cover-image-id entries)
+                                              (filtered-cover-ids default-id entries))]
+               (map #(cond-> %
+                       main (assoc :url
+                       ;main (assoc :cover_image_url
+                              (str "/inventory/" pool-id "/models/" model-id "/images/" main))
+                       ;thumbnail (assoc :cover_image_thumb
+                       thumbnail (assoc :thumbnail_url
+                                   (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail")))
+                 entries)))
+           groups))))
+
+
+  (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
-                   :i.id
-                   :i.filename
-                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
-                    :is_cover])
-                  (sql/from [:models :m])
-                  (sql/right-join [:images :i] [:= :i.target_id :m.id])
-                  (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
-                  sql-format)
-        images (jdbc/execute! tx query)]
-    (map (fn [row]
-           (assoc row :url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row))
-                  :thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row) "/thumbnail")))
-         images)))
+                    :i.id
+                    :i.filename
+                    [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
+                     :is_cover]
+                    :i.target_id
+                    :i.parent_id
+                    :i.thumbnail
+                    :m.cover_image_id
+                    )
+                (sql/from [:models :m])
+                (sql/right-join [:images :i] [:= :i.target_id :m.id])
+                ;(sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
+                (sql/where [:= :m.id model-id])
+                ;(sql/where [:= :m.type "Model] )
+                (sql/order-by [:i.filename :desc] [:i.content_type :desc])
+                sql-format)
+        images (jdbc/execute! tx query)
+
+        group-by-parent (group-by-parent images)
+
+
+        images (add-cover-image-urls images pool-id model-id)
+
+        p (println ">o> abc.res1" images)
+
+
+        images    (when (some? images)
+                                 (filter #(= (:thumbnail %) false) images))
+        p (println ">o> abc.res2" images)
+
+        ;images remove attriubes
+        images (map #(dissoc % :target_id :parent_id  :cover_image_id)
+                     images)
+        p (println ">o> abc.res3" images)
+
+        ;res (doseq [[group-id images] groups]
+        ;      (let [
+        ;            ;main-img   (first (filter #(= (:thumbnail %) false) entries))
+        ;            ;thumb-img  (first (filter #(= (:thumbnail %) true) entries))
+        ;
+        ;            cover_image_id (:cover_image_id (first images))
+        ;            default-id (:id (first images))
+        ;
+        ;            {:keys [main thumbnail]} (if (not nil? cover_image_id)
+        ;                                       (filtered-cover-ids cover_image_id images)
+        ;                                       (filtered-cover-ids default-id images)
+        ;                                       )
+        ;
+        ;            ;; merge values into images based on :thumbnail-value => true/false
+        ;            {:thumbnail true :cover_image_url (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail")        }
+        ;            {:thumbnail false :cover_image_url (str "/inventory/" pool-id "/models/" model-id "/images/" main )
+        ;
+        ;             }
+        ;
+        ;
+        ;            ]
+        ;        (println "Group:" group-id)
+        ;        (println "  Main:" (:id main-img))
+        ;        (println "  Thumb:" (:id thumb-img))))
+
+
+
+        ;cover_image_id (:cover_image_id (first images))
+        ;
+        ;
+        ;;filtered-cover    (when cover_image_id
+        ;;                    (filter #(or (= (:id %) cover_image_id)
+        ;;                          (= (:parent_id %) cover_image_id)) images))
+        ;;
+        ;;filtered-cover-img    (when (some? filtered-cover)
+        ;;                        (:id (first (filter #(= (:thumbnail %) false) images))))
+        ;;
+        ;;filtered-cover-thu    (when (some? filtered-cover)
+        ;;                    (:id (first (filter #(= (:thumbnail %) true) images))))
+        ;
+        ;default-id (:id (first images))
+        ;
+        ;{:keys[ main thumbnail]}  (if (not nil? cover_image_id)
+        ;                            (filtered-cover-ids cover_image_id images)
+        ;                            (filtered-cover-ids default-id images)
+        ;
+        ;                            )
+        ;
+        ;
+        ;
+        ;
+        ;images (when (or (not (nil? main) (not (nil? thumbnail) ))
+        ;               (map (fn [row]
+        ;                      (assoc row :url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row))
+        ;                        :thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row) "/thumbnail")))
+        ;                 images)
+        ;
+        ;               )
+        ;
+        ;
+        ;p (println ">o> abc.cover_image_id" main)
+        ;p (println ">o> abc.filtered-cover" thumbnail)
+        ;
+        ;
+        ;p (println ">o> --------------------------------------------------")
+        ;
+        ;;p (println ">o> abc.cover_image_id" cover_image_id)
+        ;
+        ;{:keys[ main thumbnail]}  (filtered-cover-ids default-id images)
+        ;
+        ;
+        ;p (println ">o> abc.cover_image_id" main)
+        ;p (println ">o> abc.filtered-cover" thumbnail)
+
+
+
+
+        ;filtered-cover    (when default-id   (filter #(or (= (:id %) default-id)
+        ;                                                    (= (:parent_id %) default-id)) images))
+        ;
+        ;p (println ">o> abc.default-id" default-id)
+        ;p (println ">o> abc.filtered-cover" filtered-cover)
+        ;
+        ;
+        ;p (println ">o> abc.images" images)
+        ]
+    ;(map (fn [row]
+    ;       (assoc row :url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row))
+    ;              :thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" (:id row) "/thumbnail")))
+    ;     images)
+
+    images
+    ))
 
 (defn fetch-accessories [tx model-id]
   (let [query (-> (sql/select :a.id :a.name)
-                  (sql/from [:accessories :a])
-                  (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
-                  (sql/where [:= :a.model_id model-id])
-                  (sql/order-by :a.name)
-                  sql-format)]
+                (sql/from [:accessories :a])
+                (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
+                (sql/where [:= :a.model_id model-id])
+                (sql/order-by :a.name)
+                sql-format)]
     (jdbc/execute! tx query)))
 
 (defn get-one-thumbnail-query [tx id]
@@ -64,30 +317,30 @@
   (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id "/thumbnail"))
 
 (defn apply-cover-image-urls [models thumbnails pool_id]
-                (map
-                  (fn [model]
-                    (let [cover-image-id (:cover_image_id model)
-                          origin-table (:origin_table model)
-                          thumbnail-id (->> thumbnails
-                                            (filter #(= (:target_id %) (:id model)))
-                                            first
-                                            :id)]
-                      (cond
-                        (and (= "models" origin-table) cover-image-id)
-                        (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
+  (map
+    (fn [model]
+      (let [cover-image-id (:cover_image_id model)
+            origin-table (:origin_table model)
+            thumbnail-id (->> thumbnails
+                           (filter #(= (:target_id %) (:id model)))
+                           first
+                           :id)]
+        (cond
+          (and (= "models" origin-table) cover-image-id)
+          (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
 
-                        (and (= "models" origin-table) thumbnail-id)
-                        (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
+          (and (= "models" origin-table) thumbnail-id)
+          (assoc model :cover_image_url (create-url pool_id (:id model) "images" thumbnail-id))
 
-                        :else model)))
-                  models))
+          :else model)))
+    models))
 
 (defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
-                  (sql/from [:models_compatibles :mc])
-                  (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
-                  (sql/where [:= :mc.model_id model-id])
-                  sql-format)
+                (sql/from [:models_compatibles :mc])
+                (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
+                (sql/where [:= :mc.model_id model-id])
+                sql-format)
         models (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
         ids (mapv :id models)
         thumbnails (fetch-thumbnails-for-ids tx ids)
@@ -100,21 +353,21 @@
 
 (defn fetch-entitlements [tx model-id]
   (let [query (-> (sql/select :e.id :e.quantity :eg.name [:eg.id :group_id])
-                  (sql/from [:entitlements :e])
-                  (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
-                  (sql/where [:= :e.model_id model-id])
-                  sql-format)]
+                (sql/from [:entitlements :e])
+                (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
+                (sql/where [:= :e.model_id model-id])
+                sql-format)]
     (jdbc/execute! tx query)))
 
 (defn fetch-categories [tx model-id]
   (let [category-type "Category"
         query (-> (sql/select :mg.id :mg.type :mg.name)
-                  (sql/from [:model_groups :mg])
-                  (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
-                  (sql/where [:ilike :mg.type (str category-type)])
-                  (sql/where [:= :ml.model_id model-id])
-                  (sql/order-by :mg.name)
-                  sql-format)]
+                (sql/from [:model_groups :mg])
+                (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
+                (sql/where [:ilike :mg.type (str category-type)])
+                (sql/where [:= :ml.model_id model-id])
+                (sql/order-by :mg.name)
+                sql-format)]
     (jdbc/execute! tx query)))
 
 (defn create-model-handler-by-pool-form-fetch [request]
@@ -124,11 +377,11 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
       (let [model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
-                                        :m.hand_over_note :m.description :m.internal_description
-                                        :m.technical_detail :m.is_package)
-                            (sql/from [:models :m])
-                            (sql/where [:= :m.id model-id])
-                            sql-format)
+                              :m.hand_over_note :m.description :m.internal_description
+                              :m.technical_detail :m.is_package)
+                          (sql/from [:models :m])
+                          (sql/where [:= :m.id model-id])
+                          sql-format)
             model-result (jdbc/execute-one! tx model-query)
 
             attachments (fetch-attachments tx model-id pool-id)
@@ -140,18 +393,18 @@
             categories (fetch-categories tx model-id)
             result (if model-result
                      (assoc model-result
-                            :attachments attachments
-                            :accessories accessories
-                            :compatibles compatibles
-                            :properties properties
-                            :images image-attributes
-                            :entitlements entitlements
-                            :categories categories)
+                       :attachments attachments
+                       :accessories accessories
+                       :compatibles compatibles
+                       :properties properties
+                       :images image-attributes
+                       :entitlements entitlements
+                       :categories categories)
                      nil)]
         (if result
           (response result)
           (status
-           (response {:status "failure" :message "No entry found"}) 404)))
+            (response {:status "failure" :message "No entry found"}) 404)))
       (catch Exception e
         (error "Failed to fetch model" e)
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))

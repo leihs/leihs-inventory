@@ -27,6 +27,11 @@ def upload_image(file_path)
   response
 end
 
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
+
 describe "Inventory Model" do
   ["inventory_manager", "customer"].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -113,6 +118,8 @@ describe "Inventory Model" do
 
           it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do
             image_id = @upload_response.body["image"]["id"]
+            thumb_id = @upload_response.body["thumbnail"]["id"]
+
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
             if role == "customer"
@@ -123,13 +130,17 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
             expect(resp.body["images"][0]["is_cover"]).to eq(false)
             expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
-            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail")
+            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{thumb_id}/thumbnail")
+          end
+        end
+
+        context "upload & fetch image" do
+          before :each do
+            @upload_response = upload_image(path_valid_png)
+            @upload_response2 = upload_image(path_valid_jpg)
           end
 
           it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
-            image_id = @upload_response.body["image"]["id"]
-            model.update(cover_image_id: image_id)
-
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
             if role == "customer"
@@ -138,16 +149,35 @@ describe "Inventory Model" do
             end
 
             expect(resp.status).to eq(200)
-            expect(resp.body["images"][0]["is_cover"]).to eq(true)
-            expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
-            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail")
 
-            expect_correct_url(resp.body["images"][0]["url"])
-            expect_correct_url(resp.body["images"][0]["thumbnail_url"])
+            resp.body["images"].each do |img|
+              expect(resp.body["images"][0]["is_cover"]).to eq(false)
+              expect_correct_url(img["url"])
+              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
+            end
 
           end
 
+          it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
+            image_id = @upload_response2.body["image"]["id"]
+            model.update(cover_image_id: image_id)
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
+            if role == "customer"
+              expect(resp.status).to eq(404)
+              next
+            end
+
+            expect(resp.status).to eq(200)
+            resp.body["images"].each do |img|
+              expect(resp.body["images"][0]["is_cover"]).to eq(true)
+              expect_correct_url(img["url"])
+              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
+            end
+
+          end
         end
+
       end
     end
   end
