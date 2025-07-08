@@ -77,8 +77,10 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
+
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["cover_image_url"]).to end_with(@thumbnail.id)
+          # expect(resp.body["data"][0]["cover_image_url"]).to end_with(@thumbnail.id)
+          expect(resp.body["data"][0]["cover_image_thumb"]).to end_with("#{@thumbnail.id}/thumbnail")
           expect(resp.body["data"].count).to eq(1)
         end
 
