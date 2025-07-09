@@ -2,7 +2,8 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.rooms.main :refer [get-rooms-handler]]
+   [leihs.inventory.server.resources.pool.rooms.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -23,12 +24,8 @@
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
             :parameters {:query {(s/optional-key :building_id) s/Uuid}}
-            :handler get-rooms-handler
+            :handler index-resources
             :responses {200 {:description "OK"
-                             :body [{:building_id s/Uuid
-                                     :description (s/maybe s/Str)
-                                     :id s/Uuid
-                                     :name s/Str
-                                     :general s/Bool}]}
+                             :body [get-response]}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])
