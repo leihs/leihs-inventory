@@ -2,7 +2,6 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.auth.session :as session]
    [leihs.inventory.server.resources.pool.suppliers.main :refer [index-resources]]
    [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]

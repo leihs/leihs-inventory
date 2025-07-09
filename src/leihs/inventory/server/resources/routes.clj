@@ -59,7 +59,7 @@
 ; 1. Base routes (current state)
 ; 2. Already existing routes (not used by FE)
 ; 3. Dev routes
-(defn incl-other-routes
+(defn include-api-routes
   "Returns a vector of the core routes plus any additional routes passed in."
   []
   (let [core-routes [(get-models-route)
@@ -170,22 +170,42 @@
 
     ["/api-docs"
      {:get {:handler swagger-api-docs-handler
-            :no-doc true}}]
+            :no-doc true}}
 
-    ["/api-docs/swagger.json"
-     {:get {:no-doc true
-            :swagger {:info {:title "inventory-api"
-                             :version "2.0.0"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
-                      :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
-                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
-                      :security [{:csrfToken []}]}
-            :handler (swagger/create-swagger-handler)}}]
-    ["/api-docs/openapi.json"
-     {:get {:no-doc true
-            :openapi {:openapi "3.0.0"
-                      :info {:title "inventory-api"
-                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
-                             :version "3.0.0"}}
-            :handler (openapi/create-openapi-handler)}}]
-    (incl-other-routes)]])
+     ["/swagger.json"
+      {:get {:no-doc true
+             :swagger {:info {:title "inventory-api"
+                              :version "2.0.0"
+                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+                       :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
+                                             :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
+                       :security [{:csrfToken []}]}
+             :handler (swagger/create-swagger-handler)}}]
+
+     ["/openapi.json"
+      {:get {:no-doc true
+             :openapi {:openapi "3.0.0"
+                       :info {:title "inventory-api"
+                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                              :version "3.0.0"}}
+             :handler (openapi/create-openapi-handler)}}]
+
+     ]
+
+    ;["/api-docs/swagger.json"
+    ; {:get {:no-doc true
+    ;        :swagger {:info {:title "inventory-api"
+    ;                         :version "2.0.0"
+    ;                         :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+    ;                  :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
+    ;                                        :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
+    ;                  :security [{:csrfToken []}]}
+    ;        :handler (swagger/create-swagger-handler)}}]
+    ;["/api-docs/openapi.json"
+    ; {:get {:no-doc true
+    ;        :openapi {:openapi "3.0.0"
+    ;                  :info {:title "inventory-api"
+    ;                         :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+    ;                         :version "3.0.0"}}
+    ;        :handler (openapi/create-openapi-handler)}}]
+    (include-api-routes)]])
