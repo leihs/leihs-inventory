@@ -40,12 +40,5 @@
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
                             :body [response-schema]}
-                            ;:body [(s/conditional
-                            ;        map? {:id s/Uuid
-                            ;              :manufacturer s/Str
-                            ;              :product s/Str
-                            ;              :version (s/maybe s/Str)
-                            ;              :model_id s/Uuid}
-                            ;        string? s/Str)]}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])
