@@ -2,6 +2,8 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
+                                                                remove-nil-values]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]
@@ -53,9 +55,9 @@
         _ (when (or (seq remaining-attachments) (seq remaining-images))
             (throw (ex-info "Referenced attachments or images still exist" {:status 403})))
 
-        result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
-                :deleted_images (filter-keys images [:id :target_id :filename :size :thumbnail])
-                :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+        result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
+                :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
+                :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))}]
 
     (if (= 1 (count deleted-model))
       (response result)

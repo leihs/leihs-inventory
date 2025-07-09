@@ -14,25 +14,27 @@
    [spec-tools.data-spec :as ds]))
 
 (def models-response-payload
-  {:id s/Uuid
-   :type s/Str
-   (s/optional-key :manufacturer) (s/maybe s/Str)
-   :product s/Str
-   (s/optional-key :version) (s/maybe s/Str)
-   (s/optional-key :info_url) (s/maybe s/Str)
-   (s/optional-key :rental_price) (s/maybe s/Num)
-   (s/optional-key :maintenance_period) (s/maybe s/Int)
-   (s/optional-key :is_package) (s/maybe s/Bool)
-   (s/optional-key :hand_over_note) (s/maybe s/Str)
-   (s/optional-key :description) (s/maybe s/Str)
-   (s/optional-key :internal_description) (s/maybe s/Str)
-   (s/optional-key :technical_detail) (s/maybe s/Str)
-   :created_at s/Inst
-   :updated_at s/Inst
-   (s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   (s/optional-key :image_url) (s/maybe s/Str)
-   (s/optional-key :thumb_url) (s/maybe s/Str)
-   })
+  (merge
+   {:id (s/cond-pre s/Uuid s/Str)
+    (s/optional-key :type) (s/maybe s/Str)
+    (s/optional-key :manufacturer) (s/maybe s/Str)
+    (s/optional-key :product) (s/maybe s/Str)
+    (s/optional-key :version) (s/maybe s/Str)
+    (s/optional-key :info_url) (s/maybe s/Str)
+    (s/optional-key :rental_price) (s/maybe s/Any)
+    (s/optional-key :maintenance_period) (s/maybe s/Int)
+    (s/optional-key :is_package) (s/maybe s/Bool)
+    (s/optional-key :hand_over_note) (s/maybe s/Str)
+    (s/optional-key :description) (s/maybe s/Str)
+    (s/optional-key :internal_description) (s/maybe s/Str)
+    (s/optional-key :technical_detail) (s/maybe s/Str)
+    (s/optional-key :created_at) (s/maybe s/Any)
+    (s/optional-key :updated_at) (s/maybe s/Any)
+    (s/optional-key :cover_image_id) (s/maybe s/Any)
+    (s/optional-key :image_url) (s/maybe s/Str)
+     ;(s/optional-key :thumbnail_url) (s/maybe s/Str)
+    }
+   {s/Keyword s/Any}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by def
@@ -107,25 +109,11 @@
 (sa/def ::important_notes (sa/nilable string?))
 (sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
-
-(sa/def ::compatible_ids (sa/or
-                          :multiple (sa/or :coll (sa/coll-of uuid?)
-                                           :str string?)
-                          :single uuid?
-                          :none nil?))
-
-;; TODO: initial validation-error
-(sa/def ::category_ids (sa/or
-                        :multiple (sa/or :coll (sa/coll-of uuid?)
-                                         :str string?)
-                        :single uuid?
-                        :none nil?))
-
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::cover_image_id (sa/nilable uuid?))
-(sa/def ::image_url (sa/nilable string?))
-(sa/def ::thumb_url (sa/nilable string?))
+(sa/def ::image_id (sa/nilable uuid?))
+(sa/def ::url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
 (sa/def ::name string?)
@@ -135,39 +123,51 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un []
-                            ;:req-un [::id ::type ::name]))
-                            :req-un [::id ::name]))
-(sa/def ::categories (sa/or
-                      :single (sa/or :coll (sa/coll-of ::category)
-                                     :str string?)
-                      :none nil?))
+(sa/def ::category (sa/keys :opt-un [::name]
+                            :req-un [::id]))
 
-(sa/def :put-post/categories (sa/or
-                              :single (sa/or :coll (sa/coll-of ::id)
-                                             :str string?)
-                              :none nil?))
-(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumb_url]
+(sa/def ::categories
+  (sa/coll-of ::category :kind vector? :min-count 0))
+
+(sa/def :put-post/categories
+  (sa/coll-of ::id :kind vector? :min-count 0))
+
+(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::url]
                                  :req-un [:nil/id :nil/product]))
 
-(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumb_url]
-                              :req-un [::id ::product]))
+(sa/def ::compatible (sa/keys :opt-un [::product ::image_id ::url]
+                              :req-un [::id]))
 
-(sa/def ::compatibles (sa/or
-                       :single (sa/or :coll (sa/coll-of ::compatible)
-                                      :str string?)
-                       :none nil?))
-(sa/def :put-post/compatibles (sa/or
-                               :single (sa/or :coll (sa/coll-of ::id)
-                                              :str string?)
-                               :none nil?))
+(sa/def ::compatibles
+  (sa/coll-of ::compatible :kind vector? :min-count 0))
+
+(sa/def :min/compatible (sa/keys :opt-un [::product]
+                                 :req-un [::id]))
+
+(sa/def :min/compatibles
+  (sa/coll-of :min/compatible :kind vector? :min-count 0))
+
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
-(sa/def :min/images (sa/or :multiple (sa/coll-of any? :kind vector?)
-                           :single any?))
-(sa/def ::attachments any?)
+
+(sa/def ::image (sa/keys :opt-un [::is_cover ::url]
+                         :req-un [::id ::filename]))
+
+(sa/def ::attachment (sa/keys :opt-un [::url]
+                              :req-un [::id ::filename]))
+
+(sa/def :min/images
+  (sa/coll-of ::image :kind vector? :min-count 0))
+
+(sa/def ::is_cover boolean?)
+(sa/def ::filename string?)
+;(sa/def ::attachments any?)
+
+(sa/def ::attachments
+  (sa/coll-of ::attachment :kind vector? :min-count 0))
+
 (sa/def ::entitlement_group_id uuid?)
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
@@ -176,13 +176,11 @@
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
-(sa/def ::entitlements (sa/or
-                        :single (sa/or :coll (sa/coll-of :json/entitlement)
-                                       :str string?)
-                        :none nil?))
+(sa/def ::entitlements
+  (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessory (sa/keys :req-un [::id] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
 (sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
 
 (sa/def ::properties string?)
@@ -229,25 +227,25 @@
 (sa/def ::key string?)
 (sa/def ::value string?)
 (sa/def :simple/properties string?)
-(sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
-(sa/def ::image_attribute (sa/keys :req-opt [:image/filename
-                                             :image/content_type
-                                             :image/url
-                                             :image/to_delete
-                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+(sa/def ::property (sa/keys :opt-un [:nil/id] :req-un [::key ::value]))
+(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
+                                            :image/content_type
+                                            :image/url
+                                            :image/to_delete
+                                            :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
 
-(sa/def :license/properties (sa/keys :req-opt [::activation_type
-                                               ::dongle_id
-                                               ::license_type
-                                               ::total_quantity
-                                               ::license_expiration
-                                               ::p4u
-                                               ::reference
-                                               ::project_number
-                                               ::procured_by
-                                               ::maintenance_contract
-                                               ::maintenance_expiration
-                                               ::maintenance_price] :req-un []))
+(sa/def :license/properties (sa/keys :opt-un [::activation_type
+                                              ::dongle_id
+                                              ::license_type
+                                              ::total_quantity
+                                              ::license_expiration
+                                              ::p4u
+                                              ::reference
+                                              ::project_number
+                                              ::procured_by
+                                              ::maintenance_contract
+                                              ::maintenance_expiration
+                                              ::maintenance_price] :req-un []))
 
 (sa/def :license/multipart (sa/keys :opt-un [::model_id
                                              ::supplier_id
@@ -484,31 +482,31 @@
                                     ::entitlements
                                     ::attachments
                                     :model/type
-                                    :nil/hand_over_note
-                                    :nil/internal_description
-                                    :nil/product
                                     ::categories
                                     ::id
                                     ::compatibles]
-                           :opt-un [:min/images])
+                           :opt-un [:min/images
+                                    ::hand_over_note
+                                    ::internal_description
+                                    ::product])
+
             :description "Complete inventory response"}))
 
 (sa/def :model-optional-response/inventory-model
   (st/spec {:spec (sa/keys :req-un [::is_package
-                                    :model/type
-                                    :nil/hand_over_note
-                                    :nil/internal_description
-                                    :nil/product
-                                    ::id
-
-                                    ::manufacturer
-                                    :nil/version
-                                    :nil/technical_detail
-                                    :nil/description]
+                                    ::product
+                                    ::id]
                            :opt-un [::properties
+                                    ::description
+                                    ::hand_over_note
+                                    ::manufacturer
+                                    ::version
+                                    ::technical_detail
+                                    ::internal_description
                                     ::accessories
                                     ::entitlements
                                     ::attachments
+                                    ::cover_image_id
                                     ::categories
                                     :model2/image_attributes
                                     ::compatibles])
@@ -575,7 +573,7 @@
                                            ::hand_over_note
                                            ::categories
                                            ::owner
-                                           ::compatibles
+                                           :min/compatibles
                                            ::entitlements
                                            :software/properties
                                            ::accessories]))

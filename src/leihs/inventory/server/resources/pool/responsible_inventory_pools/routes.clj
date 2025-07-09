@@ -4,6 +4,7 @@
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :refer [get-resources]]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -24,6 +25,6 @@
            :parameters {:path {:pool_id s/Uuid}}
            :handler get-resources
            :responses {200 {:description "OK"
-                            :body s/Any}
+                            :body get-response}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

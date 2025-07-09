@@ -50,7 +50,7 @@
         accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     (if (str/includes? accept "application/json")
-      {:status 200 :body params}
+      {:status 200 :body {:csrf-token (get-in params [:csrfToken :value])}}
       {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html})))
 
 (defn post-sign-in [request]

@@ -3,6 +3,7 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [dev.routes :refer [get-dev-routes]]
    [leihs.core.constants :as constants]
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-out.back :as so]
@@ -11,7 +12,6 @@
                                                         APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
-   [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
    [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]
@@ -80,7 +80,6 @@
            :summary "HTML | Get sign-out page"
            :handler get-sign-out}}]])
 
-
 (defn csrf-endpoints []
   ["/"
    {:swagger {:tags ["Auth"]}
@@ -104,14 +103,13 @@
               :description "Access denied without x-csrf-token"
               :handler (fn [_] {:status 200})}}]
 
-
    ["csrf-token/"
     {:no-doc false
-     :get {:summary "Retrieve X-CSRF-Token to use swagger-endpoints"
+     :get {:summary "Retrieves the X-CSRF-Token required for using non-GET Swagger endpoints."
+           :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
            :swagger {:produces ["application/json"]}
            :handler get-sign-in}}]])
-
 
 (defn swagger-endpoints []
   ["/api-docs"
@@ -169,14 +167,14 @@
                      (get-session-protected-routes)]
 
         additional-routes (concat
-                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                              [(get-suppliers-routes)
-                               (get-fields-routes)
-                               (get-export-excel-routes)
-                               (get-export-csv-routes)
-                               (get-items-routes)])
-                            (when APPLY_DEV_ENDPOINTS
-                              [(get-dev-routes)]))]
+                           (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                             [(get-suppliers-routes)
+                              (get-fields-routes)
+                              (get-export-excel-routes)
+                              (get-export-csv-routes)
+                              (get-items-routes)])
+                           (when APPLY_DEV_ENDPOINTS
+                             [(get-dev-routes)]))]
 
     (vec (concat core-routes additional-routes))))
 

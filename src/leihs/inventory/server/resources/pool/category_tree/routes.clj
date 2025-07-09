@@ -43,7 +43,8 @@ Example Metadata:
 }
 ```"
            :coercion spec/coercion
-           :parameters {:query (sa/keys :opt-un [::t/with-metadata])}
+           :parameters {:query (sa/keys :opt-un [::t/with-metadata])
+                        :path {:pool_id uuid?}}
            :handler index-resources
            :responses {200 {:description "OK"
                             :body ::t/response-body}

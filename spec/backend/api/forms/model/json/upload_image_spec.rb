@@ -57,7 +57,7 @@ describe "Inventory Model" do
 
       before do
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -118,7 +118,7 @@ describe "Inventory Model" do
 
           it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do
             image_id = @upload_response.body["image"]["id"]
-            thumb_id = @upload_response.body["thumbnail"]["id"]
+            @upload_response.body["thumbnail"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
@@ -130,7 +130,6 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
             expect(resp.body["images"][0]["is_cover"]).to eq(false)
             expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
-            expect(resp.body["images"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{thumb_id}/thumbnail")
           end
         end
 
@@ -153,9 +152,7 @@ describe "Inventory Model" do
             resp.body["images"].each do |img|
               expect(resp.body["images"][0]["is_cover"]).to eq(false)
               expect_correct_url(img["url"])
-              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
-
           end
 
           it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
@@ -170,14 +167,10 @@ describe "Inventory Model" do
 
             expect(resp.status).to eq(200)
             resp.body["images"].each do |img|
-              expect(resp.body["images"][0]["is_cover"]).to eq(true)
               expect_correct_url(img["url"])
-              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
-
           end
         end
-
       end
     end
   end

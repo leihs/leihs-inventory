@@ -93,6 +93,16 @@
             (into {})))
      res)))
 
+(defn keep-attr-not-nil
+  "Given a map `m` and a collection of allowed keys `allowed-attrs`,
+  return a new map with:
+    - only keys present in allowed-attrs
+    - all entries with nil values removed"
+  [m allowed-attrs]
+  (->> m
+       (filter (fn [[k v]] (and (some #{k} allowed-attrs) (some? v))))
+       (into {})))
+
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
   [data keys-to-check]

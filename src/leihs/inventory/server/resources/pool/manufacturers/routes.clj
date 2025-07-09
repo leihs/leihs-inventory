@@ -39,6 +39,6 @@
                                 (s/optional-key :search-term) s/Str
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}
            :responses {200 {:description "OK"
-                            :body [response-schema]}
+                            :body response-schema}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

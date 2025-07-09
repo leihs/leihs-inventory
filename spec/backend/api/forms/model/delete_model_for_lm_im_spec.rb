@@ -4,49 +4,6 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-def add_delete_flag(map)
-  map["delete"] = true
-  map
-end
-
-def rename_model_id_to_id(compatible)
-  compatible["id"] = compatible["model_id"]
-  compatible
-end
-
-def find_with_cover2(compatibles)
-  compatibles.find { |c| !c["id"].nil? }
-end
-
-def find_with_cover(compatibles)
-  compatibles.find { |c| !c["image_url"].nil? }
-end
-
-def find_without_cover(compatibles)
-  compatibles.find { |c| c["image_url"].nil? }
-end
-
-def select_with_cover(compatibles)
-  compatibles.select { |c| !c["image_url"].nil? }
-end
-
-def select_without_cover(compatibles)
-  compatibles.select { |c| c["image_url"].nil? }
-end
-
-def select_two_variants_of_compatibles(compatibles)
-  compatible_with_cover_image = find_with_cover(compatibles)
-  compatible_without_cover_image = find_without_cover(compatibles)
-
-  [compatible_with_cover_image, compatible_without_cover_image]
-end
-
-def convert_to_id_correction(compatibles)
-  compatibles.each do |compatible|
-    compatible["id"] = compatible.delete("model_id")
-  end
-end
-
 describe "Inventory Model" do
   # ["inventory_manager", "lending_manager"].each do |role|
   ["inventory_manager"].each do |role|
@@ -150,7 +107,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(0)
@@ -174,7 +131,7 @@ describe "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -213,7 +170,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
@@ -289,7 +246,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -342,7 +299,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           expect(resp.status).to eq(200)
 
