@@ -4,6 +4,7 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :refer [get-resource
                                                                                            delete-resource]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -25,7 +26,8 @@
                                :attachments_id s/Uuid}
                         :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
            :handler get-resource
-           :responses {200 {:description "OK"}
+           :responses {200 {:description "OK"
+                            :body get-attachment-response}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 

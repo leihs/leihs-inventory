@@ -68,7 +68,7 @@ describe "Inventory Model" do
       before do
         # Ensure all fixture files exist
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -109,9 +109,7 @@ describe "Inventory Model" do
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
             expect(resp.status).to eq(200)
-            expect(resp.body["attachments"][0]["url"]).to end_with(attachment_id)
             expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}")
-
             expect_correct_url(resp.body["attachments"][0]["url"])
           end
         end

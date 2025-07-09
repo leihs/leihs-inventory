@@ -25,8 +25,6 @@
         rows (map vals maps)]
     (cons headers rows)))
 
-
-
 (defn index-resources [request]
   "Handler that generates an CSV file from a given map."
   (let [data [{:name "Alice" :age 30}

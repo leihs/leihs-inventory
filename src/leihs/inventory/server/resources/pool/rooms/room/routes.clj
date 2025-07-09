@@ -3,8 +3,8 @@
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.rooms.room.main :refer [get-resource]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -26,6 +26,6 @@
             :parameters {:path {:room_id s/Uuid}}
             :handler get-resource
             :responses {200 {:description "OK"
-                             :body [get-response]}
+                             :body get-response}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])

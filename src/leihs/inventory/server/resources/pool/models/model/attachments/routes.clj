@@ -6,6 +6,8 @@
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [post-resource
                                                                                 index-resources]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [get-attachments-response
+                                                                                 attachment]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -30,10 +32,12 @@
               :middleware [accept-json-middleware]
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
-                                  :model_id s/Uuid}}
+                                  :model_id s/Uuid}
+                           :query {(s/optional-key :page) s/Int
+                                   (s/optional-key :size) s/Int}}
               :handler index-resources
               :responses {200 {:description "OK"
-                               :body s/Any}
+                               :body get-attachments-response}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}
 

@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.items.item.main :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.items.types :refer [get-item-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -33,6 +34,6 @@
              :handler get-resource
              :responses {200 {:description "OK"
                               ;:body (s/->Either [s/Any schema])} ;;FIXME
-                              :body s/Any}
+                              :body get-item-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}]]]])

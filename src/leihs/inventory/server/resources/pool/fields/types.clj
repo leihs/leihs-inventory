@@ -9,8 +9,34 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(s/defschema query-params {(s/optional-key :page) s/Int
-                           (s/optional-key :size) s/Int
-                           (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
-                           (s/optional-key :owner) s/Bool
-                           (s/optional-key :type) (s/enum "license")})
+(s/defschema query-params {:id s/Uuid
+                           :name s/Str
+                           :inventory_pool_id s/Uuid
+                           :is_verification_required s/Bool
+                           :created_at s/Any
+                           :updated_at s/Any})
+
+(def Permissions
+  {(s/optional-key :role) s/Str
+   (s/optional-key :owner) s/Bool})
+
+(def Data
+  {(s/optional-key :type) s/Str
+   (s/optional-key :group) (s/maybe s/Str)
+   (s/optional-key :label) s/Str
+   (s/optional-key :required) s/Bool
+   (s/optional-key :attribute) (s/cond-pre s/Str [s/Str])
+   (s/optional-key :forPackage) s/Bool
+   (s/optional-key :permissions) Permissions
+   ;s/Keyword s/Any
+}) ;; allow extra keys
+
+(def ResponseItem
+  {(s/optional-key :id) s/Str
+   ;(s/optional-key :data) Data ;; FIXME
+   (s/optional-key :data) s/Any
+   (s/optional-key :role) (s/maybe s/Str)
+   (s/optional-key :owner) (s/maybe s/Bool)})
+
+(def get-response
+  (s/->Either [{:data [ResponseItem] :pagination s/Any} [ResponseItem]]))

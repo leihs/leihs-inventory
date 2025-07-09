@@ -250,7 +250,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end
-  end
+end
 
 shared_context :setup_models_api_model_compatible do |role = "inventory_manager"|
   include_context :setup_models_api, role
@@ -396,7 +396,7 @@ def create_and_login(role, login = nil, password = nil)
   end
 
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
-  token = resp.body["csrfToken"]["value"]
+  token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
 
   response = common_plain_faraday_client(:post, "/sign-in", body: {
@@ -415,7 +415,7 @@ def create_and_login_by(user)
   # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
 
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
-  token = resp.body["csrfToken"]["value"]
+  token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
 
   resp = common_plain_faraday_client(:post, "/sign-in", body: {

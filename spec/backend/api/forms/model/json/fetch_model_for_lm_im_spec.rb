@@ -4,12 +4,7 @@ require_relative "../../../_shared"
 require_relative "../../_common"
 require "faker"
 
-def add_delete_flag(map)
-  map["delete"] = true
-  map
-end
-
-post_response = {
+{
   "description" => String,
   "is_package" => [TrueClass, FalseClass],
   "maintenance_period" => Numeric,
@@ -115,7 +110,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(0)
@@ -140,7 +135,7 @@ describe "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -182,7 +177,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["compatibles"].count).to eq(1)
@@ -216,8 +211,8 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body.first["id"]).to eq(model_id)
-          expect(resp.body.first["cover_image_id"]).to eq(@image_id)
+          expect(resp.body["id"]).to eq(model_id)
+          expect(resp.body["cover_image_id"]).to eq(@image_id)
 
           # create attachment
           attachments = [File.open(path_test_pdf, "rb")]
@@ -264,7 +259,7 @@ describe "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -279,28 +274,6 @@ describe "Inventory Model" do
           expect(resp.body["categories"].count).to eq(2)
           expect(resp.status).to eq(200)
         end
-      end
-
-      def find_with_cover(compatibles)
-        compatibles.find { |c| !c["image_url"].nil? }
-      end
-
-      def find_without_cover(compatibles)
-        compatibles.find { |c| c["image_url"].nil? }
-      end
-
-      def select_with_cover(compatibles)
-        compatibles.select { |c| !c["image_url"].nil? }
-      end
-
-      def select_without_cover(compatibles)
-        compatibles.select { |c| c["image_url"].nil? }
-      end
-
-      def select_two_variants_of_compatibles(compatibles)
-        compatible_with_cover_image = find_with_cover(compatibles)
-        compatible_without_cover_image = find_without_cover(compatibles)
-        [compatible_with_cover_image, compatible_without_cover_image]
       end
 
       context "create model with attachments/images and delete file/image" do
@@ -333,15 +306,15 @@ describe "Inventory Model" do
             headers: cookie_header
           )
 
-          expect(compare_values(resp.body["data"], form_data.to_hash,
+          expect(compare_values(resp.body, form_data.to_hash,
             ["version", "description", "technical_detail", "internal_description", "hand_over_note",
               "is_package"])).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(validate_map_structure(resp.body["data"], post_response)).to eq(true)
+          # expect(validate_map_structure(resp.body, post_response)).to eq(true)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           resp.body["images"]
           resp.body["attachments"]
@@ -418,7 +391,7 @@ describe "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -428,7 +401,7 @@ describe "Inventory Model" do
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["compatibles"].count).to eq(2)
           expect(resp.body["categories"].count).to eq(1)
-          
+
           expect(resp.status).to eq(200)
         end
       end

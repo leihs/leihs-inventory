@@ -14,8 +14,7 @@ describe "Call swagger-endpoints" do
       it "returns 200 to fetch csrf-token" do
         resp = session_auth_plain_faraday_json_client(headers: {accept: "application/json"}).get("/sign-in")
         expect(resp.status).to eq(200)
-        expect(resp.body["csrfToken"]["name"]).to eq("csrf-token")
-        expect(resp.body["csrfToken"]["value"]).to be
+        expect(resp.body["csrf-token"]).to be
       end
 
       it "returns 200 to fetch login-form containing csrf-token" do

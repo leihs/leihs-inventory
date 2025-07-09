@@ -37,15 +37,13 @@ describe "Inventory API Endpoints - Items" do
         item_id = resp.body["data"][0]["id"]
         resp = client.get "#{url}#{item_id}"
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["data"][0]["id"]).to eq(item_id)
+        expect(resp.body["id"]).to eq(item_id)
       end
 
       it "returns no results for model with an invalid item ID with status 200" do
         invalid_id = SecureRandom.uuid
         resp = client.get "#{url}#{invalid_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(0)
+        expect(resp.status).to eq(404)
       end
     end
 

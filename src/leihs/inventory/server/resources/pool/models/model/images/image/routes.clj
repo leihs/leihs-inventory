@@ -3,6 +3,9 @@
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [get-resource delete-resource]]
+   [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-image-response delete-response
+                                                                            delete-400-response
+                                                                            image]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [next.jdbc :as jdbc]
@@ -25,7 +28,9 @@
                                :model_id s/Uuid
                                :image_id s/Uuid}}
            :handler get-resource
-           :responses {200 {:description "OK"}
+           :responses {200 {:description "OK"
+                            :body s/Any}
+                            ;:body get-image-response}       ;;FIXME: by content-type
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 
@@ -36,6 +41,8 @@
                                   :model_id s/Uuid
                                   :image_id s/Uuid}}
               :handler delete-resource
-              :responses {200 {:description "OK"}
-                          404 {:description "Not Found"}
+              :responses {200 {:description "OK"
+                               :body delete-response}
+                          400 {:description "Not Found"
+                               :body delete-400-response}
                           500 {:description "Internal Server Error"}}}}]])

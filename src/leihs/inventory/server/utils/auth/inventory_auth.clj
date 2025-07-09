@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.utils.auth.inventory-auth
   (:require
+   [dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug info warn error spy]]))
