@@ -29,7 +29,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :refer [get-models-images-image-routes]]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :refer [get-models-images-single-thumbnail-routes]]
    [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
-   [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-single-items-route]]
+   [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-items-route]]
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
@@ -68,7 +68,7 @@
                      (get-models-model-attachments-route)
                      (get-models-model-attachments-single-routes)
                      (get-models-model-images-route)
-                     (get-models-single-items-route)
+                     (get-models-items-route)
                      (get-responsible-inventory-pools-routes)
                      (get-entitlement-groups-routes)
                      (get-profile-routes)

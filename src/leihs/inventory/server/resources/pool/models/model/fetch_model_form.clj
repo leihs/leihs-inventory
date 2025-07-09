@@ -175,7 +175,7 @@
                 sql-format)]
     (jdbc/execute! tx query)))
 
-(defn create-model-handler-by-pool-form-fetch [request]
+(defn get-resource [request]
   (let [current-timestamp (LocalDateTime/now)
         tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))

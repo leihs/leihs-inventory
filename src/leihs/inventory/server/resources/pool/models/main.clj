@@ -29,11 +29,16 @@
 ;[leihs.inventory.server.resources.pool.models.helper :refer [base-filename
 ;                                                             normalize-files normalize-model-data
 ;                                                             parse-json-array process-attachments file-sha256]]
-;[leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+[leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
 ;[leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
-;                                                                              filter-response]]
+;                                                                              filter-response
+;                                                                               ]]
+
+   ;[leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
+   ;                                                                              filter-response]]
+
 ;[leihs.inventory.server.utils.converter :refer [to-uuid]]
-;[leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+[leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
 ;[next.jdbc :as jdbc]
 ;[pantomime.extract :as extract]
 ;[ring.util.response :refer [bad-request response status]]
@@ -170,33 +175,33 @@
 ;        (error "Failed to create model" e)
 ;        (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
-(ns leihs.inventory.server.resources.pool.models.model.create-model-form
-  (:require
-   [cheshire.core :as cjson]
-   [clojure.data.codec.base64 :as b64]
-   [clojure.data.json :as json]
-   [clojure.java.io :as io]
-   [clojure.set :as set]
-   [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries ]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [base-filename
-                                                                normalize-files normalize-model-data
-                                                                parse-json-array process-attachments file-sha256]]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
-                                                                                 filter-response]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
-   [next.jdbc :as jdbc]
-   [pantomime.extract :as extract]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util UUID]
-   [java.util.jar JarFile]))
+;(ns leihs.inventory.server.resources.pool.models.model.create-model-form
+;  (:require
+;   [cheshire.core :as cjson]
+;   [clojure.data.codec.base64 :as b64]
+;   [clojure.data.json :as json]
+;   [clojure.java.io :as io]
+;   [clojure.set :as set]
+;   [clojure.string :as str]
+;   [honey.sql :refer [format] :rename {format sql-format}]
+;   [honey.sql.helpers :as sql]
+;   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries ]]
+;   [leihs.inventory.server.resources.pool.models.helper :refer [base-filename
+;                                                                normalize-files normalize-model-data
+;                                                                parse-json-array process-attachments file-sha256]]
+;   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+;   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
+;                                                                                 filter-response]]
+;   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+;   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+;   [next.jdbc :as jdbc]
+;   [pantomime.extract :as extract]
+;   [ring.util.response :refer [bad-request response status]]
+;   [taoensso.timbre :refer [error]])
+;  (:import [java.net URL JarURLConnection]
+;   (java.time LocalDateTime)
+;   [java.util UUID]
+;   [java.util.jar JarFile]))
 
 (defn create-model-handler-by-pool-form [request]
   (let [validation-result (atom [])

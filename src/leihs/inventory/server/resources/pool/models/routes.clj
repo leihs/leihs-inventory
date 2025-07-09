@@ -10,7 +10,6 @@
    [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response]]
 
    [leihs.inventory.server.resources.pool.models.main :refer [post-resource index-resources]]
-   ;[leihs.inventory.server.resources.pool.models.model.create-model-form :refer [post-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
