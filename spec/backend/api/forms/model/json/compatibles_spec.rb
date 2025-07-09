@@ -60,7 +60,7 @@ describe "Inventory Model" do
           end
           expect(resp.status).to eq(200)
 
-          expect(resp.body["compatibles"][0]["cover_image_url"]).to be_nil
+          expect(resp.body["compatibles"][0]["image_url"]).to be_nil
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
         end
 
@@ -78,7 +78,7 @@ describe "Inventory Model" do
 
           expect(resp.status).to eq(200)
 
-          expect(resp.body["compatibles"][0]["cover_image_url"]).to be_nil
+          expect(resp.body["compatibles"][0]["image_url"]).to be_nil
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
         end
 
@@ -118,10 +118,10 @@ describe "Inventory Model" do
 
             expect(resp.status).to eq(200)
 
-            expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image2.id}")
+            expect(resp.body["compatibles"][0]["image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image2.id}")
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image2.id)
 
-            expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+            expect_correct_url(resp.body["compatibles"][0]["image_url"])
 
           end
 
@@ -136,10 +136,10 @@ describe "Inventory Model" do
 
             expect(resp.status).to eq(200)
 
-            expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image.id}")
+            expect(resp.body["compatibles"][0]["image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image.id}")
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image.id)
 
-            expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+            expect_correct_url(resp.body["compatibles"][0]["image_url"])
 
           end
         end
@@ -166,10 +166,10 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # 
-          expect(resp.body["compatibles"][0]["cover_image_thumb"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
+          expect(resp.body["compatibles"][0]["thumb_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
 
-          expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+          expect_correct_url(resp.body["compatibles"][0]["image_url"])
 
         end
 
@@ -214,10 +214,10 @@ describe "Inventory Model" do
 
           
           # expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}")
-          expect(resp.body["compatibles"][0]["cover_image_thumb"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
+          expect(resp.body["compatibles"][0]["thumb_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
 
-          expect_correct_url(resp.body["compatibles"][0]["cover_image_url"])
+          expect_correct_url(resp.body["compatibles"][0]["image_url"])
         end
 
       end

@@ -6,7 +6,7 @@
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    ;[leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc remove-nil-entries]]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool create-image-url remove-nil-entries-fnc remove-nil-entries
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool  remove-nil-entries-fnc remove-nil-entries
 
                                                          apply-is_deleted-context-if-valid
                                                          apply-is_deleted-where-context-if-valid]]

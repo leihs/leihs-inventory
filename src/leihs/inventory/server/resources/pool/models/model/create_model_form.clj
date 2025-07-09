@@ -8,7 +8,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries create-image-url]]
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries ]]
    [leihs.inventory.server.resources.pool.models.helper :refer [base-filename
                                                                 normalize-files normalize-model-data
                                                                 parse-json-array process-attachments file-sha256]]

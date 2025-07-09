@@ -150,7 +150,6 @@
         models (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
         ids (mapv :id models)
         thumbnails (fetch-thumbnails-for-ids tx ids)
-        models (map #(assoc % :cover_image_id (or (:cover_image_id %) nil)) models)
         models (apply-cover-image-urls models thumbnails pool-id)]
     (map #(dissoc % :origin_table) models)))
 
