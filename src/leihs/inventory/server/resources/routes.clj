@@ -7,12 +7,11 @@
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
-   ;[leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
                                                         APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
-   [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
+   [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
    [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]

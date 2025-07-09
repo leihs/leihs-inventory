@@ -1,11 +1,11 @@
-(ns leihs.inventory.server.resources.dev.routes
+(ns dev.routes
   (:require
    [clojure.set]
    [leihs.core.auth.session :refer [wrap-authenticate]]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.dev.main :refer [run-get-views
+   [dev.main :refer [run-get-views
                                                       get-resource
                                                       put-role-resource
                                                       put-account-resource]]
