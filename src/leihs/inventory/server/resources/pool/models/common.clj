@@ -46,5 +46,5 @@
             (assoc :image_url (create-url pool_id (:id model) "images" cover-image-id))
 
             (and (= "models" origin_table) thumbnail-id)
-            (assoc :thumb_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail")))))
+            (assoc :thumbnail_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail")))))
       models)))
