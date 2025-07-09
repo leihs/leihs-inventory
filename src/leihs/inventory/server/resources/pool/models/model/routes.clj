@@ -7,13 +7,13 @@
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
-   [leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
-                                                                    delete-model-handler
-                                                                    get-models-handler]]
+   [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
+   ;[leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
+   ;                                                                 delete-model-handler
+   ;                                                                 get-models-handler]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]
-   [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
