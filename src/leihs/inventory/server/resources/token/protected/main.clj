@@ -12,7 +12,7 @@
            (java.time Duration Instant)
            (java.util Base64 UUID)))
 
-(defn protected-handler [request]
+(defn get-resource [request]
   (if (authenticated? request)
     (do
       (debug "User authenticated with:" (get-auth-entity request))

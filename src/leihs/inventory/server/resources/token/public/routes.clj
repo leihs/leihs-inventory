@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.public.main :refer [public-endpoint-handler]]
+   [leihs.inventory.server.resources.token.public.main :refer [get-resource]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
@@ -35,4 +35,4 @@
 
      ["/public"
       {:get {:swagger {:security []}
-             :handler public-endpoint-handler}}]]]])
+             :handler get-resource}}]]]])

@@ -42,7 +42,3 @@
 
 (defn index-resources [request]
   (response (get-suppliers request nil)))
-
-(defn get-suppliers-handler [request]
-  (let [result (get-suppliers request)]
-    (response result)))

@@ -45,7 +45,7 @@
                   sql-format)]
     query))
 
-(defn get-user-profile [request]
+(defn get-resource [request]
   (try
     (let [tx (:tx request)
           user-id (or (presence (-> request :path-params :user_id))
