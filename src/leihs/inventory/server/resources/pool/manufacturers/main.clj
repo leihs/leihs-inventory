@@ -21,7 +21,7 @@
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
 
-(defn get-manufacturer-handler [request]
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           query-params (query-params request)

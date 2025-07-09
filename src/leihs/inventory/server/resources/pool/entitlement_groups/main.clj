@@ -9,7 +9,7 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
-(defn get-entitlement-groups-of-pool-handler [request]
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           pool_id (-> request path-params :pool_id)

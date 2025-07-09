@@ -6,9 +6,9 @@
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.dev.main :refer [run-get-views
-                                                      search-in-tables
-                                                      update-role-handler
-                                                      update-and-fetch-accounts]]
+                                                      get-resource
+                                                      put-role-resource
+                                                      put-account-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
    [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
@@ -36,12 +36,13 @@
                                 (s/optional-key :pool_id) s/Uuid}}
            :coercion reitit.coercion.schema/coercion
            :middleware [wrap-is-admin!]
-           :handler update-role-handler
+           :handler put-role-resource
            :responses {200 {:description "OK" :body update-role-response}
                        409 {:description "Conflict" :body update-role-response}
                        500 {:description "Internal Server Error"}}}}]
 
-   ["/update-accounts" {:put {:summary "Overwrite pw for accounts with various roles OR is_admin"
+   ["/update-accounts"
+    {:put {:summary "Overwrite pw for accounts with various roles OR is_admin"
                               :description "Fetch one account of each variant of:
 - role: inventory_manager, lending_manager, group_manager, customer\n
 - is_admin: true\n
@@ -52,7 +53,7 @@
                               :middleware [wrap-check-authenticated-admin]
                               :coercion reitit.coercion.schema/coercion
                               :parameters {:query {(s/optional-key :type) (s/enum "min" "all")}}
-                              :handler update-and-fetch-accounts
+                              :handler put-account-resource
                               :responses {200 {:description "OK"
                                                :body s/Any}
                                           404 {:description "Not Found"}
@@ -64,7 +65,7 @@
                     :coercion reitit.coercion.schema/coercion
                     :parameters {:query {(s/optional-key :id) s/Str
                                          (s/optional-key :columns) [s/Str]}}
-                    :handler search-in-tables
+                    :handler get-resource
                     :responses {200 {:description "OK"
                                      :body s/Any}
                                 404 {:description "Not Found"}

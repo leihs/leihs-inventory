@@ -12,20 +12,15 @@
    [leihs.inventory.server.constants :as consts :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS
                                              APPLY_ENDPOINTS_NOT_YET_USED_BY_FE]]
-   ;[leihs.inventory.server.resources.auth.auth-routes :refer [logout-handler session-token-routes]]
-
    [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
-;[leihs.inventory.server.resources.auth.session :as ab]
    [leihs.inventory.server.resources.dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.resources.main :refer [post-sign-in get-sign-in post-sign-out get-sign-out swagger-api-docs-handler]]
-
    [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
    [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]
-
-;[leihs.inventory.server.resources.pool.buildings-rooms.routes :refer [get-buildings-rooms-routes]]
    [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
-   [leihs.inventory.server.resources.pool.export.routes :refer [get-export-routes]]
+   [leihs.inventory.server.resources.pool.export.excel.routes :refer [get-export-excel-routes]]
+   [leihs.inventory.server.resources.pool.export.csv.routes :refer [get-export-csv-routes]]
    [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
    [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
    [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
@@ -38,14 +33,11 @@
    [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
    [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
-
    [leihs.inventory.server.resources.pool.rooms.room.routes :refer [get-rooms-single-routes]]
    [leihs.inventory.server.resources.pool.rooms.routes :refer [get-rooms-routes]]
    [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
-
    [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
    [leihs.inventory.server.resources.session.protected.routes :refer [get-session-protected-routes]]
-
    [leihs.inventory.server.resources.session.public.routes :refer [get-session-public-routes]]
    [leihs.inventory.server.resources.token.protected.routes :refer [get-token-protected-routes]]
    [leihs.inventory.server.resources.token.public.routes :refer [get-token-public-routes]]
@@ -76,7 +68,6 @@
                      (get-models-model-attachments-route)
                      (get-models-model-attachments-single-routes)
                      (get-models-model-images-route)
-                     ;(get-buildings-rooms-routes)
                      (get-models-single-items-route)
                      (get-responsible-inventory-pools-routes)
                      (get-entitlement-groups-routes)
@@ -102,7 +93,8 @@
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                              [(get-suppliers-routes)
                               (get-fields-routes)
-                              (get-export-routes)
+                              (get-export-excel-routes)
+                              (get-export-csv-routes)
                               (get-items-routes)])
                            (when APPLY_DEV_ENDPOINTS
                              [(get-dev-routes)]))]
