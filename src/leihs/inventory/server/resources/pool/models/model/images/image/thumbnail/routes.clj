@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :refer [get-thumbnail-handler]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :refer [get-resource]]
 
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -23,7 +23,7 @@
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid}}
-           :handler get-thumbnail-handler
+           :handler get-resource
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

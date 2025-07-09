@@ -48,7 +48,7 @@
       {:status 400
        :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
-(defn get-image-handler [request]
+(defn get-resource [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
@@ -76,7 +76,7 @@
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
 
-(defn delete-image
+(defn delete-resource
   [req]
   (let [tx (:tx req)
         {:keys [model_id image_id]} (:path (:parameters req))

@@ -47,7 +47,7 @@
       {:status 400
        :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
-(defn get-thumbnail-handler [request]
+(defn get-resource [request]
   (try
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
