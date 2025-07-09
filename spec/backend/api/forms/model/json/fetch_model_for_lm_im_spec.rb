@@ -428,7 +428,7 @@ describe "Inventory Model" do
           expect(resp.body["entitlements"].count).to eq(1)
           expect(resp.body["compatibles"].count).to eq(2)
           expect(resp.body["categories"].count).to eq(1)
-          
+
           expect(resp.status).to eq(200)
         end
       end

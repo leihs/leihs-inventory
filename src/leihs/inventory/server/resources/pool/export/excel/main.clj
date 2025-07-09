@@ -13,8 +13,6 @@
    [taoensso.timbre :as log]
    [taoensso.timbre :refer [error]]))
 
-
-
 (defn generate-excel-from-map [data-map]
   "Generates an Excel file from a map and returns a Java File object."
   (try

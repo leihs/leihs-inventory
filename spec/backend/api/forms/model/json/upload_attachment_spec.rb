@@ -68,7 +68,7 @@ describe "Inventory Model" do
       before do
         # Ensure all fixture files exist
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end

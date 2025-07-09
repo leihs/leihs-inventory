@@ -25,7 +25,7 @@
                :coercion reitit.coercion.schema/coercion
                :middleware [accept-json-middleware
                             ;session/wrap
-                             ]
+                            ]
                :swagger {:produces ["application/json"]}
                :parameters {:query {(s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int

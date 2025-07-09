@@ -6,7 +6,7 @@
 
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
 
-   [leihs.inventory.server.resources.pool.models.model.images.main :refer [                                                                           post-resource
+   [leihs.inventory.server.resources.pool.models.model.images.main :refer [post-resource
                                                                            index-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]

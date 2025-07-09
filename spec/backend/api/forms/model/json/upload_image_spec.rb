@@ -57,7 +57,7 @@ describe "Inventory Model" do
 
       before do
         [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf,
-         path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
+          path_invalid_png, path_invalid_jpg, path_invalid_jpeg, path_invalid_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
       end
@@ -155,7 +155,6 @@ describe "Inventory Model" do
               expect_correct_url(img["url"])
               expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
-
           end
 
           it "shows the image as cover when cover_image_id is set for the model (inventory_manager only)" do
@@ -174,10 +173,8 @@ describe "Inventory Model" do
               expect_correct_url(img["url"])
               expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
-
           end
         end
-
       end
     end
   end

@@ -47,31 +47,31 @@ describe "Swagger Inventory Endpoints - Models" do
         before :each do
           # image with two thumbnails
           @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                         thumbnail: true,
-                                         target: @model,
-                                         filename: "anon_thumb.jpg",
-                                         real_filename: "anon.jpg")
+            thumbnail: true,
+            target: @model,
+            filename: "anon_thumb.jpg",
+            real_filename: "anon.jpg")
           @thumbnail2 = FactoryBot.create(:image, :for_leihs_model,
-                                          thumbnail: true,
-                                          target: @model,
-                                          filename: "sap_thumb.jpg",
-                                          real_filename: "sap.png")
+            thumbnail: true,
+            target: @model,
+            filename: "sap_thumb.jpg",
+            real_filename: "sap.png")
           @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @model,
-                                     thumbnails: [@thumbnail, @thumbnail2],
-                                     real_filename: "anon.jpg")
+            target: @model,
+            thumbnails: [@thumbnail, @thumbnail2],
+            real_filename: "anon.jpg")
 
           # image with one thumbnail
           @thumbnail3 = FactoryBot.create(:image, :for_leihs_model,
-                                          thumbnail: true,
-                                          target: @model,
-                                          filename: "sap2_thumb.jpg",
-                                          real_filename: "sap.png")
+            thumbnail: true,
+            target: @model,
+            filename: "sap2_thumb.jpg",
+            real_filename: "sap.png")
           @image2 = FactoryBot.create(:image, :for_leihs_model,
-                                      target: @model,
-                                      thumbnails: [@thumbnail3],
-                                          filename: "anon2.jpg",
-                                      real_filename: "anon.jpg")
+            target: @model,
+            thumbnails: [@thumbnail3],
+            filename: "anon2.jpg",
+            real_filename: "anon.jpg")
         end
 
         it "returns image_url for the first thumbnail if cover_image_id is not set" do
@@ -113,8 +113,8 @@ describe "Swagger Inventory Endpoints - Models" do
       context "when a model has only a regular image and no thumbnail" do
         before :each do
           @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @model,
-                                     real_filename: "anon.jpg")
+            target: @model,
+            real_filename: "anon.jpg")
         end
 
         it "omits the image_url key entirely if the model has images but no thumbnails and no cover_image_id" do
@@ -127,7 +127,6 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.body["data"].count).to eq(1)
         end
       end
-
     end
   end
 end

@@ -250,7 +250,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
   end
-  end
+end
 
 shared_context :setup_models_api_model_compatible do |role = "inventory_manager"|
   include_context :setup_models_api, role

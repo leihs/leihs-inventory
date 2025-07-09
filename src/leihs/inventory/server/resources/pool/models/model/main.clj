@@ -5,7 +5,7 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool  remove-nil-entries-fnc remove-nil-entries
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries
                                                          apply-is_deleted-context-if-valid
                                                          apply-is_deleted-where-context-if-valid]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
@@ -48,7 +48,6 @@
           (status 404)))
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))))
-
 
 (defn update-model-handler [request]
   (let [model-id (get-in request [:path-params :model_id])

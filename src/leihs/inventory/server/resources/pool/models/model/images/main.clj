@@ -30,8 +30,6 @@
 (defn image-response-format [s]
   (sql/returning s :id :filename :thumbnail))
 
-
-
 (defn post-resource [req]
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)

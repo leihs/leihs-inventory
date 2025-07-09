@@ -4,20 +4,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
-                                                                 filter-by-type
-                                                                 from-category with-items with-search
-                                                                 without-items]]
    [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls create-url fetch-thumbnails-for-ids]]
-
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
-   [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-
-;[cheshire.core :as cjson]
+   ;[cheshire.core :as cjson]
 ;[clojure.data.codec.base64 :as b64]
 ;[clojure.data.json :as json]
 ;[clojure.java.io :as io]
@@ -29,7 +17,20 @@
 ;[leihs.inventory.server.resources.pool.models.helper :refer [base-filename
 ;                                                             normalize-files normalize-model-data
 ;                                                             parse-json-array process-attachments file-sha256]]
-[leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+
+   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
+                                                                 filter-by-type
+                                                                 from-category with-items with-search
+                                                                 without-items]]
+   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   ;[leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
+
+   [next.jdbc :as jdbc]
 ;[leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
 ;                                                                              filter-response
 ;                                                                               ]]
@@ -37,19 +38,16 @@
    ;[leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
    ;                                                                              filter-response]]
 
-;[leihs.inventory.server.utils.converter :refer [to-uuid]]
-[leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [ring.util.response :refer [bad-request response status]]
 ;[next.jdbc :as jdbc]
 ;[pantomime.extract :as extract]
 ;[ring.util.response :refer [bad-request response status]]
 ;[taoensso.timbre :refer [error]])
    [taoensso.timbre :refer [debug error]])
-  (:import (java.time LocalDateTime)
-           [java.util.jar JarFile]
-   [java.util UUID]
-   [java.net URL JarURLConnection]
-   ))
-
+  (:import [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 ;(:import [java.net URL JarURLConnection]
 ; (java.time LocalDateTime)
@@ -214,9 +212,9 @@
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                        (sql/values [prepared-model-data])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [prepared-model-data])
+                                          (sql/returning :*)
+                                          sql-format))
             res (filter-response res [:rental_price])
             model-id (:id res)]
 

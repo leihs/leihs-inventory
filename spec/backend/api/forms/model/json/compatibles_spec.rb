@@ -38,7 +38,7 @@ end
 
 describe "Inventory Model" do
   # ['inventory_manager', 'customer'].each do |role|
-  ['inventory_manager'].each do |role|
+  ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model_compatible, role
       include_context :generate_session_header
@@ -65,10 +65,9 @@ describe "Inventory Model" do
         end
 
         it "fetches compatibles with images without thumb (default image)" do
-
           @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @compatible_model,
-                                     real_filename: "anon.jpg")
+            target: @compatible_model,
+            real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           if role == "customer"
@@ -85,26 +84,26 @@ describe "Inventory Model" do
         context "fetches compatibles with images with thumb" do
           before do
             @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                           thumbnail: true,
-                                           target: @compatible_model,
-                                           filename: "anon_thumb.jpg",
-                                           real_filename: "anon.jpg")
+              thumbnail: true,
+              target: @compatible_model,
+              filename: "anon_thumb.jpg",
+              real_filename: "anon.jpg")
 
             @image = FactoryBot.create(:image, :for_leihs_model,
-                                       target: @compatible_model,
-                                       thumbnails: [@thumbnail],
-                                       real_filename: "anon.jpg")
+              target: @compatible_model,
+              thumbnails: [@thumbnail],
+              real_filename: "anon.jpg")
 
             @thumbnail2 = FactoryBot.create(:image, :for_leihs_model,
-                                            thumbnail: true,
-                                            target: @compatible_model,
-                                            filename: "anon_thumb.jpg",
-                                            real_filename: "anon.jpg")
+              thumbnail: true,
+              target: @compatible_model,
+              filename: "anon_thumb.jpg",
+              real_filename: "anon.jpg")
 
             @image2 = FactoryBot.create(:image, :for_leihs_model,
-                                        target: @compatible_model,
-                                        thumbnails: [@thumbnail2],
-                                        real_filename: "anon.jpg")
+              target: @compatible_model,
+              thumbnails: [@thumbnail2],
+              real_filename: "anon.jpg")
           end
 
           it "fetches compatibles with two images (cover_image)" do
@@ -122,7 +121,6 @@ describe "Inventory Model" do
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image2.id)
 
             expect_correct_url(resp.body["compatibles"][0]["image_url"])
-
           end
 
           it "fetches compatibles with two images (cover_image)" do
@@ -140,22 +138,21 @@ describe "Inventory Model" do
             expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image.id)
 
             expect_correct_url(resp.body["compatibles"][0]["image_url"])
-
           end
         end
 
         it "fetches compatibles with single image (default image)" do
           @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                         thumbnail: true,
-                                         target: @compatible_model,
-                                         filename: "anon_thumb.jpg",
-                                         real_filename: "anon.jpg")
+            thumbnail: true,
+            target: @compatible_model,
+            filename: "anon_thumb.jpg",
+            real_filename: "anon.jpg")
 
           @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @compatible_model,
-                                     # thumbnails: [@thumbnail, @thumbnail2],
-                                     thumbnails: [@thumbnail],
-                                     real_filename: "anon.jpg")
+            target: @compatible_model,
+            # thumbnails: [@thumbnail, @thumbnail2],
+            thumbnails: [@thumbnail],
+            real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           if role == "customer"
@@ -165,44 +162,42 @@ describe "Inventory Model" do
 
           expect(resp.status).to eq(200)
 
-          # 
           expect(resp.body["compatibles"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
 
           expect_correct_url(resp.body["compatibles"][0]["image_url"])
-
         end
 
         it "fetches compatibles and verifies order (default image)" do
           # add image with two thumbnails
           @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                         thumbnail: true,
-                                         target: @compatible_model,
-                                         filename: "anon_thumb.jpg",
-                                         real_filename: "anon.jpg")
+            thumbnail: true,
+            target: @compatible_model,
+            filename: "anon_thumb.jpg",
+            real_filename: "anon.jpg")
 
           @thumbnail2 = FactoryBot.create(:image, :for_leihs_model,
-                                          thumbnail: true,
-                                          target: @compatible_model,
-                                          filename: "sap_thumb.jpg",
-                                          real_filename: "sap.png")
+            thumbnail: true,
+            target: @compatible_model,
+            filename: "sap_thumb.jpg",
+            real_filename: "sap.png")
 
           @image = FactoryBot.create(:image, :for_leihs_model,
-                                     target: @compatible_model,
-                                     thumbnails: [@thumbnail, @thumbnail2],
-                                     real_filename: "anon.jpg")
+            target: @compatible_model,
+            thumbnails: [@thumbnail, @thumbnail2],
+            real_filename: "anon.jpg")
 
           # add image with one thumbnail only
           @thumbnail3 = FactoryBot.create(:image, :for_leihs_model,
-                                          thumbnail: true,
-                                          target: @compatible_model,
-                                          filename: "anon_thumb.jpg",
-                                          real_filename: "anon.jpg")
+            thumbnail: true,
+            target: @compatible_model,
+            filename: "anon_thumb.jpg",
+            real_filename: "anon.jpg")
 
           @image2 = FactoryBot.create(:image, :for_leihs_model,
-                                      target: @compatible_model,
-                                      thumbnails: [@thumbnail3],
-                                      real_filename: "anon.jpg")
+            target: @compatible_model,
+            thumbnails: [@thumbnail3],
+            real_filename: "anon.jpg")
 
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           if role == "customer"
@@ -212,16 +207,13 @@ describe "Inventory Model" do
 
           expect(resp.status).to eq(200)
 
-          
           # expect(resp.body["compatibles"][0]["cover_image_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}")
           expect(resp.body["compatibles"][0]["thumbnail_url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@thumbnail.id}/thumbnail")
           expect(resp.body["compatibles"][0]["cover_image_id"]).to be_nil
 
           expect_correct_url(resp.body["compatibles"][0]["image_url"])
         end
-
       end
     end
   end
 end
-

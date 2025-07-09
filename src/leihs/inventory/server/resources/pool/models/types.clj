@@ -17,7 +17,6 @@
    ;[ring.middleware.accept]
    [schema.core :as s]))
 
-
 (s/defschema get-response (s/->Either [s/Any mc/models-response-payload]))
 (s/defschema post-response {:data :model-optional-response/inventory-model
                             :validation any?})
