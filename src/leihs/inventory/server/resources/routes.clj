@@ -105,7 +105,8 @@
 
    ["csrf-token/"
     {:no-doc false
-     :get {:summary "Retrieve X-CSRF-Token to use swagger-endpoints"
+     :get {:summary "Retrieves an X-CSRF-Token required for using non-GET swagger endpoints."
+           :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
            :swagger {:produces ["application/json"]}
            :handler get-sign-in}}]])
