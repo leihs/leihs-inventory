@@ -6,9 +6,7 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
-
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls create-url fetch-thumbnails-for-ids]]
-
+   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -102,39 +100,6 @@
                   (sql/order-by :a.name)
                   sql-format)]
     (jdbc/execute! tx query)))
-
-;(defn get-one-thumbnail-query [tx id]
-;  (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
-;                          (sql/from :images)
-;                          (sql/where [:and
-;                                      [:= :target_id id]
-;                                      [:= :thumbnail true]])
-;                          sql-format)))
-;
-;(defn fetch-thumbnails-for-ids [tx ids]
-;  (vec (map #(get-one-thumbnail-query tx %) ids)))
-;
-;(defn create-url [pool_id model_id type cover_image_id]
-;  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
-;
-;(defn apply-cover-image-urls [models thumbnails pool_id]
-;  (map
-;    (fn [model]
-;      (let [cover-image-id (:cover_image_id model)
-;            origin-table (:origin_table model)
-;            thumbnail-id (->> thumbnails
-;                           (filter #(= (:target_id %) (:id model)))
-;                           first
-;                           :id)]
-;        (cond
-;          (and (= "models" origin-table) cover-image-id)
-;          (assoc model :cover_image_url (create-url pool_id (:id model) "images" cover-image-id))
-;
-;          (and (= "models" origin-table) thumbnail-id)
-;          (assoc model :cover_image_url (str (create-url pool_id (:id model) "images" thumbnail-id)  "/thumbnail"))
-;
-;          :else model)))
-;    models))
 
 (defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)

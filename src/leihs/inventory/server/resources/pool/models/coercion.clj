@@ -494,20 +494,20 @@
 
 (sa/def :model-optional-response/inventory-model
   (st/spec {:spec (sa/keys :req-un [::is_package
-                                    :model/type
-                                    :nil/hand_over_note
-                                    :nil/internal_description
-                                    :nil/product
+                                    ::product
                                     ::id
-
-                                    ::manufacturer
-                                    :nil/version
-                                    :nil/technical_detail
-                                    :nil/description]
+                                    ]
                            :opt-un [::properties
+                                    ::description
+                                    ::hand_over_note
+                                    ::manufacturer
+                                    ::version
+                                    ::technical_detail
+                                    ::internal_description
                                     ::accessories
                                     ::entitlements
                                     ::attachments
+                                    ::cover_image_id
                                     ::categories
                                     :model2/image_attributes
                                     ::compatibles])
