@@ -37,18 +37,8 @@
 
 
 
-        data (assoc model-cover-id
-                              :image_id (:id res))
-
-        ;image-id (:id res)
-        ;
-        ;res (when-not (nil? image-id)
-        ;      (assoc res
-        ;        ;:id image-id
-        ;        ;     :target_id id
-        ;             :thumbnail (str "/inventory/" (:pool_id model-cover-id) "/images/" image-id "/thumbnail")
-        ;             ;:filename (or (:filename res) "unknown.jpg")))
-        ;]
+        data (when res (assoc model-cover-id
+                              :image_id (:id res)))
 
         p (println ">o> abc.row !!!!" res)
         p (println ">o> abc.data !!!!" data)

@@ -180,15 +180,33 @@
                   (sql/left-join [:models :mm] [:= :mc.compatible_id :mm.id])
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)
-        models (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
+        models (jdbc/execute! tx query)
 
+        p (println ">o> abc.models1" models)
+
+        models (->> models
+          (fetch-thumbnails-for-ids tx)
+           (map (fn [m]
+                 (if-let [image-id (:image_id m)]
+                   (assoc m :image_url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
+                   m)))
+                 vec
+          remove-nil-values)
+        p (println ">o> abc.models2" models)
+
+        models (remove-nil-values models)
+
+        p (println ">o> abc.models3" models)
         ;model-cover-ids (->> models (keep :id :cover_image_id) vec)
         ;ids (mapv :id models)
         ;thumbnails (fetch-thumbnails-for-ids tx ids)
         ;models (apply-cover-image-urls models thumbnails pool-id)
 
+    ;models (map #(dissoc % [:origin_table :cover_image_id]) models)
+    ;    p (println ">o> abc.models4" models)
         ]
-    (map #(dissoc % :origin_table) models)))
+    models
+    ))
 
 (defn fetch-properties [tx model-id]
   (select-entries tx :properties [:id :key :value] [:= :model_id model-id]))
