@@ -13,6 +13,15 @@
   [coll]
   (mapv #(into {} (remove (comp nil? val) %)) coll))
 
+(defn remove-nil-values
+  "Removes all nil values from a map or a vector of maps."
+  [x]
+  (cond
+    (map? x)   (into {} (remove (comp nil? val) x))
+    (vector? x) (mapv remove-nil-values x)
+    :else x))
+
+
  (defn- get-one-thumbnail-query [tx {:keys [id cover_image_id] :as model-cover-id}]
 ;(defn- get-one-thumbnail-query [tx {:keys [id cover_image_id]} :as model-cover-id]
   (let [p (println ">o> abc.all" id cover_image_id)

@@ -486,13 +486,15 @@
                                     ::entitlements
                                     ::attachments
                                     :model/type
-                                    :nil/hand_over_note
-                                    :nil/internal_description
-                                    :nil/product
                                     ::categories
                                     ::id
                                     ::compatibles]
-                           :opt-un [:min/images])
+                           :opt-un [:min/images
+                                    ::hand_over_note
+                                    ::internal_description
+                                    ::product
+
+                                    ])
             :description "Complete inventory response"}))
 
 (sa/def :model-optional-response/inventory-model

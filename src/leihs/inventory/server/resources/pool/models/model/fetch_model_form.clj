@@ -6,8 +6,11 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+
+   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids
+                                                                remove-nil-values]]
+
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
@@ -231,7 +234,7 @@
             entitlements (fetch-entitlements tx model-id)
             categories (fetch-categories tx model-id)
             result (if model-result
-                     (assoc model-result
+                     (-> (assoc model-result
                             :attachments attachments
                             :accessories accessories
                             :compatibles compatibles
@@ -239,6 +242,7 @@
                             :images image-attributes
                             :entitlements entitlements
                             :categories categories)
+                       remove-nil-values)
                      nil)]
         (if result
           (response result)
