@@ -14,24 +14,27 @@
    [spec-tools.data-spec :as ds]))
 
 (def models-response-payload
-  {:id s/Uuid
-   :type s/Str
-   (s/optional-key :manufacturer) (s/maybe s/Str)
-   :product s/Str
-   (s/optional-key :version) (s/maybe s/Str)
-   (s/optional-key :info_url) (s/maybe s/Str)
-   (s/optional-key :rental_price) (s/maybe s/Num)
-   (s/optional-key :maintenance_period) (s/maybe s/Int)
-   (s/optional-key :is_package) (s/maybe s/Bool)
-   (s/optional-key :hand_over_note) (s/maybe s/Str)
-   (s/optional-key :description) (s/maybe s/Str)
-   (s/optional-key :internal_description) (s/maybe s/Str)
-   (s/optional-key :technical_detail) (s/maybe s/Str)
-   :created_at s/Inst
-   :updated_at s/Inst
-   (s/optional-key :cover_image_id) (s/maybe s/Uuid)
-   (s/optional-key :image_url) (s/maybe s/Str)
-   (s/optional-key :thumbnail_url) (s/maybe s/Str)})
+  (merge
+    {:id (s/cond-pre s/Uuid s/Str)
+     (s/optional-key :type) (s/maybe s/Str)
+     (s/optional-key :manufacturer) (s/maybe s/Str)
+     (s/optional-key :product) (s/maybe s/Str)
+     (s/optional-key :version) (s/maybe s/Str)
+     (s/optional-key :info_url) (s/maybe s/Str)
+     (s/optional-key :rental_price) (s/maybe s/Any)
+     (s/optional-key :maintenance_period) (s/maybe s/Int)
+     (s/optional-key :is_package) (s/maybe s/Bool)
+     (s/optional-key :hand_over_note) (s/maybe s/Str)
+     (s/optional-key :description) (s/maybe s/Str)
+     (s/optional-key :internal_description) (s/maybe s/Str)
+     (s/optional-key :technical_detail) (s/maybe s/Str)
+     (s/optional-key :created_at) (s/maybe s/Any)
+     (s/optional-key :updated_at) (s/maybe s/Any)
+     (s/optional-key :cover_image_id) (s/maybe s/Any)
+     (s/optional-key :image_url) (s/maybe s/Str)
+     (s/optional-key :thumbnail_url) (s/maybe s/Str)}
+    {s/Keyword s/Any})
+) ; <-- allows extra keys!
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by def
