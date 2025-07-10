@@ -31,7 +31,7 @@
         pool-id (to-uuid (get-in req [:path-params :pool_id]))
         tx (:tx req)
         is-cover (-> req :body-params :is_cover)
-        result (jdbc/execute! tx (-> (sql/update :models)
+        result (jdbc/execute-one! tx (-> (sql/update :models)
                                      (sql/set {:cover_image_id (to-uuid is-cover)})
                                      (sql/where [:= :id model-id])
                                      (sql/returning :id :cover_image_id)

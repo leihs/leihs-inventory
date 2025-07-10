@@ -150,7 +150,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
           expect(resp.body["images"].count).to eq(0)
@@ -174,7 +174,7 @@ describe "Inventory Model" do
           )
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -213,7 +213,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
 
           # create image
           images = [File.open(path_arrow, "rb"), File.open(path_arrow_thumb, "rb")]
@@ -289,7 +289,7 @@ describe "Inventory Model" do
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to eq(model_id)
+          expect(resp.body["id"]).to eq(model_id)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
@@ -342,7 +342,7 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           # fetch created model
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
           expect(resp.status).to eq(200)
 
