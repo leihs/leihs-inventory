@@ -3,48 +3,69 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
-                                                                 filter-by-type
-                                                                 from-category with-items with-search
-                                                                 without-items]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import (java.time LocalDateTime)
-           [java.util.jar JarFile]))
+   [taoensso.timbre :refer [debug error]]))
 
-(defn- get-one-thumbnail-query [tx id]
-  (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
-                            (sql/from :images)
-                            (sql/where [:and
-                                        [:= :target_id id]
-                                        [:= :thumbnail true]])
-                            sql-format)))
 
-(defn fetch-thumbnails-for-ids [tx ids]
-  (vec (map #(get-one-thumbnail-query tx %) ids)))
+(defn remove-nil-values
+  "Removes all nil values from each map in a vector of maps."
+  [coll]
+  (mapv #(into {} (remove (comp nil? val) %)) coll))
+
+ (defn- get-one-thumbnail-query [tx {:keys [id cover_image_id] :as model-cover-id}]
+;(defn- get-one-thumbnail-query [tx {:keys [id cover_image_id]} :as model-cover-id]
+  (let [p (println ">o> abc.all" id cover_image_id)
+        res (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
+                                      (sql/from :images)
+                                      (cond-> (nil? cover_image_id) (sql/where [:= :target_id id]))
+                                      (cond-> (not (nil? cover_image_id)) (sql/where [:or
+                                                                                      [:= :id cover_image_id]
+                                                                                      [:= :parent_id cover_image_id]]))
+                                      (sql/order-by [:thumbnail :asc])
+                                      sql-format))
+        p (println ">o> abc.row !!!!  is_cover_image?" (not (nil? cover_image_id)))
+
+
+
+        data (assoc model-cover-id
+                              :image_id (:id res))
+
+        ;image-id (:id res)
+        ;
+        ;res (when-not (nil? image-id)
+        ;      (assoc res
+        ;        ;:id image-id
+        ;        ;     :target_id id
+        ;             :thumbnail (str "/inventory/" (:pool_id model-cover-id) "/images/" image-id "/thumbnail")
+        ;             ;:filename (or (:filename res) "unknown.jpg")))
+        ;]
+
+        p (println ">o> abc.row !!!!" res)
+        p (println ">o> abc.data !!!!" data)
+        p (println ">o> ----------------------------")
+        ]
+    data))
+
+(defn fetch-thumbnails-for-ids [tx model-cover-ids]
+  (vec (map #(get-one-thumbnail-query tx %) model-cover-ids)))
 
 (defn create-url [pool_id model_id type cover_image_id]
   (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
 
 (defn apply-cover-image-urls [models thumbnails pool_id]
   (vec
-   (map-indexed
-    (fn [idx model]
-      (let [cover-image-id (:cover_image_id model)
-            origin_table (:origin_table model)
-            thumbnail-id (-> (filter #(= (:target_id %) (:id model)) thumbnails)
+    (map-indexed
+      (fn [idx model]
+        (let [cover-image-id (:cover_image_id model)
+              origin_table (:origin_table model)
+              thumbnail-id (-> (filter #(= (:target_id %) (:id model)) thumbnails)
                              first
                              :id)]
-        (cond-> model
-          (and (= "models" origin_table) cover-image-id)
-          (assoc :image_url (create-url pool_id (:id model) "images" cover-image-id))
+          (cond-> model
+            (and (= "models" origin_table) cover-image-id)
+            (assoc :image_url (create-url pool_id (:id model) "images" cover-image-id))
 
-          (and (= "models" origin_table) thumbnail-id)
-          (assoc :thumbnail_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail")))))
-    models)))
+            (and (= "models" origin_table) thumbnail-id)
+            (assoc :thumbnail_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail")))))
+      models)))

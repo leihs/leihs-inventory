@@ -178,9 +178,13 @@
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)
         models (-> (jdbc/execute! tx query) remove-nil-entries-fnc)
-        ids (mapv :id models)
-        thumbnails (fetch-thumbnails-for-ids tx ids)
-        models (apply-cover-image-urls models thumbnails pool-id)]
+
+        ;model-cover-ids (->> models (keep :id :cover_image_id) vec)
+        ;ids (mapv :id models)
+        ;thumbnails (fetch-thumbnails-for-ids tx ids)
+        ;models (apply-cover-image-urls models thumbnails pool-id)
+
+        ]
     (map #(dissoc % :origin_table) models)))
 
 (defn fetch-properties [tx model-id]
