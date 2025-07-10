@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :refer [index-resources]]
-   [leihs.inventory.server.resources.pool.fields.types :refer [query-params]]
+   [leihs.inventory.server.resources.pool.fields.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -26,9 +26,15 @@
                             ;session/wrap
                              ]
                 :swagger {:produces ["application/json"]}
-                :parameters {:query query-params}
+                :parameters {:query {
+                                     :pool_id s/Uuid
+                                     (s/optional-key :page) s/Int
+                                     (s/optional-key :size) s/Int
+                                     (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
+                                     (s/optional-key :owner) s/Bool
+                                     (s/optional-key :type) (s/enum "license")}}
                 :handler index-resources
                 :responses {200 {:description "OK"
-                                 :body s/Any}
+                                 :body get-response}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]])

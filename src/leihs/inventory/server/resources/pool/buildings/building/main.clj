@@ -4,7 +4,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status header]]
    [taoensso.timbre :refer [error]]))
@@ -18,7 +18,7 @@
                     (cond-> building-id (sql/where [:= :b.id building-id]))
                     sql-format)
 
-          result (jdbc/query tx query)]
+          result (jdbc/execute-one! tx query)]
       (-> (response result)
           (header "Count" (count result))))
     (catch Exception e
