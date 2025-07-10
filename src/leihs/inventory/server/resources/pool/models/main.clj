@@ -78,8 +78,8 @@
                        (if-let [image-id (:image_id m)]
                          (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
                          m)))
-             ;vec
-                remove-nil-values))
+                remove-nil-values)
+                    )
          ]
      (debug (sql-format query :inline true))
 
