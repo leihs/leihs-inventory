@@ -190,7 +190,7 @@
                  (if-let [image-id (:image_id m)]
                    (assoc m :image_url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
                    m)))
-                 vec
+                 ;vec
           remove-nil-values)
         p (println ">o> abc.models2" models)
 

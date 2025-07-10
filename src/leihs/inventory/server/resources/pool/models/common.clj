@@ -35,10 +35,15 @@
                                       sql-format))
         p (println ">o> abc.row !!!!  is_cover_image?" (not (nil? cover_image_id)))
 
+        ;data model-cover-id
+        ;
+        ;data (when (not (nil? res)) (assoc model-cover-id
+        ;                      :image_id (:id res)))
 
-
-        data (when res (assoc model-cover-id
-                              :image_id (:id res)))
+        data (if res (assoc model-cover-id
+                       :image_id (:id res))
+                     model-cover-id
+                     )
 
         p (println ">o> abc.row !!!!" res)
         p (println ">o> abc.data !!!!" data)
