@@ -6,6 +6,9 @@
                                                                                            delete-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
+
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response]]
+
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -25,7 +28,10 @@
                                :attachments_id s/Uuid}
                         :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
            :handler get-resource
-           :responses {200 {:description "OK"}
+           :responses {200 {:description "OK"
+
+                            :body get-attachment-response
+                            }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 
