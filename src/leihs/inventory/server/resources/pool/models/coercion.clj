@@ -34,8 +34,7 @@
      (s/optional-key :image_url) (s/maybe s/Str)
      ;(s/optional-key :thumbnail_url) (s/maybe s/Str)
      }
-    {s/Keyword s/Any})
-) ; <-- allows extra keys!
+    {s/Keyword s/Any}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Definition by def

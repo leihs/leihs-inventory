@@ -23,9 +23,6 @@
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-
-   ;[leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
-
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response pagination-response create-pagination-response]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
@@ -114,29 +111,8 @@
           type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
                   (sql/from [:attachments :a])
-                  (cond-> model-id (sql/where [:= :a.model_id model-id]))
-                  ;sql-format
-                  )
-          ;attachment (jdbc/execute! tx query)
-          ;attachment (first result)
-          ;base64-string (:content attachment)
-          ;file-name (:filename attachment)
-          ;content-type (:content_type attachment)
+                  (cond-> model-id (sql/where [:= :a.model_id model-id]))                  )
           ]
-
-      ;(if (= accept-header "application/octet-stream")
-      ;  (->> base64-string
-      ;    (.decode (Base64/getMimeDecoder))
-      ;    (hash-map :body)
-      ;    (merge {:headers {"Content-Type" content-type
-      ;                      "Content-Transfer-Encoding" "binary"
-      ;                      "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
-      ;  ;(response {:attachments result})))
-      ;  (response attachment))
-
-    ;(response attachment)
-
-      ;(response (create-pagination-response request query true))
 
       (let [{:keys [page size]} (fetch-pagination-params request)
 
@@ -145,59 +121,11 @@
         (response (create-paginated-response query tx size page)))
 
 
-      ;))
 
       )
-
-
 
 (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
 
-;; THIS by pool
-;(defn get-models-handler
-;  ([request]
-;   (get-models-handler request false))
-;  ([request with-pagination?]
-;   (let [tx (:tx request)
-;         {:keys [pool_id]} (path-params request)
-;         {:keys [with_items type
-;                 retired borrowable incomplete broken
-;                 inventory_pool_id owned in_stock
-;                 category_id
-;                 search before_last_check]} (query-params request)
-;         {:keys [page size]} (fetch-pagination-params request)
-;         query (-> (base-inventory-query pool_id)
-;                   (cond-> type (filter-by-type type))
-;                   (cond->
-;                    (and pool_id (true? with_items))
-;                     (with-items pool_id
-;                       :retired retired
-;                       :borrowable borrowable
-;                       :incomplete incomplete
-;                       :broken broken
-;                       :inventory_pool_id inventory_pool_id
-;                       :owned owned
-;                       :in_stock in_stock
-;                       :before_last_check before_last_check)
-;
-;                     (and pool_id (false? with_items))
-;                     (without-items pool_id)
-;
-;                     (and pool_id (presence search))
-;                     (with-search search))
-;                   (cond-> category_id
-;                     (#(from-category tx % category_id))))]
-;     (debug (sql-format query :inline true))
-;
-;     (if (url-ends-with-uuid? (:uri request))
-;       (let [res (jdbc/execute-one! tx (-> query sql-format))]
-;         (if res
-;           (response res)
-;           (status 404)))
-;       (response (create-pagination-response request query with-pagination?))))))
-;
-;(defn index-resources [request]
-;  (get-models-handler request true))
 

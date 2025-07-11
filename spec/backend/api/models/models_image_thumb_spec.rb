@@ -88,8 +88,7 @@ expect(resp.body["data"].count).to eq(1)
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
+                    expect(resp.body["data"][0]["id"]).to eq(@model.id)
           expect(resp.body["data"][0]["url"]).to end_with(@image.id)
           expect(resp.body["data"].count).to eq(1)
         end
@@ -100,7 +99,6 @@ expect(resp.body["data"].count).to eq(1)
           resp = client.get url
 
           expect(resp.status).to eq(200)
-
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
           expect(resp.body["data"][0]["url"]).to end_with(@image2.id)
           expect(resp.body["data"].count).to eq(1)

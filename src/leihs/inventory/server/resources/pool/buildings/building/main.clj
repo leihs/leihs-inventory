@@ -18,12 +18,9 @@
                     (sql/from [:buildings :b])
                     (cond-> building-id (sql/where [:= :b.id building-id]))
                     sql-format)
-
           result (jdbc/execute-one! tx query)]
-
       (if result
         (response result)
-
         (-> (response {:error "Building not found"})
             (status 404)))  )
     (catch Exception e

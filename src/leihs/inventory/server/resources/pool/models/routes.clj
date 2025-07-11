@@ -3,11 +3,8 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
-
    [leihs.inventory.server.resources.pool.models.main :refer [post-resource index-resources]]
-
    [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]

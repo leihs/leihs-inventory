@@ -86,7 +86,6 @@
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
-
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
@@ -94,10 +93,7 @@
           json-request? (= accept-header "application/json")
           base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail)
                          (sql/from [:images :i]))]
-      (let [{:keys [page size]} (fetch-pagination-params request)
-
-            p (println ">o> abc.???" page size)
-            ]
+      (let [{:keys [page size]} (fetch-pagination-params request) ]
         (response (create-paginated-response base-query tx size page))))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))

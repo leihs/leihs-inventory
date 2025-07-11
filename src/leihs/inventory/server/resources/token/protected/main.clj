@@ -63,4 +63,4 @@
           verification-result (verify-token tx token)]
       (if verification-result
         (handler (assoc request AUTHENTICATED_ENTITY verification-result))
-        (response/status (response/response {:status "failure" :message "Unauthorized1"}) 401)))))
+        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))

@@ -7,9 +7,6 @@
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
-   ;[leihs.inventory.server.resources.pool.models.model.main :refer [update-model-handler
-   ;                                                                 delete-model-handler
-   ;                                                                 get-models-handler]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]

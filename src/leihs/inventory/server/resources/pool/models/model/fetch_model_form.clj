@@ -7,13 +7,11 @@
    [honey.sql.helpers :as sql]
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.coercion :as co]
-
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
 
    [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids
                                                                 remove-nil-values]]
-
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])

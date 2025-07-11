@@ -1,8 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.types
   (:require
-
    [schema.core :as s]))
-
 
 (def attachment
   {:id           s/Uuid
@@ -16,5 +14,3 @@
 (def get-attachments-response
   {:data [attachment]  ; Replace s/Any with the actual schema for attachments if available
    :pagination s/Any})
-
-

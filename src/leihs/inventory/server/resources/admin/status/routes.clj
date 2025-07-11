@@ -9,16 +9,6 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
-(require '[schema.core :as s])
-
-;(def memory-schema
-;  {:ok? s/Bool
-;   :max s/Str
-;   :allocated s/Str
-;   :used s/Str
-;   :usage s/Num})
-
 (def db-pool-schema
   {:gauges s/Any
    :timers s/Any})
@@ -33,8 +23,6 @@
   {:memory s/Any
    :db-pool db-pool-schema
    :health-checks s/Any})
-   ;:health-checks s/Any})
-
 
 (defn get-admin-status-routes []
   ["/admin/status/"
@@ -43,9 +31,7 @@
           :handler status/status-handler
           :middleware [wrap-is-admin!]
           :coercion reitit.coercion.schema/coercion
-
-
-          :responses
+         :responses
           {200 {:description "OK"
                 :body system-status-schema}
            500 {:description "Internal Server Error"}}}

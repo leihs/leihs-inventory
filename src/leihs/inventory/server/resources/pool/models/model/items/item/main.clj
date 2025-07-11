@@ -29,15 +29,9 @@
                         (cond-> item_id
                           (sql/where [:= :items.id item_id])))
 
-         ;result (jdbc/query tx (sql-format base-query))]
          result (jdbc/execute-one! tx (-> base-query sql-format))
          ]
      (println (sql-format base-query :inline true))
-
-     ;(create-pagination-response request base-query with-pagination?))))
-
-     ;(jdbc/execute-one! tx (sql-format base-query :inline true))     )))
-     ;(pr ">1" (jdbc/execute-one! tx (-> base-query sql-format)) )
 
 (if result
   (response result)
@@ -45,6 +39,3 @@
     (response {:status "failure" :message "No entry found"}) 404)))
 
 ))
-
-;(defn get-resource [request]
-;  (response (get-item-handler request false)))

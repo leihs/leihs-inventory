@@ -8,7 +8,6 @@
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.resources.pool.models.model.items.types :refer [get-items-response]]
-
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]

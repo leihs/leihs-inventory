@@ -9,9 +9,7 @@
                                            :model_id s/Uuid}]
 
                                           [s/Str]
-                                          ]
-
-  ))
+                                          ]  ))
 
 
 

@@ -13,9 +13,6 @@
                                                          process-accessories
                                                          process-compatibles
                                                          process-categories]]
-
-
-
    [leihs.inventory.server.resources.pool.common :refer [  keep-attr-not-nil  ]]
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
@@ -95,8 +92,6 @@
 
 ;###################################################################################
 
-;res (keep-attr-not-nil res ALLOWED_RESPONSE_ATTRS)
-
 (def ALLOWED_RESPONSE_ATTRS
   [:description
    :is_package
@@ -114,8 +109,7 @@
 
 
 (defn create-model-handler [request]
-  (let [
-        created-ts (LocalDateTime/now)
+  (let [        created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         {:keys [accessories prepared-model-data categories compatibles attachments properties

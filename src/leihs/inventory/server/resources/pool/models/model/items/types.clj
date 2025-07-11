@@ -14,7 +14,6 @@
    [schema.core :as s]))
 
 
-(require '[schema.core :as s])
 
 (def DateTime (s/cond-pre s/Str java.util.Date java.sql.Timestamp))
 
