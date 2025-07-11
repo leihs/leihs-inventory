@@ -26,6 +26,6 @@
             :parameters {:path {:room_id s/Uuid}}
             :handler get-resource
             :responses {200 {:description "OK"
-                             :body [get-response]}
+                             :body get-response}
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])
