@@ -111,22 +111,27 @@
 (sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
 
-(sa/def ::compatible_ids (sa/or
-                          :multiple (sa/or :coll (sa/coll-of uuid?)
-                                           :str string?)
-                          :single uuid?
-                          :none nil?))
+;(sa/def ::compatible_ids (sa/or
+;                          :multiple (sa/or :coll (sa/coll-of uuid?)
+;                                           :str string?)
+;                          :single uuid?
+;                          :none nil?))
 
 ;; TODO: initial validation-error
-(sa/def ::category_ids (sa/or
-                        :multiple (sa/or :coll (sa/coll-of uuid?)
-                                         :str string?)
-                        :single uuid?
-                        :none nil?))
+;(sa/def ::category_ids (sa/or
+;                        :multiple (sa/or :coll (sa/coll-of uuid?)
+;                                         :str string?)
+;                        :single uuid?
+;                        :none nil?))
+
+;(sa/def ::category_ids
+;  (sa/coll-of (sa/coll-of uuid?) :kind vector? :min-count 0))
+
 
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::cover_image_id (sa/nilable uuid?))
+(sa/def ::image_id (sa/nilable uuid?))
 ;(sa/def ::image_url (sa/nilable string?))
 ;(sa/def ::thumbnail_url (sa/nilable string?))
 (sa/def ::url (sa/nilable string?))
@@ -140,38 +145,47 @@
   (sa/and string? #{"Category"}))
 
 (sa/def ::category (sa/keys :opt-un []
-                            ;:req-un [::id ::type ::name]))
                             :req-un [::id ::name]))
-(sa/def ::categories (sa/or
-                      :single (sa/or :coll (sa/coll-of ::category)
-                                     :str string?)
-                      :none nil?))
 
-(sa/def :put-post/categories (sa/or
-                              :single (sa/or :coll (sa/coll-of ::id)
-                                             :str string?)
-                              :none nil?))
+(sa/def ::categories
+  (sa/coll-of ::category :kind vector? :min-count 0))
+
+
+(sa/def :put-post/categories
+  (sa/coll-of ::id :kind vector? :min-count 0))
+
+
 (sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::url ]
                                  :req-un [:nil/id :nil/product]))
 
 ;(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumbnail_url]
-(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::url ]
+(sa/def ::compatible (sa/keys :opt-un [::image_id ::url ]
                               :req-un [::id ::product]))
 
-(sa/def ::compatibles (sa/or
-                       :single (sa/or :coll (sa/coll-of ::compatible)
-                                      :str string?)
-                       :none nil?))
-(sa/def :put-post/compatibles (sa/or
-                               :single (sa/or :coll (sa/coll-of ::id)
-                                              :str string?)
-                               :none nil?))
+
+(sa/def ::compatibles
+  (sa/coll-of ::compatible :kind vector? :min-count 0))
+
+;(sa/def :put-post/compatibles (sa/or
+;                               :single (sa/or :coll (sa/coll-of ::id)
+;                                              :str string?)
+;                               :none nil?))
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
-(sa/def :min/images (sa/or :multiple (sa/coll-of any? :kind vector?)
-                           :single any?))
+
+;(sa/def :min/images (sa/or :multiple (sa/coll-of any? :kind vector?)
+;                           :single any?))
+
+(sa/def ::image (sa/keys :opt-un [::is_cover ::url ]
+                       :req-un [::id ::filename ]))
+
+(sa/def :min/images
+  (sa/coll-of ::image :kind vector? :min-count 0))
+
+(sa/def ::is_cover boolean?)
+(sa/def ::filename string?)
 (sa/def ::attachments any?)
 (sa/def ::entitlement_group_id uuid?)
 (sa/def :entitlement/group_id uuid?)
@@ -181,10 +195,13 @@
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
-(sa/def ::entitlements (sa/or
-                        :single (sa/or :coll (sa/coll-of :json/entitlement)
-                                       :str string?)
-                        :none nil?))
+;(sa/def ::entitlements (sa/or
+;                        :single (sa/or :coll (sa/coll-of :json/entitlement)
+;                                       :str string?)
+;                        :none nil?))
+
+(sa/def ::entitlements
+  (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
 (sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))

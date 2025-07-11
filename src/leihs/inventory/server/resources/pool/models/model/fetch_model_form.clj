@@ -5,6 +5,9 @@
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [clojure.spec.alpha :as sa]
+   [leihs.inventory.server.resources.pool.models.coercion :as co]
+
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
 
@@ -147,6 +150,101 @@
 ;                 )]
 ;    images))
 
+
+;(defn allowed-keys
+;  [spec]
+;  (let [spec-form (sa/form spec)
+;        get-keys (fn [k]
+;                   (map #(if (qualified-keyword? %)
+;                           (keyword (name %)) ;; converts ::id -> :id
+;                           %)
+;                     (get spec-form k)))]
+;    (set (concat (get-keys :req-un) (get-keys :opt-un)))))
+;
+;
+;
+;(defn allowed-keys [spec]
+;  (let [spec-form (sa/form (sa/get-spec spec))
+;        get-keys (fn [k]
+;                   (map #(if (qualified-keyword? %)
+;                           (keyword (name %))
+;                           %)
+;                     (get spec-form k)))]
+;    (set (concat (get-keys :req-un) (get-keys :opt-un)))))
+;
+;(defn filter-map-by-spec [m spec]
+;  (select-keys m (allowed-keys spec)))
+
+
+(defn allowed-keys [spec]
+  (let [resolved-spec (sa/get-spec spec)
+        _ (println "resolved-spec:" resolved-spec)
+        spec-form (when resolved-spec (sa/form resolved-spec))
+        _ (println "spec-form:" spec-form)
+        get-keys (fn [k]
+                   (let [ks (get spec-form k)]
+                     (println "for" k ", keys:" ks)
+                     (map #(if (qualified-keyword? %)
+                             (keyword (name %))
+                             %)
+                       ks)))]
+    (let [req-keys (get-keys :req-un)
+          opt-keys (get-keys :opt-un)]
+      (println "req-keys:" req-keys)
+      (println "opt-keys:" opt-keys)
+      (set (concat req-keys opt-keys)))))
+
+
+
+(require '[clojure.spec.alpha :as sa])
+
+(defn allowed-keys [spec]
+  (let [resolved-spec (sa/get-spec spec)
+        _ (println "resolved-spec:" resolved-spec)
+        spec-form (when resolved-spec (sa/form resolved-spec))
+        _ (println "spec-form:" spec-form)]
+    (if (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
+      (let [args (apply hash-map (rest spec-form))
+            _ (println "args:" args)
+            req-keys (map #(keyword (name %)) (get args :req-un))
+            opt-keys (map #(keyword (name %)) (get args :opt-un))]
+        (println "req-keys:" req-keys)
+        (println "opt-keys:" opt-keys)
+        (set (concat req-keys opt-keys)))
+      (do
+        (println "Not a s/keys spec form!")
+        #{}))))
+
+
+(defn filter-map-by-spec [m spec]
+  (let [keys-set (allowed-keys spec)]
+    (println "selecting keys from:" m "using keys:" keys-set)
+    (select-keys m keys-set)))
+
+;(defn fetch-image-attributes [tx model-id pool-id]
+;  (let [query (-> (sql/select
+;                    :i.id
+;                    :i.filename
+;                    [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
+;                     :is_cover])
+;                (sql/from [:models :m])
+;                (sql/right-join [:images :i] [:= :i.target_id :m.id])
+;                (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
+;                sql-format)
+;        images (jdbc/execute! tx query)
+;    images (map (fn [{:keys [id] :as row}]
+;           (assoc row
+;             :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)
+;             ;:thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" id "/thumbnail")
+;             ))
+;      images)
+;      images (filter-map-by-spec images ::co/image )
+;
+;        ]
+;    images
+;))
+
+
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
                     :i.id
@@ -157,12 +255,21 @@
                 (sql/right-join [:images :i] [:= :i.target_id :m.id])
                 (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
                 sql-format)
-        images (jdbc/execute! tx query)]
-    (map (fn [{:keys [id] :as row}]
-           (assoc row
-             :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)
-             :thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" id "/thumbnail")))
-      images)))
+        images (jdbc/execute! tx query)
+        images-with-urls (mapv (fn [{:keys [id] :as row}]
+                                 (assoc row
+                                   :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
+                           images)
+
+        p (println ">o> abc.images-with-urls" images-with-urls)
+        p (println ">o> abc ????1" (filter-map-by-spec (first images-with-urls) ::co/image))
+        p (println ">o> abc ????2" ::co/image)
+        filtered-images (mapv #(filter-map-by-spec % ::co/image) images-with-urls)
+
+        p (println ">o> abc.filtered-images" filtered-images)
+        ]
+    filtered-images))
+
 
 
 (defn fetch-accessories [tx model-id]
@@ -171,8 +278,15 @@
                   (sql/left-join [:accessories_inventory_pools :aip] [:= :a.id :aip.accessory_id])
                   (sql/where [:= :a.model_id model-id])
                   (sql/order-by :a.name)
-                  sql-format)]
-    (jdbc/execute! tx query)))
+                  sql-format)
+        accessories (jdbc/execute! tx query)        ]
+    (mapv #(filter-map-by-spec % ::co/accessory) accessories)    ))
+
+
+(defn remove-nil-values-and-filter-by-spec [models spec]
+  (->> models
+       (remove nil?)
+       (map #(filter-map-by-spec % spec))))
 
 (defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
@@ -196,6 +310,7 @@
 
 
         models (remove-nil-values models)
+        models (mapv #(filter-map-by-spec % ::co/compatible) models)
 
         p (println ">o> abc.models3" models)
         ;model-cover-ids (->> models (keep :id :cover_image_id) vec)
