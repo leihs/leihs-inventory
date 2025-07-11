@@ -109,9 +109,7 @@ describe "Inventory Model" do
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
             expect(resp.status).to eq(200)
-            expect(resp.body["attachments"][0]["url"]).to end_with(attachment_id)
             expect(resp.body["attachments"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}")
-
             expect_correct_url(resp.body["attachments"][0]["url"])
           end
         end

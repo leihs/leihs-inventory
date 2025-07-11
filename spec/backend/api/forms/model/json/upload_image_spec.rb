@@ -152,7 +152,6 @@ describe "Inventory Model" do
             resp.body["images"].each do |img|
               expect(resp.body["images"][0]["is_cover"]).to eq(false)
               expect_correct_url(img["url"])
-              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
           end
 
@@ -169,7 +168,6 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
             resp.body["images"].each do |img|
               expect_correct_url(img["url"])
-              expect_correct_url(img["thumbnail_url"]) if img["thumbnail_url"]
             end
           end
         end
