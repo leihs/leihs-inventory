@@ -258,14 +258,14 @@
 (sa/def ::key string?)
 (sa/def ::value string?)
 (sa/def :simple/properties string?)
-(sa/def ::property (sa/keys :req-opt [::id-or-nil] :req-un [::key ::value]))
-(sa/def ::image_attribute (sa/keys :req-opt [:image/filename
+(sa/def ::property (sa/keys :opt-un [:nil/id] :req-un [::key ::value]))
+(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
                                              :image/content_type
                                              :image/url
                                              :image/to_delete
                                              :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
 
-(sa/def :license/properties (sa/keys :req-opt [::activation_type
+(sa/def :license/properties (sa/keys :opt-un [::activation_type
                                                ::dongle_id
                                                ::license_type
                                                ::total_quantity
