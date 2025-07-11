@@ -36,7 +36,7 @@
     (let [is-admin (get-in request [:authenticated-entity :is_admin] false)]
       (if is-admin
         (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized"}) 401)))))
+        (response/status (response/response {:status "failure" :message "Unauthorized2"}) 401)))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]
@@ -52,5 +52,5 @@
                                                      "/inventory/session/public"])]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
-        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
+        is-accept-json? (response/status (response/response {:status "failure" :message "Unauthorized3"}) 403)
         :else (handler request)))))
