@@ -27,7 +27,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["image_url"]).to be_nil
+          expect(resp.body["data"][0]["url"]).to be_nil
           expect(resp.body["data"].count).to eq(1)
         end
       end
@@ -38,7 +38,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["image_url"]).to be_nil
+          expect(resp.body["data"][0]["url"]).to be_nil
           expect(resp.body["data"].count).to eq(1)
         end
       end
@@ -80,7 +80,7 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
           
-          expect(resp.body["data"][0]).not_to have_key("image_url")
+          expect(resp.body["data"][0]).not_to have_key("url")
           expect(resp.body["data"][0]["url"]).to end_with(@image.id)
           expect(resp.body["data"].count).to eq(1)
         end
@@ -122,8 +122,8 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]).not_to have_key("image_url")
-          expect(resp.body["data"][0]).not_to have_key("thumbnail_url")
+          expect(resp.body["data"][0]).not_to have_key("url")
+          # expect(resp.body["data"][0]).not_to have_key("thumbnail_url")
           expect(resp.body["data"].count).to eq(1)
         end
       end

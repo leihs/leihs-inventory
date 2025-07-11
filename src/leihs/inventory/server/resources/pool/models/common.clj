@@ -18,7 +18,7 @@
   [x]
   (cond
     (map? x)   (into {} (remove (comp nil? val) x))
-    (vector? x) (mapv remove-nil-values x)
+    (sequential? x) (mapv remove-nil-values x)
     :else x))
 
 
@@ -68,8 +68,9 @@
                              :id)]
           (cond-> model
             (and (= "models" origin_table) cover-image-id)
-            (assoc :image_url (create-url pool_id (:id model) "images" cover-image-id))
-
-            (and (= "models" origin_table) thumbnail-id)
-            (assoc :thumbnail_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail")))))
+            (assoc :url (create-url pool_id (:id model) "images" cover-image-id))
+            ;
+            ;(and (= "models" origin_table) thumbnail-id)
+            ;(assoc :thumbnail_url (str (create-url pool_id (:id model) "images" thumbnail-id) "/thumbnail"))
+            )))
       models)))

@@ -4,11 +4,6 @@ require_relative "../../../_shared"
 require_relative "../../_common"
 require "faker"
 
-def add_delete_flag(map)
-  map["delete"] = true
-  map
-end
-
 post_response = {
   "description" => String,
   "is_package" => [TrueClass, FalseClass],
@@ -281,27 +276,8 @@ describe "Inventory Model" do
         end
       end
 
-      def find_with_cover(compatibles)
-        compatibles.find { |c| !c["image_url"].nil? }
-      end
 
-      def find_without_cover(compatibles)
-        compatibles.find { |c| c["image_url"].nil? }
-      end
 
-      def select_with_cover(compatibles)
-        compatibles.select { |c| !c["image_url"].nil? }
-      end
-
-      def select_without_cover(compatibles)
-        compatibles.select { |c| c["image_url"].nil? }
-      end
-
-      def select_two_variants_of_compatibles(compatibles)
-        compatible_with_cover_image = find_with_cover(compatibles)
-        compatible_without_cover_image = find_without_cover(compatibles)
-        [compatible_with_cover_image, compatible_without_cover_image]
-      end
 
       context "create model with attachments/images and delete file/image" do
         it "creates a model with all available attributes" do

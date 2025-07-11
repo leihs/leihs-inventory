@@ -4,49 +4,6 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-def add_delete_flag(map)
-  map["delete"] = true
-  map
-end
-
-def rename_model_id_to_id(compatible)
-  compatible["id"] = compatible["model_id"]
-  compatible
-end
-
-def find_with_cover2(compatibles)
-  compatibles.find { |c| !c["id"].nil? }
-end
-
-def find_with_cover(compatibles)
-  compatibles.find { |c| !c["image_url"].nil? }
-end
-
-def find_without_cover(compatibles)
-  compatibles.find { |c| c["image_url"].nil? }
-end
-
-def select_with_cover(compatibles)
-  compatibles.select { |c| !c["image_url"].nil? }
-end
-
-def select_without_cover(compatibles)
-  compatibles.select { |c| c["image_url"].nil? }
-end
-
-def select_two_variants_of_compatibles(compatibles)
-  compatible_with_cover_image = find_with_cover(compatibles)
-  compatible_without_cover_image = find_without_cover(compatibles)
-
-  [compatible_with_cover_image, compatible_without_cover_image]
-end
-
-def convert_to_id_correction(compatibles)
-  compatibles.each do |compatible|
-    compatible["id"] = compatible.delete("model_id")
-  end
-end
-
 describe "Inventory Model" do
   # ["inventory_manager", "lending_manager"].each do |role|
   ["inventory_manager"].each do |role|

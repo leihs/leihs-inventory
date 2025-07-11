@@ -188,11 +188,12 @@
           (fetch-thumbnails-for-ids tx)
            (map (fn [m]
                  (if-let [image-id (:image_id m)]
-                   (assoc m :image_url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
-                   m)))
-                 ;vec
-          remove-nil-values)
+                   (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
+                   m))))
         p (println ">o> abc.models2" models)
+        p (println ">o> abc.models2" (type models))
+
+
 
         models (remove-nil-values models)
 

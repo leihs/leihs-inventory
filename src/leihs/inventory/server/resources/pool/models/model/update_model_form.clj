@@ -43,6 +43,7 @@
             updated-model (-> (jdbc/execute-one! tx update-model-query)
                               (filter-response [:rental_price]))
 
+
             updated-model (keep-attr-not-nil updated-model ALLOWED_RESPONSE_ATTRS)]
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
