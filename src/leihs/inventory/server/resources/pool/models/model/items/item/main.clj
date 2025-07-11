@@ -6,13 +6,17 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
-   [ring.util.response :refer [response]]
+    [next.jdbc :as jdbc]
+   [ring.util.response :refer [response status]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
-(defn get-item-handler
-  ([request]
-   (get-item-handler request false))
-  ([request with-pagination?]
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+(defn get-resource  ([request ]
    (let [tx (:tx request)
          {:keys [pool_id model_id item_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
@@ -23,9 +27,24 @@
                                     [:= :items.owner_id pool_id]])
                         (sql/where [:= :items.model_id model_id])
                         (cond-> item_id
-                          (sql/where [:= :items.id item_id])))]
-     (debug (sql-format base-query :inline true))
-     (create-pagination-response request base-query with-pagination?))))
+                          (sql/where [:= :items.id item_id])))
 
-(defn get-resource [request]
-  (response (get-item-handler request true)))
+         ;result (jdbc/query tx (sql-format base-query))]
+         result (jdbc/execute-one! tx (-> base-query sql-format))
+         ]
+     (println (sql-format base-query :inline true))
+
+     ;(create-pagination-response request base-query with-pagination?))))
+
+     ;(jdbc/execute-one! tx (sql-format base-query :inline true))     )))
+     ;(pr ">1" (jdbc/execute-one! tx (-> base-query sql-format)) )
+
+(if result
+  (response result)
+  (status
+    (response {:status "failure" :message "No entry found"}) 404)))
+
+))
+
+;(defn get-resource [request]
+;  (response (get-item-handler request false)))
