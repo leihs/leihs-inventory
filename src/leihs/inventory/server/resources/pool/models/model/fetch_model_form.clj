@@ -20,183 +20,8 @@
   (:import [java.time LocalDateTime]
            [java.util UUID]))
 
-(defn select-entries [tx table columns where-clause]
-  (jdbc/execute! tx
-                 (-> (apply sql/select columns)
-                     (sql/from table)
-                     (sql/where where-clause)
-                     sql-format)))
-
-(defn fetch-attachments [tx model-id pool-id]
-  (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
-       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))))))
-
-(defn filtered-cover-ids
-  "Given a cover_image_id and a collection of images,
-     returns {:main main-id, :thumbnail thumb-id} for the filtered cover images."
-  [cover_image_id images]
-  (let [filtered-cover (when cover_image_id
-                         (filter #(or (= (:id %) cover_image_id)
-                                      (= (:parent_id %) cover_image_id))
-                                 images))
-        image-id (->> filtered-cover
-                     ;(filter #(not (:thumbnail %)))
-                     first
-                     :id)
-
-     ]
-        image-id
-    ))
-
-    ;    thumb-id (->> filtered-cover
-    ;                  (filter :thumbnail)
-    ;                  first
-    ;                  :id)
-    ;{:main main-id
-    ; :thumbnail thumb-id}))
-
-(defn group-by-parent
-  [images]
-  (let [group-key (fn [img]
-                    (or (:parent_id img) (:id img)))]
-    (group-by group-key images)))
-
-;(defn apply-cover-image-or-default-url
-;  [images pool-id model-id]
-;
-;  ;(println ">o> abc.images" images)
-;
-;  (let [
-;        ;groups (group-by-parent images)]
-;    (vec (mapcat
-;          (fn [image]
-;            (let [cover-image-id (:cover_image_id (first entries))
-;                  default-id (:id (first entries))
-;                  ;{:keys [main thumbnail]} (if cover-image-id
-;                  image-id (if cover-image-id
-;                                             (filtered-cover-ids cover-image-id entries)
-;                                             (filtered-cover-ids default-id entries))
-;
-;              p (println ">o> abc.image" image)
-;
-;              ;p (println ">o> abc.group-id" group-id)
-;              ;p (println ">o> abc.entries" entries)
-;              ;p (println ">o> abc.cover-image-id" cover-image-id)
-;              ;p (println ">o> abc.default-id" default-id)
-;
-;                  ]
-;              ;(map #(cond-> %
-;              ;        image-id (assoc :url
-;              ;                ;main (assoc :cover_image_url
-;              ;                    (str "/inventory/" pool-id "/models/" model-id "/images/" image-id))
-;              ;         ;thumbnail (assoc :cover_image_thumb
-;              ;        ;thumbnail (assoc :thumbnail_url
-;              ;        ;                 (str "/inventory/" pool-id "/models/" model-id "/images/" thumbnail "/thumbnail"))
-;              ;        )
-;              ;     entries)
-;
-;
-;              ;(map #(cond-> %
-;              ;        (:image-id %) (assoc :url (str "/inventory/" pool-id "/models/" model-id "/images/" (:image-id %))))
-;              ;  entries)
-;
-;              ))
-;           images))
-;    )
-;  )
 
 
-
-(defn apply-cover-image-or-default-url
-  [images pool-id model-id]
-  (vec (mapcat
-         (fn [image]
-
-            (println ">o> abc.image" image)
-
-
-           (let [cover-image-id (:cover_image_id (first images))
-                 default-id (:id (first images))
-                 image-id (if cover-image-id
-                            (filtered-cover-ids cover-image-id images)
-                            (filtered-cover-ids default-id images))]
-             ; Process the image and associate URLs
-             (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/images/" image-id))
-                  images)))
-         images)))
-
-;(defn fetch-image-attributes [tx model-id pool-id]
-;  (let [query (-> (sql/select
-;                   :i.id
-;                   :i.filename
-;                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]] :is_cover]
-;                   :i.target_id
-;                   :i.parent_id
-;                   :i.thumbnail
-;                   :m.cover_image_id)
-;                  (sql/from [:models :m])
-;                  (sql/right-join [:images :i] [:= :i.target_id :m.id])
-;                  ;(sql/where [:= :m.id model-id])
-;                (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
-;                (sql/where [:= :m.type "Model"])
-;                  (sql/order-by [:i.filename :desc] [:i.content_type :desc])
-;                  sql-format)
-;        images (->> (jdbc/execute! tx query)
-;                    ;(add-cover-image-or-default-url % pool-id model-id) ;; fix this, has to be at first position
-;                    (#(apply-cover-image-or-default-url % pool-id model-id))
-;                    ;(filter #(not (:thumbnail %)))
-;
-;                    ;(map #(dissoc % :target_id :parent_id :cover_image_id))
-;                 )]
-;    images))
-
-
-;(defn allowed-keys
-;  [spec]
-;  (let [spec-form (sa/form spec)
-;        get-keys (fn [k]
-;                   (map #(if (qualified-keyword? %)
-;                           (keyword (name %)) ;; converts ::id -> :id
-;                           %)
-;                     (get spec-form k)))]
-;    (set (concat (get-keys :req-un) (get-keys :opt-un)))))
-;
-;
-;
-;(defn allowed-keys [spec]
-;  (let [spec-form (sa/form (sa/get-spec spec))
-;        get-keys (fn [k]
-;                   (map #(if (qualified-keyword? %)
-;                           (keyword (name %))
-;                           %)
-;                     (get spec-form k)))]
-;    (set (concat (get-keys :req-un) (get-keys :opt-un)))))
-;
-;(defn filter-map-by-spec [m spec]
-;  (select-keys m (allowed-keys spec)))
-
-
-(defn allowed-keys [spec]
-  (let [resolved-spec (sa/get-spec spec)
-        _ (println "resolved-spec:" resolved-spec)
-        spec-form (when resolved-spec (sa/form resolved-spec))
-        _ (println "spec-form:" spec-form)
-        get-keys (fn [k]
-                   (let [ks (get spec-form k)]
-                     (println "for" k ", keys:" ks)
-                     (map #(if (qualified-keyword? %)
-                             (keyword (name %))
-                             %)
-                       ks)))]
-    (let [req-keys (get-keys :req-un)
-          opt-keys (get-keys :opt-un)]
-      (println "req-keys:" req-keys)
-      (println "opt-keys:" opt-keys)
-      (set (concat req-keys opt-keys)))))
-
-
-
-(require '[clojure.spec.alpha :as sa])
 
 (defn allowed-keys [spec]
   (let [resolved-spec (sa/get-spec spec)
@@ -221,28 +46,37 @@
     (println "selecting keys from:" m "using keys:" keys-set)
     (select-keys m keys-set)))
 
-;(defn fetch-image-attributes [tx model-id pool-id]
-;  (let [query (-> (sql/select
-;                    :i.id
-;                    :i.filename
-;                    [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
-;                     :is_cover])
-;                (sql/from [:models :m])
-;                (sql/right-join [:images :i] [:= :i.target_id :m.id])
-;                (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
-;                sql-format)
-;        images (jdbc/execute! tx query)
-;    images (map (fn [{:keys [id] :as row}]
-;           (assoc row
-;             :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)
-;             ;:thumbnail_url (str "/inventory/" pool-id "/models/" model-id "/images/" id "/thumbnail")
-;             ))
-;      images)
-;      images (filter-map-by-spec images ::co/image )
-;
-;        ]
-;    images
-;))
+
+(defn filter-and-coerce-by-spec
+  [models spec]
+  (->> models
+    remove-nil-values                ; removes nil values from inside maps (if your fn is like that)
+    ;(remove nil?)                    ; removes nil maps
+    (mapv #(filter-map-by-spec % spec))))
+
+
+(defn select-entries [tx table columns where-clause]
+  (jdbc/execute! tx
+                 (-> (apply sql/select columns)
+                     (sql/from table)
+                     (sql/where where-clause)
+                     sql-format)))
+
+(defn fetch-attachments [tx model-id pool-id]
+
+     (let [
+
+  attachments (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
+       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %)))))
+              ]
+   (filter-and-coerce-by-spec attachments  ::co/attachment)
+
+       )
+
+
+
+  )
+
 
 
 (defn fetch-image-attributes [tx model-id pool-id]
@@ -261,10 +95,14 @@
                                    :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
                            images)
 
-        p (println ">o> abc.images-with-urls" images-with-urls)
-        p (println ">o> abc ????1" (filter-map-by-spec (first images-with-urls) ::co/image))
-        p (println ">o> abc ????2" ::co/image)
-        filtered-images (mapv #(filter-map-by-spec % ::co/image) images-with-urls)
+        ;p (println ">o> abc.images-with-urls" images-with-urls)
+        ;p (println ">o> abc ????1" (filter-map-by-spec (first images-with-urls) ::co/image))
+        ;p (println ">o> abc ????2" ::co/image)
+        ;filtered-images (mapv #(filter-map-by-spec % ::co/image) images-with-urls)
+
+
+
+        filtered-images (filter-and-coerce-by-spec images-with-urls  ::co/image)
 
         p (println ">o> abc.filtered-images" filtered-images)
         ]
@@ -283,10 +121,10 @@
     (mapv #(filter-map-by-spec % ::co/accessory) accessories)    ))
 
 
-(defn remove-nil-values-and-filter-by-spec [models spec]
-  (->> models
-       (remove nil?)
-       (map #(filter-map-by-spec % spec))))
+
+
+
+
 
 (defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
@@ -332,8 +170,16 @@
                   (sql/from [:entitlements :e])
                   (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
                   (sql/where [:= :e.model_id model-id])
-                  sql-format)]
-    (jdbc/execute! tx query)))
+                  sql-format)
+
+        entitlements (jdbc/execute! tx query)
+
+        ]
+
+  (filter-and-coerce-by-spec entitlements :json/entitlement)
+
+
+  ))
 
 (defn fetch-categories [tx model-id]
   (let [category-type "Category"
@@ -343,8 +189,14 @@
                   (sql/where [:ilike :mg.type (str category-type)])
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
-                  sql-format)]
-    (jdbc/execute! tx query)))
+                  sql-format)
+    categories (jdbc/execute! tx query)
+        ]
+
+     (filter-and-coerce-by-spec categories  ::co/category)
+
+
+    ))
 
 (defn get-resource [request]
   (let [current-timestamp (LocalDateTime/now)

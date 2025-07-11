@@ -181,12 +181,19 @@
 (sa/def ::image (sa/keys :opt-un [::is_cover ::url ]
                        :req-un [::id ::filename ]))
 
+(sa/def ::attachment (sa/keys :opt-un [ ::url ]
+                       :req-un [::id ::filename ]))
+
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
 
 (sa/def ::is_cover boolean?)
 (sa/def ::filename string?)
-(sa/def ::attachments any?)
+;(sa/def ::attachments any?)
+
+(sa/def ::attachments
+  (sa/coll-of ::attachment :kind vector? :min-count 0))
+
 (sa/def ::entitlement_group_id uuid?)
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
