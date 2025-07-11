@@ -9,9 +9,46 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+
+(require '[schema.core :as s])
+
+;(def memory-schema
+;  {:ok? s/Bool
+;   :max s/Str
+;   :allocated s/Str
+;   :used s/Str
+;   :usage s/Num})
+
+(def db-pool-schema
+  {:gauges s/Any
+   :timers s/Any})
+
+(def hikari-health-schema
+  {"HikariPool-1.pool.ConnectivityCheck"
+   {:healthy? s/Bool
+    :message (s/maybe s/Str)
+    :error (s/maybe s/Str)}})
+
+(def system-status-schema
+  {:memory s/Any
+   :db-pool db-pool-schema
+   :health-checks s/Any})
+   ;:health-checks s/Any})
+
+
 (defn get-admin-status-routes []
   ["/admin/status/"
    {:no-doc HIDE_BASIC_ENDPOINTS
     :get {:accept "application/json"
           :handler status/status-handler
-          :middleware [wrap-is-admin!]}}])
+          :middleware [wrap-is-admin!]
+          :coercion reitit.coercion.schema/coercion
+
+
+          :responses
+          {200 {:description "OK"
+                :body system-status-schema}
+           500 {:description "Internal Server Error"}}}
+    }
+   ])
+
