@@ -23,7 +23,16 @@
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
             :swagger {:produces ["application/json"]}
-            :parameters {:path {:building_id s/Uuid}}
+
+
+            :parameters {
+                         :path {:pool_id s/Uuid
+                                :building_id s/Uuid}
+
+                                }
+
+
+
             :handler get-resource
             :responses {200 {:description "OK"
                              :body response-body}

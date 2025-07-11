@@ -12,6 +12,7 @@
 (defn get-resource [request]
   (try
     (let [tx (:tx request)
+          pool-id (-> request path-params :pool_id)
           building-id (-> request path-params :building_id)
           query (-> (sql/select :b.*)
                     (sql/from [:buildings :b])
@@ -19,8 +20,12 @@
                     sql-format)
 
           result (jdbc/execute-one! tx query)]
-      (-> (response result)
-          (header "Count" (count result))))
+
+      (if result
+        (response result)
+
+        (-> (response {:error "Building not found"})
+            (status 404)))  )
     (catch Exception e
       (error "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

@@ -5,6 +5,7 @@
    [leihs.inventory.server.resources.pool.items.main :refer [index-resources]]
    [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.resources.pool.models.model.items.types :refer [get-items-response]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -31,5 +32,7 @@
             :handler index-resources
             :responses {200 {:description "OK"
                              :body s/Any}
-                        404 {:description "Not Found"}
+                        ;:body get-items-response} ;; FIXME broken
+
+            404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])

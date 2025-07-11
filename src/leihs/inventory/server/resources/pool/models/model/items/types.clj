@@ -19,39 +19,41 @@
 (def DateTime (s/cond-pre s/Str java.util.Date java.sql.Timestamp))
 
 (def item
-  {:id                       s/Uuid
-   :model_id                 s/Uuid
-   :parent_id                (s/maybe s/Uuid)
-   :inventory_pool_id        s/Uuid
-   :owner_id                 s/Uuid
-   :supplier_id              s/Uuid
-   :room_id                  s/Uuid
-   ;:properties               {s/Str s/Str}
-   :properties               s/Any
-   :inventory_code           s/Str
-   :is_borrowable            s/Bool
-   :is_inventory_relevant    s/Bool
-   :is_broken                s/Bool
-   :is_incomplete            s/Bool
-   :needs_permission         s/Bool
-   :serial_number            s/Str
-   :shelf (s/maybe s/Str)
-   :retired                  (s/maybe DateTime)
-   :retired_reason           (s/maybe s/Str)
-   :status_note              (s/maybe s/Str)
-   :name                     (s/maybe s/Str)
-   :invoice_number           (s/maybe s/Str)
-   :invoice_date             (s/maybe DateTime)
-   :user_name                (s/maybe s/Str)
-   :note                     (s/maybe s/Str)
-   :updated_at               DateTime
-   :created_at               DateTime
-   :item_version             (s/maybe s/Str)
-   :price                    s/Num
-   :insurance_number         (s/maybe s/Str)
-   :last_check               (s/maybe DateTime)
-   :responsible              (s/maybe s/Str)
-   })
+  {:id                 s/Uuid
+   :model_id           s/Uuid
+   :parent_id          (s/maybe s/Uuid)
+   :inventory_pool_id  s/Uuid
+   :owner_id           s/Uuid
+   :supplier_id        s/Uuid
+   :room_id            s/Uuid
+   :properties         s/Any
+   :inventory_code     (s/maybe s/Str)
+   :is_borrowable      s/Bool
+   :is_inventory_relevant s/Bool
+   :is_broken          s/Bool
+   :is_incomplete      s/Bool
+   :needs_permission   s/Bool
+   :serial_number      (s/maybe s/Str)     ;; <---- fix!
+   :shelf              (s/maybe s/Str)
+   :retired            (s/maybe DateTime)
+   :retired_reason     (s/maybe s/Str)
+   :status_note        (s/maybe s/Str)
+   :name               (s/maybe s/Str)
+   :invoice_number     (s/maybe s/Str)
+   :invoice_date       (s/maybe DateTime)
+   :user_name          (s/maybe s/Str)
+   :note               (s/maybe s/Str)
+   :updated_at         DateTime
+   :created_at         DateTime
+   :item_version       (s/maybe s/Str)
+   :price              (s/maybe s/Num)     ;; <---- fix!
+   :insurance_number   (s/maybe s/Str)
+   :last_check         (s/maybe DateTime)
+   :responsible        (s/maybe s/Str)
+   ;; Allow these extra keys (strict):
+   :is_package         s/Bool
+   :building_name      (s/maybe s/Str)
+   :room_name          (s/maybe s/Str)})
 
 
 
