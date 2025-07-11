@@ -118,7 +118,7 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
 
             expect(resp.body["compatibles"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image2.id}")
-            expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image2.id)
+            expect(resp.body["compatibles"][0]["image_id"]).to eq(@image2.id)
 
             expect_correct_url(resp.body["compatibles"][0]["url"])
           end
@@ -135,7 +135,7 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
 
             expect(resp.body["compatibles"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{@compatible_model.id}/images/#{@image.id}")
-            expect(resp.body["compatibles"][0]["cover_image_id"]).to eq(@image.id)
+            expect(resp.body["compatibles"][0]["image_id"]).to eq(@image.id)
 
             expect_correct_url(resp.body["compatibles"][0]["url"])
           end
