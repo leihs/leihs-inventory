@@ -24,9 +24,10 @@ describe "Inventory API Endpoints - Image Handling" do
       end
 
       it "retrieves paginated image results and returns status 200" do
-        resp = client.get "#{url}?page=3&size=1"
+        resp = client.get "#{url}?page=2&size=1"
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(2)
+        expect(resp.body["data"].count).to eq(1)
+        expect(resp.body["pagination"]["total_rows"]).to eq(2)
       end
     end
 
