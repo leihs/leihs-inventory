@@ -3,6 +3,6 @@
    [schema.core :as s]))
 
 (def get-response
-   [{:id s/Uuid
+  [{:id s/Uuid
     :name s/Str
     :shortname s/Str}])

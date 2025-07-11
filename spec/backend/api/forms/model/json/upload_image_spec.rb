@@ -118,7 +118,7 @@ describe "Inventory Model" do
 
           it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do
             image_id = @upload_response.body["image"]["id"]
-            thumb_id = @upload_response.body["thumbnail"]["id"]
+            @upload_response.body["thumbnail"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
 
@@ -130,7 +130,7 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
             expect(resp.body["images"][0]["is_cover"]).to eq(false)
             expect(resp.body["images"][0]["url"]).to eq("/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}")
-                      end
+          end
         end
 
         context "upload & fetch image" do

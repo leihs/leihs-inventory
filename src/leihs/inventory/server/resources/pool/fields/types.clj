@@ -9,14 +9,12 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(s/defschema query-params {
-                           :id s/Uuid
+(s/defschema query-params {:id s/Uuid
                            :name s/Str
                            :inventory_pool_id s/Uuid
                            :is_verification_required s/Bool
                            :created_at s/Any
-                           :updated_at s/Any
-                           })
+                           :updated_at s/Any})
 
 (def Permissions
   {(s/optional-key :role) s/Str
@@ -31,15 +29,14 @@
    (s/optional-key :forPackage) s/Bool
    (s/optional-key :permissions) Permissions
    ;s/Keyword s/Any
-   }) ;; allow extra keys
+}) ;; allow extra keys
 
 (def ResponseItem
   {(s/optional-key :id) s/Str
    ;(s/optional-key :data) Data ;; FIXME
    (s/optional-key :data) s/Any
    (s/optional-key :role) (s/maybe s/Str)
-   (s/optional-key :owner) (s/maybe s/Bool)
-   })
+   (s/optional-key :owner) (s/maybe s/Bool)})
 
 (def get-response
-  (s/->Either [{:data [ResponseItem] :pagination s/Any } [ResponseItem]]))
+  (s/->Either [{:data [ResponseItem] :pagination s/Any} [ResponseItem]]))

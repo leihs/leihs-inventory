@@ -22,9 +22,9 @@
           type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
-                  (cond-> id (sql/where [:= :a.model_id model-id]))
+                    (cond-> id (sql/where [:= :a.model_id model-id]))
 
-                  (cond-> id (sql/where [:= :a.id id]))
+                    (cond-> id (sql/where [:= :a.id id]))
                     sql-format)
           attachment (jdbc/execute-one! tx query)
           base64-string (:content attachment)
@@ -35,14 +35,14 @@
         (do
           (error "Attachment not found" {:id id :model-id model-id})
           (bad-request {:error "Attachment not found"}))
-      (if (= accept-header "application/octet-stream")
-        (->> base64-string
-             (.decode (Base64/getMimeDecoder))
-             (hash-map :body)
-             (merge {:headers {"Content-Type" content-type
-                               "Content-Transfer-Encoding" "binary"
-                               "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
-        (response attachment))))
+        (if (= accept-header "application/octet-stream")
+          (->> base64-string
+               (.decode (Base64/getMimeDecoder))
+               (hash-map :body)
+               (merge {:headers {"Content-Type" content-type
+                                 "Content-Transfer-Encoding" "binary"
+                                 "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
+          (response attachment))))
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))

@@ -6,36 +6,32 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
-    [next.jdbc :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [response status]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
+  fnc)
 
-(defn get-resource  ([request ]
-   (let [tx (:tx request)
-         {:keys [pool_id model_id item_id]} (path-params request)
-         {:keys [page size]} (fetch-pagination-params request)
-         base-query (-> (sql/select :items.*)
-                        (sql/from :items)
-                        (sql/where [:or
-                                    [:= :items.inventory_pool_id pool_id]
-                                    [:= :items.owner_id pool_id]])
-                        (sql/where [:= :items.model_id model_id])
-                        (cond-> item_id
-                          (sql/where [:= :items.id item_id])))
+(defn get-resource ([request]
+                    (let [tx (:tx request)
+                          {:keys [pool_id model_id item_id]} (path-params request)
+                          {:keys [page size]} (fetch-pagination-params request)
+                          base-query (-> (sql/select :items.*)
+                                         (sql/from :items)
+                                         (sql/where [:or
+                                                     [:= :items.inventory_pool_id pool_id]
+                                                     [:= :items.owner_id pool_id]])
+                                         (sql/where [:= :items.model_id model_id])
+                                         (cond-> item_id
+                                           (sql/where [:= :items.id item_id])))
 
-         result (jdbc/execute-one! tx (-> base-query sql-format))
-         ]
-     (println (sql-format base-query :inline true))
+                          result (jdbc/execute-one! tx (-> base-query sql-format))]
+                      (println (sql-format base-query :inline true))
 
-(if result
-  (response result)
-  (status
-    (response {:status "failure" :message "No entry found"}) 404)))
-
-))
+                      (if result
+                        (response result)
+                        (status
+                         (response {:status "failure" :message "No entry found"}) 404)))))

@@ -31,10 +31,8 @@
           :handler status/status-handler
           :middleware [wrap-is-admin!]
           :coercion reitit.coercion.schema/coercion
-         :responses
+          :responses
           {200 {:description "OK"
                 :body system-status-schema}
-           500 {:description "Internal Server Error"}}}
-    }
-   ])
+           500 {:description "Internal Server Error"}}}}])
 

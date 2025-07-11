@@ -33,9 +33,8 @@
               :swagger {:produces ["application/json"]}
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid}
-                           :query {                      (s/optional-key :page) s/Int
-                                   (s/optional-key :size) s/Int}
-                           }
+                           :query {(s/optional-key :page) s/Int
+                                   (s/optional-key :size) s/Int}}
               :handler index-resources
               :responses {200 {:description "OK"
                                ;:body s/Any}

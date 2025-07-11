@@ -4,7 +4,7 @@ require_relative "../../../_shared"
 require_relative "../../_common"
 require "faker"
 
-post_response = {
+{
   "description" => String,
   "is_package" => [TrueClass, FalseClass],
   "maintenance_period" => Numeric,
@@ -275,9 +275,6 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
         end
       end
-
-
-
 
       context "create model with attachments/images and delete file/image" do
         it "creates a model with all available attributes" do

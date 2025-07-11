@@ -32,10 +32,10 @@
         tx (:tx req)
         is-cover (-> req :body-params :is_cover)
         result (jdbc/execute-one! tx (-> (sql/update :models)
-                                     (sql/set {:cover_image_id (to-uuid is-cover)})
-                                     (sql/where [:= :id model-id])
-                                     (sql/returning :id :cover_image_id)
-                                     sql-format))]
+                                         (sql/set {:cover_image_id (to-uuid is-cover)})
+                                         (sql/where [:= :id model-id])
+                                         (sql/returning :id :cover_image_id)
+                                         sql-format))]
     (response/response result)))
 
 (defn prepare-model-data

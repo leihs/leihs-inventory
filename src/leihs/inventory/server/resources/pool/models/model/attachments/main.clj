@@ -22,8 +22,8 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response pagination-response create-pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
@@ -99,9 +99,6 @@
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
 
-
-
-
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
@@ -110,21 +107,15 @@
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
-                  (sql/from [:attachments :a])
-                  (cond-> model-id (sql/where [:= :a.model_id model-id]))                  )
-          ]
+                    (sql/from [:attachments :a])
+                    (cond-> model-id (sql/where [:= :a.model_id model-id])))]
 
       (let [{:keys [page size]} (fetch-pagination-params request)
 
-            p (println ">o> abc.???" page size)
-            ]
-        (response (create-paginated-response query tx size page)))
+            p (println ">o> abc.???" page size)]
+        (response (create-paginated-response query tx size page))))
 
-
-
-      )
-
-(catch Exception e
+    (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
 

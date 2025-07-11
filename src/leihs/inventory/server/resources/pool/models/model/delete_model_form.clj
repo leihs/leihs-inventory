@@ -2,10 +2,10 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
+                                                                remove-nil-values]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids
-                                                                remove-nil-values]]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [error]])
   (:import [java.util UUID]))

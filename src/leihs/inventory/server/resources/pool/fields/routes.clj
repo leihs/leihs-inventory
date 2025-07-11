@@ -26,16 +26,13 @@
                             ;session/wrap
                              ]
                 :swagger {:produces ["application/json"]}
-                :parameters {
-                             :path {:pool_id s/Uuid}
+                :parameters {:path {:pool_id s/Uuid}
 
-                             :query {
-                                     (s/optional-key :page) s/Int
+                             :query {(s/optional-key :page) s/Int
                                      (s/optional-key :size) s/Int
                                      (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
                                      (s/optional-key :owner) s/Bool
-                                     (s/optional-key :type) (s/enum "license")}
-                             }
+                                     (s/optional-key :type) (s/enum "license")}}
                 :handler index-resources
                 :responses {200 {:description "OK"
                                  :body get-response}

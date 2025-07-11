@@ -3,22 +3,19 @@
    [schema.core :as s]))
 
 (def image
-  {
-   :id s/Uuid
+  {:id s/Uuid
    :target_id s/Uuid
 
    :filename s/Str
    :size s/Int
-   :thumbnail s/Bool
-   })
+   :thumbnail s/Bool})
 
 (def delete-response
   {:status s/Str
    :image_id s/Uuid})
 
 (def delete-400-response
-  {:message s/Str
-   })
+  {:message s/Str})
 
 (def get-image-response
   image)

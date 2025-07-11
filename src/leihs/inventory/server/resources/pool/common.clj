@@ -100,8 +100,8 @@
     - all entries with nil values removed"
   [m allowed-attrs]
   (->> m
-    (filter (fn [[k v]] (and (some #{k} allowed-attrs) (some? v))))
-    (into {})))
+       (filter (fn [[k v]] (and (some #{k} allowed-attrs) (some? v))))
+       (into {})))
 
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."

@@ -2,13 +2,12 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
-   [leihs.inventory.server.resources.pool.common :refer [  keep-attr-not-nil  ]]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
-
 
 (def ALLOWED_RESPONSE_ATTRS
   [:description
@@ -27,9 +26,7 @@
    :technical_detail])
 
 (defn update-model-handler [request]
-  (let [
-
-        model-id (to-uuid (get-in request [:path-params :model_id]))
+  (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         tx (:tx request)
         {:keys [prepared-model-data categories compatibles properties accessories entitlements]}

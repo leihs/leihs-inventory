@@ -2,23 +2,21 @@
   (:require
    [clojure.data.json :as json]
    [clojure.java.io :as io]
+   [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.pool.models.coercion :as co]
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls  fetch-thumbnails-for-ids
+   [leihs.inventory.server.resources.pool.models.coercion :as co]
+   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
                                                                 remove-nil-values]]
+
+   [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.time LocalDateTime]
            [java.util UUID]))
-
-
 
 (defn allowed-keys [spec]
   (let [resolved-spec (clojure.spec.alpha/get-spec spec)
@@ -43,24 +41,18 @@
       :else
       #{})))
 
-
-
 (defn filter-map-by-spec [m spec]
   (let [keys-set (allowed-keys spec)]
     (println "selecting keys from:" m "using keys:" keys-set)
     ;(println "selecting keys from:" (name spec))
-    (select-keys m keys-set)
-    ))
-
-
+    (select-keys m keys-set)))
 
 (defn filter-and-coerce-by-spec
   [models spec]
   (->> models
-    remove-nil-values                ; removes nil values from inside maps (if your fn is like that)
+       remove-nil-values ; removes nil values from inside maps (if your fn is like that)
     ;(remove nil?)                    ; removes nil maps
-    (mapv #(filter-map-by-spec % spec))))
-
+       (mapv #(filter-map-by-spec % spec))))
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx
@@ -71,45 +63,30 @@
 
 (defn fetch-attachments [tx model-id pool-id]
 
-     (let [
-
-  attachments (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
-       (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %)))))
-              ]
-   (filter-and-coerce-by-spec attachments  ::co/attachment)
-
-       )
-
-
-
-  )
-
-
+  (let [attachments (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
+                         (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %)))))]
+    (filter-and-coerce-by-spec attachments ::co/attachment)))
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
-                    :i.id
-                    :i.filename
-                    [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
-                     :is_cover])
-                (sql/from [:models :m])
-                (sql/right-join [:images :i] [:= :i.target_id :m.id])
-                (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
-                sql-format)
+                   :i.id
+                   :i.filename
+                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
+                    :is_cover])
+                  (sql/from [:models :m])
+                  (sql/right-join [:images :i] [:= :i.target_id :m.id])
+                  (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
+                  sql-format)
         images (jdbc/execute! tx query)
         images-with-urls (mapv (fn [{:keys [id] :as row}]
                                  (assoc row
-                                   :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
-                           images)
+                                        :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
+                               images)
 
+        filtered-images (filter-and-coerce-by-spec images-with-urls ::co/image)
 
-        filtered-images (filter-and-coerce-by-spec images-with-urls  ::co/image)
-
-        p (println ">o> abc.filtered-images" filtered-images)
-        ]
+        p (println ">o> abc.filtered-images" filtered-images)]
     filtered-images))
-
-
 
 (defn fetch-accessories [tx model-id]
   (let [query (-> (sql/select :a.id :a.name)
@@ -118,14 +95,8 @@
                   (sql/where [:= :a.model_id model-id])
                   (sql/order-by :a.name)
                   sql-format)
-        accessories (jdbc/execute! tx query)        ]
-    (mapv #(filter-map-by-spec % ::co/accessory) accessories)    ))
-
-
-
-
-
-
+        accessories (jdbc/execute! tx query)]
+    (mapv #(filter-map-by-spec % ::co/accessory) accessories)))
 
 (defn fetch-compatibles [tx model-id pool-id]
   (let [query (-> (sql/select :mm.id :mm.product :mm.version ["models" :origin_table] :mm.cover_image_id)
@@ -138,15 +109,13 @@
         p (println ">o> abc.models1" models)
 
         models (->> models
-          (fetch-thumbnails-for-ids tx)
-           (map (fn [m]
-                 (if-let [image-id (:image_id m)]
-                   (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
-                   m))))
+                    (fetch-thumbnails-for-ids tx)
+                    (map (fn [m]
+                           (if-let [image-id (:image_id m)]
+                             (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
+                             m))))
         p (println ">o> abc.models2" models)
         p (println ">o> abc.models2" (type models))
-
-
 
         models (remove-nil-values models)
         models (mapv #(filter-map-by-spec % ::co/compatible) models)
@@ -160,14 +129,13 @@
     ;models (map #(dissoc % [:origin_table :cover_image_id]) models)
     ;    p (println ">o> abc.models4" models)
         ]
-    models
-    ))
+    models))
 
 (defn fetch-properties [tx model-id]
-    (let [properties (select-entries tx :properties [:id :key :value] [:= :model_id model-id])]
-      (filter-and-coerce-by-spec properties ::co/property)
+  (let [properties (select-entries tx :properties [:id :key :value] [:= :model_id model-id])]
+    (filter-and-coerce-by-spec properties ::co/property)
       ;properties
-      ))
+    ))
 
 (defn fetch-entitlements [tx model-id]
   (let [query (-> (sql/select :e.id :e.quantity :eg.name [:eg.id :group_id])
@@ -176,14 +144,9 @@
                   (sql/where [:= :e.model_id model-id])
                   sql-format)
 
-        entitlements (jdbc/execute! tx query)
+        entitlements (jdbc/execute! tx query)]
 
-        ]
-
-  (filter-and-coerce-by-spec entitlements :json/entitlement)
-
-
-  ))
+    (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
 (defn fetch-categories [tx model-id]
   (let [category-type "Category"
@@ -194,13 +157,9 @@
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
                   sql-format)
-    categories (jdbc/execute! tx query)
-        ]
+        categories (jdbc/execute! tx query)]
 
-     (filter-and-coerce-by-spec categories  ::co/category)
-
-
-    ))
+    (filter-and-coerce-by-spec categories ::co/category)))
 
 (defn get-resource [request]
   (let [current-timestamp (LocalDateTime/now)
@@ -225,14 +184,14 @@
             categories (fetch-categories tx model-id)
             result (if model-result
                      (-> (assoc model-result
-                            :attachments attachments
-                            :accessories accessories
-                            :compatibles compatibles
-                            :properties properties
-                            :images image-attributes
-                            :entitlements entitlements
-                            :categories categories)
-                       remove-nil-values)
+                                :attachments attachments
+                                :accessories accessories
+                                :compatibles compatibles
+                                :properties properties
+                                :images image-attributes
+                                :entitlements entitlements
+                                :categories categories)
+                         remove-nil-values)
                      nil)]
         (if result
           (response result)

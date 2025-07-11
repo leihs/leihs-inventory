@@ -3,5 +3,5 @@
    [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [schema.core :as s]))
 
-(def get-response {:data  [mc/models-response-payload] :pagination s/Any}  )
+(def get-response {:data [mc/models-response-payload] :pagination s/Any})
 (def post-response :model-optional-response/inventory-model)
