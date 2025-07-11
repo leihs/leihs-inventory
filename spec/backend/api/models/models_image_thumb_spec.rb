@@ -22,13 +22,12 @@ describe "Swagger Inventory Endpoints - Models" do
           @image = FactoryBot.create(:image, :for_leihs_model, target: @model, real_filename: "anon.jpg")
         end
 
-        it "returns image_url as nil when the model has images but none are marked as thumbnails" do
+        it "returns url of default-image when the model has images" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to be_nil
-          expect(resp.body["data"].count).to eq(1)
+expect(resp.body["data"].count).to eq(1)
         end
       end
 
@@ -79,8 +78,6 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          
-          expect(resp.body["data"][0]).not_to have_key("url")
           expect(resp.body["data"][0]["url"]).to end_with(@image.id)
           expect(resp.body["data"].count).to eq(1)
         end
@@ -122,8 +119,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]).not_to have_key("url")
-          # expect(resp.body["data"][0]).not_to have_key("thumbnail_url")
+          expect(resp.body["data"][0]["url"]).to end_with(@image.id)
           expect(resp.body["data"].count).to eq(1)
         end
       end

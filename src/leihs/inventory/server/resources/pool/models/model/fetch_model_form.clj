@@ -22,43 +22,6 @@
 
 
 
-
-(defn allowed-keys [spec]
-  (let [resolved-spec (sa/get-spec spec)
-        _ (println "resolved-spec:" resolved-spec)
-        spec-form (when resolved-spec (sa/form resolved-spec))
-        _ (println "spec-form:" spec-form)]
-    (if (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
-      (let [args (apply hash-map (rest spec-form))
-            _ (println "args:" args)
-            req-keys (map #(keyword (name %)) (get args :req-un))
-            opt-keys (map #(keyword (name %)) (get args :opt-un))]
-        (println "req-keys:" req-keys)
-        (println "opt-keys:" opt-keys)
-        (set (concat req-keys opt-keys)))
-      (do
-        (println "Not a s/keys spec form!")
-        #{}))))
-
-
-(defn allowed-keys [spec]
-  (let [resolved-spec (clojure.spec.alpha/get-spec spec)
-        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))]
-    (cond
-      ;; keys spec: extract unqualified names
-      (and (seq? spec-form)
-        (= 'clojure.spec.alpha/keys (first spec-form)))
-      (let [args (apply hash-map (rest spec-form))
-            req-keys (map #(-> % name keyword) (get args :req-un))
-            opt-keys (map #(-> % name keyword) (get args :opt-un))]
-        (set (concat req-keys opt-keys)))
-
-      ;; scalar spec with qualified keyword name
-      (qualified-keyword? spec)
-      #{(keyword (name spec))}
-
-      :else
-      #{})))
 (defn allowed-keys [spec]
   (let [resolved-spec (clojure.spec.alpha/get-spec spec)
         _ (println "resolved-spec:" resolved-spec)
@@ -91,13 +54,6 @@
     (select-keys m keys-set)
     ))
 
-;(defn filter-map-by-spec [m spec]
-;  (let [keys-set (allowed-keys spec)]
-;    (println "selecting keys from:" m "using keys:" keys-set)
-;    (println "selecting keys from:" (str spec))
-;    (if (map? m)
-;      (select-keys m keys-set)
-;      m)))
 
 
 (defn filter-and-coerce-by-spec
@@ -147,12 +103,6 @@
                                  (assoc row
                                    :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
                            images)
-
-        ;p (println ">o> abc.images-with-urls" images-with-urls)
-        ;p (println ">o> abc ????1" (filter-map-by-spec (first images-with-urls) ::co/image))
-        ;p (println ">o> abc ????2" ::co/image)
-        ;filtered-images (mapv #(filter-map-by-spec % ::co/image) images-with-urls)
-
 
 
         filtered-images (filter-and-coerce-by-spec images-with-urls  ::co/image)
