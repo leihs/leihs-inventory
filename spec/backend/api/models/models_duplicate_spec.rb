@@ -22,7 +22,6 @@ describe "Inventory API Endpoints - Items" do
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url
-        binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(2)
       end
@@ -33,7 +32,6 @@ describe "Inventory API Endpoints - Items" do
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url
-        binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(1)
       end
@@ -44,7 +42,6 @@ describe "Inventory API Endpoints - Items" do
 
       it "retrieves all items for the model and returns status 200" do
         resp = client.get url
-        binding.pry
         expect(resp.status).to eq(200)
         expect(resp.body["data"].count).to eq(1)
       end
