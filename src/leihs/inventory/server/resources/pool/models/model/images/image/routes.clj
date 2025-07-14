@@ -2,11 +2,9 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [get-resource delete-resource]]
-   [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-image-response delete-response
-                                                                            delete-400-response
-                                                                            image]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [delete-resource get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-400-response delete-response]]
+   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
@@ -30,7 +28,7 @@
            :handler get-resource
            :responses {200 {:description "OK"
                             :body s/Any}
-                            ;:body get-image-response}       ;;FIXME: by content-type
+                       ;:body get-image-response}       ;;FIXME: by content-type
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 
