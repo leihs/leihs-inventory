@@ -83,7 +83,6 @@
    (create-pagination-response request base-query with-pagination? nil))
 
   ([request base-query with-pagination? post-fnc]
-
    (let [{:keys [page size]} (fetch-pagination-params-raw request)
          tx (:tx request)]
      (cond

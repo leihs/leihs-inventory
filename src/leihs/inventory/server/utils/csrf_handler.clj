@@ -91,7 +91,6 @@
       (try
         (handler request)
         (catch Throwable e
-
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (get-sign-in request)

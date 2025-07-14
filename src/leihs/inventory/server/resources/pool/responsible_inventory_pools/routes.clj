@@ -12,7 +12,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-responsible-inventory-pools-routes []
+(defn routes []
   [""
    {:swagger {:tags [""]}}
 

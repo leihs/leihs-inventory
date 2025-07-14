@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.building.main :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.buildings.building.main :as building]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -11,7 +11,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-buildings-single-routes []
+(defn routes []
   ["/:pool_id"
    {:swagger {:tags [""]}}
 
@@ -25,7 +25,7 @@
             :swagger {:produces ["application/json"]}
             :parameters {:path {:pool_id s/Uuid
                                 :building_id s/Uuid}}
-            :handler get-resource
+            :handler building/get-resource
             :responses {200 {:description "OK"
                              :body response-body}
                         404 {:description "Not Found"}

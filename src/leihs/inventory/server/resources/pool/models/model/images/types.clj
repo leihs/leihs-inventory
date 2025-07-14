@@ -10,16 +10,6 @@
    :size s/Int
    :thumbnail s/Bool})
 
-(def delete-response
-  {:status s/Str
-   :image_id s/Uuid})
-
-(def delete-400-response
-  {:message s/Str})
-
-(def get-image-response
-  image)
-
 (def get-images-response
   {:data [image]
    :pagination s/Any})

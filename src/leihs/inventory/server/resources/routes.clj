@@ -11,36 +11,36 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
                                                         APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.admin.status.routes :refer [get-admin-status-routes]]
+   [leihs.inventory.server.resources.admin.status.routes :as admin-status]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
-   [leihs.inventory.server.resources.pool.buildings.building.routes :refer [get-buildings-single-routes]]
-   [leihs.inventory.server.resources.pool.buildings.routes :refer [get-buildings-routes]]
-   [leihs.inventory.server.resources.pool.category-tree.routes :refer [get-category-tree-route]]
-   [leihs.inventory.server.resources.pool.entitlement-groups.routes :refer [get-entitlement-groups-routes]]
-   [leihs.inventory.server.resources.pool.export.csv.routes :refer [get-export-csv-routes]]
-   [leihs.inventory.server.resources.pool.export.excel.routes :refer [get-export-excel-routes]]
-   [leihs.inventory.server.resources.pool.fields.routes :refer [get-fields-routes]]
-   [leihs.inventory.server.resources.pool.items.routes :refer [get-items-routes]]
-   [leihs.inventory.server.resources.pool.manufacturers.routes :refer [get-manufacturers-routes]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :refer [get-models-model-attachments-single-routes]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.routes :refer [get-models-model-attachments-route]]
-   [leihs.inventory.server.resources.pool.models.model.images.image.routes :refer [get-models-images-image-routes]]
-   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :refer [get-models-images-single-thumbnail-routes]]
-   [leihs.inventory.server.resources.pool.models.model.images.routes :refer [get-models-model-images-route]]
-   [leihs.inventory.server.resources.pool.models.model.items.item.routes :refer [get-models-items-single-route]]
-   [leihs.inventory.server.resources.pool.models.model.items.routes :refer [get-models-items-route]]
-   [leihs.inventory.server.resources.pool.models.model.routes :refer [get-models-single-route]]
-   [leihs.inventory.server.resources.pool.models.routes :refer [get-models-route]]
-   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :refer [get-responsible-inventory-pools-routes]]
-   [leihs.inventory.server.resources.pool.rooms.room.routes :refer [get-rooms-single-routes]]
-   [leihs.inventory.server.resources.pool.rooms.routes :refer [get-rooms-routes]]
-   [leihs.inventory.server.resources.pool.suppliers.routes :refer [get-suppliers-routes]]
-   [leihs.inventory.server.resources.profile.routes :refer [get-profile-routes]]
-   [leihs.inventory.server.resources.session.protected.routes :refer [get-session-protected-routes]]
-   [leihs.inventory.server.resources.session.public.routes :refer [get-session-public-routes]]
-   [leihs.inventory.server.resources.token.protected.routes :refer [get-token-protected-routes]]
-   [leihs.inventory.server.resources.token.public.routes :refer [get-token-public-routes]]
-   [leihs.inventory.server.resources.token.routes :refer [get-token-routes]]
+   [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
+   [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
+   [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
+   [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
+   [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
+   [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
+   [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.items.routes :as items]
+   [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
+   [leihs.inventory.server.resources.pool.models.model.attachments.routes :as attachments]
+   [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :as images-thumbnail]
+   [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
+   [leihs.inventory.server.resources.pool.models.model.items.item.routes :as model-item]
+   [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
+   [leihs.inventory.server.resources.pool.models.model.routes :as model]
+   [leihs.inventory.server.resources.pool.models.routes :as models]
+   [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
+   [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
+   [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
+   [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
+   [leihs.inventory.server.resources.profile.routes :as profile]
+   [leihs.inventory.server.resources.session.protected.routes :as session-protected]
+   [leihs.inventory.server.resources.session.public.routes :as session-public]
+   [leihs.inventory.server.resources.token.protected.routes :as token-protected]
+   [leihs.inventory.server.resources.token.public.routes :as token-public]
+   [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
@@ -137,42 +137,42 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [(get-models-route)
-                     (get-models-single-route)
-                     (get-models-images-image-routes)
-                     (get-models-images-single-thumbnail-routes)
-                     (get-models-model-attachments-route)
-                     (get-models-model-attachments-single-routes)
-                     (get-models-model-images-route)
-                     (get-models-items-route)
-                     (get-models-items-single-route)
-                     (get-responsible-inventory-pools-routes)
-                     (get-entitlement-groups-routes)
-                     (get-profile-routes)
-                     (get-manufacturers-routes)
-                     (get-category-tree-route)
-                     (get-admin-status-routes)
+  (let [core-routes [(models/routes)
+                     (model/routes)
+                     (image/routes)
+                     (images/routes)
+                     (images-thumbnail/routes)
+                     (attachment/routes)
+                     (attachments/routes)
+                     (items/routes)
+                     (model-items/routes)
+                     (model-item/routes)
+                     (admin-status/routes)
+                     (building/routes)
+                     (buildings/routes)
+                     (room/routes)
+                     (rooms/routes)
+                     (category-tree/routes)
+                     (entitlement-groups/routes)
 
-                     (get-token-routes)
-                     (get-token-public-routes)
+                     (manufacturers/routes)
+                     (responsible-inventory-pools/routes)
+                     (suppliers/routes)
 
-                     (get-buildings-routes)
-                     (get-buildings-single-routes)
-
-                     (get-rooms-routes)
-                     (get-rooms-single-routes)
-
-                     (get-token-protected-routes)
-                     (get-session-public-routes)
-                     (get-session-protected-routes)]
-
+                     (profile/routes)
+                     (session-protected/routes)
+                     (session-public/routes)
+                     (token-protected/routes)
+                     (token-public/routes)
+                     (token/routes)]
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                             [(get-suppliers-routes)
-                              (get-fields-routes)
-                              (get-export-excel-routes)
-                              (get-export-csv-routes)
-                              (get-items-routes)])
+                             [(suppliers/routes)
+                              (fields/routes)
+                              (export-csv/routes)
+                              (export-excel/routes)
+                              (fields/routes)
+                              (items/routes)])
                            (when APPLY_DEV_ENDPOINTS
                              [(get-dev-routes)]))]
 

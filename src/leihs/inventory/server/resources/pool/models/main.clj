@@ -4,16 +4,14 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls create-url fetch-thumbnails-for-ids
-                                                                remove-nil-values]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
-                                                                                 create-validation-response
-                                                                                 process-entitlements
-                                                                                 process-properties
                                                                                  process-accessories
+                                                                                 process-categories
                                                                                  process-compatibles
-                                                                                 process-categories]]
+                                                                                 process-entitlements
+                                                                                 process-properties]]
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
                                                                  from-category with-items with-search
@@ -66,16 +64,12 @@
                      (#(from-category tx % category_id))))
 
          post-fnc (fn [models]
-                    (println ">o> abc.models1" (first models))
-                    (println ">o> abc.models2" (map #(select-keys % [:id :cover_image_id]) models))
-
                     (->> models
                          (fetch-thumbnails-for-ids tx)
                          (map (fn [m]
                                 (if-let [image-id (:image_id m)]
                                   (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
-                                  m)))
-                         remove-nil-values))]
+                                  m)))))]
 
      (debug (sql-format query :inline true))
 
@@ -91,21 +85,6 @@
 
 ;###################################################################################
 
-(def ALLOWED_RESPONSE_ATTRS
-  [:description
-   :is_package
-   :name
-   :cover_image_id
-   :hand_over_note
-   :internal_description
-   :product
-   :id
-   :manufacturer
-   :version
-   ;:updated_at
-   ;:created_at
-   :technical_detail])
-
 (defn create-model-handler [request]
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)
@@ -119,8 +98,7 @@
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
-            res (keep-attr-not-nil res ALLOWED_RESPONSE_ATTRS)
-
+            res (filter-map-by-spec res :create-model/scheme)
             model-id (:id res)]
 
         (process-entitlements tx entitlements model-id)
