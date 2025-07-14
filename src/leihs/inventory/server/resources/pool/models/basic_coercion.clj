@@ -231,3 +231,11 @@
 (sa/def ::technical_detail string?)
 (sa/def :any/id any?) ;; UUID spec
 (sa/def :nil/info_url (sa/nilable string?))
+
+
+(sa/def ::id uuid?)
+(sa/def ::model_id uuid?)
+(sa/def ::product string?)
+(sa/def ::filename string?)
+(sa/def ::manufacturer string?)
+(sa/def ::size int?)

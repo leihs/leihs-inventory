@@ -24,7 +24,11 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [taoensso.timbre :refer [debug error]])
+(:import [java.net URL JarURLConnection]
+ (java.time LocalDateTime)
+ [java.util UUID]
+ [java.util.jar JarFile]))
 
 (defn get-models-handler
   ([request]

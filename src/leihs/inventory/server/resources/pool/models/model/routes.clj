@@ -3,10 +3,10 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.models.types :refer [     description-model-form]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]
@@ -23,18 +23,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(def description-model-form "CAUTION:\n
-- Model\n
-   - Modifies all attributes except: Images/Attachments\n
-   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
-   - GET: contains all data for fields (attachment, image included)\n
-- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
-- Image\n
-   - Use POST /inventory/models/<model-id>/images to upload image\n
-   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
-- Attachment\n
-   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
-   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
+
 
 (defn get-models-single-route []
   ["/:pool_id"
@@ -53,8 +42,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler get-resource
              :responses {200 {:description "OK"
-                              ;:body :model-get-put-response/inventory-model}
-                              :body any?}
+                              :body :model-get-put-response/inventory-model}
+                              ;:body any?}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
