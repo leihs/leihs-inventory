@@ -3,11 +3,9 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.pool.models.coercion :as mc]
-   ;[leihs.inventory.server.resources.pool.models.types :refer [get-response post-response]]
-
    [leihs.inventory.server.resources.pool.models.main :refer [post-resource index-resources]]
-   [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response]]
+   [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response
+                                                               description-model-form]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -16,19 +14,6 @@
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
-(def description-model-form "CAUTION:\n
-- Model\n
-   - Modifies all attributes except: Images/Attachments\n
-   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
-   - GET: contains all data for fields (attachment, image included)\n
-- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
-- Image\n
-   - Use POST /inventory/models/<model-id>/images to upload image\n
-   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
-- Attachment\n
-   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
-   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 
 (defn get-models-route []
   ["/:pool_id"

@@ -5,9 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
 
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema filter-map-by-spec filter-and-coerce-by-spec]]
-   ;[leihs.inventory.server.resources.pool.models.coercion :as co :refer [model-scheme]]
-   [leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
@@ -26,11 +24,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-(:import [java.net URL JarURLConnection]
- (java.time LocalDateTime)
- [java.util UUID]
- [java.util.jar JarFile]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn get-models-handler
   ([request]
@@ -68,11 +62,11 @@
 
          post-fnc (fn [models]
                     (->> models
-                         (fetch-thumbnails-for-ids tx)
-                         (map (fn [m]
-                                (if-let [image-id (:image_id m)]
-                                  (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
-                                  m)))))]
+                      (fetch-thumbnails-for-ids tx)
+                      (map (fn [m]
+                             (if-let [image-id (:image_id m)]
+                               (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
+                               m)))))]
 
      (debug (sql-format query :inline true))
 
@@ -88,21 +82,6 @@
 
 ;###################################################################################
 
-(def ALLOWED_RESPONSE_ATTRS
-  [:description
-   :is_package
-   :name
-   :cover_image_id
-   :hand_over_note
-   :internal_description
-   :product
-   :id
-   :manufacturer
-   :version
-   ;:updated_at
-   ;:created_at
-   :technical_detail])
-
 (defn create-model-handler [request]
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)
@@ -116,11 +95,7 @@
                                         (sql/values [prepared-model-data])
                                         (sql/returning :*)
                                         sql-format))
-            ;res (keep-attr-not-nil res ALLOWED_RESPONSE_ATTRS)
-
-res (filter-map-by-spec res :create-model/scheme)
-
-
+            res (filter-map-by-spec res :create-model/scheme)
             model-id (:id res)]
 
         (process-entitlements tx entitlements model-id)
