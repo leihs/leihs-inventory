@@ -2,16 +2,9 @@
   (:require
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [schema.core :as s]
-
    [clojure.spec.alpha :as sa]
-   ;[leihs.core.core :refer [presence]]
-   ;[leihs.inventory.server.utils.auth.roles :as roles]
-   ;[leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   ;[reitit.ring.middleware.multipart :as multipart]
-   ;[ring.middleware.accept]
-   ;[ring.util.response :as response]
    [schema.core :as s]
    [spec-tools.core :as st]
    [spec-tools.data-spec :as ds]
@@ -22,25 +15,6 @@
                                             :image/url
                                             :image/to_delete
                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
-
-
-;(sa/def :create-model/scheme (sa/keys :req-un [::is_package
-;                                               ::sp/product
-;                                               ::id]
-;                               :opt-un [::properties
-;                                        ::description
-;                                        ::hand_over_note
-;                                        ::manufacturer
-;                                        ::version
-;                                        ::technical_detail
-;                                        ::internal_description
-;                                        ::accessories
-;                                        ::entitlements
-;                                        ::attachments
-;                                        ::cover_image_id
-;                                        ::categories
-;                                        :model2/image_attributes
-;                                        ::compatibles]))
 
 (sa/def :create-model/scheme
   (sa/keys
@@ -68,27 +42,6 @@
 
 (def post-response :model-optional-response/inventory-model)
 
-
-
-;(def get-model-scheme    {:id (s/cond-pre s/Uuid s/Str)
-;                      (s/optional-key :type) (s/maybe s/Str)
-;                      (s/optional-key :manufacturer) (s/maybe s/Str)
-;                      (s/optional-key :product) (s/maybe s/Str)
-;                      (s/optional-key :version) (s/maybe s/Str)
-;                      (s/optional-key :info_url) (s/maybe s/Str)
-;                      (s/optional-key :rental_price) (s/maybe s/Any)
-;                      (s/optional-key :maintenance_period) (s/maybe s/Int)
-;                      (s/optional-key :is_package) (s/maybe s/Bool)
-;                      (s/optional-key :hand_over_note) (s/maybe s/Str)
-;                      (s/optional-key :description) (s/maybe s/Str)
-;                      (s/optional-key :internal_description) (s/maybe s/Str)
-;                      (s/optional-key :technical_detail) (s/maybe s/Str)
-;                      (s/optional-key :created_at) (s/maybe s/Any)
-;                      (s/optional-key :updated_at) (s/maybe s/Any)
-;                      (s/optional-key :cover_image_id) (s/maybe s/Any)
-;                      (s/optional-key :image_url) (s/maybe s/Str)
-;                      })
-
 (def get-model-scheme
   {:id (s/cond-pre s/Uuid s/Str)
    (s/optional-key :type) (s/maybe s/Str)
@@ -112,21 +65,6 @@
   (merge    get-model-scheme    {s/Keyword s/Any}))
 
 (def get-response {:data [get-models-response-payload] :pagination s/Any})
-
-;(sa/def :model/multipart (sa/keys :req-un [::product]
-;                           :opt-un [::version
-;                                    ::manufacturer
-;                                    ::is_package
-;                                    ::description
-;                                    ::technical_detail
-;                                    ::internal_description
-;                                    ::hand_over_note
-;                                    ::categories
-;                                    ::owner
-;                                    :min/compatibles
-;                                    ::entitlements
-;                                    :software/properties
-;                                    ::accessories]))
 
 (sa/def :software/properties (sa/or
                                :single (sa/or :coll (sa/coll-of ::sp/property)
