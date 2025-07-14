@@ -5,23 +5,16 @@
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   ;[leihs.inventory.server.resources.pool.models.basic_coercion :as co]
-
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries
                                                          apply-is_deleted-context-if-valid
                                                          apply-is_deleted-where-context-if-valid
                                                          keep-attr-not-nil]]
-
-;[leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
-   ;[leihs.inventory.server.resources.pool.models.common :refer [  filter-map-by-spec]]
-
    [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
                                                                 remove-nil-values
                                                                 filter-map-by-spec
 
                                                                 filter-and-coerce-by-spec]]
-   ;[leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [prepare-model-data
                                                                                  extract-model-form-data
                                                                                  filter-response
@@ -30,14 +23,11 @@
                                                                                  process-accessories
                                                                                  process-compatibles
                                                                                  process-categories
-
                                                                                  replace-nil-with-empty-string]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
-
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error spy]])
@@ -60,10 +50,12 @@
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
-                   :i.id
-                   :i.filename
-                   [[[:raw "CASE WHEN m.cover_image_id = i.id THEN TRUE ELSE FALSE END"]]
-                    :is_cover])
+                    :i.id
+                    :i.filename
+                    [[:case
+                      [:= :m.cover_image_id :i.id] true
+                      :else false]
+                     :is_cover])
                   (sql/from [:models :m])
                   (sql/right-join [:images :i] [:= :i.target_id :m.id])
                   (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])
