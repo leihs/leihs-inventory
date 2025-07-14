@@ -107,12 +107,12 @@
                              (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
                              m))))
         models (remove-nil-values models)
-        models (mapv #(filter-map-by-spec % ::co/compatible) models) ]
+        models (mapv #(filter-map-by-spec % ::co/compatible) models)]
     models))
 
 (defn fetch-properties [tx model-id]
   (let [properties (select-entries tx :properties [:id :key :value] [:= :model_id model-id])]
-    (filter-and-coerce-by-spec properties ::co/property)    ))
+    (filter-and-coerce-by-spec properties ::co/property)))
 
 (defn fetch-entitlements [tx model-id]
   (let [query (-> (sql/select :e.id :e.quantity :eg.name [:eg.id :group_id])

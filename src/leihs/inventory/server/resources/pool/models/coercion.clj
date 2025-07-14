@@ -124,7 +124,7 @@
   (sa/and string? #{"Category"}))
 
 (sa/def ::category (sa/keys :opt-un [::name]
-                            :req-un [::id ]))
+                            :req-un [::id]))
 
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
@@ -136,17 +136,16 @@
                                  :req-un [:nil/id :nil/product]))
 
 (sa/def ::compatible (sa/keys :opt-un [::product ::image_id ::url]
-                              :req-un [::id ]))
+                              :req-un [::id]))
 
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
 
-(sa/def :min/compatible (sa/keys  :opt-un [::product]
-                              :req-un [::id ]))
+(sa/def :min/compatible (sa/keys :opt-un [::product]
+                                 :req-un [::id]))
 
 (sa/def :min/compatibles
   (sa/coll-of :min/compatible :kind vector? :min-count 0))
-
 
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
@@ -181,7 +180,7 @@
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::accessory (sa/keys :req-un [ ::id ] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessory (sa/keys :req-un [::id] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
 (sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
 
 (sa/def ::properties string?)
