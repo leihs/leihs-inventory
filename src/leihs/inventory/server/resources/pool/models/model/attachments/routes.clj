@@ -58,6 +58,3 @@
                                 :body s/Any}
                            404 {:description "Not Found"}
                            500 {:description "Internal Server Error"}}}}]]]]])
-
-
-

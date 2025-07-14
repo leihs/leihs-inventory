@@ -7,7 +7,7 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
-   [leihs.inventory.server.resources.pool.models.coercion :as co]
+   [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
                                                                 remove-nil-values
                                                                 filter-map-by-spec
