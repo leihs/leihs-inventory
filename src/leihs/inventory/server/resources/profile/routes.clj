@@ -5,8 +5,8 @@
    [leihs.inventory.server.resources.profile.main :refer [get-resource]]
    [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate!]]
-   [reitit.coercion.schema]
-   [reitit.coercion.spec]
+   ;[reitit.coercion.schema]
+   ;[reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
@@ -26,4 +26,3 @@
                             :body profile-response-schema}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])
-

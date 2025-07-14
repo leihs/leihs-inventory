@@ -91,7 +91,6 @@
                            (if-let [image-id (:image_id m)]
                              (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
                              m))))
-        ;models (remove-nil-values models)
         models (mapv #(filter-map-by-spec % ::co/compatible) models)]
     models))
 
@@ -105,9 +104,7 @@
                   (sql/join [:entitlement_groups :eg] [:= :e.entitlement_group_id :eg.id])
                   (sql/where [:= :e.model_id model-id])
                   sql-format)
-
         entitlements (jdbc/execute! tx query)]
-
     (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
 (defn fetch-categories [tx model-id]
@@ -120,7 +117,6 @@
                   (sql/order-by :mg.name)
                   sql-format)
         categories (jdbc/execute! tx query)]
-
     (filter-and-coerce-by-spec categories ::co/category)))
 
 (defn get-resource [request]

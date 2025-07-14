@@ -9,7 +9,3 @@
 
 (def delete-400-response
   {:message s/Str})
-
-(def get-image-response
-  image)
-

@@ -17,9 +17,9 @@
    [leihs.inventory.server.resources.session.protected.main :refer [get-resource]]
    [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [leihs.inventory.server.utils.auth.session :as ab]
-   [next.jdbc :as jdbc]
-   [reitit.coercion.schema]
-   [reitit.coercion.spec]
+   ;[next.jdbc :as jdbc]
+   ;[reitit.coercion.schema]
+   ;[reitit.coercion.spec]
    [ring.util.response :as response]
    [schema.core :as s])
   (:import (com.google.common.io BaseEncoding)

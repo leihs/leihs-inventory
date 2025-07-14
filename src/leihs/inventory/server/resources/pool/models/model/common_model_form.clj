@@ -16,7 +16,6 @@
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]
    [pantomime.extract :as extract]
-
    [ring.util.response :as response :refer [bad-request response status]]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error spy]])
