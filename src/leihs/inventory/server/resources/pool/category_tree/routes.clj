@@ -6,7 +6,7 @@
    [leihs.core.resources.categories.tree :refer [tree]]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.category-tree.main :as category-tree]
-   [leihs.inventory.server.resources.pool.category-tree.types :as t]
+   [leihs.inventory.server.resources.pool.category-tree.types :as types]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -43,10 +43,10 @@ Example Metadata:
 }
 ```"
            :coercion spec/coercion
-           :parameters {:query (sa/keys :opt-un [::t/with-metadata])
+           :parameters {:query (sa/keys :opt-un [::types/with-metadata])
                         :path {:pool_id uuid?}}
            :handler category-tree/index-resources
            :responses {200 {:description "OK"
-                            :body ::t/response-body}
+                            :body ::types/response-body}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

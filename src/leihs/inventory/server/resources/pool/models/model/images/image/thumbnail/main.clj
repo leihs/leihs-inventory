@@ -65,7 +65,7 @@
       (cond
         (and json-request? image_id) (response result)
         (and json-request? (nil? image_id)) (response {:data result})
-        (and (not json-request?) image_id) (convert-base64-to-byte-stream (first result))))
+        (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
