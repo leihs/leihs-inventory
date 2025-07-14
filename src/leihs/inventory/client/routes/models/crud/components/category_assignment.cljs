@@ -125,7 +125,6 @@
                                                      (if
                                                       (not (check-id-existing (:id item) fields))
                                                        (append (cj (assoc item
-                                                                          :type "Category"
                                                                           :name (:label item))))
                                                        (remove (find-index-from-id (:id item) fields))))
                                      :style {:padding-left (str (* (:level item) 16) "px")}}
