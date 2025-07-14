@@ -23,7 +23,7 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
-           :swagger {:produces ["application/json" "image/jpeg"]}
+           :swagger {:produces ["application/json" "image/jpeg" "image/image" "image/*"]}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid}}

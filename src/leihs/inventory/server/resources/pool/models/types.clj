@@ -18,7 +18,7 @@
 
 (sa/def :create-model/scheme
   (sa/keys
-    :req-un [::sp/is_package
+    :req-un [:nil-str/is_package
              ::sp/product
              ::sp/id]
     :opt-un [::sp/properties
@@ -76,7 +76,7 @@
     :req-un [::sp/product]
     :opt-un [::sp/version
              ::sp/manufacturer
-             ::sp/is_package
+             :nil-str/is_package
              :nil/description
              ::sp/technical_detail
              :nil/internal_description

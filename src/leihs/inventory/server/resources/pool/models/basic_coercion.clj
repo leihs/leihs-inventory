@@ -14,7 +14,6 @@
    [spec-tools.data-spec :as ds]
    ))
 
-
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
 (sa/def :nil/product (sa/nilable string?))
@@ -36,74 +35,53 @@
 (sa/def :nil/url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
-(sa/def ::name string?)
 (sa/def ::created_at any?)
 (sa/def ::updated_at any?)
-
-(sa/def ::type
-  (sa/and string? #{"Category"}))
-
+(sa/def ::type (sa/and string? #{"Category"}))
 (sa/def ::category (sa/keys :opt-un [::name]
-                            :req-un [::id]))
-
+                     :req-un [::id]))
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
-
 (sa/def :put-post/categories
   (sa/coll-of ::id :kind vector? :min-count 0))
-
-(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::url]
-                                 :req-un [:nil/id :nil/product]))
-
-(sa/def ::compatible (sa/keys :opt-un [::product ::image_id ::url]
-                              :req-un [::id]))
-
+(sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id :nil/url]
+                          :req-un [:nil/id :nil/product]))
+(sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url]
+                       :req-un [::id]))
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
-
 (sa/def :min/compatible (sa/keys :opt-un [::product]
-                                 :req-un [::id]))
-
+                          :req-un [::id]))
 (sa/def :min/compatibles
   (sa/coll-of :min/compatible :kind vector? :min-count 0))
-
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
-                        :single ::file))
-
-(sa/def ::image (sa/keys :opt-un [::is_cover ::url]
-                         :req-un [::id ::filename]))
-
-(sa/def ::attachment (sa/keys :opt-un [::url]
-                              :req-un [::id ::filename]))
-
+                   :single ::file))
+(sa/def ::image (sa/keys :opt-un [::is_cover :nil/url]
+                  :req-un [::id ::filename]))
+(sa/def ::attachment (sa/keys :opt-un [:nil/url]
+                       :req-un [::id ::filename]))
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
-
 (sa/def ::is_cover boolean?)
 (sa/def ::filename string?)
-;(sa/def ::attachments any?)
-
 (sa/def ::attachments
   (sa/coll-of ::attachment :kind vector? :min-count 0))
-
 (sa/def ::entitlement_group_id uuid?)
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
-                                   :req-un [:entitlement/group_id
-                                            ::quantity]))
+                            :req-un [:entitlement/group_id
+                                     ::quantity]))
 (sa/def ::entitlements
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
 (sa/def ::accessory (sa/keys :req-un [::id] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
 (sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
-
-;(sa/def ::properties string?)
 (sa/def ::serial_number string?)
 (sa/def :nil/note (sa/nilable string?))
 (sa/def ::status_note string?)
@@ -134,7 +112,6 @@
 (sa/def ::operating_system string?)
 (sa/def ::quantity_allocations any?)
 (sa/def ::maintenance_currency string?)
-
 (sa/def ::license_expiration string?)
 (sa/def ::installation string?)
 (sa/def ::p4u string?)
@@ -148,57 +125,34 @@
 (sa/def ::value string?)
 (sa/def :simple/properties string?)
 (sa/def ::property (sa/keys :opt-un [:nil/id] :req-un [::key ::value]))
-
-(sa/def ::inventory_code string?)
 (sa/def ::inventory_pool_id uuid?)
 (sa/def ::responsible any?)
 (sa/def :nil/responsible (sa/nilable any?))
 (sa/def :nil/invoice_number (sa/nilable any?))
-(sa/def :nil/note (sa/nilable string?))
 (sa/def :nil/serial_number (sa/nilable string?))
 (sa/def ::responsible_department uuid?)
-
 (defn nil-or [pred]
   (sa/or :nil nil? :value pred))
-
 (sa/def ::active boolean?)
 (sa/def ::data any?)
 (sa/def ::group string?)
 (sa/def :str/id string?)
 (sa/def ::label string?)
 (sa/def :nil/owner (nil-or string?))
-(sa/def ::position int?)
 (sa/def ::role (nil-or string?))
 (sa/def ::role_default string?)
 (sa/def ::target (nil-or string?))
 (sa/def ::target_default string?)
-
 (sa/def ::note string?)
 (sa/def ::is_inventory_relevant boolean?)
 (sa/def ::last_check any?)
-(sa/def ::user_name string?)
 (sa/def :nil/user_name (sa/nilable string?))
-(sa/def ::price string?)
 (sa/def :any/price any?)
-(sa/def ::shelf string?)
-(sa/def ::inventory_code string?)
-(sa/def ::retired boolean?)
-(sa/def ::retired_reason string?)
-(sa/def ::is_broken boolean?)
-(sa/def ::is_incomplete boolean?)
-(sa/def ::is_borrowable boolean?)
-(sa/def ::status_note string?)
-(sa/def :nil/status_note (sa/nilable string?))
-(sa/def ::room_id uuid?)
-(sa/def ::owner_id uuid?)
 (sa/def ::item_inventory_code string?)
 (sa/def ::item_id uuid?)
 (sa/def :any/items_attributes any?)
-
 (sa/def ::items_attributes
   (sa/coll-of (sa/keys :req-un [::item_inventory_code ::item_id]) :kind vector?))
-
-
 (sa/def :res/properties map?)
 (sa/def :res/inventory_code string?)
 (sa/def :res/owner_id uuid?)
@@ -231,29 +185,17 @@
 (sa/def :res/created_at inst?) ;; Date
 (sa/def :res/items_attributes any?) ;; Date
 (sa/def :res/insurance_number (sa/nilable string?))
-
 (sa/def ::uuid string?)
 (sa/def ::nullable-string (sa/nilable string?))
 (sa/def ::integer int?)
-(sa/def ::inventory_pool_id string?)
-(sa/def ::inventory_pool_id any?)
 (sa/def ::responsible_department ::uuid)
-(sa/def ::inventory_code string?)
-
 (sa/def ::DataSchema
   (sa/keys :req-un [::inventory_pool_id
                     ::responsible_department
                     ::inventory_code]))
-
-(sa/def ::role string?)
-
 (sa/def ::PermissionsSchema
   (sa/keys :req-un [::role ::owner]))
-
-(sa/def ::type string?)
 (sa/def :model/type string?)
-(sa/def ::group string?)
-(sa/def ::label string?)
 (sa/def ::attribute any?)
 (sa/def ::permissions any?)
 (sa/def ::forPackage boolean?)
@@ -263,25 +205,14 @@
 (sa/def :nil/role_default (sa/nilable string?))
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
-(sa/def ::role_default string?)
-(sa/def ::target_default string?)
-(sa/def ::label string?)
 (sa/def :nil-str/owner (sa/nilable string?))
-(sa/def :str/id string?)
-(sa/def ::position ::integer)
-(sa/def ::target ::nullable-string)
 (sa/def ::owner ::nullable-string) ;; "true" is string, but could be coerced to boolean
-
 (sa/def :nil/id (sa/nilable uuid?))
-(sa/def :nil/product (sa/nilable string?))
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
-(sa/def :nil/name (sa/nilable string?))
-(sa/def :nil/status_note (sa/nilable string?))
 (sa/def :nil/shelf (sa/nilable string?))
 (sa/def :nil-str/shelf (sa/nilable string?))
 (sa/def :nil/last_check (sa/nilable any?))
-(sa/def :nil/item_version (sa/nilable string?))
 (sa/def :nil2/item_version (sa/nilable any?))
 (sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
@@ -290,41 +221,13 @@
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
 (sa/def :nil/insurance_number (sa/nilable any?))
-(sa/def :nil/user_name (sa/nilable string?))
 (sa/def :nil-any/user_name (sa/nilable any?))
 (sa/def :nil/supplier_id (sa/nilable any?))
 (sa/def ::needs_permission boolean?)
-(sa/def ::is_incomplete boolean?)
-
-(sa/def ::is_package boolean?)
-(sa/def :bool/owner (sa/nilable boolean?))
-(sa/def :nil-any/owner (sa/nilable any?))
-(sa/def ::maintenance_period int?)
-(sa/def ::type string?)
 (sa/def :nil/attachments (sa/nilable any?)) ;; Optional field
 (sa/def :nil/rental_price (sa/nilable any?))
-(sa/def :nil/cover_image_id (sa/nilable any?))
-
-(sa/def ::updated_at any?)
-(sa/def :image/id any?)
-(sa/def :image/is_cover (sa/nilable boolean?))
-(sa/def :image/filename (sa/nilable string?))
-(sa/def :image/content_type (sa/nilable string?))
-(sa/def :image/url (sa/nilable string?))
-(sa/def :image/thumbnail_url (sa/nilable string?))
-(sa/def :image/to_delete (sa/nilable boolean?))
 (sa/def ::manufacturer any?)
 (sa/def ::version string?)
-(sa/def ::created_at any?)
 (sa/def ::technical_detail string?)
-
 (sa/def :any/id any?) ;; UUID spec
-
-(sa/def :nil/technical_detail (sa/nilable string?))
-(sa/def :nil/version (sa/nilable string?))
-;(sa/def :nil/description (sa/nilable string?))
-(sa/def :nil/rental_price (sa/nilable string?))
-;(sa/def :nil/cover_image_id (sa/nilable string?))
-;(sa/def :nil/hand_over_note (sa/nilable string?))
-;(sa/def :nil/internal_description (sa/nilable string?))
 (sa/def :nil/info_url (sa/nilable string?))
