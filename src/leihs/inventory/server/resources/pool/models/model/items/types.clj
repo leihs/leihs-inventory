@@ -53,4 +53,4 @@
 (def get-items-response {:data [item]
                          :pagination s/Any})
 
-(def get-item-response item)
+

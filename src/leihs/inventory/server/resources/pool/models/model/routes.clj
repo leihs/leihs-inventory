@@ -3,20 +3,16 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
-   [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
-   [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
-   [leihs.inventory.server.resources.pool.models.types :refer [     description-model-form]]
+   [leihs.inventory.server.resources.pool.models.model.main :as model]
+  [leihs.inventory.server.resources.pool.models.types :refer [     description-model-form]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]
-   [leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
+   ;[leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
-
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -40,10 +36,9 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-             :handler get-resource
+             :handler model/get-resource
              :responses {200 {:description "OK"
                               :body :model-get-put-response/inventory-model}
-                              ;:body any?}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 
@@ -59,7 +54,7 @@
                :parameters {:path {:pool_id s/Uuid
                                    :model_id s/Uuid}
                             :body {:is_cover (s/maybe s/Uuid)}}
-               :handler patch-resource
+               :handler model/patch-resource
                :responses {200 {:description "OK"
                                 :body patch-response}
                            404 {:description "Not Found"}
@@ -74,7 +69,7 @@
                 :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                 :parameters {:path {:pool_id uuid?
                                     :model_id uuid?}}
-                :handler delete-resource
+                :handler model/delete-resource
                 :responses {200 {:description "OK"
                                  :body delete-response}
                             404 {:description "Not Found"}
@@ -88,7 +83,7 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
                           :body :model/multipart}
-             :handler put-resource
+             :handler model/put-resource
              :responses {200 {:description "OK"
                               :body put-response}
                          404 {:description "Not Found"}

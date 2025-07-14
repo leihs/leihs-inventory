@@ -2,7 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.model.items.item.main :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.items.item.main :as item]
    [leihs.inventory.server.resources.pool.models.model.items.item.types :refer [get-item-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -30,7 +30,7 @@
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
                                  :item_id s/Uuid}}
-             :handler get-resource
+             :handler item/get-resource
              :responses {200 {:description "OK"
                               ;:body (s/->Either [s/Any schema])} ;;FIXME
                               :body get-item-response}
