@@ -142,8 +142,8 @@
 (sa/def ::type
   (sa/and string? #{"Category"}))
 
-(sa/def ::category (sa/keys :opt-un []
-                            :req-un [::id ::name]))
+(sa/def ::category (sa/keys :opt-un [::name]
+                            :req-un [::id ]))
 
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
@@ -154,17 +154,19 @@
 (sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id ::url]
                                  :req-un [:nil/id :nil/product]))
 
-;(sa/def ::compatible (sa/keys :opt-un [::cover_image_id ::image_url ::thumbnail_url]
-(sa/def ::compatible (sa/keys :opt-un [::image_id ::url]
-                              :req-un [::id ::product]))
+(sa/def ::compatible (sa/keys :opt-un [::product ::image_id ::url]
+                              :req-un [::id ]))
 
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
 
-;(sa/def :put-post/compatibles (sa/or
-;                               :single (sa/or :coll (sa/coll-of ::id)
-;                                              :str string?)
-;                               :none nil?))
+(sa/def :min/compatible (sa/keys  :opt-un [::product]
+                              :req-un [::id ]))
+
+(sa/def :min/compatibles
+  (sa/coll-of :min/compatible :kind vector? :min-count 0))
+
+
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
@@ -206,7 +208,7 @@
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [::id ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessory (sa/keys :req-un [ ::id ] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
 (sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
 
 (sa/def ::properties string?)
@@ -599,7 +601,7 @@
                                            ::hand_over_note
                                            ::categories
                                            ::owner
-                                           ::compatibles
+                                           :min/compatibles
                                            ::entitlements
                                            :software/properties
                                            ::accessories]))
