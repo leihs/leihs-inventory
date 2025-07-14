@@ -5,7 +5,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import [java.io ByteArrayInputStream]
@@ -59,8 +59,8 @@
                     (sql/where [:= :i.thumbnail true])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
-                    sql-format)
-          result (jdbc/query tx query)]
+          sql-format)
+          result (jdbc/execute-one! tx query)]
 
       (cond
         (and json-request? image_id) (response result)

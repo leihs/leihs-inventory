@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.fields.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.fields.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.fields.types :refer [get-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -32,7 +32,7 @@
                                      (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")
                                      (s/optional-key :owner) s/Bool
                                      (s/optional-key :type) (s/enum "license")}}
-                :handler index-resources
+                :handler fields/index-resources
                 :responses {200 {:description "OK"
                                  :body get-response}
                             404 {:description "Not Found"}
