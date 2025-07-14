@@ -48,3 +48,22 @@
           (and (= "models" origin_table) cover-image-id)
           (assoc :url (create-url pool_id (:id model) "images" cover-image-id)))))
     models)))
+
+
+;; #####################
+
+(defn allowed-keys [schema-map]
+  (map (fn [k]
+         (cond
+           (instance? schema.core.OptionalKey k) (:k k)
+           (instance? schema.core.RequiredKey k) (:k k)
+           :else k))
+    (keys schema-map)))
+
+
+(defn filter-map-by-schema [m spec]
+  (let [keys-set (allowed-keys spec)]
+    (debug "selecting keys from:" m )
+    (debug "using keys:" keys-set)
+    (select-keys m keys-set)))
+

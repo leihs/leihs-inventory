@@ -106,7 +106,7 @@
                            (if-let [image-id (:image_id m)]
                              (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
                              m))))
-        models (remove-nil-values models)
+        ;models (remove-nil-values models)
         models (mapv #(filter-map-by-spec % ::co/compatible) models)]
     models))
 
