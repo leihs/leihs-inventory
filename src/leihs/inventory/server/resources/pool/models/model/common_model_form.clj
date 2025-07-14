@@ -15,6 +15,8 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]
+   [ring.util.response :refer [bad-request response status]]
+
    [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
    [taoensso.timbre :refer [error spy]])
@@ -31,12 +33,17 @@
         pool-id (to-uuid (get-in req [:path-params :pool_id]))
         tx (:tx req)
         is-cover (-> req :body-params :is_cover)
-        result (jdbc/execute-one! tx (-> (sql/update :models)
-                                         (sql/set {:cover_image_id (to-uuid is-cover)})
-                                         (sql/where [:= :id model-id])
-                                         (sql/returning :id :cover_image_id)
-                                         sql-format))]
-    (response/response result)))
+          image               (jdbc/execute-one! tx (-> (sql/select :*)
+                                                      (sql/from :images)
+                                                      (sql/where [:= :id (to-uuid is-cover)])
+                                                      sql-format)) ]
+    (if (nil? image)
+      (bad-request {:error "Image not found" })
+(response/response (jdbc/execute-one! tx (-> (sql/update :models)
+                                               (sql/set {:cover_image_id (to-uuid is-cover)})
+                                               (sql/where [:= :id model-id])
+                                               (sql/returning :id :cover_image_id)
+                                               sql-format))))))
 
 (defn prepare-model-data
   [data]

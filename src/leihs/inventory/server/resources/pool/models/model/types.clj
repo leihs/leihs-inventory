@@ -39,7 +39,7 @@
 
 (sa/def :model-get-put-response/inventory-model
   (st/spec {:spec (sa/keys :req-un [::sp/properties
-                                    :nil-str/is_package
+                                    ::sp/is_package
                                     ::sp/accessories
                                     ::sp/entitlements
                                     ::sp/attachments

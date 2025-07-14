@@ -50,6 +50,10 @@
        :patch {:accept "application/json"
                :summary (fe "Form-Handler: Used to patch model-attributes")
                :coercion reitit.coercion.schema/coercion
+
+               :swagger {
+                         :produces "application/json"}
+
                :description description-model-form
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
                :parameters {:path {:pool_id s/Uuid
