@@ -27,7 +27,6 @@
                              ]
                 :swagger {:produces ["application/json"]}
                 :parameters {:path {:pool_id s/Uuid}
-
                              :query {(s/optional-key :page) s/Int
                                      (s/optional-key :size) s/Int
                                      (s/optional-key :role) (s/enum "inventory_manager" "lending_manager" "group_manager" "customer")

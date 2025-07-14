@@ -14,24 +14,24 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [error debug]])
   (:import [java.time LocalDateTime]
            [java.util UUID]))
 
 (defn allowed-keys [spec]
   (let [resolved-spec (clojure.spec.alpha/get-spec spec)
-        _ (println "resolved-spec:" resolved-spec)
+        _ (debug "resolved-spec:" resolved-spec)
         spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))
-        _ (println "spec-form:" spec-form)]
+        _ (debug "spec-form:" spec-form)]
     (cond
       ;; keys spec: extract unqualified names
       (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
       (let [args (apply hash-map (rest spec-form))
-            _ (println "args:" args)
-            req-keys (map #(do (println "req-un-key:" %) (-> % name keyword)) (get args :req-un))
-            opt-keys (map #(do (println "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
-        (println "req-keys:" req-keys)
-        (println "opt-keys:" opt-keys)
+            _ (debug "args:" args)
+            req-keys (map #(do (debug "req-un-key:" %) (-> % name keyword)) (get args :req-un))
+            opt-keys (map #(do (debug "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
+        (debug "req-keys:" req-keys)
+        (debug "opt-keys:" opt-keys)
         (set (concat req-keys opt-keys)))
 
       ;; scalar spec with qualified keyword name
@@ -43,15 +43,13 @@
 
 (defn filter-map-by-spec [m spec]
   (let [keys-set (allowed-keys spec)]
-    (println "selecting keys from:" m "using keys:" keys-set)
-    ;(println "selecting keys from:" (name spec))
+    (debug "selecting keys from:" m "using keys:" keys-set)
     (select-keys m keys-set)))
 
 (defn filter-and-coerce-by-spec
   [models spec]
   (->> models
-       remove-nil-values ; removes nil values from inside maps (if your fn is like that)
-    ;(remove nil?)                    ; removes nil maps
+       remove-nil-values
        (mapv #(filter-map-by-spec % spec))))
 
 (defn select-entries [tx table columns where-clause]
@@ -82,10 +80,7 @@
                                  (assoc row
                                         :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
                                images)
-
-        filtered-images (filter-and-coerce-by-spec images-with-urls ::co/image)
-
-        p (println ">o> abc.filtered-images" filtered-images)]
+        filtered-images (filter-and-coerce-by-spec images-with-urls ::co/image)]
     filtered-images))
 
 (defn fetch-accessories [tx model-id]
@@ -105,37 +100,19 @@
                   (sql/where [:= :mc.model_id model-id])
                   sql-format)
         models (jdbc/execute! tx query)
-
-        p (println ">o> abc.models1" models)
-
         models (->> models
                     (fetch-thumbnails-for-ids tx)
                     (map (fn [m]
                            (if-let [image-id (:image_id m)]
                              (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
                              m))))
-        p (println ">o> abc.models2" models)
-        p (println ">o> abc.models2" (type models))
-
         models (remove-nil-values models)
-        models (mapv #(filter-map-by-spec % ::co/compatible) models)
-
-        p (println ">o> abc.models3" models)
-        ;model-cover-ids (->> models (keep :id :cover_image_id) vec)
-        ;ids (mapv :id models)
-        ;thumbnails (fetch-thumbnails-for-ids tx ids)
-        ;models (apply-cover-image-urls models thumbnails pool-id)
-
-    ;models (map #(dissoc % [:origin_table :cover_image_id]) models)
-    ;    p (println ">o> abc.models4" models)
-        ]
+        models (mapv #(filter-map-by-spec % ::co/compatible) models) ]
     models))
 
 (defn fetch-properties [tx model-id]
   (let [properties (select-entries tx :properties [:id :key :value] [:= :model_id model-id])]
-    (filter-and-coerce-by-spec properties ::co/property)
-      ;properties
-    ))
+    (filter-and-coerce-by-spec properties ::co/property)    ))
 
 (defn fetch-entitlements [tx model-id]
   (let [query (-> (sql/select :e.id :e.quantity :eg.name [:eg.id :group_id])

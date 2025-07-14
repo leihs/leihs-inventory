@@ -109,12 +109,8 @@
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
-
-      (let [{:keys [page size]} (fetch-pagination-params request)
-
-            p (println ">o> abc.???" page size)]
+      (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response query tx size page))))
-
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))

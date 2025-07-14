@@ -24,11 +24,9 @@
                                                                                       [:= :parent_id cover_image_id]]))
                                       (sql/order-by [:thumbnail :asc])
                                       sql-format))
-
         data (if res (assoc model-cover-id
                             :image_id (:id res))
                  model-cover-id)]
-
     data))
 
 (defn fetch-thumbnails-for-ids [tx model-cover-ids]

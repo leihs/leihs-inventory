@@ -109,29 +109,10 @@
 (sa/def ::important_notes (sa/nilable string?))
 (sa/def ::hand_over_note (sa/nilable string?))
 (sa/def ::allocations (sa/nilable string?))
-
-;(sa/def ::compatible_ids (sa/or
-;                          :multiple (sa/or :coll (sa/coll-of uuid?)
-;                                           :str string?)
-;                          :single uuid?
-;                          :none nil?))
-
-;; TODO: initial validation-error
-;(sa/def ::category_ids (sa/or
-;                        :multiple (sa/or :coll (sa/coll-of uuid?)
-;                                         :str string?)
-;                        :single uuid?
-;                        :none nil?))
-
-;(sa/def ::category_ids
-;  (sa/coll-of (sa/coll-of uuid?) :kind vector? :min-count 0))
-
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::cover_image_id (sa/nilable uuid?))
 (sa/def ::image_id (sa/nilable uuid?))
-;(sa/def ::image_url (sa/nilable string?))
-;(sa/def ::thumbnail_url (sa/nilable string?))
 (sa/def ::url (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
@@ -172,9 +153,6 @@
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
 
-;(sa/def :min/images (sa/or :multiple (sa/coll-of any? :kind vector?)
-;                           :single any?))
-
 (sa/def ::image (sa/keys :opt-un [::is_cover ::url]
                          :req-un [::id ::filename]))
 
@@ -199,11 +177,6 @@
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
-;(sa/def ::entitlements (sa/or
-;                        :single (sa/or :coll (sa/coll-of :json/entitlement)
-;                                       :str string?)
-;                        :none nil?))
-
 (sa/def ::entitlements
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)

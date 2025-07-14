@@ -12,5 +12,5 @@
    :content (s/maybe s/Str)})
 
 (def get-attachments-response
-  {:data [attachment] ; Replace s/Any with the actual schema for attachments if available
+  {:data [attachment]
    :pagination s/Any})

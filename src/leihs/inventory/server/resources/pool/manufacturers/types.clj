@@ -6,8 +6,4 @@
                                             :product s/Str
                                             :version (s/maybe s/Str)
                                             :model_id s/Uuid}]
-
                                           [s/Str]]))
-
-
-

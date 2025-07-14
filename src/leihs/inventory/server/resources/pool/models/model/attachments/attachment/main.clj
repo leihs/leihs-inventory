@@ -22,8 +22,7 @@
           type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
-                    (cond-> id (sql/where [:= :a.model_id model-id]))
-
+                    (cond-> model-id (sql/where [:= :a.model_id model-id]))
                     (cond-> id (sql/where [:= :a.id id]))
                     sql-format)
           attachment (jdbc/execute-one! tx query)

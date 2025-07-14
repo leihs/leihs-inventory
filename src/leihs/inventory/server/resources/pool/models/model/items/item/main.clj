@@ -10,11 +10,6 @@
    [ring.util.response :refer [response status]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
-
 (defn get-resource ([request]
                     (let [tx (:tx request)
                           {:keys [pool_id model_id item_id]} (path-params request)
@@ -27,10 +22,7 @@
                                          (sql/where [:= :items.model_id model_id])
                                          (cond-> item_id
                                            (sql/where [:= :items.id item_id])))
-
                           result (jdbc/execute-one! tx (-> base-query sql-format))]
-                      (println (sql-format base-query :inline true))
-
                       (if result
                         (response result)
                         (status

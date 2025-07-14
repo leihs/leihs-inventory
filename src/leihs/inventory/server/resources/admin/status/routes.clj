@@ -13,12 +13,6 @@
   {:gauges s/Any
    :timers s/Any})
 
-(def hikari-health-schema
-  {"HikariPool-1.pool.ConnectivityCheck"
-   {:healthy? s/Bool
-    :message (s/maybe s/Str)
-    :error (s/maybe s/Str)}})
-
 (def system-status-schema
   {:memory s/Any
    :db-pool db-pool-schema

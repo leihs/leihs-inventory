@@ -30,11 +30,9 @@
                                     :model_id s/Uuid
                                     (s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
-
                 :handler index-resources
                 :responses {200 {:description "OK"
                                  ;:body (s/->Either [s/Any schema])} ;;FIXME
                                  :body get-items-response}
-
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]]])

@@ -21,8 +21,6 @@
    :manufacturer
    :version
    :cover_image_id
-   ;:updated_at
-   ;:created_at
    :technical_detail])
 
 (defn update-model-handler [request]

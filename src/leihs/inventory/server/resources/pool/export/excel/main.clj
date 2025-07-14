@@ -50,4 +50,3 @@
       (log/error e "Internal Server Error in Excel handler")
       {:status 500
        :body "Internal Server Error."})))
-

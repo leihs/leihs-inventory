@@ -37,7 +37,6 @@
                                    (s/optional-key :size) s/Int}}
               :handler index-resources
               :responses {200 {:description "OK"
-                               ;:body s/Any}
                                :body get-attachments-response}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}

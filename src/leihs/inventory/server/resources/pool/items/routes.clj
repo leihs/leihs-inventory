@@ -33,6 +33,5 @@
             :responses {200 {:description "OK"
                              :body s/Any}
                         ;:body get-items-response} ;; FIXME broken
-
                         404 {:description "Not Found"}
                         500 {:description "Internal Server Error"}}}}]]])
