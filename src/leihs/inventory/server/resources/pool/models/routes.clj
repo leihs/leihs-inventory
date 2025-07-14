@@ -15,7 +15,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-models-route []
+(defn routes []
   ["/:pool_id"
 
    {:swagger {:tags [""]}}

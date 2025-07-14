@@ -26,7 +26,7 @@
            (java.time Duration Instant)
            (java.util Base64 UUID)))
 
-(defn get-session-protected-routes []
+(defn routes []
   ["/"
    {:no-doc HIDE_BASIC_ENDPOINTS}
 

@@ -10,7 +10,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-admin-status-routes []
+(defn routes []
   ["/admin/status/"
    {:no-doc HIDE_BASIC_ENDPOINTS
     :get {:accept "application/json"

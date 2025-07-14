@@ -12,7 +12,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-models-model-attachments-single-routes []
+(defn routes []
   ["/:pool_id/"
    {:swagger {:tags [""]}}
 

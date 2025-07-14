@@ -14,7 +14,7 @@
 (defn create-description [url]
   (str "- GET " url " Accept: application/json "))
 
-(defn get-entitlement-groups-routes []
+(defn routes []
 
   [""
    ["/:pool_id"

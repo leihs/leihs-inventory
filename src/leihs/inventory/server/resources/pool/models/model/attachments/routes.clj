@@ -17,7 +17,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-models-model-attachments-route []
+(defn routes []
   ["/"
    {:swagger {:tags [""]}}
 

@@ -11,7 +11,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-buildings-routes []
+(defn routes []
   ["/:pool_id"
    {:swagger {:tags [""]}}
 

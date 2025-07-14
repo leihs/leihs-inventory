@@ -28,7 +28,7 @@
            (java.time Duration Instant)
            (java.util Base64 UUID)))
 
-(defn get-token-routes []
+(defn routes []
   [["/"
 
     {:no-doc HIDE_BASIC_ENDPOINTS}

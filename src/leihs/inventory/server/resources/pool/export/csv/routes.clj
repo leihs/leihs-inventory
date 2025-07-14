@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]))
 
-(defn get-export-csv-routes []
+(defn routes []
   ["/export"
 
    {:swagger {:tags [""]}

@@ -12,7 +12,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-suppliers-routes []
+(defn routes []
   [""
    ["/:pool_id/suppliers/"
     {:swagger {:tags [""]}}

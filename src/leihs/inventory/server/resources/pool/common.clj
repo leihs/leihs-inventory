@@ -25,16 +25,16 @@
   - i: items
   - it: items (for items that are children of item i)"
   [is_deletable]
-  (-> (h/select-distinct
+  (-> (sql/select-distinct
         :m.*
         [[:case
           [:and [:= :m.is_package true] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
           [:and [:= :m.is_package false] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
           [:and [:= :m.is_package false] [:= :m.type "Software"] [:= :i.id nil] [:= :it.id nil]] true
           :else false] :is_deletable])
-    (h/from [:models :m])
-    (h/left-join [:items :i] [:= :m.id :i.model_id])
-    (h/left-join [:items :it] [:= :it.parent_id :i.id])))
+    (sql/from [:models :m])
+    (sql/left-join [:items :i] [:= :m.id :i.model_id])
+    (sql/left-join [:items :it] [:= :it.parent_id :i.id])))
 
 (defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
   (if (nil? is_deletable)

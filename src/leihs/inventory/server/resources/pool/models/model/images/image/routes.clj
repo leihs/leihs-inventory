@@ -12,7 +12,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-models-images-image-routes []
+(defn routes []
   ["/:pool_id/"
    {:swagger {:tags [""]}}
 

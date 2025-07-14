@@ -13,7 +13,7 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-(defn get-items-routes []
+(defn routes []
   [""
 
    ["/:pool_id"

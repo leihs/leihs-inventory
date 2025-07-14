@@ -15,7 +15,7 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-(defn get-category-tree-route []
+(defn routes []
 
   ["/:pool_id/category-tree/"
    {:swagger {:tags [""]}}

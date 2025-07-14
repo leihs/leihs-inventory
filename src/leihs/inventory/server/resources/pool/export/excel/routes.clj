@@ -4,7 +4,7 @@
    [leihs.inventory.server.resources.pool.export.excel.main :as excel]
    [reitit.coercion.schema]))
 
-(defn get-export-excel-routes []
+(defn routes []
   ["/export"
 
    {:swagger {:tags [""]}

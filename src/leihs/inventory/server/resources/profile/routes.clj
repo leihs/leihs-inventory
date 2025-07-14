@@ -10,7 +10,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-profile-routes []
+(defn routes []
   ["/"
    {:swagger {:tags [""]}}
 

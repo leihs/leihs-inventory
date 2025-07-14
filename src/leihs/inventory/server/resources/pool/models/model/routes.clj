@@ -21,7 +21,7 @@
 
 
 
-(defn get-models-single-route []
+(defn routes []
   ["/:pool_id"
 
    {:swagger {:tags [""]}}
