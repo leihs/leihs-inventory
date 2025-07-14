@@ -200,6 +200,7 @@ feature "Update model", type: :feature do
       fill_in "properties.1.value", with: third_property_value_new
     end
 
+    binding.pry
     click_on "Save"
 
     expect(page).to have_content "Inventory List"

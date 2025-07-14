@@ -101,6 +101,7 @@
 
         on-submit (fn [submit-data event]
                     (go
+                      (js/console.debug "Submit Data" submit-data)
                       (let [images (if is-create
                                      (:images (jc submit-data))
                                      (filter (fn [el] (= (:id el) nil))
@@ -125,15 +126,13 @@
                                                          (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            model-data (core/remove-nil-values
-                                        (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                         (dissoc (jc submit-data) :images :attachments))))
+                            model-data (into {} (dissoc (jc submit-data) :images :attachments))
 
                             pool-id (aget params "pool-id")
 
                             model-res (if is-create
                                         (<p! (-> http-client
-                                                 (.post (str "/inventory/" pool-id "/model/")
+                                                 (.post (str "/inventory/" pool-id "/models/")
                                                         (js/JSON.stringify (cj model-data))
                                                         (cj {:cache
                                                              {:update {:models "delete"
@@ -141,13 +140,14 @@
                                                                        :manufacturers "delete"}}}))
 
                                                  (.then (fn [res]
+                                                          (js/console.debug "Model Data" res (.. res -data -id))
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
-                                                           :id (.. res -data -data -id)}))))
+                                                           :id (.. res -data -id)}))))
 
                                         (<p! (let [model-id (aget params "model-id")]
                                                (-> http-client
-                                                   (.put (str "/inventory/" pool-id "/model/" model-id "/")
+                                                   (.put (str "/inventory/" pool-id "/models/" model-id)
                                                          (js/JSON.stringify (cj model-data))
                                                          (cj {:cache
                                                               {:update {:models "delete"
@@ -157,24 +157,26 @@
                                                    (.then (fn [res]
                                                             {:status (.. res -status)
                                                              :statusText (.. res -statusText)
-                                                             :id (.. res -data -data -id)}))))))
+                                                             :id (.. res -data -id)}))))))
 
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
                         (.. event (preventDefault))
 
+                        (js/console.debug "Model ID" model-id)
+
                         (when images-to-delete
                           (doseq [image-id images-to-delete]
                             ;; delete images that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/models/" (aget params "model-id") "/images/" image-id))
+                                     (.delete (str "/inventory/" pool-id "/models/" model-id "/images/" image-id))
                                      (.then #(.-data %))))))
 
                         (when attachments-to-delete
                           (doseq [attachment-id attachments-to-delete]
                             ;; delete attachments that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/models/" (aget params "model-id") "/attachments/" attachment-id))
+                                     (.delete (str "/inventory/" pool-id "/models/" model-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
                         (if (not= (:status model-res) 200)
@@ -189,7 +191,7 @@
                                     name (.. file -name)
                                     binary-data (<p! (.. file (arrayBuffer)))
                                     image-res (<p! (-> http-client
-                                                       (.post (str "/inventory/models/" model-id "/images")
+                                                       (.post (str "/inventory/" pool-id "/models/" model-id "/images/")
                                                               binary-data
                                                               (cj {:headers {"Content-Type" type
                                                                              "X-Filename" name}}))
@@ -212,7 +214,7 @@
                                     name (.. file -name)]
 
                                 (<p! (-> http-client
-                                         (.post (str "/inventory/models/" model-id "/attachments")
+                                         (.post (str "/inventory/" pool-id "/models/" model-id "/attachments/")
                                                 binary-data
                                                 (cj {:headers {"Content-Type" type
                                                                "X-Filename" name}}))))))
@@ -223,7 +225,7 @@
 
                               (when cover-image-id
                                 (<p! (-> http-client
-                                         (.patch (str "/inventory/" pool-id "/model/" model-id)
+                                         (.patch (str "/inventory/" pool-id "/models/" model-id)
                                                  (js/JSON.stringify (cj {:is_cover cover-image-id})))))))
 
                             (if is-create
@@ -233,27 +235,21 @@
                               ;; state needs to be forwarded for back navigation
                             (let [submit-type (aget event "nativeEvent" "submitter" "value")]
                               (if (= submit-type "save-add-item")
-                                (navigate (router/generatePath
-                                           "/inventory/:pool-id/models/:model-id/items/create"
-                                           #js {:pool-id pool-id
-                                                :model-id model-id})
+                                (navigate "/inventory/" pool-id "/models/" model-id "/items/create"
                                           #js {:state state
                                                :viewTransition true})
 
                                 (if is-create
-                                  (navigate (str (router/generatePath
-                                                  "/inventory/:pool-id/models"
-                                                  #js {:pool-id pool-id}) "?" (params-with-all-items))
+                                  (navigate (str "/inventory/" pool-id "/models?"
+                                                 (params-with-all-items))
                                             #js {:state state
                                                  :viewTransition true})
 
-                                  (navigate (str (router/generatePath
-                                                  "/inventory/:pool-id/models"
-                                                  #js {:pool-id pool-id}) (some-> state .-searchParams))
+                                  (navigate (str "/inventory/" pool-id "/models"
+                                                 (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})))))))))]
 
-    (js/console.debug data)
     (uix/use-effect
      (fn []
        (when (and is-edit (not is-loading))

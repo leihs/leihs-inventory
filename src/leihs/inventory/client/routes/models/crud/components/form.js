@@ -20,7 +20,7 @@ export const schema = z.object({
     )
     .optional(),
   categories: z
-    .array(z.object({ id: z.string(), name: z.string(), type: z.string() }))
+    .array(z.object({ id: z.string(), name: z.string() }))
     .optional(),
   images: z
     .array(
@@ -45,8 +45,6 @@ export const schema = z.object({
       z.object({
         product: z.string(),
         id: z.string(),
-        cover_image_id: z.string().nullish(),
-        cover_image_url: z.string().nullish(),
       }),
     )
     .optional(),

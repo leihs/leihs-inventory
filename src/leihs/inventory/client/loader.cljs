@@ -57,7 +57,7 @@
                             (if (:model-id (jc params))
                               ;; If a model-id is provided, filter out the current model
                               (filter #(not= (:model_id %) (:model-id (jc params)))
-                                      (jc (.-data res)))
+                                      (jc (.. res -data -data)))
                               ;; Otherwise, return all models
                               (jc (.. res -data -data))))))
 
@@ -66,7 +66,7 @@
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         model-path (when model-id
-                     (str "/inventory/" pool-id "/models/" model-id "/"))
+                     (str "/inventory/" pool-id "/models/" model-id))
 
         data (when model-path
                (-> http-client
