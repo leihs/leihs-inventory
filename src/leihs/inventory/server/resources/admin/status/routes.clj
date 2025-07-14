@@ -2,8 +2,8 @@
   (:require
    [clojure.set]
    [leihs.core.status :as status]
-   [leihs.inventory.server.resources.admin.status.types :refer [system-status-schema ]]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
+   [leihs.inventory.server.resources.admin.status.types :refer [system-status-schema]]
    [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

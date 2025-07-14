@@ -5,8 +5,8 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
 
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
@@ -25,10 +25,10 @@
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
-(:import [java.net URL JarURLConnection]
- (java.time LocalDateTime)
- [java.util UUID]
- [java.util.jar JarFile]))
+  (:import [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 (defn get-models-handler
   ([request]
@@ -43,34 +43,34 @@
                  search before_last_check]} (query-params request)
          {:keys [page size]} (fetch-pagination-params request)
          query (-> (base-inventory-query pool_id)
-                 (cond-> type (filter-by-type type))
-                 (cond->
-                   (and pool_id (true? with_items))
-                   (with-items pool_id
-                     :retired retired
-                     :borrowable borrowable
-                     :incomplete incomplete
-                     :broken broken
-                     :inventory_pool_id inventory_pool_id
-                     :owned owned
-                     :in_stock in_stock
-                     :before_last_check before_last_check)
+                   (cond-> type (filter-by-type type))
+                   (cond->
+                    (and pool_id (true? with_items))
+                     (with-items pool_id
+                       :retired retired
+                       :borrowable borrowable
+                       :incomplete incomplete
+                       :broken broken
+                       :inventory_pool_id inventory_pool_id
+                       :owned owned
+                       :in_stock in_stock
+                       :before_last_check before_last_check)
 
-                   (and pool_id (false? with_items))
-                   (without-items pool_id)
+                     (and pool_id (false? with_items))
+                     (without-items pool_id)
 
-                   (and pool_id (presence search))
-                   (with-search search))
-                 (cond-> category_id
-                   (#(from-category tx % category_id))))
+                     (and pool_id (presence search))
+                     (with-search search))
+                   (cond-> category_id
+                     (#(from-category tx % category_id))))
 
          post-fnc (fn [models]
                     (->> models
-                      (fetch-thumbnails-for-ids tx)
-                      (map (fn [m]
-                             (if-let [image-id (:image_id m)]
-                               (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
-                               m)))))]
+                         (fetch-thumbnails-for-ids tx)
+                         (map (fn [m]
+                                (if-let [image-id (:image_id m)]
+                                  (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
+                                  m)))))]
 
      (debug (sql-format query :inline true))
 
@@ -96,9 +96,9 @@
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                        (sql/values [prepared-model-data])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [prepared-model-data])
+                                          (sql/returning :*)
+                                          sql-format))
             res (filter-map-by-spec res :create-model/scheme)
             model-id (:id res)]
 

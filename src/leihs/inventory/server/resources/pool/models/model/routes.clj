@@ -4,10 +4,10 @@
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.main :as model]
-  [leihs.inventory.server.resources.pool.models.types :refer [     description-model-form]]
    [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
                                                                      put-response
                                                                      delete-response]]
+   [leihs.inventory.server.resources.pool.models.types :refer [description-model-form]]
    ;[leihs.inventory.server.resources.pool.models.model.update-model-form :refer [put-resource]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -18,8 +18,6 @@
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
-
-
 
 (defn routes []
   ["/:pool_id"
@@ -46,8 +44,7 @@
                :summary (fe "Form-Handler: Used to patch model-attributes")
                :coercion reitit.coercion.schema/coercion
 
-               :swagger {
-                         :produces "application/json"}
+               :swagger {:produces "application/json"}
 
                :description description-model-form
                :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]

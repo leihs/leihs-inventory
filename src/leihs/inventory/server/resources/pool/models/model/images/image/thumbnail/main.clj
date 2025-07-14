@@ -59,7 +59,7 @@
                     (sql/where [:= :i.thumbnail true])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
-          sql-format)
+                    sql-format)
           result (jdbc/execute-one! tx query)]
 
       (cond

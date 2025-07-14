@@ -22,20 +22,18 @@
 (def delete-response
 
   (sa/keys :req-un
-    [::deleted_attachments ::deleted_images ::deleted_model]))
+           [::deleted_attachments ::deleted_images ::deleted_model]))
 
 (sa/def ::deleted_attachments
   (sa/coll-of
-    (sa/keys :req-un [::sp/id ::sp/model_id ::sp/filename ::sp/size])))
+   (sa/keys :req-un [::sp/id ::sp/model_id ::sp/filename ::sp/size])))
 
 (sa/def ::deleted_images (sa/coll-of any?))
 
 (sa/def ::deleted_model
   (sa/coll-of
-    (sa/keys :req-un [::sp/id ::sp/product]
-      :opt-un [::sp/manufacturer])))
-
-
+   (sa/keys :req-un [::sp/id ::sp/product]
+            :opt-un [::sp/manufacturer])))
 
 (sa/def :model-get-put-response/inventory-model
   (st/spec {:spec (sa/keys :req-un [::sp/properties
@@ -47,9 +45,9 @@
                                     ::sp/categories
                                     ::sp/id
                                     ::sp/compatibles]
-                    :opt-un [:min/images
-                             :nil/hand_over_note
-                             :nil/internal_description
-                             ::sp/product])
+                           :opt-un [:min/images
+                                    :nil/hand_over_note
+                                    :nil/internal_description
+                                    ::sp/product])
 
             :description "Complete inventory response"}))

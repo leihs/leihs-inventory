@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.buildings.building.main :as building ]
+   [leihs.inventory.server.resources.pool.buildings.building.main :as building]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]

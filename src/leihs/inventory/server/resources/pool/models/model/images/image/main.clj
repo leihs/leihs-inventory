@@ -62,7 +62,7 @@
                     (sql/from [:images :i])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
-                      (sql/where [:= :i.thumbnail false])
+                    (sql/where [:= :i.thumbnail false])
                   ;; TODO: pool_id / model_id restrictions
                     sql-format)
           result (jdbc/execute-one! tx query)]

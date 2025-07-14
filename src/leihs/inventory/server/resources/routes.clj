@@ -11,8 +11,8 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
                                                         APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
    [leihs.inventory.server.resources.admin.status.routes :as admin-status]
+   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
@@ -137,7 +137,7 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [                     (models/routes)
+  (let [core-routes [(models/routes)
                      (model/routes)
                      (image/routes)
                      (images/routes)
@@ -168,11 +168,11 @@
         additional-routes (concat
                            (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
                              [(suppliers/routes)
-                             (fields/routes)
-                             (export-csv/routes)
-                             (export-excel/routes)
                               (fields/routes)
-                              (items/routes) ])
+                              (export-csv/routes)
+                              (export-excel/routes)
+                              (fields/routes)
+                              (items/routes)])
                            (when APPLY_DEV_ENDPOINTS
                              [(get-dev-routes)]))]
 

@@ -49,7 +49,6 @@
           (assoc :url (create-url pool_id (:id model) "images" cover-image-id)))))
     models)))
 
-
 ;; #####################
 
 (defn- allowed-keys [schema-map]
@@ -58,17 +57,15 @@
            (instance? schema.core.OptionalKey k) (:k k)
            (instance? schema.core.RequiredKey k) (:k k)
            :else k))
-    (keys schema-map)))
-
+       (keys schema-map)))
 
 (defn filter-map-by-schema [m spec]
   (let [keys-set (allowed-keys spec)]
-    (debug "selecting keys from:" m )
+    (debug "selecting keys from:" m)
     (debug "using keys:" keys-set)
     (select-keys m keys-set)))
 
 ;; #####################
-
 
 (defn- allowed-keys [spec]
   (let [resolved-spec (clojure.spec.alpha/get-spec spec)

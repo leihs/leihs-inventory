@@ -11,8 +11,7 @@
    [ring.util.response :as response]
    [schema.core :as s]
    [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]
-   ))
+   [spec-tools.data-spec :as ds]))
 
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
@@ -48,29 +47,29 @@
 (sa/def ::updated_at any?)
 (sa/def ::type (sa/and string? #{"Category"}))
 (sa/def ::category (sa/keys :opt-un [::name]
-                     :req-un [::id]))
+                            :req-un [::id]))
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
 (sa/def :put-post/categories
   (sa/coll-of ::id :kind vector? :min-count 0))
 (sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id :nil/url]
-                          :req-un [:nil/id :nil/product]))
+                                 :req-un [:nil/id :nil/product]))
 (sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url]
-                       :req-un [::id]))
+                              :req-un [::id]))
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
 (sa/def :min/compatible (sa/keys :opt-un [::product]
-                          :req-un [::id]))
+                                 :req-un [::id]))
 (sa/def :min/compatibles
   (sa/coll-of :min/compatible :kind vector? :min-count 0))
 (sa/def ::images_to_delete string?)
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
-                   :single ::file))
+                        :single ::file))
 (sa/def ::image (sa/keys :opt-un [::is_cover :nil/url]
-                  :req-un [::id ::filename]))
+                         :req-un [::id ::filename]))
 (sa/def ::attachment (sa/keys :opt-un [:nil/url]
-                       :req-un [::id ::filename]))
+                              :req-un [::id ::filename]))
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
 (sa/def ::is_cover boolean?)
@@ -83,8 +82,8 @@
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
 (sa/def ::quantity int?)
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
-                            :req-un [:entitlement/group_id
-                                     ::quantity]))
+                                   :req-un [:entitlement/group_id
+                                            ::quantity]))
 (sa/def ::entitlements
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
@@ -240,7 +239,6 @@
 (sa/def ::technical_detail string?)
 (sa/def :any/id any?) ;; UUID spec
 (sa/def :nil/info_url (sa/nilable string?))
-
 
 (sa/def ::id uuid?)
 (sa/def ::model_id uuid?)
