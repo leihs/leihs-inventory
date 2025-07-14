@@ -25,17 +25,16 @@
   - i: items
   - it: items (for items that are children of item i)"
   [is_deletable]
-  (-> (sql/select-distinct :m.*
-                           [[:raw "CASE
-                                   WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   ELSE false
-                                   END"]
-                            :is_deletable])
-      (sql/from [:models :m])
-      (sql/left-join [:items :i] [:= :m.id :i.model_id])
-      (sql/left-join [:items :it] [:= :it.parent_id :i.id])))
+  (-> (h/select-distinct
+        :m.*
+        [[:case
+          [:and [:= :m.is_package true] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
+          [:and [:= :m.is_package false] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
+          [:and [:= :m.is_package false] [:= :m.type "Software"] [:= :i.id nil] [:= :it.id nil]] true
+          :else false] :is_deletable])
+    (h/from [:models :m])
+    (h/left-join [:items :i] [:= :m.id :i.model_id])
+    (h/left-join [:items :it] [:= :it.parent_id :i.id])))
 
 (defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
   (if (nil? is_deletable)
