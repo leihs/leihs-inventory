@@ -39,15 +39,15 @@
 
 (sa/def :create-model/scheme
   (sa/keys
-    :req-un [:nil-str/is_package
+    :req-un [::sp/is_package
              ::sp/product
              ::sp/id]
     :opt-un [::sp/properties
              :nil/description
              :nil/hand_over_note
-             ::sp/manufacturer
-             ::sp/version
-             ::sp/technical_detail
+             :nil/manufacturer
+             :nil/version
+             :nil/technical_detail
              :nil/internal_description
              ::sp/accessories
              ::sp/entitlements
@@ -97,7 +97,8 @@
     :req-un [::sp/product]
     :opt-un [::sp/version
              ::sp/manufacturer
-             :nil-str/is_package
+             ;:nil-str/is_package
+             :nil/is_package
              :nil/description
              ::sp/technical_detail
              :nil/internal_description

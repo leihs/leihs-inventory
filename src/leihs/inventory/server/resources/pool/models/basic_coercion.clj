@@ -22,6 +22,8 @@
 (sa/def :nil/version (sa/nilable string?))
 (sa/def :nil/manufacturer (sa/nilable string?))
 (sa/def :nil-str/is_package (sa/nilable string?))
+(sa/def :nil/is_package (sa/nilable boolean?))
+(sa/def ::is_package boolean?)
 (sa/def :nil/description (sa/nilable string?))
 (sa/def :nil/technical_detail (sa/nilable string?))
 (sa/def :nil/internal_description (sa/nilable string?))
