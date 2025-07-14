@@ -2,7 +2,6 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.items.item.main :refer [get-resource]]
    [leihs.inventory.server.resources.pool.models.model.items.item.types :refer [get-item-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]

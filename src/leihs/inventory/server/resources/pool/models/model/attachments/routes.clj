@@ -3,7 +3,6 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [post-resource
                                                                                 index-resources]]
    [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [get-attachments-response
