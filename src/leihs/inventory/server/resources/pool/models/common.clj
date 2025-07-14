@@ -48,3 +48,52 @@
           (and (= "models" origin_table) cover-image-id)
           (assoc :url (create-url pool_id (:id model) "images" cover-image-id)))))
     models)))
+
+;; #####################
+
+(defn- allowed-keys-schema [schema-map]
+  (map (fn [k]
+         (cond
+           (instance? schema.core.OptionalKey k) (:k k)
+           (instance? schema.core.RequiredKey k) (:k k)
+           :else k))
+       (keys schema-map)))
+
+(defn filter-map-by-schema [m spec]
+  (let [keys-set (allowed-keys-schema spec)]
+    (debug "selecting keys from:" m)
+    (debug "using keys:" keys-set)
+    (select-keys m keys-set)))
+
+;; #####################
+
+(defn- allowed-keys-spec [spec]
+  (let [resolved-spec (clojure.spec.alpha/get-spec spec)
+        _ (debug "resolved-spec:" resolved-spec)
+        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))
+        _ (debug "spec-form:" spec-form)]
+    (cond
+      (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
+      (let [args (apply hash-map (rest spec-form))
+            _ (debug "args:" args)
+            req-keys (map #(do (debug "req-un-key:" %) (-> % name keyword)) (get args :req-un))
+            opt-keys (map #(do (debug "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
+        (debug "req-keys:" req-keys)
+        (debug "opt-keys:" opt-keys)
+        (set (concat req-keys opt-keys)))
+      (qualified-keyword? spec)
+      #{(keyword (name spec))}
+
+      :else
+      #{})))
+
+(defn filter-map-by-spec [m spec]
+  (let [keys-set (allowed-keys-spec spec)]
+    (debug "selecting keys from:" m "using keys:" keys-set)
+    (select-keys m keys-set)))
+
+(defn filter-and-coerce-by-spec
+  [models spec]
+  (->> models
+       remove-nil-values
+       (mapv #(filter-map-by-spec % spec))))

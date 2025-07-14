@@ -62,16 +62,15 @@
                     (sql/from [:images :i])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
-
+                    (sql/where [:= :i.thumbnail false])
                   ;; TODO: pool_id / model_id restrictions
                     sql-format)
-          ;result (jdbc/query tx query)]
-          result (jdbc/execute! tx query)]
+          result (jdbc/execute-one! tx query)]
 
       (cond
         (and json-request? image_id) (response result)
         (and json-request? (nil? image_id)) (response {:data result})
-        (and (not json-request?) image_id) (convert-base64-to-byte-stream (first result))))
+        (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

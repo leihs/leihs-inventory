@@ -3,9 +3,8 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.manufacturers.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.manufacturers.main :as manufacturers]
    [leihs.inventory.server.resources.pool.manufacturers.types :refer [response-schema]]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -16,7 +15,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-manufacturers-routes []
+(defn routes []
   ["/:pool_id/"
    {:swagger {:tags [""]}}
 
@@ -34,7 +33,7 @@
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
-           :handler index-resources
+           :handler manufacturers/index-resources
            :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
                                 (s/optional-key :search-term) s/Str
                                 (s/optional-key :in-detail) (s/enum "true" "false")}}

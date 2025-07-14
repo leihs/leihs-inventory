@@ -2,8 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
-   [leihs.inventory.server.resources.pool.models.model.items.main :refer [index-resources]]
+   [leihs.inventory.server.resources.pool.models.model.items.main :as items]
    [leihs.inventory.server.resources.pool.models.model.items.types :refer [get-items-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -14,7 +13,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-models-items-route []
+(defn routes []
   ["/:pool_id"
 
    {:swagger {:tags [""]}}
@@ -30,9 +29,8 @@
                                     :model_id s/Uuid
                                     (s/optional-key :page) s/Int
                                     (s/optional-key :size) s/Int}}
-                :handler index-resources
+                :handler items/index-resources
                 :responses {200 {:description "OK"
-                                 ;:body (s/->Either [s/Any schema])} ;;FIXME
                                  :body get-items-response}
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]]])

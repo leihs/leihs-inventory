@@ -21,7 +21,7 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-(defn get-session-public-routes []
+(defn routes []
   ["/"
 
    {:no-doc HIDE_BASIC_ENDPOINTS}

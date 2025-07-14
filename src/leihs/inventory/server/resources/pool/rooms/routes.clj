@@ -11,7 +11,7 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn get-rooms-routes []
+(defn routes []
   ["/:pool_id"
    {:swagger {:tags [""]}}
 

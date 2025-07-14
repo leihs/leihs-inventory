@@ -102,18 +102,38 @@ describe "Inventory Model" do
             @upload_response = upload_image(path_valid_png)
           end
 
-          it "allows fetching the uploaded image" do
+          it "allows fetching the uploaded image as json" do
             image_id = @upload_response.body["image"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}"
             expect(resp.status).to eq(200)
           end
 
-          it "allows fetching the uploaded image thumbnail" do
+          it "allows fetching the uploaded image as image" do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}" do |req|
+              req.headers["Accept"] = "image/jpeg"
+            end
+            expect(resp.status).to eq(200)
+            expect(resp.headers["content-type"]).to eq("image/png")
+          end
+
+          it "allows fetching the uploaded image thumbnail as json" do
             image_id = @upload_response.body["image"]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail"
             expect(resp.status).to eq(200)
+          end
+
+          it "allows fetching the uploaded image thumbnail as image" do
+            image_id = @upload_response.body["image"]["id"]
+
+            resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail" do |req|
+              req.headers["Accept"] = "image/jpeg"
+            end
+            expect(resp.status).to eq(200)
+            expect(resp.headers["content-type"]).to eq("image/png")
           end
 
           it "returns 404 for customers when accessing model images, otherwise returns image info without is_cover set" do

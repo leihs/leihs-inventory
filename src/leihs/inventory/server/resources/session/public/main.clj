@@ -1,11 +1,4 @@
-(ns leihs.inventory.server.resources.session.public.main
-  ;(:require
-  ; [ring.util.response :as response]
-  ; [schema.core :as s])
-  ;(:import (com.google.common.io BaseEncoding)
-  ;         (java.time Duration Instant)
-  ;         (java.util Base64 UUID))
-  )
+(ns leihs.inventory.server.resources.session.public.main)
 
 (defn get-resource [request]
   {:status 200

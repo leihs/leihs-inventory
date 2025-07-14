@@ -104,7 +104,7 @@ describe "Inventory Model" do
             expect(resp.status).to eq(200)
           end
 
-          it "fetches attachment22" do
+          it "verify attachment exists" do
             attachment_id = @upload_response.body[0]["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"

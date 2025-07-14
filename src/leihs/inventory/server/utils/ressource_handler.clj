@@ -6,7 +6,6 @@
    [clojure.walk :refer [keywordize-keys]]
    [leihs.core.auth.session :as session]
    [leihs.core.db :as db]
-   ;[leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
    [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]

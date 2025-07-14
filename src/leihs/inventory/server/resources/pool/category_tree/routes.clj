@@ -5,8 +5,8 @@
    [leihs.core.resources.categories.filter :as filter]
    [leihs.core.resources.categories.tree :refer [tree]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.category-tree.main :refer [index-resources]]
-   [leihs.inventory.server.resources.pool.category-tree.types :as t]
+   [leihs.inventory.server.resources.pool.category-tree.main :as category-tree]
+   [leihs.inventory.server.resources.pool.category-tree.types :as types]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
@@ -15,7 +15,7 @@
    [ring.util.response :as response]
    [schema.core :as s]))
 
-(defn get-category-tree-route []
+(defn routes []
 
   ["/:pool_id/category-tree/"
    {:swagger {:tags [""]}}
@@ -43,10 +43,10 @@ Example Metadata:
 }
 ```"
            :coercion spec/coercion
-           :parameters {:query (sa/keys :opt-un [::t/with-metadata])
+           :parameters {:query (sa/keys :opt-un [::types/with-metadata])
                         :path {:pool_id uuid?}}
-           :handler index-resources
+           :handler category-tree/index-resources
            :responses {200 {:description "OK"
-                            :body ::t/response-body}
+                            :body ::types/response-body}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])

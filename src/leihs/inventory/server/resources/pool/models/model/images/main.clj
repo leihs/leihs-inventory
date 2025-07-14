@@ -86,6 +86,7 @@
      (when (and (contains? m k) (= "" (get m k)))
        (throw (ex-info (str "Field '" k "' cannot be an empty string.")
                        (merge {:key k :map m} (when scope {:scope scope}))))))))
+
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
