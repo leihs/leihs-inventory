@@ -2,7 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
+   ;[leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.items.main :refer [index-resources]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]

@@ -9,7 +9,10 @@
    [leihs.inventory.server.resources.pool.common :refer [remove-nil-entries-fnc]]
    [leihs.inventory.server.resources.pool.models.coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
-                                                                remove-nil-values]]
+                                                                remove-nil-values
+                                                                filter-map-by-spec
+
+                                                                filter-and-coerce-by-spec]]
 
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
@@ -17,40 +20,40 @@
    [taoensso.timbre :refer [error debug]])
   (:import [java.time LocalDateTime]
            [java.util UUID]))
+;
+;(defn allowed-keys [spec]
+;  (let [resolved-spec (clojure.spec.alpha/get-spec spec)
+;        _ (debug "resolved-spec:" resolved-spec)
+;        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))
+;        _ (debug "spec-form:" spec-form)]
+;    (cond
+;      ;; keys spec: extract unqualified names
+;      (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
+;      (let [args (apply hash-map (rest spec-form))
+;            _ (debug "args:" args)
+;            req-keys (map #(do (debug "req-un-key:" %) (-> % name keyword)) (get args :req-un))
+;            opt-keys (map #(do (debug "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
+;        (debug "req-keys:" req-keys)
+;        (debug "opt-keys:" opt-keys)
+;        (set (concat req-keys opt-keys)))
+;
+;      ;; scalar spec with qualified keyword name
+;      (qualified-keyword? spec)
+;      #{(keyword (name spec))}
+;
+;      :else
+;      #{})))
+;
+;(defn filter-map-by-spec [m spec]
+;  (let [keys-set (allowed-keys spec)]
+;    (debug "selecting keys from:" m "using keys:" keys-set)
+;    (select-keys m keys-set)))
 
-(defn allowed-keys [spec]
-  (let [resolved-spec (clojure.spec.alpha/get-spec spec)
-        _ (debug "resolved-spec:" resolved-spec)
-        spec-form (when resolved-spec (clojure.spec.alpha/form resolved-spec))
-        _ (debug "spec-form:" spec-form)]
-    (cond
-      ;; keys spec: extract unqualified names
-      (and (seq? spec-form) (= 'clojure.spec.alpha/keys (first spec-form)))
-      (let [args (apply hash-map (rest spec-form))
-            _ (debug "args:" args)
-            req-keys (map #(do (debug "req-un-key:" %) (-> % name keyword)) (get args :req-un))
-            opt-keys (map #(do (debug "opt-un-key:" %) (-> % name keyword)) (get args :opt-un))]
-        (debug "req-keys:" req-keys)
-        (debug "opt-keys:" opt-keys)
-        (set (concat req-keys opt-keys)))
-
-      ;; scalar spec with qualified keyword name
-      (qualified-keyword? spec)
-      #{(keyword (name spec))}
-
-      :else
-      #{})))
-
-(defn filter-map-by-spec [m spec]
-  (let [keys-set (allowed-keys spec)]
-    (debug "selecting keys from:" m "using keys:" keys-set)
-    (select-keys m keys-set)))
-
-(defn filter-and-coerce-by-spec
-  [models spec]
-  (->> models
-       remove-nil-values
-       (mapv #(filter-map-by-spec % spec))))
+;(defn filter-and-coerce-by-spec
+;  [models spec]
+;  (->> models
+;       remove-nil-values
+;       (mapv #(filter-map-by-spec % spec))))
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx

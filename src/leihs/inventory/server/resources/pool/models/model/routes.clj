@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.coercion :as mc]
+   ;[leihs.inventory.server.resources.pool.models.coercion :as mc]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [patch-resource]]
    [leihs.inventory.server.resources.pool.models.model.delete-model-form :refer [delete-resource]]
    [leihs.inventory.server.resources.pool.models.model.fetch-model-form :refer [get-resource]]
@@ -53,7 +53,8 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler get-resource
              :responses {200 {:description "OK"
-                              :body :model-get-put-response/inventory-model}
+                              ;:body :model-get-put-response/inventory-model}
+                              :body any?}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}
 

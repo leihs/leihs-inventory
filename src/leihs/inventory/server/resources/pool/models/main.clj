@@ -4,7 +4,9 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.coercion :as co :refer [model-scheme]]
+
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema filter-map-by-spec filter-and-coerce-by-spec]]
+   ;[leihs.inventory.server.resources.pool.models.coercion :as co :refer [model-scheme]]
    [leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
@@ -114,7 +116,10 @@
                                         (sql/values [prepared-model-data])
                                         (sql/returning :*)
                                         sql-format))
-            res (keep-attr-not-nil res ALLOWED_RESPONSE_ATTRS)
+            ;res (keep-attr-not-nil res ALLOWED_RESPONSE_ATTRS)
+
+res (filter-map-by-spec res :create-model/scheme)
+
 
             model-id (:id res)]
 
