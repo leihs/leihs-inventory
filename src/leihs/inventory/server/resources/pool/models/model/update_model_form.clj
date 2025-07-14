@@ -4,24 +4,12 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [keep-attr-not-nil]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer :all]
+   [leihs.inventory.server.resources.pool.models.common :refer [  filter-map-by-spec]]
+
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
-
-(def ALLOWED_RESPONSE_ATTRS
-  [:description
-   :is_package
-   :name
-   :cover_image_id
-   :hand_over_note
-   :internal_description
-   :product
-   :id
-   :manufacturer
-   :version
-   :cover_image_id
-   :technical_detail])
 
 (defn update-model-handler [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
@@ -37,7 +25,8 @@
                                    sql-format)
             updated-model (-> (jdbc/execute-one! tx update-model-query)
                               (filter-response [:rental_price]))
-            updated-model (keep-attr-not-nil updated-model ALLOWED_RESPONSE_ATTRS)]
+            updated-model (filter-map-by-spec updated-model :create-model/scheme)
+            ]
         (process-entitlements tx entitlements model-id)
         (process-properties tx properties model-id)
         (process-accessories tx accessories model-id pool-id)
