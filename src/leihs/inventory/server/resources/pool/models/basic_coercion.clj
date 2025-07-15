@@ -54,7 +54,7 @@
   (sa/coll-of ::id :kind vector? :min-count 0))
 (sa/def :nil/compatible (sa/keys :opt-un [::cover_image_id :nil/url]
                                  :req-un [:nil/id :nil/product]))
-(sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url]
+(sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url :nil/version]
                               :req-un [::id]))
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
