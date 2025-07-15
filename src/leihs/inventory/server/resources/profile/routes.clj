@@ -1,14 +1,15 @@
 (ns leihs.inventory.server.resources.profile.routes
   (:require
-   [clojure.set]
+   ;[clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :refer [get-resource]]
    [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate!]]
    ;[reitit.coercion.schema]
    ;[reitit.coercion.spec]
-   [ring.middleware.accept]
-   [schema.core :as s]))
+   ;[ring.middleware.accept]
+   ;[schema.core :as s]
+    ))
 
 (defn routes []
   ["/"

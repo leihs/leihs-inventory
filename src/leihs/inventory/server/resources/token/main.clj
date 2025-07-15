@@ -68,4 +68,3 @@
       (response/status
        (response/response {:status "failure" :message "Invalid or missing credentials"})
        401))))
-

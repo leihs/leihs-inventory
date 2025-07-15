@@ -48,7 +48,7 @@
      (let [result (if (instance? String value) (UUID/fromString value) value)]
        result)
      (catch Exception e
-       (warn ">>> DEV-ERROR in to-uuid[value], value=" value ", exception=" (.getMessage e))
+       (warn "DEV-ERROR in to-uuid[value], value=" value ", exception=" (.getMessage e))
        value)))
 
   ([value key]

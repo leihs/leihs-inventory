@@ -21,4 +21,3 @@
           {200 {:description "OK"
                 :body system-status-schema}
            500 {:description "Internal Server Error"}}}}])
-
