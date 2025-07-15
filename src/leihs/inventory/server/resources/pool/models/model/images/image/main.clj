@@ -7,7 +7,7 @@
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.io ByteArrayInputStream]
            [java.util Base64]))
@@ -63,11 +63,14 @@
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
                     (sql/where [:= :i.thumbnail false])
+                    (cond-> (not json-request?)
+                      (sql/where [:= :i.content_type accept-header]))
                   ;; TODO: pool_id / model_id restrictions
                     sql-format)
           result (jdbc/execute-one! tx query)]
 
       (cond
+        (nil? result) (status (response {:status "failure" :message "No image found"}) 404)
         (and json-request? image_id) (response result)
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))

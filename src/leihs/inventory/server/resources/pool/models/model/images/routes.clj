@@ -3,10 +3,10 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.images.main :refer [post-resource
-                                                                           index-resources]]
+   [leihs.inventory.server.resources.pool.models.model.images.main :as images]
    [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-images-response
-                                                                            image]]
+                                                                            image
+                                                                            post-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -39,8 +39,8 @@
                   :parameters {:path {:pool_id s/Uuid
                                       :model_id s/Uuid}
                                :header {:x-filename s/Str}}
-                  :handler post-resource
-                  :responses {200 {:description "OK" :body s/Any}
+                  :handler images/post-resource
+                  :responses {200 {:description "OK" :body post-response}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
                               413 {:description "Payload Too Large"}
@@ -54,7 +54,7 @@
                                      :model_id s/Uuid}
                               :query {(s/optional-key :page) s/Int
                                       (s/optional-key :size) s/Int}}
-                 :handler index-resources
+                 :handler images/index-resources
                  :responses {200 {:description "OK"
                                   :body get-images-response}
                              404 {:description "Not Found"}

@@ -22,7 +22,7 @@
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
           attachment-request? (valid-attachment-uri? uri)]
 
-      (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/jpeg"]))
+      (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/"]))
               (some #(= % uri) whitelist-uris-for-api)
               image-or-thumbnail-request?
               attachment-request?)
@@ -34,10 +34,6 @@
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           updated-request (cond
-                            (and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
-                                 (valid-image-or-thumbnail-uri? uri))
-                            (assoc-in request [:headers "accept"] "image/jpeg")
-
                             (and (str/includes? accept-header "text/html")
                                  (valid-attachment-uri? uri))
                             (assoc-in request [:headers "accept"] "application/octet-stream")

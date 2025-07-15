@@ -16,7 +16,7 @@
     :else x))
 
 (defn- get-one-thumbnail-query [tx {:keys [id cover_image_id] :as model-cover-id}]
-  (let [res (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename)
+  (let [res (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename :content_type)
                                       (sql/from :images)
                                       (cond-> (nil? cover_image_id) (sql/where [:= :target_id id]))
                                       (cond-> (not (nil? cover_image_id)) (sql/where [:or

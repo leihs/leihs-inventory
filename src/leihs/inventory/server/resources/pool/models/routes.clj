@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.main :refer [post-resource index-resources]]
+   [leihs.inventory.server.resources.pool.models.main :as models]
    [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response
                                                                description-model-form]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
@@ -49,7 +49,7 @@
                                  (s/optional-key :type) (s/enum :model :software :option :package)
                                  (s/optional-key :with_items) s/Bool}}
 
-            :handler index-resources
+            :handler models/index-resources
 
             :responses {200 {:description "OK"
                              :body get-response}
@@ -63,7 +63,7 @@
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :parameters {:path {:pool_id uuid?}
                           :body :model/multipart}
-             :handler post-resource
+             :handler models/post-resource
              :responses {200 {:description "OK"
                               :body post-response}
                          404 {:description "Not Found"}

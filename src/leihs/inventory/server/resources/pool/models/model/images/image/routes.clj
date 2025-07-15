@@ -2,7 +2,8 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.images.image.main :refer [delete-resource get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.main :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-400-response delete-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -21,11 +22,11 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :middleware [accept-json-image-middleware]
-           :swagger {:produces ["application/json" "image/jpeg"]}
+           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid}}
-           :handler get-resource
+           :handler image/get-resource
            :responses {200 {:description "OK"
                             :body s/Any}
                        ;:body get-image-response}       ;;FIXME: by content-type
@@ -38,7 +39,7 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :image_id s/Uuid}}
-              :handler delete-resource
+              :handler image/delete-resource
               :responses {200 {:description "OK"
                                :body delete-response}
                           400 {:description "Not Found"

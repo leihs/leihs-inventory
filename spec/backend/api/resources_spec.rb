@@ -6,18 +6,18 @@ describe "Call swagger-endpoints" do
       "/inventory/assets/locales/de/translation.json" => 200,
       "/inventory/assets/locales/en/translation.json" => 200,
 
-      "/inventory/assets/css/additional.css" => 200,
+      "/inventory/assets/css/additional.css" => 302,
 
       "/inventory/api-docs/swagger.json" => 200,
       "/inventory/api-docs/index.html" => 200,
       "/inventory/api-docs/" => 302,
       "/inventory/api-docs" => 302,
 
-      "/inventory/assets/zhdk-logo.svg" => 200,
+      "/inventory/assets/zhdk-logo.svg" => 302,
 
-      "/inventory/assets/js/main.js" => 200,
-      "/inventory/assets/js/libs.js" => 200,
-      "/inventory/assets/css/style.css" => 200
+      "/inventory/assets/js/main.js" => 302,
+      "/inventory/assets/js/libs.js" => 302,
+      "/inventory/assets/css/style.css" => 302
     }.each do |url, code|
       it "accessing #{url}    results in expected status-code" do
         response = plain_faraday_client.get(url)

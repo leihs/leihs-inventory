@@ -26,5 +26,3 @@
     (catch Exception e
       (error "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))
-
-

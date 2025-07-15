@@ -367,7 +367,12 @@ shared_context :setup_access_rights do
     @image = FactoryBot.create(:image, :for_category)
     @filename = @image.filename
 
-    @image = FactoryBot.create(:image, :for_leihs_model)
+    @thumbnail = FactoryBot.create(:image, :for_leihs_model,
+      thumbnail: true)
+
+    @image = FactoryBot.create(:image, :for_leihs_model,
+      thumbnails: [@thumbnail])
+
     @filename = @image.filename
   end
 end

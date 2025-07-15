@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.token.routes
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.main :refer [post-resource]]
+   [leihs.inventory.server.resources.token.main :as token]
    [schema.core :as s])
   (:import (com.google.common.io BaseEncoding)
            (java.time Duration Instant)
@@ -25,4 +25,4 @@
                                            :write s/Bool
                                            :admin_read s/Bool
                                            :admin_write s/Bool}}}
-              :handler post-resource}}]]]])
+              :handler token/post-resource}}]]]])

@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes
   (:require
    [clojure.set]
-   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :refer [get-resource]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :as image-thumbnail]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -17,12 +18,11 @@
     {:get {:description "Determines image thumbnail by targetID"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-image-middleware]
-           :swagger {:produces ["application/json" "image/jpeg"]}
+           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :image_id s/Uuid}}
-           :handler get-resource
+           :handler image-thumbnail/get-resource
            :responses {200 {:description "OK"}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}]])
