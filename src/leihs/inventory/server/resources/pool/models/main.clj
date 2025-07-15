@@ -69,7 +69,7 @@
                          (map (fn [m]
                                 (if-let [image-id (:image_id m)]
                                   (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
-                                    :content_type (:content_type m))
+                                         :content_type (:content_type m))
                                   m)))))]
 
      (debug (sql-format query :inline true))
