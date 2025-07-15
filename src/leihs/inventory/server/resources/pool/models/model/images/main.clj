@@ -6,6 +6,12 @@
    [clojure.java.io :as io]
    [clojure.java.shell :refer [sh]]
    [clojure.set :as set]
+
+   [leihs.inventory.server.resources.pool.models.model.images.types :as types]
+
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
+                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
+
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
@@ -60,8 +66,14 @@
                                 filter-keys-images)
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                         (sql/values [main-image-data])
-                                                        image-response-format
+                                                        ;image-response-format
+                                                      (sql/returning :*)
                                                         sql-format))
+
+            main-image-result (filter-map-by-schema main-image-result types/image)
+
+
+            p (println ">o> abc.main-image-result" main-image-result)
 
             thumb-data (resize-and-convert-to-base64 file-full-path)
 
@@ -69,10 +81,17 @@
                                filter-keys-images)
             thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                        (sql/values [thumbnail-data])
-                                                       image-response-format
+                                                       ;image-response-format
+                                                     (sql/returning :*)
                                                        sql-format))
-            data {:image main-image-result :thumbnail thumbnail-result :model_id model_id :content_type (:content_type main-image-result)
-                  :filename (:filename main-image-result) :size (:size main-image-result)}]
+            thumbnail-result (filter-map-by-schema thumbnail-result types/image)
+
+
+
+            data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}
+            data (filter-map-by-schema data types/post-response)
+
+            ]
         (status (response data) 200)))
 
     (catch Exception e

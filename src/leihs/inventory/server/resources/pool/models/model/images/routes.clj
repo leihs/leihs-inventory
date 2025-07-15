@@ -5,7 +5,8 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.images.main :as images]
    [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-images-response
-                                                                            image]]
+                                                                            image
+                                                                            post-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -39,7 +40,7 @@
                                       :model_id s/Uuid}
                                :header {:x-filename s/Str}}
                   :handler images/post-resource
-                  :responses {200 {:description "OK" :body s/Any}
+                  :responses {200 {:description "OK" :body post-response}
                               404 {:description "Not Found"}
                               411 {:description "Length Required"}
                               413 {:description "Payload Too Large"}
