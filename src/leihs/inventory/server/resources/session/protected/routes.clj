@@ -13,12 +13,9 @@
    ;[digest :as d]
    ;[honey.sql :refer [format] :rename {format sql-format}]
    ;[honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS ]]
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.session.protected.main :refer [get-resource]]
-   [leihs.inventory.server.utils.auth.session :as ab]
-   ;[ring.util.response :as response]
-   ;[schema.core :as s]
-   )
+   [leihs.inventory.server.utils.auth.session :as ab])
   (:import (com.google.common.io BaseEncoding)
            (java.time Duration Instant)
            (java.util Base64 UUID)))

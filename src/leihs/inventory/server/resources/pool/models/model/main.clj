@@ -50,12 +50,12 @@
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
-                    :i.id
-                    :i.filename
-                    [[:case
-                      [:= :m.cover_image_id :i.id] true
-                      :else false]
-                     :is_cover])
+                   :i.id
+                   :i.filename
+                   [[:case
+                     [:= :m.cover_image_id :i.id] true
+                     :else false]
+                    :is_cover])
                   (sql/from [:models :m])
                   (sql/right-join [:images :i] [:= :i.target_id :m.id])
                   (sql/where [:and [:= :m.id model-id] [:= :i.thumbnail false]])

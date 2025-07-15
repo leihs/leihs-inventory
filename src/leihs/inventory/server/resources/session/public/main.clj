@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.session.public.main )
+(ns leihs.inventory.server.resources.session.public.main)
 
 (defn get-resource [request]
   {:status 200
