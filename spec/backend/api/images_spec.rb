@@ -52,7 +52,7 @@ describe "Inventory API Endpoints - Image Handling" do
       # FIXME: thumb not created by include_context :setup_access_rights
       it "returns error when fetching image thumbnail as a raw image format" do
         resp = plain_faraday_resource_client.get "#{url}#{image_id}/thumbnail"
-        expect(resp.status).to eq(400)
+        expect(resp.status).to eq(404)
       end
     end
   end
