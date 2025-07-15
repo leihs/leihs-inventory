@@ -6,7 +6,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.utils.request :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.io ByteArrayInputStream]
            [java.util Base64]))
@@ -59,10 +59,13 @@
                     (sql/where [:= :i.thumbnail true])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
+                    (cond-> (not json-request?)
+                      (sql/where [:= :i.content_type accept-header]))
                     sql-format)
           result (jdbc/execute-one! tx query)]
 
       (cond
+        (nil? result) (status (response {:status "failure" :message "No thumbnail found"}) 404)
         (and json-request? image_id) (response result)
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))

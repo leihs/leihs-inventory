@@ -5,10 +5,14 @@
 (def image
   {:id s/Uuid
    :target_id s/Uuid
-
+   :content_type s/Str
    :filename s/Str
    :size s/Int
    :thumbnail s/Bool})
+
+(def post-response {:image image
+                    :thumbnail image
+                    :model_id s/Uuid})
 
 (def get-images-response
   {:data [image]

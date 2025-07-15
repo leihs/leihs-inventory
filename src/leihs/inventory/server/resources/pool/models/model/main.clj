@@ -44,14 +44,16 @@
 
 (defn fetch-attachments [tx model-id pool-id]
 
-  (let [attachments (->> (select-entries tx :attachments [:id :filename] [:= :model_id model-id])
-                         (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %)))))]
+  (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
+                         (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
+                                      :content_type (:content_type %))))]
     (filter-and-coerce-by-spec attachments ::co/attachment)))
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
                    :i.id
                    :i.filename
+                   :i.content_type
                    [[:case
                      [:= :m.cover_image_id :i.id] true
                      :else false]
@@ -63,6 +65,7 @@
         images (jdbc/execute! tx query)
         images-with-urls (mapv (fn [{:keys [id] :as row}]
                                  (assoc row
+                                        :content_type (:content_type row)
                                         :url (str "/inventory/" pool-id "/models/" model-id "/images/" id)))
                                images)
         filtered-images (filter-and-coerce-by-spec images-with-urls ::co/image)]

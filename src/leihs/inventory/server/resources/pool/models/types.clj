@@ -23,7 +23,7 @@
    - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 
 (sa/def ::image_attribute (sa/keys :opt-un [:image/filename
-                                            :image/content_type
+                                            :upload/content_type
                                             :image/url
                                             :image/to_delete
                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
@@ -76,6 +76,7 @@
    (s/optional-key :created_at) (s/maybe s/Any)
    (s/optional-key :updated_at) (s/maybe s/Any)
    (s/optional-key :cover_image_id) (s/maybe s/Any)
+   (s/optional-key :content_type) (s/maybe s/Str)
    (s/optional-key :image_url) (s/maybe s/Str)})
 
 (def get-models-response-payload

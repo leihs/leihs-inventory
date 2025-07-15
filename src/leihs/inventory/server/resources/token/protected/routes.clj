@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.token.protected.routes
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.protected.main :refer [get-resource wrap-token-authentication]]
+   [leihs.inventory.server.resources.token.protected.main :as token-protected]
    [ring.util.response :as response]
    [schema.core :as s])
   (:import (com.google.common.io BaseEncoding)
@@ -21,5 +21,5 @@
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:apiAuth []}]}
-             :handler get-resource
-             :middleware [wrap-token-authentication]}}]]]])
+             :handler token-protected/get-resource
+             :middleware [token-protected/wrap-token-authentication]}}]]]])

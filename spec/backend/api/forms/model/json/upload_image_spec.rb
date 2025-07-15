@@ -111,9 +111,10 @@ describe "Inventory Model" do
 
           it "allows fetching the uploaded image as image" do
             image_id = @upload_response.body["image"]["id"]
+            image_content_type = @upload_response.body["image"]["content_type"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}" do |req|
-              req.headers["Accept"] = "image/jpeg"
+              req.headers["Accept"] = image_content_type
             end
             expect(resp.status).to eq(200)
             expect(resp.headers["content-type"]).to eq("image/png")
@@ -128,9 +129,10 @@ describe "Inventory Model" do
 
           it "allows fetching the uploaded image thumbnail as image" do
             image_id = @upload_response.body["image"]["id"]
+            image_content_type = @upload_response.body["image"]["content_type"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}/thumbnail" do |req|
-              req.headers["Accept"] = "image/jpeg"
+              req.headers["Accept"] = image_content_type
             end
             expect(resp.status).to eq(200)
             expect(resp.headers["content-type"]).to eq("image/png")

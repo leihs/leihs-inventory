@@ -4,8 +4,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema filter-map-by-spec]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
+                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
@@ -68,7 +68,8 @@
                          (fetch-thumbnails-for-ids tx)
                          (map (fn [m]
                                 (if-let [image-id (:image_id m)]
-                                  (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id))
+                                  (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
+                                         :content_type (:content_type m))
                                   m)))))]
 
      (debug (sql-format query :inline true))

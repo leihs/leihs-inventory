@@ -9,6 +9,9 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
+                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.model.images.types :as types]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
@@ -60,18 +63,21 @@
                                 filter-keys-images)
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                         (sql/values [main-image-data])
-                                                        image-response-format
+                                                        (sql/returning :*)
                                                         sql-format))
+            main-image-result (filter-map-by-schema main-image-result types/image)
 
             thumb-data (resize-and-convert-to-base64 file-full-path)
-
             thumbnail-data (-> (assoc main-image-data :content (:base64 thumb-data) :size (:file-size thumb-data) :thumbnail true :parent_id (:id main-image-result))
                                filter-keys-images)
             thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                        (sql/values [thumbnail-data])
-                                                       image-response-format
+                                                       (sql/returning :*)
                                                        sql-format))
-            data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
+            thumbnail-result (filter-map-by-schema thumbnail-result types/image)
+
+            data (-> {:image main-image-result :thumbnail thumbnail-result :model_id model_id}
+                     (filter-map-by-schema types/post-response))]
         (status (response data) 200)))
 
     (catch Exception e
@@ -92,7 +98,7 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail)
+          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
                          (sql/from [:images :i]))]
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))

@@ -4,6 +4,7 @@
    [clojure.string]
    [clojure.tools.cli :as cli]
    [leihs.core.db :as db]
+   [leihs.core.http-cache-buster2 :as cache-buster2]
    [leihs.core.http-server :as http-server]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
@@ -13,6 +14,15 @@
    [reitit.coercion.schema]
    [taoensso.timbre :refer [info]]))
 
+(def cache-bust-options
+  {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
+   :never-expire-paths []
+   :cache-enabled? true})
+
+(defn app [options]
+  (-> (sui/create-app options)
+      (cache-buster2/wrap-resource "public" cache-bust-options)))
+
 (defn run [options]
   (catcher/snatch
    {:return-fn (fn [e] (System/exit -1))}
@@ -20,7 +30,7 @@
    (shutdown/init options)
    (let [status (status/init)]
      (db/init options (:health-check-registry status)))
-   (http-server/start options (sui/create-app options))))
+   (http-server/start options (app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
