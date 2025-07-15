@@ -6,12 +6,12 @@
    [clojure.java.io :as io]
    [clojure.java.shell :refer [sh]]
    [clojure.set :as set]
-   [leihs.inventory.server.resources.pool.models.model.images.types :as types]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
-                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
+                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.model.images.types :as types]
    [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
@@ -63,7 +63,7 @@
                                 filter-keys-images)
             main-image-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                         (sql/values [main-image-data])
-                                                      (sql/returning :*)
+                                                        (sql/returning :*)
                                                         sql-format))
             main-image-result (filter-map-by-schema main-image-result types/image)
 
@@ -72,12 +72,12 @@
                                filter-keys-images)
             thumbnail-result (jdbc/execute-one! tx (-> (sql/insert-into :images)
                                                        (sql/values [thumbnail-data])
-                                                     (sql/returning :*)
+                                                       (sql/returning :*)
                                                        sql-format))
             thumbnail-result (filter-map-by-schema thumbnail-result types/image)
 
             data (-> {:image main-image-result :thumbnail thumbnail-result :model_id model_id}
-            (filter-map-by-schema types/post-response) ]
+                     (filter-map-by-schema types/post-response))]
         (status (response data) 200)))
 
     (catch Exception e

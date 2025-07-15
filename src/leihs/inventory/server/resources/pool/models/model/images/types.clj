@@ -10,10 +10,9 @@
    :size s/Int
    :thumbnail s/Bool})
 
-(def post-response {
-   :image image
-   :thumbnail image
-   :model_id s/Uuid})
+(def post-response {:image image
+                    :thumbnail image
+                    :model_id s/Uuid})
 
 (def get-images-response
   {:data [image]
