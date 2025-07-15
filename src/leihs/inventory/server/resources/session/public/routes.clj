@@ -14,7 +14,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.session.public.main :refer [get-resource]]
+   [leihs.inventory.server.resources.session.public.main :as session-public]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -31,4 +31,4 @@
 
     ["/public"
      {:get {:swagger {:security []}
-            :handler get-resource}}]]])
+            :handler session-public/get-resource}}]]])
