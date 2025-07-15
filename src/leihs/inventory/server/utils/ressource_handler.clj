@@ -11,7 +11,6 @@
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.core.http-cache-buster2 :as cache-buster]
-
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [reitit.coercion.schema]

@@ -33,8 +33,7 @@ def expect_correct_url(url)
 end
 
 describe "Inventory Model" do
-  # ["inventory_manager", "customer"].each do |role|
-  ["inventory_manager"].each do |role|
+  ["inventory_manager", "customer"].each do |role|
     context "when interacting with inventory model as #{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -117,7 +116,6 @@ describe "Inventory Model" do
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{image_id}" do |req|
               req.headers["Accept"] = image_content_type
             end
-
             expect(resp.status).to eq(200)
             expect(resp.headers["content-type"]).to eq("image/png")
           end

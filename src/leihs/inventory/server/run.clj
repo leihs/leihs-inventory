@@ -32,7 +32,6 @@
      (db/init options (:health-check-registry status)))
 (http-server/start options (app options))))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def cli-options
