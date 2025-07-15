@@ -36,7 +36,7 @@
 (sa/def :image/id any?)
 (sa/def :image/is_cover any?)
 (sa/def :image/filename string?)
-(sa/def :image/content_type string?)
+(sa/def :upload/content_type string?)
 (sa/def :image/url string?)
 (sa/def :image/thumbnail_url string?)
 (sa/def :image/to_delete any?)
@@ -66,9 +66,9 @@
 (sa/def ::attachments_to_delete string?)
 (sa/def ::images (sa/or :multiple (sa/coll-of ::file :kind vector?)
                         :single ::file))
-(sa/def ::image (sa/keys :opt-un [::is_cover :nil/url]
+(sa/def ::image (sa/keys :opt-un [::is_cover :nil/url :upload/content_type]
                          :req-un [::id ::filename]))
-(sa/def ::attachment (sa/keys :opt-un [:nil/url]
+(sa/def ::attachment (sa/keys :opt-un [:nil/url :upload/content_type]
                               :req-un [::id ::filename]))
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
