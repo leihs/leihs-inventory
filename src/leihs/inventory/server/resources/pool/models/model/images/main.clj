@@ -71,7 +71,8 @@
                                                        (sql/values [thumbnail-data])
                                                        image-response-format
                                                        sql-format))
-            data {:image main-image-result :thumbnail thumbnail-result :model_id model_id}]
+            data {:image main-image-result :thumbnail thumbnail-result :model_id model_id :content_type (:content_type main-image-result)
+                  :filename (:filename main-image-result) :size (:size main-image-result)}]
         (status (response data) 200)))
 
     (catch Exception e
