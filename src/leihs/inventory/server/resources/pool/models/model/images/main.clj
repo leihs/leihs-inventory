@@ -92,7 +92,7 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail)
+          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
                          (sql/from [:images :i]))]
       (let [{:keys [page size]} (fetch-pagination-params request)]
         (response (create-paginated-response base-query tx size page))))

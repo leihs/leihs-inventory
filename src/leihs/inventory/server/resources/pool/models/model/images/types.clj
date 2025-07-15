@@ -5,7 +5,7 @@
 (def image
   {:id s/Uuid
    :target_id s/Uuid
-
+   :content_type s/Str
    :filename s/Str
    :size s/Int
    :thumbnail s/Bool})
