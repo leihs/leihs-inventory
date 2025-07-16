@@ -88,7 +88,7 @@ describe "Inventory Model" do
 
         it "rejects invalid attachment file types" do
           [path_valid_png, path_valid_jpg, path_valid_jpeg].each do |file_path|
-            upload_and_expect(file_path, false)
+            upload_and_expect(file_path, true)
           end
         end
 
@@ -98,14 +98,14 @@ describe "Inventory Model" do
           end
 
           it "fetches attachment" do
-            attachment_id = @upload_response.body[0]["id"]
+            attachment_id = @upload_response.body["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}"
             expect(resp.status).to eq(200)
           end
 
           it "verify attachment exists" do
-            attachment_id = @upload_response.body[0]["id"]
+            attachment_id = @upload_response.body["id"]
 
             resp = client.get "/inventory/#{pool_id}/models/#{model_id}"
             expect(resp.status).to eq(200)
