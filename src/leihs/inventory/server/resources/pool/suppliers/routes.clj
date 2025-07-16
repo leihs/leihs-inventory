@@ -11,9 +11,9 @@
    [schema.core :as s]))
 
 (defn routes []
-   ["/suppliers"
-    {:swagger {:tags [""]}}
-    ["/" {:get {:summary (fe "a.k.a 'Lieferanten'")
+  ["/suppliers"
+   {:swagger {:tags [""]}}
+   ["/" {:get {:summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "

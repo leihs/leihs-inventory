@@ -11,15 +11,15 @@
    [schema.core :as s]))
 
 (defn routes []
-   ["/rooms/:room_id"
-     {:get {:summary (fe "")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:room_id s/Uuid}}
-            :handler room/get-resource
-            :responses {200 {:description "OK"
-                             :body get-response}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}])
+  ["/rooms/:room_id"
+   {:get {:summary (fe "")
+          :accept "application/json"
+          :coercion reitit.coercion.schema/coercion
+          :middleware [accept-json-middleware]
+          :swagger {:produces ["application/json"]}
+          :parameters {:path {:room_id s/Uuid}}
+          :handler room/get-resource
+          :responses {200 {:description "OK"
+                           :body get-response}
+                      404 {:description "Not Found"}
+                      500 {:description "Internal Server Error"}}}}])

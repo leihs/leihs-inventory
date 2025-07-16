@@ -13,10 +13,10 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
+  [""
    {:swagger {:tags [""]}}
 
-   [":pool_id/models"
+   ["/models"
 
     ["/:model_id"
      ["/attachments"

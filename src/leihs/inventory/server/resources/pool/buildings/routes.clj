@@ -11,20 +11,19 @@
    [schema.core :as s]))
 
 (defn routes []
-   ["/buildings/"
+  ["/buildings/"
 
    {:swagger {:tags [""]}}
 
-
-    [""
-     {:get {:summary (fe "")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:pool_id s/Uuid}}
-            :handler buildings/index-resources
-            :responses {200 {:description "OK"
-                             :body [response-body]}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]])
+   [""
+    {:get {:summary (fe "")
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {:pool_id s/Uuid}}
+           :handler buildings/index-resources
+           :responses {200 {:description "OK"
+                            :body [response-body]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]])

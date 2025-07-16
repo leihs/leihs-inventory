@@ -11,10 +11,10 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
+  [""
    {:swagger {:tags [""]}}
 
-   ["models/:model_id/attachments/:attachments_id"
+   ["/models/:model_id/attachments/:attachments_id"
     {:get {:summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

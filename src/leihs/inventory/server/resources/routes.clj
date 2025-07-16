@@ -128,51 +128,49 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [
-                     ["/:pool_id"
+  (let [core-routes [["/:pool_id"
                       (models/routes)
-                     (model/routes)
-                     (image/routes)
-                     (images/routes)
-                     (images-thumbnail/routes)
-                     (attachment/routes)
-                     (attachments/routes)
-                     (items/routes)
-                     (model-items/routes)
-                     (model-item/routes)
+                      (model/routes)
+                      (image/routes)
+                      (images/routes)
+                      (images-thumbnail/routes)
+                      (attachment/routes)
+                      (attachments/routes)
+                      (items/routes)
+                      (model-items/routes)
+                      (model-item/routes)
+                      (building/routes)
+                      (buildings/routes)
+                      (room/routes)
+                      (rooms/routes)
+                      (category-tree/routes)
+                      (entitlement-groups/routes)
+
+                      (manufacturers/routes)
+                      (responsible-inventory-pools/routes)
+                      (suppliers/routes)
+
+                      (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
+                        [(suppliers/routes)
+                         (fields/routes)
+                         (export-csv/routes)
+                         (export-excel/routes)
+                         (fields/routes)
+                         (items/routes)])
+
+                      (when APPLY_DEV_ENDPOINTS
+                        [(get-dev-routes)])]
+
                      (admin-status/routes)
-                     (building/routes)
-                     (buildings/routes)
-                     (room/routes)
-                     (rooms/routes)
-                     (category-tree/routes)
-                     (entitlement-groups/routes)
-
-                     (manufacturers/routes)
-                     (responsible-inventory-pools/routes)
-                     (suppliers/routes)
-
-                      ]
-
                      (profile/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
                      (token-public/routes)
-                     (token/routes)
-                     ]
-        additional-routes (concat
-                           (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
-                             [(suppliers/routes)
-                              (fields/routes)
-                              (export-csv/routes)
-                              (export-excel/routes)
-                              (fields/routes)
-                              (items/routes)])
-                           (when APPLY_DEV_ENDPOINTS
-                             [(get-dev-routes)]))]
+                     (token/routes)]]
 
-    (vec (concat core-routes additional-routes))))
+;(vec (concat core-routes additional-routes))
+    (vec core-routes)))
 
 (defn all-api-endpoints []
   ["/"
