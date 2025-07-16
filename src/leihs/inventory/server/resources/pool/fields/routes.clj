@@ -3,7 +3,7 @@
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
    [leihs.inventory.server.resources.pool.fields.types :refer [get-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

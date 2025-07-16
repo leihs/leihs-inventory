@@ -7,7 +7,7 @@
    [leihs.core.auth.session :as session]
    [leihs.core.db :as db]
    [leihs.core.http-cache-buster2 :as cache-buster]
-   [leihs.inventory.server.resources.utils.session :refer [session-valid?]]
+   [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
    [leihs.inventory.server.utils.response_helper :as rh]
@@ -18,7 +18,6 @@
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
 
-(def SESSION_HANDLING_ACTIVATED? true)
 (def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
@@ -119,7 +118,7 @@
                 {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
                 (rh/index-html-response request 404)))
 
-      (and SESSION_HANDLING_ACTIVATED? (not (file-request? uri)) (not (session-valid? request)))
+      (and (not (file-request? uri)) (not (session-valid? request)))
       (response/redirect "/sign-in?return-to=%2Finventory")
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))

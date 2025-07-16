@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response
                                                                                             delete-response
                                                                                             error-attachment-not-found]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

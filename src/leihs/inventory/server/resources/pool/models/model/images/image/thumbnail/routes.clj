@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :as image-thumbnail]
    [leihs.inventory.server.resources.pool.models.model.images.image.types :as image]
    [leihs.inventory.server.resources.pool.models.model.images.types :as images]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

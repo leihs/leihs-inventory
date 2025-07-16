@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.utils.request
+(ns leihs.inventory.server.utils.request-utils
   (:require [clojure.string :as str]))
 
 (def AUTHENTICATED_ENTITY :authenticated-entity)

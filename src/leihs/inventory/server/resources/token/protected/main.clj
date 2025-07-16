@@ -3,7 +3,7 @@
    [crypto.random]
    [cryptohash-clj.api :refer :all]
    [digest :as d]
-   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   [leihs.inventory.server.utils.request-utils :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
    [schema.core :as s]

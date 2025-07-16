@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.items.main :as items]
    [leihs.inventory.server.resources.pool.items.types :refer [query-params]]
    [leihs.inventory.server.resources.pool.models.model.items.types :refer [get-items-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

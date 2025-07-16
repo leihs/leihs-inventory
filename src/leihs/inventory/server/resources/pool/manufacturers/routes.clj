@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.pool.manufacturers.main :as manufacturers]
    [leihs.inventory.server.resources.pool.manufacturers.types :refer [response-schema]]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]

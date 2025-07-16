@@ -7,7 +7,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries apply-is_deleted-context-if-valid
                                                          apply-is_deleted-where-context-if-valid]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]

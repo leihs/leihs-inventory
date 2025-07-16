@@ -16,7 +16,7 @@
                                                                  filter-by-type
                                                                  from-category with-items with-search
                                                                  without-items]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]

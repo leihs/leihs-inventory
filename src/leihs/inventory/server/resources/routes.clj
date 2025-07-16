@@ -41,7 +41,7 @@
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
-   [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

@@ -5,7 +5,7 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.types :refer [get-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]

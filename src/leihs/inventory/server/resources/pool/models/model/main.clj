@@ -24,7 +24,7 @@
                                                                                  process-compatibles
                                                                                  process-categories
                                                                                  replace-nil-with-empty-string]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]

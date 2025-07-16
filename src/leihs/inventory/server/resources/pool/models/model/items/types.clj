@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.model.items.main :refer [index-resources]]
    [leihs.inventory.server.resources.types :refer [pagination]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
