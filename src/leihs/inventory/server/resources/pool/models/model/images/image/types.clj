@@ -19,8 +19,10 @@
    :size s/Int
    :target_id s/Uuid
    :content_type s/Str
+   :filename s/Str
    :thumbnail s/Bool
    :id s/Uuid
+   :parent_id (s/maybe s/Uuid)
    :target_type s/Str
 
    })

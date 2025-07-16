@@ -33,7 +33,7 @@
                                :image_id s/Uuid}}
            :handler image/get-resource
            :responses {200 {:description "OK"
-                            :body image}
+                            :body (s/->Either [image s/Any])}
                        ;:body get-image-response}       ;;FIXME: by content-type
                        404 {:description "Not Found"
                             :body error-image-not-found}

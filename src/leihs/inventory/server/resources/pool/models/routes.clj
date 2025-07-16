@@ -27,7 +27,7 @@
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json" "text/html"]}
+            ;:swagger {:produces ["application/json" "text/html"]}
             :parameters {:path {:pool_id s/Uuid}
                          :query {(s/optional-key :before_last_check) Date
                                  (s/optional-key :borrowable) s/Bool

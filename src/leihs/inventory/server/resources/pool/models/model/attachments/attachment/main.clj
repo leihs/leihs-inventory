@@ -13,6 +13,7 @@
    [java.util Base64]))
 
 (defn get-resource [request]
+  (println ">o> get-resource" )
   (try
     (let [tx (:tx request)
           id (-> request path-params :attachments_id)
@@ -28,7 +29,10 @@
           attachment (jdbc/execute-one! tx query)
           base64-string (:content attachment)
           file-name (:filename attachment)
-          content-type (:content_type attachment)]
+          content-type (:content_type attachment)
+
+          p (println ">o> abc.content-type" content-type)
+          ]
 
       (if (nil? attachment)
         (do

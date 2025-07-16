@@ -2,8 +2,7 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :refer [get-resource
-                                                                                           delete-resource]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :as attachment]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response
                                                                                             delete-response
                                                                                             error-attachment-not-found]]
@@ -20,14 +19,17 @@
 
    ["models/:model_id/attachments/:attachments_id"
     {:get {:summary (fe "")
-           :accept "application/json"
+           ;:accept "application/json"
+           :accept ["application/json" "application/octet-stream"]
            :coercion reitit.coercion.schema/coercion
-           :swagger {:produces ["application/json" "application/octet-stream"]}
+           :swagger {
+                     ;:consumes ["application/json" "application/octet-stream"]
+                     :produces ["application/json" "application/octet-stream"]}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :attachments_id s/Uuid}
                         :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
-           :handler get-resource
+           :handler attachment/get-resource
            :responses {200 {:description "OK"
                             :body get-attachment-response}
                        404 {:description "Not Found"
@@ -40,8 +42,10 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :attachments_id s/Uuid}}
-              :handler delete-resource
+              :handler attachment/delete-resource
               :responses {200 {:description "OK"
-                               :body delete-response}
+                               ;:body delete-response
+                               :body s/Any
+                               }
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]])

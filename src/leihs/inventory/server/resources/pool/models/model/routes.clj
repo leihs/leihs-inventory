@@ -32,7 +32,7 @@
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :middleware [accept-json-middleware (permission-by-role-and-pool roles/min-role-lending-manager)]
              :handler model/get-resource
              :responses {200 {:description "OK"
                               :body :model-get-put-response/inventory-model}
