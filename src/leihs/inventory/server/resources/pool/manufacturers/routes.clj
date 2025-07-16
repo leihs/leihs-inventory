@@ -9,7 +9,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id/"
+  ["/"
    {:swagger {:tags [""]}}
 
    ["manufacturers/"

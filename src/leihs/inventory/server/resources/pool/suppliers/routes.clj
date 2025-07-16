@@ -11,10 +11,9 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   ["/:pool_id/suppliers/"
+   ["/suppliers"
     {:swagger {:tags [""]}}
-    ["" {:get {:summary (fe "a.k.a 'Lieferanten'")
+    ["/" {:get {:summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "
@@ -32,4 +31,4 @@
                :responses {200 {:description "OK"
                                 :body get-response}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]])
+                           500 {:description "Internal Server Error"}}}}]])

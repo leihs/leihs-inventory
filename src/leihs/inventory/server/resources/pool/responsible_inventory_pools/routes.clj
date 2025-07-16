@@ -15,7 +15,7 @@
   [""
    {:swagger {:tags [""]}}
 
-   ["/:pool_id/responsible-inventory-pools/"
+   ["/responsible-inventory-pools/"
     {:get {:summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

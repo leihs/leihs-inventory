@@ -10,7 +10,7 @@
 
 (defn routes []
 
-  ["/:pool_id/category-tree/"
+  ["/category-tree/"
    {:swagger {:tags [""]}}
 
    [""

@@ -11,12 +11,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   {:swagger {:tags [""]}}
-
-   ["/rooms/"
-
-    [":room_id"
+   ["/rooms/:room_id"
      {:get {:summary (fe "")
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
@@ -27,4 +22,4 @@
             :responses {200 {:description "OK"
                              :body get-response}
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+                        500 {:description "Internal Server Error"}}}}])
