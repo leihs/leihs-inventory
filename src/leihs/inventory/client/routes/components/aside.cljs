@@ -1,9 +1,8 @@
 (ns leihs.inventory.client.routes.components.aside
-  (:require
-   ["lucide-react" :refer [Home Inbox]]
-   ["react-router-dom" :as router :refer [Link]]
-   [uix.core :as uix :refer [$ defui]]
-   [uix.dom]))
+  (:require ["lucide-react" :refer [Home Inbox]]
+            ["react-router-dom" :as router :refer [Link]]
+            [uix.core :as uix :refer [defui $]]
+            [uix.dom]))
 
 (defui main []
   ($ :aside {:className "fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex"}

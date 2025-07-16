@@ -4,7 +4,7 @@
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/collapsible" :refer [Collapsible CollapsibleContent CollapsibleTrigger]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuSeparator DropdownMenuTrigger]]
+                               DropdownMenuTrigger DropdownMenuSeparator]]
    ["lucide-react" :refer [ChevronDown ChevronRight List Search]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]

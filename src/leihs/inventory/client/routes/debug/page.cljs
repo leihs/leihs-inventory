@@ -3,7 +3,7 @@
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.routes.components.translate-check :as translate-check]
    [leihs.inventory.client.routes.debug.components.lang-switcher :as lang-switcher]
-   [uix.core :as uix :refer [$ defui]]
+   [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
 (defui page []

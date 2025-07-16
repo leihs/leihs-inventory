@@ -1,17 +1,16 @@
 (ns leihs.inventory.client.routes.models.crud.components.model-properties
   (:require
-   ["@/components/react/sortable-list" :refer [Draggable SortableList]]
+   ["@/components/react/sortable-list" :refer [SortableList Draggable DragHandle]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl FormField FormItem FormMessage]]
+   ["@@/form" :refer [FormField FormItem FormControl FormMessage]]
    ["@@/input" :refer [Input]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
+   ["@@/table" :refer [Table TableHeader TableRow TableHead TableBody TableCell]]
    ["@@/textarea" :refer [Textarea]]
    ["lucide-react" :refer [CirclePlus Trash]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [$ defui]]
+   [uix.core :as uix :refer [defui $]]
    [uix.dom :as uix-dom]))
 
 (defn find-index-by-id [vec id]

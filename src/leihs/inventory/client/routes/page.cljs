@@ -2,7 +2,7 @@
   (:require
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :refer [Link]]
-   [uix.core :as uix :refer [$ defui]]
+   [uix.core :as uix :refer [defui $]]
    [uix.dom]))
 
 (defui page []

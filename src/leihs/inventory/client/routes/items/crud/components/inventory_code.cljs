@@ -1,11 +1,16 @@
 (ns leihs.inventory.client.routes.items.crud.components.inventory-code
   (:require
+   ["@/components/react/sortable-list" :refer [Draggable DragHandle
+                                               SortableList]]
    ["@@/button" :refer [Button]]
-   ["@@/form" :refer [FormControl FormField FormItem FormLabel FormMessage]]
+   ["@@/form" :refer [FormControl FormField FormItem FormMessage FormLabel]]
    ["@@/input" :refer [Input]]
-   ["lucide-react" :refer [CirclePlus]]
+   ["@@/table" :refer [Table TableBody TableCell TableRow]]
+   ["lucide-react" :refer [CirclePlus Trash]]
+   ["react-hook-form" :as hook-form]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [uix.core :as uix :refer [$ defui]]))
+   [uix.core :as uix :refer [$ defui]]
+   [uix.dom :as uix-dom]))
 
 (defui main [{:keys [control props]}]
   (let []

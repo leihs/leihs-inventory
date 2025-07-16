@@ -1,8 +1,7 @@
 (ns leihs.inventory.client.lib.client
-  (:require
-   ["axios" :as axios]
-   ["axios-cache-interceptor" :as axios-cache]
-   [leihs.inventory.client.lib.csrf :as csrf]))
+  (:require ["axios" :as axios]
+            ["axios-cache-interceptor" :as axios-cache]
+            [leihs.inventory.client.lib.csrf :as csrf]))
 
 (def instance
   (.. axios -default (create

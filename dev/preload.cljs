@@ -1,6 +1,5 @@
 (ns preload
-  (:require
-   [uix.dev]))
+  (:require [uix.dev]))
 
 (uix.dev/init-fast-refresh!)
 

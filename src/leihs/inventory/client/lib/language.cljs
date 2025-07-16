@@ -1,6 +1,5 @@
 (ns leihs.inventory.client.lib.language
-  (:require
-   ["~/i18n.config.js" :as i18n :refer [i18n]]))
+  (:require ["~/i18n.config.js" :as i18n :refer [i18n]]))
 
 (defn switch-language [locale-id]
   (.. i18n (changeLanguage locale-id))

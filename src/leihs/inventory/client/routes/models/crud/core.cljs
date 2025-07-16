@@ -1,7 +1,7 @@
 (ns leihs.inventory.client.routes.models.crud.core
   (:require
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [cj]]))
+   [leihs.inventory.client.lib.utils :refer [cj jc]]))
 
 (defn create-file-from-url [url name type]
   (js/Promise.

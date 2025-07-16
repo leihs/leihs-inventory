@@ -1,7 +1,6 @@
 (ns leihs.inventory.client.lib.csrf
-  (:require
-   [leihs.core.constants :as constants]
-   [leihs.inventory.client.lib.cookies :refer [get-cookie]]))
+  (:require [leihs.core.constants :as constants]
+            [leihs.inventory.client.lib.cookies :refer [get-cookie]]))
 
 (def token
   (get-cookie constants/ANTI_CSRF_TOKEN_COOKIE_NAME))

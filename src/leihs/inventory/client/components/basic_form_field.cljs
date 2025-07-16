@@ -2,13 +2,12 @@
   (:require
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]
-   ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
-                      FormMessage]]
+   ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.create.components.accessories-list :refer [AccessoryList]]
-   [uix.core :as uix :refer [$ defui]]))
+   [uix.core :as uix :refer [defui $]]))
 
 ;; "available form fields"
 (def fields-map

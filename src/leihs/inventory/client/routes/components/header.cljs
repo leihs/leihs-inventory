@@ -3,9 +3,8 @@
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuGroup DropdownMenuItem
-                               DropdownMenuLabel DropdownMenuPortal
-                               DropdownMenuSeparator DropdownMenuSub
-                               DropdownMenuSubContent DropdownMenuSubTrigger
+                               DropdownMenuLabel DropdownMenuPortal DropdownMenuSeparator
+                               DropdownMenuSub DropdownMenuSubContent DropdownMenuSubTrigger
                                DropdownMenuTrigger]]
    ["@@/input" :refer [Input]]
    ["lucide-react" :refer [ChevronsUpDown CircleUser LayoutGrid]]
