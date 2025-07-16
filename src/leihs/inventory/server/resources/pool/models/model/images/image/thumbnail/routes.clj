@@ -26,9 +26,7 @@
                                :image_id s/Uuid}}
            :handler image-thumbnail/get-resource
            :responses {200 {:description "OK"
-                            ;:body image/image}
                        :body (s/->Either [image/image s/Any])}
-
            404 {:description "Not Found"
                             :body image/error-image-not-found}
                        500 {:description "Internal Server Error"}}}}]])

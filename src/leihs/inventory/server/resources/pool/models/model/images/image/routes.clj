@@ -4,10 +4,8 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.resources.pool.models.model.images.image.main :as image]
-   ;[leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-400-response delete-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
-   ;[leihs.inventory.server.resources.pool.models.model.images.image.types :refer [image]]
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-response
                                                                                   error-image-not-found
                                                                                   image]]
@@ -34,7 +32,6 @@
            :handler image/get-resource
            :responses {200 {:description "OK"
                             :body (s/->Either [image s/Any])}
-                       ;:body get-image-response}       ;;FIXME: by content-type
                        404 {:description "Not Found"
                             :body error-image-not-found}
                        500 {:description "Internal Server Error"}}}

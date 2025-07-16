@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.types
   (:require
-   ;[leihs.inventory.server.resources.pool.models.model.images.types :refer [image]]
    [schema.core :as s]))
 
 (def delete-response
@@ -12,8 +11,7 @@
    :message s/Str})
 
 (def image
-  {
-   :content s/Str
+  { :content s/Str
    :width (s/maybe s/Uuid)
    :height (s/maybe s/Uuid)
    :size s/Int
@@ -23,17 +21,4 @@
    :thumbnail s/Bool
    :id s/Uuid
    :parent_id (s/maybe s/Uuid)
-   :target_type s/Str
-
-   })
-
-
-;(def image-min
-;  {
-;   :id s/Uuid
-;   :target_id s/Uuid
-;   :content_type s/Str
-;   :filename s/Str
-;   :size s/Int
-;   :thumbnail s/Bool
-;   })
+   :target_type s/Str })

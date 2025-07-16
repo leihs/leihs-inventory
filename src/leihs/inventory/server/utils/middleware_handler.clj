@@ -14,45 +14,26 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug info warn error spy]]))
 
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json"]
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
-          attachment-request? (valid-attachment-uri? uri)
-
-          p (println ">o> abc.accept-header" accept-header)
-          p (println ">o> abc.uri" uri)
-          p (println ">o> abc.attachment-request?" attachment-request?)
-          ]
+          attachment-request? (valid-attachment-uri? uri) ]
 
       (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/"]))
               (some #(= % uri) whitelist-uris-for-api)
               image-or-thumbnail-request?
               attachment-request?)
-        (pr ">1 -> swagger-ui" (handler request))
-        (pr ">2 -> default" (custom-not-found-handler request))))))
+        (handler request)
+        (custom-not-found-handler request)))))
 
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           updated-request (cond
-                            ;(and (or (str/includes? accept-header "text/html") (str/includes? accept-header "image/*"))
-                            ;  (valid-image-or-thumbnail-uri? uri))
-                            ;(assoc-in request [:headers "accept"] "image/jpeg")
-                            ;(and (str/includes? accept-header "text/html")
-                            ;  (valid-attachment-uri? uri))
-                            ;(assoc-in request [:headers "accept"] "application/octet-stream")
-
                             (str/includes? accept-header "text/html")
                             (assoc-in request [:headers "accept"] "text/html")
 

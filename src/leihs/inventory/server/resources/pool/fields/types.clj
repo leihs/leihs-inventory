@@ -71,5 +71,5 @@
    (s/optional-key :building_name) (s/maybe s/Str)
    (s/optional-key :room_name) (s/maybe s/Str)})
 
-(def get-response {:data [item]
-                         :pagination pagination})
+(def get-response (s/->Either [{:data [item]
+                         :pagination pagination} [item]]))

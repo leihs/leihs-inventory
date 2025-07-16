@@ -93,12 +93,7 @@
         file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
-
-        accept-header (get-in request [:headers "accept"])
-
-        p (println ">o> custom-not-found-handler.uri" uri)
-        p (println ">o> custom-not-found-handler.accept-header" accept-header)
-        ]
+        accept-header (get-in request [:headers "accept"]) ]
 
     (cond
       (= uri "/") (create-root-page)

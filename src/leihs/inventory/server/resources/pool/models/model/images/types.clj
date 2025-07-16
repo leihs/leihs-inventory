@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.types
   (:require
    [leihs.inventory.server.resources.types :refer [pagination]]
-
    [schema.core :as s]))
 
 (def image
