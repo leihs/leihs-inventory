@@ -17,9 +17,9 @@
    :pagination pagination})
 
 (def attachment-response
-{  :id s/Uuid
-  :model_id (s/maybe s/Uuid)
-  :content_type s/Str
-  :filename s/Str
-  :size s/Num
-  :item_id (s/maybe s/Uuid)})
+  {:id s/Uuid
+   :model_id (s/maybe s/Uuid)
+   :content_type s/Str
+   :filename s/Str
+   :size s/Num
+   :item_id (s/maybe s/Uuid)})

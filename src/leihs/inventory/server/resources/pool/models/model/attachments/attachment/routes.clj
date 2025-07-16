@@ -23,7 +23,7 @@
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json" "application/octet-stream"
                                 "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
-"image/vnd.dwg" "application/zip"   ]}
+                                "image/vnd.dwg" "application/zip"]}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :attachments_id s/Uuid}

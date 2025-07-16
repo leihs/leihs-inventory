@@ -10,18 +10,16 @@
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import
-   [java.util Base64]
-   [java.io ByteArrayInputStream]))
-
-
+   [java.io ByteArrayInputStream]
+   [java.util Base64]))
 
 (defn- clean-base64-string [base64-str]
   (clojure.string/replace base64-str #"\s+" ""))
 
 (defn- url-safe-to-standard-base64 [base64-str]
   (-> base64-str
-    (clojure.string/replace "-" "+")
-    (clojure.string/replace "_" "/")))
+      (clojure.string/replace "-" "+")
+      (clojure.string/replace "_" "/")))
 
 (defn- add-padding [base64-str]
   (let [mod (mod (count base64-str) 4)]
@@ -32,9 +30,9 @@
 
 (defn- decode-base64-str [base64-str]
   (let [cleaned-str (-> base64-str
-                      clean-base64-string
-                      url-safe-to-standard-base64
-                      add-padding)
+                        clean-base64-string
+                        url-safe-to-standard-base64
+                        add-padding)
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
@@ -66,8 +64,8 @@
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id]))
                     (cond-> id (sql/where [:= :a.id id]))
-                  (cond-> (and (not json-request?)(not octet-request?))
-                    (sql/where [:= :a.content_type accept-header]))
+                    (cond-> (and (not json-request?) (not octet-request?))
+                      (sql/where [:= :a.content_type accept-header]))
                     sql-format)
           attachment (jdbc/execute-one! tx query)
           base64-string (:content attachment)
@@ -79,20 +77,18 @@
           (error "Attachment not found" {:id id :model-id model-id})
           (bad-request {:error "Attachment not found"}))
         (cond (= accept-header "application/octet-stream")
-          (->> base64-string
-               (.decode (Base64/getMimeDecoder))
-               (hash-map :body)
-               (merge {:headers {"Content-Type" content-type
-                                 "Content-Transfer-Encoding" "binary"
-                                 "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
+              (->> base64-string
+                   (.decode (Base64/getMimeDecoder))
+                   (hash-map :body)
+                   (merge {:headers {"Content-Type" content-type
+                                     "Content-Transfer-Encoding" "binary"
+                                     "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
 
-          (= accept-header "application/json")
-          (response attachment)
+              (= accept-header "application/json")
+              (response attachment)
 
-          :else (convert-base64-to-byte-stream attachment)
+              :else (convert-base64-to-byte-stream attachment))))
 
-
-          )))
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
