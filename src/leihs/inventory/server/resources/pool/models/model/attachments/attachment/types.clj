@@ -9,3 +9,10 @@
 
 (def get-attachment-response
   attachment)
+
+(def delete-response
+  {:status s/Str
+   :attachment_id s/Uuid})
+
+(def error-attachment-not-found
+  {:error s/Str})

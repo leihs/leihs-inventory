@@ -4,7 +4,9 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :refer [get-resource
                                                                                            delete-resource]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response
+                                                                                            delete-response
+                                                                                            error-attachment-not-found]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
@@ -28,7 +30,8 @@
            :handler get-resource
            :responses {200 {:description "OK"
                             :body get-attachment-response}
-                       404 {:description "Not Found"}
+                       404 {:description "Not Found"
+                            :body error-attachment-not-found}
                        500 {:description "Internal Server Error"}}}
 
      :delete {:accept "application/json"
@@ -38,6 +41,7 @@
                                   :model_id s/Uuid
                                   :attachments_id s/Uuid}}
               :handler delete-resource
-              :responses {200 {:description "OK"}
+              :responses {200 {:description "OK"
+                               :body delete-response}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]])

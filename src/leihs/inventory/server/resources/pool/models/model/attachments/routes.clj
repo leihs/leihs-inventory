@@ -6,7 +6,8 @@
    [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [post-resource
                                                                                 index-resources]]
    [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [get-attachments-response
-                                                                                 attachment]]
+                                                                                 attachment
+                                                                                 attachment-response]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -52,7 +53,7 @@
                             :header {:x-filename s/Str}}
                :handler post-resource
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                :body attachment-response}
                            400 {:description "Bad Request (Coercion error)"
                                 :body s/Any}
                            404 {:description "Not Found"}
