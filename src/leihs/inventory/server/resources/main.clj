@@ -63,7 +63,7 @@
 (defn get-sign-out [request]
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
         params {:authFlow {:returnTo "/inventory/models"}
-                :csrfToken  {:name "csrf-token" :value uuid}}
+                :csrfToken {:name "csrf-token" :value uuid}}
         html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
     {:status 200
      :headers {"Content-Type" "text/html"}
