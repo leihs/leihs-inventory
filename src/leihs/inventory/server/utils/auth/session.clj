@@ -1,10 +1,5 @@
 (ns leihs.inventory.server.utils.auth.session
   (:require
-   [buddy.auth.backends.token :refer [jws-backend]]
-   [buddy.auth.middleware :refer [wrap-authentication]]
-   [buddy.core.codecs :refer [bytes->b64 bytes->str]]
-   [buddy.core.hash :as hash]
-   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
    [clojure.walk :refer [keywordize-keys]]
    [cryptohash-clj.api :refer :all]
    [next.jdbc :as jdbc]))

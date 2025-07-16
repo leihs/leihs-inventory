@@ -1,12 +1,7 @@
 (ns leihs.inventory.server.resources.token.protected.routes
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.protected.main :as token-protected]
-   [ring.util.response :as response]
-   [schema.core :as s])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [leihs.inventory.server.resources.token.protected.main :as token-protected]))
 
 (defn routes []
   [["/"

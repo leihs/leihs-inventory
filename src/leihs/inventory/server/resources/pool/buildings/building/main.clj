@@ -3,10 +3,10 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status header]]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
 (defn get-resource [request]

@@ -1,31 +1,16 @@
 (ns leihs.inventory.server.resources.pool.models.model.common-model-form
   (:require
-   [cheshire.core :as cjson]
-   [clojure.data.codec.base64 :as b64]
-   [clojure.data.json :as json]
-   [clojure.java.io :as io]
-   [clojure.java.shell :refer [sh]]
    [clojure.set :as set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]
-   [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error spy]])
-  (:import [java.io File FileInputStream ByteArrayOutputStream]
-           [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util Base64]
-           [java.util UUID]
-           [java.util.jar JarFile]
-           [org.im4java.core ConvertCmd IMOperation]))
+   [ring.util.response :refer [bad-request response status]])
+  (:import
+   (java.time LocalDateTime)))
 
 (defn patch-resource [req]
   (let [model-id (to-uuid (get-in req [:path-params :model_id]))

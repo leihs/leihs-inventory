@@ -1,7 +1,6 @@
   (ns leihs.inventory.server.resources.pool.category-tree.types
     (:require
      [clojure.spec.alpha :as sa]
-     [schema.core :as s]
      [spec-tools.core :as st]))
 
 (sa/def ::with-metadata boolean?)

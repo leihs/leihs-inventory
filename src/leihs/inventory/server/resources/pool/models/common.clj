@@ -4,8 +4,7 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [taoensso.timbre :refer [debug]]))
 
 (defn remove-nil-values
   "Removes all nil values from a map or a vector of maps."

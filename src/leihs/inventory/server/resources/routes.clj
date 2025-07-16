@@ -1,18 +1,14 @@
 (ns leihs.inventory.server.resources.routes
   (:require
-   [cheshire.core :as json]
    [clojure.java.io :as io]
-   [clojure.string :as str]
    [dev.routes :refer [get-dev-routes]]
-   [leihs.core.constants :as constants]
-   [leihs.core.sign-in.back :as be]
-   [leihs.core.sign-out.back :as so]
-   [leihs.core.status :as status]
-   [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
-                                                        APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+   [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
+                                                        APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.admin.status.routes :as admin-status]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
+   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
+                                                  post-sign-in post-sign-out
+                                                  swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
@@ -41,16 +37,11 @@
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
-   [leihs.inventory.server.resources.utils.middleware :refer [restrict-uri-middleware]]
-   [muuntaja.core :as m]
+   [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
-   [reitit.ring.middleware.muuntaja :as muuntaja]
-   [reitit.swagger :as swagger]
-   [ring.util.response :as response]
-   [ring.util.response :refer [bad-request response status]]
-   [schema.core :as s]))
+   [reitit.swagger :as swagger]))
 
 (defn sign-in-out-endpoints []
   [["sign-in"
@@ -137,46 +128,49 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [(models/routes)
-                     (model/routes)
-                     (image/routes)
-                     (images/routes)
-                     (images-thumbnail/routes)
-                     (attachment/routes)
-                     (attachments/routes)
-                     (items/routes)
-                     (model-items/routes)
-                     (model-item/routes)
+  (let [core-routes [["/:pool_id"
+                      (models/routes)
+                      (model/routes)
+                      (image/routes)
+                      (images/routes)
+                      (images-thumbnail/routes)
+                      (attachment/routes)
+                      (attachments/routes)
+                      (items/routes)
+                      (model-items/routes)
+                      (model-item/routes)
+                      (building/routes)
+                      (buildings/routes)
+                      (room/routes)
+                      (rooms/routes)
+                      (category-tree/routes)
+                      (entitlement-groups/routes)
+
+                      (manufacturers/routes)
+                      (responsible-inventory-pools/routes)
+                      (suppliers/routes)
+
+                      (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
+                        [(suppliers/routes)
+                         (fields/routes)
+                         (export-csv/routes)
+                         (export-excel/routes)
+                         (fields/routes)
+                         (items/routes)])
+
+                      (when APPLY_DEV_ENDPOINTS
+                        [(get-dev-routes)])]
+
                      (admin-status/routes)
-                     (building/routes)
-                     (buildings/routes)
-                     (room/routes)
-                     (rooms/routes)
-                     (category-tree/routes)
-                     (entitlement-groups/routes)
-
-                     (manufacturers/routes)
-                     (responsible-inventory-pools/routes)
-                     (suppliers/routes)
-
                      (profile/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
                      (token-public/routes)
-                     (token/routes)]
-        additional-routes (concat
-                           (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
-                             [(suppliers/routes)
-                              (fields/routes)
-                              (export-csv/routes)
-                              (export-excel/routes)
-                              (fields/routes)
-                              (items/routes)])
-                           (when APPLY_DEV_ENDPOINTS
-                             [(get-dev-routes)]))]
+                     (token/routes)]]
 
-    (vec (concat core-routes additional-routes))))
+;(vec (concat core-routes additional-routes))
+    (vec core-routes)))
 
 (defn all-api-endpoints []
   ["/"

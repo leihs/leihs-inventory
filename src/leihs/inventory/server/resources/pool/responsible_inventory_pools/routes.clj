@@ -5,8 +5,7 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.main :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.types :refer [get-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin!]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -16,7 +15,7 @@
   [""
    {:swagger {:tags [""]}}
 
-   ["/:pool_id/responsible-inventory-pools/"
+   ["/responsible-inventory-pools/"
     {:get {:summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion

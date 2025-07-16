@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.utils.coercion
+(ns leihs.inventory.server.utils.coercion
   (:require
    [cheshire.core :as json]
    [clojure.edn :as edn]

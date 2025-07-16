@@ -8,9 +8,9 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
-   [taoensso.timbre :refer [debug info warn error spy]])
-  (:import (java.security MessageDigest)
-           (java.util Base64)))
+   [taoensso.timbre :refer [error info]])
+  (:import
+   (java.security MessageDigest)))
 
 (defn normalize-model-data
   [data]

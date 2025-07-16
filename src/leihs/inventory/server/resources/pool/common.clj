@@ -1,23 +1,17 @@
 (ns leihs.inventory.server.resources.pool.common
   (:require
-   [cheshire.core :as cjson]
    [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
-   [clojure.data.json :as json]
    [clojure.java.io :as io]
-   [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug info warn error spy]])
-  (:import [java.math BigDecimal RoundingMode]
-           [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util UUID]
-           [java.util.jar JarFile]))
+   [taoensso.timbre :refer [error]])
+  (:import
+   [java.math BigDecimal RoundingMode]
+   (java.time LocalDateTime)))
 
 (defn apply-is_deleted-context-if-valid
   "setups base-query for is_deletable and references:

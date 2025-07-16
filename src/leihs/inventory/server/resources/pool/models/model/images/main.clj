@@ -1,25 +1,19 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.main
   (:require
-   [cheshire.core :as cjson]
-   [clojure.data.codec.base64 :as b64]
-   [clojure.data.json :as json]
    [clojure.java.io :as io]
-   [clojure.java.shell :refer [sh]]
-   [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
-                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-schema]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.model.images.types :as types]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]
+   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64
+                                                              resize-and-convert-to-base64]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response
+                                                    fetch-pagination-params]]
    [next.jdbc :as jdbc]
-   [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error spy]]))
+   [taoensso.timbre :refer [error]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))

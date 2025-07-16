@@ -4,8 +4,7 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.entitlement-groups.main :as entitlement-groups]
    [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [response-body]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -17,19 +16,18 @@
 (defn routes []
 
   [""
-   ["/:pool_id"
-    {:swagger {:tags [""]}}
+   {:swagger {:tags [""]}}
 
-    ["/entitlement-groups"
-     ["/" {:get {:summary (fe "a.k.a 'Anspruchsgruppen'")
-                 :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
-                 :accept "application/json"
-                 :coercion reitit.coercion.schema/coercion
-                 :middleware [accept-json-middleware]
-                 :swagger {:produces ["application/json"]}
-                 :parameters {:path {:pool_id s/Uuid}}
-                 :handler entitlement-groups/index-resources
-                 :responses {200 {:description "OK"
-                                  :body [response-body]}
-                             404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]]])
+   ["/entitlement-groups"
+    ["/" {:get {:summary (fe "a.k.a 'Anspruchsgruppen'")
+                :description (create-description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/groups")
+                :accept "application/json"
+                :coercion reitit.coercion.schema/coercion
+                :middleware [accept-json-middleware]
+                :swagger {:produces ["application/json"]}
+                :parameters {:path {:pool_id s/Uuid}}
+                :handler entitlement-groups/index-resources
+                :responses {200 {:description "OK"
+                                 :body [response-body]}
+                            404 {:description "Not Found"}
+                            500 {:description "Internal Server Error"}}}}]]])

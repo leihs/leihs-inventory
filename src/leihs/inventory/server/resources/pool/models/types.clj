@@ -2,12 +2,10 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+   [leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [schema.core :as s]
-   [schema.core :as s]
-   [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]))
+   [spec-tools.core :as st]))
 
 (def description-model-form "CAUTION:\n
 - Model\n
@@ -82,7 +80,7 @@
 (def get-models-response-payload
   (merge get-model-scheme {s/Keyword s/Any}))
 
-(def get-response {:data [get-models-response-payload] :pagination s/Any})
+(def get-response {:data [get-models-response-payload] :pagination pagination})
 
 (sa/def :software/properties (sa/or
                               :single (sa/or :coll (sa/coll-of ::sp/property)

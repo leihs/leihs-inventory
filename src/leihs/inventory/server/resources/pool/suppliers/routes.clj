@@ -4,19 +4,16 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
    [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   ["/:pool_id/suppliers/"
-    {:swagger {:tags [""]}}
-    ["" {:get {:summary (fe "a.k.a 'Lieferanten'")
+  ["/suppliers"
+   {:swagger {:tags [""]}}
+   ["/" {:get {:summary (fe "a.k.a 'Lieferanten'")
                :description (str
                              "- DEFAULT: no pagination\n"
                              "- OK-Legacy | "
@@ -34,4 +31,4 @@
                :responses {200 {:description "OK"
                                 :body get-response}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]])
+                           500 {:description "Internal Server Error"}}}}]])

@@ -4,8 +4,7 @@
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn item-query [query item-id]
   (-> query

@@ -1,20 +1,14 @@
 (ns leihs.inventory.server.resources.pool.models.model.items.item.routes
   (:require
-   [clojure.spec.alpha :as sa]
-   [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.model.items.item.main :as item]
    [leihs.inventory.server.resources.pool.models.model.items.item.types :refer [get-item-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id"
+  [""
 
    {:swagger {:tags [""]}}
 

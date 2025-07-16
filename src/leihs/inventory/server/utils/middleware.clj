@@ -1,10 +1,8 @@
-(ns leihs.inventory.server.resources.utils.middleware
-  (:require [clojure.string :as str]
-            [leihs.core.auth.session :as session]
-            [leihs.core.auth.token :as token]
-            [leihs.inventory.server.utils.response_helper :as rh]
-            [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
-            [ring.util.response :as response]))
+(ns leihs.inventory.server.utils.middleware
+  (:require
+   [clojure.string :as str]
+   [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
+   [ring.util.response :as response]))
 
 (defn accept-json-middleware [handler]
   (fn [request]

@@ -1,17 +1,12 @@
 (ns dev.routes
   (:require
    [clojure.set]
-   [dev.main :refer [run-get-views
-                     get-resource
-                     put-role-resource
-                     put-account-resource]]
-   [leihs.core.auth.session :refer [wrap-authenticate]]
-   [leihs.core.status :as status]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
+   [dev.main :refer [get-resource put-account-resource put-role-resource]]
+   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS]]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-is-admin! wrap-authenticate!]]
-   [leihs.inventory.server.resources.utils.middleware :refer [wrap-is-admin!]]
    [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
+   [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
+   [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

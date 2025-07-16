@@ -1,15 +1,13 @@
 (ns leihs.inventory.server.resources.token.main
   (:require
-   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [cider-ci.open-session.bcrypt :refer [hashpw]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :as response]
-   [schema.core :as s]
-   [taoensso.timbre :refer [debug info warn error spy]])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [taoensso.timbre :refer [error]])
+  (:import
+   (com.google.common.io BaseEncoding)))
 
 (def b32 (BaseEncoding/base32))
 

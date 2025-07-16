@@ -2,10 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.session.protected.main :as session-protected]
-   [leihs.inventory.server.utils.auth.session :as ab])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [leihs.inventory.server.utils.auth.session :as ab]))
 
 (defn routes []
   ["/"

@@ -1,10 +1,9 @@
 (ns leihs.inventory.server.resources.profile.languages
-  (:require [clojure.tools.logging :as log]
-            [honey.sql :refer [format] :rename {format sql-format}]
-            [honey.sql.helpers :as sql]
-            [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
-            [next.jdbc :as jdbc]
-            [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
+  (:require
+   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (def base-sqlmap (-> (sql/select :languages.*)
                      (sql/from :languages)

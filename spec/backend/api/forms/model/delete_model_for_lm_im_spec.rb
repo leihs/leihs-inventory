@@ -269,7 +269,7 @@ describe "Inventory Model" do
           )
           expect(resp.status).to eq(200)
 
-          attachment_id = attachment_responses.first.first["id"]
+          attachment_id = attachment_responses.first["id"]
           resp = json_client_delete(
             "/inventory/#{pool_id}/models/#{model_id}/attachments/#{attachment_id}",
             headers: cookie_header

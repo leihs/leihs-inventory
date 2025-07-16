@@ -1,18 +1,14 @@
 (ns leihs.inventory.server.utils.middleware_handler
   (:require
-   [clojure.java.io :as io]
    [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
    [leihs.core.auth.session :as session]
    [leihs.core.auth.token :as token]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-   [leihs.inventory.server.utils.core :refer [valid-attachment-uri? valid-image-or-thumbnail-uri?]]
+   [leihs.inventory.server.utils.core :refer [valid-attachment-uri?
+                                              valid-image-or-thumbnail-uri?]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
-   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :refer [error]]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -34,9 +30,8 @@
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
           updated-request (cond
-                            (and (str/includes? accept-header "text/html")
-                                 (valid-attachment-uri? uri))
-                            (assoc-in request [:headers "accept"] "application/octet-stream")
+                            (str/includes? accept-header "text/html")
+                            (assoc-in request [:headers "accept"] "text/html")
 
                             :else request)]
       ((dispatch-content-type/wrap-accept handler) updated-request))))

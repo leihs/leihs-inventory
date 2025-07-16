@@ -1,27 +1,22 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.routes
   (:require
-   [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [post-resource
-                                                                                index-resources]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [get-attachments-response
-                                                                                 attachment]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.main :refer [index-resources
+                                                                                post-resource]]
+   [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment-response
+                                                                                 get-attachments-response]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
+  [""
    {:swagger {:tags [""]}}
 
-   [":pool_id/models"
+   ["/models"
 
     ["/:model_id"
      ["/attachments"
@@ -52,7 +47,8 @@
                             :header {:x-filename s/Str}}
                :handler post-resource
                :responses {200 {:description "OK"
-                                :body s/Any}
+                                :body attachment-response}
+                                ;:body s/Any}
                            400 {:description "Bad Request (Coercion error)"
                                 :body s/Any}
                            404 {:description "Not Found"}

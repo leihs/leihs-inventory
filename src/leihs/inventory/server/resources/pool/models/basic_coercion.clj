@@ -1,17 +1,9 @@
 (ns leihs.inventory.server.resources.pool.models.basic_coercion
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [reitit.ring.middleware.multipart :as multipart]
-   [ring.middleware.accept]
-   [ring.util.response :as response]
-   [schema.core :as s]
-   [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]))
+   [ring.middleware.accept]))
 
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
