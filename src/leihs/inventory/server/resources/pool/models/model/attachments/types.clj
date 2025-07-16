@@ -18,5 +18,4 @@
 
 (def  attachment-response
 {  :id s/Uuid
-  :filename s/Str}
-  )
+  :filename s/Str})

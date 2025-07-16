@@ -11,7 +11,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [next.jdbc :as jdbc]

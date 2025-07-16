@@ -12,7 +12,7 @@
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -54,6 +54,7 @@
                :handler post-resource
                :responses {200 {:description "OK"
                                 :body attachment-response}
+                                ;:body s/Any}
                            400 {:description "Bad Request (Coercion error)"
                                 :body s/Any}
                            404 {:description "Not Found"}

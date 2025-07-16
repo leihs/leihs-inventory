@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [leihs.core.db :as db]
    [leihs.core.json :refer [to-json]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [ring.util.response :as response])
   (:import [java.io File FileInputStream ByteArrayOutputStream]
            [java.util Base64]

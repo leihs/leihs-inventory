@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.constants
+(ns leihs.inventory.server.resources.pool.models.model.constants
   "Defines application configuration and provides an HTTP handler to serve it."
   (:require
    [cheshire.core :as json]
@@ -13,7 +13,7 @@
              :thumbnail {:width-px 100
                          :height-px 100}}
     :attachments {:max-size-mb 100
-                  :allowed-file-types ["pdf"]}}})
+                  :allowed-file-types ["pdf" "zip" "png" "rtf" "gif" "plain"]}}})
 
 (defn config-get
   "Fetch a nested config value. E.g. (config-get :api :images :thumbnail :width-px)"

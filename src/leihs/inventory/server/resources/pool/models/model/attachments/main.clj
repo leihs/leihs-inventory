@@ -18,7 +18,7 @@
                                                                  with-items without-items with-search filter-by-type
                                                                  from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
@@ -49,6 +49,7 @@
   (sql/returning s :id :filename))
 
 (defn post-resource [req]
+  (println ">o> post-resource")
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
@@ -60,16 +61,24 @@
           filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
           content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
           file-full-path (str upload-path filename-to-save)
+
+          p (println ">o> abc.file-full-path" file-full-path)
+          p (println ">o> abc.content-type" content-type)
+
           entry {:tempfile file-full-path
                  :filename filename-to-save
                  :content_type content-type
                  :size content-length
-                 :model_id model_id}]
+                 :model_id model_id}
 
-      (let [allowed-extensions allowed-file-types
-            content-extension (last (clojure.string/split content-type #"/"))]
-        (when-not (some #(= content-extension %) allowed-extensions)
-          (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"}))))
+
+          p (println ">o> abc.entry" entry)
+          ]
+
+      ;(let [allowed-extensions allowed-file-types
+      ;      content-extension (last (clojure.string/split content-type #"/"))]
+      ;  (when-not (some #(= content-extension %) allowed-extensions)
+      ;    (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"}))))
 
       (when (> content-length (* max-size-mb 1024 1024))
         (throw (ex-info "File size exceeds limit" {:status 400 :error "File size exceeds limit"})))
@@ -77,10 +86,14 @@
       (io/copy body-stream (io/file file-full-path))
 
       (let [file-content (file-to-base64 entry)
+            _ (println ">o> post-resource.data" entry)
             data (-> entry
                      (assoc :content file-content)
                      filter-keys-attachments)
-            data (jdbc/execute! tx (-> (sql/insert-into :attachments)
+
+
+
+            data (jdbc/execute-one! tx (-> (sql/insert-into :attachments)
                                        (sql/values [data])
                                        attachment-response-format
                                        sql-format))]

@@ -12,7 +12,7 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
                                                                 filter-map-by-spec fetch-thumbnails-for-ids]]
    [leihs.inventory.server.resources.pool.models.model.images.types :as types]
-   [leihs.inventory.server.utils.constants :refer [config-get]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params]]

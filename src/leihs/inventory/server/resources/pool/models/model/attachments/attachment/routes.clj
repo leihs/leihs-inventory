@@ -19,12 +19,9 @@
 
    ["models/:model_id/attachments/:attachments_id"
     {:get {:summary (fe "")
-           ;:accept "application/json"
-           :accept ["application/json" "application/octet-stream"]
+           :accept "application/json"
            :coercion reitit.coercion.schema/coercion
-           :swagger {
-                     ;:consumes ["application/json" "application/octet-stream"]
-                     :produces ["application/json" "application/octet-stream"]}
+           :swagger {:produces ["application/json" "application/octet-stream"]}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :attachments_id s/Uuid}
@@ -44,8 +41,6 @@
                                   :attachments_id s/Uuid}}
               :handler attachment/delete-resource
               :responses {200 {:description "OK"
-                               ;:body delete-response
-                               :body s/Any
-                               }
+                               :body s/Any}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]])
