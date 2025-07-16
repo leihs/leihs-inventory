@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.main
   (:require
-   [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [leihs.core.anti-csrf.back :as anti-csrf :refer [anti-csrf-token]]
@@ -8,19 +7,13 @@
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
-   [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
-   [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [reitit.openapi :as openapi]
-   [reitit.ring.middleware.muuntaja :as muuntaja]
-   [reitit.swagger :as swagger]
    [ring.util.response :as response]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error info warn]])
+   [ring.util.response :refer [response status]])
   (:gen-class))
 
 (defn swagger-api-docs-handler [request]

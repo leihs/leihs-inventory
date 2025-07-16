@@ -1,6 +1,5 @@
 (ns leihs.inventory.client.routes.statistics.page
   (:require
-   [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 

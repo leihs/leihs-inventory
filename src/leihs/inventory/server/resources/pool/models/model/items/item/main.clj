@@ -3,12 +3,10 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [response status]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [ring.util.response :refer [response status]]))
 
 (defn get-resource ([request]
                     (let [tx (:tx request)

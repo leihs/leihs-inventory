@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :refer [debug]]))
 
 (def CONST_LOG_AUTH false)
 

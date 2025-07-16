@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.utils.session-utils
   (:require
    [clojure.string :as clojure.string]
-   [leihs.inventory.server.utils.request-utils :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]))
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]))
 
 (defn parse-cookie [request]
   (let [cookie-str (get-in request [:headers "cookie"])]

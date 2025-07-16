@@ -5,8 +5,6 @@
    [leihs.inventory.server.resources.pool.suppliers.main :as suppliers]
    [leihs.inventory.server.resources.pool.suppliers.types :refer [get-response]]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.coercion.core :refer [pagination]]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

@@ -3,7 +3,6 @@
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [schema.core :as s]
    [spec-tools.core :as st]))
 

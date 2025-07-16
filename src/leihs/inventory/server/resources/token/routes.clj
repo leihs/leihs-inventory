@@ -2,10 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.token.main :as token]
-   [schema.core :as s])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [schema.core :as s]))
 
 (defn routes []
   [["/"

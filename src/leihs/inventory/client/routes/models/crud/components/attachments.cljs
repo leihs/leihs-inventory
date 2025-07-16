@@ -5,9 +5,8 @@
                           Item]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["lucide-react" :refer [Trash Eye]]
+   ["lucide-react" :refer [Eye Trash]]
    ["react-i18next" :refer [useTranslation]]
-
    ["react-router-dom" :as router :refer [useLoaderData]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]

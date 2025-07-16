@@ -5,8 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuRadioGroup DropdownMenuRadioItem
                                DropdownMenuTrigger]]
-   ["lucide-react" :refer [Tags ChevronDown]]
-
+   ["lucide-react" :refer [ChevronDown Tags]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))

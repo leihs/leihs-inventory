@@ -1,18 +1,14 @@
 (ns leihs.inventory.server.resources.pool.models.model.routes
   (:require
-   [clojure.spec.alpha :as sa]
-   [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.model.main :as model]
-   [leihs.inventory.server.resources.pool.models.model.types :refer [patch-response
-                                                                     put-response
-                                                                     delete-response]]
+   [leihs.inventory.server.resources.pool.models.model.types :refer [delete-response
+                                                                     patch-response
+                                                                     put-response]]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]

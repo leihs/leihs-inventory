@@ -1,39 +1,27 @@
 (ns leihs.inventory.server.resources.pool.models.model.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format]
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool remove-nil-entries-fnc remove-nil-entries
-                                                         apply-is_deleted-context-if-valid
-                                                         apply-is_deleted-where-context-if-valid
-                                                         keep-attr-not-nil]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
-   [leihs.inventory.server.resources.pool.models.common :refer [apply-cover-image-urls fetch-thumbnails-for-ids
-                                                                remove-nil-values
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                filter-and-coerce-by-spec
                                                                 filter-map-by-spec
-
-                                                                filter-and-coerce-by-spec]]
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [prepare-model-data
-                                                                                 extract-model-form-data
+                                                                remove-nil-values]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  filter-response
-                                                                                 process-entitlements
-                                                                                 process-properties
                                                                                  process-accessories
-                                                                                 process-compatibles
                                                                                  process-categories
-                                                                                 replace-nil-with-empty-string]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
+                                                                                 process-compatibles
+                                                                                 process-entitlements
+                                                                                 process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response fetch-pagination-params fetch-pagination-params-raw]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error spy]])
-  (:import [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util.jar JarFile]))
+   [taoensso.timbre :refer [error]])
+  (:import
+   (java.time LocalDateTime)))
 
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx

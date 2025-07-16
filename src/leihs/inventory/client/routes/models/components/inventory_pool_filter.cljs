@@ -4,7 +4,7 @@
                                       CommandInput CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
-   ["lucide-react" :refer [Check ChevronsUpDown Building]]
+   ["lucide-react" :refer [Building Check ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))

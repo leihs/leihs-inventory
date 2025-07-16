@@ -1,14 +1,11 @@
 (ns leihs.inventory.server.utils.image-upload-handler
   (:require
-   [byte-streams :as bs]
    [clojure.string :as str]
-   [leihs.core.db :as db]
-   [leihs.core.json :refer [to-json]]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
-   [ring.util.response :as response])
-  (:import [java.io File FileInputStream ByteArrayOutputStream]
-           [java.util Base64]
-           [org.im4java.core IMOperation ImageCommand]))
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]])
+  (:import
+   [java.io ByteArrayOutputStream File FileInputStream]
+   [java.util Base64]
+   [org.im4java.core IMOperation ImageCommand]))
 
 (defn resize-image
   "Resize an image using IM4Java and ImageMagick"

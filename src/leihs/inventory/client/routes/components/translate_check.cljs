@@ -4,7 +4,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["translation-check" :refer [showTranslations]]
    ["~/i18n.config.js" :as i18next :refer [i18n]]
-   [uix.core :as uix :refer [defui $]]
+   [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui main []

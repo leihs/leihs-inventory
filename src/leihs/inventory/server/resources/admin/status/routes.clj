@@ -7,8 +7,7 @@
    [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.middleware.accept]))
 
 (defn routes []
   ["/admin/status/"

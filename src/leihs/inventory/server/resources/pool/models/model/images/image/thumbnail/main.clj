@@ -8,8 +8,9 @@
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import [java.io ByteArrayInputStream]
-           [java.util Base64]))
+  (:import
+   [java.io ByteArrayInputStream]
+   [java.util Base64]))
 
 (defn- clean-base64-string [base64-str]
   (clojure.string/replace base64-str #"\s+" ""))

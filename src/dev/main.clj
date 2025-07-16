@@ -1,40 +1,27 @@
 (ns dev.main
   (:require
-   [buddy.auth.backends.token :refer [jws-backend]]
-   [buddy.auth.middleware :refer [wrap-authentication]]
-   [buddy.sign.jwt :as jwt]
-   [cheshire.core :as json]
-   [cider-ci.open-session.bcrypt :refer [checkpw hashpw]]
+   [cider-ci.open-session.bcrypt :refer [checkpw]]
    [clojure.set]
    [clojure.set]
    [clojure.string :as str]
    [clojure.test :refer :all]
-   [clojure.tools.logging :as log]
    [crypto.random]
    [cryptohash-clj.api :refer :all]
-   [digest :as d]
-   [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [parse-json-array]]
-   [leihs.inventory.server.utils.request-utils :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
-
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [ring.util.response :as response]
    [ring.util.response :refer [bad-request response status]]
-   [schema.core :as s]
    [taoensso.timbre :refer [error info]])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+  (:import
+   (java.util Base64)))
 
 (def get-views-query
   (sql-format

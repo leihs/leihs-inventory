@@ -2,7 +2,8 @@
   (:require
    ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]
-   ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
+   ["@@/form" :refer [FormControl FormDescription FormField FormItem FormLabel
+                      FormMessage]]
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
@@ -15,7 +16,7 @@
    [leihs.inventory.client.routes.models.crud.components.image-upload :refer [ImageUpload]]
    [leihs.inventory.client.routes.models.crud.components.manufacturer :refer [Manufacturer]]
    [leihs.inventory.client.routes.models.crud.components.model-properties :refer [ModelProperties]]
-   [uix.core :as uix :refer [defui $]]))
+   [uix.core :as uix :refer [$ defui]]))
 
 (def fields-map
   {"input" Input

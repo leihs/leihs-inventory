@@ -1,8 +1,6 @@
 (ns leihs.inventory.server.resources.profile.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
-   [clojure.walk :as walk]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
@@ -10,9 +8,7 @@
    [leihs.core.settings :refer [settings!]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
-
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))

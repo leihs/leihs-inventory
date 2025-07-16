@@ -2,7 +2,6 @@
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.pool.export.csv.main :as export-csv]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]))
 
 (defn routes []

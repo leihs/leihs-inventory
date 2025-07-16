@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.manufacturers.types
-  (:require [schema.core :as s]))
+  (:require
+   [schema.core :as s]))
 
 (s/defschema response-schema (s/->Either [[{:id s/Uuid
                                             :manufacturer s/Str

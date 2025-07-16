@@ -3,11 +3,8 @@
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :as attachment]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response
-                                                                                            delete-response
-                                                                                            error-attachment-not-found]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [error-attachment-not-found
+                                                                                            get-attachment-response]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

@@ -5,7 +5,6 @@
    [leihs.inventory.server.resources.pool.rooms.main :as rooms]
    [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

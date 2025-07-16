@@ -1,40 +1,17 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.main
   (:require
-   [cheshire.core :as cjson]
-   [clojure.data.codec.base64 :as b64]
-   [clojure.data.json :as json]
    [clojure.java.io :as io]
-   [clojure.java.shell :refer [sh]]
-   [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [accessories-query attachments-query base-inventory-query
-                                                                 entitlements-query item-query
-                                                                 model-links-query properties-query
-                                                                 with-items without-items with-search filter-by-type
-                                                                 from-category]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params query-params]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response pagination-response create-pagination-response]]
+   [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
+   [leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [pantomime.extract :as extract]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error spy debug]])
-  (:import [java.io File FileInputStream ByteArrayOutputStream]
-           [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util Base64]
-           [java.util UUID]
-           [java.util.jar JarFile]
-           [org.im4java.core ConvertCmd IMOperation]))
+   [taoensso.timbre :refer [error]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))

@@ -1,9 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.constants
-  "Defines application configuration and provides an HTTP handler to serve it."
-  (:require
-   [cheshire.core :as json]
-   [clojure.string :as str]
-   [ring.util.response :as response]))
+  "Defines application configuration and provides an HTTP handler to serve it.")
 
 (def config
   {:api

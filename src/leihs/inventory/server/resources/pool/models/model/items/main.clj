@@ -3,11 +3,11 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [ring.util.response :refer [response]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [taoensso.timbre :as timbre :refer [debug]]))
 
 (defn get-items-handler
   ([request]

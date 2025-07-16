@@ -4,10 +4,8 @@
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [schema.core :as s]
-   [spec-tools.core :as st]
-   [spec-tools.data-spec :as ds]))
+   [spec-tools.core :as st]))
 
 (def description-model-form "CAUTION:\n
 - Model\n

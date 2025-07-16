@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.main
   (:require
-   [clojure.data.codec.base64 :as b64]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]

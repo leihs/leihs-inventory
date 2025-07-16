@@ -1,18 +1,14 @@
 (ns leihs.inventory.server.resources.routes
   (:require
-   [cheshire.core :as json]
    [clojure.java.io :as io]
-   [clojure.string :as str]
    [dev.routes :refer [get-dev-routes]]
-   [leihs.core.constants :as constants]
-   [leihs.core.sign-in.back :as be]
-   [leihs.core.sign-out.back :as so]
-   [leihs.core.status :as status]
-   [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
-                                                        APPLY_API_ENDPOINTS_NOT_USED_IN_FE
+   [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
+                                                        APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.admin.status.routes :as admin-status]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
+   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
+                                                  post-sign-in post-sign-out
+                                                  swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
@@ -42,15 +38,10 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
-   [reitit.ring.middleware.muuntaja :as muuntaja]
-   [reitit.swagger :as swagger]
-   [ring.util.response :as response]
-   [ring.util.response :refer [bad-request response status]]
-   [schema.core :as s]))
+   [reitit.swagger :as swagger]))
 
 (defn sign-in-out-endpoints []
   [["sign-in"

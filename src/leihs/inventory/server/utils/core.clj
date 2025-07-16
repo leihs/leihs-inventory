@@ -1,12 +1,6 @@
 (ns leihs.inventory.server.utils.core
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [next.jdbc.sql :as jdbc]
-   [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.middleware.accept]))
 
 (defn single-entity-get-request? [request]
   (let [method (:request-method request)

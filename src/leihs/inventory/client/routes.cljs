@@ -11,7 +11,6 @@
    [leihs.inventory.client.routes.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.models.layout :rename {layout models-layout}]
    [leihs.inventory.client.routes.models.page :rename {page models-page}]
-   [leihs.inventory.client.routes.notfound :rename {page notfound-page}]
    [leihs.inventory.client.routes.page :rename {page home-page}]
    [leihs.inventory.client.routes.statistics.page :rename {page statistics-page}]
    [uix.core :as uix :refer [$]]

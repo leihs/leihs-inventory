@@ -6,18 +6,12 @@
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.constants :as constants]
    [leihs.core.core :refer [presence]]
-   [leihs.core.db :as db]
    [leihs.core.json :refer [to-json]]
-   [leihs.core.ring-audits :as ring-audits]
-   [leihs.core.routing.back :as core-routing]
-   [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
-   [leihs.core.sign-in.back :as be]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [ring.util.response :as response]))
 
 (def WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out"])
 
