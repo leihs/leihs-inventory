@@ -17,7 +17,7 @@
 (defn routes []
 
   [""
-   ["/:pool_id"
+   [""
     {:swagger {:tags [""]}}
 
     ["/entitlement-groups"

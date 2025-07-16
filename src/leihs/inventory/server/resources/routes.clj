@@ -9,7 +9,7 @@
    [leihs.core.sign-out.back :as so]
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :as consts :refer [APPLY_DEV_ENDPOINTS
-                                                        APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                                                        APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.admin.status.routes :as admin-status]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out post-sign-in post-sign-out swagger-api-docs-handler]]
@@ -166,7 +166,7 @@
                      (token-public/routes)
                      (token/routes)]
         additional-routes (concat
-                           (when APPLY_ENDPOINTS_NOT_YET_USED_BY_FE
+                           (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                              [(suppliers/routes)
                               (fields/routes)
                               (export-csv/routes)
@@ -184,4 +184,4 @@
    ["inventory"
     (csrf-endpoints)
     (swagger-endpoints)
-    (visible-api-endpoints)]])
+    ["/:pool_id" (visible-api-endpoints)]]])

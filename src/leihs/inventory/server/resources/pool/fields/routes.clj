@@ -11,7 +11,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id"
+  [""
 
    ["/fields"
     {:swagger {:tags [""]}}

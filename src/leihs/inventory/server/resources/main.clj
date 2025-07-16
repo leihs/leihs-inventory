@@ -43,8 +43,7 @@
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
                     :flashMessages []}
-                   (assoc :csrfToken (when consts/ACTIVATE-SET-CSRF
-                                       {:name "csrf-token" :value mtoken}))
+                   (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         accept (get-in request [:headers "accept"])
@@ -71,8 +70,7 @@
 (defn get-sign-out [request]
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
         params {:authFlow {:returnTo "/inventory/models"}
-                :csrfToken (when consts/ACTIVATE-SET-CSRF
-                             {:name "csrf-token" :value uuid})}
+                :csrfToken  {:name "csrf-token" :value uuid}}
         html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
     {:status 200
      :headers {"Content-Type" "text/html"}

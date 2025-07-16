@@ -16,7 +16,7 @@
 (defn routes []
   [""
 
-   ["/:pool_id"
+   [""
     {:swagger {:tags [""]}}
 
     ["/items/"
