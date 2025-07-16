@@ -216,7 +216,9 @@
         "submit": "Erstellen",
         "add_item": "Erstellen und Gegenstand hinzufügen",
         "cancel": "Abbrechen",
-        "success": "Modell wurde erfolgreich erstellt"
+        "success": "Modell wurde erfolgreich erstellt",
+        "409": "Modell konnte nicht erstellt werden, da ein Modell mit dem gleichen Namen bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
         "success": "Modell wurde erfolgreich gespeichert",
@@ -228,7 +230,7 @@
         "confirm": "Löschen",
         "cancel": "Abbrechen",
         "success": "Modell wurde erfolgreich gelöscht",
-        "error": "Modell konnte nicht gelöscht werden"
+        "500": "Modell konnte nicht gelöscht werden"
       }
     }
   },
