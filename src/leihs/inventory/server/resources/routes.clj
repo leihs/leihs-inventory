@@ -128,7 +128,9 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [(models/routes)
+  (let [core-routes [
+                     ["/:pool_id"
+                      (models/routes)
                      (model/routes)
                      (image/routes)
                      (images/routes)
@@ -150,12 +152,15 @@
                      (responsible-inventory-pools/routes)
                      (suppliers/routes)
 
+                      ]
+
                      (profile/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
                      (token-public/routes)
-                     (token/routes)]
+                     (token/routes)
+                     ]
         additional-routes (concat
                            (when APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                              [(suppliers/routes)
@@ -175,4 +180,4 @@
    ["inventory"
     (csrf-endpoints)
     (swagger-endpoints)
-    ["/:pool_id" (visible-api-endpoints)]]])
+    (visible-api-endpoints)]])
