@@ -81,11 +81,14 @@
                           (let [pool-id (aget params "pool-id")
                                 model-id (aget params "model-id")
                                 res (<p! (-> http-client
-                                             (.delete (str "/inventory/" pool-id "/model/" model-id))
+                                             (.delete (str "/inventory/" pool-id "/models/" model-id))
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
-                                                       :data (.. data -data)}))))
+                                                       :data (.. data -data)}))
+                                             (.catch (fn [err]
+                                                       {:status (.. err -response -status)
+                                                        :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -97,7 +100,7 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t "pool.model.delete.error")))))))
+                              (.. toast (error (t (str "pool.model.delete." (:status res)))))))))
 
         on-submit (fn [submit-data event]
                     (go
@@ -143,7 +146,10 @@
                                                           (js/console.debug "Model Data" res (.. res -data -id))
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
-                                                           :id (.. res -data -id)}))))
+                                                           :id (.. res -data -id)}))
+                                                 (.catch (fn [err]
+                                                           {:status (.. err -response -status)
+                                                            :statusText (.. err -response -statusText)}))))
 
                                         (<p! (let [model-id (aget params "model-id")]
                                                (-> http-client
@@ -157,7 +163,10 @@
                                                    (.then (fn [res]
                                                             {:status (.. res -status)
                                                              :statusText (.. res -statusText)
-                                                             :id (.. res -data -id)}))))))
+                                                             :id (.. res -data -id)}))
+                                                   (.catch (fn [err]
+                                                             {:status (.. err -response -status)
+                                                              :statusText (.. err -response -statusText)}))))))
 
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
@@ -180,7 +189,7 @@
                                      (.then #(.-data %))))))
 
                         (if (not= (:status model-res) 200)
-                          (.. toast (error (:statusText model-res)))
+                          (.. toast (error (t (str "pool.model.create." (:status model-res)))))
 
                           (do
                             ;; upload images sequentially and path model with is_cover when is needed + images with target_type

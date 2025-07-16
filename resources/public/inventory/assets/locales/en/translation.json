@@ -216,7 +216,9 @@
         "submit": "Create",
         "add_item": "Create and add item",
         "cancel": "Cancel",
-        "success": "Model successfully created"
+        "success": "Model successfully created",
+        "409": "A model with this name already exists",
+        "500": "An error occurred while creating the model"
       },
       "edit": {
         "success": "Model successfully saved",
@@ -228,7 +230,7 @@
         "confirm": "Delete",
         "cancel": "Cancel",
         "success": "Model successfully deleted",
-        "error": "Model could not be deleted"
+        "500": "Model could not be deleted"
       }
     }
   },
