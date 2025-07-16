@@ -5,6 +5,8 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main :as image-thumbnail]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware accept-json-image-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.resources.pool.models.model.images.image.types :as image]
+   [leihs.inventory.server.resources.pool.models.model.images.types :as images]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -23,6 +25,8 @@
                                :model_id s/Uuid
                                :image_id s/Uuid}}
            :handler image-thumbnail/get-resource
-           :responses {200 {:description "OK"}
-                       404 {:description "Not Found"}
+           :responses {200 {:description "OK"
+                            :body image/image}
+                       404 {:description "Not Found"
+                            :body image/error-image-not-found}
                        500 {:description "Internal Server Error"}}}}]])

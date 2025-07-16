@@ -3,6 +3,7 @@
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
    [leihs.inventory.server.resources.pool.models.model.items.main :refer [index-resources]]
+   [leihs.inventory.server.resources.types :refer [pagination]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -51,4 +52,4 @@
    (s/optional-key :room_name) (s/maybe s/Str)})
 
 (def get-items-response {:data [item]
-                         :pagination s/Any})
+                         :pagination pagination})
