@@ -46,7 +46,7 @@
   (filter-keys m [:filename :content_type :size :model_id :item_id :content]))
 
 (defn attachment-response-format [s]
-  (sql/returning s :id :filename))
+  (sql/returning s :id :filename :content_type :size :model_id :item_id))
 
 (defn post-resource [req]
   (try

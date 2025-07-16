@@ -8,7 +8,7 @@
 ;"error": "Attachment not found"
 
 (def get-attachment-response
-  attachment)
+  (s/->Either [attachment s/Any]))
 
 (def delete-response
   {:status s/Str
