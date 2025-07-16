@@ -64,10 +64,10 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (useLoaderData)
+        model (into {} (:model (jc (router/useLoaderData))))
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values data))
+                                            (fn [] (core/prepare-default-values model))
                                             default-values)})
 
         is-loading (.. form -formState -isLoading)
@@ -99,35 +99,35 @@
                               ;; show error message
                               (.. toast (error (t "pool.model.delete.error")))))))
 
-        on-submit (fn [submit-data event]
+        on-submit (fn [data event]
                     (go
                       (let [images (if is-create
-                                     (:images (jc submit-data))
+                                     (:images (jc data))
                                      (filter (fn [el] (= (:id el) nil))
-                                             (:images (jc submit-data))))
+                                             (:images (jc data))))
 
                             image-id (atom nil)
 
                             images-to-delete (if is-edit
-                                               (->> (:images data)
+                                               (->> (:images model)
                                                     (map :id)
-                                                    (remove (set (map :id (:images (jc submit-data))))))
+                                                    (remove (set (map :id (:images (jc data))))))
                                                nil)
 
                             attachments (if is-create
-                                          (:attachments (jc submit-data))
+                                          (:attachments (jc data))
                                           (filter (fn [el] (= (:id el) nil))
-                                                  (:attachments (jc submit-data))))
+                                                  (:attachments (jc data))))
 
                             attachments-to-delete (if is-edit
-                                                    (->> (:attachments data)
+                                                    (->> (:attachments model)
                                                          (map :id)
-                                                         (remove (set (map :id (:attachments (jc submit-data))))))
+                                                         (remove (set (map :id (:attachments (jc data))))))
                                                     nil)
 
                             model-data (core/remove-nil-values
                                         (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                         (dissoc (jc submit-data) :images :attachments))))
+                                                         (dissoc (jc data) :images :attachments))))
 
                             pool-id (aget params "pool-id")
 
@@ -218,7 +218,7 @@
                                                                "X-Filename" name}}))))))
 
                             ;; patch cover-image when needed
-                            (let [cover-image (filter #(= (:is_cover %) true) (:images (jc submit-data)))
+                            (let [cover-image (filter #(= (:is_cover %) true) (:images (jc data)))
                                   cover-image-id (or (:id (first cover-image)) @image-id)]
 
                               (when cover-image-id
@@ -253,7 +253,6 @@
                                             #js {:state state
                                                  :viewTransition true})))))))))]
 
-    (js/console.debug data)
     (uix/use-effect
      (fn []
        (when (and is-edit (not is-loading))
