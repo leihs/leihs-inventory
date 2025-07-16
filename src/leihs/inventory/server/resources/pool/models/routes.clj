@@ -1,22 +1,21 @@
 (ns leihs.inventory.server.resources.pool.models.routes
   (:require
-   [clojure.spec.alpha :as sa]
-   [clojure.string :as str]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.main :as models]
-   [leihs.inventory.server.resources.pool.models.types :refer [get-response post-response
-                                                               description-model-form]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
+   [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
+                                                               get-response
+                                                               post-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id"
+  [""
 
    {:swagger {:tags [""]}}
 
@@ -27,7 +26,6 @@
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
             :coercion reitit.coercion.schema/coercion
             :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json" "text/html"]}
             :parameters {:path {:pool_id s/Uuid}
                          :query {(s/optional-key :before_last_check) Date
                                  (s/optional-key :borrowable) s/Bool

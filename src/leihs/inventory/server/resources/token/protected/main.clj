@@ -2,15 +2,12 @@
   (:require
    [crypto.random]
    [cryptohash-clj.api :refer :all]
-   [digest :as d]
-   [leihs.inventory.server.resources.utils.request :refer [AUTHENTICATED_ENTITY authenticated? get-auth-entity]]
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?
+                                                       AUTHENTICATED_ENTITY
+                                                       get-auth-entity]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response]
-   [schema.core :as s]
-   [taoensso.timbre :refer [debug info warn error spy]])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [taoensso.timbre :refer [debug]]))
 
 (defn get-resource [request]
   (if (authenticated? request)

@@ -3,11 +3,9 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error spy]]))
+   [ring.util.response :refer [response]]))
 
 (defn get-resources [request]
   (let [tx (:tx request)

@@ -1,23 +1,16 @@
 (ns leihs.inventory.server.resources.pool.category-tree.routes
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.core.core :refer [presence]]
-   [leihs.core.resources.categories.filter :as filter]
-   [leihs.core.resources.categories.tree :refer [tree]]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.category-tree.main :as category-tree]
    [leihs.inventory.server.resources.pool.category-tree.types :as types]
-   [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [reitit.ring.middleware.multipart :as multipart]
-   [ring.middleware.accept]
-   [ring.util.response :as response]
-   [schema.core :as s]))
+   [ring.middleware.accept]))
 
 (defn routes []
 
-  ["/:pool_id/category-tree/"
+  ["/category-tree/"
    {:swagger {:tags [""]}}
 
    [""

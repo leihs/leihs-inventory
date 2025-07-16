@@ -4,12 +4,13 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.utils.request :refer [path-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import [java.io ByteArrayInputStream]
-           [java.util Base64]))
+  (:import
+   [java.io ByteArrayInputStream]
+   [java.util Base64]))
 
 (defn- clean-base64-string [base64-str]
   (clojure.string/replace base64-str #"\s+" ""))

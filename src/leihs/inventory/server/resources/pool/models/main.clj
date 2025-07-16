@@ -4,8 +4,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-schema
-                                                                filter-map-by-spec fetch-thumbnails-for-ids]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
@@ -14,20 +14,22 @@
                                                                                  process-properties]]
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
-                                                                 from-category with-items with-search
+                                                                 from-category
+                                                                 with-items
+                                                                 with-search
                                                                  without-items]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
+                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params
+                                                       query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import [java.net URL JarURLConnection]
-           (java.time LocalDateTime)
-           [java.util UUID]
-           [java.util.jar JarFile]))
+   [taoensso.timbre :refer [debug]])
+  (:import
+   (java.time LocalDateTime)))
 
 (defn get-models-handler
   ([request]

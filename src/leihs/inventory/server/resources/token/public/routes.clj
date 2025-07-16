@@ -1,10 +1,7 @@
 (ns leihs.inventory.server.resources.token.public.routes
   (:require
-   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.public.main :as token-public])
-  (:import (com.google.common.io BaseEncoding)
-           (java.time Duration Instant)
-           (java.util Base64 UUID)))
+   [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
+   [leihs.inventory.server.resources.token.public.main :as token-public]))
 
 (defn routes []
   [["/"

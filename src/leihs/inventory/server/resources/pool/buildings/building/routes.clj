@@ -4,15 +4,14 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.buildings.building.main :as building]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id"
+  [""
    {:swagger {:tags [""]}}
 
    ["/buildings/"

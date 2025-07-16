@@ -2,33 +2,34 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :refer [get-resource
-                                                                                           delete-resource]]
-   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [get-attachment-response]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-image-middleware accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.main :as attachment]
+   [leihs.inventory.server.resources.pool.models.model.attachments.attachment.types :refer [error-attachment-not-found
+                                                                                            get-attachment-response]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id/"
+  [""
    {:swagger {:tags [""]}}
 
-   ["models/:model_id/attachments/:attachments_id"
+   ["/models/:model_id/attachments/:attachments_id"
     {:get {:summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
-           :swagger {:produces ["application/json" "application/octet-stream"]}
+           :swagger {:produces ["application/json" "application/octet-stream"
+                                "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
+                                "image/vnd.dwg" "application/zip"]}
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid
                                :attachments_id s/Uuid}
                         :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
-           :handler get-resource
+           :handler attachment/get-resource
            :responses {200 {:description "OK"
                             :body get-attachment-response}
-                       404 {:description "Not Found"}
+                       404 {:description "Not Found"
+                            :body error-attachment-not-found}
                        500 {:description "Internal Server Error"}}}
 
      :delete {:accept "application/json"
@@ -37,7 +38,8 @@
               :parameters {:path {:pool_id s/Uuid
                                   :model_id s/Uuid
                                   :attachments_id s/Uuid}}
-              :handler delete-resource
-              :responses {200 {:description "OK"}
+              :handler attachment/delete-resource
+              :responses {200 {:description "OK"
+                               :body s/Any}
                           404 {:description "Not Found"}
                           500 {:description "Internal Server Error"}}}}]])

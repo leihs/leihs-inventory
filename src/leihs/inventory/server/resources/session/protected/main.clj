@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.session.protected.main
   (:require
-   [leihs.inventory.server.resources.utils.request :refer [authenticated? get-auth-entity]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?
+                                                       get-auth-entity]]
+   [taoensso.timbre :refer [debug]]))
 
 (defn get-resource [request]
   (if (authenticated? request)

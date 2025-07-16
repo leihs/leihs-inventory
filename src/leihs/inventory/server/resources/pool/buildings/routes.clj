@@ -4,28 +4,26 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.buildings.main :as buildings]
    [leihs.inventory.server.resources.pool.buildings.types :refer [response-body]]
-   [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 
 (defn routes []
-  ["/:pool_id"
+  ["/buildings/"
+
    {:swagger {:tags [""]}}
 
-   ["/buildings/"
-
-    [""
-     {:get {:summary (fe "")
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:pool_id s/Uuid}}
-            :handler buildings/index-resources
-            :responses {200 {:description "OK"
-                             :body [response-body]}
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+   [""
+    {:get {:summary (fe "")
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :middleware [accept-json-middleware]
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {:pool_id s/Uuid}}
+           :handler buildings/index-resources
+           :responses {200 {:description "OK"
+                            :body [response-body]}
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}}]])

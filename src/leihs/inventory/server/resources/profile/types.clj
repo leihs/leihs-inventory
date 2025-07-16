@@ -1,10 +1,5 @@
 (ns leihs.inventory.server.resources.profile.types
   (:require
-   ;[clojure.set]
-   ;[leihs.inventory.server.constants :refer [fe]]
-   ;[leihs.inventory.server.resources.profile.main :refer [get-resource]]
-   ;[leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware wrap-authenticate!]]
-   ;[leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

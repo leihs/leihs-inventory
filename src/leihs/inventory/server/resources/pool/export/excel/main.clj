@@ -1,15 +1,9 @@
 (ns leihs.inventory.server.resources.pool.export.excel.main
   (:require
-   [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    [clojure.set]
-   [clojure.string :as str]
    [dk.ative.docjure.spreadsheet :as ss]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :as log]
    [taoensso.timbre :refer [error]]))
 

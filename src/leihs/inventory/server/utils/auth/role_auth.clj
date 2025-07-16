@@ -1,9 +1,8 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.auth.roles :as roles]
    [ring.util.response :refer [response status]]
-   [taoensso.timbre :refer [debug info warn error spy]]))
+   [taoensso.timbre :refer [error]]))
 
 (defn determine-required-scope
   "Determines the required scope based on the HTTP method and URI."

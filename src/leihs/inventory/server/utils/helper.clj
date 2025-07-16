@@ -1,11 +1,11 @@
 (ns leihs.inventory.server.utils.helper
-  (:require [cheshire.core :as json]
-            [clojure.string :as str]
-            [clojure.walk :as walk]
-            [honey.sql :refer [format] :rename {format sql-format}]
-            [pghstore-clj.core :refer [to-hstore]]
-            [taoensso.timbre :refer [warn]])
-  (:import (java.util UUID)))
+  (:require
+   [cheshire.core :as json]
+   [clojure.string :as str]
+   [clojure.walk :as walk]
+   [taoensso.timbre :refer [warn]])
+  (:import
+   (java.util UUID)))
 
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
