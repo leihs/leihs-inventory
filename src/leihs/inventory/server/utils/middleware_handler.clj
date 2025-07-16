@@ -20,7 +20,7 @@
           uri (:uri request)
           whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json"]
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
-          attachment-request? (valid-attachment-uri? uri) ]
+          attachment-request? (valid-attachment-uri? uri)]
 
       (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/"]))
               (some #(= % uri) whitelist-uris-for-api)
@@ -49,7 +49,7 @@
                       handler))
           token (get-in request [:headers "authorization"])
           handler (if (and token
-                        (re-matches #"(?i)^token\s+(.*)$" token))
+                           (re-matches #"(?i)^token\s+(.*)$" token))
                     (try
                       (token/wrap-authenticate handler)
                       (catch Exception e

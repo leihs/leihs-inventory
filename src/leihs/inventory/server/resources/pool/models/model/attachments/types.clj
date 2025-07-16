@@ -16,6 +16,6 @@
   {:data [attachment]
    :pagination pagination})
 
-(def  attachment-response
-{  :id s/Uuid
-  :filename s/Str})
+(def attachment-response
+  {:id s/Uuid
+   :filename s/Str})

@@ -35,6 +35,6 @@
                 :handler fields/index-resources
                 :responses {200 {:description "OK"
                                  ;:body get-response}
-                                 :body s/Any}               ;;FIXME
+                                 :body s/Any} ;;FIXME
                             404 {:description "Not Found"}
                             500 {:description "Internal Server Error"}}}}]]])

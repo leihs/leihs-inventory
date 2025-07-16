@@ -93,7 +93,7 @@
         file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
-        accept-header (get-in request [:headers "accept"]) ]
+        accept-header (get-in request [:headers "accept"])]
 
     (cond
       (= uri "/") (create-root-page)

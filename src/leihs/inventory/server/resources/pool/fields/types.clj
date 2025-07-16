@@ -2,9 +2,9 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :refer [index-resources]]
+   [leihs.inventory.server.resources.types :refer [pagination]]
    [leihs.inventory.server.resources.utils.middleware :refer [accept-json-middleware]]
    [leihs.inventory.server.utils.response_helper :as rh]
-   [leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -33,7 +33,6 @@
 }) ;; allow extra keys
 
 (def DateTime (s/cond-pre s/Str java.util.Date java.sql.Timestamp))
-
 
 (def item
   {:id (s/maybe s/Uuid)
@@ -72,4 +71,4 @@
    (s/optional-key :room_name) (s/maybe s/Str)})
 
 (def get-response (s/->Either [{:data [item]
-                         :pagination pagination} [item]]))
+                                :pagination pagination} [item]]))

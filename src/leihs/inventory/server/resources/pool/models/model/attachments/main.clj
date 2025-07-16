@@ -12,13 +12,13 @@
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.resources.pool.models.queries :refer [accessories-query attachments-query base-inventory-query
                                                                  entitlements-query item-query
                                                                  model-links-query properties-query
                                                                  with-items without-items with-search filter-by-type
                                                                  from-category]]
    [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist url-ends-with-uuid?]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64 resize-and-convert-to-base64]]
@@ -81,9 +81,9 @@
                      (assoc :content file-content)
                      filter-keys-attachments)
             data (jdbc/execute-one! tx (-> (sql/insert-into :attachments)
-                                       (sql/values [data])
-                                       attachment-response-format
-                                       sql-format))]
+                                           (sql/values [data])
+                                           attachment-response-format
+                                           sql-format))]
         (status (response data) 200)))
 
     (catch Exception e

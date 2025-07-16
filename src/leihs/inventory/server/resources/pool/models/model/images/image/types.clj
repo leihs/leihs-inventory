@@ -11,7 +11,7 @@
    :message s/Str})
 
 (def image
-  { :content s/Str
+  {:content s/Str
    :width (s/maybe s/Uuid)
    :height (s/maybe s/Uuid)
    :size s/Int
@@ -21,4 +21,4 @@
    :thumbnail s/Bool
    :id s/Uuid
    :parent_id (s/maybe s/Uuid)
-   :target_type s/Str })
+   :target_type s/Str})
