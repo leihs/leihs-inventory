@@ -103,9 +103,6 @@
   (try
     (let [tx (:tx request)
           model-id (-> request path-params :model_id)
-          accept-header (get-in request [:headers "accept"])
-          content-disposition (or (-> request :parameters :query :content_disposition) "inline")
-          type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
@@ -114,5 +111,3 @@
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
-
-
