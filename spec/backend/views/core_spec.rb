@@ -10,9 +10,9 @@ describe "Request " do
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
-    context "against /inventory/admin/status/" do
+    context "against public endpoint /inventory/status" do
       scenario "status-check for cider" do
-        resp = client.get "/inventory/admin/status/"
+        resp = client.get "/inventory/status"
         expect(resp.status).to be == 200
       end
     end
@@ -39,10 +39,10 @@ describe "Request " do
       end
     end
 
-    context "against /inventory/admin/status/" do
+    context "against /inventory/status/" do
       scenario "status-check for cider" do
-        resp = http_client.get "/inventory/admin/status/"
-        expect(resp.status).to be == 403
+        resp = http_client.get "/inventory/status"
+        expect(resp.status).to be == 200
       end
     end
   end

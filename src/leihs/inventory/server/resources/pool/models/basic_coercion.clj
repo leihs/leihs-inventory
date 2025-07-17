@@ -80,8 +80,8 @@
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::accessory (sa/keys :req-un [::id] :opt-un [::name ::delete ::has_inventory_pool] :kind map?))
-(sa/def ::accessories (sa/or :coll (sa/coll-of ::accessory) :kind vector? :str string?)) ;; TODO: cleanup, remove :str definition [fe]
+(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [:nil/id ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessories (sa/coll-of ::accessory))
 (sa/def ::serial_number string?)
 (sa/def :nil/note (sa/nilable string?))
 (sa/def ::status_note string?)
