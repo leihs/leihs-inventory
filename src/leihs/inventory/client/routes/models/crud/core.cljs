@@ -60,7 +60,6 @@
 (defn prepare-default-values [model]
   (let [images (:images model)
         attachments (:attachments model)]
-    (js/console.debug "model in prepare" model)
 
     (-> (js/Promise.all
          (concat

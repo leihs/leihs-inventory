@@ -104,7 +104,6 @@
 
         on-submit (fn [submit-data event]
                     (go
-                      (js/console.debug "Submit Data" submit-data)
                       (let [images (if is-create
                                      (:images (jc submit-data))
                                      (filter (fn [el] (= (:id el) nil))
@@ -143,7 +142,6 @@
                                                                        :manufacturers "delete"}}}))
 
                                                  (.then (fn [res]
-                                                          (js/console.debug "Model Data" res (.. res -data -id))
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
                                                            :id (.. res -data -id)}))
