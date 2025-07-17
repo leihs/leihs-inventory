@@ -143,7 +143,6 @@ feature "Update model", type: :feature do
     visit "/inventory/#{pool.id}"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_old} #{version_old}"
-    binding.pry
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -201,7 +200,6 @@ feature "Update model", type: :feature do
       fill_in "properties.1.value", with: third_property_value_new
     end
 
-    binding.pry
     click_on "Save"
 
     expect(page).to have_content "Inventory List"

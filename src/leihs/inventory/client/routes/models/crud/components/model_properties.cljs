@@ -49,8 +49,9 @@
         inputs (:inputs props)
         handle-add (fn []
                      (uix-dom/flush-sync
-                      (append (cj {:key ""
-                                   :value ""})))
+                      (append #js {:id nil
+                                   :key ""
+                                   :value ""}))
                      (let [name (str "textarea[name='properties." (count fields) ".key']")
                            next (js/document.querySelector name)]
                        (when next (.focus next))))]
