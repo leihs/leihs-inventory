@@ -33,7 +33,7 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    it "redirect to login if request is not comes from swagger-ui" do
+    it "returns correct result 404" do
       resp = plain_faraday_client.get("/inventory/session/protected") do |req|
         req.headers["Referer"] = "/inventory"
       end
