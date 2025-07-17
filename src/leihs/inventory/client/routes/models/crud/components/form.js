@@ -25,7 +25,7 @@ export const schema = z.object({
   images: z
     .array(
       z.object({
-        id: z.string().nullish(),
+        id: z.string().nullable(),
         file: z.instanceof(File).optional(),
         is_cover: z.boolean(),
       }),
@@ -34,12 +34,19 @@ export const schema = z.object({
   attachments: z
     .array(
       z.object({
-        id: z.string().nullish(),
+        id: z.string().nullable(),
         file: z.instanceof(File).optional(),
       }),
     )
     .optional(),
-  accessories: z.array(z.object({ name: z.string() })).optional(),
+  accessories: z
+    .array(
+      z.object({
+        id: z.string().nullable(),
+        name: z.string().nonempty(),
+      }),
+    )
+    .optional(),
   compatibles: z
     .array(
       z.object({
@@ -51,9 +58,9 @@ export const schema = z.object({
   properties: z
     .array(
       z.object({
-        id: z.string().nullish(),
-        key: z.string(),
-        value: z.string(),
+        id: z.string().nullable(),
+        key: z.string().nonempty(),
+        value: z.string().nonempty(),
       }),
     )
     .optional(),
