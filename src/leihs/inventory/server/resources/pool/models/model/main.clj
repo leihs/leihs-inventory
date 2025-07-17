@@ -219,8 +219,12 @@
         _ (when (seq items)
             (throw (ex-info "Referenced items exist" {:status 403})))
 
-        deleted-model (jdbc/execute! tx
-                                     (-> (sql/delete-from :models)
+        deleted-model-compatible (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
+                                         (sql/where [:= :model_id model-id])
+                                         (sql/returning :compatible_id)
+                                         sql-format))
+
+        deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
                                          (sql/where [:= :id model-id])
                                          (sql/returning :*)
                                          sql-format))
@@ -233,7 +237,9 @@
 
         result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                 :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
-                :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))}]
+                :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))
+                :deleted_model_compatibles deleted-model-compatible
+                }]
 
     (if (= 1 (count deleted-model))
       (response result)
