@@ -5,7 +5,7 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.admin.status.routes :as admin-status]
+   [leihs.inventory.server.resources.status.routes :as admin-status]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
                                                   swagger-api-docs-handler]]

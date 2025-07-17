@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.admin.status.types
+(ns leihs.inventory.server.resources.status.types
   (:require
    [schema.core :as s]))
 
