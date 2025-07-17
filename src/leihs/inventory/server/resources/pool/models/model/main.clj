@@ -31,7 +31,6 @@
                      sql-format)))
 
 (defn fetch-attachments [tx model-id pool-id]
-
   (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
                          (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
                                       :content_type (:content_type %))))]
@@ -218,11 +217,14 @@
         _ (when (seq items)
             (throw (ex-info "Referenced items exist" {:status 403})))
 
-        deleted-model (jdbc/execute! tx
-                                     (-> (sql/delete-from :models)
-                                         (sql/where [:= :id model-id])
-                                         (sql/returning :*)
-                                         sql-format))
+        deleted-model-compatible (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
+                                                       (sql/where [:= :model_id model-id])
+                                                       (sql/returning :compatible_id)
+                                                       sql-format))
+        deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
+                                            (sql/where [:= :id model-id])
+                                            (sql/returning :*)
+                                            sql-format))
         _ (db-operation tx :delete :images [:= :target_id model-id])
 
         remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
@@ -232,7 +234,8 @@
 
         result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                 :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
-                :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))}]
+                :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))
+                :deleted_model_compatibles deleted-model-compatible}]
 
     (if (= 1 (count deleted-model))
       (response result)

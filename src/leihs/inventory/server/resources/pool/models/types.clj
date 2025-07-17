@@ -90,12 +90,12 @@
 (sa/def :model/multipart
   (sa/keys
    :req-un [::sp/product]
-   :opt-un [::sp/version
+   :opt-un [:nil/version
             ::sp/manufacturer
              ;:nil-str/is_package
-            :nil/is_package
+            ::sp/is_package
             :nil/description
-            ::sp/technical_detail
+            :nil/technical_detail
             :nil/internal_description
             :nil/hand_over_note
             ::sp/categories

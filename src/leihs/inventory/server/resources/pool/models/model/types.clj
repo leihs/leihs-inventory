@@ -14,13 +14,14 @@
 (def delete-response
 
   (sa/keys :req-un
-           [::deleted_attachments ::deleted_images ::deleted_model]))
+           [::deleted_attachments ::deleted_images ::deleted_model ::deleted_model_compatibles]))
 
 (sa/def ::deleted_attachments
   (sa/coll-of
    (sa/keys :req-un [::sp/id ::sp/model_id ::sp/filename ::sp/size])))
 
 (sa/def ::deleted_images (sa/coll-of any?))
+(sa/def ::deleted_model_compatibles (sa/coll-of uuid?))
 
 (sa/def ::deleted_model
   (sa/coll-of

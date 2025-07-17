@@ -12,6 +12,8 @@
    [leihs.inventory.server.swagger-api :as sui]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
+   [ring.middleware.content-type :refer [wrap-content-type]]
+   [ring.middleware.default-charset :refer [wrap-default-charset]]
    [taoensso.timbre :refer [info]]))
 
 (def cache-bust-options
@@ -21,7 +23,9 @@
 
 (defn app [options]
   (-> (sui/create-app options)
-      (cache-buster2/wrap-resource "public" cache-bust-options)))
+      (cache-buster2/wrap-resource "public" cache-bust-options)
+      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+      (wrap-default-charset "utf-8")))
 
 (defn run [options]
   (catcher/snatch

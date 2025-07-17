@@ -46,7 +46,7 @@
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (.endsWith (str key) uri)
+            (if (str/includes? uri (str key))
               value))
           assets)
     nil))
@@ -88,7 +88,10 @@
         file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
-        accept-header (get-in request [:headers "accept"])]
+        accept-header (or (get-in request [:headers "accept"]) "")
+        referer (or (get-in request [:headers "referer"]) "")
+        swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
+        accept-html? (clojure.string/includes? accept-header "text/html")]
 
     (cond
       (= uri "/") (create-root-page)
@@ -114,8 +117,8 @@
                 {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
                 (rh/index-html-response request 404)))
 
-      (and (not (file-request? uri)) (not (session-valid? request)))
-      (response/redirect "/sign-in?return-to=%2Finventory")
+      (and accept-html? (not (session-valid? request)) (not swagger-call?))
+      {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
       (rh/index-html-response request 200)

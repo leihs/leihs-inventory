@@ -47,6 +47,7 @@
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
                                                      "/inventory/csrf-token/"
                                                      "/inventory/token/public"
+                                                     "/inventory/status"
                                                      "/inventory/session/public"])]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
