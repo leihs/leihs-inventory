@@ -5,7 +5,6 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.status.routes :as admin-status]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
                                                   swagger-api-docs-handler]]
@@ -34,6 +33,7 @@
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
+   [leihs.inventory.server.resources.status.routes :as admin-status]
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
