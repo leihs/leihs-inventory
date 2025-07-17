@@ -10,9 +10,10 @@
    [ring.middleware.accept]))
 
 (defn routes []
-  ["/admin/status/"
+  ["/status"
    {:no-doc HIDE_BASIC_ENDPOINTS
     :get {:accept "application/json"
+          :description "Get system status, called by CI"
           :handler status/status-handler
           :middleware [wrap-is-admin!]
           :coercion reitit.coercion.schema/coercion
