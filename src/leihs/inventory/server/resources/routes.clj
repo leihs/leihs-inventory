@@ -73,7 +73,7 @@
 
 (defn csrf-endpoints []
   ["/"
-   {:swagger {:tags ["Auth"]}
+   {:swagger {:tags ["CSRF"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
    ["test-csrf"
@@ -168,14 +168,13 @@
                      (token-protected/routes)
                      (token-public/routes)
                      (token/routes)]]
-
-;(vec (concat core-routes additional-routes))
     (vec core-routes)))
 
 (defn all-api-endpoints []
   ["/"
    (sign-in-out-endpoints)
    ["inventory"
+    {:swagger {:tags [""]}}
     (csrf-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])

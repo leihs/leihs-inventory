@@ -9,24 +9,18 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
+  ["/items/"
+   {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
 
-   [""
-    {:swagger {:tags [""]}}
-
-    ["/items/"
-
-     {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
-
-            :accept "application/json"
-            :coercion reitit.coercion.schema/coercion
-            :middleware [accept-json-middleware]
-            :swagger {:produces ["application/json"]}
-            :parameters {:path {:pool_id s/Uuid}
-                         :query query-params}
-            :handler items/index-resources
-            :responses {200 {:description "OK"
-                             :body s/Any}
+          :accept "application/json"
+          :coercion reitit.coercion.schema/coercion
+          :middleware [accept-json-middleware]
+          :swagger {:produces ["application/json"]}
+          :parameters {:path {:pool_id s/Uuid}
+                       :query query-params}
+          :handler items/index-resources
+          :responses {200 {:description "OK"
+                           :body s/Any}
                         ;:body get-items-response} ;; FIXME broken
-                        404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+                      404 {:description "Not Found"}
+                      500 {:description "Internal Server Error"}}}}])

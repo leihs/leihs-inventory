@@ -8,23 +8,17 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   {:swagger {:tags [""]}}
-
-   ["/models/:model_id"
-
-    ["/items/"
-     ["" {:get {:accept "application/json"
-                :coercion reitit.coercion.schema/coercion
-                :middleware [accept-json-middleware]
-                :swagger {:produces ["application/json"]}
-                :parameters {:path {:pool_id s/Uuid
-                                    :model_id s/Uuid
-                                    (s/optional-key :page) s/Int
-                                    (s/optional-key :size) s/Int}}
-                :handler items/index-resources
-                :responses {200 {:description "OK"
-                                 :body get-items-response}
-                            404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]])
+  ["/models/:model_id/items/"
+   ["" {:get {:accept "application/json"
+              :coercion reitit.coercion.schema/coercion
+              :middleware [accept-json-middleware]
+              :swagger {:produces ["application/json"]}
+              :parameters {:path {:pool_id s/Uuid
+                                  :model_id s/Uuid
+                                  (s/optional-key :page) s/Int
+                                  (s/optional-key :size) s/Int}}
+              :handler items/index-resources
+              :responses {200 {:description "OK"
+                               :body get-items-response}
+                          404 {:description "Not Found"}
+                          500 {:description "Internal Server Error"}}}}]])

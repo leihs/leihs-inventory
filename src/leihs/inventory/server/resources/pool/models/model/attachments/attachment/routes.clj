@@ -11,35 +11,32 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   {:swagger {:tags [""]}}
+  ["/models/:model_id/attachments/:attachments_id"
+   {:get {:summary (fe "")
+          :accept "application/json"
+          :coercion reitit.coercion.schema/coercion
+          :swagger {:produces ["application/json" "application/octet-stream"
+                               "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
+                               "image/vnd.dwg" "application/zip"]}
+          :parameters {:path {:pool_id s/Uuid
+                              :model_id s/Uuid
+                              :attachments_id s/Uuid}
+                       :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
+          :handler attachment/get-resource
+          :responses {200 {:description "OK"
+                           :body get-attachment-response}
+                      404 {:description "Not Found"
+                           :body error-attachment-not-found}
+                      500 {:description "Internal Server Error"}}}
 
-   ["/models/:model_id/attachments/:attachments_id"
-    {:get {:summary (fe "")
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :swagger {:produces ["application/json" "application/octet-stream"
-                                "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
-                                "image/vnd.dwg" "application/zip"]}
-           :parameters {:path {:pool_id s/Uuid
-                               :model_id s/Uuid
-                               :attachments_id s/Uuid}
-                        :query {(s/optional-key :content_disposition) (s/enum "attachment" "inline")}}
-           :handler attachment/get-resource
-           :responses {200 {:description "OK"
-                            :body get-attachment-response}
-                       404 {:description "Not Found"
-                            :body error-attachment-not-found}
-                       500 {:description "Internal Server Error"}}}
-
-     :delete {:accept "application/json"
-              :summary (fe "")
-              :coercion reitit.coercion.schema/coercion
-              :parameters {:path {:pool_id s/Uuid
-                                  :model_id s/Uuid
-                                  :attachments_id s/Uuid}}
-              :handler attachment/delete-resource
-              :responses {200 {:description "OK"
-                               :body s/Any}
-                          404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]])
+    :delete {:accept "application/json"
+             :summary (fe "")
+             :coercion reitit.coercion.schema/coercion
+             :parameters {:path {:pool_id s/Uuid
+                                 :model_id s/Uuid
+                                 :attachments_id s/Uuid}}
+             :handler attachment/delete-resource
+             :responses {200 {:description "OK"
+                              :body s/Any}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}])
