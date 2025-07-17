@@ -30,8 +30,6 @@
                    (.get (str (.-pathname url) "/" (.-search url)) #js {:cache false})
                    (.then #(jc (.. % -data))))]
 
-    (js/console.debug pool-id)
-
     (.. (js/Promise.all (cond-> [categories models responsible-pools]))
         (then (fn [[categories models responsible-pools]]
                 {:categories categories

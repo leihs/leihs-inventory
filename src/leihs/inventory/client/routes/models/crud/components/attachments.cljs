@@ -18,7 +18,6 @@
                (subvec vector (inc index)))))
 
 (defn get-url-from-id [id items]
-  (js/console.debug items id)
   (when (seq items)
     (some #(when (= id (:id %)) (:url %)) items)))
 
@@ -49,7 +48,6 @@
                         (set-attachments!
                          (fn [prev] (delete-by-index index prev))))]
 
-    (js/console.debug "Attachments component rendered" data)
     (uix/use-effect
      (fn []
        (let [att (jc (get-values "attachments"))]
