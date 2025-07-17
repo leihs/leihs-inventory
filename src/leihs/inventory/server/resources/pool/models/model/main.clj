@@ -31,8 +31,6 @@
                      sql-format)))
 
 (defn fetch-attachments [tx model-id pool-id]
- (println ">o> model-id" model-id)
- (println ">o> pool-id" pool-id)
   (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
                          (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
                                       :content_type (:content_type %))))]
@@ -223,7 +221,6 @@
                                          (sql/where [:= :model_id model-id])
                                          (sql/returning :compatible_id)
                                          sql-format))
-
         deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
                                          (sql/where [:= :id model-id])
                                          (sql/returning :*)
@@ -238,8 +235,7 @@
         result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                 :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
                 :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))
-                :deleted_model_compatibles deleted-model-compatible
-                }]
+                :deleted_model_compatibles deleted-model-compatible                }]
 
     (if (= 1 (count deleted-model))
       (response result)

@@ -56,90 +56,41 @@
           model-id (-> request path-params :model_id)
           accept-header (get-in request [:headers "accept"])
           accept-header (if (= accept-header "text/html")
-                          ;"UNKNOWN-CONTENT-TYPE"
                           "*/*"
-                          accept-header
-                          )
-
-          p (println ">o> accept-header" accept-header)
-
+                          accept-header                          )
           json-request? (= accept-header "application/json")
           octet-request? (= accept-header "application/octet-stream")
-
-          p (println ">o> json-request?" json-request?)
-          p (println ">o> octet-request?" octet-request?)
-
-
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
-
-
-
-
-
-
-
-          ;type (or (-> request :parameters :query :type) "new")
           query (-> (sql/select :a.*)
                   (sql/from [:attachments :a])
                   (cond-> model-id (sql/where [:= :a.model_id model-id]))
                   (cond-> id (sql/where [:= :a.id id]))
-                  ;(cond-> (and (not json-request?) (not octet-request?))
-
                   (cond-> (and (not json-request?) (not "*/*"))
-                  ;(cond-> (not json-request?)
                     (sql/where [:= :a.content_type accept-header]))
-
                   sql-format)
           attachment (jdbc/execute-one! tx query)
-
-
-          p (println ">o> abc ?? " (:content_type attachment) (some #(= (:content_type attachment) %) CONTENT_DISPOSITION_INLINE_FORMATS)
-              )
-
           content-disposition (if (some #(= (:content_type attachment) %) CONTENT_DISPOSITION_INLINE_FORMATS)
-
                                 content-disposition
-                                "attachment"
-                                )
-
-
-          ;p (println ">o> attachment" attachment)
-          p (println ">o> content-disposition" content-disposition (:content_type attachment))
-
+                                "attachment"  )
           base64-string (:content attachment)
           file-name (:filename attachment)
-          content-type (:content_type attachment)
-
-          p (println ">o> content-type" content-type)
-          p (println ">o> file-name" file-name)
-
-          ]
+          content-type (:content_type attachment) ]
 
       (if (nil? attachment)
         (do
           (error "Attachment not found" {:id id :model-id model-id})
           (bad-request {:error "Attachment not found"}))
         (cond
-          ;(= accept-header "application/octet-stream")
-          ;    (->> base64-string
-          ;         (.decode (Base64/getMimeDecoder))
-          ;         (hash-map :body)
-          ;         (merge {:headers {"Content-Type" content-type
-          ;                           "Content-Transfer-Encoding" "binary"
-          ;                           "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
 
           (= accept-header "application/json")
           (response attachment)
 
-          ;:else (convert-base64-to-byte-stream attachment content-disposition))
           :else (->> base64-string
                   (.decode (Base64/getMimeDecoder))
                   (hash-map :body)
                   (merge {:headers {"Content-Type" content-type
                                     ;"Content-Transfer-Encoding" "binary"
-                                    "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))
-
-          )))
+                                    "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))   )))
 
       (catch Exception e
         (error "Failed to get attachments" e)

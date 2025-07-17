@@ -3,8 +3,7 @@
    [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment]]
    [schema.core :as s]))
 
-(def CONTENT_DISPOSITION_INLINE_FORMATS [
-                                         "text/html"
+(def CONTENT_DISPOSITION_INLINE_FORMATS [                                         "text/html"
                                          "text/css"
                                          "text/plain"
                                          "text/xml"
@@ -27,6 +26,4 @@
                                          "audio/webm"
                                          "video/mp4"
                                          "video/webm"
-                                         "video/ogg"
-                                         ])
-
+                                         "video/ogg"])
