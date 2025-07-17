@@ -68,6 +68,7 @@
   (let [router (ring/router
                 (routes/all-api-endpoints)
                 {:conflicts nil
+                 :strict-slash true
                  :exception pretty/exception
                  :data {:coercion reitit.coercion.spec/coercion
                         :muuntaja m/instance
@@ -76,7 +77,6 @@
     (-> (ring/ring-handler
          router
          (ring/routes
-          (ring/redirect-trailing-slash-handler {:method :strip})
 
           (swagger-ui/create-swagger-ui-handler
            {:path "/inventory/api-docs/"

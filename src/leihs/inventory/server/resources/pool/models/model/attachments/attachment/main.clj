@@ -35,14 +35,14 @@
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
-(defn convert-base64-to-byte-stream [result]
+(defn convert-base64-to-byte-stream [result content-disposition]
   (try
     (let [content-type (:content_type result)
           base64-str (:content result)
           decoded-bytes (decode-base64-str base64-str)]
       {:status 200
        :headers {"Content-Type" content-type
-                 "Content-Disposition" "inline"}
+                 "Content-Disposition" content-disposition}
        :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
     (catch IllegalArgumentException e
       {:status 400
@@ -86,7 +86,7 @@
               (= accept-header "application/json")
               (response attachment)
 
-              :else (convert-base64-to-byte-stream attachment))))
+              :else (convert-base64-to-byte-stream attachment content-disposition))))
 
     (catch Exception e
       (error "Failed to get attachments" e)
