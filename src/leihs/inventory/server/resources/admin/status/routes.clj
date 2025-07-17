@@ -15,7 +15,6 @@
     :get {:accept "application/json"
           :description "Get system status, called by CI"
           :handler status/status-handler
-          ;:middleware [wrap-is-admin!]
           :coercion reitit.coercion.schema/coercion
           :responses
           {200 {:description "OK"
