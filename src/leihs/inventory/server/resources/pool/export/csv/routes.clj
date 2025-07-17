@@ -5,13 +5,12 @@
    [reitit.coercion.schema]))
 
 (defn routes []
-  ["/export"
+  [""
 
-   {:swagger {:tags [""]}
-    :no-doc HIDE_BASIC_ENDPOINTS}
+   {:no-doc HIDE_BASIC_ENDPOINTS}
 
-   ["/csv" {:get {:summary "Export CSV ( test-dummy )"
-                  :accept "text/csv"
-                  :coercion reitit.coercion.schema/coercion
-                  :swagger {:produces ["text/csv"]}
-                  :handler export-csv/index-resources}}]])
+   ["/export/csv" {:get {:summary "Export CSV ( test-dummy )"
+                         :accept "text/csv"
+                         :coercion reitit.coercion.schema/coercion
+                         :swagger {:produces ["text/csv"]}
+                         :handler export-csv/index-resources}}]])

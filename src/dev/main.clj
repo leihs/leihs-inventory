@@ -73,7 +73,7 @@
         query-columns (:columns query-params)
         search-value (or (:id query-params) "956d5b71-a458-408d-9052-8cf8a68313a1")
         columns (or query-columns tables-to-search)]
-    (println "🔍 Starting search for UUID:" search-value)
+    (info "🔍 Starting search for UUID:" search-value)
     (let [results (reduce (fn [acc {:keys [table_name column_name]}]
                             (search-in-columns tx table_name column_name search-value acc))
                           []

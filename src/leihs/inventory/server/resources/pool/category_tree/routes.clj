@@ -9,14 +9,10 @@
    [ring.middleware.accept]))
 
 (defn routes []
-
   ["/category-tree/"
-   {:swagger {:tags [""]}}
-
-   [""
-    {:get {:accept "application/json"
-           :summary (fe "")
-           :description "Fetch tree
+   {:get {:accept "application/json"
+          :summary (fe "")
+          :description "Fetch tree
 
 - `with-metadata` provides additional metadata, including a base64-encoded image URL.
 - default: `with-metadata=false`
@@ -35,11 +31,11 @@ Example Metadata:
   }
 }
 ```"
-           :coercion spec/coercion
-           :parameters {:query (sa/keys :opt-un [::types/with-metadata])
-                        :path {:pool_id uuid?}}
-           :handler category-tree/index-resources
-           :responses {200 {:description "OK"
-                            :body ::types/response-body}
-                       404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+          :coercion spec/coercion
+          :parameters {:query (sa/keys :opt-un [::types/with-metadata])
+                       :path {:pool_id uuid?}}
+          :handler category-tree/index-resources
+          :responses {200 {:description "OK"
+                           :body ::types/response-body}
+                      404 {:description "Not Found"}
+                      500 {:description "Internal Server Error"}}}}])
