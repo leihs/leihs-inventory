@@ -46,7 +46,7 @@
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (.endsWith (str key) uri)
+            (if (str/includes? uri (str key) )
               value))
           assets)
     nil))
