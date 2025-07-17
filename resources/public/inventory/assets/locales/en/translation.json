@@ -217,12 +217,16 @@
         "add_item": "Create and add item",
         "cancel": "Cancel",
         "success": "Model successfully created",
+        "invalid_one": "Model could not be created because one field is invalid",
+        "invalid_other": "Model could not be created because {{count}} fields are invalid",
         "409": "A model with this name already exists",
         "500": "An error occurred while creating the model"
       },
       "edit": {
         "success": "Model successfully saved",
-        "add_item": "Save and Add Item"
+        "add_item": "Save and Add Item",
+        "invalid_one": "Model could not be saved because one field is invalid",
+        "invalid_other": "Model could not be saved because {{count}} fields are invalid"
       },
       "delete": {
         "title": "Delete model",
