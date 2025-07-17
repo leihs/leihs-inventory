@@ -31,7 +31,8 @@
                      sql-format)))
 
 (defn fetch-attachments [tx model-id pool-id]
-
+ (println ">o> model-id" model-id)
+ (println ">o> pool-id" pool-id)
   (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
                          (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
                                       :content_type (:content_type %))))]
