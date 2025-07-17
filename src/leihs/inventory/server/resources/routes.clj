@@ -57,9 +57,7 @@
      :get {:summary "HTML | Get sign-in page"
            :accept "text/html"
            :swagger {:consumes ["text/html"]
-                     :produces ["text/html"
-                                ;"application/json"
-                                ]}
+                     :produces ["text/html"    ]}
            :middleware [(restrict-uri-middleware ["/sign-in"])]
            :handler get-sign-in}}]
 

@@ -9,6 +9,6 @@
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-" false)
+" true)
 
 (defn fe [s] (if false (str "[fe] | " s) s))

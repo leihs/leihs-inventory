@@ -90,26 +90,8 @@
         asset (fetch-file-entry uri assets)
         accept-header (or (get-in request [:headers "accept"]) "")
         referer (or (get-in request [:headers "referer"]) "")
-        swagger-call? (.endsWith "/inventory/api-docs/index.html" referer)
-        p (println ">o> ---------------------------------------")
-        p (println ">o> abc.accept wtf" accept-header )
-        p (println ">o> abc.referer" referer swagger-call?)
-        p (println ">o> abc.swagger-call?" swagger-call? )
-        accept-html? (clojure.string/includes? accept-header "text/html")
-
-
-
-        p (println ">o> abc.uri" uri)
-        p (println ">o> abc.accept" accept-header accept-html?)
-        p (println ">o> abc1" (get-in request [:headers "referer"]))
-
-
-
-        p (println ">o> abc2" (and (not (file-request? uri)) (not (session-valid? request)) (not swagger-call?)))
-        p (println ">o> abc.a"  (not (file-request? uri)) )
-        p (println ">o> abc.b"  (not (session-valid? request)) )
-        p (println ">o> abc.c" (not swagger-call?))
-        ]
+        swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
+        accept-html? (clojure.string/includes? accept-header "text/html")  ]
 
     (cond
       (= uri "/") (create-root-page)
@@ -135,10 +117,8 @@
                 {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
                 (rh/index-html-response request 404)))
 
-      ;(and (not (file-request? uri)) (not (session-valid? request)) (not swagger-call?))
       (and accept-html? (not (session-valid? request)) (not swagger-call?))
-      ;(response/redirect "/sign-in?return-to=%2Finventory")
-      {:status 303 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
+      {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
 
       (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
       (rh/index-html-response request 200)
