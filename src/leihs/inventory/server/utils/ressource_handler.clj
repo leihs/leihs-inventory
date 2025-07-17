@@ -46,7 +46,7 @@
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (str/includes? uri (str key) )
+            (if (str/includes? uri (str key))
               value))
           assets)
     nil))
@@ -91,7 +91,7 @@
         accept-header (or (get-in request [:headers "accept"]) "")
         referer (or (get-in request [:headers "referer"]) "")
         swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
-        accept-html? (clojure.string/includes? accept-header "text/html")  ]
+        accept-html? (clojure.string/includes? accept-header "text/html")]
 
     (cond
       (= uri "/") (create-root-page)

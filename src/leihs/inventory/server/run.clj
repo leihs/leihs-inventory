@@ -23,27 +23,27 @@
 
 (defn app [options]
   (-> (sui/create-app options)
-    (cache-buster2/wrap-resource "public" cache-bust-options)
-    (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-    (wrap-default-charset "utf-8")))
+      (cache-buster2/wrap-resource "public" cache-bust-options)
+      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+      (wrap-default-charset "utf-8")))
 
 (defn run [options]
   (catcher/snatch
-    {:return-fn (fn [e] (System/exit -1))}
-    (info "Invoking run with options: " options)
-    (shutdown/init options)
-    (let [status (status/init)]
-      (db/init options (:health-check-registry status)))
-    (http-server/start options (app options))))
+   {:return-fn (fn [e] (System/exit -1))}
+   (info "Invoking run with options: " options)
+   (shutdown/init options)
+   (let [status (status/init)]
+     (db/init options (:health-check-registry status)))
+   (http-server/start options (app options))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def cli-options
   (concat
-    [["-h" "--help"]
-     shutdown/pid-file-option]
-    (http-server/cli-options :default-http-port 3260)
-    db/cli-options))
+   [["-h" "--help"]
+    shutdown/pid-file-option]
+   (http-server/cli-options :default-http-port 3260)
+   db/cli-options))
 
 (defn main-usage [options-summary & more]
   (->> ["Leihs Inventory"
@@ -58,12 +58,12 @@
           ["-------------------------------------------------------------------"
            (with-out-str (pprint more))
            "-------------------------------------------------------------------"])]
-    flatten (clojure.string/join \newline)))
+       flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
   (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
         pass-on-args (->> [options (rest arguments)]
-                       flatten (into []))
+                          flatten (into []))
         options (merge gopts options)]
     (cond
       (:help options) (info (main-usage summary {:args args :options options}))

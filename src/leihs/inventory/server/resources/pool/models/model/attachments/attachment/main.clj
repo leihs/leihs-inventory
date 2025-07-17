@@ -18,8 +18,8 @@
 
 (defn- url-safe-to-standard-base64 [base64-str]
   (-> base64-str
-    (clojure.string/replace "-" "+")
-    (clojure.string/replace "_" "/")))
+      (clojure.string/replace "-" "+")
+      (clojure.string/replace "_" "/")))
 
 (defn- add-padding [base64-str]
   (let [mod (mod (count base64-str) 4)]
@@ -30,9 +30,9 @@
 
 (defn- decode-base64-str [base64-str]
   (let [cleaned-str (-> base64-str
-                      clean-base64-string
-                      url-safe-to-standard-base64
-                      add-padding)
+                        clean-base64-string
+                        url-safe-to-standard-base64
+                        add-padding)
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
@@ -57,24 +57,24 @@
           accept-header (get-in request [:headers "accept"])
           accept-header (if (= accept-header "text/html")
                           "*/*"
-                          accept-header                          )
+                          accept-header)
           json-request? (= accept-header "application/json")
           octet-request? (= accept-header "application/octet-stream")
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)
-                  (sql/from [:attachments :a])
-                  (cond-> model-id (sql/where [:= :a.model_id model-id]))
-                  (cond-> id (sql/where [:= :a.id id]))
-                  (cond-> (and (not json-request?) (not "*/*"))
-                    (sql/where [:= :a.content_type accept-header]))
-                  sql-format)
+                    (sql/from [:attachments :a])
+                    (cond-> model-id (sql/where [:= :a.model_id model-id]))
+                    (cond-> id (sql/where [:= :a.id id]))
+                    (cond-> (and (not json-request?) (not "*/*"))
+                      (sql/where [:= :a.content_type accept-header]))
+                    sql-format)
           attachment (jdbc/execute-one! tx query)
           content-disposition (if (some #(= (:content_type attachment) %) CONTENT_DISPOSITION_INLINE_FORMATS)
                                 content-disposition
-                                "attachment"  )
+                                "attachment")
           base64-string (:content attachment)
           file-name (:filename attachment)
-          content-type (:content_type attachment) ]
+          content-type (:content_type attachment)]
 
       (if (nil? attachment)
         (do
@@ -86,22 +86,22 @@
           (response attachment)
 
           :else (->> base64-string
-                  (.decode (Base64/getMimeDecoder))
-                  (hash-map :body)
-                  (merge {:headers {"Content-Type" content-type
+                     (.decode (Base64/getMimeDecoder))
+                     (hash-map :body)
+                     (merge {:headers {"Content-Type" content-type
                                     ;"Content-Transfer-Encoding" "binary"
-                                    "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}}))   )))
+                                       "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}})))))
 
-      (catch Exception e
-        (error "Failed to get attachments" e)
-        (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
+    (catch Exception e
+      (error "Failed to get attachments" e)
+      (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
 
-  (defn delete-resource [{:keys [tx] :as request}]
-    (let [{:keys [attachments_id]} (path-params request)
-          res (jdbc/execute-one! tx
-                (-> (sql/delete-from :attachments)
-                  (sql/where [:= :id attachments_id])
-                  sql-format))]
-      (if (= (:next.jdbc/update-count res) 1)
-        (response {:status "ok" :attachments_id attachments_id})
-        (bad-request {:error "Failed to delete attachment"}))))
+(defn delete-resource [{:keys [tx] :as request}]
+  (let [{:keys [attachments_id]} (path-params request)
+        res (jdbc/execute-one! tx
+                               (-> (sql/delete-from :attachments)
+                                   (sql/where [:= :id attachments_id])
+                                   sql-format))]
+    (if (= (:next.jdbc/update-count res) 1)
+      (response {:status "ok" :attachments_id attachments_id})
+      (bad-request {:error "Failed to delete attachment"}))))

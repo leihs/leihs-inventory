@@ -3,9 +3,41 @@ require_relative "_shared"
 
 describe "Call swagger-endpoints" do
   context "with accept=text/html2" do
-    it "redirect to login" do
-      resp = plain_faraday_client.get("/inventory/session/protected")
+    it "redirect to login if request not comes from swagger-ui" do
+      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
+        req.headers["Accept"] = "text/html"
+        req.headers["Referer"] = "/inventory"
+      end
       expect(resp.status).to eq(302)
+    end
+
+    it "returns correct result 404" do
+      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
+        req.headers["Referer"] = "/inventory"
+      end
+      expect(resp.status).to eq(404)
+    end
+
+    it "returns correct result 404" do
+      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
+        req.headers["Referer"] = "/inventory/api-docs/index.html"
+      end
+      expect(resp.status).to eq(404)
+    end
+
+    it "returns correct result 403" do
+      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
+        req.headers["Accept"] = "application/json"
+        req.headers["Referer"] = "/inventory/api-docs/index.html"
+      end
+      expect(resp.status).to eq(403)
+    end
+
+    it "redirect to login if request is not comes from swagger-ui" do
+      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
+        req.headers["Referer"] = "/inventory"
+      end
+      expect(resp.status).to eq(404)
     end
 
     it "denies access to protected resource without login" do

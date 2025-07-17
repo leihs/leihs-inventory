@@ -70,7 +70,7 @@ describe "Call swagger-endpoints" do
 
     it "accesses protected json-resource by accept=*/*" do
       resp = plain_faraday_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(302)
+      expect(resp.status).to eq(404)
 
       resp = plain_faraday_client.post("/inventory/test-csrf")
       expect(resp.status).to eq(403)
