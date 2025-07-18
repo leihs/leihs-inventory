@@ -80,16 +80,15 @@
                    ($ CommandEmpty (t "pool.model.compatible_models.blocks.compatible_models.not_found"))
 
                    (for [model filtered-models]
-                     ($ CommandItem {:key (:model_id model)
+                     ($ CommandItem {:key (:id model)
                                      :value (str (:product model) " " (:version model))
                                      :on-select #(do (set-open! false)
                                                      (if
                                                       (not (check-path-existing (:product model) fields))
                                                        (append (cj {:product (:product model)
                                                                     :version (:version model)
-                                                                    :id (:model_id model)
-                                                                    :cover_image_id (:cover_image_id model)
-                                                                    :cover_image_url (:cover_image_url model)}))
+                                                                    :cover_image_url (:cover_image_url model)
+                                                                    :id (:id model)}))
                                                        (remove (find-index-from-path (:product model) fields))))}
 
                         ($ Check
