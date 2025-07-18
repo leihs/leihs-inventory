@@ -10,17 +10,17 @@
    [schema.core :as s]))
 
 (defn routes []
-   ["/models/:model_id/images/:image_id/thumbnail"
-    {:get {:description "Determines image thumbnail by targetID"
-           :accept "application/json"
-           :coercion reitit.coercion.schema/coercion
-           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
-           :parameters {:path {:pool_id s/Uuid
-                               :model_id s/Uuid
-                               :image_id s/Uuid}}
-           :handler image-thumbnail/get-resource
-           :responses {200 {:description "OK"
-                            :body (s/->Either [image/image s/Any])}
-                       404 {:description "Not Found"
-                            :body image/error-image-not-found}
-                       500 {:description "Internal Server Error"}}}}])
+  ["/models/:model_id/images/:image_id/thumbnail"
+   {:get {:description "Determines image thumbnail by targetID"
+          :accept "application/json"
+          :coercion reitit.coercion.schema/coercion
+          :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
+          :parameters {:path {:pool_id s/Uuid
+                              :model_id s/Uuid
+                              :image_id s/Uuid}}
+          :handler image-thumbnail/get-resource
+          :responses {200 {:description "OK"
+                           :body (s/->Either [image/image s/Any])}
+                      404 {:description "Not Found"
+                           :body image/error-image-not-found}
+                      500 {:description "Internal Server Error"}}}}])

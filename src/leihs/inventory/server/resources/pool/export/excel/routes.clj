@@ -7,10 +7,10 @@
 (defn routes []
   [""
 
-   {    :no-doc HIDE_BASIC_ENDPOINTS}
+   {:no-doc HIDE_BASIC_ENDPOINTS}
 
    ["/export/excel" {:get {:summary "Export Excel ( test-dummy )"
-                    :accept "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    :coercion reitit.coercion.schema/coercion
-                    :swagger {:produces ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]}
-                    :handler export-excel/index-resources}}]])
+                           :accept "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                           :coercion reitit.coercion.schema/coercion
+                           :swagger {:produces ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]}
+                           :handler export-excel/index-resources}}]])

@@ -5,9 +5,9 @@
 
 (defn routes []
   [""
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :tags ["Auth / Token"]}
+   {:no-doc HIDE_BASIC_ENDPOINTS
+    :tags ["Auth / Token"]}
 
-     ["/token/public"
-      {:get {:swagger {:security []}
-             :handler token-public/get-resource}}]])
+   ["/token/public"
+    {:get {:swagger {:security []}
+           :handler token-public/get-resource}}]])

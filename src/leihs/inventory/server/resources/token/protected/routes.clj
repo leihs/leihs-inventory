@@ -5,13 +5,13 @@
 
 (defn routes []
   [""
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :tags ["Auth / Token"]}
+   {:no-doc HIDE_BASIC_ENDPOINTS
+    :tags ["Auth / Token"]}
 
-     ["/token/protected"
-      {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
-             :accept "application/json"
-             :coercion reitit.coercion.schema/coercion
-             :swagger {:security [{:apiAuth []}]}
-             :handler token-protected/get-resource
-             :middleware [token-protected/wrap-token-authentication]}}]])
+   ["/token/protected"
+    {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :swagger {:security [{:apiAuth []}]}
+           :handler token-protected/get-resource
+           :middleware [token-protected/wrap-token-authentication]}}]])

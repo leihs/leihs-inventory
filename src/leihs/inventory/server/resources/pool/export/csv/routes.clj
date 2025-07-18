@@ -10,7 +10,7 @@
    {:no-doc HIDE_BASIC_ENDPOINTS}
 
    ["/export/csv" {:get {:summary "Export CSV ( test-dummy )"
-                  :accept "text/csv"
-                  :coercion reitit.coercion.schema/coercion
-                  :swagger {:produces ["text/csv"]}
-                  :handler export-csv/index-resources}}]])
+                         :accept "text/csv"
+                         :coercion reitit.coercion.schema/coercion
+                         :swagger {:produces ["text/csv"]}
+                         :handler export-csv/index-resources}}]])
