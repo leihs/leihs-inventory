@@ -20,8 +20,7 @@
 
 (defn get-dev-routes []
   ["/dev"
-   {:swagger {:tags [""]}
-    :no-doc (not APPLY_DEV_ENDPOINTS)}
+   {:no-doc (not APPLY_DEV_ENDPOINTS)}
 
    ["update-role"
     {:put {:summary (fe "Update direct-user-role")
