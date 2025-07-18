@@ -12,7 +12,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/:model_id/:model_id/images/"
+  ["/models/:model_id/images/"
    {:post {:accept "application/json"
            :summary (fe "")
            :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"

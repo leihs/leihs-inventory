@@ -15,14 +15,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   {:swagger {:tags [""]}}
-
-   ["/models"
-
-    ["/:model_id"
-     [""
+   ["/models/:model_id"
       {:get {:accept "application/json"
              :summary (fe "Form-Handler: Fetch model")
              :coercion spec/coercion
@@ -76,4 +69,4 @@
              :responses {200 {:description "OK"
                               :body put-response}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]]])
+                         500 {:description "Internal Server Error"}}}}])
