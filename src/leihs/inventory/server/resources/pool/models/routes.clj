@@ -15,12 +15,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   {:swagger {:tags [""]}}
-
-   ["/models"
-    ["/"
+    ["/models/"
      {:get {:accept "application/json"
             :summary (fe "Inventory list")
             :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
@@ -65,4 +60,4 @@
              :responses {200 {:description "OK"
                               :body post-response}
                          404 {:description "Not Found"}
-                         500 {:description "Internal Server Error"}}}}]]])
+                         500 {:description "Internal Server Error"}}}}])

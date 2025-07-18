@@ -9,10 +9,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
-   {:swagger {:tags [""]}}
-
-   ["manufacturers/"
+   ["/manufacturers/"
     {:get {:summary (fe "")
            :accept "application/json"
            :description "'search-term' works with at least one character, considers:\n
@@ -33,4 +30,4 @@
            :responses {200 {:description "OK"
                             :body response-schema}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+                       500 {:description "Internal Server Error"}}}}])

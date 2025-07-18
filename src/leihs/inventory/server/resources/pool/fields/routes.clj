@@ -9,12 +9,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   ["/fields"
-    {:swagger {:tags [""]}}
-
-    ["/" {:get {:description (str "<ul>"
+    ["/fields/" {:get {:description (str "<ul>"
                                   "<li>Form: https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/fields?target_type=itemRequest</li>"
                                   "<li>ToDo: Fields by User/:pool_id?</li>"
                                   "<ul/>")
@@ -35,4 +30,4 @@
                                  ;:body get-response}
                                  :body s/Any} ;;FIXME
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]])
+                            500 {:description "Internal Server Error"}}}}])

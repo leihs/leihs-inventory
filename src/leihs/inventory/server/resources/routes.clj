@@ -168,8 +168,6 @@
                      (token-protected/routes)
                      (token-public/routes)
                      (token/routes)]]
-
-;(vec (concat core-routes additional-routes))
     (vec core-routes)))
 
 (defn all-api-endpoints []

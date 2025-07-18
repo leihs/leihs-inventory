@@ -4,17 +4,14 @@
    [leihs.inventory.server.resources.token.protected.main :as token-protected]))
 
 (defn routes []
-  [["/"
+  [""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :tags ["Auth / Token"]}
 
-    {:no-doc HIDE_BASIC_ENDPOINTS}
-
-    ["token"
-     {:tags ["Auth / Token"]}
-
-     ["/protected"
+     ["/token/protected"
       {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
              :accept "application/json"
              :coercion reitit.coercion.schema/coercion
              :swagger {:security [{:apiAuth []}]}
              :handler token-protected/get-resource
-             :middleware [token-protected/wrap-token-authentication]}}]]]])
+             :middleware [token-protected/wrap-token-authentication]}}]])

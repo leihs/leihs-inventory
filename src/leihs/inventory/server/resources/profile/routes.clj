@@ -7,10 +7,7 @@
                                                     wrap-authenticate!]]))
 
 (defn routes []
-  ["/"
-   {:swagger {:tags [""]}}
-
-   ["profile/"
+   ["/profile/"
     {:get {:accept "application/json"
            :summary (fe "Get details of the authenticated user")
            :description "Uses /inventory/pools-by-access-right for the pools."
@@ -21,4 +18,4 @@
            :responses {200 {:description "OK"
                             :body profile-response-schema}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+                       500 {:description "Internal Server Error"}}}}])

@@ -5,14 +5,11 @@
    [schema.core :as s]))
 
 (defn routes []
-  [["/"
+  [""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :tags ["Auth / Token"]}
 
-    {:no-doc HIDE_BASIC_ENDPOINTS}
-
-    ["token"
-     {:tags ["Auth / Token"]}
-
-     ["/"
+     ["/token/"
       {:post {:summary "Create an API token with creds for a user"
               :description "Generates an API token for a user with specific permissions and scopes"
               :accept "application/json"
@@ -22,4 +19,4 @@
                                            :write s/Bool
                                            :admin_read s/Bool
                                            :admin_write s/Bool}}}
-              :handler token/post-resource}}]]]])
+              :handler token/post-resource}}]])

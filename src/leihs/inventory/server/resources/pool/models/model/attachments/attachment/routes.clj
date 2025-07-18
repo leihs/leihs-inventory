@@ -11,9 +11,6 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   {:swagger {:tags [""]}}
-
    ["/models/:model_id/attachments/:attachments_id"
     {:get {:summary (fe "")
            :accept "application/json"
@@ -42,4 +39,4 @@
               :responses {200 {:description "OK"
                                :body s/Any}
                           404 {:description "Not Found"}
-                          500 {:description "Internal Server Error"}}}}]])
+                          500 {:description "Internal Server Error"}}}}])

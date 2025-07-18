@@ -9,11 +9,7 @@
    [ring.middleware.accept]))
 
 (defn routes []
-
-  ["/category-tree/"
-   {:swagger {:tags [""]}}
-
-   [""
+   ["/category-tree/"
     {:get {:accept "application/json"
            :summary (fe "")
            :description "Fetch tree
@@ -42,4 +38,4 @@ Example Metadata:
            :responses {200 {:description "OK"
                             :body ::types/response-body}
                        404 {:description "Not Found"}
-                       500 {:description "Internal Server Error"}}}}]])
+                       500 {:description "Internal Server Error"}}}}])

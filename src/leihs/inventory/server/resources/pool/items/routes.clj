@@ -9,13 +9,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   [""
-    {:swagger {:tags [""]}}
-
     ["/items/"
-
      {:get {:description "https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/items"
 
             :accept "application/json"
@@ -29,4 +23,4 @@
                              :body s/Any}
                         ;:body get-items-response} ;; FIXME broken
                         404 {:description "Not Found"}
-                        500 {:description "Internal Server Error"}}}}]]])
+                        500 {:description "Internal Server Error"}}}}])

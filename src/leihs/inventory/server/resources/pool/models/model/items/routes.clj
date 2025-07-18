@@ -8,13 +8,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-
-   {:swagger {:tags [""]}}
-
-   ["/models/:model_id"
-
-    ["/items/"
+    ["/models/:model_id/items/"
      ["" {:get {:accept "application/json"
                 :coercion reitit.coercion.schema/coercion
                 :middleware [accept-json-middleware]
@@ -27,4 +21,4 @@
                 :responses {200 {:description "OK"
                                  :body get-items-response}
                             404 {:description "Not Found"}
-                            500 {:description "Internal Server Error"}}}}]]]])
+                            500 {:description "Internal Server Error"}}}}]])

@@ -13,14 +13,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  [""
-   {:swagger {:tags [""]}}
-
-   ["/models"
-
-    ["/:model_id"
-     ["/attachments"
-      ["/"
+   ["/models/:model_id/attachments/"
        {:get {:accept "application/json"
               :coercion reitit.coercion.schema/coercion
               :middleware [accept-json-middleware]
@@ -52,4 +45,4 @@
                            400 {:description "Bad Request (Coercion error)"
                                 :body s/Any}
                            404 {:description "Not Found"}
-                           500 {:description "Internal Server Error"}}}}]]]]])
+                           500 {:description "Internal Server Error"}}}}])

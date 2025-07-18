@@ -4,13 +4,10 @@
    [leihs.inventory.server.resources.token.public.main :as token-public]))
 
 (defn routes []
-  [["/"
+  [""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :tags ["Auth / Token"]}
 
-    {:no-doc HIDE_BASIC_ENDPOINTS}
-
-    ["token"
-     {:tags ["Auth / Token"]}
-
-     ["/public"
+     ["/token/public"
       {:get {:swagger {:security []}
-             :handler token-public/get-resource}}]]]])
+             :handler token-public/get-resource}}]])

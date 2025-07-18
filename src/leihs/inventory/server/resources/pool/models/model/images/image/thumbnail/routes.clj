@@ -10,10 +10,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
-   {:swagger {:tags [""]}}
-
-   ["models/:model_id/images/:image_id/thumbnail"
+   ["/models/:model_id/images/:image_id/thumbnail"
     {:get {:description "Determines image thumbnail by targetID"
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
@@ -26,4 +23,4 @@
                             :body (s/->Either [image/image s/Any])}
                        404 {:description "Not Found"
                             :body image/error-image-not-found}
-                       500 {:description "Internal Server Error"}}}}]])
+                       500 {:description "Internal Server Error"}}}}])

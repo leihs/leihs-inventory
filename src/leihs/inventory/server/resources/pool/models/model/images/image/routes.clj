@@ -14,10 +14,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
-   {:swagger {:tags [""]}}
-
-   ["models/:model_id/images/:image_id"
+   ["/models/:model_id/images/:image_id"
     {:get {:summary (fe "")
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
@@ -44,4 +41,4 @@
                                :body delete-response}
                           404 {:description "Not Found"
                                :body error-image-not-found}
-                          500 {:description "Internal Server Error"}}}}]])
+                          500 {:description "Internal Server Error"}}}}])

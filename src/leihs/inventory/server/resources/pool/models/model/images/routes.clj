@@ -12,15 +12,8 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/"
-   {:swagger {:tags [""]}}
-
-   ["models"
-
-    ["/:model_id"
-
-     ["/images/"
-      ["" {:post {:accept "application/json"
+    ["/:model_id/:model_id/images/"
+      {:post {:accept "application/json"
                   :summary (fe "")
                   :description (str "- Limitations: " (config-get :api :images :max-size-mb) " MB\n"
                                     "- Allowed File types: " (str/join ", " (config-get :api :images :allowed-file-types)) "\n"
@@ -52,4 +45,4 @@
                  :responses {200 {:description "OK"
                                   :body get-images-response}
                              404 {:description "Not Found"}
-                             500 {:description "Internal Server Error"}}}}]]]]])
+                             500 {:description "Internal Server Error"}}}}])
