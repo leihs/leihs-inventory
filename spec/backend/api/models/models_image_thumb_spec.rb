@@ -15,7 +15,7 @@ describe "Swagger Inventory Endpoints - Models" do
     let(:inventory_pool_id) { @inventory_pool.id }
 
     context "POST and GET /inventory/:pool_id/models when creating new models" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/list/" }
 
       context "when a model has an image but no thumbnail" do
         before :each do

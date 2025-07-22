@@ -12,7 +12,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/models/" }
+    # let(:url) { "/inventory/models/" }
 
     # context "GET /inventory/models" do
     #   before :each do
@@ -33,7 +33,7 @@ describe "Swagger Inventory Endpoints - Models" do
     # end
 
     context "GET /inventory/:pool_id/models for a specific pool" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/list/" }
 
       it "returns an empty list for a new pool and returns status 200" do
         resp = client.get url
@@ -49,7 +49,7 @@ describe "Swagger Inventory Endpoints - Models" do
     end
 
     context "POST and GET /inventory/:pool_id/models when creating new models" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/list/" }
 
       before :each do
         category = FactoryBot.create(:category)

@@ -20,17 +20,17 @@
    - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
    - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
 ;
-;(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
-;                                            :upload/content_type
-;                                            :image/url
-;                                            :image/to_delete
-;                                            :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
-;
-;(sa/def :model2/image_attributes
-;  (sa/or :multiple (sa/or :coll (sa/coll-of ::image_attribute)
-;                          :str string?)
-;         :none empty?))
-;
+(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
+                                            :upload/content_type
+                                            :image/url
+                                            :image/to_delete
+                                            :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+
+(sa/def :model2/image_attributes
+  (sa/or :multiple (sa/or :coll (sa/coll-of ::image_attribute)
+                          :str string?)
+         :none empty?))
+
 (sa/def :create-model/scheme
   (sa/keys
    :req-un [::sp/is_package

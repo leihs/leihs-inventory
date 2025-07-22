@@ -16,7 +16,7 @@ describe "Swagger Inventory Endpoints - Models of pool with audits" do
       session_auth_plain_faraday_json_client(cookies: @user_cookies, headers: headers)
     }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/models/" }
+    let(:url) { "/inventory/#{inventory_pool_id}/models/list/" }
 
     context "CRUD operations for model management" do
       let(:category) { FactoryBot.create(:category) }

@@ -12,7 +12,7 @@ describe "Swagger Inventory Endpoints - Models" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{inventory_pool_id}/models/" }
+    let(:url) { "/inventory/#{inventory_pool_id}/models/list/" }
 
     context "GET /inventory/:pool-id/models" do
       before :each do
