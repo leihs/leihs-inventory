@@ -17,4 +17,4 @@
 
 (def get-images-response
   (s/->Either [{:data [image]
-   :pagination pagination} [image]]))
+                :pagination pagination} [image]]))

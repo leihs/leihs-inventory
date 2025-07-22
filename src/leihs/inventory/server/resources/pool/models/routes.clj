@@ -16,8 +16,7 @@
 
 (defn routes []
   ["/models/"
-   {
-    :get {:conflicting true
+   {:get {:conflicting true
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]

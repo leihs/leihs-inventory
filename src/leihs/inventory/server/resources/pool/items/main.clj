@@ -71,4 +71,4 @@
 
                         (cond-> (and sort-by item_id) (sql/order-by item_id)))]
 
-     (response (create-pagination-response request base-query nil)) )))
+     (response (create-pagination-response request base-query nil)))))

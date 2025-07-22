@@ -83,7 +83,7 @@
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
-        (response (create-pagination-response request query nil))  )
+      (response (create-pagination-response request query nil)))
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))

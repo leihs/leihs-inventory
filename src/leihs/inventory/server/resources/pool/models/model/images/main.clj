@@ -94,7 +94,7 @@
           json-request? (= accept-header "application/json")
           base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
                          (sql/from [:images :i]))]
-      (response (create-pagination-response request base-query nil)) )
+      (response (create-pagination-response request base-query nil)))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

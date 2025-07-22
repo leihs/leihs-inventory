@@ -73,7 +73,7 @@
                                 (if-let [image-id (:image_id m)]
                                   (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
                                          :content_type (:content_type m))
-                                  m))))) ]
+                                  m)))))]
 
      (debug (sql-format query :inline true))
      (response (create-pagination-response request query nil post-fnc)))))
