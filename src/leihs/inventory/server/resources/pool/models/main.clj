@@ -87,7 +87,6 @@
 (defn get-resource [request]
   (try
     (let [tx (:tx request)
-          ;model_id (-> request path-params :model_id)
           pool-id (-> request path-params :pool_id)
           {:keys [search]} (query-params request)
           base-query (-> (sql/select

@@ -76,5 +76,4 @@
                                   m))))) ]
 
      (debug (sql-format query :inline true))
-
      (response (create-pagination-response request query nil post-fnc)))))
