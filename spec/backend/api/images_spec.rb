@@ -11,19 +11,19 @@ describe "Inventory API Endpoints - Image Handling" do
     end
 
     let(:any_uuid) { Faker::Internet.uuid }
+    let(:different_content_type) { "image/gif" }
+    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
     let(:url) { "/inventory/#{any_uuid}/models/#{any_uuid}/images/" }
-    let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
-    let(:single_image_id) { resp.body["data"][0]["id"] }
-    let(:image_id) { resp.body["data"][1]["id"] }
-    let(:different_content_type) { "image/gif" }
-    let(:image_content_type) { resp.body["data"][0]["content_type"] }
+    let(:single_image_id) { resp.body[0]["id"] }
+    let(:image_id) { resp.body[1]["id"] }
+    let(:image_content_type) { resp.body[0]["content_type"] }
 
     context "GET /inventory/images" do
       it "retrieves all images and returns status 200" do
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(3)
+        expect(resp.body.count).to eq(3)
       end
 
       it "retrieves paginated image results and returns status 200" do

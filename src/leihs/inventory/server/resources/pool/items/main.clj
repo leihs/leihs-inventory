@@ -3,7 +3,9 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response
+   [leihs.inventory.server.utils.pagination :refer [
+                                                    ;create-paginated-response
+                                                    create-pagination-response
                                                     fetch-pagination-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
@@ -47,7 +49,7 @@
   ;([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id item_id]} (path-params request)
-         {:keys [page size]} (fetch-pagination-params request)
+         ;{:keys [page size]} (fetch-pagination-params request)
          {:keys [search_term not_packaged packages retired result_type]} (query-params request)
 
          base-select (cond
@@ -94,10 +96,10 @@
      ;  :else (create-pagination-response ))
 
 
-     (create-pagination-response request                                base-query                                nil)
+     (response (create-pagination-response request base-query nil))
 
      )))
 
-(defn index-resources [request]
-  (response (get-items-handler request true)))
+;(defn index-resources [request]
+;  (response (get-items-handler request true)))
 

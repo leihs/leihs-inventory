@@ -6,8 +6,9 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
+   ;[leihs.inventory.server.utils.pagination :refer [create-paginated-response]]
+   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params
+                                                    create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]
@@ -83,8 +84,14 @@
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
-      (let [{:keys [page size]} (fetch-pagination-params request)]
-        (response (create-paginated-response query tx size page))))
+
+      ;(let [{:keys [page size]} (fetch-pagination-params request)]
+      ;  (response (create-paginated-response query tx size page)))
+
+
+        (response (create-pagination-response request query nil))
+
+      )
     (catch Exception e
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))

@@ -22,7 +22,7 @@
                             (->> (jdbc/execute! tx)))]
     (mapv identity paginated-query)))
 
-(defn set-default-pagination [size page]
+(defn- set-default-pagination [size page]
   (let [size (if (and (int? size) (pos? size)) size 25)
         page (if (and (int? page) (pos? page)) page 1)]
     {:size size
