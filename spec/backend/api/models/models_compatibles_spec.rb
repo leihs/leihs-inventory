@@ -14,6 +14,9 @@ describe "Inventory API Endpoints" do
         FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
       end
 
+      @models << FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Abc Model")
+      @models << FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Xyz Model")
+
       LeihsModel.all.each do |model|
         FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
       end
@@ -35,32 +38,20 @@ describe "Inventory API Endpoints" do
       it "retrieves paginated results with status 200 and 1 model" do
         resp = client.get "/inventory/#{@inventory_pool.id}/models/?page=1&size=1"
         expect(resp.status).to eq(200)
-        expect(resp.body["pagination"]["total_rows"]).to eq(3)
+        expect(resp.body["pagination"]["total_rows"]).to eq(5)
         expect(resp.body["data"].count).to eq(1)
       end
       
       
-      it "retrieves paginated results with status 200 and 1 model" do
-        resp = client.get "/inventory/#{@inventory_pool.id}/models/?search=Ab"
-        expect(resp.status).to eq(200)
-        # expect(resp.status).to eq(200)
-        # expect(resp.body.count).to eq(LeihsModel.count)
-      end
+      it "retrieves expected results by search" do
+                ["Abc", "Xyz"].each do |search_term|
 
-      # context "when compatible models are linked" do
-      #   let(:model_with_props) { @models.first }
-      #
-      #   before :each do
-      #     compatible_model = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
-      #     model_with_props.add_compatible_model(compatible_model)
-      #   end
-      #
-      #   # it "retrieves a specific compatible model by ID and returns status 200" do
-      #   #   resp = client.get "/inventory/#{@inventory_pool.id}/models/#{model_with_props.id}"
-      #   #   expect(resp.status).to eq(200)
-      #   #   expect(resp.body.count).to eq(1)
-      #   # end
-      # end
+        resp = client.get "/inventory/#{@inventory_pool.id}/models/?search=#{search_term}"
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(1)
+                  end
+              end
+
     end
   end
 end
