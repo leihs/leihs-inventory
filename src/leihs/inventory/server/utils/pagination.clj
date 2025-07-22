@@ -28,7 +28,8 @@
     {:size size
      :page page}))
 
-(defn create-paginated-response
+(defn create-paginated-response "Automatically creates a paginated response based on size and page, if needed.
+Without params it returns full data set."
   ([base-query tx size page]
    (create-paginated-response base-query tx size page nil))
 
@@ -72,7 +73,9 @@
      (create-paginated-response base-query tx size page post-data-fnc))))
 
 (defn create-pagination-response
-  "To receive a paginated response, the request must contain the query parameters `page` and `size`."
+  "To receive a paginated response, the request must contain the query parameters `page` or `size`.
+  Without these parameters, the full data set is returned.
+  Handles single entity requests as well."
 
   ([request base-query with-pagination?]
    (create-pagination-response request base-query with-pagination? nil))
