@@ -4,15 +4,14 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
       (sql/from [[base-query] :subquery])
       sql-format
-      (->> (jdbc/query tx))
-      first
+      (->> (jdbc/execute-one! tx))
       :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
@@ -20,7 +19,7 @@
                             (sql/limit per_page)
                             (sql/offset offset)
                             sql-format
-                            (->> (jdbc/query tx)))]
+                            (->> (jdbc/execute! tx)))]
     (mapv identity paginated-query)))
 
 (defn set-default-pagination [size page]
@@ -84,7 +83,7 @@
      (cond
        (and (or (nil? with-pagination?) (= with-pagination? false))
             (single-entity-get-request? request))
-       (jdbc/query tx (-> base-query sql-format))
+       (jdbc/execute! tx (-> base-query sql-format))
 
        (and (or (nil? with-pagination?) with-pagination?)
             (or (some? page) (some? size)))
@@ -92,4 +91,10 @@
 
        with-pagination? (pagination-response request base-query post-fnc)
 
-       :else (jdbc/query tx (-> base-query sql-format))))))
+       post-fnc (-> (jdbc/execute! tx (-> base-query sql-format))
+                   post-fnc)
+
+       :else (jdbc/execute! tx (-> base-query sql-format))
+
+
+       ))))

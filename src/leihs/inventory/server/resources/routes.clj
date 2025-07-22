@@ -20,6 +20,7 @@
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :as attachments]
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
+   [leihs.inventory.server.resources.pool.models.list.routes :as models-list]
    [leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.routes :as images-thumbnail]
    [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
    [leihs.inventory.server.resources.pool.models.model.items.item.routes :as model-item]
@@ -130,6 +131,7 @@
   []
   (let [core-routes [["/:pool_id"
                       (models/routes)
+                      (models-list/routes)
                       (model/routes)
                       (image/routes)
                       (images/routes)
