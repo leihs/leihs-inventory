@@ -26,12 +26,10 @@
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
-
                                (s/optional-key :search) s/Str}}
           :handler models/get-resource
           :responses {200 {:description "OK"
                            :body get-compatible-response}
-                           ;:body s/Any}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

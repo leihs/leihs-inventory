@@ -106,7 +106,6 @@
                      (->> models
                           (fetch-thumbnails-for-ids tx)
                           (map (fn [m]
-                                 (println ">o> abc.m" m)
                                  (if-let [image-id (:image_id m)]
                                    (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
                                           :content_type (:content_type m))
