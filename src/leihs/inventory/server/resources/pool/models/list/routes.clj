@@ -2,9 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.list.main :as models-list]
-   [leihs.inventory.server.resources.pool.models.list.types :refer [
-                                                               get-response
-                                                               ]]
+   [leihs.inventory.server.resources.pool.models.list.types :refer [get-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]

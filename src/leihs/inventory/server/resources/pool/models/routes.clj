@@ -2,14 +2,12 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.main :as models]
-   [leihs.inventory.server.resources.pool.models.types :refer [
-                                                               description-model-form
+   [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
                                                                ;get-response
                                                                post-response
                                                                ;compatible-response
 
-                                                               get-compatible-response
-                                                               ]]
+                                                               get-compatible-response]]
 
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -22,9 +20,7 @@
 
 (defn routes []
   ["/models/"
-   {
-
-   ; :get {:accept "application/json"
+   {; :get {:accept "application/json"
    ;       :summary (fe "Inventory list")
    ;       :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
    ;       :coercion reitit.coercion.schema/coercion
@@ -57,8 +53,7 @@
    ;                   404 {:description "Not Found"}
    ;                   500 {:description "Internal Server Error"}}}
 
-
-   :get {:conflicting true
+    :get {:conflicting true
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]
@@ -69,15 +64,13 @@
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
 
-                               (s/optional-key :search) s/Str
-                               }}
+                               (s/optional-key :search) s/Str}}
           :handler models/get-resource
           :responses {200 {:description "OK"
                            :body get-compatible-response}
                            ;:body s/Any}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
-
 
     :post {:accept "application/json"
            :summary (fe "Form-Handler: Create model")

@@ -41,17 +41,14 @@ describe "Inventory API Endpoints" do
         expect(resp.body["pagination"]["total_rows"]).to eq(5)
         expect(resp.body["data"].count).to eq(1)
       end
-      
-      
+
       it "retrieves expected results by search" do
-                ["Abc", "Xyz"].each do |search_term|
-
-        resp = client.get "/inventory/#{@inventory_pool.id}/models/?search=#{search_term}"
-        expect(resp.status).to eq(200)
-        expect(resp.body.count).to eq(1)
-                  end
-              end
-
+        ["Abc", "Xyz"].each do |search_term|
+          resp = client.get "/inventory/#{@inventory_pool.id}/models/?search=#{search_term}"
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
+        end
+      end
     end
   end
 end

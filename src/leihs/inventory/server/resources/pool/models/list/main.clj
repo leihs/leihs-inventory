@@ -25,8 +25,7 @@
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params
-                                                    fetch-pagination-params-raw
-                                                    ]]
+                                                    fetch-pagination-params-raw]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
@@ -79,9 +78,7 @@
                                          :content_type (:content_type m))
                                   m)))))
 
-
-
-         ;{:keys [page size]} (fetch-pagination-params-raw request)
+;{:keys [page size]} (fetch-pagination-params-raw request)
          ;with-pagination? (not (and (nil? page) (nil? size)))
          ]
 
@@ -94,10 +91,7 @@
      ;         response)
      ;  )
 
-     (response (create-pagination-response request query nil post-fnc))
-
-
-     )))
+     (response (create-pagination-response request query nil post-fnc)))))
 
 
 
