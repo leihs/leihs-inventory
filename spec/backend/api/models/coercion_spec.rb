@@ -15,7 +15,7 @@ describe "Coercion test" do
     let(:url) { "/inventory/models" }
 
     context "GET /inventory/:pool_id/models for a specific pool" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/list/" }
 
       it "returns paginated empty results for a new pool and returns status 200" do
         resp = client.get "#{url}?page=3&size=1"
@@ -27,7 +27,7 @@ describe "Coercion test" do
         resp = client.get "#{url}?page=abc"
         expect(resp.status).to eq(422)
         expect(resp.body).to eq({"reason" => "Coercion-Error", "scope" => "request/query-params",
-                                 "coercion-type" => "schema", "uri" => "GET /inventory/#{@inventory_pool.id}/models/"})
+                                 "coercion-type" => "schema", "uri" => "GET /inventory/#{@inventory_pool.id}/models/list/"})
       end
     end
   end

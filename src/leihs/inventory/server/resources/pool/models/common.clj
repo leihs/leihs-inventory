@@ -23,8 +23,10 @@
                                                                                       [:= :parent_id cover_image_id]]))
                                       (sql/order-by [:thumbnail :asc])
                                       sql-format))
+
         data (if res (assoc model-cover-id
-                            :image_id (:id res))
+                            :image_id (:id res)
+                            :content_type (:content_type res))
                  model-cover-id)]
     data))
 
