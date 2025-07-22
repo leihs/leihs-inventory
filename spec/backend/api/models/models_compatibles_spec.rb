@@ -25,7 +25,7 @@ describe "Inventory API Endpoints" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
 
-    context "GET /inventory/models-compatibles" do
+    context "GET /inventory/{:pool-id}/models/" do
       it "retrieves all compatible models and returns status 200" do
         resp = client.get "/inventory/#{@inventory_pool.id}/models/"
         expect(resp.status).to eq(200)

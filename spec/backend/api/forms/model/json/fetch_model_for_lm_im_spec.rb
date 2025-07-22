@@ -103,7 +103,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/models/list/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -170,7 +170,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/models/list/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
@@ -301,7 +301,7 @@ describe "Inventory Model" do
           }
 
           resp = json_client_post(
-            "/inventory/#{pool_id}/models/list/",
+            "/inventory/#{pool_id}/models/",
             body: form_data,
             headers: cookie_header
           )
