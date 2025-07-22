@@ -7,29 +7,16 @@
    [schema.core :as s]
    [spec-tools.core :as st]))
 
-(def description-model-form "CAUTION:\n
-- Model\n
-   - Modifies all attributes except: Images/Attachments\n
-   - Use PATCH /inventory/<pool-id>/model/<image-id> to set is_cover\n
-   - GET: contains all data for fields (attachment, image included)\n
-- Full sync will be processed for: accessories, compatibles, categories, entitlements, properties\n
-- Image\n
-   - Use POST /inventory/models/<model-id>/images to upload image\n
-   - Use DELETE /inventory/models/<model-id>/images/<image-id> to delete image\n
-- Attachment\n
-   - Use POST /inventory/models/<model-id>/attachments to upload attachment\n
-   - Use DELETE /inventory/models/<model-id>/attachments/<attachment-id> to delete attachment")
-
-(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
-                                            :upload/content_type
-                                            :image/url
-                                            :image/to_delete
-                                            :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
-
-(sa/def :model2/image_attributes
-  (sa/or :multiple (sa/or :coll (sa/coll-of ::image_attribute)
-                          :str string?)
-         :none empty?))
+;(sa/def ::image_attribute (sa/keys :opt-un [:image/filename
+;                                            :upload/content_type
+;                                            :image/url
+;                                            :image/to_delete
+;                                            :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+;
+;(sa/def :model2/image_attributes
+;  (sa/or :multiple (sa/or :coll (sa/coll-of ::image_attribute)
+;                          :str string?)
+;         :none empty?))
 
 ;(sa/def :create-model/scheme
 ;  (sa/keys

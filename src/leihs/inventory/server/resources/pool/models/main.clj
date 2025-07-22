@@ -115,7 +115,7 @@
                                      ]))
 
 
-                       (sql/limit 10)
+                       ;(sql/limit 10)
 
                        ;(cond-> model_id
                        ;  (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])

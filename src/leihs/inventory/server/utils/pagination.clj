@@ -9,17 +9,17 @@
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
-      (sql/from [[base-query] :subquery])
-      sql-format
-      (->> (jdbc/execute-one! tx))
-      :total_count))
+    (sql/from [[base-query] :subquery])
+    sql-format
+    (->> (jdbc/execute-one! tx))
+    :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
   (let [paginated-query (-> base-query
-                            (sql/limit per_page)
-                            (sql/offset offset)
-                            sql-format
-                            (->> (jdbc/execute! tx)))]
+                          (sql/limit per_page)
+                          (sql/offset offset)
+                          sql-format
+                          (->> (jdbc/execute! tx)))]
     (mapv identity paginated-query)))
 
 (defn set-default-pagination [size page]
@@ -44,7 +44,7 @@
                           :size size}
 
          paginated-products (if (nil? post-data-fnc) paginated-products
-                                (post-data-fnc paginated-products))]
+                                                     (post-data-fnc paginated-products))]
      {:data paginated-products
       :pagination pagination-info})))
 
@@ -82,19 +82,35 @@
          tx (:tx request)]
      (cond
        (and (or (nil? with-pagination?) (= with-pagination? false))
-            (single-entity-get-request? request))
-       (jdbc/execute! tx (-> base-query sql-format))
+         (single-entity-get-request? request))
+
+       (if post-fnc
+         (-> (jdbc/execute! tx (-> base-query sql-format))
+           post-fnc
+           first)
+         (jdbc/execute-one! tx (-> base-query sql-format)))
+
+       ;(-> (jdbc/execute! tx (-> base-query sql-format))
+       ;      cond-> post-fnc
+       ;
+       ;  )
 
        (and (or (nil? with-pagination?) with-pagination?)
-            (or (some? page) (some? size)))
+         (or (some? page) (some? size)))
        (pagination-response request base-query post-fnc)
 
        with-pagination? (pagination-response request base-query post-fnc)
 
-       post-fnc (-> (jdbc/execute! tx (-> base-query sql-format))
-                   post-fnc)
+       ;post-fnc (-> (jdbc/execute! tx (-> base-query sql-format))
+       ;           post-fnc)
+       ;
+       ;:else (jdbc/execute! tx (-> base-query sql-format))
 
-       :else (jdbc/execute! tx (-> base-query sql-format))
+
+       :else        (if post-fnc
+                      (-> (jdbc/execute! tx (-> base-query sql-format))
+                        post-fnc)
+                      (jdbc/execute! tx (-> base-query sql-format)))
 
 
        ))))

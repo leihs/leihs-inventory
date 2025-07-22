@@ -37,8 +37,6 @@
 
 (defn index-resources
   ([request]
-  ; (get-models-handler request false))
-  ;([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id]} (path-params request)
          {:keys [with_items type
@@ -67,7 +65,7 @@
                      (and pool_id (presence search))
                      (with-search search))
 
-                 (sql/limit 10)
+                 ;(sql/limit 10)
 
                    (cond-> category_id
                      (#(from-category tx % category_id))))
@@ -83,26 +81,21 @@
 
 
 
-         {:keys [page size]} (fetch-pagination-params-raw request)
-         with-pagination? (not (and (nil? page) (nil? size)))
-
-     ;(if (or model_id (and (nil? page) (nil? size)))
-     ;(if (and (nil? page) (nil? size))
-
-
+         ;{:keys [page size]} (fetch-pagination-params-raw request)
+         ;with-pagination? (not (and (nil? page) (nil? size)))
          ]
 
      (debug (sql-format query :inline true))
 
-       ;(response (create-pagination-response request query with-pagination? post-fnc))
+     ;(if with-pagination?
+     ;  (response (create-pagination-response request query with-pagination? post-fnc))
+     ;  (-> (jdbc/execute! tx (-> query sql-format))
+     ;        post-fnc
+     ;         response)
+     ;  )
 
+     (response (create-pagination-response request query nil post-fnc))
 
-     (if with-pagination?
-       (response (create-pagination-response request query with-pagination? post-fnc))
-       (-> (jdbc/execute! tx (-> query sql-format))
-             post-fnc
-              response)
-       )
 
      )))
 
