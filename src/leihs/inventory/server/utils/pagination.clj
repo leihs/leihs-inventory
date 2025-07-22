@@ -28,8 +28,7 @@
     {:size size
      :page page}))
 
-(defn create-paginated-response "Automatically creates a paginated response based on size and page, if needed.
-Without params it returns full data set."
+(defn- create-paginated-response
   ([base-query tx size page]
    (create-paginated-response base-query tx size page nil))
 
@@ -93,21 +92,11 @@ Without params it returns full data set."
              first)
          (jdbc/execute-one! tx (-> base-query sql-format)))
 
-       ;(-> (jdbc/execute! tx (-> base-query sql-format))
-       ;      cond-> post-fnc
-       ;
-       ;  )
-
        (and (or (nil? with-pagination?) with-pagination?)
             (or (some? page) (some? size)))
        (pagination-response request base-query post-fnc)
 
        with-pagination? (pagination-response request base-query post-fnc)
-
-       ;post-fnc (-> (jdbc/execute! tx (-> base-query sql-format))
-       ;           post-fnc)
-       ;
-       ;:else (jdbc/execute! tx (-> base-query sql-format))
 
        :else (if post-fnc
                (-> (jdbc/execute! tx (-> base-query sql-format))

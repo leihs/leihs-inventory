@@ -68,31 +68,3 @@
 
 (def get-compatible-response
   (s/->Either [[comppatible] {:data [comppatible] :pagination pagination}]))
-
-;(def get-models-response-payload
-;  (merge get-model-scheme {s/Keyword s/Any}))
-;
-;(def get-response {:data [get-models-response-payload] :pagination pagination})
-;
-;(sa/def :software/properties (sa/or
-;                              :single (sa/or :coll (sa/coll-of ::sp/property)
-;                                             :str string?)
-;                              :none nil?))
-;
-;(sa/def :model/multipart
-;  (sa/keys
-;   :req-un [::sp/product]
-;   :opt-un [:nil/version
-;            ::sp/manufacturer
-;             ;:nil-str/is_package
-;            ::sp/is_package
-;            :nil/description
-;            :nil/technical_detail
-;            :nil/internal_description
-;            :nil/hand_over_note
-;            ::sp/categories
-;            ::sp/owner
-;            :min/compatibles
-;            ::sp/entitlements
-;            :software/properties
-;            ::sp/accessories]))

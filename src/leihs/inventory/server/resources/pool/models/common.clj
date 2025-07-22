@@ -15,7 +15,6 @@
     :else x))
 
 (defn- get-one-thumbnail-query [tx {:keys [id cover_image_id] :as model-cover-id}]
-  (println ">o> abc.model-cover-id" model-cover-id)
   (let [res (jdbc/execute-one! tx (-> (sql/select :id :target_id :thumbnail :filename :content_type)
                                       (sql/from :images)
                                       (cond-> (nil? cover_image_id) (sql/where [:= :target_id id]))
@@ -25,14 +24,10 @@
                                       (sql/order-by [:thumbnail :asc])
                                       sql-format))
 
-        p (println ">o> abc.res" res)
         data (if res (assoc model-cover-id
                             :image_id (:id res)
                             :content_type (:content_type res))
-                 model-cover-id)
-
-        p (println ">o> abc.data" data)]
-
+                 model-cover-id)]
     data))
 
 (defn fetch-thumbnails-for-ids [tx model-cover-ids]

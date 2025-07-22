@@ -63,9 +63,6 @@
 
                      (and pool_id (presence search))
                      (with-search search))
-
-                 ;(sql/limit 10)
-
                    (cond-> category_id
                      (#(from-category tx % category_id))))
 
@@ -76,22 +73,8 @@
                                 (if-let [image-id (:image_id m)]
                                   (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
                                          :content_type (:content_type m))
-                                  m)))))
-
-;{:keys [page size]} (fetch-pagination-params-raw request)
-         ;with-pagination? (not (and (nil? page) (nil? size)))
-         ]
+                                  m))))) ]
 
      (debug (sql-format query :inline true))
 
-     ;(if with-pagination?
-     ;  (response (create-pagination-response request query with-pagination? post-fnc))
-     ;  (-> (jdbc/execute! tx (-> query sql-format))
-     ;        post-fnc
-     ;         response)
-     ;  )
-
      (response (create-pagination-response request query nil post-fnc)))))
-
-
-

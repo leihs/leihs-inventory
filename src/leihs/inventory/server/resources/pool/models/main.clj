@@ -6,9 +6,6 @@
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec]]
-
-;[leihs.inventory.server.utils.pagination :refer [create-paginated-response
-   ;                                                 fetch-pagination-params]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
@@ -94,28 +91,17 @@
           pool-id (-> request path-params :pool_id)
           {:keys [search]} (query-params request)
           base-query (-> (sql/select
-                           ;[:id :model_id]
                           :id
                           :product
                           :version
-                           ;(create-image-url :models :cover_image_url)
                           :cover_image_id)
                          (sql/from :models)
-                       ;(sql/left-join :images [:= :cover_image_id :images.id])
                          (cond-> search
                            (sql/where [:or
-
                                        [:ilike :product (str "%" search "%")]
                                        [:ilike :name (str "%" search "%")]
                                        [:ilike :version (str "%" search "%")]]))
-
-;(sql/limit 10)
-
-                       ;(cond-> model_id
-                       ;  (-> (sql/join :models_compatibles [:= :models_compatibles.model_id model_id])
-                       ;    (sql/where [:= :id model_id])))
                          (sql/order-by [[:trim [:|| :product " " :version]] :asc]))
-          ;]
 
           post-fnc (fn [models]
                      (->> models
@@ -125,32 +111,13 @@
                                  (if-let [image-id (:image_id m)]
                                    (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
                                           :content_type (:content_type m))
-                                   m)))))
+                                   m)))))]
 
-          {:keys [page size]} (fetch-pagination-params-raw request)
-          with-pagination? (not (and (nil? page) (nil? size)))]
-
-;      ;(if (or model_id (and (nil? page) (nil? size)))
-      ;      (if (and (nil? page) (nil? size))
-      ;        (-> (jdbc/execute! tx (-> base-query sql-format))
-      ;              post-fnc
-      ;          ;remove-nil-entries-fnc
-      ;          response)
-      ;        ;(response (create-paginated-response base-query tx size page remove-nil-entries-fnc))))
-      ;        ;(response (create-paginated-response base-query tx size page post-fnc ))
-      ;
-      ;        (response (create-pagination-response request base-query with-pagination? post-fnc))
-      ;
-      ;)
-
-      (response (create-pagination-response request base-query with-pagination? post-fnc)))
+      (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
       (error "Failed to get models-compatible" e)
       (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
-
-;(defn index-resources [request]
-;  (get-models-handler request true))
 
 ;###################################################################################
 
@@ -175,6 +142,7 @@
         (process-accessories tx accessories model-id pool-id)
         (process-compatibles tx compatibles model-id)
         (process-categories tx categories model-id pool-id)
+
         (if res
           (response res)
           (bad-request {:error "Failed to create model"})))

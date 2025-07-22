@@ -5,8 +5,7 @@ require_relative "../_common"
 require "faker"
 
 describe "Inventory Model" do
-  # ["inventory_manager", "lending_manager"].each do |role|
-  ["inventory_manager"].each do |role|
+  ["inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory model with role=#{role}" do
       include_context :setup_models_api_model, role
       include_context :generate_session_header
@@ -28,29 +27,12 @@ describe "Inventory Model" do
       }
 
       before do
-        # @client = plain_faraday_json_client(@cookie_header)
-
-        # @plain_faraday_json_client
-
         [path_arrow, path_arrow_thumb, path_test_pdf].each do |path|
           raise "File not found: #{path}" unless File.exist?(path)
         end
 
         # Fetch shared data and set global instance variables
         resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model"
-        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do |req|
-        #   req.headers = @cookie_header
-        # end
-
-        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do |req|
-        #   # req.headers["Content-Type"] = "application/json"
-        #   req.headers["Cookie"] = @cookie_header
-        #   # req.headers["x-csrf-token"] = X_CSRF_TOKEN
-        # end
-
-        # resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model" do
-        #   req.headers["Cookie"] = @user_cookies_str
-        # end
 
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200

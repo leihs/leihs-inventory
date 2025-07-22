@@ -29,22 +29,22 @@
       (cond-> pool-id (sql/where [:= :i.inventory_pool_id [:cast pool-id :uuid]]))
       (sql/group-by :m.product :i.model_id :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id)))
 
-(defn valid-get-request? [request]
-  (let [method (:request-method request)
-        uri (:uri request)
-        uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
-    (and (= method :get)
-         (not (re-find uuid-regex uri)))))
+;(defn valid-get-request? [request]
+;  (let [method (:request-method request)
+;        uri (:uri request)
+;        uuid-regex #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$"]
+;    (and (= method :get)
+;         (not (re-find uuid-regex uri)))))
+;
+;(defn- pagination-response [request base-query]
+;  (let [{:keys [page size]} (fetch-pagination-params request)
+;        tx (:tx request)]
+;    (create-paginated-response base-query tx size page)))
 
-(defn- pagination-response [request base-query]
-  (let [{:keys [page size]} (fetch-pagination-params request)
-        tx (:tx request)]
-    (create-paginated-response base-query tx size page)))
-
-(defn get-items-handler
+(defn index-resources
   ([request]
-   (get-items-handler request false))
-  ([request with-pagination?]
+  ; (get-items-handler request false))
+  ;([request with-pagination?]
    (let [tx (:tx request)
          {:keys [pool_id item_id]} (path-params request)
          {:keys [page size]} (fetch-pagination-params request)
@@ -86,11 +86,17 @@
 
                         (cond-> (and sort-by item_id) (sql/order-by item_id)))]
 
-     (cond
-       (= result_type "Distinct") (jdbc/query tx (-> base-query sql-format))
-       (and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
-       with-pagination? (pagination-response request base-query)
-       :else (jdbc/query tx (-> base-query sql-format))))))
+     ;(cond
+     ;  (= result_type "Distinct") (jdbc/query tx (-> base-query sql-format))
+     ;  ;(and (nil? with-pagination?) (valid-get-request? request)) (pagination-response request base-query)
+     ;  ;with-pagination? (pagination-response request base-query)
+     ;  ;:else (jdbc/query tx (-> base-query sql-format))))))
+     ;  :else (create-pagination-response ))
+
+
+     (create-pagination-response request                                base-query                                nil)
+
+     )))
 
 (defn index-resources [request]
   (response (get-items-handler request true)))
