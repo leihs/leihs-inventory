@@ -15,7 +15,7 @@ describe "Swagger Inventory Endpoints - Models" do
     let(:inventory_pool_id) { @inventory_pool.id }
 
     context "POST and GET /inventory/:pool_id/models when creating new models" do
-      let(:url) { "/inventory/#{@inventory_pool.id}/models/" }
+      let(:url) { "/inventory/#{@inventory_pool.id}/models/list/" }
 
       context "when a model has an image but no thumbnail" do
         before :each do
@@ -26,8 +26,8 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body.count).to eq(1)
         end
       end
 
@@ -36,9 +36,9 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to be_nil
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body[0]["url"]).to be_nil
+          expect(resp.body.count).to eq(1)
         end
       end
 
@@ -77,9 +77,9 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to end_with(@image.id)
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body.count).to eq(1)
         end
 
         it "returns image_url for the image specified by cover_image_id (@image)" do
@@ -88,9 +88,9 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to end_with(@image.id)
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body.count).to eq(1)
         end
 
         it "returns image_url for the image specified by cover_image_id (@image2)" do
@@ -99,9 +99,9 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to end_with(@image2.id)
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body[0]["url"]).to end_with(@image2.id)
+          expect(resp.body.count).to eq(1)
         end
       end
 
@@ -116,9 +116,9 @@ describe "Swagger Inventory Endpoints - Models" do
           resp = client.get url
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"][0]["id"]).to eq(@model.id)
-          expect(resp.body["data"][0]["url"]).to end_with(@image.id)
-          expect(resp.body["data"].count).to eq(1)
+          expect(resp.body[0]["id"]).to eq(@model.id)
+          expect(resp.body[0]["url"]).to end_with(@image.id)
+          expect(resp.body.count).to eq(1)
         end
       end
     end

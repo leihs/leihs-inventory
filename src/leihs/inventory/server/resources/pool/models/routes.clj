@@ -3,8 +3,8 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.main :as models]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
-                                                               get-response
-                                                               post-response]]
+                                                               post-response
+                                                               get-compatible-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
@@ -16,36 +16,20 @@
 
 (defn routes []
   ["/models/"
-   {:get {:accept "application/json"
-          :summary (fe "Inventory list")
-          :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
+   {:get {:conflicting true
+          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]
+          :swagger {:produces ["application/json"]}
+          :summary "Global search for models (-compatibles)"
+          :description "Global search for models-compatibles, includes models of type: 'Model', 'Software' as well"
           :parameters {:path {:pool_id s/Uuid}
-                       :query {(s/optional-key :before_last_check) Date
-                               (s/optional-key :borrowable) s/Bool
-                               (s/optional-key :broken) s/Bool
-                               (s/optional-key :category_id) s/Uuid
-                               (s/optional-key :filter_ids) [s/Uuid]
-                               (s/optional-key :filter_manufacturer) s/Str
-                               (s/optional-key :filter_product) s/Str
-                               (s/optional-key :in_stock) s/Bool
-                               (s/optional-key :incomplete) s/Bool
-                               (s/optional-key :inventory_pool_id) s/Uuid
-                               (s/optional-key :is_deletable) s/Bool
-                               (s/optional-key :owned) s/Bool
-                               (s/optional-key :page) s/Int
-                               (s/optional-key :retired) s/Bool
-                               (s/optional-key :search) s/Str
+                       :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
-                               (s/optional-key :sort_by) (s/enum :manufacturer-asc :manufacturer-desc :product-asc :product-desc)
-                               (s/optional-key :type) (s/enum :model :software :option :package)
-                               (s/optional-key :with_items) s/Bool}}
-
-          :handler models/index-resources
-
+                               (s/optional-key :search) s/Str}}
+          :handler models/get-resource
           :responses {200 {:description "OK"
-                           :body get-response}
+                           :body get-compatible-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

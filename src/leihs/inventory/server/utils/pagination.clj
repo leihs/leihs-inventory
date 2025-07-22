@@ -4,15 +4,14 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]))
 
 (defn- fetch-total-count [base-query tx]
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
       (sql/from [[base-query] :subquery])
       sql-format
-      (->> (jdbc/query tx))
-      first
+      (->> (jdbc/execute-one! tx))
       :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
@@ -20,16 +19,16 @@
                             (sql/limit per_page)
                             (sql/offset offset)
                             sql-format
-                            (->> (jdbc/query tx)))]
+                            (->> (jdbc/execute! tx)))]
     (mapv identity paginated-query)))
 
-(defn set-default-pagination [size page]
+(defn- set-default-pagination [size page]
   (let [size (if (and (int? size) (pos? size)) size 25)
         page (if (and (int? page) (pos? page)) page 1)]
     {:size size
      :page page}))
 
-(defn create-paginated-response
+(defn- create-paginated-response
   ([base-query tx size page]
    (create-paginated-response base-query tx size page nil))
 
@@ -73,7 +72,9 @@
      (create-paginated-response base-query tx size page post-data-fnc))))
 
 (defn create-pagination-response
-  "To receive a paginated response, the request must contain the query parameters `page` and `size`."
+  "To receive a paginated response, the request must contain the query parameters `page` or `size`.
+  Without these parameters, the full data set is returned.
+  Handles single entity requests as well."
 
   ([request base-query with-pagination?]
    (create-pagination-response request base-query with-pagination? nil))
@@ -84,7 +85,12 @@
      (cond
        (and (or (nil? with-pagination?) (= with-pagination? false))
             (single-entity-get-request? request))
-       (jdbc/query tx (-> base-query sql-format))
+
+       (if post-fnc
+         (-> (jdbc/execute! tx (-> base-query sql-format))
+             post-fnc
+             first)
+         (jdbc/execute-one! tx (-> base-query sql-format)))
 
        (and (or (nil? with-pagination?) with-pagination?)
             (or (some? page) (some? size)))
@@ -92,4 +98,7 @@
 
        with-pagination? (pagination-response request base-query post-fnc)
 
-       :else (jdbc/query tx (-> base-query sql-format))))))
+       :else (if post-fnc
+               (-> (jdbc/execute! tx (-> base-query sql-format))
+                   post-fnc)
+               (jdbc/execute! tx (-> base-query sql-format)))))))

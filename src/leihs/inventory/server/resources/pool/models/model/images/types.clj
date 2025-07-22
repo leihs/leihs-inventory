@@ -16,5 +16,5 @@
                     :model_id s/Uuid})
 
 (def get-images-response
-  {:data [image]
-   :pagination pagination})
+  (s/->Either [{:data [image]
+                :pagination pagination} [image]]))
