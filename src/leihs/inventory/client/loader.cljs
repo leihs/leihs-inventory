@@ -2,8 +2,11 @@
   (:require
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+
+   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [jc]]))
+   [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
 (defn root-layout []
   (-> http-client
@@ -15,26 +18,29 @@
       (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn models-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        url (js/URL. (.. route-data -request -url))
-        categories (-> http-client
-                       (.get (str "/inventory/" pool-id "/category-tree/"))
-                       (.then #(jc (.-data %))))
+  (let [url (js/URL. (.. route-data -request -url))
+        search (.-search url)]
+    (if (empty? search)
+      (router/redirect "?page=1&size=50")
+      (let [params (.. ^js route-data -params)
+            pool-id (aget params "pool-id")
+            categories (-> http-client
+                           (.get (str "/inventory/" pool-id "/category-tree/"))
+                           (.then #(jc (.-data %))))
 
-        responsible-pools (-> http-client
-                              (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
-                              (.then #(jc (.-data %))))
+            responsible-pools (-> http-client
+                                  (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
+                                  (.then #(jc (.-data %))))
 
-        models (-> http-client
-                   (.get (str (.-pathname url) "/" (.-search url)) #js {:cache false})
-                   (.then #(jc (.. % -data))))]
+            models (-> http-client
+                       (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
+                       (.then #(jc (.. % -data))))]
 
-    (.. (js/Promise.all (cond-> [categories models responsible-pools]))
-        (then (fn [[categories models responsible-pools]]
-                {:categories categories
-                 :responsible-pools responsible-pools
-                 :models models})))))
+        (.. (js/Promise.all (cond-> [categories models responsible-pools]))
+            (then (fn [[categories models responsible-pools]]
+                    {:categories categories
+                     :responsible-pools responsible-pools
+                     :models models})))))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -49,15 +55,15 @@
                        (.get (str "/inventory/" pool-id "/category-tree/"))
                        (.then #(jc (.-data %))))
 
-        models (-> http-client
-                   (.get (str "/inventory/" pool-id "/models/") #js {:id "compatible-models"})
-                   (.then (fn [res]
-                            (if (:model-id (jc params))
-                              ;; If a model-id is provided, filter out the current model
-                              (filter #(not= (:model_id %) (:model-id (jc params)))
-                                      (jc (.. res -data -data)))
-                              ;; Otherwise, return all models
-                              (jc (.. res -data -data))))))
+        ;; models (-> http-client
+        ;;            (.get (str "/inventory/" pool-id "/models/") #js {:id "compatible-models"})
+        ;;            (.then (fn [res]
+        ;;                     (if (:model-id (jc params))
+        ;;                       ;; If a model-id is provided, filter out the current model
+        ;;                       (filter #(not= (:model_id %) (:model-id (jc params)))
+        ;;                               (jc (.. res -data -data)))
+        ;;                       ;; Otherwise, return all models
+        ;;                       (jc (.. res -data -data))))))
 
         manufacturers (-> http-client
                           (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
@@ -71,11 +77,10 @@
                    (.get model-path #js {:id model-id})
                    (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
+    (.. (js/Promise.all (cond-> [categories manufacturers entitlement-groups]
                           data (conj data)))
-        (then (fn [[categories models manufacturers entitlement-groups & [data]]]
+        (then (fn [[categories manufacturers entitlement-groups & [data]]]
                 {:categories categories
-                 :models models
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
                  :data (if data data nil)})))))

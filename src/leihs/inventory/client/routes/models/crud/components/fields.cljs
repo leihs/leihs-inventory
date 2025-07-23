@@ -6,6 +6,7 @@
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
+   [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.crud.components.accessories-list :refer [AccessoryList]]
    [leihs.inventory.client.routes.models.crud.components.attachments :refer [Attachments]]
@@ -51,7 +52,8 @@
                       :props (:props block)})
 
       (-> block :component (= "compatible-models"))
-      ($ CompatibleModels {:control control
+      ($ CompatibleModels {:form form
+                           :name (:name block)
                            :props (:props block)})
 
       (-> block :component (= "model-properties"))
@@ -62,6 +64,12 @@
       ($ Manufacturer {:control control
                        :form form
                        :props (:props block)})
+
+      (-> block :component (= "instant-search"))
+      ($ InstantSearch {:form form
+                        :name (:name block)
+                        :label (:label block)
+                        :props (:props block)})
 
       (-> block :component (= "checkbox"))
       ($ FormField {:control (cj control)

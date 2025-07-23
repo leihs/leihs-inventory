@@ -116,7 +116,8 @@
             "label": "Version"
           },
           "manufacturer": {
-            "label": "Hersteller"
+            "label": "Hersteller",
+            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "description": {
             "label": "Beschreibung"

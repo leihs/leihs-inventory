@@ -97,9 +97,15 @@ export const structure = [
         },
       },
       {
-        name: "manufacturers",
+        name: "manufacturer",
         label: "pool.model.product.blocks.manufacturer.label",
-        component: "manufacturers",
+        component: "instant-search",
+        props: {
+          "auto-complete": "off",
+          placeholder: "Hersteller auswählen",
+          resource: "/inventory/:pool-id/manufacturers/",
+          "not-found": "pool.model.product.blocks.manufacturer.not_found",
+        },
       },
       {
         name: "description",

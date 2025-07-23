@@ -3,6 +3,19 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]))
 
+(def default-values {:product ""
+                     :is_package false
+                     :manufacturer ""
+                     :description ""
+                     :internal_description ""
+                     :technical_detail ""
+                     :hand_over_note ""
+                     :version ""
+                     :categories []
+                     :entitlements []
+                     :properties []
+                     :accessories []})
+
 (defn replace-nil-values [data]
   (cond
     (map? data)
@@ -59,7 +72,10 @@
 
 (defn prepare-default-values [model]
   (let [images (:images model)
-        attachments (:attachments model)]
+        attachments (:attachments model)
+        model (merge default-values model)]
+
+    (js/console.debug "default" model)
 
     (-> (js/Promise.all
          (concat

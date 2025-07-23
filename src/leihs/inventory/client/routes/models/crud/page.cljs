@@ -29,19 +29,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(def default-values (cj {:product ""
-                         :is_package false
-                         :manufacturer ""
-                         :description ""
-                         :internal_description ""
-                         :technical_detail ""
-                         :hand_over_note ""
-                         :version ""
-                         :categories []
-                         :entitlements []
-                         :properties []
-                         :accessories []}))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -60,11 +47,11 @@
 
         is-edit (not (or is-create is-delete))
 
-        {:keys [data]} (useLoaderData)
+        {:keys [data]} (jc (useLoaderData))
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
                                             (fn [] (core/prepare-default-values data))
-                                            default-values)})
+                                            (cj core/default-values))})
 
         is-loading (.. form -formState -isLoading)
 
