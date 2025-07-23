@@ -1,8 +1,8 @@
-(ns leihs.inventory.server.resources.pool.models.list.routes
+(ns leihs.inventory.server.resources.pool.list.routes
   (:require
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.models.list.main :as models-list]
-   [leihs.inventory.server.resources.pool.models.list.types :refer [get-response]]
+   [leihs.inventory.server.resources.pool.list.main :as list]
+   [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
@@ -13,7 +13,7 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/list/"
+  ["/list/"
    {:get {:accept "application/json"
           :summary (fe "InventoryList-Endpoint with filters for models, software, options and packages")
           :description "- https://staging.leihs.zhdk.ch/manage/8bd16d45-056d-5590-bc7f-12849f034351/models"
@@ -40,7 +40,7 @@
                                (s/optional-key :type) (s/enum :model :software :option :package)
                                (s/optional-key :with_items) s/Bool}}
 
-          :handler models-list/index-resources
+          :handler list/index-resources
           :responses {200 {:description "OK"
                            :body get-response}
                       404 {:description "Not Found"}

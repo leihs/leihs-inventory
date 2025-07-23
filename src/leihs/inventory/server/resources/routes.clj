@@ -16,8 +16,8 @@
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
    [leihs.inventory.server.resources.pool.items.routes :as items]
+   [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
-   [leihs.inventory.server.resources.pool.models.list.routes :as models-list]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :as attachments]
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
@@ -131,7 +131,7 @@
   []
   (let [core-routes [["/:pool_id"
                       (models/routes)
-                      (models-list/routes)
+                      (list/routes)
                       (model/routes)
                       (image/routes)
                       (images/routes)
