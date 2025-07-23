@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.list.types
+(ns leihs.inventory.server.resources.pool.list.types
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
