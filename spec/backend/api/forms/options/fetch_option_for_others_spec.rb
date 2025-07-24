@@ -56,7 +56,7 @@ require_relative "../_common"
             method: :put,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
         end
       end
     end
