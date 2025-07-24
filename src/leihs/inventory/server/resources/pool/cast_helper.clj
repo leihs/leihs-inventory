@@ -15,10 +15,10 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
   (:import [java.math BigDecimal RoundingMode]
-   [java.net URL JarURLConnection]
-   (java.time LocalDateTime)
-   [java.util UUID]
-   [java.util.jar JarFile]))
+           [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 (defn- customized-empty? [value]
   (or (= value "null") (nil? value) (empty? value)))
@@ -48,17 +48,17 @@
             (if (nil? (get m k))
               (dissoc m k)
               m))
-    data
-    keys-to-check))
+          data
+          keys-to-check))
 
 (def remove-nil-entries-fnc
   (fn [res]
     (mapv
-      (fn [r]
-        (->> r
-          (filter (comp some? val))
-          (into {})))
-      res)))
+     (fn [r]
+       (->> r
+            (filter (comp some? val))
+            (into {})))
+     res)))
 
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
@@ -69,8 +69,8 @@
                 (dissoc m k)
                 m)
               (catch Exception e)))
-    data
-    keys-to-check))
+          data
+          keys-to-check))
 
 (defn parse-local-date-or-nil
   "Parses a string into a java.time.LocalDate or returns nil if the input is nil or empty."
@@ -99,10 +99,10 @@
 
 (defn fetch-default-room-id [tx]
   (let [query (-> (sql/select [:r.id :room_id] [:r.name :room_name] [:b.name :building_name])
-                (sql/from [:rooms :r])
-                (sql/join [:buildings :b] [:= :r.building_id :b.id])
-                (sql/where [:and [:= :b.name "Unbekanntes Gebäude"] [:= :r.name "nicht bekannt"]])
-                sql-format)]
+                  (sql/from [:rooms :r])
+                  (sql/join [:buildings :b] [:= :r.building_id :b.id])
+                  (sql/where [:and [:= :b.name "Unbekanntes Gebäude"] [:= :r.name "nicht bekannt"]])
+                  sql-format)]
     (jdbc/execute-one! tx query)))
 
 (defn remove-empty-or-nil [m]
@@ -116,7 +116,7 @@
       :else (try
               (let [normalized-json-array-string
                     (if (and (.startsWith json-array-string "{")
-                          (not (.startsWith json-array-string "[")))
+                             (not (.startsWith json-array-string "[")))
                       (str "[" json-array-string "]")
                       json-array-string)
                     parsed (jsonc/parse-string normalized-json-array-string true)
@@ -165,13 +165,13 @@
           file-content (file-to-base64 (:tempfile entry))
           data (assoc (dissoc entry :tempfile) :content file-content (keyword col_name) id)]
       (jdbc/execute! tx (-> (sql/insert-into :attachments)
-                          (sql/values [data])
-                          (sql/returning :*)
-                          sql-format))))
+                            (sql/values [data])
+                            (sql/returning :*)
+                            sql-format))))
   (jdbc/execute! tx (-> (sql/select :id :filename :content_type :size)
-                      (sql/from :attachments)
-                      (sql/where [:= (keyword col_name) (to-uuid id)])
-                      sql-format)))
+                        (sql/from :attachments)
+                        (sql/where [:= (keyword col_name) (to-uuid id)])
+                        sql-format)))
 
 (defn create-validation-response [data validation]
   {:data data

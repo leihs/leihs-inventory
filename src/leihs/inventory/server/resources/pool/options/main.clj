@@ -1,24 +1,22 @@
 (ns leihs.inventory.server.resources.pool.options.main
   (:require
    [clojure.set]
+   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-      [clojure.string :as str]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.resources.pool.cast-helper :refer [remove-nil-entries-fnc
+                                                              double-to-numeric-or-zero
+                                                              double-to-numeric-or-nil]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec]]
+
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories
                                                                                  process-compatibles
                                                                                  process-entitlements
                                                                                  process-properties]]
-
-
-   [leihs.inventory.server.resources.pool.cast-helper :refer [remove-nil-entries-fnc
-                                                                 double-to-numeric-or-zero
-                                                              double-to-numeric-or-nil
-                                                                 ]]
 
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
@@ -40,7 +38,6 @@
   (:import
    (java.time LocalDateTime)))
 
-
 (defn create-option-handler-by-pool-form [request]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
@@ -53,9 +50,9 @@
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
-                                        (sql/values [multipart])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [multipart])
+                                          (sql/returning :*)
+                                          sql-format))
             model-id (:id res)]
 
         (if res
@@ -68,14 +65,13 @@
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product multipart)}})
-            (status 409))
+              (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product multipart)}})
-            (status 409))
+              (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
-
 
 (defn fetch-option-handler-by-pool-form [request]
   (let [current-timestamp (LocalDateTime/now)
@@ -83,10 +79,10 @@
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
       (let [model-query (->
-                          (sql/select :o.*)
-                          (sql/from [:options :o])
-                          sql-format)
-            result (jdbc/execute! tx model-query) ]
+                         (sql/select :o.*)
+                         (sql/from [:options :o])
+                         sql-format)
+            result (jdbc/execute! tx model-query)]
         (if result
           (response result)
           (bad-request {:error "Failed to fetch model"})))
