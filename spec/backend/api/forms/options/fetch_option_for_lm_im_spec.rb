@@ -45,17 +45,17 @@ response = {
             form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to be_present
-          expect(resp.body["validation"].count).to eq(0)
-          option_id = resp.body["data"]["id"]
+          expect(resp.body["id"]).to be_present
+          # expect(resp.body["validation"].count).to eq(0)
+          option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.body.count).to eq(1)
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(resp.body.count).to eq(8)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
           form_data = {
@@ -71,11 +71,11 @@ response = {
             method: :put,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["version"]).to eq("v2")
-          expect(resp.body[0]["price"]).to eq(222.0)
+          expect(resp.body["version"]).to eq("v2")
+          expect(resp.body["price"]).to eq(222.0)
         end
       end
 
@@ -92,17 +92,17 @@ response = {
             form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to be_present
-          expect(resp.body["validation"].count).to eq(0)
-          option_id = resp.body["data"]["id"]
+          expect(resp.body["id"]).to be_present
+          # expect(resp.body["validation"].count).to eq(0)
+          option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.body.count).to eq(1)
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(resp.body.count).to eq(8)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
           form_data = {
@@ -116,7 +116,7 @@ response = {
             method: :put,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
         end

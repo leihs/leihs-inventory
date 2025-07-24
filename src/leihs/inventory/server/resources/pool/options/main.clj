@@ -118,11 +118,12 @@
                           (sql/from [:options :o])
                           ;(sql/where [:= :o.id option-id])
                           sql-format)
-            model-result (jdbc/execute-one! tx model-query)
+            result (jdbc/execute! tx model-query)
 
-            result (if model-result
-                     [model-result]
-                     [])]
+            ;result (if model-result
+            ;         [model-result]
+            ;         [])
+            ]
         (if result
           (response result)
           (bad-request {:error "Failed to fetch model"})))
