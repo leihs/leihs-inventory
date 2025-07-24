@@ -24,7 +24,8 @@
           :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :handler manufacturers/index-resources
-          :parameters {:query {(s/optional-key :type) (s/enum "Software" "Model")
+          :parameters {:path {:pool_id s/Uuid}
+                       :query {(s/optional-key :type) (s/enum "Software" "Model")
                                (s/optional-key :search-term) s/Str
                                (s/optional-key :in-detail) (s/enum "true" "false")}}
           :responses {200 {:description "OK"
