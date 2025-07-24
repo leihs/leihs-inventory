@@ -36,11 +36,11 @@ require_relative "../_common"
             form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # update option
           form_data = {
