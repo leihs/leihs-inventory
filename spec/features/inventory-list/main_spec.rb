@@ -236,7 +236,7 @@ feature "Inventory Page", type: :feature do
     # page=1
     # size=20
     visit "/inventory/#{pool_1.id}/models"
-    first(:link_or_button, "10").click
+    first(:link_or_button, "50").click
     click_on "20"
 
     expect(all("table tbody tr").count).to eq 11

@@ -103,6 +103,8 @@
              (when (and (not= search "")
                         (not= search (get-values name)))
 
+               (set-value name search)
+
                (let [debounce (js/setTimeout
                                (fn []
                                  (set-open! true)
@@ -118,7 +120,7 @@
                                200)]
 
                  (fn [] (js/clearTimeout debounce))))))))
-     [search props get-values path name])
+     [search props get-values set-value path name])
 
     (uix/use-effect
      (fn []

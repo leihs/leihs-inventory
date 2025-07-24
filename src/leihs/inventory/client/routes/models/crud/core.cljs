@@ -75,8 +75,6 @@
         attachments (:attachments model)
         model (merge default-values model)]
 
-    (js/console.debug "default" model)
-
     (-> (js/Promise.all
          (concat
 

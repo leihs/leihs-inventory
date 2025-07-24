@@ -140,7 +140,6 @@
                                                             :statusText (.. err -response -statusText)}))))
 
                                         (<p! (let [model-id (aget params "model-id")]
-                                               (js/console.debug model-data)
                                                (-> http-client
                                                    (.put (str "/inventory/" pool-id "/models/" model-id)
                                                          (js/JSON.stringify (cj model-data))
@@ -160,8 +159,6 @@
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
                         (.. event (preventDefault))
-
-                        (js/console.debug "Model ID" model-id)
 
                         (when images-to-delete
                           (doseq [image-id images-to-delete]
