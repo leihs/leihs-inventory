@@ -90,31 +90,34 @@
 
     (uix/use-effect
      (fn []
-       (if (< (count search) 3)
-         (set-open! false)
+       (when (= (.. js/document -activeElement -id)
+                (.. input-ref -current -firstChild -id))
 
-         (do
-           (when (= search "")
-             (set-open! false))
+         (if (< (count search) 3)
+           (set-open! false)
 
-           (when (and (not= search "")
-                      (not= search (get-values name)))
+           (do
+             (when (= search "")
+               (set-open! false))
 
-             (let [debounce (js/setTimeout
-                             (fn []
-                               (set-open! true)
+             (when (and (not= search "")
+                        (not= search (get-values name)))
+
+               (let [debounce (js/setTimeout
+                               (fn []
+                                 (set-open! true)
                                ;; Fetch result based on the search term
-                               (-> http-client
-                                   (.get (str path "/" "?search-term=" search))
-                                   (.then (fn [res]
-                                            (let [data (jc (.-data res))]
-                                              (set-result! data))))
-                                   (.catch
-                                    (fn [err]
-                                      (js/console.error "Error fetching result" err)))))
-                             200)]
+                                 (-> http-client
+                                     (.get (str path "/" "?search=" search))
+                                     (.then (fn [res]
+                                              (let [data (jc (.-data res))]
+                                                (set-result! data))))
+                                     (.catch
+                                      (fn [err]
+                                        (js/console.error "Error fetching result" err)))))
+                               200)]
 
-               (fn [] (js/clearTimeout debounce)))))))
+                 (fn [] (js/clearTimeout debounce))))))))
      [search props get-values path name])
 
     (uix/use-effect

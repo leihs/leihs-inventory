@@ -55,16 +55,6 @@
                        (.get (str "/inventory/" pool-id "/category-tree/"))
                        (.then #(jc (.-data %))))
 
-        ;; models (-> http-client
-        ;;            (.get (str "/inventory/" pool-id "/models/") #js {:id "compatible-models"})
-        ;;            (.then (fn [res]
-        ;;                     (if (:model-id (jc params))
-        ;;                       ;; If a model-id is provided, filter out the current model
-        ;;                       (filter #(not= (:model_id %) (:model-id (jc params)))
-        ;;                               (jc (.. res -data -data)))
-        ;;                       ;; Otherwise, return all models
-        ;;                       (jc (.. res -data -data))))))
-
         manufacturers (-> http-client
                           (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
