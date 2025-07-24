@@ -5,14 +5,16 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.queries :refer [base-inventory-query
+   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                             filter-by-type
                                                             from-category
                                                             with-items
                                                             with-search
                                                             without-items]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params
-                                                           query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [query-params path-params]]
+
+   ;[leihs.inventory.server.resources.utils.request :refer [path-params
+   ;                                                        query-params]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [convert-map-if-exist
                                                 url-ends-with-uuid?]]
