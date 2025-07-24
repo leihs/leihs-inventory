@@ -24,7 +24,7 @@
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :parameters {:path {:pool_id uuid?}
                         :multipart :option/multipart}
-           :handler options/create-option-handler-by-pool-form
+           :handler options/post-resource
            :responses {200 {:description "OK"
                             :body response-option-post}
                        404 {:description "Not Found"}
@@ -34,7 +34,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?}}
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-          :handler options/fetch-option-handler-by-pool-form
+          :handler options/index-resources
           :responses {200 {:description "OK"
                            :body response-option-get}
                       404 {:description "Not Found"}

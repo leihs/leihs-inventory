@@ -38,7 +38,7 @@
   (:import
    (java.time LocalDateTime)))
 
-(defn create-option-handler-by-pool-form [request]
+(defn post-resource [request]
   (let [validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
@@ -73,7 +73,7 @@
               (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 
-(defn fetch-option-handler-by-pool-form [request]
+(defn index-resources [request]
   (let [current-timestamp (LocalDateTime/now)
         tx (get-in request [:tx])
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]

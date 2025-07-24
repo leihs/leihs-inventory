@@ -37,7 +37,7 @@
   (:import
    (java.time LocalDateTime)))
 
-(defn fetch-option-handler-by-pool-form [request]
+(defn get-resource [request]
   (let [current-timestamp (LocalDateTime/now)
         tx (get-in request [:tx])
         option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -56,7 +56,7 @@
         (error "Failed to fetch model" (.getMessage e))
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
 
-(defn update-option-handler-by-pool-form [request]
+(defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
