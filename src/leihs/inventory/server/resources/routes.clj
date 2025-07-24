@@ -136,10 +136,10 @@
   (let [core-routes [["/:pool_id"
                       (models/routes)
                       (list/routes)
+                      (model/routes)
 
                       (option/routes)
                       (options/routes)
-
 
                       (image/routes)
                       (images/routes)
