@@ -2,7 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
 
-   [leihs.inventory.server.resources.pool.options.coercion]
+   ;[leihs.inventory.server.resources.pool.options.coercion]
    [leihs.inventory.server.resources.pool.options.option.main :as option]
    [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
                                                                 response-option-post
