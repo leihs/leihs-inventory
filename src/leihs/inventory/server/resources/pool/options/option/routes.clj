@@ -8,6 +8,12 @@
    ;[leihs.inventory.server.resources.pool.options.option.types :refer [description-model-form
    ;                                                            post-response
    ;                                                            get-compatible-response]]
+
+   [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
+                                                                response-option-post
+                                                                response-option-object
+                                                                ]]
+
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
@@ -29,6 +35,7 @@
           :handler option/fetch-option-handler-by-pool-form
           :responses {200 {:description "OK"
                            ;:body mc/response-option
+                           :body response-option-object
                            }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
@@ -44,8 +51,9 @@
                        :multipart :option/multipart}
           :handler option/update-option-handler-by-pool-form
           :responses {200 {:description "OK"
-                           :content_type "multipart/form-data"
+                           ;:content_type "multipart/form-data"
                            ;:body mc/response-option
+                           :body response-option-object
                            }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}

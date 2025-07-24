@@ -2,6 +2,10 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.options.main :as options]
+   [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
+                                                                response-option-post
+                                                               ]]
+
    ;[leihs.inventory.server.resources.pool.options.types :refer [
    ;                                                             description-model-form
    ;                                                            post-response
@@ -37,13 +41,16 @@
            :responses {200 {:description "OK"
                             ;:body :res2/request ;; FIXME: shows key-prefixes
 
-                            ;:body {:data {:product string?
+                            ;:body {:data {
+                            ;              :id uuid?
                             ;              :inventory_pool_id uuid?
+                            ;              :inventory_code string?}
+                            ;              :product string?
                             ;              :version (sa/nilable string?)
                             ;              :price any?
-                            ;              :id uuid?
-                            ;              :inventory_code string?}
                             ;       :validation any?}
+
+                            :body response-option-post
 
                             }
 
@@ -57,7 +64,7 @@
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :handler options/fetch-option-handler-by-pool-form
           :responses {200 {:description "OK"
-                           ;:body mc/response-option
+                           :body response-option-get
                            }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
