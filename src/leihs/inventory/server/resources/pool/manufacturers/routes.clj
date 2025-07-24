@@ -12,21 +12,21 @@
   ["/manufacturers/"
    {:get {:summary (fe "")
           :accept "application/json"
-          :description "'search-term' works with at least one character, considers:\n
+          :description "'search' works with at least one character, considers:\n
 - manufacturer
 - product
 \nEXCLUDES manufacturers
 - .. starting with space
 - .. with empty string
 \nHINT
-- 'in-detail'-option works for models with set 'search-term' only\n"
+- 'in-detail'-option works for models with set 'search' only\n"
           :coercion reitit.coercion.schema/coercion
           :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :handler manufacturers/index-resources
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :type) (s/enum "Software" "Model")
-                               (s/optional-key :search-term) s/Str
+                               (s/optional-key :search) s/Str
                                (s/optional-key :in-detail) (s/enum "true" "false")}}
           :responses {200 {:description "OK"
                            :body response-schema}

@@ -19,7 +19,7 @@
     (let [tx (:tx request)
           query-params (query-params request)
           mtype (:type query-params)
-          search-term (:search-term query-params)
+          search-term (:search query-params)
           in-detail (str-to-bool (:in-detail query-params))
           select-stm (if in-detail
                        (sql/select-distinct :m.id :m.manufacturer :m.product :m.version [:m.id :model_id])
