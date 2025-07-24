@@ -6,10 +6,7 @@
                                                                 response-option-post
                                                                ]]
 
-   ;[leihs.inventory.server.resources.pool.options.types :refer [
-   ;                                                             description-model-form
-   ;                                                            post-response
-   ;                                                            get-compatible-response]]
+
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
@@ -39,21 +36,7 @@
                         :multipart :option/multipart}
            :handler options/create-option-handler-by-pool-form
            :responses {200 {:description "OK"
-                            ;:body :res2/request ;; FIXME: shows key-prefixes
-
-                            ;:body {:data {
-                            ;              :id uuid?
-                            ;              :inventory_pool_id uuid?
-                            ;              :inventory_code string?}
-                            ;              :product string?
-                            ;              :version (sa/nilable string?)
-                            ;              :price any?
-                            ;       :validation any?}
-
-                            :body response-option-post
-
-                            }
-
+                            :body response-option-post          }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 

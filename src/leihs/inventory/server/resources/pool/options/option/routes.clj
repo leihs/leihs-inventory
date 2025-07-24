@@ -3,12 +3,7 @@
    [leihs.inventory.server.constants :refer [fe]]
 
    [leihs.inventory.server.resources.pool.options.coercion ]
-
    [leihs.inventory.server.resources.pool.options.option.main :as option]
-   ;[leihs.inventory.server.resources.pool.options.option.types :refer [description-model-form
-   ;                                                            post-response
-   ;                                                            get-compatible-response]]
-
    [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
                                                                 response-option-post
                                                                 response-option-object
@@ -29,14 +24,12 @@
    {:get {:accept "application/json"
           :summary "(DEV) | Form-Handler: Fetch form data [v0]"
           :coercion spec/coercion
+          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}}
-          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :handler option/fetch-option-handler-by-pool-form
           :responses {200 {:description "OK"
-                           ;:body mc/response-option
-                           :body response-option-object
-                           }
+                           :body response-option-object                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -51,10 +44,7 @@
                        :multipart :option/multipart}
           :handler option/update-option-handler-by-pool-form
           :responses {200 {:description "OK"
-                           ;:content_type "multipart/form-data"
-                           ;:body mc/response-option
-                           :body response-option-object
-                           }
+                           :body response-option-object                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}
 ]

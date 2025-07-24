@@ -22,3 +22,7 @@
 
 
 
+(sa/def :option/multipart (sa/keys :req-un [::product
+                                            ::inventory_code]
+                            :opt-un [::version
+                                     ::price]))
