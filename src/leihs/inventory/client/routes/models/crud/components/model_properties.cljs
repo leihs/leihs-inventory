@@ -85,7 +85,7 @@
 
                                   ($ FormMessage)))
 
-                            ($ TableCell {:class-name "align-top"}
+                            ($ TableCell
                                ($ FormField
                                   {:control (cj control)
                                    :name (str "properties." index ".key")
@@ -95,10 +95,11 @@
                                                                {:className "min-h-[2.5rem]"
                                                                 :autoscale true
                                                                 :resize true}
-                                                               (:field (jc %)))))
-                                               ($ FormMessage))}))
+                                                               (:field (jc %))))))}
 
-                            ($ TableCell {:class-name "align-top"}
+                                  ($ FormMessage)))
+
+                            ($ TableCell
                                ($ FormField
                                   {:control (cj control)
                                    :name (str "properties." index ".value")
@@ -108,10 +109,11 @@
                                                                {:className "min-h-[2.5rem]"
                                                                 :autoscale true
                                                                 :resize true}
-                                                               (:field (jc %)))))
-                                               ($ FormMessage))}))
+                                                               (:field (jc %))))))}
 
-                            ($ TableCell {:className "align-top"}
+                                  ($ FormMessage)))
+
+                            ($ TableCell
                                ($ :div {:className "flex gap-2 justify-end"}
                                   #_($ DragHandle {:id (:id field)
                                                    :className "cursor-move"})

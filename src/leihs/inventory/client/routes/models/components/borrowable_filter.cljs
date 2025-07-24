@@ -8,7 +8,6 @@
 
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
-        type (.. search-params (get "type"))
         [t] (useTranslation)
 
         borrowable (js/JSON.parse (.. search-params (get "borrowable")))
@@ -20,7 +19,6 @@
                             (set-search-params! search-params))]
 
     ($ Select {:value borrowable
-               :disabled (= type "option")
                :onValueChange handle-borrowable}
        ($ SelectTrigger {:name "borrowable"
                          :className (str "w-[260px]" class-name)}

@@ -29,6 +29,10 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
+(defn- on-invalid [data]
+  (.. toast (error "Invalid Data"))
+  (js/console.debug "is invalid: " data))
+
 (def default-values (cj {:product ""
                          :is_package false
                          :manufacturer ""
@@ -70,13 +74,6 @@
 
         control (.. form -control)
         params (router/useParams)
-        on-invalid (fn [data]
-                     (let [invalid-filds-count (count (jc data))]
-                       (if (= invalid-filds-count 0)
-                         (.. toast (error (t "pool.model.create.invalid" #js {:count invalid-filds-count})))
-                         (.. toast (error (t "pool.model.create.invalid" #js {:count invalid-filds-count}))))
-
-                       (js/console.debug "is invalid: " data)))
 
         handle-submit (.. form -handleSubmit)
         handle-delete (fn []
@@ -107,6 +104,7 @@
 
         on-submit (fn [submit-data event]
                     (go
+                      (js/console.debug "Submit Data" submit-data)
                       (let [images (if is-create
                                      (:images (jc submit-data))
                                      (filter (fn [el] (= (:id el) nil))
@@ -145,6 +143,7 @@
                                                                        :manufacturers "delete"}}}))
 
                                                  (.then (fn [res]
+                                                          (js/console.debug "Model Data" res (.. res -data -id))
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
                                                            :id (.. res -data -id)}))
@@ -153,7 +152,6 @@
                                                             :statusText (.. err -response -statusText)}))))
 
                                         (<p! (let [model-id (aget params "model-id")]
-                                               (js/console.debug model-data)
                                                (-> http-client
                                                    (.put (str "/inventory/" pool-id "/models/" model-id)
                                                          (js/JSON.stringify (cj model-data))

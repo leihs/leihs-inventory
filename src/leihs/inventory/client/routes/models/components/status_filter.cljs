@@ -15,7 +15,6 @@
   (let [[search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         with_items (.. search-params (get "with_items"))
-        type (.. search-params (get "type"))
         owned (.. search-params (get "owned"))
         in_stock (.. search-params (get "in_stock"))
         incomplete (.. search-params (get "incomplete"))
@@ -75,8 +74,7 @@
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
           ($ Button {:variant "outline"
-                     :disabled (or (= with_items "false")
-                                   (= type "option"))
+                     :disabled (= with_items "false")
                      :class-name class-name}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.status.title")
@@ -86,9 +84,7 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
-                              :type "button"}
+                   ($ :button {:type "button"}
                       (t "pool.models.filters.status.owned"))
 
                    ($ DropdownMenuPortal
@@ -117,9 +113,7 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
-                              :type "button"}
+                   ($ :button {:type "button"}
                       (t "pool.models.filters.status.in_stock"))
 
                    ($ DropdownMenuPortal
@@ -148,14 +142,11 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
-                              :disabled (= type "software")
-                              :type "button"}
+                   ($ :button {:type "button"}
                       (t "pool.models.filters.status.broken"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent {:class-name (when (= type "software") "hidden ")}
+                      ($ DropdownMenuSubContent
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
@@ -180,14 +171,11 @@
 
              ($ DropdownMenuSub
                 ($ DropdownMenuSubTrigger
-                   ($ Button {:variant "ghost"
-                              :class-name "p-0 h-auto font-normal"
-                              :disabled (= type "software")
-                              :type "button"}
+                   ($ :button {:type "button"}
                       (t "pool.models.filters.status.incomplete"))
 
                    ($ DropdownMenuPortal
-                      ($ DropdownMenuSubContent {:class-name (when (= type "software") "hidden ")}
+                      ($ DropdownMenuSubContent
 
                          ($ DropdownMenuItem {:asChild true}
                             ($ Button {:variant "ghost"
