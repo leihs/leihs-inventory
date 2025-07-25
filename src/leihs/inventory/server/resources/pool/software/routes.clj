@@ -69,6 +69,7 @@
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler software/create-software-handler-by-pool-form
            :responses {200 {:description "OK"
+                            :body :software/response
                             ;:body {:data :software/response
                             ;       :validation [any?]}
                             }

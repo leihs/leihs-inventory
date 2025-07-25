@@ -59,6 +59,20 @@
              :nil/info_url
              ::sp/created_at]))
 
+
+(def delete-response {:deleted_attachments [{:id uuid?
+                                                      :model_id uuid?
+                                                      :filename string?
+                                                      :size number?}]
+                               :deleted_model [{:id uuid?
+                                                :product string?
+                                                :manufacturer any?}]})
+
+;(def delete-response
+;  (sa/keys :req-un
+;    [::deleted_attachments ::deleted_images ::deleted_model ::deleted_model_compatibles]))
+
+
 (defn routes []
   ["/software/software/"
    {:get {:accept "application/json"
@@ -84,6 +98,7 @@
           :handler software/update-software-handler-by-pool-form
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
+                           :body :software/response
                            ;:body [:software/response]
                            }
                       404 {:description "Not Found"}
@@ -99,6 +114,7 @@
              :handler software/delete-software-handler-by-pool-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
+                              :body delete-response
                               ;:body {:deleted_attachments [{:id uuid?
                               ;                              :model_id uuid?
                               ;                              :filename string?
