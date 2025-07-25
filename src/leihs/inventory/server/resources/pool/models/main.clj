@@ -1,62 +1,36 @@
-(ns leihs.inventory.server.resources.models.models-by-pool
+(ns leihs.inventory.server.resources.pool.models.main
   (:require
    [clojure.set]
-   [clojure.string :refer [capitalize]]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.models.queries :refer [base-inventory-query
-                                                            filter-by-type
-                                                            from-category
-                                                            with-items
-                                                            with-search
-                                                            without-items]]
-   [leihs.inventory.server.resources.utils.request :refer [path-params
-                                                           query-params]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                filter-map-by-spec]]
+   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
+                                                                                 process-accessories
+                                                                                 process-categories
+                                                                                 process-compatibles
+                                                                                 process-entitlements
+                                                                                 process-properties]]
+   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
+                                                                 filter-by-type
+                                                                 from-category
+                                                                 with-items
+                                                                 with-search
+                                                                 without-items]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist
-                                                url-ends-with-uuid?]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+                                                    fetch-pagination-params
+                                                    fetch-pagination-params-raw]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params
+                                                       query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
   (:import
    (java.time LocalDateTime)))
-
-(defn- extract-option-type-from-uri [input-str]
-  (let [valid-segments ["properties" "items" "accessories" "attachments" "entitlements" "model-links"]
-        last-segment (-> input-str
-                         (clojure.string/split #"/")
-                         last)]
-    (if (some #(= last-segment %) valid-segments)
-      last-segment
-      nil)))
-
-(defn apply-is_deleted-context-if-valid
-  "setups base-query for is_deletable and references:
-  - m: models
-  - i: items
-  - it: items (for items that are children of item i)"
-  [is_deletable]
-  (-> (sql/select-distinct :m.*
-                           [[:raw "CASE
-                                   WHEN m.is_package = true AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   WHEN m.is_package = false AND m.type = 'Model' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   WHEN m.is_package = false AND m.type = 'Software' AND i.id IS NULL AND it.id IS NULL THEN true
-                                   ELSE false
-                                   END"]
-                            :is_deletable])
-      (sql/from [:models :m])
-      (sql/left-join [:items :i] [:= :m.id :i.model_id])
-      (sql/left-join [:items :it] [:= :it.parent_id :i.id])))
-
-(defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
-  (if (nil? is_deletable)
-    base-query
-    (-> (sql/select-distinct :*)
-        (sql/from [[base-query] :wrapped_query])
-        (sql/where [:= :wrapped_query.is_deletable is_deletable]))))
 
 (defn get-models-handler
   ([request]
@@ -73,25 +47,34 @@
          query (-> (base-inventory-query pool_id)
                    (cond-> type (filter-by-type type))
                    (cond->
-                    (not= type :option)
-                     (cond->
-                      (and pool_id (true? with_items))
-                       (with-items pool_id
-                         (cond-> {:retired retired
-                                  :borrowable borrowable
-                                  :incomplete incomplete
-                                  :broken broken
-                                  :inventory_pool_id inventory_pool_id
-                                  :owned owned
-                                  :in_stock in_stock}
-                           (not= type :software)
-                           (assoc :before_last_check before_last_check)))
-                       (and pool_id (false? with_items))
-                       (without-items pool_id)))
-                   (cond-> (and pool_id (presence search))
+                    (and pool_id (true? with_items))
+                     (with-items pool_id
+                       :retired retired
+                       :borrowable borrowable
+                       :incomplete incomplete
+                       :broken broken
+                       :inventory_pool_id inventory_pool_id
+                       :owned owned
+                       :in_stock in_stock
+                       :before_last_check before_last_check)
+
+                     (and pool_id (false? with_items))
+                     (without-items pool_id)
+
+                     (and pool_id (presence search))
                      (with-search search))
-                   (cond-> (and category_id (not (some #{type} [:option :software])))
-                     (#(from-category tx % category_id))))]
+                   (cond-> category_id
+                     (#(from-category tx % category_id))))
+
+         post-fnc (fn [models]
+                    (->> models
+                         (fetch-thumbnails-for-ids tx)
+                         (map (fn [m]
+                                (if-let [image-id (:image_id m)]
+                                  (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
+                                         :content_type (:content_type m))
+                                  m)))))]
+
      (debug (sql-format query :inline true))
 
      (if (url-ends-with-uuid? (:uri request))
@@ -99,78 +82,70 @@
          (if res
            (response res)
            (status 404)))
-       (response (create-pagination-response request query with-pagination?))))))
+       (response (create-pagination-response request query with-pagination? post-fnc))))))
 
-(defn get-models-of-pool-with-pagination-handler [request]
-  (get-models-handler request true))
+(defn get-resource [request]
+  (try
+    (let [tx (:tx request)
+          pool-id (-> request path-params :pool_id)
+          {:keys [search]} (query-params request)
+          base-query (-> (sql/select
+                          :id
+                          :product
+                          :version
+                          :cover_image_id)
+                         (sql/from :models)
+                         (cond-> search
+                           (sql/where [:or
+                                       [:ilike :product (str "%" search "%")]
+                                       [:ilike :name (str "%" search "%")]
+                                       [:ilike :version (str "%" search "%")]]))
+                         (sql/order-by [[:trim [:|| :product " " :version]] :asc]))
 
-(defn get-models-of-pool-auto-pagination-handler [request]
-  (get-models-handler request nil))
+          post-fnc (fn [models]
+                     (->> models
+                          (fetch-thumbnails-for-ids tx)
+                          (map (fn [m]
+                                 (if-let [image-id (:image_id m)]
+                                   (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
+                                          :content_type (:content_type m))
+                                   m)))))]
 
-(defn get-models-of-pool-handler [request]
-  (let [result (get-models-handler request)]
-    result))
+      (response (create-pagination-response request base-query nil post-fnc)))
 
-;;  ------------
+    (catch Exception e
+      (error "Failed to get models-compatible" e)
+      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
 
-(defn create-model-handler-by-pool [request]
-  (let [created_ts (LocalDateTime/now)
-        model-id (get-in request [:path-params :model_id])
-        pool-id (get-in request [:path-params :pool_id])
-        body-params (:body-params request)
+;###################################################################################
+
+(defn create-model-handler [request]
+  (let [created-ts (LocalDateTime/now)
         tx (:tx request)
-        model (assoc body-params :created_at created_ts :updated_at created_ts)
-        categories (:category_ids model)
-        model (dissoc model :category_ids)]
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        {:keys [accessories prepared-model-data categories compatibles attachments properties
+                entitlements images new-images-attr existing-images-attr]}
+        (extract-model-form-data request)]
+
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
-                                          (sql/values [model])
+                                          (sql/values [prepared-model-data])
                                           (sql/returning :*)
                                           sql-format))
+            res (filter-map-by-spec res :create-model/scheme)
             model-id (:id res)]
-        (doseq [category-id categories]
-          (jdbc/execute! tx (-> (sql/insert-into :model_links)
-                                (sql/values [{:model_id model-id :model_group_id (to-uuid category-id)}])
-                                sql-format))
-          (jdbc/execute! tx (-> (sql/insert-into :inventory_pools_model_groups)
-                                (sql/values [{:inventory_pool_id (to-uuid pool-id) :model_group_id (to-uuid category-id)}])
-                                sql-format)))
+
+        (process-entitlements tx entitlements model-id)
+        (process-properties tx properties model-id)
+        (process-accessories tx accessories model-id pool-id)
+        (process-compatibles tx compatibles model-id)
+        (process-categories tx categories model-id pool-id)
+
         (if res
-          (response [res])
+          (response res)
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-        (error "Failed to create model" e)
-        (bad-request {:error "Failed to create model" :details (.getMessage e)})))))
 
-(defn update-model-handler-by-pool [request]
-  (let [model-id (get-in request [:path-params :model_id])
-        body-params (:body-params request)
-        tx (:tx request)]
-    (try
-      (let [res (jdbc/execute! tx (-> (sql/update :models)
-                                      (sql/set (convert-map-if-exist body-params))
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
-        (if (= 1 (count res))
-          (response res)
-
-          (bad-request {:error "Failed to update model" :details "Model not found"})))
-      (catch Exception e
-        (error "Failed to update model" e)
-        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
-
-(defn delete-model-handler-by-pool [request]
-  (let [tx (:tx request)
-        model-id (get-in request [:path-params :model_id])]
-    (try
-      (let [res (jdbc/execute! tx (-> (sql/delete-from :models)
-                                      (sql/where [:= :id (to-uuid model-id)])
-                                      (sql/returning :*)
-                                      sql-format))]
-        (if (= 1 (count res))
-          (response res)
-          (bad-request {:error "Failed to delete model" :details "Model not found"})))
-      (catch Exception e
-        (error "Failed to delete model" e)
-        (status (bad-request {:error "Failed to delete model" :details (.getMessage e)}) 409)))))
+        (exception-to-response request e "Failed to create model")))))
+(defn post-resource [request]
+  (create-model-handler request))

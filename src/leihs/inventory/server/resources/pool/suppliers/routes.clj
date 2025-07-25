@@ -25,7 +25,7 @@
           :swagger {:produces ["application/json"]}
           :parameters {:query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
-                               (s/optional-key :search-term) s/Str}}
+                               (s/optional-key :search) s/Str}}
           :handler suppliers/index-resources
           :responses {200 {:description "OK"
                            :body get-response}
