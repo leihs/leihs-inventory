@@ -16,8 +16,10 @@
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
    [leihs.inventory.server.resources.pool.items.routes :as items]
+
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
+
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.routes :as attachment]
    [leihs.inventory.server.resources.pool.models.model.attachments.routes :as attachments]
    [leihs.inventory.server.resources.pool.models.model.images.image.routes :as image]
@@ -27,6 +29,8 @@
    [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
    [leihs.inventory.server.resources.pool.models.model.routes :as model]
    [leihs.inventory.server.resources.pool.models.routes :as models]
+   [leihs.inventory.server.resources.pool.options.option.routes :as option]
+   [leihs.inventory.server.resources.pool.options.routes :as options]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
@@ -133,6 +137,10 @@
                       (models/routes)
                       (list/routes)
                       (model/routes)
+
+                      (option/routes)
+                      (options/routes)
+
                       (image/routes)
                       (images/routes)
                       (images-thumbnail/routes)
