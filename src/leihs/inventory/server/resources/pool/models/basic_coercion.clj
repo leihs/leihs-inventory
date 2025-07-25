@@ -235,5 +235,8 @@
 (sa/def ::id uuid?)
 (sa/def ::model_id uuid?)
 (sa/def ::filename string?)
-(sa/def ::manufacturer string?)
+(sa/def ::description string?)
 (sa/def ::size int?)
+
+(sa/def ::internal_description string?)
+(sa/def ::hand_over_note string?)

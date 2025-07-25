@@ -34,7 +34,7 @@
    [leihs.inventory.server.resources.pool.options.routes :as options]
 
    [leihs.inventory.server.resources.pool.software.routes :as software]
-   [leihs.inventory.server.resources.pool.software.software.routes :as sw-software]
+   ;[leihs.inventory.server.resources.pool.software.software.routes :as sw-software]
 
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
@@ -147,7 +147,7 @@
                       (options/routes)
 
                       (software/routes)
-                      (sw-software/routes)
+                      ;(sw-software/routes)
 
                       (image/routes)
                       (images/routes)

@@ -4,6 +4,9 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.software.main :as software]
 
+
+   [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+
    [leihs.inventory.server.resources.pool.software.types :refer [response-option-get
                                                                 response-option-post]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -15,6 +18,44 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+
+(sa/def :software/properties (sa/or
+                               :single (sa/or :coll (sa/coll-of ::sp/property)
+                                         :str string?)
+                               :none nil?))
+
+(sa/def ::sp/image_attribute (sa/keys :req-opt [:image/filename
+                                             :image/content_type
+                                             :image/url
+                                             :image/to_delete
+                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+
+(sa/def :model/image_attributes (sa/or
+                                  :single (sa/or :coll (sa/coll-of ::sp/image_attribute)
+                                            :str string?)
+                                  :none nil?))
+
+(sa/def :software/multipart (sa/keys :req-un [::sp/product]
+                              :opt-un [::sp/version
+                                       ::sp/manufacturer
+                                       ::sp/is_package
+                                       ::sp/description
+                                       ::sp/technical_detail
+                                       ::sp/internal_description
+                                       ::sp/hand_over_note
+                                       ::sp/categories
+                                       ::sp/attachments_to_delete
+                                       ::sp/images_to_delete
+                                       :model/image_attributes
+                                       ::sp/owner
+                                       ::sp/compatibles
+                                       ::sp/images
+                                       ::sp/attachments
+                                       ::sp/entitlements
+                                       :software/properties
+                                       ::sp/accessories]))
+
+
 (defn routes []
   ["/software/"
    {:post {:accept "application/json"
@@ -23,7 +64,8 @@
                      :produces "application/json"}
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
-                        :multipart :software/multipart}
+                        :multipart :software/multipart
+                        }
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler software/create-software-handler-by-pool-form
            :responses {200 {:description "OK"
