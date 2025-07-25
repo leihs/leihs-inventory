@@ -27,7 +27,8 @@
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler software/create-software-handler-by-pool-form
            :responses {200 {:description "OK"
-                            :body {:data :software/response
-                                   :validation [any?]}}
+                            ;:body {:data :software/response
+                            ;       :validation [any?]}
+                            }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}])

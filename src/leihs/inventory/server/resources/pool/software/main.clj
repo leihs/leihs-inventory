@@ -18,6 +18,21 @@
                                                                                  process-entitlements
                                                                                  process-properties]]
 
+
+   [leihs.inventory.server.resources.pool.common :refer [ str-to-bool
+                                                          ;normalize-model-data
+                                                          ;parse-json-array
+                                                          ;file-to-base64
+                                                          ;base-filename
+                                                          process-attachments
+
+                                                         ]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [
+                                                                normalize-files
+                                                                normalize-model-data
+
+                                                                 ]]
+
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
                                                                  from-category
