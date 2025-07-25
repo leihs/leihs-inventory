@@ -19,10 +19,10 @@
    [schema.core :as s]))
 
 
-(sa/def :software/properties (sa/or
-                               :single (sa/or :coll (sa/coll-of ::sp/property)
-                                         :str string?)
-                               :none nil?))
+;(sa/def :software/properties (sa/or
+;                               :single (sa/or :coll (sa/coll-of ::sp/property)
+;                                         :str string?)
+;                               :none nil?))
 
 (sa/def ::sp/image_attribute (sa/keys :req-opt [:image/filename
                                              :image/content_type

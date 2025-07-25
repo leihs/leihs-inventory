@@ -31,6 +31,7 @@
 (sa/def :upload/content_type string?)
 (sa/def :image/url string?)
 (sa/def :image/thumbnail_url string?)
+(sa/def ::maintenance_period string?)
 (sa/def :image/to_delete any?)
 (sa/def :nil/url (sa/nilable string?))
 (sa/def ::position int?)
