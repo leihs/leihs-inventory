@@ -6,8 +6,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params
-                                                    create-pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]

@@ -11,8 +11,7 @@
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec]
-   [ring.util.response :as response]))
+   [reitit.coercion.spec]))
 
 (def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"

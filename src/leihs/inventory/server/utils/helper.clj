@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.utils.helper
   (:require
-   [cheshire.core :as json]
    [clojure.string :as str]
    [clojure.walk :as walk]
    [taoensso.timbre :refer [warn]])

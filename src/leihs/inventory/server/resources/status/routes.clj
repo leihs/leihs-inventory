@@ -4,7 +4,6 @@
    [leihs.core.status :as status]
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.status.types :refer [system-status-schema]]
-   [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]))

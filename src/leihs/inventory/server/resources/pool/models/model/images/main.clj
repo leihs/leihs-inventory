@@ -9,8 +9,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.types :as types]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64
                                                               resize-and-convert-to-base64]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))

@@ -3,12 +3,9 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.list.main :as list]
    [leihs.inventory.server.resources.pool.list.types :refer [get-response]]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
    [schema.core :as s]))
 

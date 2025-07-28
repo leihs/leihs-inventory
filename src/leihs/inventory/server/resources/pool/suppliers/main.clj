@@ -1,15 +1,11 @@
 (ns leihs.inventory.server.resources.pool.suppliers.main
   (:require
    [clojure.set]
-   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-   [leihs.inventory.server.utils.pagination :refer [pagination-response
-                                                    create-pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
-   [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))

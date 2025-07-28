@@ -4,8 +4,7 @@
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
-   [schema.core :as s]
-   [spec-tools.core :as st]))
+   [schema.core :as s]))
 
 (def get-model-scheme
   {:id (s/cond-pre s/Uuid s/Str)

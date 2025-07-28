@@ -22,8 +22,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params
-                                                    fetch-pagination-params-raw]]
+                                                    fetch-pagination-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]

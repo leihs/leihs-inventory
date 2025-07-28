@@ -1,7 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants
-  (:require
-   [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment]]
-   [schema.core :as s]))
+(ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants)
 
 (def CONTENT_DISPOSITION_INLINE_FORMATS ["text/html"
                                          "text/css"
