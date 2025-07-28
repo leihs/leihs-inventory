@@ -22,3 +22,30 @@
                                             ::sp/inventory_code]
                                    :opt-un [::sp/version
                                             ::sp/price]))
+
+
+(sa/def ::post-response
+  (sa/keys :req-un [:nil/description
+                    ;::sp/is_package
+
+                    ;::sp/type
+                    :models/type
+
+                    ;:nil/hand_over_note
+                    ;:nil/internal_description
+                    ::sp/product
+                    ::sp/id
+                    :nil/manufacturer
+                    :nil/version
+                    ;:nil/technical_detail
+                    ]
+
+    :opt-un [
+             ;::sp/attachments
+             ;::sp/maintenance_period
+             ;:nil/rental_price
+             ;:nil/cover_image_id
+             ::sp/updated_at
+             ;:nil/info_url
+             ::sp/created_at
+             ]))

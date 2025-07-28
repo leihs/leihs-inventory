@@ -7,7 +7,7 @@
 
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
 
-   [leihs.inventory.server.resources.pool.software.types :refer [response-option-get
+   [leihs.inventory.server.resources.pool.software.types :as ty :refer [response-option-get
                                                                 response-option-post]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -55,6 +55,27 @@
                                        :software/properties
                                        ::sp/accessories]))
 
+(sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
+                              :opt-un [::sp/version
+                                       ::sp/manufacturer
+                                       ;::sp/is_package
+                                       ::sp/description
+                                       ;::sp/technical_detail
+                                       ;::sp/internal_description
+                                       ;::sp/hand_over_note
+                                       ;::sp/categories
+                                       ;::sp/attachments_to_delete
+                                       ;::sp/images_to_delete
+                                       ;:model/image_attributes
+                                       ;::sp/owner
+                                       ;::sp/compatibles
+                                       ;::sp/images
+                                       ;::sp/attachments
+                                       ;::sp/entitlements
+                                       ;:software/properties
+                                       ;::sp/accessories
+                                       ]))
+
 
 (defn routes []
   ["/software/"
@@ -64,14 +85,15 @@
                      :produces "application/json"}
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
-                        :multipart :software/multipart
+                        :multipart :software-post/multipart
                         }
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-           :handler software/create-software-handler-by-pool-form
+           :handler software/index-resources
            :responses {200 {:description "OK"
-                            :body :software/response
-                            ;:body {:data :software/response
-                            ;       :validation [any?]}
+                            ;:body any?
+                            ;:body ::software-post/response
+                            :body ::ty/post-response
+
                             }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}])

@@ -60,6 +60,8 @@
              ::sp/created_at]))
 
 
+
+
 (def delete-response {:deleted_attachments [{:id uuid?
                                                       :model_id uuid?
                                                       :filename string?

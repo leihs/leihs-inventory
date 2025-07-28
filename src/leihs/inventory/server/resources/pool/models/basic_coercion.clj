@@ -39,6 +39,7 @@
 (sa/def ::created_at any?)
 (sa/def ::updated_at any?)
 (sa/def ::type (sa/and string? #{"Category"}))
+(sa/def :models/type (sa/and string? #{"Models" "Software"}))
 (sa/def ::category (sa/keys :opt-un [::name]
                             :req-un [::id]))
 (sa/def ::categories
