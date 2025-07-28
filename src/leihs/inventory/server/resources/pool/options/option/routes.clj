@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.pool.options.option.routes
   (:require
    [leihs.inventory.server.resources.pool.options.option.main :as option]
-   [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
+   [leihs.inventory.server.resources.pool.options.types :refer [
+                                                                ;response-option-get
                                                                 response-option-post
                                                                 response-option-object]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]

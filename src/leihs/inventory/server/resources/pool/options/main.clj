@@ -4,34 +4,12 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.cast-helper :refer [remove-nil-entries-fnc
-                                                              double-to-numeric-or-zero
-                                                              double-to-numeric-or-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                filter-map-by-spec]]
-
-   [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
-                                                                                 process-accessories
-                                                                                 process-categories
-                                                                                 process-compatibles
-                                                                                 process-entitlements
-                                                                                 process-properties]]
-
-   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
-                                                                 filter-by-type
-                                                                 from-category
-                                                                 with-items
-                                                                 with-search
-                                                                 without-items]]
+   [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
+   [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
-   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params
-                                                    fetch-pagination-params-raw]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
@@ -50,9 +28,9 @@
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
-                                          (sql/values [multipart])
-                                          (sql/returning :*)
-                                          sql-format))
+                                        (sql/values [multipart])
+                                        (sql/returning :*)
+                                        sql-format))
             model-id (:id res)]
 
         (if res
@@ -65,27 +43,26 @@
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product multipart)}})
-              (status 409))
+            (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product multipart)}})
-              (status 409))
+            (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
 
 (defn index-resources [request]
   (let [current-timestamp (LocalDateTime/now)
         tx (get-in request [:tx])
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
+        pool-id (get-in request [:path-params :pool_id])]
     (try
-      (let [model-query (->
+      (let [base-query (->
                          (sql/select :o.*)
                          (sql/from [:options :o])
-                         sql-format)
-            result (jdbc/execute! tx model-query)]
-        (if result
-          (response result)
-          (bad-request {:error "Failed to fetch model"})))
+                         (sql/where [:= :o.inventory_pool_id [:cast pool-id :uuid]]))
+
+            post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
+        (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))

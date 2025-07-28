@@ -4,7 +4,9 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.options.main :as options]
 
-   [leihs.inventory.server.resources.pool.options.types :refer [response-option-get
+   [leihs.inventory.server.resources.pool.options.types :as ty :refer [
+                                                                       ;response-option-get
+                                                                       ;response-options-get
                                                                 response-option-post]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
@@ -15,7 +17,10 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-(defn routes []
+
+
+
+                      (defn routes []
   ["/options/"
    {:post {:accept "application/json"
            :swagger {:consumes ["multipart/form-data"]
@@ -32,10 +37,16 @@
 
     :get {:accept "application/json"
           :coercion spec/coercion
-          :parameters {:path {:pool_id uuid?}}
+          :parameters {:path {:pool_id uuid?}
+
+                       :query ::ty/options-query
+
+                       }
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :handler options/index-resources
           :responses {200 {:description "OK"
-                           :body response-option-get}
+                           ;:body :ty/response-option-get}
+                           ;:body ::ty/response-options-get
+                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])

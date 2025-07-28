@@ -62,6 +62,14 @@
     {:page page
      :size size}))
 
+
+(defn pr [str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+
 (defn pagination-response
   ([request base-query]
    (pagination-response request base-query nil))
@@ -86,19 +94,24 @@
        (and (or (nil? with-pagination?) (= with-pagination? false))
             (single-entity-get-request? request))
 
-       (if post-fnc
+       (pr ">1" (if post-fnc
          (-> (jdbc/execute! tx (-> base-query sql-format))
              post-fnc
              first)
-         (jdbc/execute-one! tx (-> base-query sql-format)))
+         (jdbc/execute-one! tx (-> base-query sql-format))))
 
        (and (or (nil? with-pagination?) with-pagination?)
             (or (some? page) (some? size)))
-       (pagination-response request base-query post-fnc)
+       (pr ">2" (pagination-response request base-query post-fnc))
 
        with-pagination? (pagination-response request base-query post-fnc)
 
-       :else (if post-fnc
+       :else (pr ">3" (if post-fnc
                (-> (jdbc/execute! tx (-> base-query sql-format))
                    post-fnc)
-               (jdbc/execute! tx (-> base-query sql-format)))))))
+               (jdbc/execute! tx (-> base-query sql-format))))
+
+
+       ))))
+
+
