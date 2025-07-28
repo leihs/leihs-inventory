@@ -15,7 +15,7 @@ describe "Inventory API Endpoints - Items" do
       @path = "/#{@inventory_pool_id}/"
     end
 
-    let(:url) { "/inventory#{@path}models/#{model_with_items.id}/items" }
+    let(:url) { "/inventory#{@path}models/#{model_with_items.id}/items/" }
 
     context "GET /inventory/models/:id/items for a model with items" do
       it "retrieves all items for the model and returns status 200" do
@@ -35,22 +35,20 @@ describe "Inventory API Endpoints - Items" do
         expect(resp.status).to eq(200)
 
         item_id = resp.body["data"][0]["id"]
-        resp = client.get "#{url}/#{item_id}"
+        resp = client.get "#{url}#{item_id}"
         expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(1)
-        expect(resp.body["data"][0]["id"]).to eq(item_id)
+        expect(resp.body["id"]).to eq(item_id)
       end
 
       it "returns no results for model with an invalid item ID with status 200" do
         invalid_id = SecureRandom.uuid
-        resp = client.get "#{url}/#{invalid_id}"
-        expect(resp.status).to eq(200)
-        expect(resp.body["data"].count).to eq(0)
+        resp = client.get "#{url}#{invalid_id}"
+        expect(resp.status).to eq(404)
       end
     end
 
     context "GET /inventory/models/:id/items for a model without items" do
-      let(:url) { "/inventory#{@path}models/#{model_without_items.id}/items?page=1&size=50" }
+      let(:url) { "/inventory#{@path}models/#{model_without_items.id}/items/?page=1&size=50" }
 
       it "retrieves no items for the model and returns status 200" do
         resp = client.get url

@@ -3,32 +3,19 @@ require_relative "_shared"
 
 describe "Call swagger-endpoints" do
   context "with accept=text/html" do
-    it "returns 403 for incorrect credentials" do
-      resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
-      expect(resp.status).to eq(403)
-    end
-  end
-
-  context "with accept=text/html" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
     end
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
-    it "returns 403 for unauthenticated request" do
-      resp = client.get "/inventory/login"
-      expect(resp.status).to eq(403)
+    it "returns 200" do
+      resp = client.get "/sign-in"
+      expect(resp.status).to eq(200)
     end
 
-    # FIXME uses session instead of basicAuth
-    # it "returns 403 for incorrect credentials" do
-    #   resp = basic_auth_plain_faraday_json_client("abc", "def").get("/inventory/login")
-    #   expect(resp.status).to eq(403)
-    # end
-
     it "returns 200 for correct credentials" do
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      resp = client.get("/sign-in")
       expect(resp.status).to eq(200)
     end
 
@@ -36,7 +23,7 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
+      resp = client.get("/sign-in")
       expect(resp.status).to eq(200)
 
       resp = client.get("/inventory/session/protected") do |req|

@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.utils.session-dev-mode
-  (:require [byte-streams :as bs]
-            [cheshire.core :as json]
-            [clojure.walk :refer [keywordize-keys]]
-            [leihs.inventory.server.resources.auth.session :refer [get-cookie-value]]
-            [ring.util.codec :as codec]))
+  (:require
+   [cheshire.core :as json]
+   [clojure.walk :refer [keywordize-keys]]
+   [leihs.inventory.server.utils.auth.session :refer [get-cookie-value]]
+   [ring.util.codec :as codec]))
 
 ;; Format is an array of strings (needs to be url-encoded)
 ;; e.g.: leihs-dev-modes = ["dev-forms-v0","foo-bar"]

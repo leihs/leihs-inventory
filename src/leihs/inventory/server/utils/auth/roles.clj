@@ -1,8 +1,4 @@
-(ns leihs.inventory.server.utils.auth.roles
-  (:require
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [next.jdbc :as jdbc]))
+(ns leihs.inventory.server.utils.auth.roles)
 
 (def min-role-inventory-manager
   "Roles that have at least inventory manager permissions.

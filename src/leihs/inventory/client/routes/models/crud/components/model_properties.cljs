@@ -49,8 +49,9 @@
         inputs (:inputs props)
         handle-add (fn []
                      (uix-dom/flush-sync
-                      (append (cj {:key ""
-                                   :value ""})))
+                      (append #js {:id nil
+                                   :key ""
+                                   :value ""}))
                      (let [name (str "textarea[name='properties." (count fields) ".key']")
                            next (js/document.querySelector name)]
                        (when next (.focus next))))]
@@ -84,7 +85,7 @@
 
                                   ($ FormMessage)))
 
-                            ($ TableCell
+                            ($ TableCell {:class-name "align-top"}
                                ($ FormField
                                   {:control (cj control)
                                    :name (str "properties." index ".key")
@@ -94,11 +95,10 @@
                                                                {:className "min-h-[2.5rem]"
                                                                 :autoscale true
                                                                 :resize true}
-                                                               (:field (jc %))))))}
+                                                               (:field (jc %)))))
+                                               ($ FormMessage))}))
 
-                                  ($ FormMessage)))
-
-                            ($ TableCell
+                            ($ TableCell {:class-name "align-top"}
                                ($ FormField
                                   {:control (cj control)
                                    :name (str "properties." index ".value")
@@ -108,11 +108,10 @@
                                                                {:className "min-h-[2.5rem]"
                                                                 :autoscale true
                                                                 :resize true}
-                                                               (:field (jc %))))))}
+                                                               (:field (jc %)))))
+                                               ($ FormMessage))}))
 
-                                  ($ FormMessage)))
-
-                            ($ TableCell
+                            ($ TableCell {:className "align-top"}
                                ($ :div {:className "flex gap-2 justify-end"}
                                   #_($ DragHandle {:id (:id field)
                                                    :className "cursor-move"})

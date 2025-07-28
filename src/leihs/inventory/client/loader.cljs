@@ -2,12 +2,15 @@
   (:require
    ["react-router-dom" :as router]
    ["~/i18n.config.js" :as i18n :refer [i18n]]
+
+   [cljs.core.async :as async :refer [go]]
+   [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [jc]]))
+   [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
 (defn root-layout []
   (-> http-client
-      (.get "/inventory/profile")
+      (.get "/inventory/profile/")
       (.then (fn [res]
                (let [data (jc (.. res -data))]
                  (.. i18n (changeLanguage (-> data :user_details :language_locale)))
@@ -15,76 +18,62 @@
       (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn models-page [route-data]
-  (let [params (.. ^js route-data -params)
-        url (js/URL. (.. route-data -request -url))
-        categories (-> http-client
-                       (.get "/inventory/tree")
-                       (.then #(jc (.-data %))))
+  (let [url (js/URL. (.. route-data -request -url))
+        search (.-search url)]
+    (if (empty? search)
+      (router/redirect "?page=1&size=50")
+      (let [params (.. ^js route-data -params)
+            pool-id (aget params "pool-id")
+            categories (-> http-client
+                           (.get (str "/inventory/" pool-id "/category-tree/"))
+                           (.then #(jc (.-data %))))
 
-        responsible-pools (-> http-client
-                              (.get (router/generatePath
-                                     "/inventory/:pool-id/responsible-inventory-pools"
-                                     params))
-                              (.then #(jc (.-data %))))
+            responsible-pools (-> http-client
+                                  (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
+                                  (.then #(jc (.-data %))))
 
-        models (-> http-client
-                   (.get (str (.-pathname url) (.-search url)) #js {:cache false})
-                   (.then #(jc (.. % -data))))]
+            models (-> http-client
+                       (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
+                       (.then #(jc (.. % -data))))]
 
-    (.. (js/Promise.all (cond-> [categories models responsible-pools]))
-        (then (fn [[categories models responsible-pools]]
-                {:categories categories
-                 :responsible-pools responsible-pools
-                 :models models})))))
+        (.. (js/Promise.all (cond-> [categories models responsible-pools]))
+            (then (fn [[categories models responsible-pools]]
+                    {:categories categories
+                     :responsible-pools responsible-pools
+                     :models models})))))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)
-        path (router/generatePath "/inventory/:pool-id/entitlement-groups" params)
+        pool-id (aget params "pool-id")
+        model-id (or (aget params "model-id") nil)
+
         entitlement-groups (-> http-client
-                               (.get path)
+                               (.get (str "/inventory/" pool-id "/entitlement-groups/"))
                                (.then #(jc (.-data %))))
 
         categories (-> http-client
-                       (.get "/inventory/tree")
+                       (.get (str "/inventory/" pool-id "/category-tree/"))
                        (.then #(jc (.-data %))))
 
-        models (-> http-client
-                   (.get "/inventory/models-compatibles" #js {:id "compatible-models"})
-                   (.then (fn [res]
-                            (if (:model-id (jc params))
-                              ;; If a model-id is provided, filter out the current model
-                              (filter #(not= (:model_id %) (:model-id (jc params)))
-                                      (jc (.-data res)))
-                              ;; Otherwise, return all models
-                              (jc (.-data res))))))
-
         manufacturers (-> http-client
-                          (.get "/inventory/manufacturers?type=Model" #js {:id "manufacturers"})
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Model") #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
-        model-id (or (:model-id (jc params)) nil)
-
         model-path (when model-id
-                     (router/generatePath "/inventory/:pool-id/model/:model-id" params))
+                     (str "/inventory/" pool-id "/models/" model-id))
 
-        model (when model-path
-                (-> http-client
-                    (.get model-path #js {:id model-id})
-                    (.then (fn [res]
-                             (let [kv (jc (.-data res))]
-                               (->> kv
-                                    (vals)
-                                    (map (fn [el] (if (nil? el) "" el)))
-                                    (zipmap (keys kv))))))))]
+        data (when model-path
+               (-> http-client
+                   (.get model-path #js {:id model-id})
+                   (.then #(jc (.-data %)))))]
 
-    (.. (js/Promise.all (cond-> [categories models manufacturers entitlement-groups]
-                          model (conj model)))
-        (then (fn [[categories models manufacturers entitlement-groups & [model]]]
+    (.. (js/Promise.all (cond-> [categories manufacturers entitlement-groups]
+                          data (conj data)))
+        (then (fn [[categories manufacturers entitlement-groups & [data]]]
                 {:categories categories
                  :manufacturers manufacturers
                  :entitlement-groups entitlement-groups
-                 :models models
-                 :model (if model model nil)})))))
+                 :data (if data data nil)})))))
 
 (defn items-crud-page [route-data]
   (let [models (-> http-client

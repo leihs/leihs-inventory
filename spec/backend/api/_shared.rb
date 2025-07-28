@@ -2,6 +2,9 @@ require "spec_helper"
 require "pry"
 require "faker"
 
+require "faraday"
+# require 'faraday-cookie_jar'
+
 def create_accessory(inventory_pool_id, model)
   accessory = FactoryBot.create(:accessory, leihs_model: model)
   database[:accessories_inventory_pools].insert(
@@ -19,6 +22,7 @@ def create_models(count = 3)
   @models
 end
 
+# FIXME: DEPRECATED
 def create_model_post(client, inventory_pool_id, product, category_ids)
   client.post "/inventory/#{inventory_pool_id}/models" do |req|
     req.body = {
@@ -172,7 +176,7 @@ shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
-def generate_csrf_data(cookie_token)
+def generate_csrf_session_data(cookie_token)
   cookies = [
     CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
     CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
@@ -182,23 +186,22 @@ def generate_csrf_data(cookie_token)
   [cookies, cookies_str]
 end
 
+def generate_csrf_data(cookie_token)
+  cookies = [
+    CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
+  ]
+
+  cookies_str = cookies.map(&:to_s).join("; ")
+  [cookies, cookies_str]
+end
+
 shared_context :generate_session_header do |accept = "application/json", cookie_attributes = []|
   before :each do
-    resp = basic_auth_plain_faraday_json_client(@user.login, @user.password).get("/inventory/login")
-    expect(resp.status).to eq(200)
-
-    cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
-    cookies = [
-      CGI::Cookie.new("name" => "leihs-user-session", "value" => cookie_token),
-      CGI::Cookie.new("name" => "leihs-anti-csrf-token", "value" => X_CSRF_TOKEN)
-    ]
-    cookie_attributes.each do |cookie_hash|
-      cookies << CGI::Cookie.new(cookie_hash)
-    end
+    @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
 
     @cookie_header = {
       "Accept" => accept,
-      "Cookie" => cookies.map(&:to_s).join("; ")
+      "Cookie" => @user_cookies_str
     }
   end
 end
@@ -220,6 +223,7 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     @form_categories = [FactoryBot.create(:category), FactoryBot.create(:category)]
 
     @models = []
+    # create model with relating compatible with cover_image
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -228,11 +232,13 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
     image = add_image_to_model(compatible_model1)
     update_cover_image(compatible_model1, image)
 
+    # create model with relating compatible only
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
     @models << model
     compatible_model2 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     model.add_compatible_model(compatible_model2)
 
+    # create software-model with relating compatible only
     model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
     @models << model
     compatible_model3 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -243,6 +249,21 @@ shared_context :setup_models_api_model do |role = "inventory_manager"|
 
     @model = model
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
+  end
+end
+
+shared_context :setup_models_api_model_compatible do |role = "inventory_manager"|
+  include_context :setup_models_api, role
+
+  before :each do
+    @form_categories = Array.new(2) { FactoryBot.create(:category) }
+
+    model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name)
+    compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+    model.add_compatible_model(compatible_model1)
+
+    @model = model
+    @compatible_model = compatible_model1
   end
 end
 
@@ -346,7 +367,12 @@ shared_context :setup_access_rights do
     @image = FactoryBot.create(:image, :for_category)
     @filename = @image.filename
 
-    @image = FactoryBot.create(:image, :for_leihs_model)
+    @thumbnail = FactoryBot.create(:image, :for_leihs_model,
+      thumbnail: true)
+
+    @image = FactoryBot.create(:image, :for_leihs_model,
+      thumbnails: [@thumbnail])
+
     @filename = @image.filename
   end
 end
@@ -355,7 +381,8 @@ shared_context :setup_models_min_api do
   before :each do
     @user = FactoryBot.create(:user, login: Faker::Lorem.word, password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
-    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    # @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "inventory_manager")
   end
 end
 
@@ -373,18 +400,37 @@ def create_and_login(role, login = nil, password = nil)
     FactoryBot.create(role, login: login, password: password)
   end
 
-  response = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
+  resp = plain_faraday_json_client.get("/inventory/csrf-token/")
+  token = resp.body["csrf-token"]
+  _, cookie_str = generate_csrf_data(token)
+
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
+    "user" => user.login,
+    "password" => user.password,
+    "csrf-token" => token
+  }, multipart: true, headers: {Cookie: cookie_str})
   expect(response.status).to eq(200)
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
-  [user] + generate_csrf_data(session_cookie) + [session_cookie]
+  [user] + generate_csrf_session_data(session_cookie) + [session_cookie]
 end
 
 def create_and_login_by(user)
-  resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/inventory/login")
-  expect(resp.status).to eq(200)
-  cookie_token = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+  # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
 
-  generate_csrf_data(cookie_token) + [cookie_token]
+  resp = plain_faraday_json_client.get("/inventory/csrf-token/")
+  token = resp.body["csrf-token"]
+  _, cookie_str = generate_csrf_data(token)
+
+  resp = common_plain_faraday_client(:post, "/sign-in", body: {
+    "user" => user.login,
+    "password" => user.password,
+    "csrf-token" => token
+  }, multipart: true, headers: {Cookie: cookie_str})
+
+  expect(resp.status).to eq(200)
+  session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+
+  generate_csrf_session_data(session_cookie) + [session_cookie]
 end

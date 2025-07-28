@@ -9,10 +9,8 @@
    [leihs.core.reload :as reload]
    [leihs.core.repl :as repl]
    [leihs.inventory.server.run :as run]
-   [logbug.catcher :as catcher]
-   [logbug.debug :as debug]
    [logbug.thrown :as thrown]
-   [taoensso.timbre :refer [debug info warn error]])
+   [taoensso.timbre :refer [info]])
   (:gen-class))
 
 (thrown/reset-ns-filter-regex #"^(leihs|cider)\..*")
@@ -50,7 +48,7 @@
                                   args cli-options :in-order true)
         cmd (some-> arguments first keyword)
         options (into (sorted-map) options)
-        print-summary #(println (main-usage summary {:args args :options options}))]
+        print-summary #(info (main-usage summary {:args args :options options}))]
     (repl/init options)
     (cond (:help options) (print-summary)
           :else (case cmd

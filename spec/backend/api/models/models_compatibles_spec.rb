@@ -2,40 +2,53 @@ require "spec_helper"
 require "pry"
 require_relative "../_shared"
 
-describe "Inventory API Endpoints - Compatible Models" do
-  let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
+describe "Inventory API Endpoints" do
+  context "when fetching models for a specific inventory pool" do
+    before :each do
+      @user = FactoryBot.create(:user, login: "test", password: "password")
+      @inventory_pool = FactoryBot.create(:inventory_pool)
 
-  before :each do
-    @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
-  end
+      @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
 
-  context "when fetching specific compatible models" do
-    let(:compatible1) { FactoryBot.create(:leihs_model, id: SecureRandom.uuid) }
-    let(:compatible2) { FactoryBot.create(:leihs_model, id: SecureRandom.uuid) }
+      @models = 3.times.map do
+        FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+      end
 
-    let(:model) {
-      model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Software")
-      model.add_compatible_model(compatible1)
-      model.add_compatible_model(compatible2)
-      model
-    }
+      @models << FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Abc Model")
+      @models << FactoryBot.create(:leihs_model, id: SecureRandom.uuid, product: "Xyz Model")
 
-    it "returns status 200 and the compatible models for a given model" do
-      resp = client.get "/inventory/models-compatibles/#{model.id}"
-      expect(resp.status).to eq(200)
-      expect(resp.body.count).to eq(2)
+      LeihsModel.all.each do |model|
+        FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
+      end
     end
 
-    it "returns status 200 and no compatible models for a given compatible model" do
-      resp = client.get "/inventory/models-compatibles/#{compatible1.id}"
-      expect(resp.status).to eq(200)
-      expect(resp.body.count).to eq(0)
+    before do
+      @admin, @admin_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
     end
 
-    it "returns status 200 and no compatible models for another given compatible model" do
-      resp = client.get "/inventory/models-compatibles/#{compatible2.id}"
-      expect(resp.status).to eq(200)
-      expect(resp.body.count).to eq(0)
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
+
+    context "GET /inventory/{:pool-id}/models/" do
+      it "retrieves all compatible models and returns status 200" do
+        resp = client.get "/inventory/#{@inventory_pool.id}/models/"
+        expect(resp.status).to eq(200)
+        expect(resp.body.count).to eq(LeihsModel.count)
+      end
+
+      it "retrieves paginated results with status 200 and 1 model" do
+        resp = client.get "/inventory/#{@inventory_pool.id}/models/?page=1&size=1"
+        expect(resp.status).to eq(200)
+        expect(resp.body["pagination"]["total_rows"]).to eq(5)
+        expect(resp.body["data"].count).to eq(1)
+      end
+
+      it "retrieves expected results by search" do
+        ["Abc", "Xyz"].each do |search_term|
+          resp = client.get "/inventory/#{@inventory_pool.id}/models/?search=#{search_term}"
+          expect(resp.status).to eq(200)
+          expect(resp.body.count).to eq(1)
+        end
+      end
     end
   end
 end

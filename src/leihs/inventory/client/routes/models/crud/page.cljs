@@ -29,23 +29,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn- on-invalid [data]
-  (.. toast (error "Invalid Data"))
-  (js/console.debug "is invalid: " data))
-
-(def default-values (cj {:product ""
-                         :is_package false
-                         :manufacturer ""
-                         :description ""
-                         :internal_description ""
-                         :technical_detail ""
-                         :hand_over_note ""
-                         :version ""
-                         :categories []
-                         :entitlements []
-                         :properties []
-                         :accessories []}))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -64,16 +47,23 @@
 
         is-edit (not (or is-create is-delete))
 
-        model (into {} (:model (jc (router/useLoaderData))))
+        {:keys [data]} (jc (useLoaderData))
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values model))
-                                            default-values)})
+                                            (fn [] (core/prepare-default-values data))
+                                            (cj core/default-values))})
 
         is-loading (.. form -formState -isLoading)
 
         control (.. form -control)
         params (router/useParams)
+        on-invalid (fn [data]
+                     (let [invalid-filds-count (count (jc data))]
+                       (if (= invalid-filds-count 0)
+                         (.. toast (error (t "pool.model.create.invalid" #js {:count invalid-filds-count})))
+                         (.. toast (error (t "pool.model.create.invalid" #js {:count invalid-filds-count}))))
+
+                       (js/console.debug "is invalid: " data)))
 
         handle-submit (.. form -handleSubmit)
         handle-delete (fn []
@@ -81,11 +71,14 @@
                           (let [pool-id (aget params "pool-id")
                                 model-id (aget params "model-id")
                                 res (<p! (-> http-client
-                                             (.delete (str "/inventory/" pool-id "/model/" model-id))
+                                             (.delete (str "/inventory/" pool-id "/models/" model-id))
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
-                                                       :data (.. data -data)}))))
+                                                       :data (.. data -data)}))
+                                             (.catch (fn [err]
+                                                       {:status (.. err -response -status)
+                                                        :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -97,43 +90,41 @@
                                           #js {:state state}))
 
                               ;; show error message
-                              (.. toast (error (t "pool.model.delete.error")))))))
+                              (.. toast (error (t (str "pool.model.delete." (:status res)))))))))
 
-        on-submit (fn [data event]
+        on-submit (fn [submit-data event]
                     (go
                       (let [images (if is-create
-                                     (:images (jc data))
+                                     (:images (jc submit-data))
                                      (filter (fn [el] (= (:id el) nil))
-                                             (:images (jc data))))
+                                             (:images (jc submit-data))))
 
                             image-id (atom nil)
 
                             images-to-delete (if is-edit
-                                               (->> (:images model)
+                                               (->> (:images data)
                                                     (map :id)
-                                                    (remove (set (map :id (:images (jc data))))))
+                                                    (remove (set (map :id (:images (jc submit-data))))))
                                                nil)
 
                             attachments (if is-create
-                                          (:attachments (jc data))
+                                          (:attachments (jc submit-data))
                                           (filter (fn [el] (= (:id el) nil))
-                                                  (:attachments (jc data))))
+                                                  (:attachments (jc submit-data))))
 
                             attachments-to-delete (if is-edit
-                                                    (->> (:attachments model)
+                                                    (->> (:attachments data)
                                                          (map :id)
-                                                         (remove (set (map :id (:attachments (jc data))))))
+                                                         (remove (set (map :id (:attachments (jc submit-data))))))
                                                     nil)
 
-                            model-data (core/remove-nil-values
-                                        (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                         (dissoc (jc data) :images :attachments))))
+                            model-data (into {} (dissoc (jc submit-data) :images :attachments))
 
                             pool-id (aget params "pool-id")
 
                             model-res (if is-create
                                         (<p! (-> http-client
-                                                 (.post (str "/inventory/" pool-id "/model/")
+                                                 (.post (str "/inventory/" pool-id "/models/")
                                                         (js/JSON.stringify (cj model-data))
                                                         (cj {:cache
                                                              {:update {:models "delete"
@@ -143,11 +134,14 @@
                                                  (.then (fn [res]
                                                           {:status (.. res -status)
                                                            :statusText (.. res -statusText)
-                                                           :id (.. res -data -data -id)}))))
+                                                           :id (.. res -data -id)}))
+                                                 (.catch (fn [err]
+                                                           {:status (.. err -response -status)
+                                                            :statusText (.. err -response -statusText)}))))
 
                                         (<p! (let [model-id (aget params "model-id")]
                                                (-> http-client
-                                                   (.put (str "/inventory/" pool-id "/model/" model-id "/")
+                                                   (.put (str "/inventory/" pool-id "/models/" model-id)
                                                          (js/JSON.stringify (cj model-data))
                                                          (cj {:cache
                                                               {:update {:models "delete"
@@ -157,7 +151,10 @@
                                                    (.then (fn [res]
                                                             {:status (.. res -status)
                                                              :statusText (.. res -statusText)
-                                                             :id (.. res -data -data -id)}))))))
+                                                             :id (.. res -data -id)}))
+                                                   (.catch (fn [err]
+                                                             {:status (.. err -response -status)
+                                                              :statusText (.. err -response -statusText)}))))))
 
                             model-id (when (not= (:status model-res) "200") (:id model-res))]
 
@@ -167,18 +164,18 @@
                           (doseq [image-id images-to-delete]
                             ;; delete images that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/models/" (aget params "model-id") "/images/" image-id))
+                                     (.delete (str "/inventory/" pool-id "/models/" model-id "/images/" image-id))
                                      (.then #(.-data %))))))
 
                         (when attachments-to-delete
                           (doseq [attachment-id attachments-to-delete]
                             ;; delete attachments that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/models/" (aget params "model-id") "/attachments/" attachment-id))
+                                     (.delete (str "/inventory/" pool-id "/models/" model-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
                         (if (not= (:status model-res) 200)
-                          (.. toast (error (:statusText model-res)))
+                          (.. toast (error (t (str "pool.model.create." (:status model-res)))))
 
                           (do
                             ;; upload images sequentially and path model with is_cover when is needed + images with target_type
@@ -189,7 +186,7 @@
                                     name (.. file -name)
                                     binary-data (<p! (.. file (arrayBuffer)))
                                     image-res (<p! (-> http-client
-                                                       (.post (str "/inventory/models/" model-id "/images")
+                                                       (.post (str "/inventory/" pool-id "/models/" model-id "/images/")
                                                               binary-data
                                                               (cj {:headers {"Content-Type" type
                                                                              "X-Filename" name}}))
@@ -212,18 +209,18 @@
                                     name (.. file -name)]
 
                                 (<p! (-> http-client
-                                         (.post (str "/inventory/models/" model-id "/attachments")
+                                         (.post (str "/inventory/" pool-id "/models/" model-id "/attachments/")
                                                 binary-data
                                                 (cj {:headers {"Content-Type" type
                                                                "X-Filename" name}}))))))
 
                             ;; patch cover-image when needed
-                            (let [cover-image (filter #(= (:is_cover %) true) (:images (jc data)))
+                            (let [cover-image (filter #(= (:is_cover %) true) (:images (jc submit-data)))
                                   cover-image-id (or (:id (first cover-image)) @image-id)]
 
                               (when cover-image-id
                                 (<p! (-> http-client
-                                         (.patch (str "/inventory/" pool-id "/model/" model-id)
+                                         (.patch (str "/inventory/" pool-id "/models/" model-id)
                                                  (js/JSON.stringify (cj {:is_cover cover-image-id})))))))
 
                             (if is-create
@@ -233,23 +230,18 @@
                               ;; state needs to be forwarded for back navigation
                             (let [submit-type (aget event "nativeEvent" "submitter" "value")]
                               (if (= submit-type "save-add-item")
-                                (navigate (router/generatePath
-                                           "/inventory/:pool-id/models/:model-id/items/create"
-                                           #js {:pool-id pool-id
-                                                :model-id model-id})
+                                (navigate "/inventory/" pool-id "/models/" model-id "/items/create"
                                           #js {:state state
                                                :viewTransition true})
 
                                 (if is-create
-                                  (navigate (str (router/generatePath
-                                                  "/inventory/:pool-id/models"
-                                                  #js {:pool-id pool-id}) "?" (params-with-all-items))
+                                  (navigate (str "/inventory/" pool-id "/models?"
+                                                 (params-with-all-items))
                                             #js {:state state
                                                  :viewTransition true})
 
-                                  (navigate (str (router/generatePath
-                                                  "/inventory/:pool-id/models"
-                                                  #js {:pool-id pool-id}) (some-> state .-searchParams))
+                                  (navigate (str "/inventory/" pool-id "/models"
+                                                 (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})))))))))]
 

@@ -1,14 +1,11 @@
 (ns leihs.inventory.server.utils.image-upload-handler
   (:require
-   [byte-streams :as bs]
    [clojure.string :as str]
-   [leihs.core.db :as db]
-   [leihs.core.json :refer [to-json]]
-   [leihs.inventory.server.utils.config :refer [get-config]]
-   [ring.util.response :as response])
-  (:import [java.io File FileInputStream ByteArrayOutputStream]
-           [java.util Base64]
-           [org.im4java.core IMOperation ImageCommand]))
+   [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]])
+  (:import
+   [java.io ByteArrayOutputStream File FileInputStream]
+   [java.util Base64]
+   [org.im4java.core IMOperation ImageCommand]))
 
 (defn resize-image
   "Resize an image using IM4Java and ImageMagick"
@@ -47,9 +44,9 @@
 (defn resize-and-convert-to-base64
   "Resize the image, convert it to Base64, and get the file size."
   [input-path]
-  (let [upload-dir (get-in (get-config) [:api :upload-dir])
-        width (get-in (get-config) [:api :images :thumbnail :width-px])
-        height (get-in (get-config) [:api :images :thumbnail :height-px])
+  (let [upload-dir (config-get :api :upload-dir)
+        width (config-get :api :images :thumbnail :width-px)
+        height (config-get :api :images :thumbnail :height-px)
         output-path (add-thumb-to-filename input-path)]
     (resize-image input-path output-path width height)
     {:base64 (file-to-base64 output-path)

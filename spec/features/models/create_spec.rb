@@ -72,6 +72,8 @@ feature "Create model", type: :feature do
     fill_in "Product", with: product
     fill_in "Version", with: version
     fill_in "Manufacturer", with: manufacturer
+    # find_field("Manufacturer").send_keys :enter
+
     fill_in "Description", with: description
     fill_in "Technical Details", with: technical_details
     fill_in "Internal Description", with: internal_description
