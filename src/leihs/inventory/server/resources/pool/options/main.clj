@@ -22,9 +22,16 @@
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         option-id (to-uuid (get-in request [:path-params :option_id]))
-        multipart (get-in request [:parameters :multipart])
+        ;multipart (get-in request [:parameters :multipart])
+        multipart     (get-in request [:parameters :body])
+
+
         price (double-to-numeric-or-nil (:price multipart))
-        multipart (assoc multipart :price price :inventory_pool_id pool-id)]
+        multipart (assoc multipart :price price :inventory_pool_id pool-id)
+
+
+
+        ]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)

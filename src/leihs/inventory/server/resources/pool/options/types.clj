@@ -102,8 +102,8 @@
 
 (sa/def :option/multipart (sa/keys :req-un [::sp/product
                                             ::sp/inventory_code]
-                                   :opt-un [::sp/version
-                                            ::sp/price]))
+                                   :opt-un [:nil/version
+                                            :nil-double/price]))
 
 (sa/def ::options-query
   (sa/keys :opt-un [ ::sp/page ::sp/size]))

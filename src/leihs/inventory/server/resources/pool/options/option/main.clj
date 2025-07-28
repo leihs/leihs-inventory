@@ -75,7 +75,9 @@
 (defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
+        ;multipart (get-in request [:parameters :multipart])
+        multipart     (get-in request [:parameters :body])
+
         tx (:tx request)
 
         price (double-to-numeric-or-nil (:price multipart))

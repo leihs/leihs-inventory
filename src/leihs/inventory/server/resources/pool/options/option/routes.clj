@@ -28,13 +28,13 @@
                       500 {:description "Internal Server Error"}}}
 
     :put {:accept "application/json"
-          :swagger {:consumes ["multipart/form-data"]
-                    :produces "application/json"}
+          ;:swagger {:consumes ["multipart/form-data"]
+          ;          :produces "application/json"}
           :coercion spec/coercion
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}
-                       :multipart :option/multipart}
+                       :body :option/multipart}
           :handler option/put-resource
           :responses {200 {:description "OK"
                            :body response-option-object}
