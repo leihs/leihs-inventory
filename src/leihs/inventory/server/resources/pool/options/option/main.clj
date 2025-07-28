@@ -4,6 +4,11 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
+
+   [leihs.inventory.server.resources.pool.options.types :as ty]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
+
+
    [leihs.inventory.server.resources.pool.cast-helper :refer [remove-nil-entries-fnc
                                                               double-to-numeric-or-zero
                                                               double-to-numeric-or-nil]]
@@ -47,10 +52,21 @@
                          (sql/select :o.*)
                          (sql/from [:options :o])
                          (sql/where [:= :o.id option-id])
-                         sql-format)
-            result (jdbc/execute-one! tx model-query)]
+                          (sql/where [:= :o.inventory_pool_id [:cast pool-id :uuid]])
+                          ;)
+
+            sql-format)
+            result (jdbc/execute-one! tx model-query)
+
+            post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
+        ;(response (create-pagination-response request base-query nil post-fnc)))
+        ;
+
+            ;]
         (if result
-          (response result)
+          (response (-> [result]
+                      post-fnc
+                      first))
           (bad-request {:error "Failed to fetch model"})))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
