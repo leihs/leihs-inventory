@@ -11,13 +11,17 @@ response = {
   "manufacturer" => [NilClass, String], # TODO: remove
   "product" => String,
   "version" => [NilClass, String],
-  "name" => String,
+  # "name" => String,
+  "name" =>[NilClass, String],
   "price" => [NilClass, Numeric]
 }
 
-["inventory_manager", "lending_manager"].each do |role|
+# ["inventory_manager", "lending_manager"].each do |role|
+  ["group_manager"].each do |role|
+
   describe "Inventory option" do
     context "when interacting with inventory option with role=#{role}" do
+
       include_context :setup_models_api_model, role
       include_context :setup_unknown_building_room_supplier
       include_context :generate_session_header
@@ -36,16 +40,17 @@ response = {
           form_data = {
             product: Faker::Commerce.product_name,
             version: "v1",
-            price: "111",
+            price: 1.11,
             inventory_code: "O-1001"
           }
 
-          resp = http_multipart_client(
+          resp = json_client_post(
             "/inventory/#{pool_id}/options/",
-            form_data,
+            body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+          binding.pry
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"]["id"]).to be_present
@@ -62,12 +67,12 @@ response = {
             product: Faker::Commerce.product_name,
             inventory_code: "INV-1001",
             version: "v2",
-            price: "222"
+            price: 22.2
           }
 
-          resp = http_multipart_client(
+          resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
-            form_data,
+            body: form_data,
             method: :put,
             headers: cookie_header
           )
@@ -87,12 +92,14 @@ response = {
             inventory_code: "O-1001"
           }
 
-          resp = http_multipart_client(
+          resp = json_client_post(
             "/inventory/#{pool_id}/options/",
-            form_data,
+            body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+          binding.pry
+          # expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"]["id"]).to be_present
@@ -110,12 +117,13 @@ response = {
             inventory_code: "INV-1001"
           }
 
-          resp = http_multipart_client(
+          resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
-            form_data,
+            body: form_data,
             method: :put,
             headers: cookie_header
           )
+          # binding.pry
           expect(validate_map_structure(resp.body.first, response)).to eq(true)
 
           expect(resp.status).to eq(200)

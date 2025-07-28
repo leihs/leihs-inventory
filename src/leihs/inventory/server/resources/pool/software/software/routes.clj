@@ -78,7 +78,7 @@
 
 
 (defn routes []
-  ["/software/:model_id/software/"
+  ["/software/:model_id"
    {:get {:accept "application/json"
           ;:summary "(DEV) | Form-Handler: Fetch form data  [v0]"
           :coercion spec/coercion

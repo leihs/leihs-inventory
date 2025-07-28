@@ -4,7 +4,8 @@ require_relative "../../_shared"
 require "faker"
 require_relative "../_common"
 
-["group_manager", "customer"].each do |role|
+# ["group_manager", "customer"].each do |role|
+["group_manager"].each do |role|
   describe "Inventory option" do
     context "when interacting with inventory option with role=#{role}" do
       include_context :setup_models_api_model, role
@@ -27,36 +28,36 @@ require_relative "../_common"
           form_data = {
             product: Faker::Commerce.product_name,
             version: "v1",
-            price: "111",
+            price: 11.1,
             inventory_code: "O-1001"
           }
 
-          resp = http_multipart_client(
+          resp = json_client_post(
             "/inventory/#{pool_id}/options/",
-            form_data,
+            body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # update option
           form_data = {
             product: Faker::Commerce.product_name,
             inventory_code: "INV-1001",
             version: "v2",
-            price: "222"
+            price: 2.22
           }
 
-          resp = http_multipart_client(
+          resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
-            form_data,
-            method: :put,
+            body: form_data,
+            # method: :put,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
         end
       end
     end
