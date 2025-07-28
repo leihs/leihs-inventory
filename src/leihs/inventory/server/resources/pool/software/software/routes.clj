@@ -80,21 +80,24 @@
 (defn routes []
   ["/software/:model_id/software/"
    {:get {:accept "application/json"
-          :summary "(DEV) | Form-Handler: Fetch form data  [v0]"
+          ;:summary "(DEV) | Form-Handler: Fetch form data  [v0]"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
-          :handler software/create-software-handler-by-pool-form-fetch
+          :handler software/get-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body [:software/response]}
+                           ;:body [:software/response]
+
+                           :body ::ty/put-response
+                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
     :put {:accept "application/json"
           ;:swagger {:consumes ["multipart/form-data"]
           ;          :produces "application/json"}
-          :summary "(DEV) | Form-Handler: Fetch form data [v0]"
+          ;:summary "(DEV) | Form-Handler: Fetch form data [v0]"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
@@ -119,7 +122,7 @@
     :delete {:accept "application/json"
              ;:swagger {:consumes ["multipart/form-data"]
              ;          :produces "application/json"}
-             :summary "(DEV) | Form-Handler: Delete form data [v0]"
+             ;:summary "(DEV) | Form-Handler: Delete form data [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}
@@ -128,7 +131,7 @@
                           ;                    :description "a.k.a model_id"})}}
 
                           }
-             :handler software/delete-software-handler-by-pool-form
+             :handler software/delete-resource
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
                               :body delete-response

@@ -64,7 +64,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
+   [ring.util.response :refer [bad-request response status not-found]]
    [taoensso.timbre :refer [debug error]])
   (:import
    (java.time LocalDateTime)))
@@ -96,7 +96,7 @@
 (defn fetch-attachments [tx model-id]
   (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
 
-(defn create-software-handler-by-pool-form-fetch [request]
+(defn get-resource [request]
   (let [tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
@@ -108,13 +108,28 @@
                           (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                           sql-format)
             model-result (jdbc/execute-one! tx model-query)
-            attachments (fetch-attachments tx model-id)
-            result (if model-result
-                     [(assoc model-result :attachments attachments)]
-                     [])]
+
+
+            result (when model-result
+                           (->> (fetch-attachments tx model-id)
+                             (assoc model-result :attachments )
+                             )
+
+                           )
+
+            ;attachments (fetch-attachments tx model-id)
+            ;
+            ;result (assoc model-result :attachments attachments)
+
+            ;result (if model-result
+            ;         [(assoc model-result :attachments attachments)]
+            ;         [])
+             ]
         (if result
-          (response result)
-          (bad-request {:error "Failed to fetch model"})))
+          ;(response result)
+          (response (filter-map-by-spec result ::ty/put-response))
+
+          (not-found {:error "Failed to fetch model"})))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
@@ -178,12 +193,12 @@
         (if updated-model
           (response (filter-map-by-spec updated-model ::ty/put-response))
           ;(response [updated-model])
-          (bad-request {:error "Failed to update model"})))
+          (not-found {:error "Failed to update model"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
-(defn delete-software-handler-by-pool-form [request]
+(defn delete-resource [request]
   (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         tx (:tx request)

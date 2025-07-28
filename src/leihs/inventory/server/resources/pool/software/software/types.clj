@@ -41,5 +41,23 @@
                     :nil/manufacturer
                     :nil/version      ]
 
-    :opt-un [ ::sp/updated_at
-             ::sp/created_at   ]))
+    ;:opt-un [ ::sp/updated_at
+    ;         ::sp/created_at
+    ;         ::sp/attachments
+    ;         ]
+    ))
+
+;(sa/def ::put-response
+;  (sa/keys :req-un [:nil/description
+;                    :models/type
+;                    ::sp/product
+;                    ::sp/id
+;                    :nil/manufacturer
+;                    :nil/version      ]
+;
+;    :opt-un [ ::sp/updated_at
+;             ::sp/created_at
+;             ::sp/attachments
+;
+;
+;             ]))
