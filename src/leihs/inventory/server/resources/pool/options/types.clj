@@ -18,6 +18,8 @@
 (def response-option-get [response-option-object])
 (def response-option-post response-option-object)
 
+
+
 (sa/def :option/multipart (sa/keys :req-un [::sp/product
                                             ::sp/inventory_code]
                                    :opt-un [::sp/version

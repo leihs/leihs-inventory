@@ -23,13 +23,9 @@
 
 
    [leihs.inventory.server.resources.pool.common :refer [ str-to-bool
-                                                          ;normalize-model-data
-                                                          ;parse-json-array
-                                                          ;file-to-base64
-                                                          ;base-filename
                                                           process-attachments
-
                                                          ]]
+
    [leihs.inventory.server.resources.pool.models.helper :refer [
                                                                 normalize-files
                                                                 normalize-model-data
@@ -73,6 +69,14 @@
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :multipart])
+
+
+        ;{:keys [product version manufacturer description]}
+        ;(extract-model-form-data request)]
+
+    multipart     (get-in request [:parameters :body])
+
+
         prepared-model-data (-> (prepare-software-data multipart)
                               (assoc :is_package (str-to-bool (:is_package multipart))))]
 

@@ -7,6 +7,8 @@
 
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
 
+   [leihs.inventory.server.resources.pool.software.software.types :as ty :refer [response-option-get
+                                                                        response-option-post]]
 
    ;[leihs.inventory.server.resources.pool.software.software.types :refer [response-option-get
    ;                                                             response-option-post]]
@@ -76,7 +78,7 @@
 
 
 (defn routes []
-  ["/software/software/"
+  ["/software/:model_id/software/"
    {:get {:accept "application/json"
           :summary "(DEV) | Form-Handler: Fetch form data  [v0]"
           :coercion spec/coercion
@@ -90,29 +92,42 @@
                       500 {:description "Internal Server Error"}}}
 
     :put {:accept "application/json"
-          :swagger {:consumes ["multipart/form-data"]
-                    :produces "application/json"}
+          ;:swagger {:consumes ["multipart/form-data"]
+          ;          :produces "application/json"}
           :summary "(DEV) | Form-Handler: Fetch form data [v0]"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
-                       :multipart :software/multipart}
-          :handler software/update-software-handler-by-pool-form
+                       ;:multipart :software/multipart
+
+                       ;:multipart :software-put/multipart
+                       :body :software-put/multipart
+
+                       }
+          :handler software/put-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body :software/response
-                           ;:body [:software/response]
+                           ;:body :software/response
+                           ;;:body [:software/response]
+
+                           :body ::ty/put-response
+
                            }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
-             :swagger {:consumes ["multipart/form-data"]
-                       :produces "application/json"}
+             ;:swagger {:consumes ["multipart/form-data"]
+             ;          :produces "application/json"}
              :summary "(DEV) | Form-Handler: Delete form data [v0]"
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
-                                 :model_id uuid?}}
+                                 :model_id uuid?}
+
+                          ;:id (st/spec {:spec uuid?
+                          ;                    :description "a.k.a model_id"})}}
+
+                          }
              :handler software/delete-software-handler-by-pool-form
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"

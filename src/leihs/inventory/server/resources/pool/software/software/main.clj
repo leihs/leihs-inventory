@@ -5,6 +5,10 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
+
+   [leihs.inventory.server.resources.pool.software.software.types :as ty]
+
+
    [leihs.inventory.server.resources.pool.cast-helper :refer [remove-nil-entries-fnc
                                                               double-to-numeric-or-zero
                                                               double-to-numeric-or-nil]]
@@ -147,10 +151,14 @@
                         (sql/where [:= key (to-uuid id)])
                         sql-format))))
 
-(defn update-software-handler-by-pool-form [request]
+(defn put-resource [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
+        ;multipart (get-in request [:parameters :multipart])
+
+        multipart     (get-in request [:parameters :body])
+
+
         tx (:tx request)
         prepared-model-data (prepare-software-data multipart)]
     (try
@@ -160,12 +168,16 @@
                                  (sql/returning :*)
                                  sql-format)
             updated-model (jdbc/execute-one! tx update-model-query)
-            attachments (normalize-files request :attachments)
-            attachments-to-delete (parse-json-array request :attachments_to_delete)]
-        (process-attachments tx attachments model-id)
-        (process-deletions tx attachments-to-delete :attachments :id)
+            ;attachments (normalize-files request :attachments)
+            ;attachments-to-delete (parse-json-array request :attachments_to_delete)
+            ]
+
+        ;(process-attachments tx attachments model-id)
+        ;(process-deletions tx attachments-to-delete :attachments :id)
+
         (if updated-model
-          (response [updated-model])
+          (response (filter-map-by-spec updated-model ::ty/put-response))
+          ;(response [updated-model])
           (bad-request {:error "Failed to update model"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))

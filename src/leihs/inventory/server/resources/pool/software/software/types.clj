@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.software.types
+(ns leihs.inventory.server.resources.pool.software.software.types
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
@@ -18,22 +18,24 @@
 (def response-option-get [response-option-object])
 (def response-option-post response-option-object)
 
-;(sa/def :option/multipart (sa/keys :req-un [::sp/product
-;                                            ::sp/inventory_code]
-;                                   :opt-un [::sp/version
-;                                            ::sp/price]))
 
+;(sa/def :software-put/multipart (sa/keys :req-un [
+;                                                  ]
+;                                   :opt-un [:nil/version
+;                                                  :nil/product
+;                                            :nil/manufacturer
+;                                            :nil/description
+;                                            ]))
 
-(sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
-                              :opt-un [:nil/version
-                                       :nil/manufacturer
-                                       :nil/description
-                                       ]))
+(sa/def :software-put/multipart (sa/keys :req-un [::sp/product]
+                                   :opt-un [:nil/version
+                                            :nil/manufacturer
+                                            :nil/description
+                                            ]))
 
-
-(sa/def ::post-response
+(sa/def ::put-response
   (sa/keys :req-un [:nil/description
-                    ;:models/type
+                    :models/type
                     ::sp/product
                     ::sp/id
                     :nil/manufacturer

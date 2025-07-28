@@ -24,76 +24,74 @@
 ;                                         :str string?)
 ;                               :none nil?))
 
-(sa/def ::sp/image_attribute (sa/keys :req-opt [:image/filename
-                                             :image/content_type
-                                             :image/url
-                                             :image/to_delete
-                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+;(sa/def ::sp/image_attribute (sa/keys :req-opt [:image/filename
+;                                             :image/content_type
+;                                             :image/url
+;                                             :image/to_delete
+;                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+;
+;(sa/def :model/image_attributes (sa/or
+;                                  :single (sa/or :coll (sa/coll-of ::sp/image_attribute)
+;                                            :str string?)
+;                                  :none nil?))
+;
+;(sa/def :software/multipart (sa/keys :req-un [::sp/product]
+;                              :opt-un [::sp/version
+;                                       ::sp/manufacturer
+;                                       ::sp/is_package
+;                                       ::sp/description
+;                                       ::sp/technical_detail
+;                                       ::sp/internal_description
+;                                       ::sp/hand_over_note
+;                                       ::sp/categories
+;                                       ::sp/attachments_to_delete
+;                                       ::sp/images_to_delete
+;                                       :model/image_attributes
+;                                       ::sp/owner
+;                                       ::sp/compatibles
+;                                       ::sp/images
+;                                       ::sp/attachments
+;                                       ::sp/entitlements
+;                                       :software/properties
+;                                       ::sp/accessories]))
 
-(sa/def :model/image_attributes (sa/or
-                                  :single (sa/or :coll (sa/coll-of ::sp/image_attribute)
-                                            :str string?)
-                                  :none nil?))
-
-(sa/def :software/multipart (sa/keys :req-un [::sp/product]
-                              :opt-un [::sp/version
-                                       ::sp/manufacturer
-                                       ::sp/is_package
-                                       ::sp/description
-                                       ::sp/technical_detail
-                                       ::sp/internal_description
-                                       ::sp/hand_over_note
-                                       ::sp/categories
-                                       ::sp/attachments_to_delete
-                                       ::sp/images_to_delete
-                                       :model/image_attributes
-                                       ::sp/owner
-                                       ::sp/compatibles
-                                       ::sp/images
-                                       ::sp/attachments
-                                       ::sp/entitlements
-                                       :software/properties
-                                       ::sp/accessories]))
-
-(sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
-                              :opt-un [::sp/version
-                                       ::sp/manufacturer
-                                       ;::sp/is_package
-                                       ::sp/description
-                                       ;::sp/technical_detail
-                                       ;::sp/internal_description
-                                       ;::sp/hand_over_note
-                                       ;::sp/categories
-                                       ;::sp/attachments_to_delete
-                                       ;::sp/images_to_delete
-                                       ;:model/image_attributes
-                                       ;::sp/owner
-                                       ;::sp/compatibles
-                                       ;::sp/images
-                                       ;::sp/attachments
-                                       ;::sp/entitlements
-                                       ;:software/properties
-                                       ;::sp/accessories
-                                       ]))
+;(sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
+;                              :opt-un [::sp/version
+;                                       ::sp/manufacturer
+;                                       ;::sp/is_package
+;                                       ::sp/description
+;                                       ;::sp/technical_detail
+;                                       ;::sp/internal_description
+;                                       ;::sp/hand_over_note
+;                                       ;::sp/categories
+;                                       ;::sp/attachments_to_delete
+;                                       ;::sp/images_to_delete
+;                                       ;:model/image_attributes
+;                                       ;::sp/owner
+;                                       ;::sp/compatibles
+;                                       ;::sp/images
+;                                       ;::sp/attachments
+;                                       ;::sp/entitlements
+;                                       ;:software/properties
+;                                       ;::sp/accessories
+;                                       ]))
 
 
 (defn routes []
   ["/software/"
    {:post {:accept "application/json"
            :summary "(DEV) | Form-Handler: Fetch form data [v0]"
-           :swagger {:consumes ["multipart/form-data"]
-                     :produces "application/json"}
+           ;:swagger {:consumes ["multipart/form-data"]
+           ;          :produces "application/json"}
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
-                        :multipart :software-post/multipart
+                        ;:multipart :software-post/multipart
+                        :body :software-post/multipart
                         }
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler software/index-resources
            :responses {200 {:description "OK"
-                            ;:body any?
-                            ;:body ::software-post/response
                             :body ::ty/post-response
-
                             }
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}}])
