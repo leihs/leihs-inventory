@@ -54,7 +54,7 @@ describe "Inventory Software" do
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
-          expect(resp.body["message"]).to eq("Model already exists")
+          expect(resp.body["message"]).to eq("Software already exists")
 
           # create software with different version request
           form_data = {
@@ -104,7 +104,7 @@ describe "Inventory Software" do
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
-          expect(resp.body["message"]).to eq("Model already exists")
+          expect(resp.body["message"]).to eq("Software already exists")
 
           # create software with different version request
           form_data = {
