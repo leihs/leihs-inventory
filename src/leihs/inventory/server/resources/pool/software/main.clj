@@ -81,13 +81,13 @@
 
         (if res
           (response (filter-map-by-spec res ::ty/post-response))
-          (bad-request {:error "Failed to create model"})))
+          (bad-request {:error "Failed to create software"})))
       (catch Exception e
         (error "Failed to create model" (.getMessage e))
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
-                         :message "Model already exists"
+                         :message "Software already exists"
                          :detail {:product (:product prepared-model-data)}})
             (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
@@ -95,4 +95,4 @@
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-model-data)}})
             (status 409))
-          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
+          :else (bad-request {:error "Failed to create software" :details (.getMessage e)}))))))

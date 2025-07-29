@@ -40,7 +40,6 @@ describe "Inventory Software" do
           model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-          binding.pry
           expect(resp.body["attachments"].count).to eq(0)
           expect(resp.status).to eq(200)
 

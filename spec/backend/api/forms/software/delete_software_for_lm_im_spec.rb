@@ -3,6 +3,7 @@ require "pry"
 require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
+require "marcel"
 
 post_response = {
   "description" => [NilClass, String],
@@ -36,6 +37,38 @@ get_response = {
   "version" => [NilClass, String],
   "technical_detail" => [NilClass, String]
 }
+
+
+def upload_and_expect(file_path, model_id, expected_ok)
+  File.open(file_path, "rb") do |file|
+    content_type = Marcel::MimeType.for(file)
+    headers = cookie_header.merge(
+      "Content-Type" => content_type,
+      "X-Filename" => File.basename(file.path),
+      "Content-Length" => file.size.to_s
+    )
+
+    response = json_client_post(
+      "/inventory/#{@inventory_pool.id}/models/#{model_id}/attachments/",
+      body: file,
+      headers: headers,
+      is_binary: true
+    )
+
+    if expected_ok
+      expect(response.status).to eq(200)
+    else
+      expect(response.status).to eq(400)
+      expect(response.body["error"]).to eq("Failed to upload attachment")
+    end
+    response
+  end
+end
+
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
 
 describe "Inventory Software" do
   ["inventory_manager", "lending_manager"].each do |role|
@@ -73,7 +106,7 @@ describe "Inventory Software" do
         # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,
-          "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
+          # "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first,
           "technical_details" => "Specs go here"
@@ -85,14 +118,21 @@ describe "Inventory Software" do
           headers: cookie_header
         )
         expect(resp.status).to eq(200)
-        validate_map_structure(resp.body["data"], post_response)
+        validate_map_structure(resp.body, post_response)
+
+
+        model_id = resp.body["id"]
+        [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")].each do |file_path|
+          upload_and_expect(file_path, model_id, true)
+        end
+
 
         # fetch created software
-        model_id = resp.body["data"]["id"]
+        model_id = resp.body["id"]
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-        validate_map_structure(resp.body.first, get_response)
-        attachments = resp.body[0]["attachments"]
+        validate_map_structure(resp.body, get_response)
+        attachments = resp.body["attachments"]
         expect(attachments.count).to eq(2)
         expect(resp.status).to eq(200)
         expect(Attachment.where(model_id: model_id).count).to eq(2)
@@ -116,8 +156,9 @@ describe "Inventory Software" do
 
         # fetch deleted model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(resp.body.count).to eq(0)
-        expect(resp.status).to eq(200)
+        binding.pry
+        expect(resp.body["error"]).to eq("Failed to fetch software")
+        expect(resp.status).to eq(404)
       end
     end
   end

@@ -134,10 +134,10 @@
           ;(response result)
           (response (filter-map-by-spec result ::ty/put-response))
 
-          (not-found {:error "Failed to fetch model"})))
+          (not-found {:error "Failed to fetch software"})))
       (catch Exception e
         (error "Failed to fetch model" (.getMessage e))
-        (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
+        (bad-request {:error "Failed to fetch software" :details (.getMessage e)})))))
 
 
 ;
@@ -198,10 +198,10 @@
         (if updated-model
           (response (filter-map-by-spec updated-model ::ty/put-response))
           ;(response [updated-model])
-          (not-found {:error "Failed to update model"})))
+          (not-found {:error "Failed to update software"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
-        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+        (bad-request {:error "Failed to update software" :details (.getMessage e)})))))
 
 (defn delete-resource [request]
   (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
