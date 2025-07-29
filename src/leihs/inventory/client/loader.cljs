@@ -41,15 +41,15 @@
                                   (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
                                   (.then #(jc (.-data %))))
 
-            models (-> http-client
-                       (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
-                       (.then #(jc (.. % -data))))]
+            data (-> http-client
+                     (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
+                     (.then #(jc (.. % -data))))]
 
-        (.. (js/Promise.all (cond-> [categories models responsible-pools]))
-            (then (fn [[categories models responsible-pools]]
+        (.. (js/Promise.all (cond-> [categories data responsible-pools]))
+            (then (fn [[categories data responsible-pools]]
                     {:categories categories
                      :responsible-pools responsible-pools
-                     :models models})))))))
+                     :data data})))))))
 
 (defn software-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -60,7 +60,7 @@
 
         software-id (or (:software-id (jc params)) nil)
 
-        software-path (when software-id (str "/inventory/" pool-id "/software/:software-id"))
+        software-path (when software-id (str "/inventory/" pool-id "/software/" software-id))
 
         data (when software-path
                (-> http-client

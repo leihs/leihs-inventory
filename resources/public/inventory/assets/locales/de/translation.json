@@ -100,15 +100,25 @@
       }
     },
     "software": {
+      "title": "Modell bearbeiten",
+      "submit": "Speichern",
+      "cancel": "Abbrechen",
+      "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
       "create": {
         "title": "Neue Software erstellen",
         "description": "Geben Sie alle erforderlichen Informationen an",
         "submit": "Software speichern",
         "cancel": "Abbrechen",
-        "success": "Software wurde erfolgreich erstellt"
+        "success": "Software wurde erfolgreich erstellt",
+        "invalid_one": "Software konnte nicht erstellt werden, da ein Feld ungültig ist",
+        "invalid_other": "Software konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+        "409": "Software konnte nicht erstellt werden, da eine Software mit dem gleichen Namen bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
-        "success": "Software wurde erfolgreich gespeichert"
+        "success": "Software wurde erfolgreich gespeichert",
+        "invalid_one": "Software konnte nicht gespeichert werden, da ein Feld ungültig ist",
+        "invalid_other": "Software konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
       },
       "delete": {
         "title": "Software löschen",
@@ -116,7 +126,7 @@
         "confirm": "Löschen",
         "cancel": "Abbrechen",
         "success": "Software wurde erfolgreich gelöscht",
-        "error": "Software konnte nicht gelöscht werden"
+        "500": "Software konnte nicht gelöscht werden"
       },
       "software": {
         "title": "Software",
@@ -128,7 +138,8 @@
             "label": "Version"
           },
           "manufacturer": {
-            "label": "Hersteller"
+            "label": "Hersteller",
+            "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "software_information": {
             "label": "Software information"

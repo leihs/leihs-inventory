@@ -4,6 +4,7 @@ export const schema = z.object({
   product: z.string().min(1),
   version: z.string().optional(),
   manufacturer: z.string().optional(),
+  technical_detail: z.string().optional(),
   attachments: z
     .array(
       z.object({
@@ -36,17 +37,18 @@ export const structure = [
         },
       },
       {
-        name: "manufacturers",
+        name: "manufacturer",
         label: "pool.software.software.blocks.manufacturer.label",
-        component: "manufacturers",
+        component: "instant-search",
         props: {
-          text: {
-            label: "pool.software.software.blocks.manufacturer.label",
-          },
+          "auto-complete": "off",
+          placeholder: "Hersteller auswählen",
+          resource: "/inventory/:pool-id/manufacturers/",
+          "not-found": "pool.software.software.blocks.manufacturer.not_found",
         },
       },
       {
-        name: "software_information",
+        name: "technical_detail",
         label: "pool.software.software.blocks.software_information.label",
         component: "textarea",
         props: {

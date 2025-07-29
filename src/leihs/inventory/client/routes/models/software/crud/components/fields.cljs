@@ -6,7 +6,7 @@
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.attachments :refer [Attachments]]
-   [leihs.inventory.client.components.form.manufacturer :refer [Manufacturer]]
+   [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [defui $]]))
 
@@ -22,10 +22,11 @@
       ($ Attachments {:form form
                       :props (:props block)})
 
-      (-> block :component (= "manufacturers"))
-      ($ Manufacturer {:control control
-                       :form form
-                       :props (:props block)})
+      (-> block :component (= "instant-search"))
+      ($ InstantSearch {:form form
+                        :name (:name block)
+                        :label (:label block)
+                        :props (:props block)})
 
       ;; "default case - this renders a component from the component map"
       :else

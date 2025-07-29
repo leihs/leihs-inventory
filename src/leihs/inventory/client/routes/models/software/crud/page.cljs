@@ -29,15 +29,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn- on-invalid [data]
-  #_(.. toast (error "Invalid Data"))
-  (js/console.debug "is invalid: " data))
-
-(def default-values (cj {:product ""
-                         :manufacturer ""
-                         :description ""
-                         :version ""}))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -60,12 +51,20 @@
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
                                             (fn [] (core/prepare-default-values data))
-                                            default-values)})
+                                            (cj core/default-values))})
 
         is-loading (.. form -formState -isLoading)
 
         control (.. form -control)
         params (router/useParams)
+
+        on-invalid (fn [data]
+                     (let [invalid-filds-count (count (jc data))]
+                       (if (= invalid-filds-count 0)
+                         (.. toast (error (t "pool.software.create.invalid" #js {:count invalid-filds-count})))
+                         (.. toast (error (t "pool.software.create.invalid" #js {:count invalid-filds-count}))))
+
+                       (js/console.debug "is invalid: " data)))
 
         handle-submit (.. form -handleSubmit)
         handle-delete (fn []
@@ -73,11 +72,14 @@
                           (let [pool-id (aget params "pool-id")
                                 model-id (aget params "model-id")
                                 res (<p! (-> http-client
-                                             (.delete (str "/inventory/" pool-id "/model/" model-id))
+                                             (.delete (str "/inventory/" pool-id "/software/" model-id))
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
-                                                       :data (.. data -data)}))))
+                                                       :data (.. data -data)}))
+                                             (.catch (fn [err]
+                                                       {:status (.. err -response -status)
+                                                        :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -105,16 +107,14 @@
                                                     nil)
 
                             ;; remove empty attachments from the data, 
-                            ;; because they have theit own endpoint
-                            software-data (core/remove-nil-values
-                                           (into {} (remove (fn [[_ v]] (and (vector? v) (empty? v)))
-                                                            (dissoc (jc submitted-data) :attachments))))
+                            ;; because they have their own endpoint
+                            software-data (into {} (dissoc (jc submitted-data) :attachments))
 
                             pool-id (aget params "pool-id")
 
                             software-res (if is-create
                                            (<p! (-> http-client
-                                                    (.post (str "/inventory/" pool-id "/software")
+                                                    (.post (str "/inventory/" pool-id "/software/")
                                                            (js/JSON.stringify (cj software-data))
                                                            (cj {:cache
                                                                 {:update {:manufacturers "delete"}}}))
@@ -122,7 +122,10 @@
                                                     (.then (fn [res]
                                                              {:status (.. res -status)
                                                               :statusText (.. res -statusText)
-                                                              :id (.. res -data -data -id)}))))
+                                                              :id (.. res -data -id)}))
+                                                    (.catch (fn [err]
+                                                              {:status (.. err -response -status)
+                                                               :statusText (.. err -response -statusText)}))))
 
                                            (<p! (let [software-id (aget params "software-id")]
                                                   (-> http-client
@@ -131,9 +134,13 @@
                                                             (cj {:cache
                                                                  {:update {(keyword software-id) "delete"}}}))
                                                       (.then (fn [res]
+                                                               (js/console.debug res)
                                                                {:status (.. res -status)
                                                                 :statusText (.. res -statusText)
-                                                                :id (.. res -data -data -id)}))))))
+                                                                :id (.. res -data -id)}))
+                                                      (.catch (fn [err]
+                                                                {:status (.. err -response -status)
+                                                                 :statusText (.. err -response -statusText)}))))))
 
                             software-id (when (not= (:status software-res) "200") (:id software-res))]
 
@@ -143,11 +150,11 @@
                           (doseq [attachment-id attachments-to-delete]
                             ;; delete attachments that are not in the new model
                             (<p! (-> http-client
-                                     (.delete (str "/inventory/models/" (aget params "software-id") "/attachments/" attachment-id))
+                                     (.delete (str "/inventory/" pool-id "/models/" software-id "/attachments/" attachment-id))
                                      (.then #(.-data %))))))
 
                         (if (not= (:status software-res) 200)
-                          (.. toast (error (:statusText software-res)))
+                          (.. toast (error (t (str "pool.software.create." (:status software-res)))))
 
                           (do
                             ;; upload attachments sequentially
@@ -158,7 +165,7 @@
                                     name (.. file -name)]
 
                                 (<p! (-> http-client
-                                         (.post (str "/inventory/models/" software-id "/attachments")
+                                         (.post (str "/inventory/" pool-id "/models/" software-id "/attachments/")
                                                 binary-data
                                                 (cj {:headers {"Content-Type" type
                                                                "X-Filename" name}}))))))
@@ -209,7 +216,7 @@
                   ($ ScrollspyMenu)
 
                   ($ Form (merge form)
-                     ($ :form {:id "create-model"
+                     ($ :form {:id "create-software"
                                :className "space-y-12 w-full lg:w-3/5"
                                :on-submit (handle-submit on-submit on-invalid)}
 
@@ -232,7 +239,7 @@
 
                      ($ :div {:class-name "flex [&>*]:rounded-none [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
                         ($ Button {:type "submit"
-                                   :form "create-model"}
+                                   :form "create-software"}
                            (if is-create
                              (t "pool.software.create.submit")
                              (t "pool.software.submit")))
@@ -272,7 +279,7 @@
                                    (t "pool.software.delete.confirm"))
 
                                 ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:model-id" params)
+                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id" params)
                                             :state state}
 
                                       (t "pool.software.delete.cancel")))))))))))))))

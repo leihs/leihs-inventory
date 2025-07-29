@@ -78,7 +78,7 @@
         "title": "Add inventory",
         "add_model": "New model",
         "add_item": "New item",
-        "add_software": "Add Software"
+        "add_software": "New software"
       },
       "tabs": {
         "inventory_list": "Inventory List",
@@ -100,6 +100,10 @@
       }
     },
     "software": {
+      "title": "Edit Software",
+      "submit": "Save",
+      "cancel": "Cancel",
+      "description": "Make changes and then save",
       "create": {
         "title": "Create new software",
         "description": "Insert all required information",
