@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.pool.models.model.main
   (:require
    [clojure.set]
-   [honey.sql :refer [format]
-    :rename {format sql-format}]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.common :refer [select-entries fetch-attachments]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
@@ -22,19 +22,6 @@
    [taoensso.timbre :refer [error]])
   (:import
    (java.time LocalDateTime)))
-
-(defn select-entries [tx table columns where-clause]
-  (jdbc/execute! tx
-                 (-> (apply sql/select columns)
-                     (sql/from table)
-                     (sql/where where-clause)
-                     sql-format)))
-
-(defn fetch-attachments [tx model-id pool-id]
-  (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
-                         (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
-                                      :content_type (:content_type %))))]
-    (filter-and-coerce-by-spec attachments ::co/attachment)))
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
@@ -215,7 +202,7 @@
         attachments (db-operation tx :select :attachments [:= :model_id model-id])
         images (db-operation tx :select :images [:= :target_id model-id])
         _ (when (seq items)
-            (throw (ex-info "Referenced items exist" {:status 403})))
+            (throw (ex-info "Referenced items exist" {:status 409})))
 
         deleted-model-compatible (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
                                                        (sql/where [:= :model_id model-id])
@@ -230,7 +217,7 @@
         remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
         remaining-images (db-operation tx :select :images [:= :target_id model-id])
         _ (when (or (seq remaining-attachments) (seq remaining-images))
-            (throw (ex-info "Referenced attachments or images still exist" {:status 403})))
+            (throw (ex-info "Referenced attachments or images still exist" {:status 409})))
 
         result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                 :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
@@ -239,7 +226,7 @@
 
     (if (= 1 (count deleted-model))
       (response result)
-      (throw (ex-info "Failed to delete model" {:status 403})))))
+      (throw (ex-info "Failed to delete model" {:status 409})))))
 
 ; ##################################
 

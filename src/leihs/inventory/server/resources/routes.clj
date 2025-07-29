@@ -30,6 +30,8 @@
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
+   [leihs.inventory.server.resources.pool.software.routes :as software]
+   [leihs.inventory.server.resources.pool.software.software.routes :as sw-software]
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
@@ -133,6 +135,8 @@
                       (models/routes)
                       (list/routes)
                       (model/routes)
+                      (software/routes)
+                      (sw-software/routes)
                       (image/routes)
                       (images/routes)
                       (images-thumbnail/routes)

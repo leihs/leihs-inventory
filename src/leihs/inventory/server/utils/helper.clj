@@ -6,6 +6,10 @@
   (:import
    (java.util UUID)))
 
+(defn safe-ex-data [e]
+  (when (instance? clojure.lang.ExceptionInfo e)
+    (ex-data e)))
+
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
   [s]

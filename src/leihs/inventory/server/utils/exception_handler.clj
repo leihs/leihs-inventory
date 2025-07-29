@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.utils.exception-handler
   (:require
    [clojure.string :as str]
+   [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
@@ -24,7 +25,7 @@
                    (instance? clojure.lang.ExceptionInfo e)
                    (bad-request {:status "failure" :error default-error
                                  :details {:message (.getMessage e)
-                                           :scope (when-let [data (.getData e)] (:scope data))}})
+                                           :scope (when-let [data (safe-ex-data e)] (:scope data))}})
                    :else nil)]
     (or response
         (bad-request {:status "failure" :error default-error

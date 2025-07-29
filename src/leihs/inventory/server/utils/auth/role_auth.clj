@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
    [clojure.string :as str]
+   [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
    [ring.util.response :refer [response status]]
    [taoensso.timbre :refer [error]]))
 
@@ -75,4 +76,4 @@
 
         (catch Exception e
           (error "EXCEPTION-DETAIL: " e)
-          (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
+          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e) 500))))))))
