@@ -53,6 +53,18 @@
    (java.time LocalDateTime)))
 
 
+;; duplicate
+(defn select-entries [tx table columns where-clause]
+  (jdbc/execute! tx
+    (-> (apply sql/select columns)
+      (sql/from table)
+      (sql/where where-clause)
+      sql-format)))
+
+(defn fetch-attachments [tx model-id]
+  (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
+;; duplicate end
+
 (defn prepare-software-data
   [data]
   (let [normalize-data (normalize-model-data data)
@@ -77,7 +89,13 @@
                                         (sql/values [prepared-model-data])
                                         (sql/returning :*)
                                         sql-format))
-            model-id (:id res)]
+            model-id (:id res)
+
+            res (when res (let [
+                                            attachments (fetch-attachments tx model-id)
+                                            result (assoc res :attachments attachments)
+                                            ]result))
+            ]
 
         (if res
           (response (filter-map-by-spec res ::ty/post-response))

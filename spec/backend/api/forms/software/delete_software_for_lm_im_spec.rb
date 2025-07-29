@@ -156,7 +156,6 @@ describe "Inventory Software" do
 
         # fetch deleted model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        binding.pry
         expect(resp.body["error"]).to eq("Failed to fetch software")
         expect(resp.status).to eq(404)
       end

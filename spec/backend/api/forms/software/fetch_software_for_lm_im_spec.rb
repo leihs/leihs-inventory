@@ -21,7 +21,7 @@ post_response = {
   "manufacturer" => [NilClass, String],
   "version" => [NilClass, String],
   # "created_at" => String,
-  # "technical_detail" => [NilClass, String]
+  "technical_detail" => [NilClass, String]
 }
 
 get_response = {
@@ -35,7 +35,7 @@ get_response = {
   "id" => String,
   "manufacturer" => [NilClass, String],
   "version" => [NilClass, String],
-  # "technical_detail" => [NilClass, String]
+  "technical_detail" => [NilClass, String]
 }
 
 put_response = {
@@ -54,7 +54,7 @@ put_response = {
   "manufacturer" => [NilClass, String],
   "version" => [NilClass, String],
   # "created_at" => String,
-  # "technical_detail" => [NilClass, String]
+  "technical_detail" => [NilClass, String]
 }
 
 
@@ -174,11 +174,10 @@ describe "Inventory Software" do
           body: form_data,
           headers: cookie_header
         )
-        binding.pry
         validate_map_structure(resp.body, put_response)
         expect(resp.status).to eq(200)
         expect(resp.body["id"]).to eq(model_id)
-        expect(compare_values(resp.body, form_data, ["product", "version", "manufacturer"])).to eq(true)
+        expect(compare_values(resp.body, form_data,  ["product", "version", "manufacturer", "technical_detail"])).to eq(true)
 
 
         # delete attachment request

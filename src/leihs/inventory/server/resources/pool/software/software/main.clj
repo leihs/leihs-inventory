@@ -86,6 +86,7 @@
 ;   [taoensso.timbre :refer [error]])
 ;  (:import [java.time LocalDateTime]))
 
+;; duplicate
 (defn select-entries [tx table columns where-clause]
   (jdbc/execute! tx
     (-> (apply sql/select columns)
@@ -95,6 +96,7 @@
 
 (defn fetch-attachments [tx model-id]
   (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
+;; duplicate end
 
 (defn get-resource [request]
   (let [tx (get-in request [:tx])

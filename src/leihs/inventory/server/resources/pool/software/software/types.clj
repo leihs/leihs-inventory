@@ -12,6 +12,7 @@
                              :inventory_code string?
                              :manufacturer any?
                              :product string?
+                             :technical_detail (sa/nilable string?)
                              :version (sa/nilable string?)
                              :price (sa/nilable any?)})
 
@@ -31,10 +32,11 @@
                                    :opt-un [:nil/version
                                             :nil/manufacturer
                                             :nil/description
+                                            :nil/technical_detail
                                             ]))
 
 (sa/def ::put-response
-  (sa/keys :req-un [:nil/description
+  (sa/keys :req-un [
                     :models/type
                     ::sp/product
                     ::sp/id
@@ -43,8 +45,10 @@
                     :nil/version      ]
 
     :opt-un [
+                    :nil/description
              ;::sp/updated_at
              ;::sp/created_at
+             :nil/technical_detail
              ::sp/attachments
              ]
     ))

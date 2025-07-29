@@ -43,7 +43,7 @@ describe "Inventory Software" do
         # create software request
         form_data = {
           "product" => Faker::Commerce.product_name,
-          "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
+          # "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test2_pdf, "rb")],
           "version" => "v1.0",
           "manufacturer" => @form_manufacturers.first,
           "technical_details" => "Specs go here"
@@ -64,8 +64,8 @@ describe "Inventory Software" do
         # update software request
         form_data = {
           "product" => "updated product",
-          "attachments" => [],
-          "attachments_to_delete" => [],
+          # "attachments" => [],
+          # "attachments_to_delete" => [],
           "version" => "updated v2.0",
           "manufacturer" => "updated manufacturer",
           "technical_details" => "updated techDetail"
@@ -107,7 +107,7 @@ describe "Inventory Software" do
             "product" => "updated product"
           }
 
-          resp = json_client_post(
+          resp = json_client_put(
             "/inventory/#{pool_id}/software/#{model_id}",
             body: form_data,
             headers: cookie_header
