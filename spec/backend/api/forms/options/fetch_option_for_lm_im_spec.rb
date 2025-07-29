@@ -11,13 +11,12 @@ response = {
   "manufacturer" => [NilClass, String], # TODO: remove
   "product" => String,
   "version" => [NilClass, String],
-  # "name" => String,
-  "name" =>[NilClass, String],
+  "name" => [NilClass, String],
   "price" => [NilClass, Numeric]
 }
 
 # ["inventory_manager", "lending_manager"].each do |role|
-  ["group_manager"].each do |role|
+["inventory_manager"].each do |role|
 
   describe "Inventory option" do
     context "when interacting with inventory option with role=#{role}" do
@@ -53,14 +52,15 @@ response = {
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to be_present
-          expect(resp.body["validation"].count).to eq(0)
-          option_id = resp.body["data"]["id"]
+          expect(resp.body["id"]).to be_present
+          option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.body.count).to eq(1)
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(resp.body).to be_a(Hash)
+          binding.pry
+          # here
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
           form_data = {
@@ -73,14 +73,14 @@ response = {
           resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
             body: form_data,
-            method: :put,
+            # method: :put,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body[0]["version"]).to eq("v2")
-          expect(resp.body[0]["price"]).to eq(222.0)
+          expect(resp.body["version"]).to eq("v2")
+          expect(resp.body["price"]).to eq(22.2)
         end
       end
 
@@ -97,19 +97,20 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          binding.pry
           # expect(validate_map_structure(resp.body["data"], response)).to eq(true)
+
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
-          expect(resp.body["data"]["id"]).to be_present
-          expect(resp.body["validation"].count).to eq(0)
-          option_id = resp.body["data"]["id"]
+          expect(resp.body["id"]).to be_present
+          # expect(resp.body["validation"].count).to eq(0)
+          option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
-          expect(resp.body.count).to eq(1)
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
+          expect(resp.body).to be_a(Hash)
+          binding.pry
+          expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
           form_data = {
@@ -120,12 +121,10 @@ response = {
           resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
             body: form_data,
-            method: :put,
+            # method: :put,
             headers: cookie_header
           )
-          # binding.pry
-          expect(validate_map_structure(resp.body.first, response)).to eq(true)
-
+          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.status).to eq(200)
         end
       end

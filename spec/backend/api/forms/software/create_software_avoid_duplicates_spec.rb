@@ -16,7 +16,7 @@ describe "Inventory Software" do
 
       before do
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/manufacturers?type=Software"
+        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Software"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
       end

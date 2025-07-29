@@ -25,6 +25,7 @@
                              :inventory_code string?
                              :manufacturer any?
                              :product string?
+                             :name string?
                              :version (sa/nilable string?)
                              :price (sa/nilable any?)})
 ;
@@ -63,7 +64,7 @@
                     ::sp/inventory_pool_id
                     ::sp/inventory_code
                     :nil/manufacturer
-                    ;:nil/product]
+                    ::sp/name
                     ::sp/product]
     :opt-un [:nil/version :nil-any/price]))
 
