@@ -15,9 +15,7 @@ response = {
   "price" => [NilClass, Numeric]
 }
 
-# ["inventory_manager", "lending_manager"].each do |role|
-["inventory_manager"].each do |role|
-
+["inventory_manager", "lending_manager"].each do |role|
   describe "Inventory option" do
     context "when interacting with inventory option with role=#{role}" do
 
@@ -48,7 +46,6 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          binding.pry
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
@@ -58,8 +55,6 @@ response = {
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
           expect(resp.body).to be_a(Hash)
-          binding.pry
-          # here
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
@@ -73,7 +68,6 @@ response = {
           resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
             body: form_data,
-            # method: :put,
             headers: cookie_header
           )
           expect(validate_map_structure(resp.body, response)).to eq(true)
@@ -97,19 +91,15 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          # expect(validate_map_structure(resp.body["data"], response)).to eq(true)
-
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           expect(resp.status).to eq(200)
           expect(resp.body["id"]).to be_present
-          # expect(resp.body["validation"].count).to eq(0)
           option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
           expect(resp.body).to be_a(Hash)
-          binding.pry
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
@@ -121,7 +111,6 @@ response = {
           resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
             body: form_data,
-            # method: :put,
             headers: cookie_header
           )
           expect(validate_map_structure(resp.body, response)).to eq(true)

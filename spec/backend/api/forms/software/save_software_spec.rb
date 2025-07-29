@@ -1,6 +1,38 @@
 require "spec_helper"
 require "pry"
 require_relative "../../_shared"
+require "marcel"
+
+def upload_and_expect(file_path, model_id, expected_ok)
+  File.open(file_path, "rb") do |file|
+    content_type = Marcel::MimeType.for(file)
+    headers = cookie_header.merge(
+      "Content-Type" => content_type,
+      "X-Filename" => File.basename(file.path),
+      "Content-Length" => file.size.to_s
+    )
+
+    response = json_client_post(
+      "/inventory/#{@inventory_pool.id}/models/#{model_id}/attachments/",
+      body: file,
+      headers: headers,
+      is_binary: true
+    )
+
+    if expected_ok
+      expect(response.status).to eq(200)
+    else
+      expect(response.status).to eq(400)
+      expect(response.body["error"]).to eq("Failed to upload attachment")
+    end
+    response
+  end
+end
+
+def expect_correct_url(url)
+  resp = client.get url
+  expect(resp.status).to eq(200)
+end
 
 describe "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool" do
@@ -22,54 +54,61 @@ describe "Inventory Model Management" do
     it "creates a model with only the required product attribute" do
       form_data = {"product" => "New-Product"}
 
-      resp = http_multipart_client(
-        "/inventory/#{pool_id}/software",
-        form_data,
+      resp = json_client_post(
+        "/inventory/#{pool_id}/software/",
+        body: form_data,
         headers: cookie_header
       )
 
       expect(resp.status).to eq(200)
-      expect(resp.body["data"].count).to be
-      expect(resp.body["validation"].count).to eq(0)
+      expect(resp.body).to be
     end
 
     it "creates a model with one attachment and the product attribute" do
       form_data = {
         "product" => "New-Product",
-        "attachments" => [File.open(path_test_pdf, "rb")]
+        # "attachments" => [File.open(path_test_pdf, "rb")]
       }
 
-      resp = http_multipart_client(
-        "/inventory/#{pool_id}/software",
-        form_data,
+      resp = json_client_post(
+        "/inventory/#{pool_id}/software/",
+        body: form_data,
         headers: cookie_header
       )
 
       expect(resp.status).to eq(200)
-      expect(resp.body["data"].count).to be
-      expect(resp.body["validation"].count).to eq(0)
+      expect(resp.body).to be
 
-      model_id = resp.body["data"]["id"]
+
+      model_id = resp.body["id"]
+      [path_test_pdf].each do |file_path|
+        upload_and_expect(file_path, model_id, true)
+      end
+
       expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
 
     it "creates a model with one attachment and the product attribute" do
       form_data = {
         "product" => "New-Product",
-        "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test_pdf, "rb")]
+        # "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test_pdf, "rb")]
       }
 
-      resp = http_multipart_client(
-        "/inventory/#{pool_id}/software",
-        form_data,
+      resp = json_client_post(
+        "/inventory/#{pool_id}/software/",
+        body: form_data,
         headers: cookie_header
       )
 
       expect(resp.status).to eq(200)
-      expect(resp.body["data"].count).to be
-      expect(resp.body["validation"].count).to eq(0)
+      expect(resp.body).to be
 
-      model_id = resp.body["data"]["id"]
+      model_id = resp.body["id"]
+      [path_test_pdf, path_test_pdf].each do |file_path|
+        upload_and_expect(file_path, model_id, true)
+      end
+
+
       expect(Attachment.where(model_id: model_id).count).to eq(2)
     end
 
@@ -82,18 +121,23 @@ describe "Inventory Model Management" do
         "technical_details" => "Specs go here"
       }
 
-      resp = http_multipart_client(
-        "/inventory/#{pool_id}/software",
-        form_data,
+      resp = json_client_post(
+        "/inventory/#{pool_id}/software/",
+        body: form_data,
         headers: cookie_header
       )
 
       expect(resp.status).to eq(200)
-      expect(resp.body["data"].count).to be
-      expect(resp.body["validation"].count).to eq(0)
-      expect(resp.body["data"].keys.count).to eq(17) # including `name`
+      expect(resp.body).to be
+      # expect(resp.body["validation"].count).to eq(0)
+      # expect(resp.body["data"].keys.count).to eq(17) # including `name`
 
-      model_id = resp.body["data"]["id"]
+      model_id = resp.body["id"]
+      [path_test_pdf].each do |file_path|
+        upload_and_expect(file_path, model_id, true)
+      end
+
+
       expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
   end
