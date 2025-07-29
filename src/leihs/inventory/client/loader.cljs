@@ -53,14 +53,14 @@
 
 (defn software-crud-page [route-data]
   (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
         manufacturers (-> http-client
-                          (.get "/inventory/manufacturers?type=Software" #js {:id "manufacturers"})
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Software") #js {:id "manufacturers"})
                           (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
 
         software-id (or (:software-id (jc params)) nil)
 
-        software-path (when software-id
-                        (router/generatePath "/inventory/:pool-id/software/:software-id" params))
+        software-path (when software-id (str "/inventory/" pool-id "/software/:software-id"))
 
         data (when software-path
                (-> http-client

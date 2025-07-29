@@ -6,6 +6,7 @@
    ["@@/input" :refer [Input]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
+   [leihs.inventory.client.components.form.attachments :refer [Attachments]]
    [leihs.inventory.client.components.form.instant-search :refer [InstantSearch]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.crud.components.accessories-list :refer [AccessoryList]]
@@ -56,11 +57,6 @@
       (-> block :component (= "model-properties"))
       ($ ModelProperties {:control control
                           :props (:props block)})
-
-      (-> block :component (= "manufacturers"))
-      ($ Manufacturer {:control control
-                       :form form
-                       :props (:props block)})
 
       (-> block :component (= "instant-search"))
       ($ InstantSearch {:form form
