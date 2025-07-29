@@ -136,6 +136,9 @@
                                                   (= (-> model :type) "Model")
                                                   (str (:id model))
 
+                                                  (= (-> model :type) "Package")
+                                                  (str (:id model))
+
                                                   (= (-> model :type) "Software")
                                                   (str "../software/" (:id model)))
                                             :viewTransition true}
