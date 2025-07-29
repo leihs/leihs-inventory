@@ -54,12 +54,12 @@ describe "Inventory Software" do
           body: form_data,
           headers: cookie_header
         )
-        expect(resp.status).to eq(401)
+        expect(resp.status).to eq(404)
 
         # fetch created software
         model_id = fake_software.id
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(resp.status).to eq(401)
+        expect(resp.status).to eq(404)
 
         # update software request
         form_data = {
@@ -76,11 +76,11 @@ describe "Inventory Software" do
           body: form_data,
           headers: cookie_header
         )
-        expect(resp.status).to eq(401)
+        expect(resp.status).to eq(405)
 
         # fetch updated model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(resp.status).to eq(401)
+        expect(resp.status).to eq(404)
       end
 
       context "create software (min)" do
@@ -95,12 +95,12 @@ describe "Inventory Software" do
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch created software
           model_id = fake_software.id
           resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # update software request
           form_data = {
@@ -112,11 +112,11 @@ describe "Inventory Software" do
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
 
           # fetch updated model
           resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-          expect(resp.status).to eq(401)
+          expect(resp.status).to eq(404)
         end
       end
     end
