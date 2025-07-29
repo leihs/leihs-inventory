@@ -110,16 +110,21 @@
             model-result (jdbc/execute-one! tx model-query)
 
 
-            result (when model-result
-                           (->> (fetch-attachments tx model-id)
-                             (assoc model-result :attachments )
-                             )
-
-                           )
+            ;result (when model-result
+            ;               (->> (fetch-attachments tx model-id)
+            ;                 (assoc model-result :attachments )
+            ;                 )
+            ;
+            ;               )
 
             ;attachments (fetch-attachments tx model-id)
             ;
             ;result (assoc model-result :attachments attachments)
+
+            result (when model-result (let [
+                                      attachments (fetch-attachments tx model-id)
+                                      result (assoc model-result :attachments attachments)
+                                      ]result))
 
             ;result (if model-result
             ;         [(assoc model-result :attachments attachments)]

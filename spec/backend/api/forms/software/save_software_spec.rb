@@ -66,8 +66,7 @@ describe "Inventory Model Management" do
 
     it "creates a model with one attachment and the product attribute" do
       form_data = {
-        "product" => "New-Product",
-        # "attachments" => [File.open(path_test_pdf, "rb")]
+        "product" => "New-Product"
       }
 
       resp = json_client_post(
@@ -75,7 +74,6 @@ describe "Inventory Model Management" do
         body: form_data,
         headers: cookie_header
       )
-
       expect(resp.status).to eq(200)
       expect(resp.body).to be
 
@@ -90,8 +88,7 @@ describe "Inventory Model Management" do
 
     it "creates a model with one attachment and the product attribute" do
       form_data = {
-        "product" => "New-Product",
-        # "attachments" => [File.open(path_test_pdf, "rb"), File.open(path_test_pdf, "rb")]
+        "product" => "New-Product"
       }
 
       resp = json_client_post(
@@ -99,7 +96,6 @@ describe "Inventory Model Management" do
         body: form_data,
         headers: cookie_header
       )
-
       expect(resp.status).to eq(200)
       expect(resp.body).to be
 
@@ -107,7 +103,6 @@ describe "Inventory Model Management" do
       [path_test_pdf, path_test_pdf].each do |file_path|
         upload_and_expect(file_path, model_id, true)
       end
-
 
       expect(Attachment.where(model_id: model_id).count).to eq(2)
     end
@@ -126,18 +121,13 @@ describe "Inventory Model Management" do
         body: form_data,
         headers: cookie_header
       )
-
       expect(resp.status).to eq(200)
       expect(resp.body).to be
-      # expect(resp.body["validation"].count).to eq(0)
-      # expect(resp.body["data"].keys.count).to eq(17) # including `name`
 
       model_id = resp.body["id"]
       [path_test_pdf].each do |file_path|
         upload_and_expect(file_path, model_id, true)
       end
-
-
       expect(Attachment.where(model_id: model_id).count).to eq(1)
     end
   end

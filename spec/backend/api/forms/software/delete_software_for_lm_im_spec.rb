@@ -57,7 +57,7 @@ describe "Inventory Software" do
         end
 
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Software"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Software"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
       end
@@ -79,9 +79,9 @@ describe "Inventory Software" do
           "technical_details" => "Specs go here"
         }
 
-        resp = http_multipart_client(
-          "/inventory/#{pool_id}/software",
-          form_data,
+        resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: form_data,
           headers: cookie_header
         )
         expect(resp.status).to eq(200)

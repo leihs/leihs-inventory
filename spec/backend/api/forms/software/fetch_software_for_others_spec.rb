@@ -27,7 +27,7 @@ describe "Inventory Software" do
           raise "File not found: #{path}" unless File.exist?(path)
         end
 
-        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Software"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Software"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
       end
@@ -49,9 +49,9 @@ describe "Inventory Software" do
           "technical_details" => "Specs go here"
         }
 
-        resp = http_multipart_client(
-          "/inventory/#{pool_id}/software",
-          form_data,
+        resp = json_client_post(
+          "/inventory/#{pool_id}/software/",
+          body: form_data,
           headers: cookie_header
         )
         expect(resp.status).to eq(401)
@@ -71,10 +71,9 @@ describe "Inventory Software" do
           "technical_details" => "updated techDetail"
         }
 
-        resp = http_multipart_client(
+        resp = json_client_post(
           "/inventory/#{pool_id}/software/#{model_id}",
-          form_data,
-          method: :put,
+          body: form_data,
           headers: cookie_header
         )
         expect(resp.status).to eq(401)
@@ -91,9 +90,9 @@ describe "Inventory Software" do
             "product" => Faker::Commerce.product_name
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)
@@ -108,10 +107,9 @@ describe "Inventory Software" do
             "product" => "updated product"
           }
 
-          resp = http_multipart_client(
+          resp = json_client_post(
             "/inventory/#{pool_id}/software/#{model_id}",
-            form_data,
-            method: :put,
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(401)

@@ -16,7 +16,7 @@ describe "Inventory Software" do
 
       before do
         # Fetch shared data and set global instance variables
-        resp = client.get "/inventory/#{pool_id}/manufacturers?type=Software"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Software"
         @form_manufacturers = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
       end
@@ -29,18 +29,19 @@ describe "Inventory Software" do
             "product" => product
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
 
           # fetch created software
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-          expect(resp.body[0]["attachments"].count).to eq(0)
+          binding.pry
+          expect(resp.body["attachments"].count).to eq(0)
           expect(resp.status).to eq(200)
 
           # send same create-software-request
@@ -48,9 +49,9 @@ describe "Inventory Software" do
             "product" => product
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
@@ -62,9 +63,9 @@ describe "Inventory Software" do
             "version" => "2.0"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
@@ -78,18 +79,18 @@ describe "Inventory Software" do
             "version" => "1.0"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)
 
           # fetch created software
-          model_id = resp.body["data"]["id"]
+          model_id = resp.body["id"]
           resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
 
-          expect(resp.body[0]["attachments"].count).to eq(0)
+          expect(resp.body["attachments"].count).to eq(0)
           expect(resp.status).to eq(200)
 
           # send same create-software-request
@@ -98,9 +99,9 @@ describe "Inventory Software" do
             "version" => "1.0"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(409)
@@ -112,9 +113,9 @@ describe "Inventory Software" do
             "version" => "2.0"
           }
 
-          resp = http_multipart_client(
-            "/inventory/#{pool_id}/software",
-            form_data,
+          resp = json_client_post(
+            "/inventory/#{pool_id}/software/",
+            body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(200)

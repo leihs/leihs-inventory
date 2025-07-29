@@ -38,6 +38,7 @@
                     :models/type
                     ::sp/product
                     ::sp/id
+                    ::sp/attachments
                     :nil/manufacturer
                     :nil/version      ]
 
