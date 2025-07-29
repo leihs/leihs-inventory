@@ -38,14 +38,15 @@
                     :models/type
                     ::sp/product
                     ::sp/id
-                    ::sp/attachments
+                    ;::sp/attachments
                     :nil/manufacturer
                     :nil/version      ]
 
-    ;:opt-un [ ::sp/updated_at
-    ;         ::sp/created_at
-    ;         ::sp/attachments
-    ;         ]
+    :opt-un [
+             ;::sp/updated_at
+             ;::sp/created_at
+             ::sp/attachments
+             ]
     ))
 
 ;(sa/def ::put-response
