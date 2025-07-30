@@ -5,7 +5,7 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
+   [leihs.inventory.server.resources.pool.common :refer [str-to-bool fetch-attachments]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [process-accessories]]
@@ -19,18 +19,6 @@
    [taoensso.timbre :refer [debug error]])
   (:import
    (java.time LocalDateTime)))
-
-;; duplicate
-(defn select-entries [tx table columns where-clause]
-  (jdbc/execute! tx
-                 (-> (apply sql/select columns)
-                     (sql/from table)
-                     (sql/where where-clause)
-                     sql-format)))
-
-(defn fetch-attachments [tx model-id]
-  (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id]))
-;; duplicate end
 
 (defn prepare-software-data
   [data]
@@ -55,7 +43,7 @@
                                           (sql/returning :*)
                                           sql-format))
             model-id (:id res)
-            res (when res (let [attachments (fetch-attachments tx model-id)
+            res (when res (let [attachments (fetch-attachments tx model-id pool-id)
                                 result (assoc res :attachments attachments)] result))]
 
         (if res

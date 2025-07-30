@@ -90,6 +90,7 @@ describe "Inventory Model Management" do
         "product" => "New-Product"
       }
 
+      # create software
       resp = json_client_post(
         "/inventory/#{pool_id}/software/",
         body: form_data,
@@ -98,12 +99,22 @@ describe "Inventory Model Management" do
       expect(resp.status).to eq(200)
       expect(resp.body).to be
 
+      # upload attachments
       model_id = resp.body["id"]
       [path_test_pdf, path_test_pdf].each do |file_path|
         upload_and_expect(file_path, model_id, true)
       end
-
       expect(Attachment.where(model_id: model_id).count).to eq(2)
+
+      # fetch software
+      resp = json_client_get(
+        "/inventory/#{pool_id}/software/#{model_id}",
+        headers: cookie_header
+      )
+      expect(resp.status).to eq(200)
+      expect(resp.body["attachments"].first.keys).to eq(["content_type", "filename", "id", "url"])
+      expect(resp.body.keys).to eq(["description", "attachments", "type", "product", "id", "manufacturer",
+        "version", "technical_detail"])
     end
 
     it "creates a model with all available attributes" do
