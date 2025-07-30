@@ -1,9 +1,9 @@
-(ns leihs.inventory.server.resources.pool.packages.routes
+(ns leihs.inventory.server.resources.pool.models.model.packages.routes
   (:require
    [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.resources.pool.packages.main :as packages]
-   [leihs.inventory.server.resources.pool.packages.types :as ty]
-   ;[leihs.inventory.server.resources.pool.packages.types :refer [description-model-form
+   [leihs.inventory.server.resources.pool.models.model.packages.main :as packages]
+   [leihs.inventory.server.resources.pool.models.model.packages.types :as ty]
+   ;[leihs.inventory.server.resources.pool.models.model.packages.types :refer [description-model-form
    ;                                                            get-compatible-response
    ;                                                            post-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
@@ -15,7 +15,9 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/packages/"
+  ;["/packages/"
+  ; ["/models/:model_id/packages/item_id"
+   ["/models/:model_id/packages/"
    {:post {:accept "application/json"
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}

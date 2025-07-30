@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.packages.main
+(ns leihs.inventory.server.resources.pool.models.model.packages.main
   (:require
    [cheshire.core :as json]
    [clojure.set]
@@ -26,20 +26,6 @@
    [leihs.inventory.server.resources.pool.form-queries :refer [inventory-manager-package-subquery
                                                                lending-manager-package-subquery
                                                                package-base-query]]
-   ;[leihs.inventory.server.resources.pool.packages.common :refer [fetch-thumbnails-for-ids
-   ;                                                             filter-map-by-spec]]
-   ;[leihs.inventory.server.resources.pool.packages.model.common-model-form :refer [extract-model-form-data
-   ;                                                                              process-accessories
-   ;                                                                              process-categories
-   ;                                                                              process-compatibles
-   ;                                                                              process-entitlements
-   ;                                                                              process-properties]]
-   ;[leihs.inventory.server.resources.pool.packages.queries :refer [base-inventory-query
-   ;                                                              filter-by-type
-   ;                                                              from-category
-   ;                                                              with-items
-   ;                                                              with-search
-   ;                                                              without-items]]
 
    [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
                                                                 normalize-model-data
