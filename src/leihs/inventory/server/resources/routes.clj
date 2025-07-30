@@ -27,6 +27,8 @@
    [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
    [leihs.inventory.server.resources.pool.models.model.routes :as model]
    [leihs.inventory.server.resources.pool.models.routes :as models]
+   [leihs.inventory.server.resources.pool.options.option.routes :as option]
+   [leihs.inventory.server.resources.pool.options.routes :as options]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
@@ -133,6 +135,8 @@
                       (models/routes)
                       (list/routes)
                       (model/routes)
+                      (option/routes)
+                      (options/routes)
                       (image/routes)
                       (images/routes)
                       (images-thumbnail/routes)
