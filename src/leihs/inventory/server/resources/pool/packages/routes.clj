@@ -17,9 +17,6 @@
 (defn routes []
   ["/packages/"
    {:post {:accept "application/json"
-           ;:swagger {:consumes ["multipart/form-data"]
-           ;          :produces "application/json"}
-           :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
                         :body :package/payload}
@@ -32,18 +29,17 @@
                        500 {:description "Internal Server Error"}}}
 
     :get {:accept "application/json"
-          :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
           :description "Permitted access for:\n- lending_manager\n- inventory_manager"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?}}
           :handler packages/fetch-package-handler-by-pool-form
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-          :responses {200 {
-                           ;:body {:data {:inventory_code string?
+          :responses {200 {;:body {:data {:inventory_code string?
                            ;              :inventory_pool_id uuid?
                            ;              :responsible_department any?}
                            ;       :fields [any?]}
                            :description "OK"}
+                      400 {:description "The inventory code is invalid or outdated"}
                       401 {:description "Unauthorized: invalid role for the requested pool or method"
                            :body {:error string?}}
                       404 {:description "Not Found"}

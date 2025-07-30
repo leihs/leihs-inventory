@@ -1,33 +1,31 @@
 (ns leihs.inventory.server.resources.pool.packages.main
   (:require
+   [cheshire.core :as json]
    [clojure.set]
+   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-      [clojure.string :as str]
-   [leihs.core.json :refer [to-json]]
-   [cheshire.core :as json]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
-                                                          normalize-model-data
-
-                                                              extract-shortname-and-number]]
+   [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.resources.pool.common :refer [calculate-retired-value
                                                          parse-local-date-or-nil
 
                                                          double-to-numeric-or-nil
-                                                          remove-nil-entries
-                                                          remove-empty-entries
-                                                          remove-empty-or-nil
-                                                          remove-entries-by-keys
-                                                          cast-to-uuid-or-nil
-                                                          str-to-bool
+                                                         remove-nil-entries
+                                                         remove-empty-entries
+                                                         remove-empty-or-nil
+                                                         remove-entries-by-keys
+                                                         cast-to-uuid-or-nil
+                                                         str-to-bool
                                                           ;normalize-model-data
-                                                          parse-json-array
-                                                          normalize-files
-                                                          file-to-base64
-                                                          base-filename
-                                                          process-attachments
-                                                         ]]
+                                                         parse-json-array
+                                                         normalize-files
+                                                         file-to-base64
+                                                         base-filename
+                                                         process-attachments]]
+   [leihs.inventory.server.resources.pool.form-queries :refer [inventory-manager-package-subquery
+                                                               lending-manager-package-subquery
+                                                               package-base-query]]
    ;[leihs.inventory.server.resources.pool.packages.common :refer [fetch-thumbnails-for-ids
    ;                                                             filter-map-by-spec]]
    ;[leihs.inventory.server.resources.pool.packages.model.common-model-form :refer [extract-model-form-data
@@ -43,11 +41,10 @@
    ;                                                              with-search
    ;                                                              without-items]]
 
-   [leihs.inventory.server.resources.pool.form-queries :refer [
-                                                               inventory-manager-package-subquery
-                                                               lending-manager-package-subquery
-                                                               package-base-query
-                                                               ]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
+                                                                normalize-model-data
+
+                                                                extract-shortname-and-number]]
 
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
@@ -62,13 +59,9 @@
   (:import
    (java.time LocalDateTime)
 
-     [java.time LocalDateTime]
-      [java.time.format DateTimeFormatter]
-      [java.util UUID]
-   ))
-
-
-
+   [java.time LocalDateTime]
+   [java.time.format DateTimeFormatter]
+   [java.util UUID]))
 
 ;
 ;(ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch
@@ -131,27 +124,27 @@
         whitelisted-keywords (set (map keyword whitelisted-keys))
         blacklisted-keywords (set (map keyword blacklisted-keys))
         all-keys (clojure.set/difference
-                   (clojure.set/union allowed-keywords whitelisted-keywords)
-                   blacklisted-keywords)]
+                  (clojure.set/union allowed-keywords whitelisted-keywords)
+                  blacklisted-keywords)]
     (reduce-kv
-      (fn [result k v]
-        (if (contains? all-keys k)
-          (assoc result k v)
-          result))
-      {}
-      data)))
+     (fn [result k v]
+       (if (contains? all-keys k)
+         (assoc result k v)
+         result))
+     {}
+     data)))
 
 (defn rename-keys
   "Renames keys in a map based on a provided key mapping.
    `key-map` is a map where the keys are old keys and the values are new keys."
   [m key-map]
   (reduce
-    (fn [acc [old-key new-key]]
-      (if (contains? m old-key)
-        (assoc acc new-key (get m old-key))
-        acc))
-    (apply dissoc m (keys key-map))
-    key-map))
+   (fn [acc [old-key new-key]]
+     (if (contains? m old-key)
+       (assoc acc new-key (get m old-key))
+       acc))
+   (apply dissoc m (keys key-map))
+   key-map))
 
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
@@ -176,8 +169,8 @@
 
     (try
       (let [query (-> (sql/select :*)
-                    subquery
-                    sql-format)
+                      subquery
+                      sql-format)
 
             fields (jdbc/execute! tx query)
             fields (conj fields {:active true
@@ -200,45 +193,45 @@
 
                                  ;; remove all attr except defined keys
                                  model-result (filter-by-allowed-keys model-result
-                                                ["product"
-                                                 "product_name"
-                                                 "model_id"
-                                                 "inventory_code"
-                                                 "inventory_pool_id"
-                                                 "responsible_department"
-                                                 "id"
-                                                 "building_id"
-                                                 "created_at"
-                                                 "updated_at"
-                                                 "owner_id"
-                                                 "retired"
-                                                 "retired_reason"
-                                                 "room_id"
-                                                 "shelf"
-                                                 "last_check"
-                                                 "is_borrowable"
-                                                 "is_inventory_relevant"
-                                                 "is_broken"
-                                                 "is_incomplete"
-                                                 "note"
-                                                 "status_note"
-                                                 "user_name"
-                                                 "price"]
-                                                []
-                                                [])
+                                                                      ["product"
+                                                                       "product_name"
+                                                                       "model_id"
+                                                                       "inventory_code"
+                                                                       "inventory_pool_id"
+                                                                       "responsible_department"
+                                                                       "id"
+                                                                       "building_id"
+                                                                       "created_at"
+                                                                       "updated_at"
+                                                                       "owner_id"
+                                                                       "retired"
+                                                                       "retired_reason"
+                                                                       "room_id"
+                                                                       "shelf"
+                                                                       "last_check"
+                                                                       "is_borrowable"
+                                                                       "is_inventory_relevant"
+                                                                       "is_broken"
+                                                                       "is_incomplete"
+                                                                       "note"
+                                                                       "status_note"
+                                                                       "user_name"
+                                                                       "price"]
+                                                                      []
+                                                                      [])
 
                                  items (jdbc/execute! tx
-                                         (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
-                                           (sql/from [:items :i])
-                                           (sql/join [:models :m] [:= :m.id :i.model_id])
-                                           (sql/where [:= :parent_id item-id])
-                                           sql-format))
+                                                      (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
+                                                          (sql/from [:items :i])
+                                                          (sql/join [:models :m] [:= :m.id :i.model_id])
+                                                          (sql/where [:= :parent_id item-id])
+                                                          sql-format))
 
                                  model-result (assoc model-result :items_attributes items)
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
-                                                                     :product {:name (:product_name model-result)
-                                                                               :model_id (:model_id model-result)})
+                                                                          :product {:name (:product_name model-result)
+                                                                                    :model_id (:model_id model-result)})
 
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
@@ -255,11 +248,10 @@
         (if model-result
           (response {:data model-result :fields fields})
           (status (response {:error "Failed to fetch item"
-                                               :details "No data found"}) 404)))
+                             :details "No data found"}) 404)))
       (catch Exception e
         (error "Failed to fetch item" (.getMessage e))
         (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))
-
 
 ;
 ;(ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-create
@@ -295,32 +287,25 @@
 ;   [java.util UUID]
 ;   [java.util.jar JarFile]))
 
-
-
 (def defaults
-  {
-   :is_borrowable false
+  {:is_borrowable false
    :is_broken false
    :is_incomplete false
    :is_inventory_relevant true
 
-   :properties {:reference "invoice" :installation_status "inStorage"}
-   })
+   :properties {:reference "invoice" :installation_status "inStorage"}})
 
 (defn set-missing-defaults [data defaults]
   (reduce (fn [acc [k v]]
             (if (contains? acc k)
               acc
               (assoc acc k v)))
-    data
-    defaults))
-
-
+          data
+          defaults))
 
 (defn prepare-package-data [data]
   (let [created-ts (LocalDateTime/now)
         db-retired nil
-
 
         data (set-missing-defaults data defaults)
 
@@ -331,16 +316,12 @@
                (assoc data :retired_reason nil)
                data)
 
-
-
-
-
         retired-value (calculate-retired-value db-retired request-retired)
         data (assoc data :retired retired-value)
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
         data (assoc data :updated_at created-ts :last_check created-ts
-               :created_at created-ts :invoice_date invoice-date :price price)
+                    :created_at created-ts :invoice_date invoice-date :price price)
 
         data (remove-nil-entries data [:invoice_date :price :room_id :last_check :user_name :shelf :status_note :note])
         data (remove-empty-entries data [:room_id :last_check :user_name :shelf :status_note :note])
@@ -360,71 +341,50 @@
    - `ids-to-link` (items without `:delete` or `false`)."
   [items]
   (reduce
-    (fn [{:keys [ids-to-unlink ids-to-link]} item]
-      (if (:delete item)
-        {:ids-to-unlink (conj ids-to-unlink (to-uuid (:id item)))
-         :ids-to-link ids-to-link}
-        {:ids-to-unlink ids-to-unlink
-         :ids-to-link (conj ids-to-link (to-uuid (:id item)))}))
-    {:ids-to-unlink [] :ids-to-link []}
-    items))
+   (fn [{:keys [ids-to-unlink ids-to-link]} item]
+     (if (:delete item)
+       {:ids-to-unlink (conj ids-to-unlink (to-uuid (:id item)))
+        :ids-to-link ids-to-link}
+       {:ids-to-unlink ids-to-unlink
+        :ids-to-link (conj ids-to-link (to-uuid (:id item)))}))
+   {:ids-to-unlink [] :ids-to-link []}
+   items))
 
-
-(defn generate-or-verify-inventory-code! [tx multipart pool-id ]
-  (let [
-        inv-code (:inventory_code multipart)
-  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
-
-  _ (when (and (some? inv-code) (not= next-code inv-code))
+(defn generate-or-verify-inventory-code! [tx data pool-id]
+  (let [inv-code (:inventory_code data)
+        next-code (:next-code (fetch-latest-inventory-code tx pool-id))]
+    (when (and inv-code (not= next-code inv-code))
       (throw (ex-info "The inventory code is invalid or outdated" {:status 400})))
-
-        multipart (if (nil? inv-code)
-                    (assoc multipart :inventory_code next-code)
-                    multipart)
-
-        ]
-multipart
-
-
-  ))
+    (if inv-code
+      data
+      (assoc data :inventory_code next-code))))
 
 (defn create-package-handler-by-pool-form [request]
-  (let [
-        ;validation-result (atom [])
+  (let [;validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :body])
+        data (get-in request [:parameters :body])
 
         items_attributes (parse-json-array request :items_attributes)
-        multipart (assoc multipart :inventory_pool_id pool-id)
+        data (assoc data :inventory_pool_id pool-id)
         ;;TODO: is this logic correct?
-        multipart (if (nil? (:owner_id multipart))
-                    (do
-                      (println ">> ToCHECK / WARNING: no owner_id set, default: pool_id=" pool-id)
-                      (assoc multipart :owner_id pool-id))
-                    multipart)
+        data (if (nil? (:owner_id data))
+               (do
+                 (println ">> ToCHECK / WARNING: no owner_id set, default: pool_id=" pool-id)
+                 (assoc data :owner_id pool-id))
+               data)
 
+        data (generate-or-verify-inventory-code! tx data pool-id)
+        prepared-package-data (prepare-package-data data)
 
-        multipart (generate-or-verify-inventory-code! tx multipart pool-id)
-
-
-        ;{:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
-        ;_ (when (and (some? inv-code) (not= next-code inv-code))
-        ;    (throw (ex-info "Invalid or outdated inventory-code" {:status 400}))
-
-
-
-        prepared-package-data (prepare-package-data multipart)
-
-        p (println ">o> abc.prepared-package-data" prepared-package-data)
-        ]
+        p (println ">o> abc.prepared-package-data" prepared-package-data)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
-                                        (sql/values [prepared-package-data])
-                                        (sql/returning :*)
-                                        sql-format))
+                                          (sql/values [prepared-package-data])
+                                          (sql/returning :*)
+                                          sql-format))
 
             split-items (split-items items_attributes)
 
@@ -432,11 +392,11 @@ multipart
             link-res (let [ids-to-link (get split-items :ids-to-link)]
                        (when (seq ids-to-link)
                          (let [update-link-items-query (-> (sql/update :items)
-                                                         (sql/set {:parent_id (:id res)})
-                                                         (sql/where [:in :id ids-to-link])
-                                                         (sql/where [:is :parent_id nil])
-                                                         (sql/returning :*)
-                                                         sql-format)
+                                                           (sql/set {:parent_id (:id res)})
+                                                           (sql/where [:in :id ids-to-link])
+                                                           (sql/where [:is :parent_id nil])
+                                                           (sql/returning :*)
+                                                           sql-format)
 
                                linked-items-res (jdbc/execute! tx update-link-items-query)]
                            linked-items-res)))
@@ -445,11 +405,11 @@ multipart
             unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
                          (when (seq ids-to-unlink)
                            (let [update-unlink-items-query (-> (sql/update :items)
-                                                             (sql/set {:parent_id nil})
-                                                             (sql/where [:in :id ids-to-unlink])
-                                                             (sql/where [:is-not :parent_id nil])
-                                                             (sql/returning :*)
-                                                             sql-format)
+                                                               (sql/set {:parent_id nil})
+                                                               (sql/where [:in :id ids-to-unlink])
+                                                               (sql/where [:is-not :parent_id nil])
+                                                               (sql/returning :*)
+                                                               sql-format)
                                  unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
                              unlinked-items-res)))
             item-id (:id res)]
@@ -465,10 +425,10 @@ multipart
           (-> (response {:status "failure"
                          :message "Model already exists"
                          :detail {:product (:product prepared-package-data)}})
-            (status 409))
+              (status 409))
           (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
           (-> (response {:status "failure"
                          :message "Modification of models_compatibles failed"
                          :detail {:product (:product prepared-package-data)}})
-            (status 409))
+              (status 409))
           :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
