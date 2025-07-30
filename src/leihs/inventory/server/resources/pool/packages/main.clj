@@ -18,6 +18,12 @@
    ;                                                              with-items
    ;                                                              with-search
    ;                                                              without-items]]
+
+   [leihs.inventory.server.resources.pool.form-queries :refer [
+                                                               inventory-manager-package-subquery
+                                                               lending-manager-package-subquery
+                                                               ]
+
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
@@ -48,19 +54,21 @@
 ;   [honey.sql :as sq :refer [format] :rename {format sql-format}]
 ;   [honey.sql.helpers :as sql]
 ;   [leihs.core.core :refer [presence]]
-;   [leihs.inventory.server.resources.models.form.license.queries :refer [model-query
-;                                                                         inventory-manager-license-subquery
-;                                                                         lending-manager-license-subquery
-;                                                                         inventory-manager-item-subquery
-;
+;   [leihs.inventory.server.resources.pool.form-queries :refer [
+;;                                                                         model-query
+;;                                                                         inventory-manager-license-subquery
+;;                                                                         lending-manager-license-subquery
+;;                                                                         inventory-manager-item-subquery
+;;
 ;                                                                         inventory-manager-package-subquery
 ;                                                                         lending-manager-package-subquery
-;
-;                                                                         item-base-query
-;                                                                         package-base-query
-;                                                                         lending-manager-item-subquery
-;
-;                                                                         license-base-query]]
+;;
+;;                                                                         item-base-query
+;;                                                                         package-base-query
+;;                                                                         lending-manager-item-subquery
+;;
+;;                                                                         license-base-query]
+; ]
 ;   [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
 ;   [leihs.inventory.server.resources.models.queries :refer [accessories-query
 ;                                                            attachments-query
