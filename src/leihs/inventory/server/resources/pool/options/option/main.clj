@@ -36,10 +36,10 @@
           (response (-> [result]
                         post-fnc
                         first))
-          (bad-request {:error "Failed to fetch model"})))
+          (bad-request {:error "Failed to fetch option"})))
       (catch Exception e
-        (error "Failed to fetch model" (.getMessage e))
-        (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
+        (error "Failed to fetch option" (.getMessage e))
+        (bad-request {:error "Failed to fetch option" :details (.getMessage e)})))))
 
 (defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -58,7 +58,25 @@
 
         (if updated-model
           (response updated-model)
-          (bad-request {:error "Failed to update model"})))
+          (bad-request {:error "Failed to update option"})))
+      (catch Exception e
+        (error "Failed to update option" (.getMessage e))
+        (bad-request {:error "Failed to update option" :details (.getMessage e)})))))
+
+(defn delete-resource [request]
+  (let [option-id (to-uuid (get-in request [:path-params :option_id]))
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+        tx (:tx request)]
+    (try
+      (let [update-model-query (-> (sql/delete-from :options)
+                                   (sql/where [:= :id option-id])
+                                   (sql/returning :*)
+                                   sql-format)
+            updated-model (jdbc/execute-one! tx update-model-query)]
+
+        (if updated-model
+          (response updated-model)
+          (bad-request {:error "Failed to delete option"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))
-        (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
+        (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))

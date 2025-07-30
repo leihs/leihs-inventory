@@ -33,4 +33,15 @@
           :responses {200 {:description "OK"
                            :body response-option-object}
                       404 {:description "Not Found"}
-                      500 {:description "Internal Server Error"}}}}])
+                      500 {:description "Internal Server Error"}}}
+
+    :delete {:accept "application/json"
+             :coercion spec/coercion
+             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+             :parameters {:path {:pool_id uuid?
+                                 :option_id uuid?}}
+             :handler option/delete-resource
+             :responses {200 {:description "OK"
+                              :body response-option-object}
+                         404 {:description "Not Found"}
+                         500 {:description "Internal Server Error"}}}}])
