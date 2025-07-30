@@ -47,6 +47,7 @@ feature "Update model", type: :feature do
     click_on "Inventory type"
     click_on "Software"
     fill_in "search", with: "#{product_old} #{version_old}"
+    expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Software")
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new

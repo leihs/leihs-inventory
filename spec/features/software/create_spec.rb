@@ -40,6 +40,7 @@ feature "Create model", type: :feature do
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content "#{product} #{version}"
+    expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
 
     fill_in "search", with: "#{product} #{version}"
     find("a", text: "edit").click
