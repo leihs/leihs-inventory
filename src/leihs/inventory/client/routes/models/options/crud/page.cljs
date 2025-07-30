@@ -23,6 +23,7 @@
    [cljs.core.async :as async :refer [go]]
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
+   [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.models.options.crud.components.fields :as form-fields]
    [leihs.inventory.client.routes.models.options.crud.core :as core]
@@ -32,11 +33,6 @@
 (defn- on-invalid [data]
   (.. toast (error "Invalid Data"))
   (js/console.debug "is invalid: " data))
-
-(def default-values (cj {:product ""
-                         :inventory_code ""
-                         :version ""
-                         :price 0}))
 
 (defui page []
   (let [[t] (useTranslation)
@@ -59,8 +55,9 @@
         {:keys [data]} (useLoaderData)
         form (useForm #js {:resolver (zodResolver schema)
                            :defaultValues (if is-edit
-                                            (fn [] (core/prepare-default-values data))
-                                            default-values)})
+                                            (cj (form-helper/replace-nil-values
+                                                 (merge core/default-values (jc data))))
+                                            (cj core/default-values))})
 
         is-loading (.. form -formState -isLoading)
 
@@ -77,7 +74,10 @@
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
-                                                       :data (.. data -data)}))))
+                                                       :data (.. data -data)}))
+                                             (.catch (fn [err]
+                                                       {:status (.. err -response -status)
+                                                        :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
 
                             (if (= status 200)
@@ -103,18 +103,24 @@
                                                   (.then (fn [res]
                                                            {:status (.. res -status)
                                                             :statusText (.. res -statusText)
-                                                            :id (.. res -data -data -id)}))))
+                                                            :id (.. res -data -id)}))
+                                                  (.catch (fn [err]
+                                                            {:status (.. err -response -status)
+                                                             :statusText (.. err -response -statusText)}))))
 
                                          (<p! (let [option-id (aget params "option-id")]
                                                 (-> http-client
-                                                    (.put (str "/inventory/" pool-id "/options/" option-id "/")
+                                                    (.put (str "/inventory/" pool-id "/options/" option-id)
                                                           (js/JSON.stringify (cj submit-data))
                                                           (cj {:cache
                                                                {:update {(keyword option-id) "delete"}}}))
                                                     (.then (fn [res]
                                                              {:status (.. res -status)
                                                               :statusText (.. res -statusText)
-                                                              :id (.. res -data -data -id)}))))))]
+                                                              :id (.. res -data -id)}))
+                                                    (.catch (fn [err]
+                                                              {:status (.. err -response -status)
+                                                               :statusText (.. err -response -statusText)}))))))]
                         (.. event (preventDefault))
 
                         (if (not= (:status option-res) 200)

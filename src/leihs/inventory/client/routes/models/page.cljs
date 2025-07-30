@@ -136,6 +136,9 @@
                                                   (= (-> model :type) "Model")
                                                   (str (:id model))
 
+                                                  (= (-> model :type) "Package")
+                                                  (str (:id model))
+
                                                   (= (-> model :type) "Option")
                                                   (str "../options/" (:id model))
 

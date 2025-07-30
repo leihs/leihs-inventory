@@ -7,7 +7,7 @@ export const schema = z.object({
     .min(1)
     .regex(/^[a-zA-Z0-9-]*$/),
   version: z.string().optional(),
-  price: z.number().optional(),
+  price: z.coerce.number().optional(),
 })
 
 export const structure = [
@@ -23,9 +23,8 @@ export const structure = [
         },
       },
       {
-        name: "inventory_code",
-        label: "pool.option.option.blocks.inventory_code.label",
-        description: "pool.option.option.blocks.inventory_code.description",
+        name: "version",
+        label: "pool.option.option.blocks.version.label",
         component: "input",
         props: {
           type: "text",
@@ -33,8 +32,9 @@ export const structure = [
         },
       },
       {
-        name: "version",
-        label: "pool.option.option.blocks.version.label",
+        name: "inventory_code",
+        label: "pool.option.option.blocks.inventory_code.label",
+        description: "pool.option.option.blocks.inventory_code.description",
         component: "input",
         props: {
           type: "text",
@@ -47,6 +47,8 @@ export const structure = [
         component: "input",
         props: {
           type: "number",
+          step: "0.01",
+          min: "0.00",
           "auto-complete": "off",
         },
       },

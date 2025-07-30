@@ -109,20 +109,17 @@
 (defn options-crud-page [route-data]
   (let [params (.. ^js route-data -params)
 
-        option-id (or (:model-id (jc params)) nil)
+        pool-id (aget params "pool-id")
+        option-id (or (aget params "option-id") nil)
 
         option-path (when option-id
-                      (router/generatePath "/inventory/:pool-id/options/:option-id" params))
+                      (str "/inventory/" pool-id "/options/" option-id))
 
         data (when option-path
                (-> http-client
                    (.get option-path #js {:id option-id})
-                   (.then (fn [res]
-                            (let [kv (jc (.-data res))]
-                              (->> kv
-                                   (vals)
-                                   (map (fn [el] (if (nil? el) "" el)))
-                                   (zipmap (keys kv))))))))]
+                   (.then #(jc (.-data %)))))]
+    (js/console.debug "options" option-path)
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
