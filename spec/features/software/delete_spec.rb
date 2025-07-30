@@ -1,21 +1,14 @@
 require "spec_helper"
 require_relative "../shared/common"
 
-feature "Update software", type: :feature do
+feature "Delete software", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
   let(:pool) { FactoryBot.create(:inventory_pool) }
 
   let(:product_old) { Faker::Commerce.product_name }
-  let(:product_new) { Faker::Commerce.product_name }
-
   let(:version_old) { Faker::Commerce.color }
-  let(:version_new) { Faker::Commerce.color }
-
   let(:manufacturer_old) { Faker::Company.name }
-  let(:manufacturer_new) { Faker::Company.name }
-
   let(:software_information_old) { Faker::Lorem.paragraph }
-  let(:software_information_new) { Faker::Lorem.paragraph }
 
   let(:attachment_name_1) { "secd.pdf" }
   let(:attachment_name_2) { "shenpaper.pdf" }
@@ -50,32 +43,11 @@ feature "Update software", type: :feature do
     expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Software")
     find("a", text: "edit").click
 
-    fill_in "Product", with: product_new
-    fill_in "Version", with: version_new
-    fill_in "Manufacturer", with: manufacturer_new
-    fill_in "Software information", with: software_information_new
+    click_on "submit-dropdown"
+    click_on "Delete"
+    click_on "Delete"
 
-    within id: "pool.software.attachments.title" do
-      find("tr", text: attachment_name_1).all("button").last.click
-      find("input[type='file']", visible: false).attach_file "./spec/files/#{attachment_name_3}"
-    end
-
-    click_on "Save"
-
-    expect(page).to have_content "Inventory List"
-    select_value("with_items", "all")
-    fill_in "search", with: "#{product_new} #{version_new}"
-    find("a", text: "edit").click
-
-    assert_field("Product", product_new)
-    assert_field("Version", version_new)
-    expect(find_field("Manufacturer").value).to eq manufacturer_new
-    assert_field("Software information", software_information_new)
-
-    within id: "pool.software.attachments.title" do
-      expect(page).not_to have_selector("tr", text: attachment_name_1)
-      find("tr", text: attachment_name_2)
-      find("tr", text: attachment_name_3)
-    end
+    fill_in "search", with: "#{product_old} #{version_old}"
+    expect(page).not_to have_content "#{product_old} #{version_old}"
   end
 end

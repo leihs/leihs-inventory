@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../shared/common"
 
-feature "Create model", type: :feature do
+feature "Create software", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
   let(:pool) { FactoryBot.create(:inventory_pool) }
 
@@ -54,5 +54,49 @@ feature "Create model", type: :feature do
       find("tr", text: attachment_name_1)
       find("tr", text: attachment_name_2)
     end
+  end
+
+  scenario "fails with invalid mandatory fields" do
+    login(user)
+    visit "/inventory/#{pool.id}/models"
+    click_on "Add inventory"
+    click_on "New software"
+
+    click_on "Save software"
+    expect(page.find("body", visible: :all).text).to include("Software could not be created because one field is invalid")
+    expect(page).to have_content "product must contain at least 1 character"
+  end
+
+  scenario "fails with confilicting product name" do
+    FactoryBot.create(:leihs_model, type: "Software", product: product, version: version)
+    login(user)
+    visit "/inventory/#{pool.id}/models"
+    click_on "Add inventory"
+    click_on "New software"
+    fill_in "Product", with: product
+    fill_in "Version", with: version
+    fill_in "Manufacturer", with: manufacturer
+    fill_in "Software information", with: software_information
+
+    click_on "Save software"
+
+    expect(page.find("body", visible: :all).text).to include("A software with this name already exists")
+  end
+
+  scenario "cancel works" do
+    login(user)
+    visit "/inventory/#{pool.id}/models"
+    click_on "Add inventory"
+    click_on "New software"
+
+    fill_in "Product", with: product
+    fill_in "Version", with: version
+    fill_in "Manufacturer", with: manufacturer
+    fill_in "Software information", with: software_information
+
+    click_on "submit-dropdown"
+    click_on "Cancel"
+
+    expect(page).to have_content "Inventory List"
   end
 end

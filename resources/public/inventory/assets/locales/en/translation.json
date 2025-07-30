@@ -109,10 +109,16 @@
         "description": "Insert all required information",
         "submit": "Save software",
         "cancel": "Cancel",
-        "success": "Software successfully created"
+        "success": "Software successfully created",
+        "invalid_one": "Software could not be created because one field is invalid",
+        "invalid_other": "Software could not be created because {{count}} fields are invalid",
+        "409": "A software with this name already exists",
+        "500": "An error occurred while creating the software"
       },
       "edit": {
-        "success": "Software successfully saved"
+        "success": "Software successfully saved",
+        "invalid_one": "Software could not be saved because one field is invalid",
+        "invalid_other": "Software could not be saved because {{count}} fields are invalid"
       },
       "delete": {
         "title": "Delete software",
@@ -120,7 +126,7 @@
         "confirm": "Delete",
         "cancel": "Cancel",
         "success": "Software successfully deleted",
-        "error": "Software could not be deleted"
+        "500": "Software could not be deleted"
       },
       "software": {
         "title": "Software",

@@ -70,9 +70,9 @@
         handle-delete (fn []
                         (go
                           (let [pool-id (aget params "pool-id")
-                                model-id (aget params "model-id")
+                                software-id (aget params "software-id")
                                 res (<p! (-> http-client
-                                             (.delete (str "/inventory/" pool-id "/software/" model-id))
+                                             (.delete (str "/inventory/" pool-id "/software/" software-id))
                                              (.then (fn [data]
                                                       {:status (.. data -status)
                                                        :statusText (.. data -statusText)
@@ -81,6 +81,8 @@
                                                        {:status (.. err -response -status)
                                                         :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
+
+                            (js/console.debug software-id)
 
                             (if (= status 200)
                               (do
@@ -246,7 +248,8 @@
 
                         ($ DropdownMenu
                            ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:size "icon"}
+                              ($ Button {:data-test-id "submit-dropdown"
+                                         :size "icon"}
                                  ($ ChevronDown {:className "w-4 h-4"})))
                            ($ DropdownMenuContent {:align "end"}
                               ($ DropdownMenuItem {:asChild true}
