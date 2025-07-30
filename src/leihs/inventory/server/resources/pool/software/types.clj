@@ -22,7 +22,6 @@
 (sa/def :software-post/multipart (sa/keys :req-un [::sp/product]
                                           :opt-un [:nil/version
                                                    :nil/manufacturer
-                                                   :nil/description
                                                    ::sp/technical_detail]))
 
 (sa/def ::post-response
@@ -30,10 +29,6 @@
                     ::sp/product
                     ::sp/id
                     :nil/manufacturer
-                    :nil/version
-                    ::sp/attachments]
-
-           :opt-un [:nil/description
-                    :nil/technical_detail
-                    ::sp/updated_at
-                    ::sp/created_at]))
+                    :nil/version]
+           :opt-un [:nil/technical_detail
+                    ::sp/attachments]))
