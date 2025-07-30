@@ -95,6 +95,7 @@
 (sa/def ::inventory_code string?)
 (sa/def ::item_version string?)
 (sa/def ::is_incomplete boolean?)
+(sa/def ::is_borrowable boolean?)
 (sa/def ::is_broken boolean?)
 (sa/def ::retired boolean?)
 (sa/def ::retired_reason string?)
@@ -211,6 +212,7 @@
 (sa/def :nil/updated_at (sa/nilable any?))
 (sa/def :nil/created_at (sa/nilable any?))
 (sa/def :nil/shelf (sa/nilable string?))
+(sa/def :nil/status_note (sa/nilable string?))
 (sa/def :nil-str/shelf (sa/nilable string?))
 (sa/def :nil/last_check (sa/nilable any?))
 (sa/def :nil2/item_version (sa/nilable any?))
@@ -233,8 +235,11 @@
 (sa/def :nil/info_url (sa/nilable string?))
 
 (sa/def ::id uuid?)
-(sa/def ::model_id uuid?)
 (sa/def ::product string?)
 (sa/def ::filename string?)
 (sa/def ::manufacturer string?)
 (sa/def ::size int?)
+
+
+;(sa/def ::room_id uuid?)
+;(sa/def ::owner_id uuid?)

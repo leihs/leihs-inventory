@@ -3,7 +3,31 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+      [clojure.string :as str]
+   [leihs.core.json :refer [to-json]]
+   [cheshire.core :as json]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
+                                                          normalize-model-data
+
+                                                              extract-shortname-and-number]]
+   [leihs.inventory.server.resources.pool.common :refer [calculate-retired-value
+                                                         parse-local-date-or-nil
+
+                                                         double-to-numeric-or-nil
+                                                          remove-nil-entries
+                                                          remove-empty-entries
+                                                          remove-empty-or-nil
+                                                          remove-entries-by-keys
+                                                          cast-to-uuid-or-nil
+                                                          str-to-bool
+                                                          ;normalize-model-data
+                                                          parse-json-array
+                                                          normalize-files
+                                                          file-to-base64
+                                                          base-filename
+                                                          process-attachments
+                                                         ]]
    ;[leihs.inventory.server.resources.pool.packages.common :refer [fetch-thumbnails-for-ids
    ;                                                             filter-map-by-spec]]
    ;[leihs.inventory.server.resources.pool.packages.model.common-model-form :refer [extract-model-form-data
@@ -22,11 +46,12 @@
    [leihs.inventory.server.resources.pool.form-queries :refer [
                                                                inventory-manager-package-subquery
                                                                lending-manager-package-subquery
-                                                               ]
+                                                               package-base-query
+                                                               ]]
 
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
-   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
+   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid? convert-map-if-exist]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
@@ -228,8 +253,8 @@
                               :inventory_code next-code}))]
 
         (if model-result
-          (response/response {:data model-result :fields fields})
-          (response/status (response/response {:error "Failed to fetch item"
+          (response {:data model-result :fields fields})
+          (status (response {:error "Failed to fetch item"
                                                :details "No data found"}) 404)))
       (catch Exception e
         (error "Failed to fetch item" (.getMessage e))
@@ -270,23 +295,56 @@
 ;   [java.util UUID]
 ;   [java.util.jar JarFile]))
 
+
+
+(def defaults
+  {
+   :is_borrowable false
+   :is_broken false
+   :is_incomplete false
+   :is_inventory_relevant true
+
+   :properties {:reference "invoice" :installation_status "inStorage"}
+   })
+
+(defn set-missing-defaults [data defaults]
+  (reduce (fn [acc [k v]]
+            (if (contains? acc k)
+              acc
+              (assoc acc k v)))
+    data
+    defaults))
+
+
+
 (defn prepare-package-data [data]
   (let [created-ts (LocalDateTime/now)
         db-retired nil
+
+
+        data (set-missing-defaults data defaults)
+
+        ;data (assoc data :properties (json/generate-string  (:properties data)))
+
         request-retired (:retired data)
         data (if (= false request-retired)
                (assoc data :retired_reason nil)
                data)
 
+
+
+
+
         retired-value (calculate-retired-value db-retired request-retired)
         data (assoc data :retired retired-value)
         invoice-date (parse-local-date-or-nil (:invoice_date data))
         price (double-to-numeric-or-nil (:price data))
-        data (assoc data :updated_at created-ts
+        data (assoc data :updated_at created-ts :last_check created-ts
                :created_at created-ts :invoice_date invoice-date :price price)
 
         data (remove-nil-entries data [:invoice_date :price :room_id :last_check :user_name :shelf :status_note :note])
         data (remove-empty-entries data [:room_id :last_check :user_name :shelf :status_note :note])
+
         data (dissoc data :items_attributes)
         data (convert-map-if-exist data)]
 
@@ -311,12 +369,32 @@
     {:ids-to-unlink [] :ids-to-link []}
     items))
 
+
+(defn generate-or-verify-inventory-code! [tx multipart pool-id ]
+  (let [
+        inv-code (:inventory_code multipart)
+  {:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
+
+  _ (when (and (some? inv-code) (not= next-code inv-code))
+      (throw (ex-info "The inventory code is invalid or outdated" {:status 400})))
+
+        multipart (if (nil? inv-code)
+                    (assoc multipart :inventory_code next-code)
+                    multipart)
+
+        ]
+multipart
+
+
+  ))
+
 (defn create-package-handler-by-pool-form [request]
-  (let [validation-result (atom [])
+  (let [
+        ;validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
+        multipart (get-in request [:parameters :body])
 
         items_attributes (parse-json-array request :items_attributes)
         multipart (assoc multipart :inventory_pool_id pool-id)
@@ -327,7 +405,20 @@
                       (assoc multipart :owner_id pool-id))
                     multipart)
 
-        prepared-package-data (prepare-package-data multipart)]
+
+        multipart (generate-or-verify-inventory-code! tx multipart pool-id)
+
+
+        ;{:keys [next-code]} (fetch-latest-inventory-code tx pool-id)
+        ;_ (when (and (some? inv-code) (not= next-code inv-code))
+        ;    (throw (ex-info "Invalid or outdated inventory-code" {:status 400}))
+
+
+
+        prepared-package-data (prepare-package-data multipart)
+
+        p (println ">o> abc.prepared-package-data" prepared-package-data)
+        ]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
@@ -364,7 +455,8 @@
             item-id (:id res)]
 
         (if res
-          (response (create-validation-response res @validation-result))
+          ;(response (create-validation-response res @validation-result))
+          (response res)
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
         (error "Failed to create model" (.getMessage e))

@@ -47,7 +47,7 @@
         nil))))
 
 ;; TODO: this should be the fixed one
-(defn fetch-latest-inventory-code [tx owner-id]
+(defn fetch-latest-inventory-code [tx owner-id ]
   (let [res (-> (sql/select :items.inventory_code
                             [(sq/call :cast
                                       (sq/call :nullif

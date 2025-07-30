@@ -2,6 +2,7 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.packages.main :as packages]
+   [leihs.inventory.server.resources.pool.packages.types :as ty]
    ;[leihs.inventory.server.resources.pool.packages.types :refer [description-model-form
    ;                                                            get-compatible-response
    ;                                                            post-response]]
@@ -16,12 +17,12 @@
 (defn routes []
   ["/packages/"
    {:post {:accept "application/json"
-           :swagger {:consumes ["multipart/form-data"]
-                     :produces "application/json"}
+           ;:swagger {:consumes ["multipart/form-data"]
+           ;          :produces "application/json"}
            :summary "(DEV) | Dynamic-Form-Handler: Fetch form data | Fetch fields by Role [v0]"
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
-                        :multipart :package/payload}
+                        :body :package/payload}
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler packages/create-package-handler-by-pool-form
            :responses {200 {:description "OK"
