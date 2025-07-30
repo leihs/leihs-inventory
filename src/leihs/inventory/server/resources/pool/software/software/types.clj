@@ -22,7 +22,6 @@
 (sa/def :software-put/multipart (sa/keys :req-un [::sp/product]
                                          :opt-un [:nil/version
                                                   :nil/manufacturer
-                                                  :nil/description
                                                   :nil/technical_detail]))
 
 (sa/def ::put-response
@@ -31,7 +30,5 @@
                     ::sp/id
                     :nil/manufacturer
                     :nil/version]
-
-           :opt-un [:nil/description
-                    :nil/technical_detail
+           :opt-un [:nil/technical_detail
                     ::sp/attachments]))
