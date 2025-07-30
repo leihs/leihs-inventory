@@ -107,7 +107,7 @@
       "create": {
         "title": "Create new software",
         "description": "Insert all required information",
-        "submit": "Save Software",
+        "submit": "Save software",
         "cancel": "Cancel",
         "success": "Software successfully created"
       },
