@@ -8,6 +8,15 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [jc cj]]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This file contains the loaders for the inventory routes.
+;; The loaders are used to fetch data before rendering the components.
+;; The root layout loader fetches the user profile and sets the language for i18n.
+;; The other loaders fetch data for the specific pages, such as models, software, etc.
+;;
+;; Generic view data should be named with the `data` key in the returned map.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn root-layout []
   (-> http-client
       (.get "/inventory/profile/")
@@ -32,15 +41,37 @@
                                   (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
                                   (.then #(jc (.-data %))))
 
-            models (-> http-client
-                       (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
-                       (.then #(jc (.. % -data))))]
+            data (-> http-client
+                     (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
+                     (.then #(jc (.. % -data))))]
 
-        (.. (js/Promise.all (cond-> [categories models responsible-pools]))
-            (then (fn [[categories models responsible-pools]]
+        (.. (js/Promise.all (cond-> [categories data responsible-pools]))
+            (then (fn [[categories data responsible-pools]]
                     {:categories categories
                      :responsible-pools responsible-pools
-                     :models models})))))))
+                     :data data})))))))
+
+(defn software-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        manufacturers (-> http-client
+                          (.get (str "/inventory/" pool-id "/manufacturers/?type=Software") #js {:id "manufacturers"})
+                          (.then #(remove (fn [el] (= "" el)) (jc (.-data %)))))
+
+        software-id (or (:software-id (jc params)) nil)
+
+        software-path (when software-id (str "/inventory/" pool-id "/software/" software-id))
+
+        data (when software-path
+               (-> http-client
+                   (.get software-path #js {:id software-id})
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [manufacturers]
+                          data (conj data)))
+        (then (fn [[manufacturers & [data]]]
+                {:manufacturers manufacturers
+                 :data (if data data nil)})))))
 
 (defn models-crud-page [route-data]
   (let [params (.. ^js route-data -params)

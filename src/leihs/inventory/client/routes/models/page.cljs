@@ -25,12 +25,13 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defui page [{:keys [data]}]
-  (let [models (:data (:models (router/useLoaderData)))
+(defui page []
+  (let [{:keys [data]} (router/useLoaderData)
+        models (:data data)
+        pagination (:pagination data)
         [t] (useTranslation)
         location (router/useLocation)
         navigate (router/useNavigate)
-        pagination (:pagination (:models (router/useLoaderData)))
         handle-reset (fn []
                        (navigate "?page=1&size=50&with_items=true"))]
 
@@ -132,7 +133,15 @@
 
                                 ($ Button {:variant "outline"}
                                    ($ Link {:state #js {:searchParams (.. location -search)}
-                                            :to (str (:id model))
+                                            :to (cond
+                                                  (= (-> model :type) "Model")
+                                                  (str (:id model))
+
+                                                  (= (-> model :type) "Package")
+                                                  (str (:id model))
+
+                                                  (= (-> model :type) "Software")
+                                                  (str "../software/" (:id model)))
                                             :viewTransition true}
                                       (t "pool.models.list.actions.edit")))
 

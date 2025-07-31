@@ -39,8 +39,10 @@ npm run dev
 ### Sync Locales
 
 ```sh
-npx i18next-locales-sync -p de -s fr es en -l resources/public/inventory/static/locales/ --spaces 2 --useEmptyString true
+npx i18next-locales-sync -p de -s en -l resources/public/inventory/assets/locales/ --spaces 2 --useEmptyString true
 ```
+
+**Then discard changes in zod.json files**
 
 ### Formatting Code
 
@@ -117,7 +119,8 @@ systemctl restart leihs-inventory.service
 ```
 
 ### Clojure tests
+
 ```bash
 # additional clojure-tests can be triggered by:
-clojure -X:test   
+clojure -X:test
 ```

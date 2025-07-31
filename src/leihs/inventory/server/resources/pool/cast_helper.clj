@@ -1,63 +1,34 @@
-(ns leihs.inventory.server.resources.pool.common
+(ns leihs.inventory.server.resources.pool.cast-helper
   (:require
+   [cheshire.core :as cjson]
    [cheshire.core :as jsonc]
    [clojure.data.codec.base64 :as b64]
+   [clojure.data.json :as json]
    [clojure.java.io :as io]
+   [clojure.set :as set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
+   [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])
-  (:import
-   [java.math BigDecimal RoundingMode]
-   (java.time LocalDateTime)))
-
-(defn apply-is_deleted-context-if-valid
-  "setups base-query for is_deletable and references:
-  - m: models
-  - i: items
-  - it: items (for items that are children of item i)"
-  [is_deletable]
-  (-> (sql/select-distinct
-       :m.*
-       [[:case
-         [:and [:= :m.is_package true] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
-         [:and [:= :m.is_package false] [:= :m.type "Model"] [:= :i.id nil] [:= :it.id nil]] true
-         [:and [:= :m.is_package false] [:= :m.type "Software"] [:= :i.id nil] [:= :it.id nil]] true
-         :else false] :is_deletable])
-      (sql/from [:models :m])
-      (sql/left-join [:items :i] [:= :m.id :i.model_id])
-      (sql/left-join [:items :it] [:= :it.parent_id :i.id])))
-
-(defn apply-is_deleted-where-context-if-valid [base-query is_deletable]
-  (if (nil? is_deletable)
-    base-query
-    (-> (sql/select-distinct :*)
-        (sql/from [[base-query] :wrapped_query])
-        (sql/where [:= :wrapped_query.is_deletable is_deletable]))))
-
-(defn str-to-bool
-  [s]
-  (cond
-    (string? s) (case (.toLowerCase s)
-                  "true" true
-                  "false" false
-                  nil)
-    :else (boolean s)))
+  (:import [java.math BigDecimal RoundingMode]
+           [java.net URL JarURLConnection]
+           (java.time LocalDateTime)
+           [java.util UUID]
+           [java.util.jar JarFile]))
 
 (defn- customized-empty? [value]
   (or (= value "null") (nil? value) (empty? value)))
 
 (defn int-to-numeric [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
-       (catch Exception e (error "Error in int-to-numeric" e) (BigDecimal. 0))))
+       (catch Exception e (println "Error in int-to-numeric" e) (BigDecimal. 0))))
 
 (defn int-to-numeric-or-nil [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
-       (catch Exception e (error "Error in int-to-numeric" e) nil)))
+       (catch Exception e (println "Error in int-to-numeric" e) nil)))
 
 (defn double-to-numeric-or-zero [int-value]
   (let [parsed-value (if (string? int-value) (Double/parseDouble int-value) int-value)]
@@ -87,16 +58,6 @@
             (filter (comp some? val))
             (into {})))
      res)))
-
-(defn keep-attr-not-nil
-  "Given a map `m` and a collection of allowed keys `allowed-attrs`,
-  return a new map with:
-    - only keys present in allowed-attrs
-    - all entries with nil values removed"
-  [m allowed-attrs]
-  (->> m
-       (filter (fn [[k v]] (and (some #{k} allowed-attrs) (some? v))))
-       (into {})))
 
 (defn remove-empty-entries
   "Removes entries from the map if the values of the specified keys are empty strings."
@@ -214,16 +175,3 @@
 (defn create-validation-response [data validation]
   {:data data
    :validation validation})
-
-(defn select-entries [tx table columns where-clause]
-  (jdbc/execute! tx
-                 (-> (apply sql/select columns)
-                     (sql/from table)
-                     (sql/where where-clause)
-                     sql-format)))
-
-(defn fetch-attachments [tx model-id pool-id]
-  (let [attachments (->> (select-entries tx :attachments [:id :filename :content_type] [:= :model_id model-id])
-                         (map #(assoc % :url (str "/inventory/" pool-id "/models/" model-id "/attachments/" (:id %))
-                                      :content_type (:content_type %))))]
-    (filter-and-coerce-by-spec attachments ::co/attachment)))

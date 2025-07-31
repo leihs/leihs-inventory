@@ -48,6 +48,36 @@
   environment_variables:
     FEATURE_NAME: "Sign-in / Sign-out works against / sign-in/out with valid credentials 01"
     FEATURE: './spec/features/sign_in_out_spec.rb[1:1:1:3:1]'
+'./spec/features/software/create_spec.rb[1:1]':
+  name: "Create software 01"
+  environment_variables:
+    FEATURE_NAME: "Create software 01"
+    FEATURE: './spec/features/software/create_spec.rb[1:1]'
+'./spec/features/software/create_spec.rb[1:2]':
+  name: "Create software 02"
+  environment_variables:
+    FEATURE_NAME: "Create software 02"
+    FEATURE: './spec/features/software/create_spec.rb[1:2]'
+'./spec/features/software/create_spec.rb[1:3]':
+  name: "Create software 03"
+  environment_variables:
+    FEATURE_NAME: "Create software 03"
+    FEATURE: './spec/features/software/create_spec.rb[1:3]'
+'./spec/features/software/create_spec.rb[1:4]':
+  name: "Create software 04"
+  environment_variables:
+    FEATURE_NAME: "Create software 04"
+    FEATURE: './spec/features/software/create_spec.rb[1:4]'
+'./spec/features/software/delete_spec.rb[1:1]':
+  name: "Delete software 01"
+  environment_variables:
+    FEATURE_NAME: "Delete software 01"
+    FEATURE: './spec/features/software/delete_spec.rb[1:1]'
+'./spec/features/software/update_spec.rb[1:1]':
+  name: "Update software 01"
+  environment_variables:
+    FEATURE_NAME: "Update software 01"
+    FEATURE: './spec/features/software/update_spec.rb[1:1]'
 './spec/features/swagger/smoke_spec.rb[1:1:1]':
   name: "Swagger renders 01"
   environment_variables:
