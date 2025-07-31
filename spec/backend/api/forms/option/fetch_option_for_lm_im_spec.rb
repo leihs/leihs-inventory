@@ -43,13 +43,14 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.body["id"]).to be_present
           option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
+          expect(resp.status).to eq(200)
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
@@ -57,7 +58,7 @@ response = {
             product: Faker::Commerce.product_name,
             inventory_code: "INV-1001",
             version: "v2",
-            price: -500000.00
+            price: 0
           }
 
           resp = json_client_put(
@@ -65,11 +66,46 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body, response)).to eq(true)
-
           expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.body["version"]).to eq("v2")
-          expect(resp.body["price"]).to eq(-500000.00)
+          expect(resp.body["price"]).to eq(0)
+        end
+
+        it "rejects requests with negative prices" do
+          # create option
+          form_data = {
+            product: Faker::Commerce.product_name,
+            version: "v1",
+            price: 1,
+            inventory_code: "O-1001"
+          }
+
+          resp = json_client_post(
+            "/inventory/#{pool_id}/options/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+          option_id = resp.body["id"]
+
+          # update option
+          form_data["price"] = -5
+          resp = json_client_put(
+            "/inventory/#{pool_id}/options/#{option_id}",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(422)
+
+          form_data["price"] = 2
+          resp = json_client_put(
+            "/inventory/#{pool_id}/options/#{option_id}",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+          expect(resp.body["price"]).to eq(2)
         end
       end
 
@@ -109,14 +145,14 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body, response)).to eq(true)
-
           expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.body["id"]).to be_present
           option_id = resp.body["id"]
 
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
+          expect(resp.status).to eq(200)
           expect(validate_map_structure(resp.body, response)).to eq(true)
 
           # update option
@@ -130,9 +166,8 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body, response)).to eq(true)
-
           expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
         end
 
         it "create & delete by form data" do
@@ -147,9 +182,8 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(validate_map_structure(resp.body, response)).to eq(true)
-
           expect(resp.status).to eq(200)
+          expect(validate_map_structure(resp.body, response)).to eq(true)
           expect(resp.body["id"]).to be_present
           option_id = resp.body["id"]
 
