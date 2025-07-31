@@ -39,7 +39,7 @@
                                     ::sp/room_id
                                     ::sp/model_id
                                     ::sp/owner_id
-                                    :nil-double/price]
+                                    :nil-number/price]
 
                            :opt-un [::sp/note
                                     ::sp/items_attributes
@@ -63,12 +63,18 @@
 
             :description "Inventory item data"}))
 
-(sa/def ::validation (sa/coll-of map? :kind vector?))
+(sa/def ::fields (sa/coll-of map? :kind vector?))
 
 (sa/def :package-put-response3/inventory-item
   (st/spec {:spec (sa/keys :req-un [::data]
-                           :opt-un [::validation])
+                           :opt-un [::fields])
             :description "Complete inventory response"}))
 
 (sa/def :package-put-response2/inventory-item
   (st/spec ::data))
+
+(sa/def :package-get-response/inventory-item
+  (st/spec {:data {:inventory_code string?
+                   :inventory_pool_id uuid?
+                   :responsible_department any?}
+            :fields [any?]}))

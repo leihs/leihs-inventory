@@ -2,7 +2,6 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
-   ;[leihs.inventory.server.resources.types :refer [pagination]]
    [reitit.coercion.schema]
    [schema.core :as s]
    [spec-tools.core :as st]))
@@ -10,7 +9,7 @@
 (sa/def :package/payload (sa/keys :req-un [::sp/model_id
                                            ::sp/room_id]
                                   :opt-un [::sp/owner_id
-                                           :nil-double/price
+                                           :nil-number/price
                                            :nil/shelf
                                            :nil/status_note
                                            :nil/note

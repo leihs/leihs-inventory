@@ -38,6 +38,6 @@
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :handler package/get-resource
           :responses {200 {:description "OK"
-                           :body :package-put-response3/inventory-item}
+                           :body :package-put-response2/inventory-item}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])

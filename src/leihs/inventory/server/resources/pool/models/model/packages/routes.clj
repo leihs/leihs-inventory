@@ -26,8 +26,7 @@
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
            :handler packages/post-resource
            :responses {200 {:description "OK"
-                            ;:body :package-put-response2/inventory-item
-                            }
+                            :body :package-put-response2/inventory-item}
                        404 {:description "Not Found"}
                        500 {:description "Internal Server Error"}}}
 
@@ -42,6 +41,7 @@
                            ;              :inventory_pool_id uuid?
                            ;              :responsible_department any?}
                            ;       :fields [any?]}
+                           :body :package-get-response/inventory-item
                            :description "OK"}
                       400 {:description "The inventory code is invalid or outdated"}
                       401 {:description "Unauthorized: invalid role for the requested pool or method"
