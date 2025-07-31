@@ -103,7 +103,7 @@ export const structure = [
         props: {
           "auto-complete": "off",
           placeholder: "Hersteller auswählen",
-          resource: "/inventory/:pool-id/manufacturers/",
+          resource: "/inventory/:pool-id/manufacturers/?search=",
           "not-found": "pool.model.product.blocks.manufacturer.not_found",
         },
       },

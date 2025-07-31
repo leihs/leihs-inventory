@@ -110,7 +110,7 @@
                                  (set-open! true)
                                ;; Fetch result based on the search term
                                  (-> http-client
-                                     (.get (str path "/" "?search=" search))
+                                     (.get (str path search))
                                      (.then (fn [res]
                                               (let [data (jc (.-data res))]
                                                 (set-result! data))))
