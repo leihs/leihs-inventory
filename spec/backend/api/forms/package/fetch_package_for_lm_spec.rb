@@ -234,12 +234,9 @@ require "faker"
           # fetch package
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}"
           expect(resp.body).to be_present
-          binding.pry
-          # expect(resp.body["fields"].count).to eq(15)
-          # expect(validate_map_structure(resp.body, get_response)).to eq(true)
-          # expected_form_fields(resp.body["fields"], expected_lm_fields)
 
           # update package
+          form_data = form_data.merge({price: 999999.99})
           resp = json_client_put(
             "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}",
             body: form_data,

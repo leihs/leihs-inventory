@@ -41,6 +41,36 @@ require "faker"
         raise "Failed to fetch compatible models" unless resp.status == 200
       end
 
+      it "blocks requests with invalid inventory_code" do
+        # create package
+        form_data = {
+          is_inventory_relevant: true,
+          last_check: nil,
+          user_name: nil,
+          price: 12.33,
+          shelf: nil,
+          inventory_code: "P-AUS00002",
+          retired: false,
+          is_broken: false,
+          is_incomplete: false,
+          is_borrowable: false,
+          status_note: nil,
+          note: nil,
+          room_id: @form_rooms[0]["id"],
+          model_id: @form_model_data[0]["id"],
+          owner_id: @form_owners[0]["id"],
+          items_attributes: []
+        }
+
+        resp = json_client_post(
+          "/inventory/#{pool_id}/models/#{model_id}/packages/",
+          body: form_data,
+          headers: cookie_header
+        )
+        expect(resp.status).to eq(404)
+      end
+
+
       it "create, fetch & update with invalid credentials" do
         # create package, works
         form_data = {
@@ -83,7 +113,7 @@ require "faker"
           body: form_data,
           headers: cookie_header
         )
-        expect(resp.status).to eq(404)
+        expect(resp.status).to eq(400)
       end
     end
   end
