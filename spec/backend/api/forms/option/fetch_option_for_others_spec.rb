@@ -27,7 +27,7 @@ require_relative "../_common"
           form_data = {
             product: Faker::Commerce.product_name,
             version: "v1",
-            price: 11.1,
+            price: 11,
             inventory_code: "O-1001"
           }
 
@@ -47,7 +47,7 @@ require_relative "../_common"
             product: Faker::Commerce.product_name,
             inventory_code: "INV-1001",
             version: "v2",
-            price: 22.2
+            price: 22
           }
 
           resp = json_client_put(

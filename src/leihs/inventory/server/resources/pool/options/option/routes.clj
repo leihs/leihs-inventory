@@ -28,7 +28,7 @@
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}
-                       :body :option/multipart}
+                       :body :option/body}
           :handler option/put-resource
           :responses {200 {:description "OK"
                            :body response-option-object}

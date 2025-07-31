@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
@@ -29,13 +29,11 @@
                          (sql/where [:= :o.id option-id])
                          (sql/where [:= :o.inventory_pool_id [:cast pool-id :uuid]])
                          sql-format)
-            result (jdbc/execute-one! tx model-query)
-            post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
+            result (jdbc/execute-one! tx model-query)]
 
         (if result
-          (response (-> [result]
-                        post-fnc
-                        first))
+          (response (-> result
+                        (filter-map-by-spec ::ty/response-option-object)))
           (bad-request {:error "Failed to fetch option"})))
       (catch Exception e
         (error "Failed to fetch option" (.getMessage e))
@@ -57,7 +55,8 @@
             updated-model (jdbc/execute-one! tx update-model-query)]
 
         (if updated-model
-          (response updated-model)
+          (response (-> updated-model
+                        (filter-map-by-spec ::ty/response-option-object)))
           (bad-request {:error "Failed to update option"})))
       (catch Exception e
         (error "Failed to update option" (.getMessage e))
@@ -72,10 +71,11 @@
                                    (sql/where [:= :id option-id])
                                    (sql/returning :*)
                                    sql-format)
-            updated-model (jdbc/execute-one! tx update-model-query)]
+            deleted-model (jdbc/execute-one! tx update-model-query)]
 
-        (if updated-model
-          (response updated-model)
+        (if deleted-model
+          (response (-> deleted-model
+                        (filter-map-by-spec ::ty/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))

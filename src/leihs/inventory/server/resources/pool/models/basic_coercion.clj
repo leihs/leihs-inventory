@@ -222,6 +222,7 @@
 (sa/def :nil-int/price (sa/nilable int?))
 (sa/def :nil-double/price (sa/nilable double?))
 (sa/def :nil-any/price (sa/nilable any?))
+(sa/def :nil-number/price (sa/nilable number?))
 (sa/def :nil/invoice_date (sa/nilable any?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))

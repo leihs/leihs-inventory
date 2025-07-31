@@ -94,11 +94,10 @@
     (select-keys m keys-set)))
 
 (defn filter-and-coerce-by-spec
-  "filter by spec, remove-nil-values is optional"
+  "Filter by spec, remove-nil-values is optional"
   ([models spec]
    (filter-and-coerce-by-spec models spec false))
 
   ([models spec remove-nil-values?]
-   (->> models
-        (when remove-nil-values)
-        (mapv #(filter-map-by-spec % spec)))))
+   (let [models (if remove-nil-values? (remove-nil-values models) models)]
+     (mapv #(filter-map-by-spec % spec) models))))
