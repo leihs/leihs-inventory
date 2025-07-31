@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.common
   (:require
-   [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]

@@ -77,7 +77,7 @@ response = {
           form_data = {
             product: Faker::Commerce.product_name,
             version: "v1",
-            price: 1,
+            price: -5,
             inventory_code: "O-1001"
           }
 
@@ -86,26 +86,45 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(200)
-          option_id = resp.body["id"]
+          expect(resp.status).to eq(422)
 
           # update option
-          form_data["price"] = -5
+          option_id = FactoryBot.create(:option, inventory_pool_id: pool_id).id
           resp = json_client_put(
             "/inventory/#{pool_id}/options/#{option_id}",
             body: form_data,
             headers: cookie_header
           )
           expect(resp.status).to eq(422)
+        end
 
-          form_data["price"] = 2
-          resp = json_client_put(
-            "/inventory/#{pool_id}/options/#{option_id}",
-            body: form_data,
-            headers: cookie_header
-          )
-          expect(resp.status).to eq(200)
-          expect(resp.body["price"]).to eq(2)
+        it "allow positive prices only" do
+          [0, 1].each do |price|
+            # create option
+            form_data = {
+              product: Faker::Commerce.product_name,
+              version: "v1",
+              price: price,
+              inventory_code: Random.alphanumeric(5)
+            }
+
+            resp = json_client_post(
+              "/inventory/#{pool_id}/options/",
+              body: form_data,
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+
+            # update option
+            form_data["price"] = price * 2
+            option_id = resp.body["id"]
+            resp = json_client_put(
+              "/inventory/#{pool_id}/options/#{option_id}",
+              body: form_data,
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(200)
+          end
         end
       end
 
@@ -192,7 +211,7 @@ response = {
           expect(validate_map_structure(resp.body, response)).to eq(true)
         end
 
-        it "block duplicate inventory_code" do
+        it "reject if inventory_code already exists" do
           # create option
           form_data = {
             product: Faker::Commerce.product_name,

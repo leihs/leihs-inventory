@@ -4,11 +4,8 @@
    [leihs.inventory.server.resources.pool.options.types :refer [response-option-object]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
-   [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.middleware.accept]))
 
 (defn routes []
   ["/options/:option_id"

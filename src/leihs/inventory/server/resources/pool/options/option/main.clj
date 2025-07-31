@@ -3,10 +3,9 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec filter-map-by-spec]]
-   [leihs.inventory.server.resources.pool.options.types :as ty]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
+   [leihs.inventory.server.resources.pool.options.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
@@ -33,7 +32,7 @@
 
         (if result
           (response (-> result
-                        (filter-map-by-spec ::ty/response-option-object)))
+                        (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to fetch option"})))
       (catch Exception e
         (error "Failed to fetch option" (.getMessage e))
@@ -56,7 +55,7 @@
 
         (if updated-model
           (response (-> updated-model
-                        (filter-map-by-spec ::ty/response-option-object)))
+                        (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to update option"})))
       (catch Exception e
         (error "Failed to update option" (.getMessage e))
@@ -75,7 +74,7 @@
 
         (if deleted-model
           (response (-> deleted-model
-                        (filter-map-by-spec ::ty/response-option-object)))
+                        (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
         (error "Failed to update model" (.getMessage e))

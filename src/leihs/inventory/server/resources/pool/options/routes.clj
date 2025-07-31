@@ -3,7 +3,7 @@
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.options.main :as options]
-   [leihs.inventory.server.resources.pool.options.types :as ty :refer [response-option-post response-option-get]]
+   [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-post response-option-get]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.coercion.core :refer [Date]]
@@ -28,7 +28,7 @@
     :get {:accept "application/json"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?}
-                       :query ::ty/options-query}
+                       :query ::types/options-query}
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :handler options/index-resources
           :responses {200 {:description "OK"
