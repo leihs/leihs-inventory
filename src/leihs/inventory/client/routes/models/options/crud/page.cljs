@@ -30,10 +30,6 @@
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
-(defn- on-invalid [data]
-  (.. toast (error "Invalid Data"))
-  (js/console.debug "is invalid: " data))
-
 (defui page []
   (let [[t] (useTranslation)
         location (router/useLocation)
@@ -63,6 +59,14 @@
 
         control (.. form -control)
         params (router/useParams)
+
+        on-invalid (fn [data]
+                     (let [invalid-filds-count (count (jc data))]
+                       (if (= invalid-filds-count 0)
+                         (.. toast (error (t "pool.option.create.invalid" #js {:count invalid-filds-count})))
+                         (.. toast (error (t "pool.option.create.invalid" #js {:count invalid-filds-count}))))
+
+                       (js/console.debug "is invalid: " data)))
 
         handle-submit (.. form -handleSubmit)
         handle-delete (fn []
@@ -129,8 +133,8 @@
                           (do
                             ;; patch cover-image when needed
                             (if is-create
-                              (.. toast (success (t "pool.optioin.create.success")))
-                              (.. toast (success (t "pool.optioin.edit.success"))))
+                              (.. toast (success (t "pool.option.create.success")))
+                              (.. toast (success (t "pool.option.edit.success"))))
 
                               ;; state needs to be forwarded for back navigation
                             (if is-create
@@ -197,7 +201,8 @@
 
                         ($ DropdownMenu
                            ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:size "icon"}
+                              ($ Button {:data-test-id "submit-dropdown"
+                                         :size "icon"}
                                  ($ ChevronDown {:className "w-4 h-4"})))
                            ($ DropdownMenuContent {:align "end"}
                               ($ DropdownMenuItem {:asChild true}
@@ -208,30 +213,31 @@
                                       (t "pool.option.create.cancel")
                                       (t "pool.option.edit.cancel"))))
 
-                              (when (not is-create)
-                                ($ DropdownMenuItem {:asChild true}
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/options/:option-id/delete" params)
-                                            :state state}
-                                      "Delete"))))))
+                              ;; currently disabled until decided if we want to allow deleting options
+                              #_(when (not is-create)
+                                  ($ DropdownMenuItem {:asChild true}
+                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/options/:option-id/delete" params)
+                                              :state state}
+                                        "Delete"))))))
 
-                      ;; Dialog when deleting a model
-                     (when (not is-create)
-                       ($ AlertDialog {:open is-delete}
-                          ($ AlertDialogContent
+                     ;; Dialog when deleting a model
+                     #_(when (not is-create)
+                         ($ AlertDialog {:open is-delete}
+                            ($ AlertDialogContent
 
-                             ($ AlertDialogHeader
-                                ($ AlertDialogTitle (t "pool.option.delete.title"))
-                                ($ AlertDialogDescription (t "pool.option.delete.description")))
+                               ($ AlertDialogHeader
+                                  ($ AlertDialogTitle (t "pool.option.delete.title"))
+                                  ($ AlertDialogDescription (t "pool.option.delete.description")))
 
-                             ($ AlertDialogFooter
-                                ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
+                               ($ AlertDialogFooter
+                                  ($ AlertDialogAction {:class-name "bg-destructive text-destructive-foreground 
                                                     hover:bg-destructive hover:text-destructive-foreground"
-                                                      :onClick handle-delete}
-                                   (t "pool.option.delete.confirm"))
-                                ($ AlertDialogCancel
-                                   ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:option-id" params)
-                                            :state state}
+                                                        :onClick handle-delete}
+                                     (t "pool.option.delete.confirm"))
+                                  ($ AlertDialogCancel
+                                     ($ Link {:to (router/generatePath "/inventory/:pool-id/models/:option-id" params)
+                                              :state state}
 
-                                      (t "pool.option.delete.cancel")))))))))))))))
+                                        (t "pool.option.delete.cancel")))))))))))))))
 
 

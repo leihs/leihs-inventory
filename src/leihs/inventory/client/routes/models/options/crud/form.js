@@ -2,10 +2,7 @@ import { z } from "zod"
 
 export const schema = z.object({
   product: z.string().min(1),
-  inventory_code: z
-    .string()
-    .min(1)
-    .regex(/^[a-zA-Z0-9-]*$/),
+  inventory_code: z.string().min(1),
   version: z.string().optional(),
   price: z.coerce.number().optional(),
 })
@@ -34,7 +31,6 @@ export const structure = [
       {
         name: "inventory_code",
         label: "pool.option.option.blocks.inventory_code.label",
-        description: "pool.option.option.blocks.inventory_code.description",
         component: "input",
         props: {
           type: "text",
