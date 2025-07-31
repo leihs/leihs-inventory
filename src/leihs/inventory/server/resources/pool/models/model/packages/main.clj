@@ -152,7 +152,6 @@
         ;model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
 
-
         item-id nil
         model-id nil
         ;item-id nil

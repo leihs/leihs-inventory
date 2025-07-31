@@ -11,13 +11,12 @@
    [schema.core :as s]))
 
 (def resp-owners [{:id s/Uuid
-                  :name s/Str}])
+                   :name s/Str}])
 
 (def pagination {:size s/Int
                  :page s/Int
                  :total_rows s/Int
                  :total_pages s/Int})
-
 
 (defn routes []
   ["/owners/"

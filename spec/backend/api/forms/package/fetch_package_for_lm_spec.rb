@@ -4,7 +4,7 @@ require_relative "../../_shared"
 require_relative "../_common"
 require "faker"
 
-["lending_manager" ].each do |role|
+["lending_manager"].each do |role|
   describe "Inventory package" do
     context "when interacting with inventory package with role=#{role}" do
       include_context :setup_models_api_model, role
@@ -126,9 +126,7 @@ require "faker"
           expect(resp.status).to eq(400)
         end
 
-
         it "create, fetch & update by form data" do
-
           # fetch init-data for package-form
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
           inventory_code = resp.body["data"]["inventory_code"]

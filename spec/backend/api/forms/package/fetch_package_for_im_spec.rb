@@ -115,9 +115,7 @@ describe "Inventory package" do
           expect(resp.status).to eq(400)
         end
 
-
         it "create, fetch & update by form data" do
-
           # fetch init-data for package-form
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
           inventory_code = resp.body["data"]["inventory_code"]
@@ -169,7 +167,6 @@ describe "Inventory package" do
           expect(resp.status).to eq(200)
           expect(resp.body).to be_present
         end
-
       end
     end
   end

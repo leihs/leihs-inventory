@@ -10,10 +10,8 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
-
 (def resp-owners {:id s/Uuid
-                   :name s/Str})
-
+                  :name s/Str})
 
 (defn routes []
   ["/owners/:id"

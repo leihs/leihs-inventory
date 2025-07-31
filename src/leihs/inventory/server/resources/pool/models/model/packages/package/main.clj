@@ -6,8 +6,6 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.model.packages.main :refer [prepare-package-data
-                                                          split-items]]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.resources.pool.common :refer [calculate-retired-value
                                                          parse-local-date-or-nil
@@ -28,6 +26,10 @@
    [leihs.inventory.server.resources.pool.form-queries :refer [inventory-manager-package-subquery
                                                                lending-manager-package-subquery
                                                                package-base-query]]
+   [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
+                                                                normalize-model-data
+
+                                                                extract-shortname-and-number]]
    ;[leihs.inventory.server.resources.pool.models.model.packages.package.common :refer [fetch-thumbnails-for-ids
    ;                                                             filter-map-by-spec]]
    ;[leihs.inventory.server.resources.pool.models.model.packages.package.model.common-model-form :refer [extract-model-form-data
@@ -43,10 +45,8 @@
    ;                                                              with-search
    ;                                                              without-items]]
 
-   [leihs.inventory.server.resources.pool.models.helper :refer [fetch-latest-inventory-code
-                                                                normalize-model-data
-
-                                                                extract-shortname-and-number]]
+   [leihs.inventory.server.resources.pool.models.model.packages.main :refer [prepare-package-data
+                                                                             split-items]]
 
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
@@ -64,9 +64,6 @@
    [java.time LocalDateTime]
    [java.time.format DateTimeFormatter]
    [java.util UUID]))
-
-
-
 
 ;
 ;
@@ -128,27 +125,27 @@
         whitelisted-keywords (set (map keyword whitelisted-keys))
         blacklisted-keywords (set (map keyword blacklisted-keys))
         all-keys (clojure.set/difference
-                   (clojure.set/union allowed-keywords whitelisted-keywords)
-                   blacklisted-keywords)]
+                  (clojure.set/union allowed-keywords whitelisted-keywords)
+                  blacklisted-keywords)]
     (reduce-kv
-      (fn [result k v]
-        (if (contains? all-keys k)
-          (assoc result k v)
-          result))
-      {}
-      data)))
+     (fn [result k v]
+       (if (contains? all-keys k)
+         (assoc result k v)
+         result))
+     {}
+     data)))
 
 (defn rename-keys
   "Renames keys in a map based on a provided key mapping.
    `key-map` is a map where the keys are old keys and the values are new keys."
   [m key-map]
   (reduce
-    (fn [acc [old-key new-key]]
-      (if (contains? m old-key)
-        (assoc acc new-key (get m old-key))
-        acc))
-    (apply dissoc m (keys key-map))
-    key-map))
+   (fn [acc [old-key new-key]]
+     (if (contains? m old-key)
+       (assoc acc new-key (get m old-key))
+       acc))
+   (apply dissoc m (keys key-map))
+   key-map))
 
 (defn subquery-by-role [roles-for-pool]
   (let [roles (if (set? roles-for-pool)
@@ -173,8 +170,8 @@
 
     (try
       (let [query (-> (sql/select :*)
-                    subquery
-                    sql-format)
+                      subquery
+                      sql-format)
 
             fields (jdbc/execute! tx query)
             fields (conj fields {:active true
@@ -197,45 +194,45 @@
 
                                  ;; remove all attr except defined keys
                                  model-result (filter-by-allowed-keys model-result
-                                                ["product"
-                                                 "product_name"
-                                                 "model_id"
-                                                 "inventory_code"
-                                                 "inventory_pool_id"
-                                                 "responsible_department"
-                                                 "id"
-                                                 "building_id"
-                                                 "created_at"
-                                                 "updated_at"
-                                                 "owner_id"
-                                                 "retired"
-                                                 "retired_reason"
-                                                 "room_id"
-                                                 "shelf"
-                                                 "last_check"
-                                                 "is_borrowable"
-                                                 "is_inventory_relevant"
-                                                 "is_broken"
-                                                 "is_incomplete"
-                                                 "note"
-                                                 "status_note"
-                                                 "user_name"
-                                                 "price"]
-                                                []
-                                                [])
+                                                                      ["product"
+                                                                       "product_name"
+                                                                       "model_id"
+                                                                       "inventory_code"
+                                                                       "inventory_pool_id"
+                                                                       "responsible_department"
+                                                                       "id"
+                                                                       "building_id"
+                                                                       "created_at"
+                                                                       "updated_at"
+                                                                       "owner_id"
+                                                                       "retired"
+                                                                       "retired_reason"
+                                                                       "room_id"
+                                                                       "shelf"
+                                                                       "last_check"
+                                                                       "is_borrowable"
+                                                                       "is_inventory_relevant"
+                                                                       "is_broken"
+                                                                       "is_incomplete"
+                                                                       "note"
+                                                                       "status_note"
+                                                                       "user_name"
+                                                                       "price"]
+                                                                      []
+                                                                      [])
 
                                  items (jdbc/execute! tx
-                                         (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
-                                           (sql/from [:items :i])
-                                           (sql/join [:models :m] [:= :m.id :i.model_id])
-                                           (sql/where [:= :parent_id item-id])
-                                           sql-format))
+                                                      (-> (sql/select :i.id :i.inventory_code :i.serial_number :m.product :m.manufacturer)
+                                                          (sql/from [:items :i])
+                                                          (sql/join [:models :m] [:= :m.id :i.model_id])
+                                                          (sql/where [:= :parent_id item-id])
+                                                          sql-format))
 
                                  model-result (assoc model-result :items_attributes items)
                                  model-result (when model-result
                                                 (let [model-result (assoc model-result
-                                                                     :product {:name (:product_name model-result)
-                                                                               :model_id (:model_id model-result)})
+                                                                          :product {:name (:product_name model-result)
+                                                                                    :model_id (:model_id model-result)})
 
                                                       model-result (rename-keys model-result {:item_version :version})
                                                       retired (not (nil? (:retired model-result)))
@@ -252,16 +249,10 @@
         (if model-result
           (response {:data model-result :fields fields})
           (status (response {:error "Failed to fetch item"
-                                               :details "No data found"}) 404)))
+                             :details "No data found"}) 404)))
       (catch Exception e
         (error "Failed to fetch item" (.getMessage e))
         (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))
-
-
-
-
-
-
 
 ;(ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-update
 ;  (:require
@@ -303,23 +294,23 @@
         split-items (split-items items_attributes)]
     (try
       (let [update-model-query (-> (sql/update [:items :i])
-                                 (sql/set prepared-package-data)
+                                   (sql/set prepared-package-data)
                                  ;(sql/join [:models :m] [:= :i.model_id :m.id])
                                  ;  (sql/where [:= :i.id item-id] )
-                                 (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id]])
-                                 (sql/returning :*)
-                                 sql-format)
+                                   (sql/where [:and [:= :i.model_id model-id] [:= :i.id item-id]])
+                                   (sql/returning :*)
+                                   sql-format)
             res (jdbc/execute-one! tx update-model-query)
 
             ;; Link items from package
             link-res (let [ids-to-link (get split-items :ids-to-link)]
                        (when (seq ids-to-link)
                          (let [update-link-items-query (-> (sql/update :items)
-                                                         (sql/set {:parent_id (:id res)})
-                                                         (sql/where [:in :id ids-to-link])
-                                                         (sql/where [:is :parent_id nil])
-                                                         (sql/returning :*)
-                                                         sql-format)
+                                                           (sql/set {:parent_id (:id res)})
+                                                           (sql/where [:in :id ids-to-link])
+                                                           (sql/where [:is :parent_id nil])
+                                                           (sql/returning :*)
+                                                           sql-format)
                                linked-items-res (jdbc/execute! tx update-link-items-query)]
                            linked-items-res)))
 
@@ -327,11 +318,11 @@
             unlink-res (let [ids-to-unlink (get split-items :ids-to-unlink)]
                          (when (seq ids-to-unlink)
                            (let [update-unlink-items-query (-> (sql/update :items)
-                                                             (sql/set {:parent_id nil})
-                                                             (sql/where [:in :id ids-to-unlink])
-                                                             (sql/where [:is-not :parent_id nil])
-                                                             (sql/returning :*)
-                                                             sql-format)
+                                                               (sql/set {:parent_id nil})
+                                                               (sql/where [:in :id ids-to-unlink])
+                                                               (sql/where [:is-not :parent_id nil])
+                                                               (sql/returning :*)
+                                                               sql-format)
                                  unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
                              unlinked-items-res)))]
         (if res
@@ -344,9 +335,9 @@
 
 (defn fetch-package-data [tx model-id item-id pool-id]
   (let [query (-> (sql/select :*)
-                (sql/from :items)
-                (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
-                sql-format)
+                  (sql/from :items)
+                  (sql/where [:= :id item-id] [:= :model_id model-id] [:= :inventory_pool_id pool-id])
+                  sql-format)
         res (jdbc/execute-one! tx query)]
     res))
 

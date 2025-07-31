@@ -17,7 +17,7 @@
 (defn routes []
   ;["/packages/"
   ; ["/models/:model_id/packages/item_id"
-   ["/models/:model_id/packages/"
+  ["/models/:model_id/packages/"
    {:post {:accept "application/json"
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?

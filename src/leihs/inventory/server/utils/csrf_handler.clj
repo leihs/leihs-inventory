@@ -91,9 +91,9 @@
               (do
                 (println e)
                 (-> (response/response {:status "failure"
-                                      :message "CSRF-Token/Session not valid1"
-                                      :detail (.getMessage e)})
-                  (response/status 403))))
+                                        :message "CSRF-Token/Session not valid1"
+                                        :detail (.getMessage e)})
+                    (response/status 403))))
             (response/status 404))))))) ;; coercion error for undefined urls
 
 (defn wrap-csrf [handler]

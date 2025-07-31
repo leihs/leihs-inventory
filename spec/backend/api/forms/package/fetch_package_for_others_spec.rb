@@ -70,7 +70,6 @@ require "faker"
         expect(resp.status).to eq(404)
       end
 
-
       it "create, fetch & update with invalid credentials" do
         # create package, works
         form_data = {
