@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.utils.helper
   (:require
+   [cheshire.core :as json]
    [clojure.string :as str]
    [clojure.walk :as walk]
    [taoensso.timbre :refer [warn]])
@@ -70,6 +71,20 @@
      value
      (to-uuid value key))))
 
+(defn convert-to-raw-set [urls]
+  (let [transformed-urls urls
+        combined-str (str "'{" (clojure.string/join "," transformed-urls) "}'")]
+    [:raw combined-str]))
+
+(defn convert-to-raw-jsonb [m]
+  (let [json-str (json/generate-string m)]
+    [:raw (str "'" json-str "'")]))
+
+(defn modify-if-exists [m k f]
+  (if (contains? m k)
+    (update m k f)
+    m))
+
 (def uuid-regex
   #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$")
 
@@ -78,3 +93,56 @@
         segments (str/split path #"/")
         last-segment (last segments)]
     (boolean (re-matches uuid-regex last-segment))))
+
+;; Used for columns of jsonb type
+(defn convert-map-if-exist [m]
+  (-> m
+      (modify-if-exists :is_borrowable #(if (contains? m :is_borrowable) [:cast % ::boolean]))
+      (modify-if-exists :is_inventory_relevant #(if (contains? m :is_inventory_relevant) [:cast % ::boolean]))
+      (modify-if-exists :is_broken #(if (contains? m :is_broken) [:cast % ::boolean]))
+      (modify-if-exists :is_incomplete #(if (contains? m :is_incomplete) [:cast % ::boolean]))
+
+      (modify-if-exists :deleted_at #(if (contains? m :deleted_at) [:cast % ::date]))
+      (modify-if-exists :retired #(if (contains? m :retired) [:cast % ::date]))
+      (modify-if-exists :last_check #(if (contains? m :last_check) [:cast % ::date]))
+      (modify-if-exists :layout #(if (contains? m :layout) [:cast % :public.collection_layout]))
+      (modify-if-exists :default_resource_type #(if (contains? m :default_resource_type) [:cast % :public.collection_default_resource_type]))
+      (modify-if-exists :sorting #(if (contains? m :sorting) [:cast % :public.collection_sorting]))
+      (modify-if-exists :json #(if (contains? m :json) [:cast (json/generate-string %) :jsonb]))
+
+      ;; uuid
+      (modify-if-exists :id #(if (contains? m :id) (to-uuid % :id)))
+      (modify-if-exists :media_entry_default_license_id #(if (contains? m :id) (to-uuid %)))
+      (modify-if-exists :edit_meta_data_power_users_group_id #(if (contains? m :edit_meta_data_power_users_group_id) (to-uuid %)))
+      (modify-if-exists :creator_id #(if (contains? m :creator_id) (to-uuid %)))
+      (modify-if-exists :person_id #(if (contains? m :person_id) (to-uuid %)))
+      (modify-if-exists :user_id #(if (contains? m :user_id) (to-uuid %)))
+      (modify-if-exists :accepted_usage_terms_id #(if (contains? m :accepted_usage_terms_id) (to-uuid %)))
+
+      (modify-if-exists :room_id #(if (contains? m :room_id) (to-uuid %)))
+      (modify-if-exists :model_id #(if (contains? m :model_id) (to-uuid %)))
+      (modify-if-exists :owner_id #(if (contains? m :owner_id) (to-uuid %)))
+      (modify-if-exists :created_by_id #(if (contains? m :created_by_id) (to-uuid %)))
+      (modify-if-exists :uploader_id #(if (contains? m :uploader_id) (to-uuid %)))
+      (modify-if-exists :media_entry_id #(if (contains? m :media_entry_id) (to-uuid %)))
+
+      ;; jsonb / character varying
+      (modify-if-exists :settings #(if (nil? %) [:raw "'{}'"] (convert-to-raw-set %)))
+      (modify-if-exists :external_uris #(if (nil? %) [:raw "'{}'"] (convert-to-raw-set %)))
+      (modify-if-exists :sitemap #(if (nil? %) [:raw "'{}'"] (convert-to-raw-set %)))
+      (modify-if-exists :available_locales #(if (nil? %) [:raw "'{}'"] (convert-to-raw-set %)))
+
+      (modify-if-exists :properties #(if (nil? %) [:raw "{}"] (convert-to-raw-jsonb %)))
+
+      ;; text[]
+      (modify-if-exists :contexts_for_entry_extra #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_list_details #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_entry_validation #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_dynamic_filters #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_collection_edit #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_collection_extra #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_entry_edit #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :contexts_for_context_keys #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :catalog_context_keys #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :copyright_notice_templates #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
+      (modify-if-exists :allowed_people_subtypes #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))))
