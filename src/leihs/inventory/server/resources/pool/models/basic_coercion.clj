@@ -205,6 +205,9 @@
 (sa/def :nil/group (sa/nilable string?))
 (sa/def :nil/group_default (sa/nilable string?))
 (sa/def :nil/role_default (sa/nilable string?))
+(defn non-neg-number? [x]
+  (and (number? x) (not (neg? x))))
+
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
 (sa/def :nil-str/owner (sa/nilable string?))
@@ -223,6 +226,7 @@
 (sa/def :nil-double/price (sa/nilable double?))
 (sa/def :nil-any/price (sa/nilable any?))
 (sa/def :nil-number/price (sa/nilable number?))
+(sa/def :nil-pos-number/price (sa/nilable non-neg-number?))
 (sa/def :nil/invoice_date (sa/nilable any?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))

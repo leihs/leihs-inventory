@@ -12,7 +12,7 @@
                              :product string?
                              :name string?
                              :version (sa/nilable string?)
-                             :price (sa/nilable :nil-number/price)})
+                             :price (sa/nilable :nil-pos-number/price)})
 (def response-option-post response-option-object)
 
 (sa/def ::data (sa/coll-of ::response-option-object))
@@ -30,7 +30,7 @@
                     ::sp/inventory_code
                     ::sp/name
                     ::sp/product]
-           :opt-un [:nil/version :nil-number/price]))
+           :opt-un [:nil/version :nil-pos-number/price]))
 
 (sa/def ::data (sa/coll-of ::response-option-object))
 (sa/def ::pagination any?)
@@ -45,7 +45,7 @@
 (sa/def :option/body (sa/keys :req-un [::sp/product
                                        ::sp/inventory_code]
                               :opt-un [:nil/version
-                                       :nil-number/price]))
+                                       :nil-pos-number/price]))
 
 (sa/def ::options-query
   (sa/keys :opt-un [::sp/page ::sp/size]))
