@@ -20,10 +20,11 @@
    ["/models/:model_id/packages/"
    {:post {:accept "application/json"
            :coercion spec/coercion
-           :parameters {:path {:pool_id uuid?}
+           :parameters {:path {:pool_id uuid?
+                               :model_id uuid?}
                         :body :package/payload}
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-           :handler packages/create-package-handler-by-pool-form
+           :handler packages/post-resource
            :responses {200 {:description "OK"
                             ;:body :package-put-response2/inventory-item
                             }
@@ -33,8 +34,9 @@
     :get {:accept "application/json"
           :description "Permitted access for:\n- lending_manager\n- inventory_manager"
           :coercion spec/coercion
-          :parameters {:path {:pool_id uuid?}}
-          :handler packages/fetch-package-handler-by-pool-form
+          :parameters {:path {:pool_id uuid?
+                              :model_id uuid?}}
+          :handler packages/index-resources
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {;:body {:data {:inventory_code string?
                            ;              :inventory_pool_id uuid?

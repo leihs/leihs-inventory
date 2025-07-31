@@ -28,49 +28,49 @@
 
 
 (sa/def ::data
-  (st/spec {:spec (sa/keys :req-un [:sp/inventory_code
+  (st/spec {:spec (sa/keys :req-un [::sp/inventory_code
                                     :nil/retired
-                                    :sp/is_borrowable
-                                    :sp/is_inventory_relevant
-                                    :sp/is_broken
-                                    :sp/is_incomplete
+                                    ::sp/is_borrowable
+                                    ::sp/is_inventory_relevant
+                                    ::sp/is_broken
+                                    ::sp/is_incomplete
                                     :nil/last_check
                                     :nil/shelf
                                     :nil/status_note
                                     :nil/user_name
-                                    :sp/room_id
-                                    :sp/model_id
-                                    :sp/owner_id
-                                    :sp/price]
+                                    ::sp/room_id
+                                    ::sp/model_id
+                                    ::sp/owner_id
+                                    ::sp/price]
 
-                    :opt-un [:sp/note
-                             :sp/items_attributes
-                             :sp/name
-                             :sp/invoice_number
-                             :sp/properties
-                             :sp/updated_at
+                    :opt-un [::sp/note
+                             ::sp/items_attributes
+                             ::sp/name
+                             ::sp/invoice_number
+                             ::sp/properties
+                             ::sp/updated_at
                              :nil/retired_reason
                              :nil/note
-                             :sp/responsible
-                             :sp/invoice_date
-                             :sp/supplier_id
-                             :sp/parent_id
-                             :sp/id
-                             :sp/inventory_pool_id
-                             :sp/item_version
-                             :sp/needs_permission
-                             :sp/serial_number
-                             :sp/created_at
-                             :sp/insurance_number
-                             :sp/insurance_number])
+                             ::sp/responsible
+                             ::sp/invoice_date
+                             ::sp/supplier_id
+                             ::sp/parent_id
+                             ::sp/id
+                             ::sp/inventory_pool_id
+                             ::sp/item_version
+                             ::sp/needs_permission
+                             ::sp/serial_number
+                             ::sp/created_at
+                             ::sp/insurance_number])
 
             :description "Inventory item data"}))
 
+(sa/def ::validation (sa/coll-of map? :kind vector?))
 
-;(sa/def :package-put-response2/inventory-item
-;  (st/spec {:spec (sa/keys :req-un [:res/data]
-;                    :opt-un [:res/validation])
-;            :description "Complete inventory response"}))
+(sa/def :package-put-response3/inventory-item
+  (st/spec {:spec (sa/keys :req-un [::data]
+                    :opt-un [::validation])
+            :description "Complete inventory response"}))
 
 
 (sa/def :package-put-response2/inventory-item

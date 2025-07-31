@@ -6,6 +6,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.resources.pool.models.model.packages.main :refer [prepare-package-data
+                                                          split-items]]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.resources.pool.common :refer [calculate-retired-value
                                                          parse-local-date-or-nil
@@ -160,7 +162,7 @@
       (throw (Exception. "invalid role for the requested pool")))
     subquery))
 
-(defn fetch-package-handler-by-pool-form [request]
+(defn get-resource [request]
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
@@ -290,7 +292,7 @@
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        multipart (get-in request [:parameters :multipart])
+        multipart (get-in request [:parameters :body])
         items_attributes (parse-json-array request :items_attributes)
         multipart (assoc multipart :inventory_pool_id pool-id)
 
@@ -333,7 +335,8 @@
                                  unlinked-items-res (jdbc/execute! tx update-unlink-items-query)]
                              unlinked-items-res)))]
         (if res
-          (response (create-validation-response res []))
+          ;(response (create-validation-response res []))
+          (response res)
           (bad-request {:error "Failed to update item"})))
       (catch Exception e
         (error "Failed to update item" (.getMessage e))
@@ -347,7 +350,7 @@
         res (jdbc/execute-one! tx query)]
     res))
 
-(defn update-package-handler-by-pool-form [request]
+(defn put-resource [request]
   (let [item-id (to-uuid (get-in request [:path-params :item_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))

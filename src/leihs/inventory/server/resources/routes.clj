@@ -33,6 +33,8 @@
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
+   [leihs.inventory.server.resources.pool.owners.routes :as owners]
+   [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
@@ -145,6 +147,8 @@
                       (items/routes)
                       (model-items/routes)
                       (model-item/routes)
+                      (owners/routes)
+                      (owner/routes)
                       (building/routes)
                       (buildings/routes)
                       (room/routes)

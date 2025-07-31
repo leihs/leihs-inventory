@@ -15,26 +15,28 @@ require "faker"
       let(:pool) { @inventory_pool }
       let(:pool_id) { @inventory_pool.id }
 
+      let(:model_id) { @model.id }
+
       let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: pool) }
 
       before do
-        resp = client.get "/inventory/owners"
+        resp = client.get "/inventory/#{pool_id}/owners/"
         @form_owners = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/buildings"
+        resp = client.get "/inventory/#{pool_id}/buildings/"
         @form_buildings = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
+        resp = client.get "/inventory/#{pool_id}/rooms/?building_id=#{@form_buildings[0]["id"]}"
         @form_rooms = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model&in-detail=true"
         @form_model_names = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
         @form_model_data = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
       end
@@ -60,11 +62,12 @@ require "faker"
           items_attributes: []
         }.transform_values { |v| v.nil? ? "" : v.to_s }
 
-        resp = http_multipart_client(
-          "/inventory/#{pool_id}/package",
-          form_data,
+        resp = json_client_post(
+          "/inventory/#{pool_id}/models/#{model_id}/packages/",
+          body: form_data,
           headers: cookie_header
         )
+        binding.pry
         expect(resp.status).to eq(401)
 
         model_id = fake_package.id
@@ -76,10 +79,9 @@ require "faker"
         expect(resp.status).to eq(401)
 
         # update package
-        resp = http_multipart_client(
+        resp = json_client_put(
           "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
-          form_data,
-          method: :put,
+          body: form_data,
           headers: cookie_header
         )
         expect(resp.status).to eq(400)

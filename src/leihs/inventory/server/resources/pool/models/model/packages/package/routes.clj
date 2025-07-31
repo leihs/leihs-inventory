@@ -15,14 +15,14 @@
    [schema.core :as s]))
 
 (defn routes []
-  ["/models/:model_id/packages/item_id"
+  ["/models/:model_id/packages/:item_id"
    {:put {:accept "application/json"
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?
                               :item_id uuid?}
-                       :multipart :package/payload}
-          :handler package/update-package-handler-by-pool-form
+                       :body :package/payload}
+          :handler package/put-resource
           :responses {200 {:description "OK"
                            :body :package-put-response2/inventory-item}
                       ;; FIXME
@@ -36,8 +36,8 @@
                               :model_id uuid?
                               :item_id uuid?}}
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-          :handler package/fetch-package-handler-by-pool-form
+          :handler package/get-resource
           :responses {200 {:description "OK"
-                           :body :package-put-response2/inventory-item}
+                           :body :package-put-response3/inventory-item}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])

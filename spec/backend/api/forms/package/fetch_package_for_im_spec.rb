@@ -80,28 +80,29 @@ describe "Inventory package" do
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:pool_id) { @inventory_pool.id }
 
-      let(:software_model) { @software_model }
-      let(:license_item) { @license_item }
-      let(:model_id) { @software_model.id }
+      # let(:software_model) { @software_model }
+      # let(:license_item) { @license_item }
+      # let(:model_id) { @software_model.id }
+      let(:model_id) { @model.id }
 
       before do
-        resp = client.get "/inventory/owners"
+        resp = client.get "/inventory/#{pool_id}/owners/"
         @form_owners = resp.body
         raise "Failed to fetch manufacturers" unless resp.status == 200
 
-        resp = client.get "/inventory/buildings"
+        resp = client.get "/inventory/#{pool_id}/buildings/"
         @form_buildings = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/rooms?building_id=#{@form_buildings[0]["id"]}"
+        resp = client.get "/inventory/#{pool_id}/rooms/?building_id=#{@form_buildings[0]["id"]}"
         @form_rooms = resp.body
         raise "Failed to fetch entitlement groups" unless resp.status == 200
 
-        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model&in-detail=true"
         @form_model_names = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
 
-        resp = client.get "/inventory/manufacturers?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
+        resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model&in-detail=true&search-term=#{@form_model_names[0]["product"]}"
         @form_model_data = resp.body
         raise "Failed to fetch compatible models" unless resp.status == 200
       end
@@ -118,7 +119,7 @@ describe "Inventory package" do
         # end
 
         it "fetch default" do
-          resp = client.get "/inventory/#{pool_id}/package"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
 
           expect(resp.status).to eq(200)
           expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
@@ -126,35 +127,35 @@ describe "Inventory package" do
         end
 
         it "fetch default" do
-          resp = client.get "/inventory/#{pool_id}/entitlement-groups"
+          resp = client.get "/inventory/#{pool_id}/entitlement-groups/"
 
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          resp = client.get "/inventory/owners"
+          resp = client.get "/inventory/#{pool_id}/owners/"
 
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(2)
         end
 
         it "fetch default" do
-          resp = client.get "/inventory/buildings"
+          resp = client.get "/inventory/#{pool_id}/buildings/"
 
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(3)
         end
 
         it "fetch default" do
-          resp = client.get "/inventory/manufacturers?type=Model&in-detail=true"
+          resp = client.get "/inventory/#{pool_id}/manufacturers/?type=Model&in-detail=true"
 
           expect(resp.status).to eq(200)
           expect(resp.body.count).to eq(2)
         end
 
         it "fetch by form data" do
-          resp = client.get "/inventory/#{pool_id}/package"
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
 
           expect(resp.body["data"]["inventory_pool_id"]).to eq(pool_id)
           expect(resp.body["fields"].count).to eq(20)
@@ -182,7 +183,7 @@ describe "Inventory package" do
         #   }.transform_values { |v| v.nil? ? "" : v.to_s }
 
         #   resp = http_multipart_client(
-        #     "/inventory/#{pool_id}/package",
+        #     "/inventory/#{pool_id}/models/#{model_id}/packages/",
         #     form_data,
         #     headers: cookie_header
         #   )

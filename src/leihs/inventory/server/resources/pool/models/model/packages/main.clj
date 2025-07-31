@@ -144,13 +144,19 @@
       (throw (Exception. "invalid role for the requested pool")))
     subquery))
 
-(defn fetch-package-handler-by-pool-form [request]
+(defn index-resources [request]
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
-        item-id (to-uuid (get-in request [:path-params :item_id]))
-        model-id (to-uuid (get-in request [:path-params :model_id]))
+        ;item-id (to-uuid (get-in request [:path-params :item_id]))
+        ;model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
+
+
+        item-id nil
+        model-id nil
+        ;item-id nil
+
         subquery (subquery-by-role roles-for-pool)]
 
     (try
@@ -345,7 +351,7 @@
       data
       (assoc data :inventory_code next-code))))
 
-(defn create-package-handler-by-pool-form [request]
+(defn post-resource [request]
   (let [;validation-result (atom [])
         created-ts (LocalDateTime/now)
         tx (:tx request)

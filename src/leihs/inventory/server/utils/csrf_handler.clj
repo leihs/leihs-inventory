@@ -88,10 +88,12 @@
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (get-sign-in request)
-              (-> (response/response {:status "failure"
-                                      :message "CSRF-Token/Session not valid"
+              (do
+                (println e)
+                (-> (response/response {:status "failure"
+                                      :message "CSRF-Token/Session not valid1"
                                       :detail (.getMessage e)})
-                  (response/status 403)))
+                  (response/status 403))))
             (response/status 404))))))) ;; coercion error for undefined urls
 
 (defn wrap-csrf [handler]
@@ -107,7 +109,7 @@
             (catch Exception e
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
-                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
+                  (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid2")
                   {:status 400
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"
