@@ -185,7 +185,6 @@
         (error "Failed to fetch item" (.getMessage e))
         (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))
 
-
 (def defaults
   {:is_borrowable false
    :is_broken false

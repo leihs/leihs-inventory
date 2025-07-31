@@ -185,7 +185,6 @@
         (error "Failed to fetch item" (.getMessage e))
         (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))
 
-
 (defn update-package-handler [{item-id :item_id model-id :model_id pool-id :pool_id tx :tx request :request item-entry :item-entry}]
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)

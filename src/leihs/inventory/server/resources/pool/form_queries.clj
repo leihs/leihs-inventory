@@ -39,7 +39,6 @@
                                   ORDER BY ff.group_default, ff.position
                                   "]])))
 
-
 (defn lending-manager-package-subquery [query]
   (-> query
       (sql/from [[:raw
