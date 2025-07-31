@@ -14,11 +14,6 @@ require "faker"
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:pool_id) { @inventory_pool.id }
-
-      # let(:software_model) { @software_model }
-      # let(:license_item) { @license_item }
-      # let(:model_id) { @software_model.id }
-
       let(:model_id) { @model.id }
 
       before do
@@ -44,16 +39,6 @@ require "faker"
       end
 
       context "create model" do
-        # it "fetch default" do
-        #   resp = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal"
-
-        #   # FIXME: no resp handling
-        #   # resp = client.get "/inventory/#{pool_id}/items-with-model-info?result_type=Normal&search_term=podest"
-
-        #   expect(resp.status).to eq(200)
-        #   expect(resp.body.count).to eq(1)
-        # end
-
         it "fetch default" do
           resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
 

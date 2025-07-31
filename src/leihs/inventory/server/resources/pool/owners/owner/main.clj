@@ -28,5 +28,3 @@
      (catch Exception e
        (error "Failed to get owner/department" e)
        (bad-request {:error "Failed to get owner/department" :details (.getMessage e)})))))
-
-

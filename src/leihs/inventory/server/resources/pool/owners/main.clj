@@ -10,21 +10,6 @@
    [ring.util.response :refer [bad-request header response]]
    [taoensso.timbre :refer [error]]))
 
-;(ns leihs.inventory.server.resources.owner-department.main
-;  (:require
-;   [clojure.set]
-;   [honey.sql :refer [format] :rename {format sql-format}]
-;   [honey.sql.helpers :as sql]
-;   [leihs.inventory.server.resources.utils.request :refer [path-params]]
-;   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-;   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-;   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-;   [leihs.inventory.server.utils.pagination :refer [pagination-response create-pagination-response]]
-;   [next.jdbc.sql :as jdbc]
-;   [ring.middleware.accept]
-;   [ring.util.response :refer [bad-request response status]]
-;   [taoensso.timbre :refer [error]]))
-
 (defn index-resources
   ([request]
    (try

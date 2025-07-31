@@ -9,7 +9,6 @@
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.resources.pool.common :refer [calculate-retired-value
                                                          parse-local-date-or-nil
-
                                                          double-to-numeric-or-nil
                                                          remove-nil-entries
                                                          remove-empty-entries
@@ -17,7 +16,6 @@
                                                          remove-entries-by-keys
                                                          cast-to-uuid-or-nil
                                                          str-to-bool
-                                                          ;normalize-model-data
                                                          parse-json-array
                                                          normalize-files
                                                          file-to-base64
@@ -31,7 +29,6 @@
                                                                 normalize-model-data
 
                                                                 extract-shortname-and-number]]
-
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid? convert-map-if-exist]]
@@ -44,65 +41,14 @@
    [taoensso.timbre :refer [debug error]])
   (:import
    (java.time LocalDateTime)
-
    [java.time LocalDateTime]
    [java.time.format DateTimeFormatter]
    [java.util UUID]))
-
-;
-;(ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-fetch
-;  (:require
-;   [clojure.data.json :as json]
-;   [clojure.java.io :as io]
-;   [clojure.string :as str]
-;   [honey.sql :as sq :refer [format] :rename {format sql-format}]
-;   [honey.sql.helpers :as sql]
-;   [leihs.core.core :refer [presence]]
-;   [leihs.inventory.server.resources.pool.form-queries :refer [
-;;                                                                         model-query
-;;                                                                         inventory-manager-license-subquery
-;;                                                                         lending-manager-license-subquery
-;;                                                                         inventory-manager-item-subquery
-;;
-;                                                                         inventory-manager-package-subquery
-;                                                                         lending-manager-package-subquery
-;;
-;;                                                                         item-base-query
-;;                                                                         package-base-query
-;;                                                                         lending-manager-item-subquery
-;;
-;;                                                                         license-base-query]
-; ]
-;   [leihs.inventory.server.resources.models.helper :refer [fetch-latest-inventory-code]]
-;   [leihs.inventory.server.resources.models.queries :refer [accessories-query
-;                                                            attachments-query
-;                                                            entitlements-query
-;                                                            item-query
-;
-;                                                            model-links-query
-;                                                            properties-query]]
-;   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-;   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-;   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-;   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-;   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params
-;                                                    pagination-response
-;                                                    create-pagination-response]]
-;   [next.jdbc :as jdbc]
-;   [next.jdbc.sql :as jdbco]
-;   [ring.util.response :as response :refer [bad-request]]
-;   [taoensso.timbre :refer [error]])
-;  (:import [java.time LocalDateTime]
-;   [java.time.format DateTimeFormatter]
-;   [java.util UUID]))
 
 (defn get-current-timestamp []
   (let [current-timestamp (LocalDateTime/now)
         formatter (DateTimeFormatter/ofPattern "yyyy-MM-dd HH:mm:ss")]
     (.format current-timestamp formatter)))
-
-(defn build-select [fields]
-  (mapv (fn [field] (:id field)) fields))
 
 (defn filter-by-allowed-keys
   [data allowed-keys whitelisted-keys blacklisted-keys]
@@ -148,14 +94,9 @@
   (let [current-timestamp (get-current-timestamp)
         tx (get-in request [:tx])
         roles-for-pool (:roles-for-pool request)
-        ;item-id (to-uuid (get-in request [:path-params :item_id]))
-        ;model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-
         item-id nil
         model-id nil
-        ;item-id nil
-
         subquery (subquery-by-role roles-for-pool)]
 
     (try
@@ -244,39 +185,6 @@
         (error "Failed to fetch item" (.getMessage e))
         (bad-request {:error "Failed to fetch item" :details (.getMessage e)})))))
 
-;
-;(ns leihs.inventory.server.resources.models.form.package.model-by-pool-form-create
-;  (:require
-;   [cheshire.core :as cjson]
-;   [cheshire.core :as jsonc]
-;   [clojure.data.codec.base64 :as b64]
-;   [clojure.data.json :as json]
-;   [clojure.java.io :as io]
-;   [clojure.set :as set]
-;   [clojure.string :as str]
-;   [honey.sql :refer [format] :rename {format sql-format}]
-;   [honey.sql.helpers :as sql]
-;   [leihs.inventory.server.resources.models.form.license.common :refer [remove-nil-entries cast-to-uuid-or-nil double-to-numeric-or-nil parse-local-date-or-nil calculate-retired-value remove-empty-entries remove-empty-or-nil remove-entries-by-keys]]
-;   [leihs.inventory.server.resources.models.helper :refer [str-to-bool normalize-model-data parse-json-array normalize-files
-;                                                           file-to-base64 base-filename process-attachments]]
-;
-;   [leihs.inventory.server.resources.models.queries :refer [accessories-query attachments-query base-pool-query
-;                                                            entitlements-query item-query
-;                                                            model-links-query properties-query]]
-;   [leihs.inventory.server.resources.utils.request :refer [path-params query-params]]
-;   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-;   [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
-;   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-;   [leihs.inventory.server.utils.helper :refer [convert-map-if-exist]]
-;   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params pagination-response create-pagination-response]]
-;   [next.jdbc :as jdbc]
-;   [pantomime.extract :as extract]
-;   [ring.util.response :refer [bad-request response status]]
-;   [taoensso.timbre :refer [error]])
-;  (:import [java.net URL JarURLConnection]
-;   (java.time LocalDateTime)
-;   [java.util UUID]
-;   [java.util.jar JarFile]))
 
 (def defaults
   {:is_borrowable false
@@ -297,11 +205,7 @@
 (defn prepare-package-data [data]
   (let [created-ts (LocalDateTime/now)
         db-retired nil
-
         data (set-missing-defaults data defaults)
-
-        ;data (assoc data :properties (json/generate-string  (:properties data)))
-
         request-retired (:retired data)
         data (if (= false request-retired)
                (assoc data :retired_reason nil)
@@ -319,12 +223,7 @@
 
         data (dissoc data :items_attributes)
         data (convert-map-if-exist data)]
-
     data))
-
-(defn create-validation-response [data validation]
-  {:data data
-   :validation validation})
 
 (defn split-items
   "Splits items into two vectors:
@@ -351,12 +250,10 @@
       (assoc data :inventory_code next-code))))
 
 (defn post-resource [request]
-  (let [;validation-result (atom [])
-        created-ts (LocalDateTime/now)
+  (let [created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         data (get-in request [:parameters :body])
-
         items_attributes (parse-json-array request :items_attributes)
         data (assoc data :inventory_pool_id pool-id)
         ;;TODO: is this logic correct?
@@ -367,9 +264,7 @@
                data)
 
         data (generate-or-verify-inventory-code! tx data pool-id)
-        prepared-package-data (prepare-package-data data)
-
-        p (println ">o> abc.prepared-package-data" prepared-package-data)]
+        prepared-package-data (prepare-package-data data)]
 
     (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :items)
@@ -406,7 +301,6 @@
             item-id (:id res)]
 
         (if res
-          ;(response (create-validation-response res @validation-result))
           (response res)
           (bad-request {:error "Failed to create model"})))
       (catch Exception e

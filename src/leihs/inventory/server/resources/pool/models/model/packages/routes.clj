@@ -3,9 +3,6 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.models.model.packages.main :as packages]
    [leihs.inventory.server.resources.pool.models.model.packages.types :as ty]
-   ;[leihs.inventory.server.resources.pool.models.model.packages.types :refer [description-model-form
-   ;                                                            get-compatible-response
-   ;                                                            post-response]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
@@ -15,8 +12,6 @@
    [schema.core :as s]))
 
 (defn routes []
-  ;["/packages/"
-  ; ["/models/:model_id/packages/item_id"
   ["/models/:model_id/packages/"
    {:post {:accept "application/json"
            :coercion spec/coercion
@@ -37,11 +32,7 @@
                               :model_id uuid?}}
           :handler packages/index-resources
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-          :responses {200 {;:body {:data {:inventory_code string?
-                           ;              :inventory_pool_id uuid?
-                           ;              :responsible_department any?}
-                           ;       :fields [any?]}
-                           :body :package-get-response/inventory-item
+          :responses {200 {:body :package-get-response/inventory-item
                            :description "OK"}
                       400 {:description "The inventory code is invalid or outdated"}
                       401 {:description "Unauthorized: invalid role for the requested pool or method"

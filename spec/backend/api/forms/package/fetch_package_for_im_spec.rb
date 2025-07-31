@@ -14,10 +14,6 @@ describe "Inventory package" do
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:pool_id) { @inventory_pool.id }
-
-      # let(:software_model) { @software_model }
-      # let(:license_item) { @license_item }
-      # let(:model_id) { @software_model.id }
       let(:model_id) { @model.id }
 
       before do

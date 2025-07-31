@@ -22,8 +22,6 @@
   ["/owners/"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          ;:middleware [accept-json-middleware]
-          ;:swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}

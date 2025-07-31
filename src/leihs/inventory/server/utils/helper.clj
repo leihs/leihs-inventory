@@ -71,7 +71,6 @@
      value
      (to-uuid value key))))
 
-;; TODO: maybe possible with json/dump?
 (defn convert-to-raw-set [urls]
   (let [transformed-urls urls
         combined-str (str "'{" (clojure.string/join "," transformed-urls) "}'")]
@@ -94,11 +93,6 @@
         segments (str/split path #"/")
         last-segment (last segments)]
     (boolean (re-matches uuid-regex last-segment))))
-
-;(defn convert-to-raw-json [kv-pairs]
-;  (let [m (into {} kv-pairs)
-;        json-str (json/write-str m)] ;; from clojure.data.json or cheshire
-;    [:raw json-str]))
 
 ;; Used for columns of jsonb type
 (defn convert-map-if-exist [m]
@@ -140,7 +134,7 @@
 
       (modify-if-exists :properties #(if (nil? %) [:raw "{}"] (convert-to-raw-jsonb %)))
 
-;; text[]
+      ;; text[]
       (modify-if-exists :contexts_for_entry_extra #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
       (modify-if-exists :contexts_for_list_details #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))
       (modify-if-exists :contexts_for_entry_validation #(if (nil? %) [:raw "'[]'"] (convert-to-raw-set %)))

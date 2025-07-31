@@ -14,9 +14,7 @@ require "faker"
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:pool) { @inventory_pool }
       let(:pool_id) { @inventory_pool.id }
-
       let(:model_id) { @model.id }
-
       let(:fake_package) { FactoryBot.create(:package_model_with_items, inventory_pool: pool) }
 
       before do

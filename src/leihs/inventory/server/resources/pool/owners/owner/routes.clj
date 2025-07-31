@@ -17,8 +17,6 @@
   ["/owners/:id"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          ;:middleware [accept-json-middleware]
-          ;:swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
                               :id s/Uuid}}
           :handler owner/get-resource

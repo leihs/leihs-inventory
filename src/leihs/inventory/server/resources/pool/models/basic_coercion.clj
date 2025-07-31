@@ -242,6 +242,3 @@
 (sa/def ::filename string?)
 (sa/def ::manufacturer string?)
 (sa/def ::size int?)
-
-;(sa/def ::room_id uuid?)
-;(sa/def ::owner_id uuid?)
