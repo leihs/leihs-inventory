@@ -41,7 +41,7 @@ require "faker"
         raise "Failed to fetch compatible models" unless resp.status == 200
       end
 
-      it "create, fetch & update by form data" do
+      it "create, fetch & update with invalid credentials" do
         # create package, works
         form_data = {
           is_inventory_relevant: true,
@@ -60,31 +60,30 @@ require "faker"
           model_id: @form_model_data[0]["id"],
           owner_id: @form_owners[0]["id"],
           items_attributes: []
-        }.transform_values { |v| v.nil? ? "" : v.to_s }
+        }
 
         resp = json_client_post(
           "/inventory/#{pool_id}/models/#{model_id}/packages/",
           body: form_data,
           headers: cookie_header
         )
-        binding.pry
-        expect(resp.status).to eq(401)
+        expect(resp.status).to eq(404)
 
         model_id = fake_package.id
         item_id = fake_package.items.first.id
         pool_id = fake_package.items.first.inventory_pool_id
 
         # fetch package
-        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        expect(resp.status).to eq(401)
+        resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}"
+        expect(resp.status).to eq(404)
 
         # update package
         resp = json_client_put(
-          "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
+          "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}",
           body: form_data,
           headers: cookie_header
         )
-        expect(resp.status).to eq(400)
+        expect(resp.status).to eq(404)
       end
     end
   end

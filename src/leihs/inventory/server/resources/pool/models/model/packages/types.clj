@@ -10,7 +10,7 @@
 (sa/def :package/payload (sa/keys :req-un [::sp/model_id
                                            ::sp/room_id]
                                   :opt-un [::sp/owner_id
-                                           :nil/price
+                                           :nil-double/price
                                            :nil/shelf
                                            :nil/status_note
                                            :nil/note

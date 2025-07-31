@@ -162,60 +162,92 @@ require "faker"
           expect(resp.body["fields"].count).to eq(15)
         end
 
-        # it "create, fetch & update by form data" do
-        #   # create package
-        #   form_data = {
-        #     is_inventory_relevant: true,
-        #     last_check: nil,
-        #     user_name: nil,
-        #     price: 12.33,
-        #     shelf: nil,
-        #     inventory_code: "P-AUS00002",
-        #     retired: false,
-        #     is_broken: false,
-        #     is_incomplete: false,
-        #     is_borrowable: false,
-        #     status_note: nil,
-        #     note: nil,
-        #     room_id: @form_rooms[0]["id"],
-        #     model_id: @form_model_data[0]["id"],
-        #     owner_id: @form_owners[0]["id"],
-        #     items_attributes: []
-        #   }.transform_values { |v| v.nil? ? "" : v.to_s }
+        it "blocks requests with invalid inventory_code" do
+          # create package
+          form_data = {
+            is_inventory_relevant: true,
+            last_check: nil,
+            user_name: nil,
+            price: 12.33,
+            shelf: nil,
+            inventory_code: "P-AUS00002",
+            retired: false,
+            is_broken: false,
+            is_incomplete: false,
+            is_borrowable: false,
+            status_note: nil,
+            note: nil,
+            room_id: @form_rooms[0]["id"],
+            model_id: @form_model_data[0]["id"],
+            owner_id: @form_owners[0]["id"],
+            items_attributes: []
+          }
 
-        #   resp = json_client_postt(
-        #     "/inventory/#{pool_id}/models/#{model_id}/packages/",
-        #     body: form_data,
-        #     headers: cookie_header
-        #   )
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/#{model_id}/packages/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(400)
+        end
 
-        #   expect(resp.status).to eq(200)
-        #   expect(resp.body["data"]).to be_present
-        #   expect(resp.body["validation"].count).to eq(0)
-        #   expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
 
-        #   item_id = resp.body["data"]["id"]
-        #   model_id = resp.body["data"]["model_id"]
+        it "create, fetch & update by form data" do
 
-        #   # fetch package
-        #   resp = client.get "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}"
-        #   expect(resp.body["data"]).to be_present
-        #   expect(resp.body["fields"].count).to eq(15)
-        #   expect(validate_map_structure(resp.body["data"], get_response)).to eq(true)
-        #   expected_form_fields(resp.body["fields"], expected_lm_fields)
+          # fetch init-data for package-form
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/"
+          inventory_code = resp.body["data"]["inventory_code"]
+          expect(resp.status).to eq(200)
 
-        #   # update package
-        #   resp = json_client_put(
-        #     "/inventory/#{pool_id}/models/#{model_id}/package/#{item_id}",
-        #     body: form_data,
-        #     headers: cookie_header
-        #   )
+          # create package
+          form_data = {
+            is_inventory_relevant: true,
+            last_check: nil,
+            user_name: nil,
+            price: 12.33,
+            shelf: nil,
+            inventory_code: inventory_code,
+            retired: false,
+            is_broken: false,
+            is_incomplete: false,
+            is_borrowable: false,
+            status_note: nil,
+            note: nil,
+            room_id: @form_rooms[0]["id"],
+            model_id: @form_model_data[0]["id"],
+            owner_id: @form_owners[0]["id"],
+            items_attributes: []
+          }
 
-        #   expect(validate_map_structure(resp.body["data"], put_post_response)).to eq(true)
-        #   expect(resp.status).to eq(200)
-        #   expect(resp.body["data"]).to be_present
-        #   expect(resp.body["validation"].count).to eq(0)
-        # end
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/#{model_id}/packages/",
+            body: form_data,
+            headers: cookie_header
+          )
+
+          expect(resp.status).to eq(200)
+          expect(resp.body).to be_present
+
+          item_id = resp.body["id"]
+          model_id = resp.body["model_id"]
+
+          # fetch package
+          resp = client.get "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}"
+          expect(resp.body).to be_present
+          binding.pry
+          # expect(resp.body["fields"].count).to eq(15)
+          # expect(validate_map_structure(resp.body, get_response)).to eq(true)
+          # expected_form_fields(resp.body["fields"], expected_lm_fields)
+
+          # update package
+          resp = json_client_put(
+            "/inventory/#{pool_id}/models/#{model_id}/packages/#{item_id}",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+          expect(resp.body).to be_present
+        end
       end
     end
   end

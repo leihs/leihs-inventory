@@ -7,23 +7,23 @@
    [schema.core :as s]
    [spec-tools.core :as st]))
 
-(sa/def :package/payload (sa/keys :req-un [::sp/model_id
-                                           ::sp/room_id]
-                                  :opt-un [::sp/owner_id
-                                           :nil/price
-                                           :nil/shelf
-                                           :nil/status_note
-                                           :nil/note
-                                           ::sp/last_check
-                                           ::sp/inventory_code
-                                           ::sp/retired
-                                           ::sp/is_broken
-                                           ::sp/is_incomplete
-                                           ::sp/is_borrowable
-                                           :any/items_attributes
-                                           :nil/retired_reason
-                                           ::sp/is_inventory_relevant
-                                           :nil/user_name]))
+;(sa/def :package/payload (sa/keys :req-un [::sp/model_id
+;                                           ::sp/room_id]
+;                                  :opt-un [::sp/owner_id
+;                                           :nil/price
+;                                           :nil/shelf
+;                                           :nil/status_note
+;                                           :nil/note
+;                                           ::sp/last_check
+;                                           ::sp/inventory_code
+;                                           ::sp/retired
+;                                           ::sp/is_broken
+;                                           ::sp/is_incomplete
+;                                           ::sp/is_borrowable
+;                                           :any/items_attributes
+;                                           :nil/retired_reason
+;                                           ::sp/is_inventory_relevant
+;                                           :nil/user_name]))
 
 
 
@@ -41,27 +41,27 @@
                                     ::sp/room_id
                                     ::sp/model_id
                                     ::sp/owner_id
-                                    ::sp/price]
+                                    :nil-double/price]
 
                     :opt-un [::sp/note
                              ::sp/items_attributes
-                             ::sp/name
-                             ::sp/invoice_number
+                             :nil/name
+                             :nil/invoice_number
                              ::sp/properties
                              ::sp/updated_at
                              :nil/retired_reason
                              :nil/note
-                             ::sp/responsible
-                             ::sp/invoice_date
-                             ::sp/supplier_id
-                             ::sp/parent_id
+                             :nil/responsible
+                             :nil/invoice_date
+                             :nil/supplier_id
+                             :nil/parent_id
                              ::sp/id
                              ::sp/inventory_pool_id
-                             ::sp/item_version
+                             :nil/item_version
                              ::sp/needs_permission
-                             ::sp/serial_number
+                             :nil/serial_number
                              ::sp/created_at
-                             ::sp/insurance_number])
+                             :nil/insurance_number])
 
             :description "Inventory item data"}))
 
