@@ -41,8 +41,7 @@ feature "Update software", type: :feature do
 
     # FIXME: After merge change edit buttons to plain a links
     within "tr", text: "#{product_old} #{version_old}" do
-      first("a", text: "edit").click
-      first("a", text: "edit").click
+      find("a", text: "edit").click
     end
 
     fill_in "Product", with: product_new
