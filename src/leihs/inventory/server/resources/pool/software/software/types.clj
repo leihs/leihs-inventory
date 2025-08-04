@@ -2,22 +2,7 @@
   (:require
    [clojure.spec.alpha :as sa]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
-   [leihs.inventory.server.resources.types :refer [pagination]]
-   [reitit.coercion.schema]
-   [schema.core :as s]
-   [spec-tools.core :as st]))
-
-(def response-option-object {:id uuid?
-                             :inventory_pool_id uuid?
-                             :inventory_code string?
-                             :manufacturer any?
-                             :product string?
-                             :technical_detail (sa/nilable string?)
-                             :version (sa/nilable string?)
-                             :price (sa/nilable any?)})
-
-(def response-option-get [response-option-object])
-(def response-option-post response-option-object)
+   [reitit.coercion.schema]))
 
 (sa/def :software-put/multipart (sa/keys :req-un [::sp/product]
                                          :opt-un [:nil/version
@@ -32,3 +17,42 @@
                     :nil/version]
            :opt-un [:nil/technical_detail
                     ::sp/attachments]))
+
+(sa/def ::image_attribute (sa/keys :req-opt [:image/filename
+                                             :image/content_type
+                                             :image/url
+                                             :image/to_delete
+                                             :image/thumbnail_url] :req-un [:image/id :image/is_cover]))
+
+(sa/def :model/image_attributes (sa/or
+                                 :single (sa/or :coll (sa/coll-of ::image_attribute)
+                                                :str string?)
+                                 :none nil?))
+
+(sa/def :software/response
+  (sa/keys :req-un [:nil/description
+                    ::sp/is_package
+                    ::sp/type
+                    :nil/hand_over_note
+                    :nil/internal_description
+                    ::sp/product
+                    ::sp/id
+                    ::sp/manufacturer
+                    :nil/version
+                    :nil/technical_detail]
+
+           :opt-un [::sp/attachments
+                    ::sp/maintenance_period
+                    :nil/rental_price
+                    :nil/cover_image_id
+                    ::sp/updated_at
+                    :nil/info_url
+                    ::sp/created_at]))
+
+(def delete-response {:deleted_attachments [{:id uuid?
+                                             :model_id uuid?
+                                             :filename string?
+                                             :size number?}]
+                      :deleted_model [{:id uuid?
+                                       :product string?
+                                       :manufacturer any?}]})

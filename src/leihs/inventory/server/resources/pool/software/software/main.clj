@@ -2,19 +2,15 @@
   (:require
    [clojure.set]
    [clojure.string :as str]
-   [honey.sql :refer [format] :as sq :rename {format sql-format}]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool fetch-attachments]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
-   [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
-                                                                    filter-keys]]
-   [leihs.inventory.server.resources.pool.software.software.types :as ty]
+   [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation filter-keys]]
+   [leihs.inventory.server.resources.pool.software.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status not-found]]
    [taoensso.timbre :refer [debug error]])
@@ -36,10 +32,10 @@
             result (when model-result (let [attachments (fetch-attachments tx model-id pool-id)
                                             result (assoc model-result :attachments attachments)] result))]
         (if result
-          (response (filter-map-by-spec result ::ty/put-response))
+          (response (filter-map-by-spec result ::types/put-response))
           (not-found {:error "Failed to fetch software"})))
       (catch Exception e
-        (error "Failed to fetch model" (.getMessage e))
+        (error "Failed to fetch software" (.getMessage e))
         (bad-request {:error "Failed to fetch software" :details (.getMessage e)})))))
 
 (defn prepare-software-data [data]
@@ -68,10 +64,10 @@
             updated-model (jdbc/execute-one! tx update-model-query)]
 
         (if updated-model
-          (response (filter-map-by-spec updated-model ::ty/put-response))
+          (response (filter-map-by-spec updated-model ::types/put-response))
           (not-found {:error "Failed to update software"})))
       (catch Exception e
-        (error "Failed to update model" (.getMessage e))
+        (error "Failed to update software" (.getMessage e))
         (bad-request {:error "Failed to update software" :details (.getMessage e)})))))
 
 (defn delete-resource [request]
