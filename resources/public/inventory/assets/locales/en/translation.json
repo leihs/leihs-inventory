@@ -165,11 +165,13 @@
       "edit": {
         "title": "Edit Option",
         "description": "Make changes and then save",
+        "cancel": "Cancel",
         "submit": "Save",
         "success": "Option successfully saved",
         "invalid_one": "Option could not be created because one field is invalid",
         "invalid_other": "Option could not be created because {{count}} fields are invalid",
-        "cancel": "Cancel"
+        "409": "A option with this inventory code already exists",
+        "500": "An error occurred while creating the option"
       },
       "delete": {
         "title": "Delete option",

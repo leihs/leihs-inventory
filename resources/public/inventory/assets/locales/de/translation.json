@@ -166,10 +166,12 @@
         "title": "Option bearbeiten",
         "description": "Geben Sie alle erforderlichen Informationen an",
         "submit": "Option speichern",
+        "cancel": "Abbrechen",
         "success": "Option wurde erfolgreich gespeichert",
         "invalid_one": "Option konnte nicht erstellt werden, da ein Feld ungültig ist",
         "invalid_other": "Option konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-        "cancel": "Abbrechen"
+        "409": "Option konnte nicht erstellt werden, da eine Option mit dem gleichen Iventarcode bereits existiert",
+        "500": "Beim erstellen ist ein Fehler aufgetreten"
       },
       "delete": {
         "title": "Option löschen",

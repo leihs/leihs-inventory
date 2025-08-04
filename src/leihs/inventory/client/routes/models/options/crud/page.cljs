@@ -128,7 +128,9 @@
                         (.. event (preventDefault))
 
                         (if (not= (:status option-res) 200)
-                          (.. toast (error (:statusText option-res)))
+                          (if is-create
+                            (.. toast (error (t (str "pool.option.create." (:status option-res)))))
+                            (.. toast (error (t (str "pool.option.edit." (:status option-res))))))
 
                           (do
                             ;; patch cover-image when needed
