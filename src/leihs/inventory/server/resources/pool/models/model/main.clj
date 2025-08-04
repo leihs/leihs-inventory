@@ -1,8 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.model.main
   (:require
    [clojure.set]
-   [honey.sql :refer [format]
-    :rename {format sql-format}]
+   [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [select-entries fetch-attachments]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]

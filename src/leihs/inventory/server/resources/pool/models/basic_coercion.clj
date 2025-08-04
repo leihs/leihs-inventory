@@ -243,6 +243,5 @@
 (sa/def ::description string?)
 (sa/def ::size pos-int?)
 (sa/def ::page pos-int?)
-
 (sa/def ::internal_description string?)
 (sa/def ::hand_over_note string?)
