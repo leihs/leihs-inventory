@@ -35,21 +35,16 @@
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
-          (bad-request {:error "Failed to create model"})))
+          (bad-request {:error "Failed to create option"})))
       (catch Exception e
-        (error "Failed to create model" (.getMessage e))
+        (error "Failed to create option" (.getMessage e))
         (cond
-          (str/includes? (.getMessage e) "unique_model_name_idx")
+          (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
-                         :message "Model already exists"
+                         :message "Inventory code already exists"
                          :detail {:product (:product multipart)}})
               (status 409))
-          (str/includes? (.getMessage e) "insert or update on table \"models_compatibles\"")
-          (-> (response {:status "failure"
-                         :message "Modification of models_compatibles failed"
-                         :detail {:product (:product multipart)}})
-              (status 409))
-          :else (bad-request {:error "Failed to create model" :details (.getMessage e)}))))))
+          :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
 
 (defn index-resources [request]
   (let [current-timestamp (LocalDateTime/now)
@@ -64,5 +59,5 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
-        (error "Failed to fetch model" (.getMessage e))
-        (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
+        (error "Failed to fetch options" (.getMessage e))
+        (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))

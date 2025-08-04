@@ -211,8 +211,7 @@ response = {
           expect(validate_map_structure(resp.body, response)).to eq(true)
         end
 
-        it "reject if inventory_code already exists" do
-          # create option
+        it "reject on create if inventory_code already exists" do
           form_data = {
             product: Faker::Commerce.product_name,
             inventory_code: "O-1001"
@@ -230,7 +229,37 @@ response = {
             body: form_data,
             headers: cookie_header
           )
-          expect(resp.status).to eq(400)
+          expect(resp.status).to eq(409)
+        end
+
+        it "reject on update if inventory_code already exists" do
+          init_form_data = {
+            product: Faker::Commerce.product_name,
+            inventory_code: "O-1001"
+          }
+
+          resp = json_client_post(
+            "/inventory/#{pool_id}/options/",
+            body: init_form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          form_data = init_form_data.merge({inventory_code: "O-1002"})
+          resp = json_client_post(
+            "/inventory/#{pool_id}/options/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+          option_id = resp.body["id"]
+
+          resp = json_client_put(
+            "/inventory/#{pool_id}/options/#{option_id}",
+            body: init_form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(409)
         end
       end
     end

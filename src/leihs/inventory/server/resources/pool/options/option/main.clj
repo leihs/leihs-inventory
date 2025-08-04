@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.pool.options.option.main
   (:require
    [clojure.set]
+   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
@@ -59,7 +60,13 @@
           (bad-request {:error "Failed to update option"})))
       (catch Exception e
         (error "Failed to update option" (.getMessage e))
-        (bad-request {:error "Failed to update option" :details (.getMessage e)})))))
+        (cond
+          (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
+          (-> (response {:status "failure"
+                         :message "Inventory code already exists"
+                         :detail {:product (:product multipart)}})
+              (status 409))
+          :else (bad-request {:error "Failed to update option" :details (.getMessage e)}))))))
 
 (defn delete-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -77,5 +84,5 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
-        (error "Failed to update model" (.getMessage e))
+        (error "Failed to delete option" (.getMessage e))
         (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))
