@@ -25,7 +25,7 @@
            :created_at created-ts
            :updated_at created-ts)))
 
-(defn index-resources [request]
+(defn post-resource [request]
   (let [created-ts (LocalDateTime/now)
         tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))

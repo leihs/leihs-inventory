@@ -15,7 +15,7 @@
            :parameters {:path {:pool_id uuid?}
                         :body :software-post/multipart}
            :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
-           :handler software/index-resources
+           :handler software/post-resource
            :responses {200 {:description "OK"
                             :body ::types/post-response}
                        404 {:description "Not Found"}
