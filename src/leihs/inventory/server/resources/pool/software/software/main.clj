@@ -75,25 +75,17 @@
         model-id (to-uuid (get-in request [:path-params :model_id]))
         tx (:tx request)
         where-clause-model [:and [:= :id model-id] [:= :type "Software"]]
-        models (db-operation tx :select :models where-clause-model)
-        _ (when-not (seq models)
-            (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))
+        models (db-operation tx :select :models where-clause-model)]
 
-        items (db-operation tx :select :items [:and [:= :model_id model-id]])
-        attachments (db-operation tx :select :attachments [:= :model_id model-id])
-        _ (when (seq items)
-            (throw (ex-info "Request to delete software blocked: referenced item(s) exist" {:status 403})))
-
-        deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
-                                            (sql/where where-clause-model)
-                                            (sql/returning :*)
-                                            sql-format))
-        remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
-        _ (when (seq remaining-attachments)
-            (throw (ex-info "Request to delete software blocked: referenced attachments or images still exist" {:status 403})))
-
-        result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
-                :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
-    (if (= 1 (count deleted-model))
-      (response result)
-      (throw (ex-info "Request to delete software failed" {:status 403})))))
+    (if (seq models)
+      (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
+            deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
+                                                (sql/where where-clause-model)
+                                                (sql/returning :*)
+                                                sql-format))
+            result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                    :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+        (if (= 1 (count deleted-model))
+          (response result)
+          (throw (ex-info "Request to delete software failed" {:status 403}))))
+      (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))))
