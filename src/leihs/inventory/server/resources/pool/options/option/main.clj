@@ -18,8 +18,7 @@
    (java.time LocalDateTime)))
 
 (defn get-resource [request]
-  (let [current-timestamp (LocalDateTime/now)
-        tx (get-in request [:tx])
+  (let [tx (get-in request [:tx])
         option-id (to-uuid (get-in request [:path-params :option_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
@@ -41,7 +40,6 @@
 
 (defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         tx (:tx request)
         price (double-to-numeric-or-nil (:price multipart))
@@ -70,7 +68,6 @@
 
 (defn delete-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
         tx (:tx request)]
     (try
       (let [update-model-query (-> (sql/delete-from :options)

@@ -16,11 +16,8 @@
    (java.time LocalDateTime)))
 
 (defn post-resource [request]
-  (let [validation-result (atom [])
-        created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        option-id (to-uuid (get-in request [:path-params :option_id]))
         multipart (get-in request [:parameters :body])
         price (double-to-numeric-or-nil (:price multipart))
         multipart (assoc multipart :price price :inventory_pool_id pool-id)]
@@ -47,8 +44,7 @@
           :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
 
 (defn index-resources [request]
-  (let [current-timestamp (LocalDateTime/now)
-        tx (get-in request [:tx])
+  (let [tx (get-in request [:tx])
         pool-id (get-in request [:path-params :pool_id])]
     (try
       (let [base-query (->
