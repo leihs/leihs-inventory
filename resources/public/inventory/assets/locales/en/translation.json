@@ -116,6 +116,7 @@
         "500": "An error occurred while creating the software"
       },
       "edit": {
+        "delete": "Delete",
         "success": "Software successfully saved",
         "invalid_one": "Software could not be saved because one field is invalid",
         "invalid_other": "Software could not be saved because {{count}} fields are invalid"

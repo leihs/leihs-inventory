@@ -42,7 +42,6 @@ export const structure = [
         component: "instant-search",
         props: {
           "auto-complete": "off",
-          placeholder: "Hersteller auswählen",
           resource: "/inventory/:pool-id/manufacturers/?type=Software&search=",
           "not-found": "pool.software.software.blocks.manufacturer.not_found",
         },

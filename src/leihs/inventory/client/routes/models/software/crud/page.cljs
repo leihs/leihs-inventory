@@ -82,8 +82,6 @@
                                                         :statusText (.. err -response -statusText)}))))
                                 status (:status res)]
 
-                            (js/console.debug software-id)
-
                             (if (= status 200)
                               (do
                                 (.. toast (success (t "pool.software.delete.success")))
@@ -264,7 +262,7 @@
                                 ($ DropdownMenuItem {:asChild true}
                                    ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id/delete" params)
                                             :state state}
-                                      "Delete"))))))
+                                      (t "pool.software.edit.delete")))))))
 
                       ;; Dialog when deleting a software
                      (when (not is-create)

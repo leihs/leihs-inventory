@@ -100,7 +100,7 @@
       }
     },
     "software": {
-      "title": "Modell bearbeiten",
+      "title": "Software bearbeiten",
       "submit": "Speichern",
       "cancel": "Abbrechen",
       "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
@@ -116,6 +116,7 @@
         "500": "Beim erstellen ist ein Fehler aufgetreten"
       },
       "edit": {
+        "delete": "Löschen",
         "success": "Software wurde erfolgreich gespeichert",
         "invalid_one": "Software konnte nicht gespeichert werden, da ein Feld ungültig ist",
         "invalid_other": "Software konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
@@ -142,7 +143,7 @@
             "not_found": "Keine Hersteller zu diesem Suchbegriff gefunden"
           },
           "software_information": {
-            "label": "Software information"
+            "label": "Software Informationen"
           }
         }
       },
