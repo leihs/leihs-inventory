@@ -202,7 +202,7 @@
         attachments (db-operation tx :select :attachments [:= :model_id model-id])
         images (db-operation tx :select :images [:= :target_id model-id])
         _ (when (seq items)
-            (throw (ex-info "Referenced items exist" {:status 403})))
+            (throw (ex-info "Referenced items exist" {:status 409})))
 
         deleted-model-compatible (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
                                                        (sql/where [:= :model_id model-id])
@@ -217,7 +217,7 @@
         remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
         remaining-images (db-operation tx :select :images [:= :target_id model-id])
         _ (when (or (seq remaining-attachments) (seq remaining-images))
-            (throw (ex-info "Referenced attachments or images still exist" {:status 403})))
+            (throw (ex-info "Referenced attachments or images still exist" {:status 409})))
 
         result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                 :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
@@ -226,7 +226,7 @@
 
     (if (= 1 (count deleted-model))
       (response result)
-      (throw (ex-info "Failed to delete model" {:status 403})))))
+      (throw (ex-info "Failed to delete model" {:status 409})))))
 
 ; ##################################
 
