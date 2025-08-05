@@ -1,7 +1,7 @@
 require "spec_helper"
 require_relative "../shared/common"
 
-feature "Update software", type: :feature do
+feature "Update option", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
   let(:pool) { FactoryBot.create(:inventory_pool) }
 

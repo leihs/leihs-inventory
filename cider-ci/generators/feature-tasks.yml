@@ -49,9 +49,9 @@
     FEATURE_NAME: "Create option 04"
     FEATURE: './spec/features/options/create_spec.rb[1:4]'
 './spec/features/options/update_spec.rb[1:1]':
-  name: "Update software 01"
+  name: "Update option 01"
   environment_variables:
-    FEATURE_NAME: "Update software 01"
+    FEATURE_NAME: "Update option 01"
     FEATURE: './spec/features/options/update_spec.rb[1:1]'
 './spec/features/root_page_smoke_spec.rb[1:1:1]':
   name: "Root page renders 01"
