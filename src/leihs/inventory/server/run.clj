@@ -9,6 +9,7 @@
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
+   [leihs.inventory.server.constants :refer [MAX_REQUEST_BODY_SIZE_MB]]
    [leihs.inventory.server.swagger-api :as sui]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
@@ -32,9 +33,10 @@
    {:return-fn (fn [e] (System/exit -1))}
    (info "Invoking run with options: " options)
    (shutdown/init options)
-   (let [status (status/init)]
-     (db/init options (:health-check-registry status)))
-   (http-server/start options (app options))))
+   (let [status (status/init)
+         options (assoc options :http-max-body (* MAX_REQUEST_BODY_SIZE_MB 1024 1024))]
+     (db/init options (:health-check-registry status))
+     (http-server/start options (app options)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
