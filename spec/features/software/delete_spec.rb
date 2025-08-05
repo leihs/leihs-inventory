@@ -41,7 +41,9 @@ feature "Delete software", type: :feature do
     click_on "Software"
     fill_in "search", with: "#{product_old} #{version_old}"
     expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Software")
-    find("a", text: "edit").click
+
+    sleep 0.4
+    find("a", text: "edit", visible: true, match: :first).click
 
     click_on "submit-dropdown"
     click_on "Delete"
