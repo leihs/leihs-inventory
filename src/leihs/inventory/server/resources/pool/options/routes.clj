@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.pool.options.routes
   (:require
    [leihs.inventory.server.resources.pool.options.main :as options]
-   [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-post response-option-get]]
+   [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-get
+                                                                          response-option-post]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
@@ -10,6 +11,7 @@
   ["/options/"
    {:post {:accept "application/json"
            :coercion spec/coercion
+
            :parameters {:path {:pool_id uuid?}
                         :body :option/body}
            :handler options/post-resource
@@ -22,6 +24,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?}
                        :query ::types/options-query}
+
           :handler options/index-resources
           :responses {200 {:description "OK"
                            :body response-option-get}

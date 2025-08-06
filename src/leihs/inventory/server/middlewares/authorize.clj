@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
-   [leihs.core.core :refer [detect]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [leihs.core.core :refer [detect]]))
 
 (defn wrap-authorize-for-pool [handler]
   (fn [{{{pool-id :pool_id} :path} :parameters

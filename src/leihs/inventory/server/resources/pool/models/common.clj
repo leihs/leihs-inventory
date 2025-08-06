@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.common
   (:require
+   [clojure.spec.alpha]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]
@@ -31,9 +32,6 @@
 
 (defn fetch-thumbnails-for-ids [tx model-cover-ids]
   (vec (map #(get-one-thumbnail-query tx %) model-cover-ids)))
-
-(defn create-url [pool_id model_id type cover_image_id]
-  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
 
 ;; #####################
 
@@ -86,3 +84,10 @@
   ([models spec remove-nil-values?]
    (let [models (if remove-nil-values? (remove-nil-values models) models)]
      (mapv #(filter-map-by-spec % spec) models))))
+
+(defn model->enrich-with-image-attr
+  [pool-id]
+  (fn [{:keys [id image_id content_type] :as m}]
+    (cond-> m
+      image_id (assoc :url (str "/inventory/" pool-id "/models/" id "/images/" image_id)
+                      :content_type content_type))))

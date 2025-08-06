@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [warn]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn safe-ex-data [e]
   (when (instance? clojure.lang.ExceptionInfo e)
@@ -42,3 +42,9 @@
 (defn accept-header-html? [request]
   (let [accept-header (get-in request [:headers "accept"])]
     (and accept-header (str/includes? accept-header "text/html"))))
+
+(defn log-by-severity
+  ([e] (log-by-severity e nil))
+  ([message e]
+   (error message (.getMessage e))
+   (debug e)))

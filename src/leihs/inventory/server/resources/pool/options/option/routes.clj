@@ -9,6 +9,7 @@
   ["/options/:option_id"
    {:get {:accept "application/json"
           :coercion spec/coercion
+
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}}
           :handler option/get-resource
@@ -19,6 +20,7 @@
 
     :put {:accept "application/json"
           :coercion spec/coercion
+
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}
                        :body :option/body}
@@ -30,6 +32,7 @@
 
     :delete {:accept "application/json"
              :coercion spec/coercion
+
              :parameters {:path {:pool_id uuid?
                                  :option_id uuid?}}
              :handler option/delete-resource

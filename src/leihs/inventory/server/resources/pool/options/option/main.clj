@@ -8,9 +8,13 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response status]]))
+
+(def UPDATE_OPTION_ERROR "Failed to update option")
+(def DELETE_OPTION_ERROR "Failed to delete option")
+(def FETCH_OPTION_ERROR "Failed to fetch option")
 
 (defn get-resource [request]
   (let [tx (get-in request [:tx])
@@ -28,11 +32,10 @@
         (if result
           (response (-> result
                         (filter-map-by-spec ::types/response-option-object)))
-          (bad-request {:error "Failed to fetch option"})))
+          (bad-request {:error FETCH_OPTION_ERROR})))
       (catch Exception e
-        (debug e)
-        (error "Failed to fetch option" (.getMessage e))
-        (bad-request {:error "Failed to fetch option" :details (.getMessage e)})))))
+        (log-by-severity FETCH_OPTION_ERROR e)
+        (bad-request {:error FETCH_OPTION_ERROR :details (.getMessage e)})))))
 
 (defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -51,17 +54,16 @@
         (if updated-model
           (response (-> updated-model
                         (filter-map-by-spec ::types/response-option-object)))
-          (bad-request {:error "Failed to update option"})))
+          (bad-request {:error UPDATE_OPTION_ERROR})))
       (catch Exception e
-        (debug e)
-        (error "Failed to update option" (.getMessage e))
+        (log-by-severity "Failed to update option" e)
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
                          :message "Inventory code already exists"
                          :detail {:product (:product multipart)}})
               (status 409))
-          :else (bad-request {:error "Failed to update option" :details (.getMessage e)}))))))
+          :else (bad-request {:error UPDATE_OPTION_ERROR :details (.getMessage e)}))))))
 
 (defn delete-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -78,6 +80,5 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
-        (debug e)
-        (error "Failed to delete option" (.getMessage e))
-        (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))
+        (log-by-severity DELETE_OPTION_ERROR e)
+        (bad-request {:error DELETE_OPTION_ERROR :details (.getMessage e)})))))

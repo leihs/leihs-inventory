@@ -47,7 +47,7 @@ feature "Sign-in / Sign-out" do
           click_button "Sign out"
 
           # test redirect to sign-in page after logout
-          visit "/inventory/models"
+          visit "/inventory"
           expect(page).to have_content("Leihs Simple Login")
 
           visit "/inventory"
