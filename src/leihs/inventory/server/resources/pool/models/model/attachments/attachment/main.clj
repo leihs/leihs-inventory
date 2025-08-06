@@ -3,12 +3,15 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error]])
+   [taoensso.timbre :refer [error]])
   (:import
    [java.util Base64]))
+
+(def GET_ATTACHMENT_ERROR "Failed to get attachments")
 
 (defn get-resource [request]
   (try
@@ -49,13 +52,11 @@
                      (.decode (Base64/getMimeDecoder))
                      (hash-map :body)
                      (merge {:headers {"Content-Type" content-type
-                                    ;"Content-Transfer-Encoding" "binary"
                                        "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}})))))
 
     (catch Exception e
-      (debug e)
-      (error "Failed to get attachments" e)
-      (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
+      (log-by-severity GET_ATTACHMENT_ERROR e)
+      (bad-request {:error GET_ATTACHMENT_ERROR :details (.getMessage e)}))))
 
 (defn delete-resource [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)

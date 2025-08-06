@@ -22,7 +22,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
-                       :body :software-put/multipart}
+                       :body ::types/put-query}
           :handler software/put-resource
           :responses {200 {:description "OK"
                            :body ::types/put-response}
@@ -35,6 +35,6 @@
                                  :model_id uuid?}}
              :handler software/delete-resource
              :responses {200 {:description "OK"
-                              :body types/delete-response}
+                              :body ::types/delete-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}])

@@ -1,5 +1,6 @@
 (ns dev.build
-  (:import [java.lang ProcessBuilder Runtime Thread]))
+  (:import
+   [java.lang ProcessBuilder Runtime Thread]))
 
 (defn start-process [cmd]
   (let [current-dir (System/getProperty "user.dir") ;; Get the current working directory
