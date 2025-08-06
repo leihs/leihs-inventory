@@ -26,7 +26,7 @@
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
                                (s/optional-key :search) s/Str}}
-          :handler models/get-resource
+          :handler models/index-resources
           :responses {200 {:description "OK"
                            :body get-compatible-response}
                       404 {:description "Not Found"}

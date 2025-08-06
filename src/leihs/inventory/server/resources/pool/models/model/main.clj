@@ -182,6 +182,7 @@
                     sql-format)
                 :delete (-> (sql/delete-from table)
                             (sql/where where-clause)
+                            (sql/returning :*)
                             sql-format)
                 (throw (IllegalArgumentException. "Unsupported operation")))]
     (jdbc/execute! tx query)))

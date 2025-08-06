@@ -35,6 +35,8 @@
    [leihs.inventory.server.resources.pool.software.routes :as software]
    [leihs.inventory.server.resources.pool.software.software.routes :as sw-software]
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
+   [leihs.inventory.server.resources.pool.templates.routes :as templates]
+   [leihs.inventory.server.resources.pool.templates.template.routes :as template]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
@@ -147,6 +149,8 @@
                       (attachment/routes)
                       (attachments/routes)
                       (items/routes)
+                      (templates/routes)
+                      (template/routes)
                       (model-items/routes)
                       (model-item/routes)
                       (building/routes)
