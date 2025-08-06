@@ -4,16 +4,19 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool fetch-attachments]]
+   [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
+                                                         str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
+   [ring.util.response :refer [bad-request response status]])
   (:import
    (java.time LocalDateTime)))
+
+(def CREATE_SOFTWARE_ERROR "Failed to create software")
 
 (defn prepare-software-data
   [data]
@@ -44,12 +47,11 @@
           (response (filter-map-by-spec res ::types/post-response))
           (bad-request {:error "Failed to create software"})))
       (catch Exception e
-        (debug e)
-        (error "Failed to create software" (.getMessage e))
+        (log-by-severity CREATE_SOFTWARE_ERROR e)
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
                          :message "Software already exists"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (bad-request {:error "Failed to create software" :details (.getMessage e)}))))))
+          :else (bad-request {:error CREATE_SOFTWARE_ERROR :details (.getMessage e)}))))))

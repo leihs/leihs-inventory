@@ -154,6 +154,16 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
+shared_context :setup_api do |role = "inventory_manager"|
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+    @inventory_pool_id = @inventory_pool.id
+
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
+  end
+end
+
 shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
@@ -328,6 +338,26 @@ shared_context :setup_models_api2 do
     create_and_add_user_permission(@inventory_pool, @user, "customer")
     create_and_add_group_permission(@inventory_pool, @group, "customer")
   end
+end
+
+shared_context :setup_template_with_model do
+  let!(:model) {
+    FactoryBot.create(:leihs_model,
+      id: SecureRandom.uuid,
+      product: Faker::Commerce.product_name)
+  }
+  let!(:model_id) { model.id }
+
+  let!(:template) { FactoryBot.create(:template, inventory_pool: @inventory_pool) }
+  let!(:template_id) { template.id }
+  let!(:model_link) {
+    db = defined?(Sequel::Model) ? Sequel::Model.db : database
+    db[:model_links].insert(
+      model_group_id: template.id,
+      model_id: model.id,
+      quantity: 2
+    )
+  }
 end
 
 shared_context :setup_access_rights do
