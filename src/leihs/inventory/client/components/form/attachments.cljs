@@ -71,10 +71,6 @@
        (when (seq attachments)
          ($ DropzoneFiles
             ($ Table
-               ($ TableHeader
-                  ($ TableRow
-                     ($ TableHead (t (-> props :text :description)))
-                     ($ TableHead "")))
                ($ TableBody
                   (for [[index attachment] (map-indexed vector attachments)]
                     ($ TableRow {:key (.. (:file attachment) -name)}
