@@ -22,7 +22,7 @@ feature "Create software", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 
@@ -58,19 +58,19 @@ feature "Create software", type: :feature do
 
   scenario "fails with invalid mandatory fields" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 
     click_on "Save software"
     expect(page.find("body", visible: :all).text).to include("Software could not be created because one field is invalid")
-    expect(page).to have_content "product must contain at least 1 character"
+    expect(page).to have_content "Too small: expected input to have >=1 characters"
   end
 
   scenario "fails with confilicting product name" do
     FactoryBot.create(:leihs_model, type: "Software", product: product, version: version)
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
     fill_in "Product", with: product
@@ -85,7 +85,7 @@ feature "Create software", type: :feature do
 
   scenario "cancel works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 

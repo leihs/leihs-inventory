@@ -3,17 +3,15 @@ import { initReactI18next } from "react-i18next"
 // import Backend from "i18next-http-backend"
 // import LanguageDetector from "i18next-browser-languagedetector"
 // import { i18nextPlugin } from "translation-check"
-import { z } from "zod"
-import { makeZodI18nMap } from "zod-i18n-map"
 
 import de from "./resources/public/inventory/assets/locales/de/translation.json"
 import en from "./resources/public/inventory/assets/locales/en/translation.json"
-import zodDe from "./resources/public/inventory/assets/locales/de/zod.json"
-import zodEn from "./resources/public/inventory/assets/locales/en/zod.json"
+
+import * as z from "zod"
 
 const resources = {
-  de: { translation: de, zod: zodDe },
-  en: { translation: en, zod: zodEn },
+  de: { translation: de },
+  en: { translation: en },
 }
 
 i18n
@@ -38,7 +36,24 @@ i18n
     debug: true,
   })
 
-z.setErrorMap(makeZodI18nMap({ t: i18n.t.bind(i18n) }))
+// async function loadLocale(locale) {
+//   const { default: loc } = await import(`zod/v4/locales/${locale}.js`)
+//   z.config(loc())
+// }
+
+i18n.on("languageChanged", async (lng) => {
+  if (lng.startsWith("de")) {
+    const { default: de } = await import(
+      "./resources/public/inventory/assets/locales/de/de.js"
+    )
+    z.config(de())
+  } else {
+    const { default: en } = await import(
+      "./resources/public/inventory/assets/locales/en/en.js"
+    )
+    z.config(en())
+  }
+})
 
 export { i18n }
 export default i18n

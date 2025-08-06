@@ -2,33 +2,21 @@
   (:require
    [leihs.inventory.client.lib.client :refer [http-client]]))
 
+;; Replaces nil values with empty strings in maps or vectors, only at top level
 (defn replace-nil-values [data]
   (cond
     (map? data)
     (into {}
           (for [[k v] data]
-            [k (replace-nil-values (if (nil? v) "" v))]))
+            [k (if (nil? v) "" v)]))
 
     (vector? data)
-    (vec (map #(replace-nil-values (if (nil? %) "" %)) data))
+    (vec (map #(if (nil? %) "" %) data))
 
     :else
     data))
 
-(defn remove-nil-values [data]
-  (cond
-    (map? data)
-    (into {}
-          (for [[k v] data
-                :when (some? v)]
-            [k (remove-nil-values v)]))
-
-    (vector? data)
-    (vec (filter some? (map remove-nil-values data)))
-
-    :else
-    data))
-
+;; Takes a map or vector and replaces nil values with empty strings, only at the top level.
 (defn emtpy-string-to-nil [data]
   (cond
     (map? data)

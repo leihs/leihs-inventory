@@ -23,7 +23,7 @@ feature "Update option", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    @software = FactoryBot.create(:option,
+    FactoryBot.create(:option,
       inventory_pool: pool,
       product: product_old,
       version: version_old,
@@ -37,11 +37,14 @@ feature "Update option", type: :feature do
     click_on "Inventory type"
     click_on "Option"
     fill_in "search", with: "#{product_old} #{version_old}"
-    expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Option")
 
-    # FIXME: After merge change edit buttons to plain a links
-    within "tr", text: "#{product_old} #{version_old}" do
-      find("a", text: "edit").click
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product_old} #{version_old}", visible: true)
+      expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Option")
+    end
+
+    within find("tr", text: "#{product_old} #{version_old}", visible: true) do
+      click_on "edit"
     end
 
     fill_in "Product", with: product_new
@@ -54,7 +57,15 @@ feature "Update option", type: :feature do
 
     expect(page).to have_content "Inventory List"
     fill_in "search", with: "#{product_new} #{version_new}"
-    find("a", text: "edit").click
+
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
+      expect(find("tr", text: "#{product_new} #{version_new}")).to have_content("Option")
+    end
+
+    within find("tr", text: "#{product_new} #{version_new}", visible: true) do
+      click_on "edit"
+    end
 
     assert_field("Product", product_new)
     assert_field("Version", version_new)

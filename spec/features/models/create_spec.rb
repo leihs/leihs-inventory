@@ -64,7 +64,7 @@ feature "Create model", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New model"
 
@@ -191,5 +191,45 @@ feature "Create model", type: :feature do
       assert_field("properties.1.key", second_property_key)
       assert_field("properties.1.value", second_property_value)
     end
+  end
+
+  scenario "fails with invalid mandatory fields" do
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New model"
+
+    click_on "Create"
+    expect(page.find("body", visible: :all).text).to include("Model could not be created because one field is invalid")
+    expect(page).to have_content "Too small: expected input to have >=1 characters"
+  end
+
+  scenario "fails with confilicting product name" do
+    FactoryBot.create(:leihs_model, type: "Software", product: product, version: version)
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New model"
+    fill_in "Product", with: product
+    fill_in "Version", with: version
+
+    click_on "Create"
+
+    expect(page.find("body", visible: :all).text).to include("A model with this name already exists")
+  end
+
+  scenario "cancel works" do
+    login(user)
+    visit "/inventory/#{pool.id}/list"
+    click_on "Add inventory"
+    click_on "New model"
+
+    fill_in "Product", with: product
+    fill_in "Version", with: version
+
+    click_on "submit-dropdown"
+    click_on "Cancel"
+
+    expect(page).to have_content "Inventory List"
   end
 end

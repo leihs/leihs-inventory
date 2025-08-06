@@ -5,10 +5,10 @@ feature "Delete software", type: :feature do
   let(:user) { FactoryBot.create(:user, language_locale: "en-GB") }
   let(:pool) { FactoryBot.create(:inventory_pool) }
 
-  let(:product_old) { Faker::Commerce.product_name }
-  let(:version_old) { Faker::Commerce.color }
-  let(:manufacturer_old) { Faker::Company.name }
-  let(:software_information_old) { Faker::Lorem.paragraph }
+  let(:product) { Faker::Commerce.product_name }
+  let(:version) { Faker::Commerce.color }
+  let(:manufacturer) { Faker::Company.name }
+  let(:software_information) { Faker::Lorem.paragraph }
 
   let(:attachment_name_1) { "secd.pdf" }
   let(:attachment_name_2) { "shenpaper.pdf" }
@@ -20,16 +20,16 @@ feature "Delete software", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    @software = FactoryBot.create(:leihs_model,
+    @model = FactoryBot.create(:leihs_model,
       type: "Software",
-      product: product_old,
-      version: version_old,
-      manufacturer: manufacturer_old,
-      technical_detail: software_information_old)
+      product: product,
+      version: version,
+      manufacturer: manufacturer,
+      technical_detail: software_information)
 
-    FactoryBot.create(:attachment, leihs_model: @software,
+    FactoryBot.create(:attachment, leihs_model: @model,
       real_filename: attachment_name_1)
-    FactoryBot.create(:attachment, leihs_model: @software,
+    FactoryBot.create(:attachment, leihs_model: @model,
       real_filename: attachment_name_2)
   end
 
@@ -39,17 +39,22 @@ feature "Delete software", type: :feature do
     select_value("with_items", "all")
     click_on "Inventory type"
     click_on "Software"
-    fill_in "search", with: "#{product_old} #{version_old}"
-    expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Software")
+    fill_in "search", with: "#{product} #{version}"
 
-    sleep 0.4
-    find("a", text: "edit", visible: true, match: :first).click
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+      expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
+    end
+
+    within find("tr", text: "#{product} #{version}", visible: true) do
+      click_on "edit"
+    end
 
     click_on "submit-dropdown"
     click_on "Delete"
     click_on "Delete"
 
-    fill_in "search", with: "#{product_old} #{version_old}"
-    expect(page).not_to have_content "#{product_old} #{version_old}"
+    fill_in "search", with: "#{product} #{version}"
+    expect(page).not_to have_content "#{product} #{version}"
   end
 end

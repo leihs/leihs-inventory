@@ -105,12 +105,13 @@
 
                (set-value name search)
 
-               (let [debounce (js/setTimeout
+               (let [uri (str path search)
+                     debounce (js/setTimeout
                                (fn []
                                  (set-open! true)
-                               ;; Fetch result based on the search term
+                                 ;; Fetch result based on the search term
                                  (-> http-client
-                                     (.get (str path search))
+                                     (.get (str path (js/encodeURIComponent search)))
                                      (.then (fn [res]
                                               (let [data (jc (.-data res))]
                                                 (set-result! data))))
