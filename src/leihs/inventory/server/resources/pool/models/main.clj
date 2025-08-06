@@ -83,7 +83,7 @@
            (status 404)))
        (response (create-pagination-response request query with-pagination? post-fnc))))))
 
-(defn get-resource [request]
+(defn index-resources [request]
   (try
     (let [tx (:tx request)
           pool-id (-> request path-params :pool_id)

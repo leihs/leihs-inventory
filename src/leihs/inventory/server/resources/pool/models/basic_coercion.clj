@@ -1,9 +1,18 @@
 (ns leihs.inventory.server.resources.pool.models.basic_coercion
   (:require
    [clojure.spec.alpha :as sa]
+   [clojure.string :as str]
    [reitit.coercion.schema]
    [reitit.ring.middleware.multipart :as multipart]
-   [ring.middleware.accept]))
+   [ring.middleware.accept]
+   [spec-tools.core :as st]))
+
+(defn non-neg-number? [x]
+  (and (number? x) (not (neg? x))))
+
+(def non-blank-string?
+  (st/spec {:spec (sa/and string? (complement str/blank?))
+            :type :string}))
 
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
@@ -23,6 +32,7 @@
 (sa/def :nil/allocations (sa/nilable string?))
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
+(sa/def ::is_quantity_ok boolean?)
 (sa/def :nil/cover_image_id (sa/nilable uuid?))
 (sa/def :nil/image_id (sa/nilable uuid?))
 (sa/def :image/id any?)
@@ -74,7 +84,9 @@
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::entitlement_id uuid?)
 (sa/def :nil/entitlement_id (sa/nilable uuid?))
-(sa/def ::quantity int?)
+(sa/def ::quantity non-neg-number?)
+(sa/def ::available non-neg-number?)
+
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
                                    :req-un [:entitlement/group_id
                                             ::quantity]))
@@ -137,6 +149,7 @@
   (sa/or :nil nil? :value pred))
 (sa/def ::active boolean?)
 (sa/def ::data any?)
+(sa/def ::pagination any?)
 (sa/def ::group string?)
 (sa/def :str/id string?)
 (sa/def ::label string?)
@@ -205,9 +218,6 @@
 (sa/def :nil/group (sa/nilable string?))
 (sa/def :nil/group_default (sa/nilable string?))
 (sa/def :nil/role_default (sa/nilable string?))
-(defn non-neg-number? [x]
-  (and (number? x) (not (neg? x))))
-
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
 (sa/def :nil-str/owner (sa/nilable string?))
@@ -242,8 +252,7 @@
 (sa/def :any/id any?) ;; UUID spec
 (sa/def :nil/info_url (sa/nilable string?))
 
-(sa/def ::id uuid?)
-(sa/def ::model_id uuid?)
+(sa/def ::model_group_id uuid?)
 (sa/def ::filename string?)
 (sa/def ::description string?)
 (sa/def ::size pos-int?)
