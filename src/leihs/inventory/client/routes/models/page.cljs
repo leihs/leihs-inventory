@@ -116,7 +116,8 @@
                           ($ TableCell {:className "fit-content"}
                              ($ :div {:className "flex gap-2"}
 
-                                ($ Button {:variant "outline"}
+                                ($ Button {:variant "outline"
+                                           :asChild true}
                                    ($ Link {:state #js {:searchParams (.. location -search)}
                                             :to (case (-> model :type)
                                                   "Model" (str (:id model))
