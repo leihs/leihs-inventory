@@ -96,31 +96,16 @@
                           ($ TableCell
                              ($ :div {:className "flex gap-2"}
                                 ($ Image)
-                                ($ Badge {:className (cond
-                                                       (= (-> model :type) "Package")
-                                                       "bg-lime-500"
-
-                                                       (= (-> model :type) "Model")
-                                                       "bg-slate-500"
-
-                                                       (= (-> model :type) "Option")
-                                                       "bg-emerald-500"
-
-                                                       (= (-> model :type) "Software")
-                                                       "bg-orange-500")}
-
-                                   (str (cond
-                                          (= (-> model :type) "Package")
-                                          (t "pool.models.filters.type.package")
-
-                                          (= (-> model :type) "Model")
-                                          (t "pool.models.filters.type.model")
-
-                                          (= (-> model :type) "Option")
-                                          (t "pool.models.filters.type.option")
-
-                                          (= (-> model :type) "Software")
-                                          (t "pool.models.filters.type.software"))))))
+                                ($ Badge {:className (case (-> model :type)
+                                                       "Package" "bg-lime-500"
+                                                       "Model" "bg-slate-500"
+                                                       "Option" "bg-emerald-500"
+                                                       "Software" "bg-orange-500")}
+                                   (str (case (-> model :type)
+                                          "Package" (t "pool.models.filters.type.package")
+                                          "Model" (t "pool.models.filters.type.model")
+                                          "Option" (t "pool.models.filters.type.option")
+                                          "Software" (t "pool.models.filters.type.software"))))))
 
                           ($ TableCell {:className "font-bold"}
                              (str (:product model) " " (:version model)))
@@ -133,18 +118,11 @@
 
                                 ($ Button {:variant "outline"}
                                    ($ Link {:state #js {:searchParams (.. location -search)}
-                                            :to (cond
-                                                  (= (-> model :type) "Model")
-                                                  (str (:id model))
-
-                                                  (= (-> model :type) "Package")
-                                                  (str (:id model))
-
-                                                  (= (-> model :type) "Option")
-                                                  (str "../options/" (:id model))
-
-                                                  (= (-> model :type) "Software")
-                                                  (str "../software/" (:id model)))
+                                            :to (case (-> model :type)
+                                                  "Model" (str (:id model))
+                                                  "Package" (str (:id model))
+                                                  "Option" (str "../options/" (:id model))
+                                                  "Software" (str "../software/" (:id model)))
                                             :viewTransition true}
                                       (t "pool.models.list.actions.edit")))
 
