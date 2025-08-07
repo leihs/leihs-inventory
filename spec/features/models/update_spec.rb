@@ -205,7 +205,10 @@ feature "Update model", type: :feature do
     expect(page).to have_content "Inventory List"
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_new} #{version_new}"
-    find("a", text: "edit").click
+
+    within "tr", text: "#{product_new} #{version_new}" do
+      find("a", text: "edit").click
+    end
 
     assert_field("Product", product_new)
     assert_field("Version", version_new)

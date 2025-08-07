@@ -27,7 +27,7 @@ feature "Update software", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    @software = FactoryBot.create(:leihs_model,
+    FactoryBot.create(:leihs_model,
       type: "Software",
       product: product_old,
       version: version_old,

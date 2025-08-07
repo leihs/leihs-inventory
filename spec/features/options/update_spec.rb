@@ -23,7 +23,7 @@ feature "Update option", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    @software = FactoryBot.create(:option,
+    FactoryBot.create(:option,
       inventory_pool: pool,
       product: product_old,
       version: version_old,
