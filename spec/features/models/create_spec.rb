@@ -64,7 +64,7 @@ feature "Create model", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New model"
 

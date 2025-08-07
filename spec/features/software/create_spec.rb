@@ -22,7 +22,7 @@ feature "Create software", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 
@@ -58,7 +58,7 @@ feature "Create software", type: :feature do
 
   scenario "fails with invalid mandatory fields" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 
@@ -70,7 +70,7 @@ feature "Create software", type: :feature do
   scenario "fails with confilicting product name" do
     FactoryBot.create(:leihs_model, type: "Software", product: product, version: version)
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
     fill_in "Product", with: product
@@ -85,7 +85,7 @@ feature "Create software", type: :feature do
 
   scenario "cancel works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New software"
 

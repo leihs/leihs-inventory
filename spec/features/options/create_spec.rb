@@ -19,7 +19,7 @@ feature "Create option", type: :feature do
 
   scenario "works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New option"
 
@@ -47,7 +47,7 @@ feature "Create option", type: :feature do
 
   scenario "fails with invalid mandatory fields" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New option"
 
@@ -60,7 +60,7 @@ feature "Create option", type: :feature do
   scenario "fails with confilicting inventory code" do
     FactoryBot.create(:option, inventory_code: inventory_code)
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New option"
     fill_in "Product", with: product
@@ -75,7 +75,7 @@ feature "Create option", type: :feature do
 
   scenario "cancel works" do
     login(user)
-    visit "/inventory/#{pool.id}/models"
+    visit "/inventory/#{pool.id}/list"
     click_on "Add inventory"
     click_on "New option"
 
