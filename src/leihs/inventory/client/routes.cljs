@@ -95,9 +95,9 @@
 
               ;; items crud 
               {:path "items/create"
-               :loader loader/items-crud-page
+               ;; :loader loader/items-crud-page
                :element ($ items-crud-page)}
 
               {:path "models/:item-id/items/create"
-               :loader loader/items-crud-page
+               ;; :loader loader/items-crud-page
                :element ($ items-crud-page)}])}])}])))
