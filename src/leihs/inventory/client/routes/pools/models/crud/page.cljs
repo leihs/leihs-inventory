@@ -86,7 +86,7 @@
                                 (.. toast (success (t "pool.model.delete.success")))
 
                                 ;; navigate to models list
-                                (navigate (router/generatePath "/inventory/:pool-id/models" params)
+                                (navigate (router/generatePath "/inventory/:pool-id/list" params)
                                           #js {:state state}))
 
                               ;; show error message
@@ -235,12 +235,12 @@
                                                :viewTransition true})
 
                                 (if is-create
-                                  (navigate (str "/inventory/" pool-id "/models?"
+                                  (navigate (str "/inventory/" pool-id "/list?"
                                                  (params-with-all-items))
                                             #js {:state state
                                                  :viewTransition true})
 
-                                  (navigate (str "/inventory/" pool-id "/models"
+                                  (navigate (str "/inventory/" pool-id "/list"
                                                  (some-> state .-searchParams))
                                             #js {:state state
                                                  :viewTransition true})))))))))]
@@ -317,7 +317,7 @@
                                       (t "pool.model.edit.add_item"))))
                               ($ DropdownMenuSeparator)
                               ($ DropdownMenuItem {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
                                                    (some-> state .-searchParams))
                                           :viewTransition true}
                                     (if is-create

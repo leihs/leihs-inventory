@@ -87,7 +87,7 @@
                                 (.. toast (success (t "pool.software.delete.success")))
 
                                 ;; navigate to models list
-                                (navigate (router/generatePath "/inventory/:pool-id/models" params)
+                                (navigate (router/generatePath "/inventory/:pool-id/list" params)
                                           #js {:state state}))
 
                               ;; show error message
@@ -176,13 +176,13 @@
                               ;; state needs to be forwarded for back navigation
                             (if is-create
                               (navigate (str (router/generatePath
-                                              "/inventory/:pool-id/models"
+                                              "/inventory/:pool-id/list"
                                               #js {:pool-id pool-id}) "?" (params-with-all-items))
                                         #js {:state state
                                              :viewTransition true})
 
                               (navigate (str (router/generatePath
-                                              "/inventory/:pool-id/models"
+                                              "/inventory/:pool-id/list"
                                               #js {:pool-id pool-id}) (some-> state .-searchParams))
                                         #js {:state state
                                              :viewTransition true})))))))]
@@ -250,7 +250,7 @@
                                  ($ ChevronDown {:className "w-4 h-4"})))
                            ($ DropdownMenuContent {:align "end"}
                               ($ DropdownMenuItem {:asChild true}
-                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/models" params)
+                                 ($ Link {:to (str (router/generatePath "/inventory/:pool-id/list" params)
                                                    (some-> state .-searchParams))
                                           :viewTransition true}
                                     (if is-create
