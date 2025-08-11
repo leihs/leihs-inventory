@@ -120,8 +120,8 @@
                                            :asChild true}
                                    ($ Link {:state #js {:searchParams (.. location -search)}
                                             :to (case (-> model :type)
-                                                  "Model" (str (:id model))
-                                                  "Package" (str (:id model))
+                                                  "Model" (str "../models/" (:id model))
+                                                  "Package" (str "../models/" (:id model))
                                                   "Option" (str "../options/" (:id model))
                                                   "Software" (str "../software/" (:id model)))
                                             :viewTransition true}

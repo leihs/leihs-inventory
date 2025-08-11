@@ -20,16 +20,16 @@ feature "Delete software", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    @software = FactoryBot.create(:leihs_model,
+    @model = FactoryBot.create(:leihs_model,
       type: "Software",
       product: product,
       version: version,
       manufacturer: manufacturer,
       technical_detail: software_information)
 
-    FactoryBot.create(:attachment, leihs_model: @software,
+    FactoryBot.create(:attachment, leihs_model: @model,
       real_filename: attachment_name_1)
-    FactoryBot.create(:attachment, leihs_model: @software,
+    FactoryBot.create(:attachment, leihs_model: @model,
       real_filename: attachment_name_2)
   end
 
@@ -40,10 +40,14 @@ feature "Delete software", type: :feature do
     click_on "Inventory type"
     click_on "Software"
     fill_in "search", with: "#{product} #{version}"
-    expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
 
-    within "tr", text: "#{product} #{version}" do
-      find("a", text: "edit").click
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+      expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
+    end
+
+    within find("tr", text: "#{product} #{version}", visible: true) do
+      click_on "edit"
     end
 
     click_on "submit-dropdown"

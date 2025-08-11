@@ -206,8 +206,13 @@ feature "Update model", type: :feature do
     select_value("with_items", "without_items")
     fill_in "search", with: "#{product_new} #{version_new}"
 
-    within "tr", text: "#{product_new} #{version_new}" do
-      find("a", text: "edit").click
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
+      expect(find("tr", text: "#{product_new} #{version_new}")).to have_content("Model")
+    end
+
+    within find("tr", text: "#{product_new} #{version_new}", visible: true) do
+      click_on "edit"
     end
 
     assert_field("Product", product_new)

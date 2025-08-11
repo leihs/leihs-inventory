@@ -303,7 +303,8 @@
 
                         ($ DropdownMenu
                            ($ DropdownMenuTrigger {:asChild true}
-                              ($ Button {:size "icon"}
+                              ($ Button {:data-test-id "submit-dropdown"
+                                         :size "icon"}
                                  ($ ChevronDown {:className "w-4 h-4"})))
                            ($ DropdownMenuContent {:align "end"}
                               ($ DropdownMenuItem {:asChild true}

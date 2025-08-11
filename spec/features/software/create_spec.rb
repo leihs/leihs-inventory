@@ -64,7 +64,7 @@ feature "Create software", type: :feature do
 
     click_on "Save software"
     expect(page.find("body", visible: :all).text).to include("Software could not be created because one field is invalid")
-    expect(page).to have_content "product must contain at least 1 character"
+    expect(page).to have_content "Too small: expected input to have >=1 characters"
   end
 
   scenario "fails with confilicting product name" do

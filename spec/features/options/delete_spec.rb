@@ -30,13 +30,15 @@ feature "Delete option", type: :feature do
     click_on "Inventory type"
     click_on "Option"
     fill_in "search", with: "#{product} #{version}"
-    expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
 
-    # FIXME: After merge change edit buttons to plain a links
-    within "tr", text: "#{product} #{version}" do
-      find("a", text: "edit").click
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+      expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
     end
 
+    within find("tr", text: "#{product} #{version}", visible: true) do
+      click_on "edit"
+    end
     click_on "submit-dropdown"
     click_on "Delete"
     click_on "Delete"
