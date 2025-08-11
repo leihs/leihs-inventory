@@ -23,6 +23,26 @@
   environment_variables:
     FEATURE_NAME: "Create model 01"
     FEATURE: './spec/features/models/create_spec.rb[1:1]'
+'./spec/features/models/create_spec.rb[1:2]':
+  name: "Create model 02"
+  environment_variables:
+    FEATURE_NAME: "Create model 02"
+    FEATURE: './spec/features/models/create_spec.rb[1:2]'
+'./spec/features/models/create_spec.rb[1:3]':
+  name: "Create model 03"
+  environment_variables:
+    FEATURE_NAME: "Create model 03"
+    FEATURE: './spec/features/models/create_spec.rb[1:3]'
+'./spec/features/models/create_spec.rb[1:4]':
+  name: "Create model 04"
+  environment_variables:
+    FEATURE_NAME: "Create model 04"
+    FEATURE: './spec/features/models/create_spec.rb[1:4]'
+'./spec/features/models/delete_spec.rb[1:1]':
+  name: "Delete software 01"
+  environment_variables:
+    FEATURE_NAME: "Delete software 01"
+    FEATURE: './spec/features/models/delete_spec.rb[1:1]'
 './spec/features/models/update_spec.rb[1:1]':
   name: "Update model 01"
   environment_variables:
@@ -99,9 +119,9 @@
     FEATURE_NAME: "Create software 04"
     FEATURE: './spec/features/software/create_spec.rb[1:4]'
 './spec/features/software/delete_spec.rb[1:1]':
-  name: "Delete software 01"
+  name: "Delete software 02"
   environment_variables:
-    FEATURE_NAME: "Delete software 01"
+    FEATURE_NAME: "Delete software 02"
     FEATURE: './spec/features/software/delete_spec.rb[1:1]'
 './spec/features/software/update_spec.rb[1:1]':
   name: "Update software 01"
