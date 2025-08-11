@@ -51,7 +51,7 @@
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
-                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/list")
                       request)
             resp (be/routes (convert-params request))
             created-session (get-in resp [:cookies "leihs-user-session" :value])
