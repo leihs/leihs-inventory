@@ -165,7 +165,7 @@
               (t "pool.software.create.description")
               (t "pool.software.description")))
 
-         ($ Card {:className "py-8 mb-12"}
+         ($ Card {:className "py-2 mb-12"}
             ($ CardContent
                ($ :div {:className "flex gap-4"}
                   ($ Form (merge form)
@@ -189,8 +189,8 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ :div {:className "flex flex-1 space-x-6 sticky bottom-0"}
-                     ($ :div {:class-name "flex [&>*]:rounded-none [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
+                  ($ :div {:className "flex items-end flex-1"}
+                     ($ :div {:class-name "flex [&>*]:rounded-none ml-auto sticky bottom-[1.5rem] [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
                         ($ Button {:type "submit"
                                    :form "create-software"}
                            (if is-create

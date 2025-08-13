@@ -104,7 +104,7 @@
     },
     "templates": {
       "title": "Vorlagen",
-      "description": "Vorlagen sind eine einfache Möglichkeit, um Modelle zu erstellen. Sie können",
+      "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle zu",
       "add": "Vorlage hinzufügen",
       "template": {
         "title": "Vorlage",

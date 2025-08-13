@@ -60,6 +60,7 @@
                   :element ($ entitlement-groups-page)}
 
                  {:path "templates"
+                  :loader loader/templates-page
                   :element ($ templates-page)}
 
                  {:path "options"
