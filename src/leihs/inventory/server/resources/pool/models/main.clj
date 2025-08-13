@@ -3,7 +3,6 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.core.core :refer [presence]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
@@ -13,18 +12,10 @@
                                                                                  process-compatibles
                                                                                  process-entitlements
                                                                                  process-properties]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
-                                                                 filter-by-type
-                                                                 from-category
-                                                                 with-items
-                                                                 with-search
-                                                                 without-items]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
@@ -96,5 +87,3 @@
       (catch Exception e
         (log-by-severity "Failed to create model" e)
         (exception-to-response request e "Failed to create model")))))
-(defn post-resource [request]
-  (create-model-handler request))
