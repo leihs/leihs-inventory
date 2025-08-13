@@ -16,7 +16,7 @@ def assert_unchecked(el)
 end
 
 def assert_field(label, value)
-  expect(find_field(label).value).to eq value
+  expect(find_field(label, wait: 10).value).to eq value
 end
 
 def fill_in_command_field(placeholder, value)

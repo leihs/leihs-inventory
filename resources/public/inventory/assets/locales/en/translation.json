@@ -25,6 +25,11 @@
     }
   },
   "pool": {
+    "inventory": {
+      "breadcrumbs": {
+        "inventory": "Inventory"
+      }
+    },
     "models": {
       "title": "Inventory List",
       "filters": {
@@ -81,11 +86,13 @@
         "add_option": "New option",
         "add_software": "New software"
       },
+      "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
         "advanced_search": "Advanced Search",
         "statistics": "Statistics",
-        "entitlement_groups": "Entitlement Groups"
+        "entitlement_groups": "Entitlement Groups",
+        "templates": "Templates"
       },
       "list": {
         "empty": "No models found",
@@ -97,6 +104,73 @@
         "actions": {
           "edit": "edit",
           "add_item": "Add Item"
+        }
+      }
+    },
+    "templates": {
+      "title": "Templates",
+      "description": "Edit the templates and assign the models",
+      "add": "Add template",
+      "list": {
+        "quantity_error": "Quantity exceeds availability",
+        "empty": "No templates found",
+        "header": {
+          "name": "Name",
+          "models_count": "Number of models"
+        },
+        "actions": {
+          "edit": "edit"
+        }
+      },
+      "template": {
+        "quantity_error": "Quantity exceeds availability",
+        "title": "Template",
+        "create": {
+          "description": "Provide all required information",
+          "submit": "Save template",
+          "cancel": "Cancel",
+          "success": "Template was successfully created",
+          "invalid_one": "Template could not be created because one field is invalid",
+          "invalid_other": "Template could not be created because {{count}} fields are invalid",
+          "conflict": "Template could not be created because a template with the same name already exists",
+          "error": "An error occurred while creating"
+        },
+        "edit": {
+          "description": "Make changes and save them afterward",
+          "submit": "Save template",
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "success": "Template was successfully saved",
+          "invalid_one": "Template could not be saved because one field is invalid",
+          "invalid_other": "Template could not be saved because {{count}} fields are invalid"
+        },
+        "delete": {
+          "title": "Delete template",
+          "description": "Are you sure you want to delete this template?",
+          "confirm": "Delete",
+          "cancel": "Cancel",
+          "success": "Template was successfully deleted",
+          "error": "Template could not be deleted"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Template name"
+            }
+          }
+        },
+        "models": {
+          "title": "Assignments",
+          "blocks": {
+            "models": {
+              "label": "Select model and assign quantity",
+              "not_found": "Model not found",
+              "select": "Select model",
+              "placeholder": "Search model",
+              "search_empty": "Type at least 3 characters to search",
+              "searching": "Searching..."
+            }
+          }
         }
       }
     },

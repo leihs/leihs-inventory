@@ -102,7 +102,6 @@ export const structure = [
         component: "instant-search",
         props: {
           "auto-complete": "off",
-          placeholder: "Hersteller auswählen",
           resource: "/inventory/:pool-id/manufacturers/?search=",
           "not-found": "pool.model.product.blocks.manufacturer.not_found",
         },
@@ -147,7 +146,6 @@ export const structure = [
       {
         name: "entitlements",
         label: "pool.model.entitlements.blocks.entitlements.label",
-        description: "Listen Sie die Berechtigungen auf",
         component: "entitlement-allocations",
       },
     ],
