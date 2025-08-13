@@ -102,6 +102,39 @@
         }
       }
     },
+    "templates": {
+      "title": "Vorlagen",
+      "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle zu",
+      "add": "Vorlage hinzufügen",
+      "template": {
+        "create": {
+          "title": "Neue Vorlage erstellen",
+          "description": "Geben Sie alle erforderlichen Informationen an",
+          "submit": "Vorlage speichern",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich erstellt",
+          "invalid_one": "Vorlage konnte nicht erstellt werden, da ein Feld ungültig ist",
+          "invalid_other": "Vorlage konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
+          "409": "Vorlage konnte nicht erstellt werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
+          "500": "Beim erstellen ist ein Fehler aufgetreten"
+        },
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Name der Vorlage*"
+            }
+          }
+        },
+        "models": {
+          "title": "Zuteilungen",
+          "blocks": {
+            "models": {
+              "label": "Modell auswählen und Anzahl zuweisen"
+            }
+          }
+        }
+      }
+    },
     "software": {
       "title": "Software bearbeiten",
       "submit": "Speichern",

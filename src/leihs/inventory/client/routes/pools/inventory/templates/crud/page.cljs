@@ -1,8 +1,6 @@
 (ns leihs.inventory.client.routes.pools.inventory.templates.crud.page
   (:require
-   ["@/components/react/scrollspy/scrollspy" :refer [Scrollspy ScrollspyItem
-                                                     ScrollspyMenu]]
-   ["@/routes/pools/software/crud/form" :refer [schema structure]]
+   ["@/routes/pools/inventory/templates/crud/form" :refer [schema structure]]
    ["@@/alert-dialog" :refer [AlertDialog AlertDialogAction AlertDialogCancel
                               AlertDialogContent AlertDialogDescription
                               AlertDialogFooter AlertDialogHeader
@@ -25,7 +23,7 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.software.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.inventory.templates.crud.components.fields :as form-fields]
    [leihs.inventory.client.routes.pools.software.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
@@ -157,15 +155,17 @@
          ($ Spinner))
 
       ($ :article {:className "mt-6"}
-         ($ Card {:className "mb-12"}
-            ($ CardHeader
-               ($ CardTitle (if is-create
-                              (t "pool.software.create.title")
-                              (t "pool.software.edit.title")))
-               ($ CardDescription (if is-create
-                                    (t "pool.software.create.description")
-                                    (t "pool.software.edit.description"))))
+         ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
+            (if is-create
+              (t "pool.templates.template.create.title")
+              (t "pool.templates.template.edit.title")))
 
+         ($ :h3 {:className "text-sm mb-6 text-gray-500"}
+            (if is-create
+              (t "pool.templates.template.create.description")
+              (t "pool.templates.template.edit.description")))
+
+         ($ Card {:className "my-4"}
             ($ CardContent
                ($ :div {:className "flex gap-4"}
                   ($ Form (merge form)
@@ -180,7 +180,8 @@
                                    :name (t (:title section))}
 
                              ($ :h2 {:className "text-lg"} (t (:title section)))
-                             ($ :hr {:className "mb-4"})
+                             (when (:title section)
+                               ($ :hr {:className "mb-4"}))
 
                              (for [block (:blocks section)]
                                ($ form-fields/field {:key (:name block)
@@ -188,8 +189,8 @@
                                                      :form form
                                                      :block block}))))))
 
-                  ($ :div {:className "flex flex-1 space-x-6 sticky bottom-0"}
-                     ($ :div {:class-name "flex [&>*]:rounded-none [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
+                  ($ :div {:className "flex items-end flex-1"}
+                     ($ :div {:class-name "flex [&>*]:rounded-none ml-auto sticky bottom-[1.5rem] [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md divide-x divide-border/40"}
                         ($ Button {:type "submit"
                                    :form "create-software"}
                            (if is-create

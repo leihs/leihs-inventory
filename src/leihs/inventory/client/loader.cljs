@@ -119,6 +119,21 @@
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
 
+(defn templates-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        data (-> http-client
+                 (.get (str "/inventory/" pool-id "/templates/?size=50&page=1")
+                       #js {:cache false})
+                 (.then (fn [res]
+                          (jc (.. res -data))))
+                 (.catch (fn [error]
+                           (js/console.error "Error fetching templates" error))))]
+
+    (.. (js/Promise.all [data])
+        (then (fn [[data]]
+                {:data data})))))
+
 (defn template-crud-page [route-data]
   (let [params (.. ^js route-data -params)
         pool-id (aget params "pool-id")
