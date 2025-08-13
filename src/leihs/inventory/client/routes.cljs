@@ -12,6 +12,8 @@
    [leihs.inventory.client.routes.pools.inventory.layout :rename {layout inventory-layout}]
    [leihs.inventory.client.routes.pools.inventory.list.page :rename {page list-page}]
    [leihs.inventory.client.routes.pools.inventory.statistics.page :rename {page statistics-page}]
+   [leihs.inventory.client.routes.pools.inventory.templates.crud.page :rename {page template-crud-page}]
+   [leihs.inventory.client.routes.pools.inventory.templates.page :rename {page templates-page}]
    [leihs.inventory.client.routes.pools.items.crud.page :rename {page items-crud-page}]
    [leihs.inventory.client.routes.pools.models.crud.page :rename {page models-crud-page}]
    [leihs.inventory.client.routes.pools.options.crud.page :rename {page options-crud-page}]
@@ -57,6 +59,18 @@
                  {:path "entitlement-groups"
                   :element ($ entitlement-groups-page)}
 
+                 {:path "templates"
+                  :element ($ templates-page)}
+
+                 ;; template crud 
+                 {:path "templates/create"
+                  :loader loader/template-crud-page
+                  :element ($ template-crud-page)}
+
+                 {:path "templates/:template-id/delete?"
+                  :loader loader/template-crud-page
+                  :element ($ template-crud-page)}
+
                  {:path "options"
                   :loader #(router/redirect "create")}
 
@@ -93,7 +107,7 @@
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
 
-              ;; items crud 
+;; items crud 
               {:path "items/create"
                ;; :loader loader/items-crud-page
                :element ($ items-crud-page)}
