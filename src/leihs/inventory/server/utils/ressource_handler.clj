@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.utils.ressource-handler
   (:require
+   [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [leihs.core.auth.session :as session]
@@ -11,9 +12,9 @@
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [reitit.coercion.schema]
-   [reitit.coercion.spec]))
+   [reitit.coercion.spec]
+   [ring.util.response :refer [bad-request response status content-type]]))
 
-(def WHITELISTED_ROUTES_FOR_SSA_RESPONSE ["/inventory/models/inventory-list"])
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
                            ".svg" "image/svg+xml"
@@ -78,6 +79,16 @@
       filename
       nil)))
 
+(defn create-not-found-response [request]
+  (let [accept-header (or (get-in request [:headers "accept"]) "")]
+    (if (clojure.string/includes? accept-header "application/json")
+      (-> {:status "failure" :message "No entry found"}
+          (json/generate-string)
+          (response)
+          (status 404)
+          (content-type "application/json; charset=utf-8"))
+      (rh/index-html-response request 404))))
+
 (defn custom-not-found-handler [request]
   (let [request ((db/wrap-tx (fn [request] request)) request)
         request ((csrf/extract-header (fn [request] request)) request)
@@ -119,10 +130,7 @@
       (and accept-html? (not (session-valid? request)) (not swagger-call?))
       {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
 
-      (and (nil? asset) (some #(= % uri) WHITELISTED_ROUTES_FOR_SSA_RESPONSE))
-      (rh/index-html-response request 200)
-
       (and (nil? asset) (accept-header-html? request))
       (rh/index-html-response request 200)
 
-      :else (rh/index-html-response request 404))))
+      :else (create-not-found-response request))))

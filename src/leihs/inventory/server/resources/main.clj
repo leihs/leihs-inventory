@@ -14,7 +14,8 @@
    [reitit.coercion.spec]
    [ring.util.response :as response]
    [ring.util.response :refer [response status]])
-  (:gen-class))
+  (:gen-class)
+  (:import (org.jsoup Jsoup)))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
@@ -31,7 +32,17 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(defn get-sign-in [request]
+(defn- extract-csrf-token [^String html]
+  (let [doc (Jsoup/parse (or html ""))
+        meta (.select doc "meta[name=csrf-token]")
+        input (.select doc "input[name=csrf-token]")
+        token (cond
+                (pos? (.size meta)) (.attr (.first meta) "content")
+                (pos? (.size input)) (.attr (.first input) "value")
+                :else nil)]
+    (some-> token str/trim not-empty)))
+
+(defn- fetch-sign-in-view [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
         params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
@@ -41,7 +52,16 @@
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
         accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
+    html))
+
+(defn get-sign-in [request]
+  (let [html (fetch-sign-in-view request)]
     {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html}))
+
+(defn get-csrf-token [request]
+  (let [html (fetch-sign-in-view request)
+        res (extract-csrf-token html)]
+    {:status 200 :body {:csrf-token res}}))
 
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
