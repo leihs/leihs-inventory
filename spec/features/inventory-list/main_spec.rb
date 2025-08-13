@@ -173,7 +173,10 @@ feature "Inventory Page", type: :feature do
     visit "/inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name
-    expect(page).to have_content("Inventory List - #{pool_1.name}")
+
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool_1.name)
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: "Inventory List")
+
     uri = URI.parse(current_url)
     query_params = CGI.parse(uri.query)
     expect(query_params).to eq({"with_items" => ["true"], "retired" => ["false"], "page" => ["1"], "size" => ["50"]})

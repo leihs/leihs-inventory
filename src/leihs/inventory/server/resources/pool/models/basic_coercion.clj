@@ -251,7 +251,7 @@
 (sa/def :nil/attachments (sa/nilable any?)) ;; Optional field
 (sa/def :nil/rental_price (sa/nilable any?))
 (sa/def ::manufacturer any?)
-(sa/def ::version string?)
+(sa/def ::version (sa/nilable string?))
 (sa/def ::technical_detail string?)
 (sa/def :any/id any?) ;; UUID spec
 (sa/def :nil/info_url (sa/nilable string?))
