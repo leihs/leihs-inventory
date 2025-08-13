@@ -119,6 +119,22 @@
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))
 
+(defn template-crud-page [route-data]
+  (let [params (.. ^js route-data -params)
+        pool-id (aget params "pool-id")
+        template-id (or (aget params "template-id") nil)
+
+        template-path (when template-id
+                        (str "/inventory/" pool-id "/options/" template-id))
+
+        data (when template-path
+               (-> http-client
+                   (.get template-path #js {:id template-id})
+                   (.then #(jc (.-data %)))))]
+
+    (.. (js/Promise.all (cond-> [] data (conj data)))
+        (then (fn [[& [data]]] {:data (if data data nil)})))))
+
 (defn items-crud-page [route-data]
   (let [models (-> http-client
                    (.get "/inventory/models-compatibles")

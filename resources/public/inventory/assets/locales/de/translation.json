@@ -81,11 +81,13 @@
         "add_option": "Neue Option",
         "add_software": "Neue Software"
       },
+      "add_template": "Vorlage hinzufügen",
       "tabs": {
         "inventory_list": "Inventarliste",
         "advanced_search": "Erweiterte Suche",
         "statistics": "Statistik",
-        "entitlement_groups": "Anspruchsgruppen"
+        "entitlement_groups": "Anspruchsgruppen",
+        "templates": "Vorlagen"
       },
       "list": {
         "empty": "Keine Modelle gefunden",

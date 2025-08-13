@@ -81,11 +81,13 @@
         "add_option": "New option",
         "add_software": "New software"
       },
+      "add_template": "New template",
       "tabs": {
         "inventory_list": "Inventory List",
         "advanced_search": "Advanced Search",
         "statistics": "Statistics",
-        "entitlement_groups": "Entitlement Groups"
+        "entitlement_groups": "Entitlement Groups",
+        "templates": "Templates"
       },
       "list": {
         "empty": "No models found",
