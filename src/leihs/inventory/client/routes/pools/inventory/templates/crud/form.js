@@ -2,12 +2,11 @@ import { z } from "zod"
 
 export const schema = z.object({
   name: z.string().min(1),
-  entitlements: z
+  models: z
     .array(
       z.object({
-        product: z.string(),
-        quantitiy: z.coerce.number().optional(),
         id: z.string(),
+        quantitiy: z.coerce.number().optional(),
       }),
     )
     .optional(),
@@ -15,11 +14,10 @@ export const schema = z.object({
 
 export const structure = [
   {
-    title: "pool.template.name.title",
     blocks: [
       {
         name: "name",
-        label: "pool.template.name.blocks.name.label",
+        label: "pool.templates.template.name.blocks.name.label",
         component: "input",
         props: {
           "auto-complete": "off",
@@ -28,12 +26,12 @@ export const structure = [
     ],
   },
   {
-    title: "pool.model.entitlements.title",
+    title: "pool.templates.template.models.title",
     blocks: [
       {
-        name: "entitlements",
-        label: "pool.template.fields.blocks.entitlements.label",
-        component: "entitlements",
+        name: "models",
+        label: "pool.templates.template.models.blocks.models.label",
+        component: "models",
       },
     ],
   },

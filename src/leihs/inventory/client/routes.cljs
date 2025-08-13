@@ -62,15 +62,6 @@
                  {:path "templates"
                   :element ($ templates-page)}
 
-                 ;; template crud 
-                 {:path "templates/create"
-                  :loader loader/template-crud-page
-                  :element ($ template-crud-page)}
-
-                 {:path "templates/:template-id/delete?"
-                  :loader loader/template-crud-page
-                  :element ($ template-crud-page)}
-
                  {:path "options"
                   :loader #(router/redirect "create")}
 
@@ -107,7 +98,16 @@
                :loader loader/software-crud-page
                :element ($ software-crud-page)}
 
-;; items crud 
+              ;; template crud 
+              {:path "templates/create"
+               :loader loader/template-crud-page
+               :element ($ template-crud-page)}
+
+              {:path "templates/:template-id/delete?"
+               :loader loader/template-crud-page
+               :element ($ template-crud-page)}
+
+              ;; items crud 
               {:path "items/create"
                ;; :loader loader/items-crud-page
                :element ($ items-crud-page)}

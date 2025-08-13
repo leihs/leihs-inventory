@@ -102,6 +102,30 @@
         }
       }
     },
+    "templates": {
+      "title": "Vorlagen",
+      "description": "Vorlagen sind eine einfache Möglichkeit, um Modelle zu erstellen. Sie können",
+      "add": "Vorlage hinzufügen",
+      "template": {
+        "title": "Vorlage",
+        "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+        "name": {
+          "blocks": {
+            "name": {
+              "label": "Name der Vorlage*"
+            }
+          }
+        },
+        "models": {
+          "title": "Zuteilungen",
+          "blocks": {
+            "models": {
+              "label": "Modell auswählen und Anzahl zuweisen"
+            }
+          }
+        }
+      }
+    },
     "software": {
       "title": "Software bearbeiten",
       "submit": "Speichern",

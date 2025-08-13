@@ -4,10 +4,11 @@
    ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
+   ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
+   [leihs.inventory.client.components.form.models :refer [Models]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
-   [leihs.inventory.client.routes.pools.inventory.templates.crud.components.entitlements :refer [Entitlements]]
    [uix.core :as uix :refer [defui $]]))
 
 (def fields-map
@@ -18,11 +19,12 @@
 (defui field [{:keys [control form block]}]
   (let [[t] (useTranslation)]
     (case (:component block)
-      "entitlements"
-      ($ Entitlements {:form form
-                       :name (:name block)
-                       :label (:label block)
-                       :props (:props block)})
+      "models"
+      ($ Models {:form form
+                 :name (:name block)
+                 :label (:label block)
+                 :props (:props block)}
+         ($ TableCell "hello"))
 
       "checkbox"
       ($ FormField {:control (cj control)
