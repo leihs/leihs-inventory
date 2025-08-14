@@ -33,6 +33,7 @@
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def ::is_quantity_ok boolean?)
+(sa/def ::models_count non-neg-number?)
 (sa/def :nil/cover_image_id (sa/nilable uuid?))
 (sa/def :nil/image_id (sa/nilable uuid?))
 (sa/def :image/id any?)

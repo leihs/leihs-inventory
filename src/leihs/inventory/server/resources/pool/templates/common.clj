@@ -22,7 +22,7 @@
                    :else nil]])
         :available]
        [[:case
-         [:<
+         [:<=
           :ml.quantity
           (sq/call :count
                    [[:case
