@@ -55,7 +55,7 @@
        [(keyword "mg.id") :model_group_id]
        [:ml.quantity]
        [[:case
-         [:< :ml.quantity
+         [:<= :ml.quantity
           [:count
            [:case
             [:and
@@ -98,25 +98,34 @@
              (assoc :id (:model_group_id m))
              (dissoc :model_group_id)))
        rows))
+
 (defn index-resources [request]
   (let [tx (get-in request [:tx])
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
-      (let [base-query (-> (sql/select :mg.*)
+      (let [base-query (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
+                                       :mg.id
+                                       :mg.name
+                                       :mg.created_at
+                                       :mg.updated_at)
                            (sql/from [:model_groups :mg])
                            (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-                           (sql/where [:and [:= :ipmg.inventory_pool_id pool-id] [:= :mg.type "Template"]]))
+                           (sql/left-join [:model_links :ml] [:= :ml.model_group_id :mg.id])
+                           (sql/where [:and
+                                       [:= :ipmg.inventory_pool_id pool-id]
+                                       [:= :mg.type "Template"]])
+                           (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at))
+
             post-fnc (fn [models]
+                       (if (seq models)
+                         (let [template-ids (mapv :id models)
+                               query (template-quantity-ok-query tx pool-id template-ids)
+                               res (->> (jdbc/execute! tx query)
+                                        (rename-model-group-id-to-id)
+                                        (group-quantity-ok)) models (merge-by-model-group-id models res)]
+                           (filter-and-coerce-by-spec models ::types/data-keys))
+                         models))]
 
-                       (println ">o> abc.models" models)
-
-                       (let [template-ids (mapv :id models)
-                             query (template-quantity-ok-query tx pool-id template-ids)
-                             res (->> (jdbc/execute! tx query)
-                                      (rename-model-group-id-to-id)
-                                      (group-quantity-ok))
-                             models (merge-by-model-group-id models res)]
-                         (filter-and-coerce-by-spec models ::types/data-keys)))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
         (error ERROR_FETCH (.getMessage e))

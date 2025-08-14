@@ -24,7 +24,7 @@
 (sa/def ::data-keys
   (sa/keys :req-un [::sp/id
                     ::sp/name]
-           :opt-un [::sp/is_quantity_ok]))
+           :opt-un [::sp/is_quantity_ok ::sp/models_count]))
 
 (sa/def ::data (sa/coll-of ::data-keys))
 
