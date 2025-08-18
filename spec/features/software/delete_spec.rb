@@ -57,4 +57,22 @@ feature "Delete software", type: :feature do
     fill_in "search", with: "#{product} #{version}"
     expect(page).not_to have_content "#{product} #{version}"
   end
+
+  scenario "disallowed" do
+    FactoryBot.create(:item, inventory_pool: pool, leihs_model: @model)
+    login(user)
+    visit "/inventory/#{pool.id}"
+    select_value("with_items", "all")
+    click_on "Inventory type"
+    click_on "Software"
+    fill_in "search", with: "#{product} #{version}"
+
+    within find("tr", text: "#{product} #{version}") do
+      click_link("edit", wait: 20)
+    end
+
+    click_on "submit-dropdown"
+
+    expect(page).not_to have_content "Delete"
+  end
 end

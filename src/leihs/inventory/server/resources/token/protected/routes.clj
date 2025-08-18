@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.token.protected.routes
   (:require
    [leihs.inventory.server.constants :refer [HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.token.protected.main :as token-protected]))
+   [leihs.inventory.server.resources.token.protected.main :as token-protected]
+   [reitit.coercion.schema]))
 
 (defn routes []
   [""

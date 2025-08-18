@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.token.protected.main
   (:require
-   [clojure.string]
+   [clojure.string :as str]
    [crypto.random]
-   [cryptohash-clj.api :refer :all]
+   [cryptohash-clj.api :refer [verify-with]]
    [leihs.inventory.server.utils.request-utils :refer [authenticated?
                                                        AUTHENTICATED_ENTITY
                                                        get-auth-entity]]
@@ -22,7 +22,7 @@
       {:status 403 :body "Forbidden"})))
 
 (defn extract-scope-attributes [data]
-  (select-keys data (filter #(clojure.string/starts-with? (name %) "scope_") (keys data))))
+  (select-keys data (filter #(str/starts-with? (name %) "scope_") (keys data))))
 
 (defn verify-token
   "Checks if the token is valid based on a database entry."
@@ -56,7 +56,7 @@
   (fn [request]
     (let [tx (:tx request)
           header (get-in request [:headers "authorization"])
-          token (when header (clojure.string/replace header "Token " ""))
+          token (when header (str/replace header "Token " ""))
 
           verification-result (verify-token tx token)]
       (if verification-result

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.model.types
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as sp]
    [reitit.coercion.schema]
    [schema.core :as s]
    [spec-tools.core :as st]))
@@ -21,7 +21,7 @@
    (sa/keys :req-un [::sp/id ::sp/model_id ::sp/filename ::sp/size])))
 
 (sa/def ::deleted_images (sa/coll-of any?))
-(sa/def ::deleted_model_compatibles (sa/coll-of uuid?))
+(sa/def ::deleted_model_compatibles (sa/coll-of any?))
 
 (sa/def ::deleted_model
   (sa/coll-of
@@ -41,6 +41,7 @@
                            :opt-un [:min/images
                                     :nil/hand_over_note
                                     :nil/internal_description
-                                    ::sp/product])
+                                    ::sp/product
+                                    ::sp/is_deletable])
 
             :description "Complete inventory response"}))

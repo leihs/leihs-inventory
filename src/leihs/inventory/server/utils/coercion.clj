@@ -4,7 +4,8 @@
    [clojure.edn :as edn]
    [clojure.string :as str]
    [clojure.walk]
-   [taoensso.timbre :refer [debug warn]])
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]))
 
@@ -32,9 +33,7 @@
               (re-find #"^\(" x)) ;; crude check for EDN-ish string
        (try
          (edn/read-string x)
-         (catch Exception e
-           (debug e)
-           x))
+         (catch Exception e (log-by-severity "Error parsing edn-string" e) x))
        x))
    m))
 

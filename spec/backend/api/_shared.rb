@@ -72,6 +72,33 @@ def create_and_add_category_to_model(models, category = nil)
   created_categories
 end
 
+def create_procurement_request(model_id, user_id, quantity = 1, motivation = "testing")
+  room = Room.first
+  org_id = database[:procurement_organizations].insert(name: Faker::Company.name)
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+  budget_id = database[:procurement_budget_periods].insert(name: "period-1", inspection_start_date: Date.today, end_date: Date.today + 1.year)
+
+  database[:procurement_requests].returning.insert(budget_period_id: budget_id,
+    category_id: cat_id,
+    user_id: user_id,
+    organization_id: org_id,
+    model_id: model_id,
+    requested_quantity: quantity,
+    room_id: room.id,
+    motivation: motivation)
+end
+
+def create_procurement_template(model_id)
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+
+  database[:procurement_templates].returning.insert(
+    category_id: cat_id,
+    model_id: model_id
+  )
+end
+
 def link_categories_to_pool(categories, inventory_pool)
   categories.each do |category|
     database[:inventory_pools_model_groups].insert(inventory_pool.id, category.id)

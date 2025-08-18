@@ -3,10 +3,11 @@
    [clojure.java.io :as io]
    [clojure.set]
    [dk.ative.docjure.spreadsheet :as ss]
-   [ring.middleware.accept]
-   [taoensso.timbre :refer [debug error]]))
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [ring.middleware.accept]))
 
-(defn generate-excel-from-map "Generates an Excel file from a map and returns a Java File object."
+(defn generate-excel-from-map
+  "Generates an Excel file from a map and returns a Java File object."
   [data-map]
   (try
     (when (empty? data-map)
@@ -21,11 +22,11 @@
           (ss/save-workbook! output-stream workbook))
         temp-file))
     (catch Exception e
-      (debug e)
-      (error e "Failed to generate Excel from map")
+      (log-by-severity "Failed to generate Excel from map" e)
       (throw e))))
 
-(defn index-resources "Handler that generates an Excel file from a given map."
+(defn index-resources
+  "Handler that generates an Excel file from a given map."
   [_]
   (try
     (let [data [{:name "Alice" :age 30 :city "New York"}
@@ -37,12 +38,10 @@
                  "Content-Disposition" "attachment; filename=export.xlsx"}
        :body (io/input-stream excel-file)})
     (catch IllegalArgumentException e
-      (debug e)
-      (error e "Invalid input to Excel handler")
+      (log-by-severity "Invalid input to Excel handler" e)
       {:status 400
        :body "Invalid input to generate Excel file."})
     (catch Exception e
-      (debug e)
-      (error e "Internal Server Error in Excel handler")
+      (log-by-severity "Internal Server Error in Excel handler" e)
       {:status 500
        :body "Internal Server Error."})))

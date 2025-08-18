@@ -3,12 +3,12 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request header response]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request header response]]))
 
 (defn index-resources [request]
   (try
@@ -24,6 +24,5 @@
       (-> (response result)
           (header "Count" (count result))))
     (catch Exception e
-      (debug e)
-      (error "Failed to get rooms" e)
+      (log-by-severity "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

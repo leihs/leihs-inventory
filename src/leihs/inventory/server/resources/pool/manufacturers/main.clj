@@ -6,10 +6,10 @@
     :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
@@ -39,6 +39,5 @@
 
       (response (if in-detail result (extract-manufacturers result))))
     (catch Exception e
-      (debug e)
-      (error "Failed to get models/manufacturer" e)
+      (log-by-severity "Failed to get models/manufacturer" e)
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))

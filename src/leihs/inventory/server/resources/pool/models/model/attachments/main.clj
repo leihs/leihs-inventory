@@ -5,12 +5,12 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :as response :refer [bad-request response status]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -57,8 +57,7 @@
         (status (response data) 200)))
 
     (catch Exception e
-      (debug e)
-      (error "Failed to upload attachment" e)
+      (log-by-severity "Failed to upload attachment" e)
       (bad-request {:error "Failed to upload attachment" :details (.getMessage e)}))))
 
 (defn index-resources [request]
@@ -69,6 +68,5 @@
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
       (response (create-pagination-response request query nil)))
     (catch Exception e
-      (debug e)
-      (error "Failed to get attachments" e)
+      (log-by-severity "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))

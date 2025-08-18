@@ -1,8 +1,6 @@
 (ns leihs.inventory.server.utils.exception-handler
   (:require
-   [clojure.string :as str]
-   [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
-   [ring.util.response :refer [bad-request response status]]
+   [ring.util.response :as resp :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
 (defn exception-to-response
@@ -27,3 +25,20 @@
     (or response
         (bad-request {:status "failure" :error default-error
                       :details {:message (.getMessage e)}}))))
+(defn exception-handler [message e]
+  (error message (.getMessage e))
+  (cond
+    (instance? org.postgresql.util.PSQLException e)
+    (-> (response {:status "failure"
+                   :message message
+                   :detail (.getMessage e)})
+        (status 409))
+
+    (instance? clojure.lang.ExceptionInfo e)
+    (let [{:keys [status]} (ex-data e)
+          msg (ex-message e)]
+      (-> (response {:status "failure"
+                     :error msg})
+          (resp/status status)))
+
+    :else (bad-request {:error message :details (.getMessage e)})))
