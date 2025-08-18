@@ -4,14 +4,13 @@
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
+   ["@@/form" :refer [FormField FormItem FormMessage FormDescription]]
    ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
    ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useLoaderData useParams]]
-   [clojure.string :as str]
-
+   ["react-router-dom" :as router :refer [useParams]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
@@ -39,7 +38,7 @@
         [open set-open!] (uix/use-state false)
         [width set-width!] (uix/use-state nil)
         [search set-search!] (uix/use-state "")
-        [result set-result!] (uix/use-state [])
+        [data set-data!] (uix/use-state [])
 
         [pending set-pending!] (uix/use-state false)
 
@@ -47,12 +46,13 @@
 
         {:keys [fields append remove update]} (jc (hook-form/useFieldArray
                                                    (cj {:control control
-                                                        :name "compatibles"})))]
+                                                        :keyName (str name "-id")
+                                                        :name name})))]
 
     (uix/use-effect
      (fn []
        (if (< (count search) 3)
-         (set-result! [])
+         (set-data! [])
          (let [debounce (js/setTimeout
                          (fn []
                            (set-pending! true)
@@ -62,7 +62,7 @@
                                (.then (fn [res]
                                         (let [data (jc (.-data res))]
                                           (set-pending! false)
-                                          (set-result! data))))
+                                          (set-data! data))))
                                (.catch
                                 (fn [err]
                                   (js/console.error "Error fetching result" err)))))
@@ -78,60 +78,69 @@
          (set-width! (.. buttonRef -current -offsetWidth))))
      [])
 
-    (js/console.debug result)
-
     ($ :div {:class-name "flex flex-col gap-2"}
-       ($ Popover {:open open
-                   :on-open-change #(do
-                                      (set-search! "")
-                                      (set-result! [])
-                                      (set-open! %))}
-          ($ Label (t label))
-          ($ PopoverTrigger {:as-child true}
-             ($ Button {:variant "outline"
-                        :role "combobox"
-                        :ref buttonRef
-                        :on-click #(set-open! (not open))
-                        :class-name "w-full justify-between"}
-                (t "pool.model.compatible_models.blocks.compatible_models.select")
-                ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
+       ($ FormField {:control control
+                     :name name
+                     :render #($ FormItem
+                                 ($ Label (t label))
+                                 ($ Popover {:open open
+                                             :on-open-change (fn [val]
+                                                               (set-search! "")
+                                                               (set-data! [])
+                                                               (set-open! val))}
+                                    ($ PopoverTrigger {:as-child true}
+                                       ($ Button {:variant "outline"
+                                                  :role "combobox"
+                                                  :ref buttonRef
+                                                  :on-click (fn [] (set-open! (not open)))
+                                                  :class-name "w-full justify-between"}
+                                          (t (-> props :text :select))
+                                          ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
 
-          ($ PopoverContent {:class-name "p-0"
-                             :style {:width (str width "px")}}
+                                    ($ PopoverContent {:class-name "p-0"
+                                                       :style {:width (str width "px")}}
 
-             ($ Command {:should-filter false
-                         :on-change #(set-search! (.. % -target -value))}
-                ($ :div
-                   ($ CommandInput
-                      {:placeholder (t "pool.model.compatible_models.blocks.compatible_models.search")})
-                   (when pending
-                     ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
-                ($ CommandList {:data-test-id "compatible-models-list"}
+                                       ($ Command {:should-filter false
+                                                   :on-change (fn [event] (set-search! (.. event -target -value)))}
+                                          ($ :div
+                                             ($ CommandInput
+                                                {:placeholder (t (-> props :text :placeholder))})
+                                             (when pending
+                                               ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
+                                          ($ CommandList {:data-test-id "compatible-models-list"}
 
-                   ($ CommandEmpty (t "pool.model.compatible_models.blocks.compatible_models.not_found"))
+                                             ($ CommandEmpty (t (-> props :text :not_found)))
 
-                   (for [element result]
-                     ($ CommandItem {:key (:id element)
-                                     :value (str (:product element) " " (:version element))
-                                     :on-select #(do (set-open! false)
-                                                     (if
-                                                      (not (check-path-existing (:product element) fields))
-                                                       (append (cj {:product (:product element)
-                                                                    :version (:version element)
-                                                                    :cover_image_url (:cover_image_url element)
-                                                                    :id (:id element)}))
-                                                       (remove (find-index-from-path (:product element) fields))))}
+                                             (for [element data]
+                                               ($ CommandItem {:key (:id element)
+                                                               :value (str (:product element) " " (:version element))
+                                                               :on-select (fn []
+                                                                            (set-open! false)
+                                                                            (if
+                                                                             (not (check-path-existing (:product element) fields))
+                                                                              (append (cj (merge {:product (:product element)
+                                                                                                  :version (:version element)
+                                                                                                  :cover_image_url (:cover_image_url element)
+                                                                                                  :id (:id element)}
+                                                                                                 (into {}
+                                                                                                       (map (fn [attr]
+                                                                                                              (when-let [value (get element (keyword attr))]
+                                                                                                                [(keyword attr) value]))
+                                                                                                            (:attributes props))))))
+                                                                              (remove (find-index-from-path (:product element) fields))))}
 
-                        ($ Check
-                           {:class-name (str "mr-2 h-4 w-4 "
-                                             (if (check-path-existing (:product element) fields)
-                                               "visible"
-                                               "invisible"))})
-                        ($ :span
-                           {:class-name (str (when (= 1 (:level element)) " font-bold ")
-                                             (when (= 2 (:level element)) " font-medium ")
-                                             " truncate")}
-                           (str (:product element) " " (:version element)))))))))
+                                                  ($ Check
+                                                     {:class-name (str "mr-2 h-4 w-4 "
+                                                                       (if (check-path-existing (:product element) fields)
+                                                                         "visible"
+                                                                         "invisible"))})
+                                                  ($ :span
+                                                     {:class-name (str (when (= 1 (:level element)) " font-bold ")
+                                                                       (when (= 2 (:level element)) " font-medium ")
+                                                                       " truncate")}
+                                                     (str (:product element) " " (:version element)))))))))
+                                 ($ FormDescription)
+                                 ($ FormMessage))})
 
        (when (not-empty fields)
          ($ :div {:class-name "rounded-md border overflow-hidden"}
@@ -153,7 +162,7 @@
 
                          (when children ($ :<> (children update index field)))
 
-                         ($ TableCell {:class-name "flex gap-2 justify-end"}
+                         ($ TableCell {:class-name "text-right w-0"}
                             ($ Button {:variant "outline"
                                        :type "button"
                                        :on-click #(remove index)

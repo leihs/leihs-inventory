@@ -6,10 +6,10 @@ export const schema = z.object({
     .array(
       z.object({
         id: z.string(),
-        quantitiy: z.coerce.number().optional(),
+        quantity: z.coerce.number().default(0),
       }),
     )
-    .optional(),
+    .min(1),
 })
 
 export const structure = [
@@ -32,6 +32,15 @@ export const structure = [
         name: "models",
         label: "pool.templates.template.models.blocks.models.label",
         component: "models",
+        props: {
+          text: {
+            select: "pool.templates.template.models.blocks.models.select",
+            placeholder:
+              "pool.templates.template.models.blocks.models.placeholder",
+            not_found: "pool.templates.template.models.blocks.models.not_found",
+          },
+          attributes: ["quantity", "available"],
+        },
       },
     ],
   },

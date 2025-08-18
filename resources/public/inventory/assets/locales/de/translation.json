@@ -106,7 +106,18 @@
       "title": "Vorlagen",
       "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle zu",
       "add": "Vorlage hinzufügen",
+      "list": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "header": {
+          "name": "Name",
+          "models_count": "Anzahl Modelle"
+        },
+        "actions": {
+          "edit": "editieren"
+        }
+      },
       "template": {
+        "quantity_error": "Anzahl übersteigt Verfügbarkeit",
         "create": {
           "title": "Neue Vorlage erstellen",
           "description": "Geben Sie alle erforderlichen Informationen an",
@@ -117,6 +128,25 @@
           "invalid_other": "Vorlage konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
           "409": "Vorlage konnte nicht erstellt werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
           "500": "Beim erstellen ist ein Fehler aufgetreten"
+        },
+        "edit": {
+          "title": "Vorlage bearbeiten",
+          "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
+          "submit": "Vorlage speichern",
+          "delete": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich gespeichert",
+          "invalid_one": "Vorlage konnte nicht gespeichert werden, da ein Feld ungültig ist",
+          "invalid_other": "Vorlage konnte nicht gespeichert werden, da {{count}} Felder ungültig sind"
+        },
+        "delete": {
+          "title": "Vorlage löschen",
+          "description": "Sind Sie sicher, dass Sie diese Vorlage löschen möchten?",
+          "confirm": "Löschen",
+          "cancel": "Abbrechen",
+          "success": "Vorlage wurde erfolgreich gelöscht",
+          "error": "Vorlage konnte nicht gelöscht werden",
+          "500": "Vorlage konnte nicht gelöscht werden"
         },
         "name": {
           "blocks": {
@@ -129,7 +159,10 @@
           "title": "Zuteilungen",
           "blocks": {
             "models": {
-              "label": "Modell auswählen und Anzahl zuweisen"
+              "label": "Modell auswählen und Anzahl zuweisen",
+              "not_found": "Modell nicht gefunden",
+              "select": "Modell auswählen",
+              "placeholder": "Modell suchen"
             }
           }
         }

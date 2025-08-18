@@ -22,16 +22,6 @@
   (:import
    (java.time LocalDateTime)))
 
-;; +       [(sq/call :count :i.id) :available]) ;; Count items assigned to the model
-;; +      (sql/from [:models :m])
-;; +      (sql/left-join [:items :i] [:= :i.model_id :m.id]) ;; Join items table
-;; +      (sql/where [:and
-;; +                  [:= :m.is_borrowable true] ;; Model is borrowable
-;; +                  [:is :m.retired nil]]) ;; Model is not retired
-;; +      (sql/group-by :m.product :m.id :m.version) ;; Group by product, id, and version
-;; +      (sql/order-by [:m.product :asc]) ;; Optional: Order by product name
-;; +      sq/format))
-
 (defn index-resources [request]
   (try
     (let [tx (:tx request)
@@ -42,7 +32,7 @@
                           :models.product
                           :models.version
                           :models.cover_image_id
-                          [[:count :items.id] :available_quantity])
+                          [[:count :items.id] :available])
                          (sql/from :models)
                          (sql/left-join :items
                                         [:and

@@ -120,19 +120,23 @@
         (then (fn [[& [data]]] {:data (if data data nil)})))))
 
 (defn templates-page [route-data]
-  (let [params (.. ^js route-data -params)
-        pool-id (aget params "pool-id")
-        data (-> http-client
-                 (.get (str "/inventory/" pool-id "/templates/?size=50&page=1")
-                       #js {:cache false})
-                 (.then (fn [res]
-                          (jc (.. res -data))))
-                 (.catch (fn [error]
-                           (js/console.error "Error fetching templates" error))))]
+  (let [url (js/URL. (.. route-data -request -url))
+        search (.-search url)]
+    (if (empty? search)
+      (router/redirect "?page=1&size=50")
+      (let [params (.. ^js route-data -params)
+            pool-id (aget params "pool-id")
+            data (-> http-client
+                     (.get (str "/inventory/" pool-id "/templates/?size=50&page=1")
+                           #js {:cache false})
+                     (.then (fn [res]
+                              (jc (.. res -data))))
+                     (.catch (fn [error]
+                               (js/console.error "Error fetching templates" error))))]
 
-    (.. (js/Promise.all [data])
-        (then (fn [[data]]
-                {:data data})))))
+        (.. (js/Promise.all [data])
+            (then (fn [[data]]
+                    {:data data})))))))
 
 (defn template-crud-page [route-data]
   (let [params (.. ^js route-data -params)
@@ -140,12 +144,14 @@
         template-id (or (aget params "template-id") nil)
 
         template-path (when template-id
-                        (str "/inventory/" pool-id "/options/" template-id))
+                        (str "/inventory/" pool-id "/templates/" template-id))
 
         data (when template-path
                (-> http-client
                    (.get template-path #js {:id template-id})
-                   (.then #(jc (.-data %)))))]
+                   (.then #(jc (.-data %)))
+                   (.catch (fn [error]
+                             (js/console.error "Error fetching template" error)))))]
 
     (.. (js/Promise.all (cond-> [] data (conj data)))
         (then (fn [[& [data]]] {:data (if data data nil)})))))

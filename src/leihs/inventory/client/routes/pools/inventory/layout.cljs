@@ -43,8 +43,6 @@
         profile (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
 
-    (js/console.debug last-segment)
-
     ($ :article
        ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
           (t "pool.models.title") " - " (:name pool))

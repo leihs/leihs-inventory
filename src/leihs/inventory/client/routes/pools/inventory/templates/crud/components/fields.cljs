@@ -26,24 +26,27 @@
                  :props (:props block)}
          (fn [update index field]
            ($ :<>
-              ($ TableCell "hello")
-              ($ TableCell "/")
-              ($ TableCell ($ :<>
-                              #_(js/console.debug field index update)
-                              "hello")))))
+              ($ TableCell {:class-name "w-1/5"}
+                 (when (and (:quantity field)
+                            (> (:quantity field)
+                               (:available field)))
+                   ($ :span {:class-name "text-red-500"}
+                      (t "pool.templates.template.quantity_error"))))
 
-      "checkbox"
-      ($ FormField {:control (cj control)
-                    :name (:name block)
-                    :render #($ FormItem {:class-name "mt-6"}
-                                ($ FormControl
-                                   ($ Checkbox (merge
-                                                {:checked (-> (jc %) :field :value)
-                                                 :onCheckedChange (-> (jc %) :field :onChange)}
-                                                (:props block))))
+              ($ TableCell {:class-name "w-[5rem]"}
+                 ($ Input {:type "number"
+                           :value (if (:quantity field)
+                                    (:quantity field)
+                                    0)
+                           :onChange (fn [val]
+                                       (update
+                                        index
+                                        (cj (merge field
+                                                   {:quantity (-> val .-target .-value)}))))}))
 
-                                ($ FormLabel {:className "pl-4"} (t (:label block)))
-                                ($ FormMessage))})
+              ($ TableCell {:class-name "px-0"} "/")
+
+              ($ TableCell (:available field)))))
 
       ;; "default case - this renders a component from the component map"
       (let [comp (get fields-map (:component block))]
