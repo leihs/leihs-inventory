@@ -44,12 +44,13 @@
                           :models.cover_image_id
                           [[:count :items.id] :available_quantity])
                          (sql/from :models)
-                         (sql/left-join :items [:= :items.model_id :models.id])
-                         (sql/where [:and
-                                     [:= :items.inventory_pool_id pool-id]
-                                     [:= :items.is_borrowable true]
-                                     [:= :items.retired nil]
-                                     [:= :items.parent_id nil]])
+                         (sql/left-join :items
+                                        [:and
+                                         [:= :items.model_id :models.id]
+                                         [:= :items.inventory_pool_id pool-id]
+                                         [:= :items.is_borrowable true]
+                                         [:= :items.retired nil]
+                                         [:= :items.parent_id nil]])
                          (cond-> search
                            (sql/where [:or
                                        [:ilike :models.product (str "%" search "%")]
