@@ -2,11 +2,11 @@
   (:require
    [cider-ci.open-session.bcrypt :refer [hashpw]]
    [crypto.random]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [debug error]])
+   [ring.util.response :as response])
   (:import
    (com.google.common.io BaseEncoding)))
 
@@ -49,8 +49,7 @@
           :expires_at expires-at
           :scopes scopes}
          (catch Exception e
-           (debug e)
-           (error "Error inserting token:" e)
+           (log-by-severity "Error inserting token:" e)
            nil))))
 
 (defn post-resource [request]

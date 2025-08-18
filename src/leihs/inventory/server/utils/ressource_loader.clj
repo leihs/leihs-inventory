@@ -24,7 +24,7 @@
          (map #(.getName %)))))
 
 (defn list-files-in-dir [dir-uri]
-  (if-let [resource-url (io/resource dir-uri)]
+  (when-let [resource-url (io/resource dir-uri)]
     (let [protocol (.getProtocol resource-url)]
       (cond
         (= protocol "file")

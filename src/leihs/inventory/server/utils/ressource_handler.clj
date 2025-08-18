@@ -6,7 +6,7 @@
    [leihs.core.auth.session :as session]
    [leihs.core.db :as db]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
-   [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
+   [leihs.inventory.server.utils.helper :refer [accept-header-html? log-by-severity]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -49,7 +49,7 @@
   (if (and (file-request? uri) (or (clojure.string/includes? uri "/inventory/assets/")
                                    (clojure.string/includes? uri "/inventory/swagger-ui/")))
     (some (fn [[key value]]
-            (if (str/includes? uri (str key))
+            (when (str/includes? uri (str key))
               value))
           assets)
     nil))
@@ -106,7 +106,9 @@
            (contains-one-of? uri CONST_SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")
             resource (try (slurp (io/resource src))
-                          (catch Exception _ nil))]
+                          (catch Exception e
+                            (log-by-severity "Error in fetch translation" e)
+                            nil))]
         (if resource
           {:status 200 :headers {"Content-Type" "application/json"} :body resource}
           {:status 404 :headers {"Content-Type" "application/json"}}))

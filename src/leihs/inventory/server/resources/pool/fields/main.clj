@@ -4,14 +4,14 @@
    [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params-raw
                                                     pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [debug error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 ;TODO: common
 
@@ -94,8 +94,7 @@
          :else (pagination-response request base-query)))
 
      (catch Exception e
-       (debug e)
-       (error "Failed to get supplier(s)" e)
+       (log-by-severity "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
 (defn index-resources [request]

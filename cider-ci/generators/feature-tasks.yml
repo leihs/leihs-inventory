@@ -38,6 +38,11 @@
   environment_variables:
     FEATURE_NAME: "Delete model 01"
     FEATURE: './spec/features/models/delete_spec.rb[1:1]'
+'./spec/features/models/delete_spec.rb[1:2]':
+  name: "Delete model 02"
+  environment_variables:
+    FEATURE_NAME: "Delete model 02"
+    FEATURE: './spec/features/models/delete_spec.rb[1:2]'
 './spec/features/models/update_spec.rb[1:1]':
   name: "Update model 01"
   environment_variables:
@@ -68,6 +73,11 @@
   environment_variables:
     FEATURE_NAME: "Delete option 01"
     FEATURE: './spec/features/options/delete_spec.rb[1:1]'
+'./spec/features/options/delete_spec.rb[1:2]':
+  name: "Delete option 02"
+  environment_variables:
+    FEATURE_NAME: "Delete option 02"
+    FEATURE: './spec/features/options/delete_spec.rb[1:2]'
 './spec/features/options/update_spec.rb[1:1]':
   name: "Update option 01"
   environment_variables:
@@ -118,6 +128,11 @@
   environment_variables:
     FEATURE_NAME: "Delete software 01"
     FEATURE: './spec/features/software/delete_spec.rb[1:1]'
+'./spec/features/software/delete_spec.rb[1:2]':
+  name: "Delete software 02"
+  environment_variables:
+    FEATURE_NAME: "Delete software 02"
+    FEATURE: './spec/features/software/delete_spec.rb[1:2]'
 './spec/features/software/update_spec.rb[1:1]':
   name: "Update software 01"
   environment_variables:

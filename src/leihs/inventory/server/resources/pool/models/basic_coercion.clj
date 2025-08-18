@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.basic_coercion
+(ns leihs.inventory.server.resources.pool.models.basic-coercion
   (:require
    [clojure.spec.alpha :as sa]
    [clojure.string :as str]
@@ -14,6 +14,7 @@
   (st/spec {:spec (sa/and string? (complement str/blank?))
             :type :string}))
 
+(sa/def ::is_deletable boolean?)
 (sa/def :non-blank/name non-blank-string?)
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
@@ -97,7 +98,7 @@
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::inventory_bool boolean?)
 (sa/def ::has_inventory_pool boolean?)
-(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [:nil/id ::delete ::has_inventory_pool] :kind map?))
+(sa/def ::accessory (sa/keys :req-un [::name] :opt-un [:nil/id ::delete ::has_inventory_pool]))
 (sa/def ::accessories (sa/coll-of ::accessory))
 (sa/def ::serial_number string?)
 (sa/def :nil/note (sa/nilable string?))

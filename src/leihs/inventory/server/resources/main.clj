@@ -51,7 +51,7 @@
 (defn- fetch-sign-in-view [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
-        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/")}
+        params (-> {:authFlow {:returnTo (or (:return-to query) INVENTORY_VIEW_PATH)}
                     :flashMessages []}
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.software.software.types
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as sp]
    [reitit.coercion.schema]))
 
 (sa/def ::put-query (sa/keys :req-un [::sp/product]
@@ -16,7 +16,8 @@
                     :nil/manufacturer
                     :nil/version]
            :opt-un [:nil/technical_detail
-                    ::sp/attachments]))
+                    ::sp/attachments
+                    ::sp/is_deletable]))
 
 (sa/def ::attachment
   (sa/keys :req-un [:any/id :any/model_id ::sp/filename ::sp/size]))

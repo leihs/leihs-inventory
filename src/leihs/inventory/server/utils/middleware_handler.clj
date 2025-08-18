@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.middleware_handler
+(ns leihs.inventory.server.utils.middleware-handler
   (:require
    [clojure.string :as str]
    [leihs.core.auth.session :as session]
