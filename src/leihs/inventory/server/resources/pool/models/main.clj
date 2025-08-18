@@ -106,5 +106,3 @@
       (catch Exception e
 
         (exception-to-response request e "Failed to create model")))))
-(defn post-resource [request]
-  (post-resource request))
