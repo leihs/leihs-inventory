@@ -28,7 +28,7 @@
   (let [[t] (useTranslation)
         location (router/useLocation)
         [search-params set-search-params!] (router/useSearchParams)
-        size (js/parseInt (or (.. search-params (get "size")) 50))
+        size (js/parseInt (or (.. search-params (get "size")) 10))
         total-pages (:total_pages pagination)
         total-rows (:total_rows pagination)
         current-page (:page pagination)
