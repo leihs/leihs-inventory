@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.options.option.routes
   (:require
    [leihs.inventory.server.resources.pool.options.option.main :as option]
-   [leihs.inventory.server.resources.pool.options.types :refer [response-option-object]]
+   [leihs.inventory.server.resources.pool.options.option.types :as types]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.spec :as spec]
@@ -16,7 +16,7 @@
                               :option_id uuid?}}
           :handler option/get-resource
           :responses {200 {:description "OK"
-                           :body response-option-object}
+                           :body :get-response/option}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -25,10 +25,10 @@
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}
-                       :body :option/body}
+                       :body ::types/put-option-query-body}
           :handler option/put-resource
           :responses {200 {:description "OK"
-                           :body response-option-object}
+                           :body types/response-option-object}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -39,6 +39,6 @@
                                  :option_id uuid?}}
              :handler option/delete-resource
              :responses {200 {:description "OK"
-                              :body response-option-object}
+                              :body types/response-option-object}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}])

@@ -67,6 +67,7 @@
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
 (sa/def ::is_cover boolean?)
+(sa/def ::is_deletable boolean?)
 (sa/def ::filename string?)
 (sa/def ::attachments
   (sa/coll-of ::attachment :kind vector? :min-count 0))
@@ -246,8 +247,14 @@
 (sa/def ::model_id uuid?)
 (sa/def ::filename string?)
 (sa/def ::description string?)
+(sa/def ::total_rows int?)
+(sa/def ::total_pages int?)
 (sa/def ::size pos-int?)
 (sa/def ::page pos-int?)
-
+(sa/def ::pagination
+  (sa/keys :req-un [::total_rows
+                    ::total_pages
+                    ::page
+                    ::size]))
 (sa/def ::internal_description string?)
 (sa/def ::hand_over_note string?)

@@ -13,6 +13,8 @@ response = {
   "price" => [NilClass, Numeric]
 }
 
+get_response = response.merge("is_deletable" => [TrueClass, FalseClass])
+
 ["inventory_manager", "lending_manager"].each do |role|
   describe "Inventory option" do
     context "when interacting with inventory option with role=#{role}" do
@@ -51,7 +53,7 @@ response = {
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
           expect(resp.status).to eq(200)
-          expect(validate_map_structure(resp.body, response)).to eq(true)
+          expect(validate_map_structure(resp.body, get_response)).to eq(true)
 
           # update option
           form_data = {
@@ -172,7 +174,7 @@ response = {
           # fetch option
           resp = client.get "/inventory/#{pool_id}/options/#{option_id}"
           expect(resp.status).to eq(200)
-          expect(validate_map_structure(resp.body, response)).to eq(true)
+          expect(validate_map_structure(resp.body, get_response)).to eq(true)
 
           # update option
           form_data = {

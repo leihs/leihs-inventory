@@ -19,7 +19,7 @@
                                                                  with-search
                                                                  without-items]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [url-ends-with-uuid?]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
@@ -30,6 +30,8 @@
    [taoensso.timbre :refer [debug error]])
   (:import
    (java.time LocalDateTime)))
+
+(def CREATE_MODEL_ERROR "Failed to create model")
 
 (defn get-models-handler
   ([request]
@@ -119,14 +121,14 @@
 ;###################################################################################
 
 (defn create-model-handler [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        {:keys [accessories prepared-model-data categories compatibles attachments properties
-                entitlements images new-images-attr existing-images-attr]}
-        (extract-model-form-data request)]
+  (try
+    (let [created-ts (LocalDateTime/now)
+          tx (:tx request)
+          pool-id (to-uuid (get-in request [:path-params :pool_id]))
+          {:keys [accessories prepared-model-data categories compatibles attachments properties
+                  entitlements images new-images-attr existing-images-attr]}
+          (extract-model-form-data request)]
 
-    (try
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :models)
                                           (sql/values [prepared-model-data])
                                           (sql/returning :*)
@@ -142,9 +144,8 @@
 
         (if res
           (response res)
-          (bad-request {:error "Failed to create model"})))
-      (catch Exception e
+          (bad-request {:error "Failed to create model"}))))
+    (catch Exception e (exception-handler CREATE_MODEL_ERROR e))))
 
-        (exception-to-response request e "Failed to create model")))))
 (defn post-resource [request]
   (create-model-handler request))

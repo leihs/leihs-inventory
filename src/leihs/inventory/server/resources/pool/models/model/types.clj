@@ -41,6 +41,7 @@
                            :opt-un [:min/images
                                     :nil/hand_over_note
                                     :nil/internal_description
-                                    ::sp/product])
+                                    ::sp/product
+                                    ::sp/is_deletable])
 
             :description "Complete inventory response"}))

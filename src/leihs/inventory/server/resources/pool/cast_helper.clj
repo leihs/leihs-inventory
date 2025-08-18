@@ -1,7 +1,8 @@
 (ns leihs.inventory.server.resources.pool.cast-helper
   (:require
    [taoensso.timbre :refer [error]])
-  (:import [java.math BigDecimal RoundingMode]))
+  (:import
+   [java.math BigDecimal RoundingMode]))
 
 (defn- customized-empty? [value]
   (or (= value "null")

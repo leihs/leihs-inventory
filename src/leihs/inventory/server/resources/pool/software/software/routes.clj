@@ -17,7 +17,7 @@
           :handler software/get-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body ::types/put-response}
+                           :body ::types/response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -29,7 +29,7 @@
           :handler software/put-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body ::types/put-response}
+                           :body ::types/response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

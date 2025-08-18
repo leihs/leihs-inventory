@@ -35,7 +35,8 @@ get_response = {
   "id" => String,
   "manufacturer" => [NilClass, String],
   "version" => [NilClass, String],
-  "technical_detail" => [NilClass, String]
+  "technical_detail" => [NilClass, String],
+  "is_deletable" => [TrueClass, FalseClass]
 }
 
 def upload_and_expect(file_path, model_id, expected_ok)

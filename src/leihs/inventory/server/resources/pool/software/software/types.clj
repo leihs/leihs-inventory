@@ -9,14 +9,15 @@
                                                   :nil/manufacturer
                                                   :nil/technical_detail]))
 
-(sa/def ::put-response
+(sa/def ::response
   (sa/keys :req-un [:models/type
                     ::sp/product
                     ::sp/id
                     :nil/manufacturer
                     :nil/version]
            :opt-un [:nil/technical_detail
-                    ::sp/attachments]))
+                    ::sp/attachments
+                    ::sp/is_deletable]))
 
 (sa/def ::image_attribute (sa/keys :req-opt [:image/filename
                                              :image/content_type

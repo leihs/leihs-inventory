@@ -113,7 +113,8 @@ describe "Inventory Model Management" do
       )
       expect(resp.status).to eq(200)
       expect(resp.body["attachments"].first.keys).to eq(["content_type", "filename", "id", "url"])
-      expect(resp.body.keys).to eq(["attachments", "type", "product", "id", "manufacturer", "version", "technical_detail"])
+      expect(resp.body.keys).to eq(["attachments", "type", "product", "id", "manufacturer", "is_deletable", "version",
+        "technical_detail"])
     end
 
     it "creates a model with all available attributes" do

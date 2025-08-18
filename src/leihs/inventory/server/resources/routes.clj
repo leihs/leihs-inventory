@@ -5,8 +5,9 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
-                                                  post-sign-in post-sign-out
+   [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
+                                                  get-sign-out post-sign-in
+                                                  post-sign-out
                                                   swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
@@ -105,7 +106,7 @@
            :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
            :swagger {:produces ["application/json"]}
-           :handler get-sign-in}}]])
+           :handler get-csrf-token}}]])
 
 (defn swagger-endpoints []
   ["/api-docs"
