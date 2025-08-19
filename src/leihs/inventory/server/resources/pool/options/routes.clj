@@ -1,16 +1,13 @@
 (ns leihs.inventory.server.resources.pool.options.routes
   (:require
-   [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.options.main :as options]
-   [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-post response-option-get]]
+   [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-get
+                                                                          response-option-post]]
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
-   [leihs.inventory.server.utils.coercion.core :refer [Date]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
-   [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.middleware.accept]))
 
 (defn routes []
   ["/options/"

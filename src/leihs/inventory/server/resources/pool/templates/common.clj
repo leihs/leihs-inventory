@@ -1,10 +1,20 @@
 (ns leihs.inventory.server.resources.pool.templates.common
   (:require
-   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids model->enrich-with-image-attr]]
    [next.jdbc :as jdbc]
-   [taoensso.timbre :refer [debug error]]))
+
+   [taoensso.timbre :refer [debug]]))
+
+(def case-condition
+  [:and
+   [:= :i.is_borrowable true]
+   [:is :i.retired nil]
+   [:= :i.parent_id nil]])
+
+(def count-quantity-condition (sq/call :count
+                                       [[:case case-condition 1 :else nil]]))
 
 (defn template-query [template-id pool-id]
   (-> (sql/select
@@ -13,25 +23,14 @@
        :m.id
        :m.product
        :m.version
+       :m.cover_image_id
        :ml.quantity
-       [(sq/call :count
-                 [[:case
-                   [:and
-                    [:= :i.is_borrowable true]
-                    [:is :i.retired nil]]
-                   1
-                   :else nil]])
+       [count-quantity-condition
         :available]
        [[:case
          [:<=
           :ml.quantity
-          (sq/call :count
-                   [[:case
-                     [:and
-                      [:= :i.is_borrowable true]
-                      [:is :i.retired nil]]
-                     1
-                     :else nil]])]
+          count-quantity-condition]
          true
          :else false]
         :is_quantity_ok])
@@ -45,15 +44,13 @@
       (sql/where [:and
                   [:= :ml.model_group_id template-id]
                   [:= :mg.type "Template"]])
-      (sql/group-by :mg.name :mg.type :m.id :m.product :ml.quantity)
+      (sql/group-by :mg.name :mg.type :m.id :m.product :m.version :m.cover_image_id :ml.quantity)
       (sql/order-by [:m.product :asc])
       sql-format))
 
 (defn process-create-template-models [tx entries-to-insert template-id pool-id]
   (debug "process: create models" entries-to-insert)
   (doseq [entry entries-to-insert]
-
-      ;; TODO: check if this is also done in legacy
     (jdbc/execute-one! tx (-> (sql/insert-into :inventory_pools_model_groups)
                               (sql/values [{:inventory_pool_id pool-id
                                             :model_group_id template-id}])
@@ -85,35 +82,40 @@
                               sql-format))))
 
 (defn fetch-template-with-models
-  "Generates a template map with the given template-id and pool-id.
-   Returns a map with keys :id, :name, and :models."
-
   ([tx template-id pool-id]
    (fetch-template-with-models tx template-id pool-id true))
 
   ([tx template-id pool-id process-at-least-one-model-check?]
-   (let [templates (jdbc/execute! tx (template-query template-id pool-id))
-         _ (when (and process-at-least-one-model-check? (= 0 (count templates)))
-             (debug ">o> abc" template-id pool-id)
-             (throw (ex-info "Template must have at least one model" {:status 404})))
-         templates (->> templates
-                        (group-by :name)
-                        (map (fn [[name records]]
-                               {:name name
-                                :models (mapv #(select-keys % [:id
-                                                               :product
-                                                               :version
-                                                               :quantity
-                                                               :available
-                                                               :is_quantity_ok]) records)}))
-                        first)
-         templates (assoc templates :id template-id)] templates)))
+   (let [templates (jdbc/execute! tx (template-query template-id pool-id))]
+     (if (and process-at-least-one-model-check? (empty? templates))
+       (do
+         (debug "template-id=" template-id ", pool-id=" pool-id)
+         (throw (ex-info "Template must have at least one model" {:status 404})))
+       (let [result (->> templates
+                         (group-by :name)
+                         (map (fn [[name records]]
+                                {:name name
+                                 :models (mapv #(select-keys % [:id :product :version :quantity :available
+                                                                :cover_image_id :is_quantity_ok])
+                                               records)}))
+                         first)
+             models (->> (:models result)
+                         (fetch-thumbnails-for-ids tx)
+                         (map (model->enrich-with-image-attr pool-id))
+                         ;(map (fn [m]
+                         ;       (if-let [image-id (:image_id m)]
+                         ;         (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
+                         ;                :content_type (:content_type m))
+                         ;         m)))
+                         )]
+         (-> result
+             (assoc :id template-id :models (vec models))))))))
 
 (defn analyze-datasets
   "Given two collections of maps (db-data and new-data), returns a map with:
-   :different-quantity => entries with same :id but different :quantity, merged with DB fields and NEW quantity.
-   :missing-in-new-data => entries in db-data whose :id doesn't appear in new-data.
-   :new-entries => entries in new-data whose :id doesn't appear in db-data."
+     :different-quantity => entries with same :id but different :quantity, merged with DB fields and NEW quantity.
+     :missing-in-new-data => entries in db-data whose :id doesn't appear in new-data.
+     :new-entries => entries in new-data whose :id doesn't appear in db-data."
   [db-data new-data]
   (let [db-ids (set (map :id db-data))
         new-by-id (into {} (map (juxt :id identity) new-data))]

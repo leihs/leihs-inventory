@@ -3,8 +3,7 @@ require_relative "../../_shared"
 require "faker"
 require_relative "../_common"
 
-# ["inventory_manager", "lending_manager"].each do |role|
-["inventory_manager"].each do |role|
+["inventory_manager", "lending_manager"].each do |role|
   context "when interacting with inventory templates as inventory_manager" do
     include_context :setup_api, role
     include_context :generate_session_header

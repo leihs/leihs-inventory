@@ -14,6 +14,7 @@
   (st/spec {:spec (sa/and string? (complement str/blank?))
             :type :string}))
 
+(sa/def :non-blank/name non-blank-string?)
 (sa/def ::file multipart/temp-file-part)
 (sa/def :nil/name (sa/nilable string?))
 (sa/def :nil/product (sa/nilable string?))
@@ -45,6 +46,7 @@
 (sa/def ::maintenance_period string?)
 (sa/def :image/to_delete any?)
 (sa/def :nil/url (sa/nilable string?))
+(sa/def :nil/content_type (sa/nilable string?))
 (sa/def ::position int?)
 (sa/def ::id uuid?)
 (sa/def ::created_at any?)
@@ -164,6 +166,7 @@
 (sa/def ::last_check any?)
 (sa/def :nil/user_name (sa/nilable string?))
 (sa/def :any/price any?)
+(sa/def :any/model_id any?)
 (sa/def ::item_inventory_code string?)
 (sa/def ::item_id uuid?)
 (sa/def :any/items_attributes any?)

@@ -2,16 +2,14 @@
   (:require
    [clojure.set]
    [clojure.string :as str]
-   [honey.sql :as sq]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    fetch-template-with-models
                                                                    process-create-template-models
-                                                                   process-update-template-models
-                                                                   process-delete-template-models]]
-   [leihs.inventory.server.resources.pool.templates.template.types :as types]
+                                                                   process-delete-template-models
+                                                                   process-update-template-models]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request not-found response status]]
@@ -25,10 +23,10 @@
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         template-id (to-uuid (get-in request [:path-params :template_id]))
-        templates (fetch-template-with-models tx template-id pool-id)]
+        template (fetch-template-with-models tx template-id pool-id)]
     (try
-      (if templates
-        (response templates)
+      (if template
+        (response template)
         (not-found {:error ERROR_FETCH}))
       (catch Exception e
         (error ERROR_FETCH (.getMessage e))
@@ -40,7 +38,7 @@
           template-id (to-uuid (get-in request [:path-params :template_id]))
           pool-id (to-uuid (get-in request [:path-params :pool_id]))
           {:keys [name models]} (get-in request [:parameters :body])
-          template-data (fetch-template-with-models tx template-id pool-id)
+          template-data (fetch-template-with-models tx template-id pool-id false)
           analyzed-datasets (analyze-datasets (:models template-data) models)
           entries-to-delete (:missing-in-new-data analyzed-datasets)
           entries-to-update (:different-quantity analyzed-datasets)
@@ -58,8 +56,8 @@
       (process-update-template-models tx entries-to-update)
       (process-create-template-models tx entries-to-insert template-id pool-id)
 
-      (if-let [templates (fetch-template-with-models tx template-id pool-id)]
-        (response templates)
+      (if-let [template (fetch-template-with-models tx template-id pool-id)]
+        (response template)
         (not-found {:error ERROR_UPDATE})))
     (catch Exception e
       (error ERROR_UPDATE e)

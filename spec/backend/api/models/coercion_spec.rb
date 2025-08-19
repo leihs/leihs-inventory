@@ -12,7 +12,6 @@ describe "Coercion test" do
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
     let(:inventory_pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/models" }
 
     context "GET /inventory/:pool_id/models for a specific pool" do
       let(:url) { "/inventory/#{@inventory_pool.id}/list/" }

@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.common
   (:require
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]

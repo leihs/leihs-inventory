@@ -1,6 +1,5 @@
 (ns leihs.inventory.server.resources.pool.templates.template.routes
   (:require
-   [clojure.spec.alpha :as s]
    [leihs.inventory.server.resources.pool.templates.template.main :as template]
    [leihs.inventory.server.resources.pool.templates.template.types :as types]
    [leihs.inventory.server.resources.pool.templates.types]
@@ -21,7 +20,7 @@
           :handler template/get-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body ::types/get-response}
+                           :body ::types/get-put-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -33,11 +32,11 @@
 \n- template_id == group_id"
           :parameters {:path {:pool_id uuid?
                               :template_id uuid?}
-                       :body :template/post-put-query}
+                       :body ::types/put-query}
           :handler template/put-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
-                           :body ::types/get-response}
+                           :body ::types/get-put-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -49,6 +48,6 @@
              :handler template/delete-resource
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body types/delete-response}
+                              :body ::types/delete-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}])

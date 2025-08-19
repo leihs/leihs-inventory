@@ -25,7 +25,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
-                       :body :software-put/multipart}
+                       :body ::types/put-query}
           :handler software/put-resource
           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
           :responses {200 {:description "OK"
@@ -40,6 +40,6 @@
              :handler software/delete-resource
              :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
              :responses {200 {:description "OK"
-                              :body types/delete-response}
+                              :body ::types/delete-response}
                          404 {:description "Not Found"}
                          500 {:description "Internal Server Error"}}}}])
