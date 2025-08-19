@@ -2,12 +2,12 @@
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader]]
+   ["@@/card" :refer [Card CardContent CardHeader CardFooter]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart Tags Tags]]
+   ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [goog.functions]
@@ -36,8 +36,7 @@
                        (navigate "?page=1&size=50&with_items=true"))]
 
     ($ Card {:className "my-4"}
-       ($ CardHeader {:className "flex sticky top-12 
-                      bg-white rounded-xl z-10"
+       ($ CardHeader {:className "flex bg-white rounded-xl z-10"
                       :style {:background "linear-gradient(to bottom, white 90%, transparent 100%)"}}
           ($ :div
              ($ :div {:className "flex gap-2"}
@@ -62,31 +61,29 @@
                    ($ ListRestart)))
 
              ($ :div {:className "flex space-x-2 mt-2"}
-                ($ FilterIndicator)))
+                ($ FilterIndicator))))
 
-          ($ pagination/main {:pagination pagination
-                              :class-name "justify-start pt-6"}))
-
-       ($ CardContent
-          ($ :section {:className "rounded-md border"}
-
+       ($ CardContent {:class-name "pb-0"}
+          ($ :div {:class-name "border rounded-md"}
              (if (not (seq models))
                ($ :div {:className "flex p-6 justify-center"}
                   (t "pool.models.list.empty"))
 
-               ($ Table
-                  ($ TableHeader
-                     ($ TableRow
-                        ($ TableHead "")
+               ($ Table {:class-name "border-separate border-spacing-0  rounded-md"}
+                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md"
+                                  :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
+                     ($ TableRow {:class-name "rounded-t-md"}
+                        ($ TableHead {:class-name "rounded-tl-md"} "")
                         ($ TableHead (t "pool.models.list.header.amount"))
                         ($ TableHead "")
                         ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
                         ($ TableHead (t "pool.models.list.header.availability"))
-                        ($ TableHead "")))
-                  ($ TableBody
+                        ($ TableHead {:class-name "rounded-tr-md"} "")))
 
+                  ($ TableBody
                      (for [model models]
-                       ($ TableRow {:key (-> model :id)}
+                       ($ TableRow {:key (-> model :id)
+                                    :style {:box-shadow "0 -0.5px 0 hsl(var(--border))"}}
                           ($ TableCell
                              ($ Button {:variant "outline"
                                         :size "icon"} "+"))
@@ -139,6 +136,11 @@
                                                   :viewTransition true}
                                             (t "pool.models.list.actions.add_item"))))))))))))))
 
-       ($ pagination/main {:pagination pagination
-                           :class-name "p-6 pt-0"}))))
+       ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
+                      :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
+          ($ pagination/main {:pagination pagination
+                              :class-name "justify-start w-full"}))
+
+       #_($ pagination/main {:pagination pagination
+                             :class-name "p-6 pt-0"}))))
 
