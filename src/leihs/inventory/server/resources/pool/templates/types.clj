@@ -13,7 +13,12 @@
 (sa/def :templates-get/query (sa/keys :opt-un [::sp/page ::sp/size]))
 
 (sa/def ::model
-  (sa/keys :req-un [::sp/id ::sp/product ::sp/quantity ::sp/available ::sp/is_quantity_ok]))
+  (sa/keys :req-un [::sp/id
+                    ::sp/product
+                    ::sp/version
+                    ::sp/quantity
+                    ::sp/available
+                    ::sp/is_quantity_ok]))
 
 (sa/def ::models
   (sa/coll-of ::model :kind vector?))

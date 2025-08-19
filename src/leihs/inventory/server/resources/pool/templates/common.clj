@@ -12,6 +12,7 @@
        :mg.type
        :m.id
        :m.product
+       :m.version
        :ml.quantity
        [(sq/call :count
                  [[:case
@@ -93,14 +94,18 @@
   ([tx template-id pool-id process-at-least-one-model-check?]
    (let [templates (jdbc/execute! tx (template-query template-id pool-id))
          _ (when (and process-at-least-one-model-check? (= 0 (count templates)))
-             (do
-               (debug ">o> abc" template-id pool-id)
-               (throw (ex-info "Template must have at least one model" {:status 404}))))
+             (debug ">o> abc" template-id pool-id)
+             (throw (ex-info "Template must have at least one model" {:status 404})))
          templates (->> templates
                         (group-by :name)
                         (map (fn [[name records]]
                                {:name name
-                                :models (mapv #(select-keys % [:id :product :quantity :available :is_quantity_ok]) records)}))
+                                :models (mapv #(select-keys % [:id
+                                                               :product
+                                                               :version
+                                                               :quantity
+                                                               :available
+                                                               :is_quantity_ok]) records)}))
                         first)
          templates (assoc templates :id template-id)] templates)))
 
