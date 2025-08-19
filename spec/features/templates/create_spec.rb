@@ -27,6 +27,10 @@ feature "Create template", type: :feature do
       find("[data-value='#{@model.product} #{@model.version}']").click
     end
 
+    within "tr", text: @model.product do
+      fill_in "quantity", with: "10"
+    end
+
     click_on "Save template"
     expect(page.find("body", visible: :all).text).to include("Template was successfully created")
 
@@ -38,6 +42,10 @@ feature "Create template", type: :feature do
     assert_field("Template name*", template_name)
     within id: "pool.templates.template.models.title" do
       find("tr", text: "#{@model.product} #{@model.version}")
+    end
+
+    within "tr", text: @model.product do
+      assert_field "quantity", "10"
     end
   end
 
