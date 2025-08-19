@@ -340,6 +340,26 @@ shared_context :setup_models_api2 do
   end
 end
 
+shared_context :setup_template_with_model do
+  let!(:model) {
+    FactoryBot.create(:leihs_model,
+      id: SecureRandom.uuid,
+      product: Faker::Commerce.product_name)
+  }
+  let!(:model_id) { model.id }
+
+  let!(:template) { FactoryBot.create(:template, inventory_pool: @inventory_pool) }
+  let!(:template_id) { template.id }
+  let!(:model_link) {
+    db = defined?(Sequel::Model) ? Sequel::Model.db : database
+    db[:model_links].insert(
+      model_group_id: template.id,
+      model_id: model.id,
+      quantity: 2
+    )
+  }
+end
+
 shared_context :setup_access_rights do
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")

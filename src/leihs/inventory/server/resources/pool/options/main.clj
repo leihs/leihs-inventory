@@ -5,15 +5,14 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
-   [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec filter-and-coerce-by-spec]]
+   [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec
+                                                                filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [error]]))
 
 (defn post-resource [request]
   (let [tx (:tx request)

@@ -8,14 +8,9 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [error]]))
 
 (defn get-resource [request]
   (let [tx (get-in request [:tx])

@@ -3,8 +3,7 @@ require_relative "../../_shared"
 require "faker"
 require_relative "../_common"
 
-# ["inventory_manager", "lending_manager"].each do |role|
-["inventory_manager"].each do |role|
+["inventory_manager", "lending_manager"].each do |role|
   context "when interacting with inventory templates as inventory_manager" do
     include_context :setup_api, role
     include_context :generate_session_header
@@ -47,11 +46,7 @@ require_relative "../_common"
       end
 
       let! :template do
-        FactoryBot.create(:template, inventory_pool: @inventory_pool)
-      end
-
-      let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        FactoryBot.create(:template, inventory_pool: @inventory_pool, direct_models: [model])
       end
 
       describe "fetching templates" do
@@ -92,11 +87,7 @@ require_relative "../_common"
       end
 
       let! :template do
-        FactoryBot.create(:template, inventory_pool: @inventory_pool)
-      end
-
-      let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        FactoryBot.create(:template, inventory_pool: @inventory_pool, direct_models: [model])
       end
 
       describe "item is not borrowable" do

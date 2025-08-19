@@ -30,7 +30,7 @@ describe "Call swagger-endpoints" do
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
-            "return-to" => "/inventory/models"
+            "return-to" => "/inventory/list"
           )
           req.headers["Accept"] = "application/json"
           req.headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -47,7 +47,7 @@ describe "Call swagger-endpoints" do
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
-            "return-to" => "/inventory/models"
+            "return-to" => "/inventory/list"
           )
           req.headers["Accept"] = "*/*"
           req.headers["Content-Type"] = "application/x-www-form-urlencoded"

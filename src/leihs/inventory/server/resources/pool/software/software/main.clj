@@ -1,19 +1,19 @@
 (ns leihs.inventory.server.resources.pool.software.software.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [str-to-bool fetch-attachments]]
+   [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
+                                                         str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
-   [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation filter-keys]]
+   [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
+                                                                    filter-keys]]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status not-found]]
-   [taoensso.timbre :refer [debug error]])
+   [ring.util.response :refer [bad-request not-found response]]
+   [taoensso.timbre :refer [error]])
   (:import
    (java.time LocalDateTime)))
 

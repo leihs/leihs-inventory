@@ -6,14 +6,15 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
+                                                                   case-condition
                                                                    fetch-template-with-models
                                                                    process-create-template-models]]
    [leihs.inventory.server.resources.pool.templates.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response status]]
-   [taoensso.timbre :refer [debug error]])
+   [ring.util.response :refer [bad-request response status]]
+   [taoensso.timbre :refer [error]])
   (:import
    (java.time LocalDateTime)))
 
@@ -57,10 +58,7 @@
        [[:case
          [:<= :ml.quantity
           [:count
-           [:case
-            [:and
-             [:= :i.is_borrowable true]
-             [:is :i.retired nil]]
+           [:case case-condition
             [:raw "1"]
             :else nil]]]
          true
@@ -99,24 +97,24 @@
              (dissoc :model_group_id)))
        rows))
 
+(defn base-template-query [pool-id] (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
+                                                    :mg.id
+                                                    :mg.name
+                                                    :mg.created_at
+                                                    :mg.updated_at)
+                                        (sql/from [:model_groups :mg])
+                                        (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
+                                        (sql/left-join [:model_links :ml] [:= :ml.model_group_id :mg.id])
+                                        (sql/where [:and
+                                                    [:= :ipmg.inventory_pool_id pool-id]
+                                                    [:= :mg.type "Template"]])
+                                        (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at)))
+
 (defn index-resources [request]
   (let [tx (get-in request [:tx])
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
-      (let [base-query (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
-                                       :mg.id
-                                       :mg.name
-                                       :mg.created_at
-                                       :mg.updated_at)
-                           (sql/from [:model_groups :mg])
-                           (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-                           (sql/left-join [:model_links :ml] [:= :ml.model_group_id :mg.id])
-                           (sql/where [:and
-                                       [:= :ipmg.inventory_pool_id pool-id]
-                                       [:= :mg.type "Template"]])
-                           (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at))
-
-            post-fnc (fn [models]
+      (let [post-fnc (fn [models]
                        (if (seq models)
                          (let [template-ids (mapv :id models)
                                query (template-quantity-ok-query tx pool-id template-ids)
@@ -126,7 +124,7 @@
                            (filter-and-coerce-by-spec models ::types/data-keys))
                          models))]
 
-        (response (create-pagination-response request base-query nil post-fnc)))
+        (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
       (catch Exception e
         (error ERROR_FETCH (.getMessage e))
         (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
