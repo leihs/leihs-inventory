@@ -35,6 +35,7 @@
 
               ($ TableCell {:class-name "w-[5rem]"}
                  ($ Input {:type "number"
+                           :data-test-id "quantity"
                            :value (if (:quantity field)
                                     (:quantity field)
                                     0)

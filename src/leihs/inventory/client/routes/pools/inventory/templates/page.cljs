@@ -104,6 +104,7 @@
 
                           ($ TableCell {:className "text-right"}
                              ($ Button {:variant "outline"
+                                        :data-test-id "delete"
                                         :onClick #(set-delete-id! (:id template))
                                         :size "icon"}
                                 ($ Trash {:className "h-4 w-4"}))))))))))
@@ -126,6 +127,5 @@
                                       :onClick handle-delete}
                    (t "pool.templates.template.delete.confirm"))
 
-                ($ AlertDialogCancel
-                   ($ Button {:on-click #(set-delete-id! nil)}
-                      (t "pool.templates.template.delete.cancel")))))))))
+                ($ AlertDialogCancel {:on-click #(set-delete-id! nil)}
+                   (t "pool.templates.template.delete.cancel"))))))))

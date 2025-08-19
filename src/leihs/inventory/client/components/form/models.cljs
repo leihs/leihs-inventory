@@ -107,7 +107,7 @@
                                                 {:placeholder (t (-> props :text :placeholder))})
                                              (when pending
                                                ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
-                                          ($ CommandList {:data-test-id "compatible-models-list"}
+                                          ($ CommandList {:data-test-id "models-list"}
 
                                              ($ CommandEmpty (t (-> props :text :not_found)))
 
