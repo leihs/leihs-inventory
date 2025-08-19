@@ -4,6 +4,7 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                model->enrich-with-image-attr
                                                                 filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
@@ -28,38 +29,31 @@
           pool-id (-> request path-params :pool_id)
           {:keys [search]} (query-params request)
           base-query (-> (sql/select
-                          :models.id
-                          :models.product
-                          :models.version
-                          :models.cover_image_id
-                          [[:count :items.id] :available])
-                         (sql/from :models)
-                         (sql/left-join :items
+                          :m.id
+                          :m.product
+                          :m.version
+                          :m.cover_image_id
+                          [[:count :i.id] :available])
+                         (sql/from [:models :m])
+                         (sql/left-join [:items :i]
                                         [:and
-                                         [:= :items.model_id :models.id]
-                                         [:= :items.inventory_pool_id pool-id]
-                                         [:= :items.is_borrowable true]
-                                         [:= :items.retired nil]
-                                         [:= :items.parent_id nil]])
+                                         [:= :i.model_id :m.id]
+                                         [:= :i.inventory_pool_id pool-id]
+                                         [:= :i.is_borrowable true]
+                                         [:= :i.retired nil]
+                                         [:= :i.parent_id nil]])
                          (cond-> search
-                           (sql/where [:or
-                                       [:ilike :models.product (str "%" search "%")]
-                                       [:ilike :models.name (str "%" search "%")]
-                                       [:ilike :models.version (str "%" search "%")]]))
-                         (sql/group-by :models.id
-                                       :models.product
-                                       :models.version
-                                       :models.cover_image_id)
-                         (sql/order-by [[:trim [:|| :models.product " " :models.version]] :asc]))
+                           (sql/where [:ilike :m.name (str "%" search "%")]))
+                         (sql/group-by :m.id
+                                       :m.product
+                                       :m.version
+                                       :m.cover_image_id)
+                         (sql/order-by [:m.name :asc]))
 
           post-fnc (fn [models]
                      (->> models
                           (fetch-thumbnails-for-ids tx)
-                          (map (fn [m]
-                                 (if-let [image-id (:image_id m)]
-                                   (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
-                                          :content_type (:content_type m))
-                                   m)))))]
+                          (map (model->enrich-with-image-attr pool-id))))]
 
       (response (create-pagination-response request base-query nil post-fnc)))
 

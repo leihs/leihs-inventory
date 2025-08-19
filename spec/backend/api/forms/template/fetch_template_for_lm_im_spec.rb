@@ -113,7 +113,6 @@ require_relative "../_common"
             },
             headers: cookie_header
           )
-
           expect(resp.status).to eq(200)
         end
 
@@ -127,7 +126,6 @@ require_relative "../_common"
             "/inventory/#{pool_id}/templates/#{template_id}",
             headers: cookie_header
           )
-
           expect(resp.status).to eq(200)
         end
 
@@ -145,7 +143,7 @@ require_relative "../_common"
               name: "template-with-2-created-models",
               models: [
                 {quantity: 11, id: @models.second.id},
-                {quantity: 22, id: @models.third.id}
+                {quantity: 22, id: @models.first.id}
               ]
             },
             headers: cookie_header
@@ -165,6 +163,45 @@ require_relative "../_common"
           )
           expect(resp.status).to eq(200)
           expect(resp.body["models"].count).to eq(1)
+        end
+      end
+
+      describe "coercion of template" do
+        include_context :setup_template_with_model
+
+        let(:expected_status) { 200 }
+
+        it "allows index, pagination, create, update, and delete" do
+          endpoints = [
+            [:get, "/inventory/#{pool_id}/templates/"],
+            [:get, "/inventory/#{pool_id}/templates/?size=5&page=2"],
+            [:post, "/inventory/#{pool_id}/templates/", {name: Faker::Commerce.product_name, models: [{id: model_id, quantity: 15}]}],
+            [:post, "/inventory/#{pool_id}/templates/", {name: Faker::Commerce.product_name, models: [{id: model_id, quantity: 0}]}],
+            [:put, "/inventory/#{pool_id}/templates/#{template_id}", {name: "updated-name", models: [{id: model_id, quantity: 0}]}],
+            [:put, "/inventory/#{pool_id}/templates/#{template_id}", {name: "updated-name", models: [{id: model_id, quantity: 15}]}],
+            [:delete, "/inventory/#{pool_id}/templates/#{template_id}", nil]
+          ]
+
+          endpoints.each do |method, path, body|
+            resp = call(method, path, body: body)
+            expect(resp.status).to eq(expected_status),
+              "Expected #{method.upcase} #{path} => #{expected_status}, got #{resp.status} (body: #{resp.body.inspect})"
+          end
+        end
+
+        it "denies create, update caused by invalid coercion" do
+          endpoints = [
+            [:post, "/inventory/#{pool_id}/templates/", {name: Faker::Commerce.product_name, models: [{id: model_id, quantity: -1}]}],
+            [:post, "/inventory/#{pool_id}/templates/", {name: "", models: [{id: model_id, quantity: 0}]}],
+            [:put, "/inventory/#{pool_id}/templates/#{template_id}", {name: "updated-name", models: [{id: model_id, quantity: -1}]}],
+            [:put, "/inventory/#{pool_id}/templates/#{template_id}", {name: "", models: [{id: model_id, quantity: 0}]}]
+          ]
+
+          endpoints.each do |method, path, body|
+            resp = call(method, path, body: body)
+            expect(resp.status).to eq(422),
+              "Expected #{method.upcase} #{path} => #{expected_status}, got #{resp.status} (body: #{resp.body.inspect})"
+          end
         end
       end
     end

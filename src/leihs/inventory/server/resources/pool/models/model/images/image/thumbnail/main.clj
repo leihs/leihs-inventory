@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -53,6 +54,7 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
+          content-negotiation? (= accept-header CONTENT_NEGOTIATION_HEADER_TYPE)
           image_id (-> request path-params :image_id)
 
           query (-> (sql/select :i.*)
@@ -60,7 +62,7 @@
                     (sql/where [:= :i.thumbnail true])
                     (cond-> image_id
                       (sql/where [:or [:= :i.id image_id] [:= :i.parent_id image_id]]))
-                    (cond-> (not json-request?)
+                    (cond-> (and (not json-request?) (not content-negotiation?))
                       (sql/where [:= :i.content_type accept-header]))
                     sql-format)
           result (jdbc/execute-one! tx query)]

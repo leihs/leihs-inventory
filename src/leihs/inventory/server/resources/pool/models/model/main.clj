@@ -8,6 +8,7 @@
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
                                                                 filter-map-by-spec
+                                                                model->enrich-with-image-attr
                                                                 remove-nil-values]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  filter-response
@@ -64,10 +65,7 @@
         models (jdbc/execute! tx query)
         models (->> models
                     (fetch-thumbnails-for-ids tx)
-                    (map (fn [m]
-                           (if-let [image-id (:image_id m)]
-                             (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
-                             m))))
+                    (map (model->enrich-with-image-attr pool-id)))
         models (mapv #(filter-map-by-spec % ::co/compatible) models)]
     models))
 

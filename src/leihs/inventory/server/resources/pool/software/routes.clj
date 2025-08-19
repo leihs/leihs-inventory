@@ -5,8 +5,7 @@
    [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
    [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.spec :as spec]
-   [ring.middleware.accept]
-   [schema.core :as s]))
+   [ring.middleware.accept]))
 
 (defn routes []
   ["/software/"
