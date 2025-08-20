@@ -27,12 +27,15 @@
            ($ :<>
               ($ TableCell {:class-name "w-1/5"}
 
-                 (if (and (:quantity field)
-                          (> (:quantity field)
-                             (:available field)))
+                 (cond
+                   (and (:quantity field)
+                        (> (:quantity field)
+                           (:available field)))
                    ($ :span {:class-name "text-red-500"}
                       (t "pool.templates.template.quantity_error"))
 
+                   (and (:quantity field)
+                        (< (:quantity field) 0))
                    (let [models-err (aget (aget form "formState" "errors") "models")]
                      (when (and models-err (aget models-err index))
                        ($ :span {:class-name "text-red-500"}
@@ -44,11 +47,11 @@
                            :value (if (:quantity field)
                                     (:quantity field)
                                     0)
-                           :onChange (fn [val]
+                           :onChange (fn [event]
                                        (update
                                         index
                                         (cj (merge field
-                                                   {:quantity (-> val .-target .-value)}))))}))
+                                                   {:quantity (.. event -target -value)}))))}))
 
               ($ TableCell {:class-name "px-0"} "/")
 
