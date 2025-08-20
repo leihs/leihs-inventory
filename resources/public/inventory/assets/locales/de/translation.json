@@ -104,7 +104,7 @@
     },
     "templates": {
       "title": "Vorlagen",
-      "description": "Editieren Sie die Anspruchsgruppen und weisen die Modelle zu",
+      "description": "Editieren Sie die Vorlagen und weisen die Modelle zu",
       "add": "Vorlage hinzufügen",
       "list": {
         "quantity_error": "Anzahl übersteigt Verfügbarkeit",

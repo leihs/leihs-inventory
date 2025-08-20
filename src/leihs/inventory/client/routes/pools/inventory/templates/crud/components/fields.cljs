@@ -1,10 +1,9 @@
 (ns leihs.inventory.client.routes.pools.inventory.templates.crud.components.fields
   (:require
-   ["@@/checkbox" :refer [Checkbox]]
    ["@@/dropzone" :refer [Dropzone]]
    ["@@/form" :refer [FormField FormItem FormLabel FormControl FormDescription FormMessage]]
    ["@@/input" :refer [Input]]
-   ["@@/table" :refer [Table TableBody TableCell TableRow]]
+   ["@@/table" :refer [TableCell]]
    ["@@/textarea" :refer [Textarea]]
    ["react-i18next" :refer [useTranslation]]
    [leihs.inventory.client.components.form.models :refer [Models]]
@@ -27,11 +26,17 @@
          (fn [update index field]
            ($ :<>
               ($ TableCell {:class-name "w-1/5"}
-                 (when (and (:quantity field)
-                            (> (:quantity field)
-                               (:available field)))
+
+                 (if (and (:quantity field)
+                          (> (:quantity field)
+                             (:available field)))
                    ($ :span {:class-name "text-red-500"}
-                      (t "pool.templates.template.quantity_error"))))
+                      (t "pool.templates.template.quantity_error"))
+
+                   (let [models-err (aget (aget form "formState" "errors") "models")]
+                     (when (and models-err (aget models-err index))
+                       ($ :span {:class-name "text-red-500"}
+                          (aget models-err index "quantity" "message"))))))
 
               ($ TableCell {:class-name "w-[5rem]"}
                  ($ Input {:type "number"

@@ -1,12 +1,12 @@
 import { z } from "zod"
 
 export const schema = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().min(1).trim(),
   models: z
     .array(
       z.object({
         id: z.string(),
-        quantity: z.coerce.number().default(0),
+        quantity: z.coerce.number().min(0).default(0),
       }),
     )
     .min(1),

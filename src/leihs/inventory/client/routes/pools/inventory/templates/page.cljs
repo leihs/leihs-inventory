@@ -4,15 +4,12 @@
                               AlertDialogContent AlertDialogDescription
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
-   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader CardTitle CardDescription CardFooter]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuTrigger]]
-
+   ["@@/card" :refer [Card CardContent CardDescription CardFooter CardHeader
+                      CardTitle]]
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart Tags Tags Trash]]
+   ["lucide-react" :refer [Trash]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -20,7 +17,6 @@
    [cljs.core.async.interop :refer-macros [<p!]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.lib.client :refer [http-client]]
-   [leihs.inventory.client.lib.utils :refer [jc]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 

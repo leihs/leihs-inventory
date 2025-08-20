@@ -104,7 +104,7 @@
     },
     "templates": {
       "title": "Templates",
-      "description": "Edit the entitlement groups and assign the models",
+      "description": "Edit the templates and assign the models",
       "add": "Add template",
       "list": {
         "quantity_error": "Quantity exceeds availability",

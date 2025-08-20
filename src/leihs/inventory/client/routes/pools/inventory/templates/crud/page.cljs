@@ -6,11 +6,9 @@
                               AlertDialogFooter AlertDialogHeader
                               AlertDialogTitle]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader
-                      CardTitle CardDescription]]
+   ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuSeparator
-                               DropdownMenuTrigger]]
+                               DropdownMenuItem DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
    ["@hookform/resolvers/zod" :refer [zodResolver]]
@@ -25,7 +23,6 @@
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.components.fields :as form-fields]
-   [leihs.inventory.client.routes.pools.software.crud.core :as core]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 

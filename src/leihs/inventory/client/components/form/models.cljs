@@ -153,8 +153,8 @@
                       ($ TableRow {:class-name "" :key index}
 
                          ($ TableCell {:class-name "w-0"}
-                            (if (:cover_image_url field)
-                              ($ :img {:src (:cover_image_url field)
+                            (if (:content field)
+                              ($ :img {:src (str "data:" (:content_type field) ";base64," (:content field))
                                        :class-name "min-w-10 h-10 object-cover rounded-sm"})
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
