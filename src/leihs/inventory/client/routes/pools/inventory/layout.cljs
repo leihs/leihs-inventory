@@ -52,7 +52,7 @@
 
              ($ TabsList
                 (for [tab tabs]
-                  (let [path (str "/inventory/:pool-id/" (:segment tab) (:search tab))]
+                  (let [_ (str "/inventory/:pool-id/" (:segment tab) (:search tab))]
                     ($ TabsTrigger
                        {:key (:segment tab)
                         :asChild true
