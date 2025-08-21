@@ -257,14 +257,16 @@
                                       (t "pool.software.create.cancel")
                                       (t "pool.software.cancel"))))
 
-                              (when (not is-create)
+                              (when (and (not is-create)
+                                         (:is_deletable data))
                                 ($ DropdownMenuItem {:asChild true}
                                    ($ Link {:to (router/generatePath "/inventory/:pool-id/software/:software-id/delete" params)
                                             :state state}
                                       (t "pool.software.edit.delete")))))))
 
                       ;; Dialog when deleting a software
-                     (when (not is-create)
+                     (when (and (not is-create)
+                                (:is_deletable data))
                        ($ AlertDialog {:open is-delete}
                           ($ AlertDialogContent
 
