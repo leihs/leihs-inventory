@@ -10,7 +10,7 @@
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuSeparator
+                               DropdownMenuItem
                                DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]
@@ -216,14 +216,16 @@
                                       (t "pool.option.edit.cancel"))))
 
                               ;; currently disabled until decided if we want to allow deleting options
-                              (when (not is-create)
+                              (when (and (not is-create)
+                                         (:is_deletable data))
                                 ($ DropdownMenuItem {:asChild true}
                                    ($ Link {:to (router/generatePath "/inventory/:pool-id/options/:option-id/delete" params)
                                             :state state}
                                       "Delete"))))))
 
                      ;; Dialog when deleting a model
-                     (when (not is-create)
+                     (when (and (not is-create)
+                                (:is_deletable data))
                        ($ AlertDialog {:open is-delete}
                           ($ AlertDialogContent
 

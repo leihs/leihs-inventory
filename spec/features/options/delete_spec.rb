@@ -32,11 +32,11 @@ feature "Delete option", type: :feature do
     fill_in "search", with: "#{product} #{version}"
 
     within "table" do
-      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+      expect(page).to have_selector("tr", text: "#{product} #{version}")
       expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
     end
 
-    within find("tr", text: "#{product} #{version}", visible: true) do
+    within find("tr", text: "#{product} #{version}") do
       click_on "edit"
     end
     click_on "submit-dropdown"
@@ -45,5 +45,21 @@ feature "Delete option", type: :feature do
 
     fill_in "search", with: "#{product} #{version}"
     expect(page).not_to have_content "#{product} #{version}"
+  end
+
+  scenario "forbidden" do
+    FactoryBot.create(:reservation, option: @option)
+    login(user)
+    visit "/inventory/#{pool.id}"
+    click_on "Inventory type"
+    click_on "Option"
+    fill_in "search", with: "#{product} #{version}"
+
+    within find("tr", text: "#{product} #{version}") do
+      click_link("edit", wait: 20)
+    end
+
+    click_on "submit-dropdown"
+    expect(page).not_to have_content "Delete"
   end
 end

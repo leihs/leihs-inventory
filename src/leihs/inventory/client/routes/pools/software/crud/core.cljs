@@ -1,6 +1,5 @@
 (ns leihs.inventory.client.routes.pools.software.crud.core
   (:require
-   [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]))
 
