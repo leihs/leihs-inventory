@@ -1,15 +1,5 @@
 # Leihs Inventory
 
-## TODOs
-
-0. Move/upgrade from depstar to tools.build
-1. Properly setup static resouces with cache-busting; wrap-resource in
-   leihs.inventory.server.swagger-api, see exemplary use of
-   `leihs.core.http-cache-buster2` in leihs-admin;
-2. Deliver SPA depending on accept headers, see leihs-admin
-3. Add container build test; see leihs-admin
-4. Add deploy role in this repository, madek-api-v2 for example
-
 ## Development
 
 ### Start server
@@ -107,6 +97,25 @@ See `./bin/build`
    # leihs/legacy
    ./bin/rails server -p 3210
    ```
+
+#### Backend Coding Guidelines
+
+1. _always a dedicated handler per route_ (no reuse of handlers between multiple routes)  
+2. _mapping of routes to file structure and namespaces_ (example: `/inventory/:pool-id/models/:model-id/entitlements` -> `/inventory/inventory-pool/models/model/entitlements.clj` ) 
+3. _maintain parity between frontend and backend routes as far as possible_ (in frontend as well as in legacy all views/resources are scoped under `:pool-id`-> do the same for backend routes -> no global resources like e.g. `/inventory/models` but `/inventory/:pool-id/models`) 
+4. _no configs in yml files_. following system is setup in other leihs apps which has to be followed like this: 
+  * default in namespace
+  * ENV overrides default in namespace
+  * CLI parameter overrides ENV and namespace default
+5. _no temporary personal debug stuff under main namespace_ `/inventory/inventory-pool/...` (if desired than place it under another namespace and don't include it in production build) 
+6. _no versioning of routes until prod release_ (afterwards ok). keep always the actual version depending on the specification and test. 
+7. _no grouping of routes in swagger_. all routes are listed flat and alphabetically sorted. 
+8. _don't use native clojure print facilities_ (like `println`) for debug log statements. they are active always irrespective of log level! use `debug`, `warn` etc. instead always making an adequate judgement what and what not to have in prod log. we don't want to clutter prod log (performance and readability). debug statements are safe in general even if one forgets them in a particular file: they don't clutter prod log and even development log unless the respective namespaces is activated for debug logging. 
+9. _eliminate dead code_ (unused vars, etc.). also keep number of unused `:requires` low (you can use clojure-lsp "clean ns" command)
+10. _keep field definitions in context of entities_; don't create a centralized field registry:
+  * `utils/coercion/spec_alpha_definition*.clj`
+  * `utils/helper.clj` -> `convert-map-if-exist`
+11. _use canonical routes_
 
 ### Create artifact & deploy manually
 
