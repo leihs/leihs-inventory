@@ -10,7 +10,7 @@
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuSeparator
+                               DropdownMenuItem
                                DropdownMenuTrigger]]
    ["@@/form" :refer [Form]]
    ["@@/spinner" :refer [Spinner]]

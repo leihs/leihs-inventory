@@ -1,6 +1,6 @@
 (ns leihs.inventory.client.routes.pools.models.crud.components.accessories-list
   (:require
-   ["@/components/react/sortable-list" :refer [Draggable DragHandle
+   ["@/components/react/sortable-list" :refer [Draggable
                                                SortableList]]
    ["@@/button" :refer [Button]]
    ["@@/form" :refer [FormControl FormField FormItem FormMessage]]

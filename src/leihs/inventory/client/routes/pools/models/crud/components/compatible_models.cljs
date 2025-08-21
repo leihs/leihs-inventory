@@ -8,9 +8,7 @@
    ["lucide-react" :refer [Check ChevronsUpDown Image Trash Loader2Icon]]
    ["react-hook-form" :as hook-form]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [useLoaderData useParams]]
-   [clojure.string :as str]
-
+   ["react-router-dom" :as router :refer [useParams]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [uix.core :as uix :refer [$ defui]]
