@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Inventory API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+    <style>
+        body { margin: 0 }
+
+        /* Controls container after the schemes/authorize bar */
+        #endpoint-filter-controls .controls{
+            max-width:1200px;
+            margin:1rem 0;
+            display:grid !important;
+            grid-template-columns: auto 1fr;
+            gap:.75rem 1rem;
+            align-items:center;
+        }
+        #endpoint-filter-controls label{
+            font-size:1.5em !important;
+            font-weight:600;
+            line-height:1.3;
+            margin:.25rem 0 .25rem;
+            font-family: sans-serif;
+        }
+        #endpoint-filter{ padding:.6rem .8rem; border:1px solid #ddd; border-radius:.5rem; min-width:280px; }
+        #sort-mode{ padding:.5rem .6rem; border:1px solid #ddd; border-radius:.5rem; background:white; min-width:220px; }
+        #sort-mode-label{ margin-left:.0 }
+        @media (max-width: 720px){
+            #endpoint-filter-controls .controls{ grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div id="swagger-ui"></div>
+
+<script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+<script>
+    // ---------- Config ----------
+    const SPEC_URL = "/inventory/api-docs/swagger.json";
+    const METHOD_ORDER = ["get","post","put","patch","delete","options","head","trace"];
+    const SORT_KEY = "swagger_sort_mode";
+    const FILTER_KEY = "swagger_filter_q";
+    let SORT_MODE = localStorage.getItem(SORT_KEY) || "method";
+
+    // ---------- Utils ----------
+    function cmpMethodStrings(a, b) {
+        const ai = METHOD_ORDER.indexOf((a||"").toLowerCase());
+        const bi = METHOD_ORDER.indexOf((b||"").toLowerCase());
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    }
+
+    function makeOperationsSorter(mode){
+        return (a, b) => {
+            const ap = (a.get("path")||"").toLowerCase();
+            const bp = (b.get("path")||"").toLowerCase();
+            const am = (a.get("method")||"").toLowerCase();
+            const bm = (b.get("method")||"").toLowerCase();
+
+            if (mode === "route") {
+                if (ap !== bp) return ap.localeCompare(bp);
+                const m = cmpMethodStrings(am, bm);
+                return m !== 0 ? m : 0;
+            } else {
+                const m = cmpMethodStrings(am, bm);
+                if (m !== 0) return m;
+                if (ap !== bp) return ap.localeCompare(bp);
+                return 0;
+            }
+        };
+    }
+
+    function getDomOpBits(opblock) {
+        const pathEl   = opblock.querySelector(".opblock-summary-path");
+        const methodEl = opblock.querySelector(".opblock-summary-method");
+        const path   = (pathEl && (pathEl.getAttribute("data-path") || pathEl.textContent) || "").trim();
+        const method = (methodEl && methodEl.textContent || "").trim().toLowerCase();
+        return { path, method };
+    }
+
+    function filterDomByPathSubstring(q) {
+        const needle = (q || "").toLowerCase().trim();
+        const allOps = document.querySelectorAll(".opblock");
+        if (!needle) {
+            allOps.forEach(el => el.style.display = "");
+            document.querySelectorAll(".opblock-tag-section").forEach(sec => sec.style.display = "");
+            return;
+        }
+        allOps.forEach(el => {
+            const { path, method } = getDomOpBits(el);
+            const hay = (path + " " + method).toLowerCase();
+            el.style.display = hay.includes(needle) ? "" : "none";
+        });
+        document.querySelectorAll(".opblock-tag-section").forEach(sec => {
+            const anyVisible = !!sec.querySelector(".opblock:not([style*='display: none'])");
+            sec.style.display = anyVisible ? "" : "none";
+        });
+    }
+
+    // Build & place controls AFTER the scheme/authorize bar
+    function buildControls() {
+        let node = document.getElementById("endpoint-filter-controls");
+        if (node) return node;
+        node = document.createElement("section");
+        node.id = "endpoint-filter-controls";
+        node.className = "wrapper block col-12";
+        node.innerHTML = `
+      <div class="controls">
+        <label for="endpoint-filter">Filter endpoints</label>
+        <input id="endpoint-filter" type="search" placeholder="e.g. /mod or get /models" />
+
+        <label id="sort-mode-label" for="sort-mode">Sort by</label>
+        <select id="sort-mode" aria-labelledby="sort-mode-label">
+          <option value="method">Method → Route</option>
+          <option value="route">Route → Method</option>
+        </select>
+      </div>`;
+        return node;
+    }
+
+    function placeControls() {
+        const schemes = document.querySelector(".scheme-container");
+        if (!schemes) return false;
+        const controls = buildControls();
+        if (schemes.nextSibling !== controls) {
+            schemes.insertAdjacentElement("afterend", controls);
+        }
+        const select = document.getElementById("sort-mode");
+        if (select) select.value = SORT_MODE;
+        return true;
+    }
+
+    // ---------- Persist & restore filter ----------
+    function readUrlPreset() {
+        try {
+            const url = new URL(window.location.href);
+            return url.searchParams.get("q") ||
+                (url.hash.startsWith("#q=") ? decodeURIComponent(url.hash.slice(3)) : "");
+        } catch { return ""; }
+    }
+
+    function getPersistedFilter() {
+        // Priority: live input (if present) → sessionStorage → URL preset
+        const live = document.getElementById("endpoint-filter");
+        if (live && live.value.trim()) return live.value.trim();
+        const ss = sessionStorage.getItem(FILTER_KEY) || "";
+        if (ss.trim()) return ss.trim();
+        const preset = readUrlPreset();
+        return (preset || "").trim();
+    }
+
+    function setPersistedFilter(v) {
+        sessionStorage.setItem(FILTER_KEY, v || "");
+    }
+
+    // ---------- Swagger UI init / re-init ----------
+    let uiInstance = null;
+
+    function initSwagger(){
+        // Capture current filter BEFORE we wipe the mount
+        const prevFilter = getPersistedFilter();
+
+        const mount = document.getElementById("swagger-ui");
+        if (mount) mount.innerHTML = "";
+
+        uiInstance = SwaggerUIBundle({
+            url: SPEC_URL,
+            dom_id: "#swagger-ui",
+            deepLinking: true,
+            docExpansion: "list",
+            layout: "BaseLayout",
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            filter: false, // we do our own safe filter
+            operationsSorter: makeOperationsSorter(SORT_MODE),
+            tagsSorter: "alpha",
+            validatorUrl: null,
+            onComplete: () => {
+                // Re-place controls and restore filter text
+                placeControls();
+
+                const input = document.getElementById("endpoint-filter");
+                if (input) {
+                    // If URL specified something, keep it; otherwise use prev/session value
+                    const urlPreset = readUrlPreset();
+                    const finalQ = (urlPreset || prevFilter || "").trim();
+                    if (finalQ) {
+                        input.value = finalQ;
+                        setPersistedFilter(finalQ);
+                        filterDomByPathSubstring(finalQ);
+                    }
+                    // keep select synced
+                    const select = document.getElementById("sort-mode");
+                    if (select) select.value = SORT_MODE;
+                }
+            }
+        });
+
+        // Keep controls placed on internal re-renders
+        const root = document.querySelector("#swagger-ui");
+        if (root) {
+            const mo = new MutationObserver(() => placeControls());
+            mo.observe(root, { childList: true, subtree: true });
+        }
+    }
+
+    // First load
+    initSwagger();
+
+    // ---------- Events ----------
+    let debounceTimer;
+    document.addEventListener("input", (ev) => {
+        if (ev.target && ev.target.id === "endpoint-filter") {
+            const v = ev.target.value || "";
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                setPersistedFilter(v);
+                filterDomByPathSubstring(v);
+            }, 120);
+        }
+    }, true);
+
+    document.addEventListener("change", (ev) => {
+        if (ev.target && ev.target.id === "sort-mode") {
+            const next = ev.target.value === "route" ? "route" : "method";
+            if (next !== SORT_MODE) {
+                // Persist current query BEFORE re-init so it survives DOM reset
+                const keepQ = getPersistedFilter();
+                setPersistedFilter(keepQ);
+
+                SORT_MODE = next;
+                localStorage.setItem(SORT_KEY, SORT_MODE);
+                initSwagger(); // re-create with new sorter
+                // (onComplete will restore input value and re-apply filter)
+            }
+        }
+    }, true);
+</script>
+
+</body>
+</html>

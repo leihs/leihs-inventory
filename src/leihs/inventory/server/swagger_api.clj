@@ -80,6 +80,7 @@
 
           (swagger-ui/create-swagger-ui-handler
            {:path "/inventory/api-docs/"
+            :root "swagger-ui"
             :config {:validatorUrl nil
                      :urls [{:name "swagger" :url "swagger.json"}]
                      :urls.primaryName "openapi"
