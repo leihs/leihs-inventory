@@ -35,12 +35,9 @@
 (sa/def ::data (sa/coll-of ::response-option-object))
 (sa/def ::pagination any?)
 
-(sa/def ::response-options-container
-  (sa/keys :req-un [::data ::pagination]))
-
 (sa/def ::response-options-get
   (sa/or :multiple (sa/coll-of ::response-option-object)
-         :paged ::response-options-container))
+         :paged ::sp/pagination))
 
 (sa/def :option/body (sa/keys :req-un [::sp/product
                                        ::sp/inventory_code]

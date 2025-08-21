@@ -34,7 +34,12 @@
 
               {:segment "entitlement-groups"
                :search ""
-               :label (t "pool.models.tabs.entitlement_groups")}]
+               :label (t "pool.models.tabs.entitlement_groups")}
+
+              {:segment "templates"
+               :search ""
+               :label (t "pool.models.tabs.templates")}]
+
         profile (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
 
@@ -47,7 +52,7 @@
 
              ($ TabsList
                 (for [tab tabs]
-                  (let [path (str "/inventory/:pool-id/" (:segment tab) (:search tab))]
+                  (let [_ (str "/inventory/:pool-id/" (:segment tab) (:search tab))]
                     ($ TabsTrigger
                        {:key (:segment tab)
                         :asChild true
@@ -59,41 +64,52 @@
                           (:label tab))))))
 
              ($ :div {:className "ml-auto"}
-                ($ DropdownMenu
-                   ($ DropdownMenuTrigger {:asChild "true"}
-                      ($ Button
-                         ($ CirclePlus {:className "mr-2 h-4 w-4"})
-                         (t "pool.models.dropdown.title")))
+                (case last-segment
+                  "list"
+                  ($ DropdownMenu
+                     ($ DropdownMenuTrigger {:asChild "true"}
+                        ($ Button
+                           ($ CirclePlus {:className "mr-2 h-4 w-4"})
+                           (t "pool.models.dropdown.title")))
 
-                   ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuContent {:align "start"}
 
-                      ($ DropdownMenuItem {:asChild true}
-                         ($ Link {:state #js {:searchParams (.. location -search)}
-                                  :to (generatePath "/inventory/:pool-id/models/create"
-                                                    (cj {:pool-id pool-id}))
-                                  :viewTransition true}
-                            (t "pool.models.dropdown.add_model")))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/models/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_model")))
 
-                      ($ DropdownMenuItem {:asChild true}
-                         ($ Link {:state #js {:searchParams (.. location -search)}
-                                  :to (generatePath "/inventory/:pool-id/items/create"
-                                                    (cj {:pool-id pool-id}))
-                                  :viewTransition true}
-                            (t "pool.models.dropdown.add_item")))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/items/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_item")))
 
-                      ($ DropdownMenuItem {:asChild true}
-                         ($ Link {:state #js {:searchParams (.. location -search)}
-                                  :to (generatePath "/inventory/:pool-id/options/create"
-                                                    (cj {:pool-id pool-id}))
-                                  :viewTransition true}
-                            (t "pool.models.dropdown.add_option")))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/options/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_option")))
 
-                      ($ DropdownMenuItem {:asChild true}
-                         ($ Link {:state #js {:searchParams (.. location -search)}
-                                  :to (generatePath "/inventory/:pool-id/software/create"
-                                                    (cj {:pool-id pool-id}))
-                                  :viewTransition true}
-                            (t "pool.models.dropdown.add_software")))))))
+                        ($ DropdownMenuItem {:asChild true}
+                           ($ Link {:state #js {:searchParams (.. location -search)}
+                                    :to (generatePath "/inventory/:pool-id/software/create"
+                                                      (cj {:pool-id pool-id}))
+                                    :viewTransition true}
+                              (t "pool.models.dropdown.add_software")))))
+                  "templates"
+                  ($ Button {:asChild true}
+                     ($ Link {:state #js {:searchParams (.. location -search)}
+                              :to (generatePath "/inventory/:pool-id/templates/create"
+                                                (cj {:pool-id pool-id}))
+                              :viewTransition true}
+                        ($ CirclePlus {:className "mr-2 h-4 w-4"})
+                        (t "pool.models.add_template")))
+                  ($ :<>))))
 
           ($ TabsContent {:forceMount true}
              ($ Outlet))))))

@@ -128,3 +128,33 @@
   environment_variables:
     FEATURE_NAME: "Swagger renders 01"
     FEATURE: './spec/features/swagger/smoke_spec.rb[1:1:1]'
+'./spec/features/templates/create_spec.rb[1:1]':
+  name: "Create template 01"
+  environment_variables:
+    FEATURE_NAME: "Create template 01"
+    FEATURE: './spec/features/templates/create_spec.rb[1:1]'
+'./spec/features/templates/create_spec.rb[1:2]':
+  name: "Create template 02"
+  environment_variables:
+    FEATURE_NAME: "Create template 02"
+    FEATURE: './spec/features/templates/create_spec.rb[1:2]'
+'./spec/features/templates/create_spec.rb[1:3]':
+  name: "Create template 03"
+  environment_variables:
+    FEATURE_NAME: "Create template 03"
+    FEATURE: './spec/features/templates/create_spec.rb[1:3]'
+'./spec/features/templates/delete_spec.rb[1:1]':
+  name: "Delete template 01"
+  environment_variables:
+    FEATURE_NAME: "Delete template 01"
+    FEATURE: './spec/features/templates/delete_spec.rb[1:1]'
+'./spec/features/templates/delete_spec.rb[1:2]':
+  name: "Delete template 02"
+  environment_variables:
+    FEATURE_NAME: "Delete template 02"
+    FEATURE: './spec/features/templates/delete_spec.rb[1:2]'
+'./spec/features/templates/update_spec.rb[1:1]':
+  name: "Create template 04"
+  environment_variables:
+    FEATURE_NAME: "Create template 04"
+    FEATURE: './spec/features/templates/update_spec.rb[1:1]'

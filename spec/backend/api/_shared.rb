@@ -154,6 +154,16 @@ shared_context :setup_models_api do |role = "inventory_manager"|
   include_context :setup_accessory_entitlements
 end
 
+shared_context :setup_api do |role = "inventory_manager"|
+  before :each do
+    @user = FactoryBot.create(:user, login: "test", password: "password")
+    @inventory_pool = FactoryBot.create(:inventory_pool)
+    @inventory_pool_id = @inventory_pool.id
+
+    @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: role)
+  end
+end
+
 shared_context :setup_models_for_duplicates_api do |role = "inventory_manager"|
   before :each do
     @user = FactoryBot.create(:user, login: "test", password: "password")
