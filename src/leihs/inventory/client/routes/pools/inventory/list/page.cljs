@@ -139,8 +139,4 @@
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
           ($ pagination/main {:pagination pagination
-                              :class-name "justify-start w-full"}))
-
-       #_($ pagination/main {:pagination pagination
-                             :class-name "p-6 pt-0"}))))
-
+                              :class-name "justify-start w-full"})))))
