@@ -47,7 +47,7 @@ feature "Delete software", type: :feature do
     end
 
     within find("tr", text: "#{product} #{version}", visible: true) do
-      click_on "edit"
+      click_link("edit", wait: 20)
     end
 
     click_on "submit-dropdown"
