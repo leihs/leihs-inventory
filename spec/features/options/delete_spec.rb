@@ -46,4 +46,29 @@ feature "Delete option", type: :feature do
     fill_in "search", with: "#{product} #{version}"
     expect(page).not_to have_content "#{product} #{version}"
   end
+
+  scenario "forbidden" do
+    FactoryBot.create(:option_line, option: @option)
+    login(user)
+    visit "/inventory/#{pool.id}"
+    click_on "Inventory type"
+    click_on "Option"
+    fill_in "search", with: "#{product} #{version}"
+    binding.pry
+
+    # within "table" do
+    #   expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+    #   expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
+    # end
+    #
+    # within find("tr", text: "#{product} #{version}", visible: true) do
+    #   click_on "edit"
+    # end
+    # click_on "submit-dropdown"
+    # click_on "Delete"
+    # click_on "Delete"
+    #
+    # fill_in "search", with: "#{product} #{version}"
+    # expect(page).not_to have_content "#{product} #{version}"
+  end
 end
