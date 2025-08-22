@@ -37,8 +37,11 @@
    "/inventory/status"
    "/inventory/session/public"])
 
-(defn whitelisted? [uri]
-  (spy (some #(str/includes? uri %) whitelisted-paths)))
+(defn whitelisted?
+  ([uri] (whitelisted? uri []))
+  ([uri add-paths]
+   (some #(str/includes? uri %)
+         (conj whitelisted-paths add-paths))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]
@@ -63,7 +66,7 @@
         uri :uri
         :as request}]
     (if (or (some #{"lending_manager" "inventory_manager"} (map :role access-rights))
-            (whitelisted? uri))
+            (whitelisted? uri ["/sign-out"]))
       (handler request)
       (-> {:message "No required role (lending_manager, inventory_manager) for any active pool existing."}
           response/response
