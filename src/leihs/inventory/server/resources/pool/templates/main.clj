@@ -97,24 +97,24 @@
              (dissoc :model_group_id)))
        rows))
 
-(def base-template-query (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
-                                         :mg.id
-                                         :mg.name
-                                         :mg.created_at
-                                         :mg.updated_at)
-                             (sql/from [:model_groups :mg])
-                             (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
-                             (sql/left-join [:model_links :ml] [:= :ml.model_group_id :mg.id])
-                             (sql/where [:= :mg.type "Template"])
-                             (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at)))
+(defn base-template-query [pool-id] (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
+                                                    :mg.id
+                                                    :mg.name
+                                                    :mg.created_at
+                                                    :mg.updated_at)
+                                        (sql/from [:model_groups :mg])
+                                        (sql/join [:inventory_pools_model_groups :ipmg] [:= :mg.id :ipmg.model_group_id])
+                                        (sql/left-join [:model_links :ml] [:= :ml.model_group_id :mg.id])
+                                        (sql/where [:and
+                                                    [:= :ipmg.inventory_pool_id pool-id]
+                                                    [:= :mg.type "Template"]])
+                                        (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at)))
 
 (defn index-resources [request]
   (let [tx (get-in request [:tx])
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
-      (let [base-query (-> base-template-query
-                           (sql/where [:= :ipmg.inventory_pool_id pool-id]))
-            post-fnc (fn [models]
+      (let [post-fnc (fn [models]
                        (if (seq models)
                          (let [template-ids (mapv :id models)
                                query (template-quantity-ok-query tx pool-id template-ids)
@@ -124,7 +124,7 @@
                            (filter-and-coerce-by-spec models ::types/data-keys))
                          models))]
 
-        (response (create-pagination-response request base-query nil post-fnc)))
+        (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
       (catch Exception e
         (error ERROR_FETCH (.getMessage e))
         (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))

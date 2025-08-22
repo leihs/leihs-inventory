@@ -4,8 +4,8 @@
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
-                                                                model->enrich-with-image-attr
-                                                                filter-map-by-spec]]
+                                                                filter-map-by-spec
+                                                                model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  process-accessories
                                                                                  process-categories

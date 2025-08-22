@@ -3,15 +3,15 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids model->enrich-with-image-attr]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                model->enrich-with-image-attr]]
    [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
                                                                  filter-by-type
                                                                  from-category
                                                                  with-items
                                                                  with-search
                                                                  without-items]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.util.response :refer [response]]

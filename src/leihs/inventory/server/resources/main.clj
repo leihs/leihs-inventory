@@ -9,7 +9,8 @@
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
-   [leihs.inventory.server.constants :refer [INVENTORY_VIEW_PATH PREFERRED_REDIRECT_POOL_ID]]
+   [leihs.inventory.server.constants :refer [INVENTORY_VIEW_PATH
+                                             PREFERRED_REDIRECT_POOL_ID]]
    [leihs.inventory.server.resources.profile.main :refer [get-pools-access-rights-of-user-query]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]

@@ -2,7 +2,8 @@
   (:require
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids model->enrich-with-image-attr]]
+   [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
+                                                                model->enrich-with-image-attr]]
    [next.jdbc :as jdbc]
    [taoensso.timbre :refer [debug]]))
 

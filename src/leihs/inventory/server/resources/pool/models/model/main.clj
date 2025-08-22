@@ -3,7 +3,8 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.common :refer [select-entries fetch-attachments]]
+   [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
+                                                         select-entries]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec

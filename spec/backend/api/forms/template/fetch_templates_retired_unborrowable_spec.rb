@@ -46,11 +46,7 @@ require_relative "../_common"
       end
 
       let! :template do
-        FactoryBot.create(:template, inventory_pool: @inventory_pool)
-      end
-
-      let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        FactoryBot.create(:template, inventory_pool: @inventory_pool, direct_models: [model])
       end
 
       describe "fetching templates" do
@@ -91,11 +87,7 @@ require_relative "../_common"
       end
 
       let! :template do
-        FactoryBot.create(:template, inventory_pool: @inventory_pool)
-      end
-
-      let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        FactoryBot.create(:template, inventory_pool: @inventory_pool, direct_models: [model])
       end
 
       describe "item is not borrowable" do
