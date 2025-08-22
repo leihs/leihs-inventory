@@ -22,8 +22,8 @@
    :never-expire-paths []
    :cache-enabled? true})
 
-(defn app [options]
-  (-> (sui/create-app options)
+(defn app []
+  (-> (sui/create-app)
       (cache-buster2/wrap-resource "public" cache-bust-options)
       (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
       (wrap-default-charset "utf-8")))
@@ -36,7 +36,7 @@
    (let [status (status/init)
          options (assoc options :http-max-body (* MAX_REQUEST_BODY_SIZE_MB 1024 1024))]
      (db/init options (:health-check-registry status))
-     (http-server/start options (app options)))))
+     (http-server/start options (app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

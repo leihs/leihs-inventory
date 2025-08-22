@@ -64,7 +64,7 @@
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware])
 
-(defn create-app [options]
+(defn create-app []
   (let [router (ring/router
                 (routes/all-api-endpoints)
                 {:conflicts nil

@@ -28,7 +28,6 @@
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
-          uri (:uri request)
           updated-request (cond
                             (str/includes? accept-header "text/html")
                             (assoc-in request [:headers "accept"] "text/html")

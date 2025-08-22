@@ -17,8 +17,7 @@
   [allowed-uris]
   (fn [handler]
     (fn [request]
-      (let [uri (:uri request)
-            referer (:referer request)]
+      (let [uri (:uri request)]
         (if (some #(= uri %) allowed-uris)
           (handler request)
           (response/status 404))))))
@@ -41,8 +40,6 @@
   (fn [request]
     (let [auth (get-in request [:authenticated-entity])
           uri (:uri request)
-          referer (get-in request [:headers "referer"])
-          is-api-request? (and referer (str/includes? referer "/api-docs/"))
           is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
           swagger-resource? (str/includes? uri "/api-docs/")
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
