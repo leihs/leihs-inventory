@@ -4,7 +4,6 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids model->enrich-with-image-attr]]
    [next.jdbc :as jdbc]
-
    [taoensso.timbre :refer [debug]]))
 
 (def case-condition
@@ -101,13 +100,7 @@
                          first)
              models (->> (:models result)
                          (fetch-thumbnails-for-ids tx)
-                         (map (model->enrich-with-image-attr pool-id))
-                         ;(map (fn [m]
-                         ;       (if-let [image-id (:image_id m)]
-                         ;         (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id)
-                         ;                :content_type (:content_type m))
-                         ;         m)))
-                         )]
+                         (map (model->enrich-with-image-attr pool-id)) )]
          (-> result
              (assoc :id template-id :models (vec models))))))))
 
