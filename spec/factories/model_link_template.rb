@@ -1,7 +1,7 @@
-class ModelLink < Sequel::Model(:model_links)
+class ModelLinkTemplate < Sequel::Model(:model_links)
   plugin :validation_helpers
 
-  many_to_one :model_group, class: :Category
+  many_to_one :model_group, class: :Template
   many_to_one :model, class: :LeihsModel
 
   def before_validation

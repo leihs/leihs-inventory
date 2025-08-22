@@ -18,7 +18,7 @@ require_relative "../_common"
         "/inventory/#{pool_id}/templates/",
         body: {
           name: Faker::Commerce.product_name,
-          models: [{quantity: quantity, id: @models.second.id}]
+          models: [{ quantity: quantity, id: @models.second.id }]
         },
         headers: cookie_header
       )
@@ -39,18 +39,36 @@ require_relative "../_common"
     end
 
     describe "fetching template linked with model without item" do
-      let :model do
+      let! :model do
         FactoryBot.create(:leihs_model,
-          id: SecureRandom.uuid,
-          product: Faker::Commerce.product_name)
+                          id: SecureRandom.uuid,
+                          product: Faker::Commerce.product_name)
       end
 
       let! :template do
         FactoryBot.create(:template, inventory_pool: @inventory_pool)
       end
 
+      let! :model_links_template do
+
+#         [1] pry(#<RSpec::ExampleGroups::WhenInteractingWithInventoryTemplatesAsInventoryManager::FetchingTemplateLinkedWithModelWithoutItem::FetchingTemplates>)> FactoryBot.create(:model_link_template, model_group: template, model: model, quantity: 1)
+#           NoMethodError: undefined method `db' for nil:NilClass
+#
+#           model.db.typecast_value(col_schema[:type], value)
+#                ^^^
+# from /Users/mradl/.asdf/installs/ruby/3.1.3/lib/ruby/gems/3.1.0/gems/sequel-5.84.0/lib/sequel/model/base.rb:2095:in `typecast_value'
+
+
+        
+        # database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        binding.pry         # throws error
+        FactoryBot.create(:model_link_template, model_group: template, model: model, quantity: 1)
+        # FactoryBot.create(:model_link_template, model_group: template.id, model: model.id, quantity: 1)
+        # FactoryBot.create(:model_link_template)
+      end
+
       let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        model_links_template.id
       end
 
       describe "fetching templates" do
@@ -79,23 +97,32 @@ require_relative "../_common"
     end
 
     describe "fetching template linked with model with" do
-      let :model do
+      let! :model do
         FactoryBot.create(:leihs_model,
-          id: SecureRandom.uuid,
-          product: Faker::Commerce.product_name)
+                          id: SecureRandom.uuid,
+                          product: Faker::Commerce.product_name)
       end
 
       let! :item do
         FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id,
-          responsible: @inventory_pool, is_borrowable: true)
+                          responsible: @inventory_pool, is_borrowable: true)
       end
 
       let! :template do
         FactoryBot.create(:template, inventory_pool: @inventory_pool)
       end
 
+      # let! :model_links_id do
+      #   database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+      # end
+
+      let! :model_links_template do
+        # database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        FactoryBot.create(:model_link_template, model_group: template, model: model, quantity: 1)
+      end
+
       let! :model_links_id do
-        database[:model_links].insert(model_group_id: template.id, model_id: model.id, quantity: 1)
+        model_links_template.id
       end
 
       describe "item is not borrowable" do
