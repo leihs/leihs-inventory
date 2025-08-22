@@ -100,7 +100,7 @@
                          first)
              models (->> (:models result)
                          (fetch-thumbnails-for-ids tx)
-                         (map (model->enrich-with-image-attr pool-id)) )]
+                         (map (model->enrich-with-image-attr pool-id)))]
          (-> result
              (assoc :id template-id :models (vec models))))))))
 
