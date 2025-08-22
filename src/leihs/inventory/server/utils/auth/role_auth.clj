@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [ring.util.response :refer [response status]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [error spy]]))
 
 (defn validate-request
   "Validates the user's access based on roles, scope, and optionally a pool ID."
@@ -27,13 +27,21 @@
           {{pool-id :pool_id} :path} :parameters
           :as request}]
       (try
-       (let [roles-for-pool (validate-request access-rights allowed-roles pool-id)
-             request (if pool-id
-                       (assoc request :roles-for-pool {:pool_id pool-id :roles roles-for-pool})
-                       request)]
-         (when (nil? access-rights)
-           (throw (ex-info "unknown user" {:status 403})))
-         (handler request))
-       (catch Exception e
-         (error "EXCEPTION-DETAIL: " e)
-         (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
+        (let [roles-for-pool (validate-request access-rights allowed-roles pool-id)
+              request (if pool-id
+                        (assoc request :roles-for-pool {:pool_id pool-id :roles roles-for-pool})
+                        request)]
+          (when (nil? access-rights)
+            (throw (ex-info "unknown user" {:status 403})))
+          (handler request))
+        (catch Exception e
+          (error "EXCEPTION-DETAIL: " e)
+          (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
+
+(defn wrap-authorize! [handler]
+  (fn [{{:keys [access-rights]} :authenticated-entity :as request}]
+    (if (some #{:lending_manager :inventory_manager} (spy (map :role access-rights)))
+      (handler request)
+      (-> {:message "No required role (lending_manager, inventory_manager) for any active pool existing."}
+          response
+          (status 403)))))

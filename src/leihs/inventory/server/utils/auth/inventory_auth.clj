@@ -56,6 +56,3 @@
 
 (defn wrap-check-authenticated-admin [handler]
   (wrap-check-auth handler true))
-
-(defn wrap-check-authenticated [handler]
-  (wrap-check-auth handler false))

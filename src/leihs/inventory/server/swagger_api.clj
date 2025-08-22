@@ -9,6 +9,7 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
+   [leihs.inventory.server.utils.auth.role-auth :refer [wrap-authorize!]]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
    [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
@@ -41,6 +42,8 @@
                   csrf/extract-header
                   wrap-session-token-authenticate!
                   wrap-authenticate!
+                  wrap-authorize!
+
                   wrap-cookies
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap

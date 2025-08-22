@@ -36,6 +36,7 @@
         (handler request)
         (response/status (response/response {:status "failure" :message "Unauthorized1"}) 401)))))
 
+; TODO: split into multiple middlewares and use them in the routes where needed
 (defn wrap-authenticate! [handler]
   (fn [request]
     (let [auth (get-in request [:authenticated-entity])
@@ -49,7 +50,12 @@
                                                      "/inventory/session/public"])]
       (cond
         (or auth swagger-resource? whitelisted?) (handler request)
-        (and (nil? auth) is-accept-json?) (do
-                                            (debug "Unauthorized because of: No authenticated-entity && json accept header")
-                                            (response/status (response/response {:status "failure" :message "Unauthorized"}) 403))
+
+        (and (nil? auth) is-accept-json?)
+        (do
+          (debug "Unauthorized because of: No authenticated-entity && json accept header")
+          (-> {:status "failure" :message "Unauthorized"}
+              response/response
+              (response/status 403)))
+
         :else (handler request)))))
