@@ -13,7 +13,6 @@
 
     ["/protected"
      {:get {:accept "application/json"
-            :coercion reitit.coercion.schema/coercion
             :swagger {:security [{:csrfToken []}]}
             :handler session-protected/get-resource
             :middleware [ab/wrap-session-authorize!]}}]]])

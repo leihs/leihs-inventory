@@ -3,17 +3,12 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.core.auth.session :as session]
-   [leihs.core.db :as db]
-   [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
-   [leihs.inventory.server.utils.session-dev-mode :as dm]
-   [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [bad-request response status content-type]]))
+   [ring.util.response :refer [response status content-type]]))
 
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
@@ -38,9 +33,9 @@
   {:status 200
    :headers {"Content-Type" "text/html"}
    :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
-       </head><div class='max-width'>
-       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
-       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+              </head><div class='max-width'>
+              <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+              <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn fetch-file-entry [uri assets]
@@ -73,12 +68,6 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
-(defn extract-filename [uri]
-  (let [filename (last (str/split uri #"/"))]
-    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
-      filename
-      nil)))
-
 (defn create-not-found-response [request]
   (let [accept-header (or (get-in request [:headers "accept"]) "")]
     (if (clojure.string/includes? accept-header "application/json")
@@ -90,18 +79,9 @@
       (rh/index-html-response request 404))))
 
 (defn custom-not-found-handler [request]
-  (let [request ((db/wrap-tx (fn [request] request)) request)
-        request ((csrf/extract-header (fn [request] request)) request)
-        request ((session/wrap-authenticate (fn [request] request)) request)
-        request ((dm/extract-dev-cookie-params (fn [request] request)) request)
-        uri (:uri request)
-        file (extract-filename uri)
+  (let [uri (:uri request)
         assets (get-assets)
-        asset (fetch-file-entry uri assets)
-        accept-header (or (get-in request [:headers "accept"]) "")
-        referer (or (get-in request [:headers "referer"]) "")
-        swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
-        accept-html? (clojure.string/includes? accept-header "text/html")]
+        asset (fetch-file-entry uri assets)]
 
     (cond
       (= uri "/") (create-root-page)
@@ -115,20 +95,11 @@
           {:status 200 :headers {"Content-Type" "application/json"} :body resource}
           {:status 404 :headers {"Content-Type" "application/json"}}))
 
-      (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      {:status 302 :headers {"Location" "/inventory"} :body ""}
-
-      (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
-
       asset (let [{:keys [file content-type]} asset
                   resource (io/resource file)]
               (if resource
                 {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
                 (rh/index-html-response request 404)))
-
-      (and accept-html? (not (session-valid? request)) (not swagger-call?))
-      {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
 
       (and (nil? asset) (accept-header-html? request))
       (rh/index-html-response request 200)

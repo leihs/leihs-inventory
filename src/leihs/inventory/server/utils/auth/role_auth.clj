@@ -37,11 +37,3 @@
         (catch Exception e
           (error "EXCEPTION-DETAIL: " e)
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))
-
-(defn wrap-authorize! [handler]
-  (fn [{{:keys [access-rights]} :authenticated-entity :as request}]
-    (if (some #{:lending_manager :inventory_manager} (spy (map :role access-rights)))
-      (handler request)
-      (-> {:message "No required role (lending_manager, inventory_manager) for any active pool existing."}
-          response
-          (status 403)))))

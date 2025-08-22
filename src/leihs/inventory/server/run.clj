@@ -4,7 +4,6 @@
    [clojure.string]
    [clojure.tools.cli :as cli]
    [leihs.core.db :as db]
-   [leihs.core.http-cache-buster2 :as cache-buster2]
    [leihs.core.http-server :as http-server]
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
@@ -13,20 +12,7 @@
    [leihs.inventory.server.swagger-api :as sui]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
-   [ring.middleware.content-type :refer [wrap-content-type]]
-   [ring.middleware.default-charset :refer [wrap-default-charset]]
    [taoensso.timbre :refer [info]]))
-
-(def cache-bust-options
-  {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
-   :never-expire-paths []
-   :cache-enabled? true})
-
-(defn app []
-  (-> (sui/create-app)
-      (cache-buster2/wrap-resource "public" cache-bust-options)
-      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-      (wrap-default-charset "utf-8")))
 
 (defn run [options]
   (catcher/snatch
@@ -36,7 +22,7 @@
    (let [status (status/init)
          options (assoc options :http-max-body (* MAX_REQUEST_BODY_SIZE_MB 1024 1024))]
      (db/init options (:health-check-registry status))
-     (http-server/start options (app)))))
+     (http-server/start options (sui/create-app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -2,6 +2,7 @@
   (:require
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.db :as db]
+   [leihs.core.http-cache-buster2 :as cache-buster2]
    [leihs.core.ring-audits :as ring-audits]
    [leihs.core.routing.back :as core-routing]
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
@@ -9,8 +10,7 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.auth.role-auth :refer [wrap-authorize!]]
-   [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
+   [leihs.inventory.server.utils.middleware :refer [wrap-authenticate! wrap-authorize!]]
    [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
@@ -30,7 +30,13 @@
    [reitit.swagger-ui :as swagger-ui]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
+   [ring.middleware.default-charset :refer [wrap-default-charset]]
    [ring.middleware.params :refer [wrap-params]]))
+
+(def cache-bust-options
+  {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
+   :never-expire-paths []
+   :cache-enabled? true})
 
 (def middlewares [wrap-handle-coercion-error
                   db/wrap-tx
@@ -40,6 +46,7 @@
                   wrap-accept-with-image-rewrite
 
                   csrf/extract-header
+
                   wrap-session-token-authenticate!
                   wrap-authenticate!
                   wrap-authorize!
@@ -51,6 +58,8 @@
 
                   wrap-params
                   wrap-content-type
+                  [cache-buster2/wrap-resource "public" cache-bust-options]
+                  [wrap-default-charset "utf-8"]
                   dispatch-content-type/wrap-accept
                   default-handler-fetch-resource
 
