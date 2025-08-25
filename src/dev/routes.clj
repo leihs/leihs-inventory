@@ -3,7 +3,7 @@
    [clojure.set]
    [dev.main :refer [get-resource put-account-resource put-role-resource]]
    [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS fe]]
-   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
+   [dev.inventory-auth :refer [wrap-check-authenticated-admin]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
