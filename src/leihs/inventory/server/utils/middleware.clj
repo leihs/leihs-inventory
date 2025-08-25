@@ -41,7 +41,7 @@
   ([uri] (whitelisted? uri []))
   ([uri add-paths]
    (some #(str/includes? uri %)
-         (conj whitelisted-paths add-paths))))
+         (into whitelisted-paths add-paths))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]
@@ -54,10 +54,10 @@
 
         (and (nil? auth) is-accept-json?)
         (do
-          (debug "Unauthorized because of: No authenticated-entity && json accept header")
-          (-> {:status "failure" :message "Unauthorized"}
+          (debug "Unauthenticated because of: No authenticated-entity && json accept header")
+          (-> {:status "failure" :message "Unauthenticated"}
               response/response
-              (response/status 403)))
+              (response/status 401)))
 
         :else (handler request)))))
 

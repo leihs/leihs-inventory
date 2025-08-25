@@ -38,7 +38,9 @@
    :never-expire-paths []
    :cache-enabled? true})
 
-(def middlewares [wrap-handle-coercion-error
+(def middlewares [debug-mw/wrap-debug
+
+                  wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
@@ -69,7 +71,6 @@
                   muuntaja/format-response-middleware
 
                   exception/exception-middleware
-                  debug-mw/wrap-debug
 
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware

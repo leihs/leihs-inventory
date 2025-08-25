@@ -67,7 +67,7 @@ describe "Call swagger-endpoints" do
           req.headers["Accept"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
-        expect(resp.status).to eq(403)
+        expect(resp.status).to eq(401)
 
         # logout fails due invalid cookie
         _, invalid_cookies_str = generate_csrf_session_data("")
@@ -76,7 +76,7 @@ describe "Call swagger-endpoints" do
           req.headers["Cookie"] = invalid_cookies_str
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
-        expect(resp.status).to eq(403)
+        expect(resp.status).to eq(401)
 
         # logout successful
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
