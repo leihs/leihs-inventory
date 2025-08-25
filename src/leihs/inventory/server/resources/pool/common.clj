@@ -2,7 +2,7 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [next.jdbc :as jdbc]))
 
@@ -34,20 +34,19 @@
   [tx model-id mtype]
   (let [allowed-types #{"Model" "Software"}]
     (if (contains? allowed-types mtype)
-    (let [query (-> (sql/select :r.*)
-                    (sql/from [:models :m])
-                    (sql/right-join [:reservations :r] [:= :m.id :r.model_id])
-                    (sql/where [:and
-                                [:= :m.id model-id]
-                                [:= :m.type mtype]])
-                    sql-format)
-          result (jdbc/execute! tx query)]
-      (empty? result))
+      (let [query (-> (sql/select :r.*)
+                      (sql/from [:models :m])
+                      (sql/right-join [:reservations :r] [:= :m.id :r.model_id])
+                      (sql/where [:and
+                                  [:= :m.id model-id]
+                                  [:= :m.type mtype]])
+                      sql-format)
+            result (jdbc/execute! tx query)]
+        (empty? result))
       (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."
                       {:error :invalid-model-type
                        :given mtype
-                       :allowed allowed-types})))
-    ))
+                       :allowed allowed-types})))))
 
 (defn is-option-deletable?
   [tx option-id]

@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.pool.models.model.types
   (:require
    [clojure.spec.alpha :as sa]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as sp]
    [reitit.coercion.schema]
    [schema.core :as s]
    [spec-tools.core :as st]))

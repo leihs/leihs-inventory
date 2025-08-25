@@ -25,9 +25,7 @@
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
                                           (sql/values [multipart])
                                           (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
-
+                                          sql-format))]
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
@@ -43,8 +41,7 @@
           :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
 
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (get-in request [:path-params :pool_id])]
+  (let [pool-id (get-in request [:path-params :pool_id])]
     (try
       (let [base-query (->
                         (sql/select :o.*)

@@ -46,7 +46,7 @@
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (str/includes? uri (str key))
+            (when (str/includes? uri (str key))
               value))
           assets)
     nil))
@@ -73,12 +73,6 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
-(defn extract-filename [uri]
-  (let [filename (last (str/split uri #"/"))]
-    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
-      filename
-      nil)))
-
 (defn create-not-found-response [request]
   (let [accept-header (or (get-in request [:headers "accept"]) "")]
     (if (clojure.string/includes? accept-header "application/json")
@@ -95,7 +89,6 @@
         request ((session/wrap-authenticate (fn [request] request)) request)
         request ((dm/extract-dev-cookie-params (fn [request] request)) request)
         uri (:uri request)
-        file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
         accept-header (or (get-in request [:headers "accept"]) "")

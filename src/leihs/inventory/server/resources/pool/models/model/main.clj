@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          is-model-deletable?
                                                          select-entries]]
-   [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
+   [leihs.inventory.server.resources.pool.models.basic-coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
                                                                 filter-map-by-spec
@@ -22,9 +22,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request not-found response status]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [error]]))
 
 (def DELETE_MODEL_ERROR "Failed to delete model")
 (def FETCH_MODEL_ERROR "Failed to fetch model")
@@ -96,7 +94,7 @@
         query (-> (sql/select :mg.id :mg.type :mg.name)
                   (sql/from [:model_groups :mg])
                   (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
-                  (sql/where [:ilike :mg.type (str category-type)])
+                  (sql/where [:ilike :mg.type category-type])
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
                   sql-format)
@@ -105,8 +103,7 @@
 
 (defn get-resource [request]
   (try
-    (let [current-timestamp (LocalDateTime/now)
-          tx (get-in request [:tx])
+    (let [tx (get-in request [:tx])
           model-id (to-uuid (get-in request [:path-params :model_id]))
           pool-id (to-uuid (get-in request [:path-params :pool_id]))
           model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
@@ -116,7 +113,6 @@
                           (sql/where [:= :m.id model-id])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-
           attachments (fetch-attachments tx model-id pool-id)
           image-attributes (fetch-image-attributes tx model-id pool-id)
           accessories (fetch-accessories tx model-id)
@@ -197,52 +193,55 @@
   [vec-of-maps keys-to-keep]
   (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
-
 (defn delete-resource [request]
   (try
     (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
           models (db-operation tx :select :models [:= :id model-id])]
-      (if (seq models)
+
+      (if (empty? models)
+        (throw (ex-info "Model not found" {:status 404}))
+
         (let [items (db-operation tx :select :items [:= :model_id model-id])
               attachments (db-operation tx :select :attachments [:= :model_id model-id])
               images (db-operation tx :select :images [:= :target_id model-id])]
 
           (if (seq items)
             (throw (ex-info "Referenced items exist" {:status 409}))
-            (let [deleted-model-compatible (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
-                                                               (sql/where [:= :model_id model-id])
-                                                               (sql/returning :compatible_id)
-                                                               sql-format))
-                  deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
-                                                    (sql/where [:= :id model-id])
-                                                    (sql/returning :*)
-                                                    sql-format))]
-              (db-operation tx :delete :images [:= :target_id model-id])
 
-              (let [remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
-                    remaining-images (db-operation tx :select :images [:= :target_id model-id])]
-                (if (or (seq remaining-attachments) (seq remaining-images))
-                  (throw (ex-info "Referenced attachments or images still exist" {:status 409}))
-                  (let [result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
-                                :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
-                                :deleted_model (remove-nil-values (filter-keys (first deleted-model) [:id :product :manufacturer]))
-                                :deleted_model_compatibles deleted-model-compatible}]
-                    (if (= 1 (count deleted-model))
-                      (response result)
-                      (not-found {:error UPDATE_MODEL_ERROR}))))))))
-        (throw (ex-info "Model not found" {:status 404}))))
+            (let [deleted-model-compatible
+                  (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
+                                        (sql/where [:= :model_id model-id])
+                                        (sql/returning :compatible_id)
+                                        sql-format))
+
+                  deleted-model
+                  (jdbc/execute! tx (-> (sql/delete-from :models)
+                                        (sql/where [:= :id model-id])
+                                        (sql/returning :*)
+                                        sql-format))
+
+                  _ (db-operation tx :delete :images [:= :target_id model-id])
+
+                  remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
+                  remaining-images (db-operation tx :select :images [:= :target_id model-id])
+                  result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
+                          :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
+                          :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))
+                          :deleted_model_compatibles deleted-model-compatible}]
+
+              (if (or (seq remaining-attachments) (seq remaining-images))
+                (throw (ex-info "Referenced attachments or images still exist" {:status 409}))
+                (if (= 1 (count deleted-model))
+                  (response result)
+                  (throw (ex-info "Failed to delete model" {:status 409})))))))))
     (catch Exception e
       (exception-handler DELETE_MODEL_ERROR e))))
-
-
-
 
 ; ##################################
 
 (defn patch-resource [req]
   (let [model-id (to-uuid (get-in req [:path-params :model_id]))
-        pool-id (to-uuid (get-in req [:path-params :pool_id]))
         tx (:tx req)
         is-cover (-> req :body-params :is_cover)
         image (jdbc/execute-one! tx (-> (sql/select :*)

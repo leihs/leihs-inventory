@@ -13,7 +13,7 @@
         (status 409))
 
     (instance? clojure.lang.ExceptionInfo e)
-    (let [{:keys [status detail]} (ex-data e)
+    (let [{:keys [status]} (ex-data e)
           msg (ex-message e)]
       (-> (response {:status "failure"
                      :error msg})

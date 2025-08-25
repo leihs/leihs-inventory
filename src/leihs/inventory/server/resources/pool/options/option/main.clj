@@ -40,18 +40,18 @@
           multipart (get-in request [:parameters :body])
           tx (:tx request)
           price (double-to-numeric-or-nil (:price multipart))
-          multipart (assoc multipart :price price)]
-      (let [query (-> (sql/update :options)
-                      (sql/set multipart)
-                      (sql/where [:= :id option-id])
-                      (sql/returning :*)
-                      sql-format)
-            updated-model (jdbc/execute-one! tx query)]
+          multipart (assoc multipart :price price)
+          query (-> (sql/update :options)
+                    (sql/set multipart)
+                    (sql/where [:= :id option-id])
+                    (sql/returning :*)
+                    sql-format)
+          updated-model (jdbc/execute-one! tx query)]
 
-        (if updated-model
-          (response (-> updated-model
-                        (filter-map-by-spec :get-response/option)))
-          (not-found {:error UPDATE_OPTION_ERROR}))))
+      (if updated-model
+        (response (-> updated-model
+                      (filter-map-by-spec :get-response/option)))
+        (not-found {:error UPDATE_OPTION_ERROR})))
     (catch Exception e (exception-handler UPDATE_OPTION_ERROR e))))
 
 (defn delete-resource [request]
