@@ -108,6 +108,7 @@
       "add": "Add template",
       "list": {
         "quantity_error": "Quantity exceeds availability",
+        "empty": "No templates found",
         "header": {
           "name": "Name",
           "models_count": "Number of models"

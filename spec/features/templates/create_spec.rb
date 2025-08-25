@@ -18,6 +18,7 @@ feature "Create template", type: :feature do
   scenario "works" do
     login(user)
     visit "/inventory/#{pool.id}/templates"
+    expect(page).to have_content "No templates found"
     click_on "New template"
 
     fill_in "Template name*", with: template_name

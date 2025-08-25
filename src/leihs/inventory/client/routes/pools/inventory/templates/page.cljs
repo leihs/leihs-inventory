@@ -61,7 +61,7 @@
 
              (if (not (seq templates))
                ($ :div {:className "flex p-6 justify-center"}
-                  (t "pool.models.list.empty"))
+                  (t "pool.templates.list.empty"))
 
                ($ Table
                   ($ TableHeader
