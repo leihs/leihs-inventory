@@ -123,11 +123,14 @@
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)
-      (router/redirect "?page=1&size=50")
+      (do
+        (js/console.debug "Redirecting to ?page=1&size=50")
+        (router/redirect "?page=1&size=50"))
       (let [params (.. ^js route-data -params)
+            search (.-search url)
             pool-id (aget params "pool-id")
             data (-> http-client
-                     (.get (str "/inventory/" pool-id "/templates/?size=50&page=1")
+                     (.get (str "/inventory/" pool-id "/templates/" search)
                            #js {:cache false})
                      (.then (fn [res]
                               (jc (.. res -data))))
