@@ -120,7 +120,7 @@
                                                                              (not (check-path-existing (:product element) fields))
                                                                               (append (cj (merge {:product (:product element)
                                                                                                   :version (:version element)
-                                                                                                  :cover_image_url (:cover_image_url element)
+                                                                                                  :url (:url element)
                                                                                                   :id (:id element)}
                                                                                                  (into {}
                                                                                                        (map (fn [attr]
@@ -153,8 +153,8 @@
                       ($ TableRow {:class-name "" :key index}
 
                          ($ TableCell {:class-name "w-0"}
-                            (if (:content field)
-                              ($ :img {:src (str "data:" (:content_type field) ";base64," (:content field))
+                            (if (:url field)
+                              ($ :img {:src (str (:url field) "/thumbnail")
                                        :class-name "min-w-10 h-10 object-cover rounded-sm"})
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
