@@ -76,12 +76,12 @@ describe "Inventory API Endpoints - Image Handling" do
 
     context "Fetch image data as an image" do
       it "returns error when fetching image by ID as a raw image format" do
-        resp = plain_faraday_resource_client.get "#{url}#{single_image_id}"
+        resp = client.get "#{url}#{single_image_id}"
         expect(resp.status).to eq(200)
       end
 
       it "returns error when fetching image thumbnail as a raw image format" do
-        resp = plain_faraday_resource_client.get "#{url}#{single_image_id}/thumbnail"
+        resp = client.get "#{url}#{single_image_id}/thumbnail"
         expect(resp.status).to eq(404)
       end
     end
