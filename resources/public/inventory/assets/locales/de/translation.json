@@ -108,6 +108,7 @@
       "add": "Vorlage hinzufügen",
       "list": {
         "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "empty": "Keine Vorlagen gefunden",
         "header": {
           "name": "Name",
           "models_count": "Anzahl Modelle"
