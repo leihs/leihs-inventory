@@ -4,6 +4,8 @@
                                       CommandItem CommandList]]
    ["@/components/ui/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["@@/button" :refer [Button]]
+   ["@@/dialog" :refer [Dialog DialogContent DialogHeader
+                        DialogTitle DialogTrigger]]
    ["@@/form" :refer [FormField FormItem FormMessage FormDescription]]
    ["@@/label" :refer [Label]]
    ["@@/table" :refer [Table TableBody TableCell TableRow]]
@@ -150,12 +152,24 @@
                   (doall
                    (map-indexed
                     (fn [index field]
-                      ($ TableRow {:class-name "" :key index}
+                      ($ TableRow {:class-name ""
+                                   :key index}
 
                          ($ TableCell {:class-name "w-0"}
+
                             (if (:url field)
-                              ($ :img {:src (str (:url field) "/thumbnail")
-                                       :class-name "min-w-10 h-10 object-cover rounded-sm"})
+                              ($ Dialog
+                                 ($ DialogTrigger {:as-child true}
+                                    ($ Button {:variant "ghost"
+                                               :data-test-id (str (:product field) "-preview")
+                                               :class-name "p-0"}
+                                       ($ :img {:src (str (:url field) "/thumbnail")
+                                                :class-name "min-w-10 h-10 object-cover rounded-sm"})))
+                                 ($ DialogContent {:class-name "max-w-3xl"}
+                                    ($ DialogHeader
+                                       ($ DialogTitle (:product field)))
+                                    ($ :img {:src (:url field)
+                                             :class-name "w-full h-auto object-contain"})))
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
                          ($ TableCell {:class-name ""} (str (:product field) " " (:version field)))
