@@ -336,9 +336,9 @@ shared_context :setup_access_rights do
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
     FactoryBot.create(:direct_access_right,
-                      inventory_pool_id: @inventory_pool.id,
-                      user_id: @user.id,
-                      role: "inventory_manager")
+      inventory_pool_id: @inventory_pool.id,
+      user_id: @user.id,
+      role: "inventory_manager")
 
     @models = 3.times.map do
       FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -346,10 +346,10 @@ shared_context :setup_access_rights do
 
     LeihsModel.all.each do |model|
       FactoryBot.create(:item,
-                        leihs_model: model,
-                        inventory_pool_id: @inventory_pool.id,
-                        responsible: @inventory_pool,
-                        is_borrowable: true)
+        leihs_model: model,
+        inventory_pool_id: @inventory_pool.id,
+        responsible: @inventory_pool,
+        is_borrowable: true)
     end
 
     @models.first
@@ -390,8 +390,8 @@ shared_context :setup_models_min_api do
     @inventory_pool = FactoryBot.create(:inventory_pool)
     # @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
     @direct_access_right = FactoryBot.create(:direct_access_right,
-                                             inventory_pool_id: @inventory_pool.id,
-                                             user_id: @user.id, role: "inventory_manager")
+      inventory_pool_id: @inventory_pool.id,
+      user_id: @user.id, role: "inventory_manager")
   end
 end
 
@@ -410,9 +410,9 @@ def create_and_login(role, login = nil, password = nil)
   end
 
   FactoryBot.create(:direct_access_right,
-                    inventory_pool_id: @inventory_pool.id,
-                    user_id: user.id,
-                    role: "inventory_manager")
+    inventory_pool_id: @inventory_pool.id,
+    user_id: user.id,
+    role: "inventory_manager")
 
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrf-token"]
