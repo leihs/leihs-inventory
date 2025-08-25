@@ -15,13 +15,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn root-layout []
-  (-> http-client
-      (.get "/inventory/profile/")
-      (.then (fn [res]
-               (let [data (jc (.. res -data))]
-                 (.. i18n (changeLanguage (-> data :user_details :language_locale)))
-                 data)))
-      (.catch (fn [error] (js/console.log "error" error) #js {}))))
+  (let [profile (-> http-client
+                    (.get "/inventory/profile/")
+                    (.then (fn [res]
+                             (let [data (jc (.. res -data))]
+                               (.. i18n (changeLanguage (-> data :user_details :language_locale)))
+                               data)))
+                    (.catch (fn [error] (js/console.log "error" error) #js {})))]
+    (.. (js/Promise.all (cond-> [profile]))
+        (then (fn [[profile]]
+                {:profile profile})))))
 
 (defn models-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
