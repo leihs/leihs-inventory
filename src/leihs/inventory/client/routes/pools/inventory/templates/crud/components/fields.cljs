@@ -22,6 +22,7 @@
       ($ Models {:form form
                  :name (:name block)
                  :label (:label block)
+                 :required (:required block)
                  :props (:props block)}
          (fn [update index field]
            ($ :<>
@@ -64,10 +65,10 @@
                         :name (:name block)
                         :render #($ FormItem {:class-name "mt-6"}
 
-                                    ($ FormLabel (t (:label block)))
+                                    ($ FormLabel (t (:label block)) (when (:required (:props block)) "*"))
                                     ($ FormControl
                                        ($ comp (merge
-                                                (:props block)
+                                                (dissoc (:props block) :required)
                                                 (:field (jc %)))))
 
                                     ($ FormDescription

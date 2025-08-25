@@ -20,6 +20,7 @@ export const structure = [
         label: "pool.templates.template.name.blocks.name.label",
         component: "input",
         props: {
+          required: true,
           "auto-complete": "off",
         },
       },
@@ -33,11 +34,15 @@ export const structure = [
         label: "pool.templates.template.models.blocks.models.label",
         component: "models",
         props: {
+          required: true,
           text: {
             select: "pool.templates.template.models.blocks.models.select",
             placeholder:
               "pool.templates.template.models.blocks.models.placeholder",
             not_found: "pool.templates.template.models.blocks.models.not_found",
+            searching: "pool.templates.template.models.blocks.models.searching",
+            search_empty:
+              "pool.templates.template.models.blocks.models.search_empty",
           },
           attributes: ["quantity", "available"],
         },

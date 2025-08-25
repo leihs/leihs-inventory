@@ -152,7 +152,7 @@
         "name": {
           "blocks": {
             "name": {
-              "label": "Template name*"
+              "label": "Template name"
             }
           }
         },
@@ -163,7 +163,9 @@
               "label": "Select model and assign quantity",
               "not_found": "Model not found",
               "select": "Select model",
-              "placeholder": "Search model"
+              "placeholder": "Search model",
+              "search_empty": "Type at least 3 characters to search",
+              "searching": "Searching..."
             }
           }
         }

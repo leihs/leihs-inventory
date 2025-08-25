@@ -84,12 +84,13 @@
        ($ FormField {:control control
                      :name name
                      :render #($ FormItem
-                                 ($ Label (t label))
+                                 ($ Label (t label) (when (:required props) "*"))
                                  ($ Popover {:open open
                                              :on-open-change (fn [val]
                                                                (set-search! "")
                                                                (set-data! [])
                                                                (set-open! val))}
+
                                     ($ PopoverTrigger {:as-child true}
                                        ($ Button {:variant "outline"
                                                   :role "combobox"
@@ -111,7 +112,15 @@
                                                ($ Loader2Icon {:className "absolute right-0 top-0 h-4 w-4 m-3 animate-spin opacity-50"})))
                                           ($ CommandList {:data-test-id "models-list"}
 
-                                             ($ CommandEmpty (t (-> props :text :not_found)))
+                                             ($ CommandEmpty (cond
+                                                               pending
+                                                               (t (-> props :text :searching))
+
+                                                               (< (count search) 3)
+                                                               (t (-> props :text :search_empty))
+
+                                                               :else
+                                                               (t (-> props :text :not_found))))
 
                                              (for [element data]
                                                ($ CommandItem {:key (:id element)
