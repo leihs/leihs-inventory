@@ -2,7 +2,7 @@
   (:require
    [clojure.set]
    [ring.util.response :refer [response status]]
-   [taoensso.timbre :refer [error spy]]))
+   [taoensso.timbre :refer [debug error spy]]))
 
 (defn validate-request
   "Validates the user's access based on roles, scope, and optionally a pool ID."
@@ -35,5 +35,6 @@
             (throw (ex-info "unknown user" {:status 403})))
           (handler request))
         (catch Exception e
+          (debug e)
           (error "EXCEPTION-DETAIL: " e)
           (status (response {:error (.getMessage e)}) (:status (.getData e))))))))

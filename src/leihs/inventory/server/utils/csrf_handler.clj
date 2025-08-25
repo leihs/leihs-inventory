@@ -42,7 +42,9 @@
           params (codec/form-decode body-str)
           keyword-params (keywordize-keys params)]
       keyword-params)
-    (catch Exception _ nil)))
+    (catch Exception e
+      (debug e)
+      nil)))
 
 (defn extract-header [handler]
   (fn [request]
@@ -55,6 +57,7 @@
       (try
         (handler request)
         (catch Throwable e
+          (debug e)
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (get-sign-in request)
@@ -75,6 +78,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
+              (debug e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")

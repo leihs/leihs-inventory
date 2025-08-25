@@ -11,7 +11,7 @@
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
    [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn get-one [tx target-user-id user-id]
   (get-by-id tx (or user-id target-user-id)))
@@ -54,5 +54,6 @@
                  :user_details (snake-case-keys user-details)
                  :languages (snake-case-keys (l/get-multiple tx))}))
     (catch Exception e
+      (debug e)
       (error "Failed to get user" e)
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))

@@ -8,7 +8,7 @@
                                               valid-image-or-thumbnail-uri?]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [ring.middleware.accept]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -40,6 +40,7 @@
     (let [handler (try
                     (session/wrap-authenticate handler)
                     (catch Exception e
+                      (debug e)
                       (error "Error in session-authenticate!" e)
                       handler))
           token (get-in request [:headers "authorization"])

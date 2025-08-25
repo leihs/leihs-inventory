@@ -1,6 +1,6 @@
 (ns leihs.inventory.server.resources.pool.cast-helper
   (:require
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error]])
   (:import [java.math BigDecimal RoundingMode]))
 
 (defn- customized-empty? [value]
@@ -14,7 +14,9 @@
 
 (defn int-to-numeric-or-nil [int-value]
   (try (-> (BigDecimal/valueOf int-value) (.setScale 2 RoundingMode/HALF_UP))
-       (catch Exception e (error "Error in int-to-numeric" e) nil)))
+       (catch Exception e
+         (debug e)
+         (error "Error in int-to-numeric" e) nil)))
 
 (defn double-to-numeric-or-nil [int-value]
   (cond
@@ -24,6 +26,8 @@
     :else (let [parsed-value (if (string? int-value)
                                (try
                                  (Double/parseDouble int-value)
-                                 (catch NumberFormatException _ nil))
+                                 (catch NumberFormatException e
+                                   (debug e)
+                                   nil))
                                int-value)]
             (int-to-numeric-or-nil parsed-value))))

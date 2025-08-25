@@ -11,9 +11,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn post-resource [request]
   (let [tx (:tx request)
@@ -26,14 +24,14 @@
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
                                           (sql/values [multipart])
                                           (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
+                                          sql-format))]
 
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
           (bad-request {:error "Failed to create option"})))
       (catch Exception e
+        (debug e)
         (error "Failed to create option" (.getMessage e))
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
@@ -44,8 +42,7 @@
           :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
 
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (get-in request [:path-params :pool_id])]
+  (let [pool-id (get-in request [:path-params :pool_id])]
     (try
       (let [base-query (->
                         (sql/select :o.*)
@@ -55,5 +52,6 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
+        (debug e)
         (error "Failed to fetch options" (.getMessage e))
         (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))

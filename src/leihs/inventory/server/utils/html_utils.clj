@@ -3,7 +3,7 @@
    [clojure.walk :as walk]
    [hickory.core :as h]
    [hickory.render :as render]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn add-meta-tag [tree csrf-name csrf-value]
   (walk/postwalk
@@ -41,39 +41,13 @@
        node))
    tree))
 
-(defn add-return-field [tree return-field]
-  (walk/postwalk
-   (fn [node]
-     (if (and (map? node)
-              (= (:tag node) :form))
-       (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :name]) "return-to")) (:content node)))
-         (update node :content conj return-field)
-         node)
-       node))
-   tree))
-
-(defn add-error-message-field [tree error-message-field]
-  (walk/postwalk
-   (fn [node]
-     (if (and (map? node)
-              (= (:tag node) :form))
-       (if (not (some #(and (map? %) (= (:tag %) :input) (= (get-in % [:attrs :class]) "message")) (:content node)))
-         (update node :content conj error-message-field)
-         node)
-       node))
-   tree))
-
 (defn add-csrf-tags
-  [html-str {:keys [authFlow csrfToken]}]
+  [html-str {:keys [csrfToken]}]
   (try
     (let [parsed-html (h/parse html-str)
           hickory-tree (h/as-hickory parsed-html)
-          returnTo (:returnTo authFlow)
           csrf-name (:name csrfToken)
           csrf-value (:value csrfToken)
-          return-field {:type :element
-                        :tag :input
-                        :attrs {:type "hidden" :name "return-to" :value returnTo}}
           updated-tree (as-> hickory-tree $
                          (add-meta-tag $ csrf-name csrf-value)
                          (update-csrf-input $ csrf-value)
@@ -82,47 +56,7 @@
       raw-html)
 
     (catch Exception e
+      (debug e)
       (error "Error in add-csrf-and-return-tags:" (.getMessage e))
-      (.printStackTrace e)
-      html-str)))
-
-(defn add-or-create-return-to-tag
-  [html-str {:keys [authFlow csrfToken]}]
-  (try
-    (let [parsed-html (h/parse html-str)
-          hickory-tree (h/as-hickory parsed-html)
-          csrf-name (:name csrfToken)
-          csrf-value (:value csrfToken)
-          returnTo (:returnTo authFlow)
-          return-field {:type :element
-                        :tag :input
-                        :attrs {:type "hidden" :name "return-to" :value returnTo}}
-          updated-tree (add-return-field hickory-tree return-field)
-          html (render/hickory-to-html updated-tree)]
-      html)
-
-    (catch Exception e
-      (error "Error in add-csrf-tags:" (.getMessage e))
-      (.printStackTrace e)
-      html-str)))
-
-(defn add-or-create-error-tag
-  [html-str {:keys [authFlow csrfToken]}]
-  (try
-    (let [parsed-html (h/parse html-str)
-          hickory-tree (h/as-hickory parsed-html)
-          csrf-name (:name csrfToken)
-          csrf-value (:value csrfToken)
-          returnTo (:returnTo authFlow)
-          errorMessage (:errorMessage authFlow)
-          errorMessageField {:type :element
-                             :tag :div
-                             :attrs {:class "message" :value errorMessage}}
-          updated-tree (add-error-message-field hickory-tree errorMessageField)
-          html (render/hickory-to-html updated-tree)]
-      html)
-
-    (catch Exception e
-      (error "Error in add-csrf-tags:" (.getMessage e))
       (.printStackTrace e)
       html-str)))

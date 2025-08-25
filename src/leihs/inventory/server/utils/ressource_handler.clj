@@ -8,7 +8,8 @@
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [response status content-type]]))
+   [ring.util.response :refer [response status content-type]]
+   [taoensso.timbre :refer [debug]]))
 
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
@@ -41,7 +42,7 @@
 (defn fetch-file-entry [uri assets]
   (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
     (some (fn [[key value]]
-            (if (str/includes? uri (str key))
+            (when (str/includes? uri (str key))
               value))
           assets)
     nil))
@@ -90,7 +91,9 @@
            (contains-one-of? uri CONST_SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")
             resource (try (slurp (io/resource src))
-                          (catch Exception _ nil))]
+                          (catch Exception e
+                            (debug e)
+                            nil))]
         (if resource
           {:status 200 :headers {"Content-Type" "application/json"} :body resource}
           {:status 404 :headers {"Content-Type" "application/json"}}))

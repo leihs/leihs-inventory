@@ -7,7 +7,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error]])
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))
@@ -45,6 +45,7 @@
                  "Content-Disposition" "inline"}
        :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
     (catch IllegalArgumentException e
+      (debug e)
       {:status 400
        :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
@@ -71,5 +72,6 @@
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))
     (catch Exception e
+      (debug e)
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

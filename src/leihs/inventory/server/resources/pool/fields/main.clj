@@ -12,7 +12,7 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 ;TODO: common
 
@@ -100,6 +100,7 @@
          :else (pagination-response request base-query)))
 
      (catch Exception e
+       (debug e)
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 

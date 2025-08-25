@@ -16,7 +16,7 @@
 
 (defn run [options]
   (catcher/snatch
-   {:return-fn (fn [e] (System/exit -1))}
+   {:return-fn (fn [_] (System/exit -1))}
    (info "Invoking run with options: " options)
    (shutdown/init options)
    (let [status (status/init)
@@ -49,9 +49,7 @@
        flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
-  (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
-        pass-on-args (->> [options (rest arguments)]
-                          flatten (into []))
+  (let [{:keys [options summary]} (cli/parse-opts args cli-options :in-order true)
         options (merge gopts options)]
     (cond
       (:help options) (info (main-usage summary {:args args :options options}))

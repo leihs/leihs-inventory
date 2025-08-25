@@ -9,7 +9,7 @@
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
@@ -39,5 +39,6 @@
 
       (response (if in-detail result (extract-manufacturers result))))
     (catch Exception e
+      (debug e)
       (error "Failed to get models/manufacturer" e)
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))

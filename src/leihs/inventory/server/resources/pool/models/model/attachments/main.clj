@@ -10,7 +10,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -28,7 +28,6 @@
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
-          allowed-file-types (config-get :api :attachments :allowed-file-types)
           max-size-mb (config-get :api :attachments :max-size-mb)
           upload-path (config-get :api :upload-dir)
           tx (:tx req)
@@ -41,11 +40,6 @@
                  :content_type content-type
                  :size content-length
                  :model_id model_id}]
-
-      ;(let [allowed-extensions allowed-file-types
-      ;      content-extension (last (clojure.string/split content-type #"/"))]
-      ;  (when-not (some #(= content-extension %) allowed-extensions)
-      ;    (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"}))))
 
       (when (> content-length (* max-size-mb 1024 1024))
         (throw (ex-info "File size exceeds limit" {:status 400 :error "File size exceeds limit"})))
@@ -63,26 +57,18 @@
         (status (response data) 200)))
 
     (catch Exception e
+      (debug e)
       (error "Failed to upload attachment" e)
       (bad-request {:error "Failed to upload attachment" :details (.getMessage e)}))))
 
-(defn validate-empty-string!
-  ([k vec-of-maps]
-   (validate-empty-string! k vec-of-maps nil))
-  ([k vec-of-maps scope]
-   (doseq [m vec-of-maps]
-     (when (and (contains? m k) (= "" (get m k)))
-       (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                       (merge {:key k :map m} (when scope {:scope scope}))))))))
-
 (defn index-resources [request]
   (try
-    (let [tx (:tx request)
-          model-id (-> request path-params :model_id)
+    (let [model-id (-> request path-params :model_id)
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]
       (response (create-pagination-response request query nil)))
     (catch Exception e
+      (debug e)
       (error "Failed to get attachments" e)
       (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
