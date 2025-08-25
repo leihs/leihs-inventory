@@ -8,7 +8,7 @@ class Reservation < Sequel::Model
   many_to_one(:item)
 end
 
-FactoryBot.define do
+FactoryBot.modify do
   factory :reservation do
     user_id { User.all.sample.id }
     inventory_pool_id { InventoryPool.all.sample.id }
