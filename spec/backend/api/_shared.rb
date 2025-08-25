@@ -335,14 +335,21 @@ shared_context :setup_access_rights do
     @user = FactoryBot.create(:user, login: "test", password: "password")
     @inventory_pool = FactoryBot.create(:inventory_pool)
 
-    FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+    FactoryBot.create(:direct_access_right,
+                      inventory_pool_id: @inventory_pool.id,
+                      user_id: @user.id,
+                      role: "inventory_manager")
 
     @models = 3.times.map do
       FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
     end
 
     LeihsModel.all.each do |model|
-      FactoryBot.create(:item, leihs_model: model, inventory_pool_id: @inventory_pool.id, responsible: @inventory_pool, is_borrowable: true)
+      FactoryBot.create(:item,
+                        leihs_model: model,
+                        inventory_pool_id: @inventory_pool.id,
+                        responsible: @inventory_pool,
+                        is_borrowable: true)
     end
 
     @models.first
