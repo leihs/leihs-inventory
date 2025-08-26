@@ -174,7 +174,7 @@ feature "Inventory Page", type: :feature do
     find("nav button", text: "Inventory").click
     click_on pool_1.name
 
-    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool.name)
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool_1.name)
     expect(page).to have_css('nav[aria-label="breadcrumb"]', text: "Inventory List")
 
     uri = URI.parse(current_url)
