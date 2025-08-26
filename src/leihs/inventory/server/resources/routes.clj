@@ -5,10 +5,16 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
-                                                  post-sign-in post-sign-out
-                                                  swagger-api-docs-handler
-                                                  get-csrf-token]]
+   [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
+                                                  get-sign-out post-sign-in
+                                                  post-sign-out
+                                                  swagger-api-docs-handler]]
+
+   [cheshire.core :as json]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [leihs.inventory.server.utils.response_helper :as rh]
+
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
@@ -108,6 +114,124 @@
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 
+
+(defn fetch-file-entry [uri assets]
+  (if
+   ;(and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
+    (clojure.string/includes? uri "/inventory/assets/")
+    (some (fn [[key value]]
+            (if (str/includes? uri (str key))
+              value))
+      assets)
+    nil))
+
+(defn extract-filename [uri]
+  (let [filename (last (str/split uri #"/"))]
+    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
+      filename
+      nil)))
+
+(def mime-types
+  {"html" "text/html"
+   "htm"  "text/html"
+   "css"  "text/css"
+   "js"   "application/javascript"
+   "json" "application/json"
+   "png"  "image/png"
+   "jpg"  "image/jpeg"
+   "jpeg" "image/jpeg"
+   "gif"  "image/gif"
+   "svg"  "image/svg+xml"
+   "txt"  "text/plain"})
+
+(defn content-type [filename]
+  (let [ext (-> filename
+              (str/split #"\.")
+              last
+              str/lower-case)]
+    (get mime-types ext "application/octet-stream")))
+
+(defn csrf-endpoints []
+  ["/"
+   {:swagger {:tags ["Assets"]}
+    :no-doc HIDE_BASIC_ENDPOINTS}
+
+   ["assets/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {
+           :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+           :swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
+           :description "Access allowed without x-csrf-token"
+
+           :handler (fn [request]
+(println ">o> abc.assets -> ASSET-HANDDLER!!!!!!!" )
+
+                      (let [
+                            ;request ((db/wrap-tx (fn [request] request)) request)
+                            ;request ((csrf/extract-header (fn [request] request)) request)
+                            ;request ((session/wrap-authenticate (fn [request] request)) request)
+                            ;request ((dm/extract-dev-cookie-params (fn [request] request)) request)
+                            uri (:uri request)
+                            file (extract-filename uri)
+
+                            content-type (content-type (or file ""))
+
+
+                            ;assets (get-assets)
+                            ;asset (fetch-file-entry uri assets)
+                            ;accept-header (or (get-in request [:headers "accept"]) "")
+                            ;referer (or (get-in request [:headers "referer"]) "")
+                            ;swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
+                            ;accept-html? (clojure.string/includes? accept-header "text/html")
+                            ]
+
+                        (cond
+                          ;(= uri "/") (create-root-page)
+
+                          (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
+                            ;(contains-one-of? uri CONST_SUPPORTED_LOCALES)
+                            )
+                          (let [src (str/replace-first uri "/inventory" "public/inventory")
+                                resource (try (slurp (io/resource src))
+                                              (catch Exception _ nil))]
+                            (if resource
+                              {:status 200 :headers {"Content-Type" "application/json"} :body resource}
+                              {:status 404 :headers {"Content-Type" "application/json"}}))
+
+
+                          :else  (try (let [
+                                            ;{:keys [file content-type]} asset
+                                      resource (io/resource file)
+
+
+                                            ]
+                                  ;(if resource
+
+                                    ;(when resource
+                                      {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
+                                        ;)
+
+                                        )
+
+                                      (catch Exception e
+                                        (println ">o> abc.assets -> EXCEPTION!!!!!!!" e)
+                                    (rh/index-html-response request 404)))
+
+                                      ;))
+
+
+                          ))
+
+
+
+
+                      ;{:status 200}
+                       )
+           }
+
+     }]
+])
+
 (defn swagger-endpoints []
   ["/api-docs"
    {:get {:handler swagger-api-docs-handler
@@ -186,6 +310,10 @@
    (sign-in-out-endpoints)
    ["inventory"
     {:swagger {:tags [""]}}
+
+
+
+
     (csrf-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])

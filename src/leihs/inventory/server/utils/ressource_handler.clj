@@ -109,20 +109,20 @@
     (cond
       (= uri "/") (create-root-page)
 
-      (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-           (contains-one-of? uri CONST_SUPPORTED_LOCALES))
-      (let [src (str/replace-first uri "/inventory" "public/inventory")
-            resource (try (slurp (io/resource src))
-                          (catch Exception _ nil))]
-        (if resource
-          {:status 200 :headers {"Content-Type" "application/json"} :body resource}
-          {:status 404 :headers {"Content-Type" "application/json"}}))
+      ;(and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
+      ;     (contains-one-of? uri CONST_SUPPORTED_LOCALES))
+      ;(let [src (str/replace-first uri "/inventory" "public/inventory")
+      ;      resource (try (slurp (io/resource src))
+      ;                    (catch Exception _ nil))]
+      ;  (if resource
+      ;    {:status 200 :headers {"Content-Type" "application/json"} :body resource}
+      ;    {:status 404 :headers {"Content-Type" "application/json"}}))
 
-      (and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
-      {:status 302 :headers {"Location" "/inventory"} :body ""}
-
-      (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
-      {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
+      ;(and (nil? asset) (or (= uri "/inventory/") (= uri "/inventory/index.html")))
+      ;{:status 302 :headers {"Location" "/inventory"} :body ""}
+      ;
+      ;(and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
+      ;{:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
 
       (and (nil? asset) (or (= uri "/inventory/swagger-ui") (= uri "/inventory/swagger-ui/")))
       {:status 302 :headers {"Location" "/inventory/swagger-ui/index.html"} :body ""}

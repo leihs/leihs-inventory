@@ -10,7 +10,8 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
+   [leihs.inventory.server.utils.middleware_handler :refer [
+                                                            ;default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
@@ -31,7 +32,23 @@
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.params :refer [wrap-params]]))
 
-(def middlewares [wrap-handle-coercion-error
+
+(defn wrap-logging-first [handler]
+  (fn [request]
+    (println "Incoming request first:" (:request-method request) (:uri request))
+    (handler request)))
+
+
+(defn wrap-logging-last [handler]
+  (fn [request]
+    (println "Incoming request last:" (:request-method request) (:uri request))
+    (handler request)))
+
+(def middlewares [
+                  ;; add fnc
+                  wrap-logging-first
+
+                  wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
@@ -49,7 +66,7 @@
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-                  default-handler-fetch-resource
+                  ;default-handler-fetch-resource
 
                   swagger/swagger-feature
                   parameters/parameters-middleware
@@ -62,7 +79,12 @@
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
-                  multipart/multipart-middleware])
+                  multipart/multipart-middleware
+
+                  wrap-logging-last
+
+
+                  ])
 
 (defn create-app [options]
   (let [router (ring/router
@@ -87,4 +109,5 @@
                      :operationsSorter "alpha"}})
 
           (ring/create-default-handler
-           {:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))
+           ;{:not-found (default-handler-fetch-resource custom-not-found-handler)}))))))
+           {:not-found custom-not-found-handler}))))))
