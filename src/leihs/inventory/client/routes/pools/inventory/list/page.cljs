@@ -76,6 +76,7 @@
                         ($ TableHead {:class-name "rounded-tl-md"} "")
                         ($ TableHead (t "pool.models.list.header.amount"))
                         ($ TableHead "")
+                        ($ TableHead "")
                         ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
                         ($ TableHead (t "pool.models.list.header.availability"))
                         ($ TableHead {:class-name "rounded-tr-md"} "")))
@@ -91,18 +92,25 @@
                           ($ TableCell (-> model :total str))
 
                           ($ TableCell
+                             (if (:url model)
+                               ($ :img {:class-name "w-12 h-12 object-contain"
+                                        :src (:url model)
+                                        :alt (str (:product model) " " (:version model))})
+                               ($ Image {:class-name "w-12 h-12"})))
+
+                          ($ TableCell
                              ($ :div {:className "flex gap-2"}
-                                ($ Image)
-                                ($ Badge {:className (case (-> model :type)
-                                                       "Package" "bg-lime-500"
-                                                       "Model" "bg-slate-500"
-                                                       "Option" "bg-emerald-500"
-                                                       "Software" "bg-orange-500")}
+                                ($ Badge {:className (str "w-6 h-6 justify-center "
+                                                          (case (-> model :type)
+                                                            "Package" "bg-lime-500"
+                                                            "Model" "bg-slate-500"
+                                                            "Option" "bg-emerald-500"
+                                                            "Software" "bg-orange-500"))}
                                    (str (case (-> model :type)
-                                          "Package" (t "pool.models.filters.type.package")
-                                          "Model" (t "pool.models.filters.type.model")
-                                          "Option" (t "pool.models.filters.type.option")
-                                          "Software" (t "pool.models.filters.type.software"))))))
+                                          "Package" "P"
+                                          "Model" "M"
+                                          "Option" "O"
+                                          "Software" "S")))))
 
                           ($ TableCell {:className "font-bold"}
                              (str (:product model) " " (:version model)))
