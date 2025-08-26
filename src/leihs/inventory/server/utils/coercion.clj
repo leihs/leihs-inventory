@@ -107,7 +107,6 @@
       :else resp)))
 
 (defn wrap-handle-coercion-error [handler]
-  (println ">o> abc.wrap-handle-coercion-error.first" )
   (fn [request]
     (let [response (handler request)]
       (handle-coercion-error request response))))

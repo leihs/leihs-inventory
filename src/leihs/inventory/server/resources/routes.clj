@@ -54,34 +54,25 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]))
 
-   (defn- create-root-page [_]
-     {:status 200
-      :headers {"Content-Type" "text/html"}
-      :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+(defn- create-root-page [_]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
        </head><div class='max-width'>
        <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+           (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn sign-in-out-endpoints []
   [
-    [""
-       {:no-doc HIDE_BASIC_ENDPOINTS
-        :get {
-              :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
-              :swagger {:produces ["text/html"]
-                        :security []}
-              :description "Root page"
-
-
-
-              :handler (fn [request]
-                         (println "Processing root request...")
-
-                         (create-root-page request)
-                         )
-
-              }}]
+   [""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+           :swagger {:produces ["text/html"] :security []}
+           :description "Root page"
+           :handler (fn [request]
+                      (println "Processing root request...")
+                      (create-root-page request))}}]
 
    ["sign-in"
     {:swagger {:tags ["Login"]}
@@ -141,17 +132,6 @@
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 
-
-(defn fetch-file-entry [uri assets]
-  (if
-   ;(and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
-    (clojure.string/includes? uri "/inventory/assets/")
-    (some (fn [[key value]]
-            (if (str/includes? uri (str key))
-              value))
-      assets)
-    nil))
-
 (defn extract-filename [uri]
   (let [filename (last (str/split uri #"/"))]
     (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
@@ -160,16 +140,16 @@
 
 (def mime-types
   {"html" "text/html"
-   "htm"  "text/html"
-   "css"  "text/css"
-   "js"   "application/javascript"
+   "htm" "text/html"
+   "css" "text/css"
+   "js" "application/javascript"
    "json" "application/json"
-   "png"  "image/png"
-   "jpg"  "image/jpeg"
+   "png" "image/png"
+   "jpg" "image/jpeg"
    "jpeg" "image/jpeg"
-   "gif"  "image/gif"
-   "svg"  "image/svg+xml"
-   "txt"  "text/plain"})
+   "gif" "image/gif"
+   "svg" "image/svg+xml"
+   "txt" "text/plain"})
 
 (defn content-type [filename]
   (let [ext (-> filename
@@ -178,34 +158,10 @@
               str/lower-case)]
     (get mime-types ext "application/octet-stream")))
 
-;(defn- create-root-page [_]
-;  {:status 200
-;   :headers {"Content-Type" "text/html"}
-;   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
-;       </head><div class='max-width'>
-;       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
-;       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-;           (slurp (io/resource "md/info.html")) "</div></body></html>")})
-
-(defn csrf-endpoints []
+(defn assets-endpoints []
   ["/"
    {:swagger {:tags ["Assets"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
-
-   ;[""
-   ; {:no-doc HIDE_BASIC_ENDPOINTS
-   ;  :get {
-   ;        :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
-   ;        :swagger {:produces ["text/html"]}
-   ;        :description "Root page"
-   ;
-   ;        :handler (fn [request]
-   ;                     (println "Processing root request...")
-   ;
-   ;        create-root-page
-   ;                   )
-   ;
-   ;        }}]
 
    ["assets/{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
@@ -215,17 +171,16 @@
            :description "Public assets like JS, CSS, images"
 
            :handler (fn [request]
-                        (println "Processing asset request...")
-
-                        (try
-                          (let [uri (:uri request)
-                                file (extract-filename uri)
-                                content-type (content-type file)
-                                resource (io/resource file)]
-                            {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
-                          (catch Exception e
-                            (println "Error processing asset request:" e)
-                            (rh/index-html-response request 404))))
+                      (println "Processing asset request...")
+                      (try
+                        (let [uri (:uri request)
+                              file (extract-filename uri)
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (println "Error processing asset request:" e)
+                          (rh/index-html-response request 404))))
            }}]
    ])
 
@@ -307,10 +262,7 @@
    (sign-in-out-endpoints)
    ["inventory"
     {:swagger {:tags [""]}}
-
-
-
-
+    (assets-endpoints)
     (csrf-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])

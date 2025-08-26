@@ -3,8 +3,6 @@
    [taoensso.timbre :refer [debug error]]))
 
 (defn wrap-debug [handler]
-
-  (println ">o> abc.wrap-debug" )
   (fn [request]
     (try
       (handler request)
