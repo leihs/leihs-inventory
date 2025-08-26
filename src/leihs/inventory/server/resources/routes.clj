@@ -61,11 +61,10 @@
        </head><div class='max-width'>
        <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-           (slurp (io/resource "md/info.html")) "</div></body></html>")})
+              (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn sign-in-out-endpoints []
-  [
-   [""
+  [[""
     {:no-doc HIDE_BASIC_ENDPOINTS
      :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
            :swagger {:produces ["text/html"] :security []}
@@ -152,10 +151,11 @@
    "txt" "text/plain"})
 
 (defn content-type [filename]
+  (println ">o> abc ??" filename)
   (let [ext (-> filename
-              (str/split #"\.")
-              last
-              str/lower-case)]
+                (str/split #"\.")
+                last
+                str/lower-case)]
     (get mime-types ext "application/octet-stream")))
 
 (defn assets-endpoints []
@@ -165,11 +165,9 @@
 
    ["assets/{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {
-           :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
            :swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
            :description "Public assets like JS, CSS, images"
-
            :handler (fn [request]
                       (println "Processing asset request...")
                       (try
@@ -180,9 +178,25 @@
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e
                           (println "Error processing asset request:" e)
-                          (rh/index-html-response request 404))))
-           }}]
-   ])
+                          (rh/index-html-response request 404))))}}]
+
+   ["swagger-ui/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html"
+           :swagger {:produces ["text/html"]}
+           :description "Swagger-UI with filter/sort"
+           :handler (fn [request]
+                      (println "Processing asset request...")
+                      (try
+                        (let [uri (:uri request)
+                              file (extract-filename uri)
+                              file "public/swagger-ui/index.html"
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (println "Error processing swagger-ui request:" e)
+                          (rh/index-html-response request 404))))}}]  ])
 
 (defn swagger-endpoints []
   ["/api-docs"

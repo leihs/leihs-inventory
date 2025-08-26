@@ -42,7 +42,7 @@
     (let [auth (get-in request [:authenticated-entity])
           uri (:uri request)
           referer (get-in request [:headers "referer"])
-          is-api-request? (and referer (str/includes? referer "/api-docs/"))
+          is-api-request? (and referer (or (str/includes? referer "/api-docs/")(str/includes? referer "/swagger-ui/")))
           is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
           swagger-resource? (str/includes? uri "/api-docs/")
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
