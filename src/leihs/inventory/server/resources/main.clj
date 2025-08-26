@@ -12,17 +12,16 @@
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response]
-   [ring.util.response :refer [response status]])
+   [ring.util.response :refer [response status redirect]])
   (:gen-class)
   (:import (org.jsoup Jsoup)))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
-      (= path "/inventory/api-docs") (response/redirect "/inventory/api-docs/index.html")
-      (= path "/inventory/index.html") (response/redirect "/inventory")
-      :else (response/status (response/response "File not found") 404))))
+      (= path "/inventory/api-docs") (redirect "/inventory/api-docs/index.html")
+      (= path "/inventory/index.html") (redirect "/inventory")
+      :else (status (response "File not found") 404))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -50,7 +49,6 @@
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-        accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     html))
 
@@ -66,8 +64,7 @@
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
         username (:user form-data)
-        password (:password form-data)
-        csrf-token (:csrf-token form-data)]
+        password (:password form-data)]
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
@@ -75,7 +72,7 @@
                       request)
             resp (be/routes (convert-params request))
             created-session (get-in resp [:cookies "leihs-user-session" :value])
-            request (assoc request :sessions created-session :cookies {"leihs-user-session" {:value created-session}})]
+            _ (assoc request :sessions created-session :cookies {"leihs-user-session" {:value created-session}})]
         resp))))
 
 (defn get-sign-out [request]

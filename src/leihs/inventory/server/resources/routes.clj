@@ -1,9 +1,7 @@
 (ns leihs.inventory.server.resources.routes
   (:require
-   [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
-
    [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
@@ -13,7 +11,6 @@
                                                   post-sign-out
                                                   swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
-
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
@@ -48,7 +45,7 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
@@ -133,7 +130,7 @@
 
 (defn extract-filename [uri]
   (let [filename (last (str/split uri #"/"))]
-    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
+    (if (and (seq filename) (re-matches #".*\.(css|js)$" filename))
       filename
       nil)))
 
@@ -188,15 +185,13 @@
            :handler (fn [request]
                       (println "Processing asset request...")
                       (try
-                        (let [uri (:uri request)
-                              file (extract-filename uri)
-                              file "public/swagger-ui/index.html"
+                        (let [file "public/swagger-ui/index.html"
                               content-type (content-type file)
                               resource (io/resource file)]
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e
                           (println "Error processing swagger-ui request:" e)
-                          (rh/index-html-response request 404))))}}]  ])
+                          (rh/index-html-response request 404))))}}]])
 
 (defn swagger-endpoints []
   ["/api-docs"

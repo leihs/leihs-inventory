@@ -10,7 +10,7 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware_handler :refer [wrap-accept-with-image-rewrite
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -62,7 +62,7 @@
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware])
 
-(defn create-app [options]
+(defn create-app [_]
   (let [router (ring/router
                 (routes/all-api-endpoints)
                 {:conflicts nil
