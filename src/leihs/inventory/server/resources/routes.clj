@@ -1,6 +1,10 @@
 (ns leihs.inventory.server.resources.routes
   (:require
+   [cheshire.core :as json]
    [clojure.java.io :as io]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+
    [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
@@ -9,13 +13,8 @@
                                                   get-sign-out post-sign-in
                                                   post-sign-out
                                                   swagger-api-docs-handler]]
-
-   [cheshire.core :as json]
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [leihs.inventory.server.utils.response_helper :as rh]
-
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
+
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
@@ -50,6 +49,7 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
@@ -161,76 +161,24 @@
      :get {
            :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
            :swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
-           :description "Access allowed without x-csrf-token"
+           :description "Public assets like JS, CSS, images"
 
            :handler (fn [request]
-(println ">o> abc.assets -> ASSET-HANDDLER!!!!!!!" )
+                        (println "Processing asset request...")
 
-                      (let [
-                            ;request ((db/wrap-tx (fn [request] request)) request)
-                            ;request ((csrf/extract-header (fn [request] request)) request)
-                            ;request ((session/wrap-authenticate (fn [request] request)) request)
-                            ;request ((dm/extract-dev-cookie-params (fn [request] request)) request)
-                            uri (:uri request)
-                            file (extract-filename uri)
-
-                            content-type (content-type (or file ""))
-
-
-                            ;assets (get-assets)
-                            ;asset (fetch-file-entry uri assets)
-                            ;accept-header (or (get-in request [:headers "accept"]) "")
-                            ;referer (or (get-in request [:headers "referer"]) "")
-                            ;swagger-call? (str/ends-with? (or referer "") "/inventory/api-docs/index.html")
-                            ;accept-html? (clojure.string/includes? accept-header "text/html")
-                            ]
-
-                        (cond
-                          ;(= uri "/") (create-root-page)
-
-                          (and (str/starts-with? uri "/inventory/assets/locales/") (str/ends-with? uri "/translation.json")
-                            ;(contains-one-of? uri CONST_SUPPORTED_LOCALES)
-                            )
-                          (let [src (str/replace-first uri "/inventory" "public/inventory")
-                                resource (try (slurp (io/resource src))
-                                              (catch Exception _ nil))]
-                            (if resource
-                              {:status 200 :headers {"Content-Type" "application/json"} :body resource}
-                              {:status 404 :headers {"Content-Type" "application/json"}}))
-
-
-                          :else  (try (let [
-                                            ;{:keys [file content-type]} asset
-                                      resource (io/resource file)
-
-
-                                            ]
-                                  ;(if resource
-
-                                    ;(when resource
-                                      {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)}
-                                        ;)
-
-                                        )
-
-                                      (catch Exception e
-                                        (println ">o> abc.assets -> EXCEPTION!!!!!!!" e)
-                                    (rh/index-html-response request 404)))
-
-                                      ;))
-
-
-                          ))
-
-
-
-
-                      ;{:status 200}
-                       )
+                        (try
+                          (let [uri (:uri request)
+                                file (extract-filename uri)
+                                content-type (content-type file)
+                                resource (io/resource file)]
+                            {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                          (catch Exception e
+                            (println "Error processing asset request:" e)
+                            (rh/index-html-response request 404))))
            }
 
      }]
-])
+   ])
 
 (defn swagger-endpoints []
   ["/api-docs"
