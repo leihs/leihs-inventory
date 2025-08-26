@@ -140,3 +140,7 @@
       (rh/index-html-response request 200)
 
       :else (create-not-found-response request))))
+
+
+(defn custom-not-found-handler [request]
+ (create-not-found-response request))

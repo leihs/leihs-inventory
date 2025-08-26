@@ -45,7 +45,7 @@
 (defn- fetch-sign-in-view [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
-        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
+        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/list")}
                     :flashMessages []}
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
@@ -71,7 +71,7 @@
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
-                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/list")
                       request)
             resp (be/routes (convert-params request))
             created-session (get-in resp [:cookies "leihs-user-session" :value])
@@ -80,7 +80,7 @@
 
 (defn get-sign-out [request]
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
-        params {:authFlow {:returnTo "/inventory/models"}
+        params {:authFlow {:returnTo "/inventory/list"}
                 :csrfToken {:name "csrf-token" :value uuid}}
         html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
     {:status 200

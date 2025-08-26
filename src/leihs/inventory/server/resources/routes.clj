@@ -2,7 +2,6 @@
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
-   [clojure.java.io :as io]
    [clojure.string :as str]
 
    [dev.routes :refer [get-dev-routes]]
@@ -55,8 +54,36 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]))
 
+   (defn- create-root-page [_]
+     {:status 200
+      :headers {"Content-Type" "text/html"}
+      :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+       </head><div class='max-width'>
+       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+
 (defn sign-in-out-endpoints []
-  [["sign-in"
+  [
+    [""
+       {:no-doc HIDE_BASIC_ENDPOINTS
+        :get {
+              :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+              :swagger {:produces ["text/html"]
+                        :security []}
+              :description "Root page"
+
+
+
+              :handler (fn [request]
+                         (println "Processing root request...")
+
+                         (create-root-page request)
+                         )
+
+              }}]
+
+   ["sign-in"
     {:swagger {:tags ["Login"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
@@ -151,10 +178,34 @@
               str/lower-case)]
     (get mime-types ext "application/octet-stream")))
 
+;(defn- create-root-page [_]
+;  {:status 200
+;   :headers {"Content-Type" "text/html"}
+;   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+;       </head><div class='max-width'>
+;       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+;       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+;           (slurp (io/resource "md/info.html")) "</div></body></html>")})
+
 (defn csrf-endpoints []
   ["/"
    {:swagger {:tags ["Assets"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
+
+   ;[""
+   ; {:no-doc HIDE_BASIC_ENDPOINTS
+   ;  :get {
+   ;        :accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+   ;        :swagger {:produces ["text/html"]}
+   ;        :description "Root page"
+   ;
+   ;        :handler (fn [request]
+   ;                     (println "Processing root request...")
+   ;
+   ;        create-root-page
+   ;                   )
+   ;
+   ;        }}]
 
    ["assets/{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
@@ -175,9 +226,7 @@
                           (catch Exception e
                             (println "Error processing asset request:" e)
                             (rh/index-html-response request 404))))
-           }
-
-     }]
+           }}]
    ])
 
 (defn swagger-endpoints []

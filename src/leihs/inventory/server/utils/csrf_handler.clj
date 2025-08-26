@@ -101,7 +101,7 @@
           api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
+        (if (some #(= % (:uri request)) ["/" "/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e

@@ -66,7 +66,6 @@
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-                  ;default-handler-fetch-resource
 
                   swagger/swagger-feature
                   parameters/parameters-middleware
