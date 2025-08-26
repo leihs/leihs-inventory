@@ -2,7 +2,7 @@
   (:require
    ["@@/breadcrumb" :refer [Breadcrumb BreadcrumbItem
                             BreadcrumbLink BreadcrumbList
-                            BreadcrumbSeparator]]
+                            BreadcrumbSeparator BreadcrumbPage]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
@@ -70,12 +70,13 @@
              ($ BreadcrumbSeparator)
 
              ($ BreadcrumbItem
-                (case last-segment
-                  "list" (t "pool.models.tabs.inventory_list")
-                  "advanced-search" (t "pool.models.tabs.advanced_search")
-                  "statistics" (t "pool.models.tabs.statistics")
-                  "entitlement-groups" (t "pool.models.tabs.entitlement_groups")
-                  "templates" (t "pool.models.tabs.templates")))))
+                ($ BreadcrumbPage
+                   (case last-segment
+                     "list" (t "pool.models.tabs.inventory_list")
+                     "advanced-search" (t "pool.models.tabs.advanced_search")
+                     "statistics" (t "pool.models.tabs.statistics")
+                     "entitlement-groups" (t "pool.models.tabs.entitlement_groups")
+                     "templates" (t "pool.models.tabs.templates"))))))
 
        ($ Tabs {:value last-segment}
           ($ :div {:className "flex w-full"}
