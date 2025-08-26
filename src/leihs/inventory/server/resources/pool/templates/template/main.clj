@@ -47,7 +47,7 @@
       (debug "process: update template")
       (when (not= (:name template-data) name)
         (jdbc/execute! tx (-> (sql/update :model_groups)
-                              (sql/set {:name name})
+                              (sql/set {:name name :updated_at (java.time.Instant/now)})
                               (sql/where [:and [:= :id template-id]
                                           [:= :type "Template"]])
                               sql-format)))

@@ -4,10 +4,6 @@
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [reitit.coercion.schema]))
 
-(sa/def :post/multipart (sa/keys :req-un [::sp/name
-                                          ::sp/model_id
-                                          ::sp/quantity]))
-
 (sa/def ::get-query (sa/keys :opt-un [::sp/page ::sp/size]))
 
 (sa/def ::model

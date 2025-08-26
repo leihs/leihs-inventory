@@ -14,17 +14,14 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [error]]))
 
 (def ERROR_CREATION "Failed to create template")
 (def ERROR_FETCH "Failed to fetch template")
 
 (defn post-resource [request]
   (try
-    (let [created-ts (LocalDateTime/now)
-          tx (:tx request)
+    (let [tx (:tx request)
           pool-id (to-uuid (get-in request [:path-params :pool_id]))
           {:keys [name models]} (get-in request [:parameters :body])
           data {:type "Template" :name name}
@@ -51,7 +48,7 @@
         :else (bad-request {:error ERROR_CREATION :details (.getMessage e)})))))
 
 (defn template-quantity-ok-query
-  [tx pool-id template-ids]
+  [pool-id template-ids]
   (-> (sql/select
        [(keyword "mg.id") :model_group_id]
        [:ml.quantity]
@@ -71,33 +68,35 @@
                       [:= :i.model_id :m.id]
                       [:= :i.inventory_pool_id pool-id]])
       (sql/join [:model_groups :mg] [:= :mg.id :ml.model_group_id])
+      (sql/join [:inventory_pools_model_groups :ipmg] [:= :ipmg.model_group_id :mg.id])
       (sql/where [:and
                   [:in :ml.model_group_id template-ids]
-                  [:= :mg.type "Template"]])
+                  [:= :mg.type "Template"]
+                  [:= :ipmg.inventory_pool_id pool-id]])
       (sql/group-by :mg.id :ml.quantity)
       sql-format))
 
 (defn- group-quantity-ok [rows]
   (->> rows
        (group-by :id)
-       (map (fn [[group-id entries]]
-              {:id group-id
-               :is_quantity_ok (every? :is_quantity_ok entries)}))))
+       (mapv (fn [[group-id entries]]
+               {:id group-id
+                :is_quantity_ok (every? :is_quantity_ok entries)}))))
 
 (defn- merge-by-model-group-id [vec1 vec2]
   (let [indexed (into {} (map (juxt :id identity) vec2))]
-    (map (fn [m1]
-           (merge m1 (get indexed (:id m1))))
-         vec1)))
+    (mapv (fn [m1]
+            (merge m1 (get indexed (:id m1))))
+          vec1)))
 
 (defn- rename-model-group-id-to-id [rows]
-  (map (fn [m]
-         (-> m
-             (assoc :id (:model_group_id m))
-             (dissoc :model_group_id)))
-       rows))
+  (mapv (fn [m]
+          (-> m
+              (assoc :id (:model_group_id m))
+              (dissoc :model_group_id)))
+        rows))
 
-(defn base-template-query [pool-id] (-> (sql/select [[:count [:distinct :ml.model_id]] :models_count]
+(defn base-template-query [pool-id] (-> (sql/select [[:count :ml.model_id] :models_count]
                                                     :mg.id
                                                     :mg.name
                                                     :mg.created_at
@@ -108,7 +107,8 @@
                                         (sql/where [:and
                                                     [:= :ipmg.inventory_pool_id pool-id]
                                                     [:= :mg.type "Template"]])
-                                        (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at)))
+                                        (sql/group-by :mg.id :mg.name :mg.created_at :mg.updated_at)
+                                        (sql/order-by [:mg.name :asc])))
 
 (defn index-resources [request]
   (let [tx (get-in request [:tx])
@@ -117,7 +117,7 @@
       (let [post-fnc (fn [models]
                        (if (seq models)
                          (let [template-ids (mapv :id models)
-                               query (template-quantity-ok-query tx pool-id template-ids)
+                               query (template-quantity-ok-query pool-id template-ids)
                                res (->> (jdbc/execute! tx query)
                                         (rename-model-group-id-to-id)
                                         (group-quantity-ok)) models (merge-by-model-group-id models res)]
