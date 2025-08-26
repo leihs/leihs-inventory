@@ -3,7 +3,7 @@
    [clj-yaml.core :as yaml]
    [clojure.pprint :refer [pprint]]
    [clojure.string]
-   [clojure.tools.cli :as cli :refer [parse-opts]]
+   [clojure.tools.cli :as cli]
    [environ.core :refer [env]]
    [leihs.core.logging]
    [leihs.core.reload :as reload]

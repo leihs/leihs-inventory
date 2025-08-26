@@ -11,16 +11,8 @@
   (-> request
       AUTHENTICATED_ENTITY))
 
-(defn not-authenticated? [request]
-  (-> request
-      AUTHENTICATED_ENTITY
-      boolean not))
-
 (defn path-params [request]
   (-> request :parameters :path))
 
 (defn query-params [request]
   (-> request :parameters :query))
-
-(defn body-params [request]
-  (-> request :parameters :body))

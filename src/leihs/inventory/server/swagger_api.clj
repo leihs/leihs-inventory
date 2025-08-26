@@ -31,7 +31,9 @@
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.params :refer [wrap-params]]))
 
-(def middlewares [wrap-handle-coercion-error
+(def middlewares [debug-mw/wrap-debug
+
+                  wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
@@ -39,8 +41,10 @@
                   wrap-accept-with-image-rewrite
 
                   csrf/extract-header
+
                   wrap-session-token-authenticate!
                   wrap-authenticate!
+
                   wrap-cookies
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
@@ -57,14 +61,13 @@
                   muuntaja/format-response-middleware
 
                   exception/exception-middleware
-                  debug-mw/wrap-debug
 
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware])
 
-(defn create-app [options]
+(defn create-app []
   (let [router (ring/router
                 (routes/all-api-endpoints)
                 {:conflicts nil

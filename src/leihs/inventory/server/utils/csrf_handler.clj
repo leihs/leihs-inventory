@@ -5,40 +5,12 @@
    [clojure.walk :refer [keywordize-keys]]
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.constants :as constants]
-   [leihs.core.core :refer [presence]]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]))
-
-(def WHITELIST-URIS-FOR-API ["/sign-in" "/sign-out"])
-
-(defn browser-request-matches-javascript? [request]
-  (boolean (or (= (-> request :accept :mime) :javascript)
-               (re-find #".+\\.js$" (or (-> request :uri presence) "")))))
-
-(defn wrap-dispatch-content-type
-  ([handler]
-   (fn [request]
-     (wrap-dispatch-content-type handler request)))
-  ([handler request]
-   (cond
-     (some #(= % (:uri request)) WHITELIST-URIS-FOR-API) (handler request)
-     (= (-> request :accept :mime) :json) (or (handler request)
-                                              (throw (ex-info "This resource does not provide a json response."
-                                                              {:status 404})))
-     (and (= (-> request :accept :mime) :html)
-          (#{:get :head} (:request-method request))
-          (not (browser-request-matches-javascript? request))) (rh/index-html-response request 404)
-     :else (let [response (handler request)]
-             (if (and (nil? response)
-                      (not (#{:post :put :patch :delete} (:request-method request)))
-                      (= (-> request :accept :mime) :html)
-                      (not (browser-request-matches-javascript? request)))
-               (rh/index-html-response request 404)
-               response)))))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug]]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
@@ -70,13 +42,13 @@
           params (codec/form-decode body-str)
           keyword-params (keywordize-keys params)]
       keyword-params)
-    (catch Exception _ nil)))
+    (catch Exception e
+      (debug e)
+      nil)))
 
 (defn extract-header [handler]
   (fn [request]
     (let [content-type (get-in request [:headers "content-type"])
-          is-accept-json? (str/includes? (str (get-in request [:headers "accept"])) "application/json")
-          x-csrf-token (get-in request [:headers "x-csrf-token"])
           request (-> request
                       (cond-> (= content-type "application/x-www-form-urlencoded")
                         (assoc :form-params (some-> (:body request) extract-form-params)))
@@ -85,19 +57,20 @@
       (try
         (handler request)
         (catch Throwable e
+          (debug e)
           (if (instance? Throwable e)
             (if (str/includes? (:uri request) "/sign-in")
               (get-sign-in request)
-              (-> (response/response {:status "failure"
-                                      :message "CSRF-Token/Session not valid"
-                                      :detail (.getMessage e)})
-                  (response/status 403)))
+              (do (debug e)
+                  (-> (response/response {:status "failure"
+                                          :message "CSRF-Token/Session not valid"
+                                          :detail (.getMessage e)})
+                      (response/status 403))))
             (response/status 404))))))) ;; coercion error for undefined urls
 
 (defn wrap-csrf [handler]
   (fn [request]
-    (let [referer (get-in request [:headers "referer"])
-          uri (:uri request)
+    (let [uri (:uri request)
           api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
@@ -105,6 +78,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
+              (debug e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")

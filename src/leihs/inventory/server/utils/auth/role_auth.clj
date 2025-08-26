@@ -1,37 +1,8 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
-   [clojure.string :as str]
-   [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
+   [clojure.set]
    [ring.util.response :refer [response status]]
-   [taoensso.timbre :refer [error]]))
-
-(defn determine-required-scope
-  "Determines the required scope based on the HTTP method and URI."
-  [method uri]
-  (cond
-    (and (str/includes? uri "/admin/") (= method :get)) :scope_system_admin_read
-    (and (str/includes? uri "/admin/") (#{:post :put :delete} method)) :scope_system_admin_write
-    (= method :get) :scope_read
-    (#{:post :patch :put :delete} method) :scope_write))
-
-(defn validate-admin-scopes
-  "Checks admin-level scopes (is_admin or is_system_admin) for elevated privileges."
-  [user required-scope]
-  (cond
-    (:is_system_admin user)
-    (case required-scope
-      :scope_system_admin_read true
-      :scope_system_admin_write true
-      true)
-
-    (:is_admin user)
-    (case required-scope
-      :scope_admin_read true
-      :scope_admin_write true
-      true)
-
-    :else
-    false))
+   [taoensso.timbre :refer [debug error spy]]))
 
 (defn validate-request
   "Validates the user's access based on roles, scope, and optionally a pool ID."
@@ -52,28 +23,18 @@
   "Middleware that validates the user's roles, scopes, and optionally pool ID."
   [allowed-roles]
   (fn [handler]
-    (fn [request]
+    (fn [{{:keys [access-rights]} :authenticated-entity
+          {{pool-id :pool_id} :path} :parameters
+          :as request}]
       (try
-        (let [user (get-in request [:authenticated-entity])
-              auth-entity (:access-rights user)
-              _ (when (nil? auth-entity)
-                  (throw (ex-info "unknown user" {:status 401})))
-
-              method (get request :request-method)
-              uri (get request :uri)
-              requested-pool-id (get-in request [:parameters :path :pool_id])
-              required-scope (determine-required-scope method uri)
-              has-scope? (or (get user required-scope)
-                             (validate-admin-scopes user required-scope))
-              _ (when-not has-scope?
-                  (throw (ex-info "invalid scope for the requested method" {:status 401})))
-
-              roles-for-pool (validate-request auth-entity allowed-roles requested-pool-id)
-              request (if requested-pool-id
-                        (assoc request :roles-for-pool {:pool_id requested-pool-id :roles roles-for-pool})
+        (let [roles-for-pool (validate-request access-rights allowed-roles pool-id)
+              request (if pool-id
+                        (assoc request :roles-for-pool {:pool_id pool-id :roles roles-for-pool})
                         request)]
+          (when (nil? access-rights)
+            (throw (ex-info "unknown user" {:status 403})))
           (handler request))
-
         (catch Exception e
+          (debug e)
           (error "EXCEPTION-DETAIL: " e)
-          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e) 500))))))))
+          (status (response {:error (.getMessage e)}) (:status (.getData e))))))))

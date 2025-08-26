@@ -8,7 +8,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error]])
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))
@@ -56,8 +56,6 @@
           json-request? (= accept-header "application/json")
 
           image_id (-> request path-params :image_id)
-          pool_id (-> request path-params :pool_id)
-          model_id (-> request path-params :model_id)
 
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
@@ -66,7 +64,7 @@
                     (sql/where [:= :i.thumbnail false])
                     (cond-> (not json-request?)
                       (sql/where [:= :i.content_type accept-header]))
-                  ;; TODO: pool_id / model_id restrictions
+                    ;; TODO: pool_id / model_id restrictions
                     sql-format)
           result (jdbc/execute-one! tx query)]
 
@@ -76,17 +74,18 @@
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))
     (catch Exception e
+      (debug e)
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
 
 (defn delete-resource
   [req]
   (let [tx (:tx req)
-        {:keys [model_id image_id]} (:path (:parameters req))
-        id (to-uuid image_id)]
-    (let [res (jdbc/execute-one! tx
-                                 (sql-format
-                                  {:delete-from :images :where [:= :id id]}))]
-      (if (= (:next.jdbc/update-count res) 1)
-        (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"})))))
+        {:keys [image_id]} (:path (:parameters req))
+        id (to-uuid image_id)
+        res (jdbc/execute-one! tx
+                               (sql-format
+                                {:delete-from :images :where [:= :id id]}))]
+    (if (= (:next.jdbc/update-count res) 1)
+      (response {:status "ok" :image_id image_id})
+      (bad-request {:error "Failed to delete image"}))))

@@ -8,14 +8,9 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
-                                                       query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [debug error]])
-  (:import
-   (java.time LocalDateTime)))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn get-resource [request]
   (let [tx (get-in request [:tx])
@@ -35,6 +30,7 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to fetch option"})))
       (catch Exception e
+        (debug e)
         (error "Failed to fetch option" (.getMessage e))
         (bad-request {:error "Failed to fetch option" :details (.getMessage e)})))))
 
@@ -57,6 +53,7 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to update option"})))
       (catch Exception e
+        (debug e)
         (error "Failed to update option" (.getMessage e))
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
@@ -81,5 +78,6 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
+        (debug e)
         (error "Failed to delete option" (.getMessage e))
         (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))

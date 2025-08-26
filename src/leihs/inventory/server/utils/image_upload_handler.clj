@@ -44,8 +44,7 @@
 (defn resize-and-convert-to-base64
   "Resize the image, convert it to Base64, and get the file size."
   [input-path]
-  (let [upload-dir (config-get :api :upload-dir)
-        width (config-get :api :images :thumbnail :width-px)
+  (let [width (config-get :api :images :thumbnail :width-px)
         height (config-get :api :images :thumbnail :height-px)
         output-path (add-thumb-to-filename input-path)]
     (resize-image input-path output-path width height)

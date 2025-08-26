@@ -3,7 +3,8 @@
    [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.string :as str]
-   [taoensso.timbre :refer [warn]])
+   [clojure.walk]
+   [taoensso.timbre :refer [debug warn]])
   (:import
    [java.io ByteArrayInputStream]))
 
@@ -31,7 +32,9 @@
               (re-find #"^\(" x)) ;; crude check for EDN-ish string
        (try
          (edn/read-string x)
-         (catch Exception _ x))
+         (catch Exception e
+           (debug e)
+           x))
        x))
    m))
 
@@ -100,8 +103,7 @@
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
-          (do
-            (generate-coercion-response ext-data request resp))
+          (generate-coercion-response ext-data request resp)
           (assoc resp :body (data->input-stream ext-data))))
 
       :else resp)))

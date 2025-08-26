@@ -11,7 +11,7 @@
   (let [index (io/resource "public/inventory/index.html")
         html (slurp index)
         uuid (anti-csrf-token request)
-        params {:authFlow {:returnTo "/inventory/models"}
+        params {:authFlow {:returnTo "/inventory/"}
                 :csrfToken {:name "csrf-token" :value uuid}}
         html-with-csrf (add-csrf-tags html params)]
     (-> (response/response html-with-csrf)

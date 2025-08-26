@@ -76,11 +76,11 @@ describe "Call swagger-endpoints" do
           "user" => @user.login,
           "password" => @user.password,
           "csrf-token" => X_CSRF_TOKEN,
-          "return-to" => "/inventory/models"
+          "return-to" => "/inventory/"
         }, headers: {"Cookie" => @user_cookies_str})
 
         expect(resp.status).to eq(302)
-        expect(resp.headers["location"]).to match(%r{/inventory/.+/models})
+        expect(resp.headers["location"]).to match(%r{/inventory/$})
       end
     end
 

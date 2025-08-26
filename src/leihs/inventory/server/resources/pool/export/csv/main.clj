@@ -18,8 +18,8 @@
         rows (map vals maps)]
     (cons headers rows)))
 
-(defn index-resources [request]
-  "Handler that generates an CSV file from a given map."
+(defn index-resources "Handler that generates an CSV file from a given map."
+  [_]
   (let [data [{:name "Alice" :age 30}
               {:name "Bob" :age 25}]
         output-stream (java.io.ByteArrayOutputStream.)

@@ -9,7 +9,6 @@
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [debug error]])
@@ -26,8 +25,7 @@
            :updated_at created-ts)))
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         prepared-model-data (-> (prepare-software-data multipart)
@@ -46,6 +44,7 @@
           (response (filter-map-by-spec res ::types/post-response))
           (bad-request {:error "Failed to create software"})))
       (catch Exception e
+        (debug e)
         (error "Failed to create software" (.getMessage e))
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")

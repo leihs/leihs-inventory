@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.auth.inventory-auth
+(ns dev.inventory-auth
   (:require
    [dev.main :refer [extract-basic-auth-from-header verify-password-entry]]
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -56,6 +56,3 @@
 
 (defn wrap-check-authenticated-admin [handler]
   (wrap-check-auth handler true))
-
-(defn wrap-check-authenticated [handler]
-  (wrap-check-auth handler false))

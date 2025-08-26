@@ -7,6 +7,6 @@
     (try
       (handler request)
       (catch Exception ex
-        (error (ex-message ex))
         (debug ex)
+        (error (ex-message ex))
         (throw ex)))))

@@ -12,8 +12,7 @@
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response]
-   [ring.util.response :refer [response status]])
+   [ring.util.response :as response])
   (:gen-class)
   (:import (org.jsoup Jsoup)))
 
@@ -45,12 +44,11 @@
 (defn- fetch-sign-in-view [request]
   (let [mtoken (anti-csrf-token request)
         query (convert-to-map (:query-params request))
-        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/models")}
+        params (-> {:authFlow {:returnTo (or (:return-to query) "/inventory/")}
                     :flashMessages []}
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-        accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     html))
 
@@ -66,21 +64,18 @@
 (defn post-sign-in [request]
   (let [form-data (:form-params request)
         username (:user form-data)
-        password (:password form-data)
-        csrf-token (:csrf-token form-data)]
+        password (:password form-data)]
     (if (or (str/blank? username) (str/blank? password))
       (be/create-error-response username request)
       (let [request (if consts/ACTIVATE-DEV-MODE-REDIRECT
-                      (assoc-in request [:form-params :return-to] "/inventory/8bd16d45-056d-5590-bc7f-12849f034351/models")
+                      (assoc-in request [:form-params :return-to] "/inventory/")
                       request)
-            resp (be/routes (convert-params request))
-            created-session (get-in resp [:cookies "leihs-user-session" :value])
-            request (assoc request :sessions created-session :cookies {"leihs-user-session" {:value created-session}})]
+            resp (be/routes (convert-params request))]
         resp))))
 
 (defn get-sign-out [request]
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
-        params {:authFlow {:returnTo "/inventory/models"}
+        params {:authFlow {:returnTo "/inventory/"}
                 :csrfToken {:name "csrf-token" :value uuid}}
         html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
     {:status 200

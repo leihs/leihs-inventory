@@ -12,7 +12,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -22,9 +22,6 @@
 
 (defn filter-keys-images [m]
   (filter-keys m [:filename :content_type :size :thumbnail :target_id :target_type :parent_id :content]))
-
-(defn image-response-format [s]
-  (sql/returning s :id :filename :thumbnail))
 
 (defn post-resource [req]
   (try
@@ -74,26 +71,16 @@
         (status (response data) 200)))
 
     (catch Exception e
+      (debug e)
       (error "Failed to upload image" e)
       (bad-request {:error "Failed to upload image" :details (.getMessage e)}))))
 
-(defn validate-empty-string!
-  ([k vec-of-maps]
-   (validate-empty-string! k vec-of-maps nil))
-  ([k vec-of-maps scope]
-   (doseq [m vec-of-maps]
-     (when (and (contains? m k) (= "" (get m k)))
-       (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                       (merge {:key k :map m} (when scope {:scope scope}))))))))
-
 (defn index-resources [request]
   (try
-    (let [tx (:tx request)
-          accept-header (get-in request [:headers "accept"])
-          json-request? (= accept-header "application/json")
-          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
+    (let [base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
                          (sql/from [:images :i]))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
+      (debug e)
       (error "Failed to retrieve image:" (.getMessage e))
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

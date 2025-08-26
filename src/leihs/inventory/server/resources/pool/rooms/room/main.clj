@@ -8,7 +8,7 @@
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request header response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn get-resource [request]
   (try
@@ -24,5 +24,6 @@
       (-> (response result)
           (header "Count" (count result))))
     (catch Exception e
+      (debug e)
       (error "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

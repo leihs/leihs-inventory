@@ -13,7 +13,7 @@
                         tree)
     tree))
 
-(defn index-resources [{{:keys [pool_id]} :path-params :as request}]
+(defn index-resources [request]
   (let [tx (:tx request)
         with-metadata (or (-> request :parameters :query :with-metadata) false)
         res {:body {:name "categories"

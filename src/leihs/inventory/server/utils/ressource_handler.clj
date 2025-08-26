@@ -13,7 +13,7 @@
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [bad-request response status content-type]]))
+   [ring.util.response :refer [response status content-type]]))
 
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
@@ -76,12 +76,6 @@
 (defn contains-one-of? [s substrings]
   (some #(str/includes? s %) substrings))
 
-(defn extract-filename [uri]
-  (let [filename (last (str/split uri #"/"))]
-    (if (and (not (empty? filename)) (re-matches #".*\.(css|js)$" filename))
-      filename
-      nil)))
-
 (defn create-not-found-response [request]
   (let [accept-header (or (get-in request [:headers "accept"]) "")]
     (if (clojure.string/includes? accept-header "application/json")
@@ -98,7 +92,6 @@
         request ((session/wrap-authenticate (fn [request] request)) request)
         request ((dm/extract-dev-cookie-params (fn [request] request)) request)
         uri (:uri request)
-        file (extract-filename uri)
         assets (get-assets)
         asset (fetch-file-entry uri assets)
         accept-header (or (get-in request [:headers "accept"]) "")

@@ -7,12 +7,9 @@
 
 (defn exception-to-response
   "Handles exceptions thrown during request processing."
-  [request e default-error]
+  [_ e default-error]
   (error default-error (.getMessage e))
-  (let [status-code (if (instance? clojure.lang.ExceptionInfo e)
-                      (:status (ex-data e))
-                      500)
-        response (cond
+  (let [response (cond
                    (instance? org.postgresql.util.PSQLException e)
                    (cond
                      (str/includes? (.getMessage e) "unique_model_name_idx")

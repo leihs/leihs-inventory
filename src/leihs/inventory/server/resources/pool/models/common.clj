@@ -35,20 +35,6 @@
 (defn create-url [pool_id model_id type cover_image_id]
   (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
 
-(defn apply-cover-image-urls [models thumbnails pool_id]
-  (vec
-   (map-indexed
-    (fn [idx model]
-      (let [cover-image-id (:cover_image_id model)
-            origin_table (:origin_table model)
-            thumbnail-id (-> (filter #(= (:target_id %) (:id model)) thumbnails)
-                             first
-                             :id)]
-        (cond-> model
-          (and (= "models" origin_table) cover-image-id)
-          (assoc :url (create-url pool_id (:id model) "images" cover-image-id)))))
-    models)))
-
 ;; #####################
 
 (defn- allowed-keys-schema [schema-map]

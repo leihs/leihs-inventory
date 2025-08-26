@@ -1,8 +1,7 @@
 (ns leihs.inventory.server.resources.pool.fields.main
   (:require
    [clojure.set]
-   [honey.sql :as sq]
-   [honey.sql :refer [format] :rename {format sql-format}]
+   [honey.sql :as sq :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.core :refer [single-entity-get-request?]]
    [leihs.inventory.server.utils.pagination :refer [fetch-pagination-params-raw
@@ -12,7 +11,7 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 ;TODO: common
 
@@ -22,14 +21,9 @@
   ([request with-pagination?]
    (try
      (let [tx (:tx request)
-           pool_id (-> request path-params :pool_id)
            group_id (-> request path-params :field_id)
            {:keys [role owner type]} (-> request query-params)
            {:keys [page size]} (fetch-pagination-params-raw request)
-           user-id (:id (:authenticated-entity request))
-           inventory-access-base-query (-> (sql/from :inventory_pools)
-                                           (sql/where [:= :inventory_pools.is_active true]))
-
            ;; TODO: this should not be used; instead use leihs.inventory.server.resources.models.form.license.queries
            license_keys ["inventory_code"
                          "license_version"
@@ -100,6 +94,7 @@
          :else (pagination-response request base-query)))
 
      (catch Exception e
+       (debug e)
        (error "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 

@@ -3,7 +3,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
    [ring.util.response :as response]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug spy]]))
 
 (defn accept-json-middleware [handler]
   (fn [request]
@@ -17,8 +17,7 @@
   [allowed-uris]
   (fn [handler]
     (fn [request]
-      (let [uri (:uri request)
-            referer (:referer request)]
+      (let [uri (:uri request)]
         (if (some #(= uri %) allowed-uris)
           (handler request)
           (response/status 404))))))
@@ -30,29 +29,34 @@
         (handler request)
         (index-html-response request 200)))))
 
-(defn wrap-is-admin! [handler]
-  (fn [request]
-    (let [is-admin (get-in request [:authenticated-entity :is_admin] false)]
-      (if is-admin
-        (handler request)
-        (response/status (response/response {:status "failure" :message "Unauthorized1"}) 401)))))
+(def whitelisted-paths
+  ["/api-docs/"
+   "/sign-in"
+   "/inventory/csrf-token/"
+   "/inventory/token/public"
+   "/inventory/status"
+   "/inventory/session/public"])
+
+(defn whitelisted?
+  ([uri] (whitelisted? uri []))
+  ([uri add-paths]
+   (some #(str/includes? uri %)
+         (into whitelisted-paths add-paths))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]
     (let [auth (get-in request [:authenticated-entity])
           uri (:uri request)
-          referer (get-in request [:headers "referer"])
-          is-api-request? (and referer (str/includes? referer "/api-docs/"))
-          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
-          swagger-resource? (str/includes? uri "/api-docs/")
-          whitelisted? (some #(str/includes? uri %) ["/sign-in"
-                                                     "/inventory/csrf-token/"
-                                                     "/inventory/token/public"
-                                                     "/inventory/status"
-                                                     "/inventory/session/public"])]
+          is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")]
       (cond
-        (or auth swagger-resource? whitelisted?) (handler request)
-        (and (nil? auth) is-accept-json?) (do
-                                            (debug "Unauthorized because of: No authenticated-entity && json accept header")
-                                            (response/status (response/response {:status "failure" :message "Unauthorized"}) 403))
+        (or auth (whitelisted? uri))
+        (handler request)
+
+        (and (nil? auth) is-accept-json?)
+        (do
+          (debug "Unauthenticated because of: No authenticated-entity && json accept header")
+          (-> {:status "failure" :message "Unauthenticated"}
+              response/response
+              (response/status 403)))
+
         :else (handler request)))))
