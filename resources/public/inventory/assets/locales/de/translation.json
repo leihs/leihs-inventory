@@ -25,6 +25,11 @@
     }
   },
   "pool": {
+    "inventory": {
+      "breadcrumbs": {
+        "inventory": "Inventar"
+      }
+    },
     "models": {
       "title": "Inventarliste",
       "filters": {

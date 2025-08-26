@@ -1,10 +1,13 @@
 (ns leihs.inventory.client.routes.pools.inventory.layout
   (:require
+   ["@@/breadcrumb" :refer [Breadcrumb BreadcrumbItem
+                            BreadcrumbLink BreadcrumbList
+                            BreadcrumbSeparator]]
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/tabs" :refer [Tabs TabsContent TabsList TabsTrigger]]
-   ["lucide-react" :refer [CirclePlus]]
+   ["lucide-react" :refer [CirclePlus House]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [generatePath Link Outlet]]
    [clojure.string :as str]
@@ -43,9 +46,36 @@
         profile (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
 
-    ($ :article
-       ($ :h1 {:className "text-2xl font-bold mt-12 mb-6"}
-          (t "pool.models.title") " - " (:name pool))
+    ($ :section
+       ($ Breadcrumb {:className "my-8"}
+          ($ BreadcrumbList
+             ($ BreadcrumbItem
+                ($ BreadcrumbLink {:asChild true}
+                   ($ Link {:class-name "flex items-center"
+                            :to "/inventory"
+                            :viewTransition true}
+                      ($ House {:class-name "h-4 w-4 mr-2"})
+                      (t "pool.inventory.breadcrumbs.inventory"))))
+
+             ($ BreadcrumbSeparator)
+
+             ($ BreadcrumbItem
+                ($ BreadcrumbLink {:asChild true}
+                   ($ Link {:to (generatePath "/inventory/:pool-id"
+                                              (cj {:pool-id pool-id}))
+                            :state #js {:searchParams (.. location -search)}
+                            :viewTransition true}
+                      (:name pool))))
+
+             ($ BreadcrumbSeparator)
+
+             ($ BreadcrumbItem
+                (case last-segment
+                  "list" (t "pool.models.tabs.inventory_list")
+                  "advanced-search" (t "pool.models.tabs.advanced_search")
+                  "statistics" (t "pool.models.tabs.statistics")
+                  "entitlement-groups" (t "pool.models.tabs.entitlement_groups")
+                  "templates" (t "pool.models.tabs.templates")))))
 
        ($ Tabs {:value last-segment}
           ($ :div {:className "flex w-full"}
