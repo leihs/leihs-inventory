@@ -4,15 +4,6 @@
    [leihs.inventory.server.resources.pool.models.basic_coercion :as sp]
    [reitit.coercion.schema]))
 
-(sa/def ::put-response
-  (sa/keys :req-un [:models/type
-                    ::sp/product
-                    ::sp/id
-                    :nil/manufacturer
-                    :nil/version]
-           :opt-un [:nil/technical_detail
-                    ::sp/attachments]))
-
 (sa/def ::deleted_ipmg
   (sa/coll-of (sa/keys :req-un [::sp/model_group_id ::sp/inventory_pool_id])
               :kind vector?))

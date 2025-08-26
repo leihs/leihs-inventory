@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
    [next.jdbc :as jdbc]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug warn]]))
 
 (def case-condition
   [:and
@@ -48,20 +48,37 @@
       (sql/order-by [:m.product :asc])
       sql-format))
 
+(defn ensure-inventory-pool-template-link-exists!
+  [tx pool-id template-id]
+  (let [rows (jdbc/execute! tx
+                            (-> (sql/select :*)
+                                (sql/from :inventory_pools_model_groups)
+                                (sql/where
+                                 [:and
+                                  [:= :inventory_pool_id pool-id]
+                                  [:= :model_group_id template-id]])
+                                sql-format))]
+    (case (count rows)
+      0 (jdbc/execute-one! tx
+                           (-> (sql/insert-into :inventory_pools_model_groups)
+                               (sql/values [{:inventory_pool_id pool-id
+                                             :model_group_id template-id}])
+                               (sql/returning :*)
+                               sql-format))
+      1 (first rows)
+      (do ((warn (format "Found %d entries for pool-id=%s template-id=%s"
+                         (count rows) pool-id template-id)))
+          (first rows)))))
+
 (defn process-create-template-models [tx entries-to-insert template-id pool-id]
   (debug "process: create models" entries-to-insert)
-  (doseq [entry entries-to-insert]
-    (jdbc/execute-one! tx (-> (sql/insert-into :inventory_pools_model_groups)
-                              (sql/values [{:inventory_pool_id pool-id
-                                            :model_group_id template-id}])
-                              (sql/returning :*)
-                              sql-format))
+  (ensure-inventory-pool-template-link-exists! tx pool-id template-id)
 
+  (doseq [entry entries-to-insert]
     (jdbc/execute-one! tx (-> (sql/insert-into :model_links)
                               (sql/values [{:model_id (:id entry)
                                             :model_group_id template-id
                                             :quantity (:quantity entry)}])
-                              (sql/returning :*)
                               sql-format))))
 
 (defn process-update-template-models [tx entries-to-update]
