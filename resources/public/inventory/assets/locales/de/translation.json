@@ -119,19 +119,18 @@
       },
       "template": {
         "quantity_error": "Anzahl übersteigt Verfügbarkeit",
+        "title": "Vorlage",
         "create": {
-          "title": "Neue Vorlage erstellen",
           "description": "Geben Sie alle erforderlichen Informationen an",
           "submit": "Vorlage speichern",
           "cancel": "Abbrechen",
           "success": "Vorlage wurde erfolgreich erstellt",
           "invalid_one": "Vorlage konnte nicht erstellt werden, da ein Feld ungültig ist",
           "invalid_other": "Vorlage konnte nicht erstellt werden, da {{count}} Felder ungültig sind",
-          "409": "Vorlage konnte nicht erstellt werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
-          "500": "Beim Erstellen ist ein Fehler aufgetreten"
+          "conflict": "Vorlage konnte nicht erstellt werden, da eine Vorlage mit dem gleichen Namen bereits existiert",
+          "error": "Beim Erstellen ist ein Fehler aufgetreten"
         },
         "edit": {
-          "title": "Vorlage bearbeiten",
           "description": "Nehmen Sie Änderungen vor und speichern Sie anschliessend",
           "submit": "Vorlage speichern",
           "delete": "Löschen",
@@ -146,8 +145,7 @@
           "confirm": "Löschen",
           "cancel": "Abbrechen",
           "success": "Vorlage wurde erfolgreich gelöscht",
-          "error": "Vorlage konnte nicht gelöscht werden",
-          "500": "Vorlage konnte nicht gelöscht werden"
+          "error": "Vorlage konnte nicht gelöscht werden"
         },
         "name": {
           "blocks": {

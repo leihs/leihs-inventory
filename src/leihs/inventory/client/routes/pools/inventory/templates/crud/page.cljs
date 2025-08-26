@@ -23,6 +23,7 @@
    [leihs.inventory.client.lib.form-helper :as form-helper]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.templates.crud.components.fields :as form-fields]
+   [leihs.inventory.client.routes.pools.inventory.templates.crud.components.title :as title]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -53,6 +54,8 @@
                                             (cj (form-helper/replace-nil-values
                                                  (merge default-values (jc data))))
                                             (cj default-values))})
+
+        get-values (aget form "getValues")
 
         is-loading (.. form -formState -isLoading)
 
@@ -130,27 +133,30 @@
 
                         (.. event (preventDefault))
 
-                        (if (not= (:status template-res) 200)
-                          (.. toast (error (t (str "pool.templates.template.create." (:status template-res)))))
+                        (case (:status template-res)
+                          409 (.. toast (error (t "pool.templates.template.create.conflict")))
+                          500 (.. toast (error (t "pool.templates.template.create.error")))
 
-                          (do
-                            (if is-create
-                              (.. toast (success (t "pool.templates.template.create.success")))
-                              (.. toast (success (t "pool.templates.template.edit.success"))))
+                          200 (do
+                                (if is-create
+                                  (.. toast (success (t "pool.templates.template.create.success")))
+                                  (.. toast (success (t "pool.templates.template.edit.success"))))
 
-                              ;; state needs to be forwarded for back navigation
-                            (if is-create
-                              (navigate (str (router/generatePath
-                                              "/inventory/:pool-id/templates"
-                                              #js {:pool-id pool-id}) "?" (params-with-all-items))
-                                        #js {:state state
-                                             :viewTransition true})
+                                ;; state needs to be forwarded for back navigation
+                                (if is-create
+                                  (navigate (str (router/generatePath
+                                                  "/inventory/:pool-id/templates"
+                                                  #js {:pool-id pool-id}) "?" (params-with-all-items))
+                                            #js {:state state
+                                                 :viewTransition true})
 
-                              (navigate (str (router/generatePath
-                                              "/inventory/:pool-id/templates"
-                                              #js {:pool-id pool-id}) (some-> state .-searchParams))
-                                        #js {:state state
-                                             :viewTransition true})))))))]
+                                  (navigate (str (router/generatePath
+                                                  "/inventory/:pool-id/templates"
+                                                  #js {:pool-id pool-id}) (some-> state .-searchParams))
+                                            #js {:state state
+                                                 :viewTransition true})))
+
+                          :default (.. toast (error :statusText template-res))))))]
 
     (if is-loading
       ($ :div {:className "flex justify-center items-center h-screen"}
@@ -158,14 +164,9 @@
 
       ($ :article {:className "mt-6"}
          ($ :h1 {:className "text-2xl bold font-bold mt-12 mb-2"}
-            (if is-create
-              (t "pool.templates.template.create.title")
-              (t "pool.templates.template.edit.title")))
+            (t "pool.templates.template.title")
 
-         ($ :h3 {:className "text-sm mb-6 text-gray-500"}
-            (if is-create
-              (t "pool.templates.template.create.description")
-              (t "pool.templates.template.edit.description")))
+            ($ title/main {:control control}))
 
          ($ Card {:className "my-4"}
             ($ CardContent

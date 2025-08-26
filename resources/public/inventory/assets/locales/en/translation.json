@@ -119,19 +119,18 @@
       },
       "template": {
         "quantity_error": "Quantity exceeds availability",
+        "title": "Template",
         "create": {
-          "title": "Create new template",
           "description": "Provide all required information",
           "submit": "Save template",
           "cancel": "Cancel",
           "success": "Template was successfully created",
           "invalid_one": "Template could not be created because one field is invalid",
           "invalid_other": "Template could not be created because {{count}} fields are invalid",
-          "409": "Template could not be created because a template with the same name already exists",
-          "500": "An error occurred while creating"
+          "conflict": "Template could not be created because a template with the same name already exists",
+          "error": "An error occurred while creating"
         },
         "edit": {
-          "title": "Edit template",
           "description": "Make changes and save them afterward",
           "submit": "Save template",
           "delete": "Delete",
@@ -146,8 +145,7 @@
           "confirm": "Delete",
           "cancel": "Cancel",
           "success": "Template was successfully deleted",
-          "error": "Template could not be deleted",
-          "500": "Template could not be deleted"
+          "error": "Template could not be deleted"
         },
         "name": {
           "blocks": {
