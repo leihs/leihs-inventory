@@ -39,15 +39,14 @@
       (sql/where (min-req-role-expr min-req-role))))
 
 (comment
- (require '[leihs.core.db :as db])
- (let [tx (db/get-ds)]
-   (-> (base-query :item false :inventory_manager)
-       (dissoc :select)
+  (require '[leihs.core.db :as db])
+  (let [tx (db/get-ds)]
+    (-> (base-query :item false :inventory_manager)
+        (dissoc :select)
        ; (sql/select :%count.*)
-       (sql/select :id)
-       (sql-format :inline true)
-       (->> (jdbc/query tx))
-       )))
+        (sql/select :id)
+        (sql-format :inline true)
+        (->> (jdbc/query tx)))))
 
 (defn index-resources [request]
   (debug request)
