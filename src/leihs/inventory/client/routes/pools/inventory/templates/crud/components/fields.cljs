@@ -47,7 +47,7 @@
                            :data-test-id "quantity"
                            :value (if (:quantity field)
                                     (:quantity field)
-                                    0)
+                                    1)
                            :onChange (fn [event]
                                        (update
                                         index

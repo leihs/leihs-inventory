@@ -6,7 +6,7 @@ export const schema = z.object({
     .array(
       z.object({
         id: z.string(),
-        quantity: z.coerce.number().min(0).default(0),
+        quantity: z.coerce.number().min(0).default(1),
       }),
     )
     .min(1),
