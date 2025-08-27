@@ -26,8 +26,12 @@
    [leihs.inventory.server.resources.pool.models.model.images.routes :as images]
    [leihs.inventory.server.resources.pool.models.model.items.item.routes :as model-item]
    [leihs.inventory.server.resources.pool.models.model.items.routes :as model-items]
+   [leihs.inventory.server.resources.pool.models.model.packages.package.routes :as package]
+   [leihs.inventory.server.resources.pool.models.model.packages.routes :as packages]
    [leihs.inventory.server.resources.pool.models.model.routes :as model]
    [leihs.inventory.server.resources.pool.models.routes :as models]
+   [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
+   [leihs.inventory.server.resources.pool.owners.routes :as owners]
    [leihs.inventory.server.resources.pool.options.option.routes :as option]
    [leihs.inventory.server.resources.pool.options.routes :as options]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
@@ -136,20 +140,25 @@
   []
   (let [core-routes [["/:pool_id"
                       (models/routes)
-                      (list/routes)
                       (model/routes)
+                      (list/routes)
+                      (packages/routes)
+                      (package/routes)
                       (software/routes)
                       (sw-software/routes)
                       (option/routes)
                       (options/routes)
                       (image/routes)
                       (images/routes)
+                      (image/routes)
                       (images-thumbnail/routes)
-                      (attachment/routes)
                       (attachments/routes)
+                      (attachment/routes)
                       (items/routes)
                       (model-items/routes)
                       (model-item/routes)
+                      (owners/routes)
+                      (owner/routes)
                       (building/routes)
                       (buildings/routes)
                       (room/routes)
