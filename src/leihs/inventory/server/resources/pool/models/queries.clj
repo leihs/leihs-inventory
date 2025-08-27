@@ -7,11 +7,29 @@
    [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]
-  (-> (sql/select :inventory.*)
+  (-> (sql/select :inventory.*
+                  [[:count
+                    [:case
+                     [:and [:= :items.is_borrowable true]
+                      [:= :models.id :inventory.id]]
+                     1]] :rentable])
       (sql/from :inventory)
+      (sql/join :items [:= :items.model_id :inventory.id])
+      (sql/join :models [:= :models.id :inventory.id])
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])
+      (sql/group-by :inventory.id
+                    :inventory.product
+                    :inventory.name
+                    :inventory.manufacturer
+                    :inventory.version
+                    :inventory.type
+                    :inventory.origin_table
+                    :inventory.inventory_code
+                    :inventory.price
+                    :inventory.inventory_pool_id
+                    :inventory.cover_image_id)
       (sql/order-by [[:regexp_replace :inventory.name "^\\s+|\\s+$" ""]])))
 
 (defn filter-by-type [query type]

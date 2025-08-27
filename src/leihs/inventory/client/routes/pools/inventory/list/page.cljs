@@ -10,11 +10,11 @@
    ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
-   [goog.functions]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.borrowable-filter :refer [BorrowableFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.category-filter :refer [CategoryFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.collapsible-row :refer [CollapsibleRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filter-indicator :refer [FilterIndicator]]
    [leihs.inventory.client.routes.pools.inventory.list.components.inventory-pool-filter :refer [InventoryPoolFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.retired-filter :refer [RetiredFilter]]
@@ -83,66 +83,8 @@
 
                   ($ TableBody
                      (for [model models]
-                       ($ TableRow {:key (-> model :id)
-                                    :style {:box-shadow "0 -0.5px 0 hsl(var(--border))"}}
-                          ($ TableCell
-                             ($ Button {:variant "outline"
-                                        :size "icon"} "+"))
-
-                          ($ TableCell (-> model :total str))
-
-                          ($ TableCell
-                             (if (:url model)
-                               ($ :img {:class-name "w-12 h-12 object-contain"
-                                        :src (:url model)
-                                        :alt (str (:product model) " " (:version model))})
-                               ($ Image {:class-name "w-12 h-12"})))
-
-                          ($ TableCell
-                             ($ :div {:className "flex gap-2"}
-                                ($ Badge {:className (str "w-6 h-6 justify-center "
-                                                          (case (-> model :type)
-                                                            "Package" "bg-lime-500"
-                                                            "Model" "bg-slate-500"
-                                                            "Option" "bg-emerald-500"
-                                                            "Software" "bg-orange-500"))}
-                                   (str (case (-> model :type)
-                                          "Package" "P"
-                                          "Model" "M"
-                                          "Option" "O"
-                                          "Software" "S")))))
-
-                          ($ TableCell {:className "font-bold"}
-                             (str (:product model) " " (:version model)))
-
-                          ($ TableCell {:className "text-right"}
-                             (str (-> model :available str) " | " (-> model :total str)))
-
-                          ($ TableCell {:className "fit-content"}
-                             ($ :div {:className "flex gap-2"}
-
-                                ($ Button {:variant "outline"
-                                           :asChild true}
-                                   ($ Link {:state #js {:searchParams (.. location -search)}
-                                            :to (case (-> model :type)
-                                                  "Model" (str "../models/" (:id model))
-                                                  "Package" (str "../models/" (:id model))
-                                                  "Option" (str "../options/" (:id model))
-                                                  "Software" (str "../software/" (:id model)))
-                                            :viewTransition true}
-                                      (t "pool.models.list.actions.edit")))
-
-                                ($ DropdownMenu
-                                   ($ DropdownMenuTrigger {:asChild "true"}
-                                      ($ Button {:variant "secondary"
-                                                 :size "icon"}
-                                         ($ Ellipsis {:className "h-4 w-4"})))
-                                   ($ DropdownMenuContent {:align "start"}
-                                      ($ DropdownMenuItem
-                                         ($ Link {:to (str (:id model) "/items/create")
-                                                  :state #js {:searchParams (.. location -search)}
-                                                  :viewTransition true}
-                                            (t "pool.models.list.actions.add_item"))))))))))))))
+                       ($ CollapsibleRow {:key (:id model)
+                                          :model model})))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
