@@ -26,7 +26,6 @@
                  inventory_pool_id owned in_stock
                  category_id
                  search before_last_check]} (query-params request)
-         {:keys [page size]} (fetch-pagination-params request)
          query (-> (base-inventory-query pool_id)
                    (cond-> type (filter-by-type type))
                    (cond->

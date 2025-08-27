@@ -7,7 +7,8 @@
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
-                                                  swagger-api-docs-handler]]
+                                                  swagger-api-docs-handler
+                                                  get-csrf-token]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
@@ -31,9 +32,13 @@
    [leihs.inventory.server.resources.pool.models.routes :as models]
    [leihs.inventory.server.resources.pool.owners.owner.routes :as owner]
    [leihs.inventory.server.resources.pool.owners.routes :as owners]
+   [leihs.inventory.server.resources.pool.options.option.routes :as option]
+   [leihs.inventory.server.resources.pool.options.routes :as options]
    [leihs.inventory.server.resources.pool.responsible-inventory-pools.routes :as responsible-inventory-pools]
    [leihs.inventory.server.resources.pool.rooms.room.routes :as room]
    [leihs.inventory.server.resources.pool.rooms.routes :as rooms]
+   [leihs.inventory.server.resources.pool.software.routes :as software]
+   [leihs.inventory.server.resources.pool.software.software.routes :as sw-software]
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
@@ -105,7 +110,7 @@
            :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
            :swagger {:produces ["application/json"]}
-           :handler get-sign-in}}]])
+           :handler get-csrf-token}}]])
 
 (defn swagger-endpoints []
   ["/api-docs"
@@ -139,6 +144,11 @@
                       (list/routes)
                       (packages/routes)
                       (package/routes)
+                      (software/routes)
+                      (sw-software/routes)
+                      (option/routes)
+                      (options/routes)
+                      (image/routes)
                       (images/routes)
                       (image/routes)
                       (images-thumbnail/routes)

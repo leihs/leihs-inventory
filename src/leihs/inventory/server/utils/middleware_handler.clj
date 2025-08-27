@@ -8,13 +8,13 @@
                                               valid-image-or-thumbnail-uri?]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [ring.middleware.accept]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json"]
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json" "/inventory/status"]
           image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
           attachment-request? (valid-attachment-uri? uri)]
 
@@ -28,7 +28,6 @@
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
-          uri (:uri request)
           updated-request (cond
                             (str/includes? accept-header "text/html")
                             (assoc-in request [:headers "accept"] "text/html")
@@ -41,6 +40,7 @@
     (let [handler (try
                     (session/wrap-authenticate handler)
                     (catch Exception e
+                      (debug e)
                       (error "Error in session-authenticate!" e)
                       handler))
           token (get-in request [:headers "authorization"])

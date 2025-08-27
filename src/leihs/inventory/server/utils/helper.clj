@@ -7,6 +7,10 @@
   (:import
    (java.util UUID)))
 
+(defn safe-ex-data [e]
+  (when (instance? clojure.lang.ExceptionInfo e)
+    (ex-data e)))
+
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
   [s]
@@ -42,6 +46,8 @@
   (let [accept-header (get-in request [:headers "accept"])]
     (and accept-header (str/includes? accept-header "text/html"))))
 
+(def blacklisted-tables #{"meta_keys" "vocabularies"})
+
 (defn to-uuid
   ([value]
    (try
@@ -64,8 +70,6 @@
                  value))] res))
 
   ([value key table]
-   (def blacklisted-tables #{"meta_keys" "vocabularies"})
-
    ;; XXX: To fix db-exceptions of io_interfaces
    (if (or (contains? blacklisted-tables (name table)) (and (= table :io_interfaces) (= key :id)))
      value
@@ -97,34 +101,34 @@
 ;; Used for columns of jsonb type
 (defn convert-map-if-exist [m]
   (-> m
-      (modify-if-exists :is_borrowable #(if (contains? m :is_borrowable) [:cast % ::boolean]))
-      (modify-if-exists :is_inventory_relevant #(if (contains? m :is_inventory_relevant) [:cast % ::boolean]))
-      (modify-if-exists :is_broken #(if (contains? m :is_broken) [:cast % ::boolean]))
-      (modify-if-exists :is_incomplete #(if (contains? m :is_incomplete) [:cast % ::boolean]))
+      (modify-if-exists :is_borrowable #(when (contains? m :is_borrowable) [:cast % ::boolean]))
+      (modify-if-exists :is_inventory_relevant #(when (contains? m :is_inventory_relevant) [:cast % ::boolean]))
+      (modify-if-exists :is_broken #(when (contains? m :is_broken) [:cast % ::boolean]))
+      (modify-if-exists :is_incomplete #(when (contains? m :is_incomplete) [:cast % ::boolean]))
 
-      (modify-if-exists :deleted_at #(if (contains? m :deleted_at) [:cast % ::date]))
-      (modify-if-exists :retired #(if (contains? m :retired) [:cast % ::date]))
-      (modify-if-exists :last_check #(if (contains? m :last_check) [:cast % ::date]))
-      (modify-if-exists :layout #(if (contains? m :layout) [:cast % :public.collection_layout]))
-      (modify-if-exists :default_resource_type #(if (contains? m :default_resource_type) [:cast % :public.collection_default_resource_type]))
-      (modify-if-exists :sorting #(if (contains? m :sorting) [:cast % :public.collection_sorting]))
-      (modify-if-exists :json #(if (contains? m :json) [:cast (json/generate-string %) :jsonb]))
+      (modify-if-exists :deleted_at #(when (contains? m :deleted_at) [:cast % ::date]))
+      (modify-if-exists :retired #(when (contains? m :retired) [:cast % ::date]))
+      (modify-if-exists :last_check #(when (contains? m :last_check) [:cast % ::date]))
+      (modify-if-exists :layout #(when (contains? m :layout) [:cast % :public.collection_layout]))
+      (modify-if-exists :default_resource_type #(when (contains? m :default_resource_type) [:cast % :public.collection_default_resource_type]))
+      (modify-if-exists :sorting #(when (contains? m :sorting) [:cast % :public.collection_sorting]))
+      (modify-if-exists :json #(when (contains? m :json) [:cast (json/generate-string %) :jsonb]))
 
       ;; uuid
-      (modify-if-exists :id #(if (contains? m :id) (to-uuid % :id)))
-      (modify-if-exists :media_entry_default_license_id #(if (contains? m :id) (to-uuid %)))
-      (modify-if-exists :edit_meta_data_power_users_group_id #(if (contains? m :edit_meta_data_power_users_group_id) (to-uuid %)))
-      (modify-if-exists :creator_id #(if (contains? m :creator_id) (to-uuid %)))
-      (modify-if-exists :person_id #(if (contains? m :person_id) (to-uuid %)))
-      (modify-if-exists :user_id #(if (contains? m :user_id) (to-uuid %)))
-      (modify-if-exists :accepted_usage_terms_id #(if (contains? m :accepted_usage_terms_id) (to-uuid %)))
+      (modify-if-exists :id #(when (contains? m :id) (to-uuid % :id)))
+      (modify-if-exists :media_entry_default_license_id #(when (contains? m :id) (to-uuid %)))
+      (modify-if-exists :edit_meta_data_power_users_group_id #(when (contains? m :edit_meta_data_power_users_group_id) (to-uuid %)))
+      (modify-if-exists :creator_id #(when (contains? m :creator_id) (to-uuid %)))
+      (modify-if-exists :person_id #(when (contains? m :person_id) (to-uuid %)))
+      (modify-if-exists :user_id #(when (contains? m :user_id) (to-uuid %)))
+      (modify-if-exists :accepted_usage_terms_id #(when (contains? m :accepted_usage_terms_id) (to-uuid %)))
 
-      (modify-if-exists :room_id #(if (contains? m :room_id) (to-uuid %)))
-      (modify-if-exists :model_id #(if (contains? m :model_id) (to-uuid %)))
-      (modify-if-exists :owner_id #(if (contains? m :owner_id) (to-uuid %)))
-      (modify-if-exists :created_by_id #(if (contains? m :created_by_id) (to-uuid %)))
-      (modify-if-exists :uploader_id #(if (contains? m :uploader_id) (to-uuid %)))
-      (modify-if-exists :media_entry_id #(if (contains? m :media_entry_id) (to-uuid %)))
+      (modify-if-exists :room_id #(when (contains? m :room_id) (to-uuid %)))
+      (modify-if-exists :model_id #(when (contains? m :model_id) (to-uuid %)))
+      (modify-if-exists :owner_id #(when (contains? m :owner_id) (to-uuid %)))
+      (modify-if-exists :created_by_id #(when (contains? m :created_by_id) (to-uuid %)))
+      (modify-if-exists :uploader_id #(when (contains? m :uploader_id) (to-uuid %)))
+      (modify-if-exists :media_entry_id #(when (contains? m :media_entry_id) (to-uuid %)))
 
       ;; jsonb / character varying
       (modify-if-exists :settings #(if (nil? %) [:raw "'{}'"] (convert-to-raw-set %)))

@@ -9,7 +9,7 @@
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))
@@ -30,16 +30,15 @@
                          (sql/where [:is-not-null :m.manufacturer])
                          (sql/where [:not-like :m.manufacturer " %"])
                          (sql/where [:not-in :m.manufacturer [""]])
-                         (sql/order-by [:m.manufacturer :asc])
-                         (cond-> (not (str/blank? search-term))
-                           (sql/where [:or [:ilike :m.manufacturer (str "%" search-term "%")]
-                                       [:ilike :m.product (str "%" search-term "%")]]))
                          (cond-> (some? mtype)
-                           (sql/where [:= :m.type mtype])))
-
+                           (sql/where [:= :m.type mtype]))
+                         (cond-> (not (str/blank? search-term))
+                           (sql/where [:ilike :m.manufacturer (str "%" search-term "%")]))
+                         (sql/order-by [:m.manufacturer :asc]))
           result (jdbc/execute! tx (-> base-query sql-format))]
 
       (response (if in-detail result (extract-manufacturers result))))
     (catch Exception e
+      (debug e)
       (error "Failed to get models/manufacturer" e)
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))

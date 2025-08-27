@@ -1,16 +1,21 @@
 (ns dev.routes
   (:require
    [clojure.set]
+   [dev.inventory-auth :refer [wrap-check-authenticated-admin]]
    [dev.main :refer [get-resource put-account-resource put-role-resource]]
-   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS]]
-   [leihs.inventory.server.constants :refer [fe]]
-   [leihs.inventory.server.utils.auth.inventory-auth :refer [wrap-check-authenticated-admin]]
-   [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
-   [leihs.inventory.server.utils.middleware :refer [wrap-is-admin!]]
+   [leihs.inventory.server.constants :refer [APPLY_DEV_ENDPOINTS fe]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
+   [ring.util.response :as response]
    [schema.core :as s]))
+
+(defn wrap-is-admin! [handler]
+  (fn [request]
+    (let [is-admin (get-in request [:authenticated-entity :is_admin] false)]
+      (if is-admin
+        (handler request)
+        (response/status (response/response {:status "failure" :message "Unauthorized1"}) 401)))))
 
 (def update-role-response {:role-before s/Str
                            :role-after s/Str

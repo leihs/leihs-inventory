@@ -12,6 +12,8 @@ feature "Inventory Pagination", type: :feature do
     end
 
     login(user)
+    visit "/inventory"
+
     find("nav button", text: "Inventar").click
     click_on pool.name
     expect(page).to have_content("Inventarliste - #{pool.name}")

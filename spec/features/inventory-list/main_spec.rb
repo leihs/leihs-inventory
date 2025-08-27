@@ -170,6 +170,7 @@ feature "Inventory Page", type: :feature do
 
     login(user)
 
+    visit "/inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name
     expect(page).to have_content("Inventory List - #{pool_1.name}")
@@ -186,7 +187,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # retired=true
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     select_value("retired", "retired")
 
@@ -199,7 +200,7 @@ feature "Inventory Page", type: :feature do
     # with_items=true
     # retired=true
     # borrowable=false
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
     select_value("retired", "retired")
@@ -210,7 +211,7 @@ feature "Inventory Page", type: :feature do
 
     # pool 1
     # with_items=true
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
 
     expect(all("table tbody tr").count).to eq 8
@@ -225,7 +226,7 @@ feature "Inventory Page", type: :feature do
 
     # pool 1
     # with_items=false
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
 
     click_on "Status"
     click_on "Broken"
@@ -259,7 +260,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # page=1
     # size=20
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     first(:link_or_button, "50").click
     click_on "20"
 
@@ -276,7 +277,7 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[9]).to have_content(model_9.version)
     expect(all("table tbody tr")[10]).to have_content(option_1.version)
 
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     find("input[name='search']").set(search_term)
 
     wait_until { all("table tbody tr").count == 4 }
@@ -288,7 +289,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # inventory_pool_id=pool_2.id
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "Inventory pool"
     find("[data-value='#{pool_2.id}']").click
@@ -300,7 +301,7 @@ feature "Inventory Page", type: :feature do
     # with_items=true
     # owned=true
     # borrowable=true
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     select_value("borrowable", "borrowable")
     click_on "Status"
@@ -319,7 +320,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # ind_stock=false
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "Status"
     click_on "In stock"
@@ -332,7 +333,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # incomplete=true
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "Status"
     click_on "Incomplete"
@@ -345,7 +346,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # broken=true
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
 
     select_value("with_items", "with_items")
     click_on "Status"
@@ -359,7 +360,7 @@ feature "Inventory Page", type: :feature do
     # pool 1
     # with_items=true
     # before_last_check=today
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "Inventory before"
     within ".rdp" do
@@ -376,7 +377,7 @@ feature "Inventory Page", type: :feature do
 
     # pool 1
     # category_id=cat_1.id
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
 
     click_on "Categories"
     click_on cat_1.id
@@ -388,7 +389,7 @@ feature "Inventory Page", type: :feature do
 
     # pool 1
     # type=package
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     click_on "Inventory type"
     click_on "Package"
     expect(page).to have_content("Package")
@@ -397,7 +398,7 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[0]).to have_content(model_8.version)
 
     # type=model
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
     click_on "Inventory type"
     click_on "Model"
     expect(page).to have_content("Model")
@@ -414,7 +415,7 @@ feature "Inventory Page", type: :feature do
     expect(all("table tbody tr")[8]).to have_content(model_9.version)  # package child model
 
     # type=option
-    visit "/inventory/#{pool_1.id}/models"
+    visit "/inventory/#{pool_1.id}/list"
 
     # set some filters to check if they are ignored
     # before selecting option
@@ -471,7 +472,7 @@ feature "Inventory Page", type: :feature do
 
     # pool 5
     # with_items=true
-    visit "/inventory/#{pool_5.id}/models"
+    visit "/inventory/#{pool_5.id}/list"
     select_value("with_items", "with_items")
 
     expect(all("table tbody tr").count).to eq 0

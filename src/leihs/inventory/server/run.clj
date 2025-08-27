@@ -9,6 +9,7 @@
    [leihs.core.shutdown :as shutdown]
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
+   [leihs.inventory.server.constants :refer [MAX_REQUEST_BODY_SIZE_MB]]
    [leihs.inventory.server.swagger-api :as sui]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
@@ -21,20 +22,21 @@
    :never-expire-paths []
    :cache-enabled? true})
 
-(defn app [options]
-  (-> (sui/create-app options)
+(defn app []
+  (-> (sui/create-app)
       (cache-buster2/wrap-resource "public" cache-bust-options)
       (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
       (wrap-default-charset "utf-8")))
 
 (defn run [options]
   (catcher/snatch
-   {:return-fn (fn [e] (System/exit -1))}
+   {:return-fn (fn [_] (System/exit -1))}
    (info "Invoking run with options: " options)
    (shutdown/init options)
-   (let [status (status/init)]
-     (db/init options (:health-check-registry status)))
-   (http-server/start options (app options))))
+   (let [status (status/init)
+         options (assoc options :http-max-body (* MAX_REQUEST_BODY_SIZE_MB 1024 1024))]
+     (db/init options (:health-check-registry status))
+     (http-server/start options (app)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -61,9 +63,7 @@
        flatten (clojure.string/join \newline)))
 
 (defn main [gopts args]
-  (let [{:keys [options arguments errors summary]} (cli/parse-opts args cli-options :in-order true)
-        pass-on-args (->> [options (rest arguments)]
-                          flatten (into []))
+  (let [{:keys [options summary]} (cli/parse-opts args cli-options :in-order true)
         options (merge gopts options)]
     (cond
       (:help options) (info (main-usage summary {:args args :options options}))

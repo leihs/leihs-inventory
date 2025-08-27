@@ -3,8 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [ring.util.response :refer [response]]
    [taoensso.timbre :as timbre :refer [debug]]))
@@ -13,9 +12,7 @@
   ([request]
    (get-items-handler request false))
   ([request with-pagination?]
-   (let [tx (:tx request)
-         {:keys [pool_id model_id item_id]} (path-params request)
-         {:keys [page size]} (fetch-pagination-params request)
+   (let [{:keys [pool_id model_id]} (path-params request)
          base-query (-> (sql/select :items.*)
                         (sql/from :items)
                         (sql/where [:or

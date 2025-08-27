@@ -31,6 +31,7 @@
 (sa/def :upload/content_type string?)
 (sa/def :image/url string?)
 (sa/def :image/thumbnail_url string?)
+(sa/def ::maintenance_period string?)
 (sa/def :image/to_delete any?)
 (sa/def :nil/url (sa/nilable string?))
 (sa/def ::position int?)
@@ -38,6 +39,7 @@
 (sa/def ::created_at any?)
 (sa/def ::updated_at any?)
 (sa/def ::type (sa/and string? #{"Category"}))
+(sa/def :models/type (sa/and string? #{"Models" "Software"}))
 (sa/def ::category (sa/keys :opt-un [::name]
                             :req-un [::id]))
 (sa/def ::categories
@@ -206,6 +208,9 @@
 (sa/def :nil/group (sa/nilable string?))
 (sa/def :nil/group_default (sa/nilable string?))
 (sa/def :nil/role_default (sa/nilable string?))
+(defn non-neg-number? [x]
+  (and (number? x) (not (neg? x))))
+
 (sa/def ::group_default string?)
 (sa/def ::target_type string?)
 (sa/def :nil-str/owner (sa/nilable string?))
@@ -221,7 +226,11 @@
 (sa/def :nil/retired (sa/nilable any?))
 (sa/def :nil/retired_reason (sa/nilable string?))
 (sa/def :nil/price (sa/nilable string?))
+(sa/def :nil-int/price (sa/nilable int?))
+(sa/def :nil-double/price (sa/nilable double?))
+(sa/def :nil-any/price (sa/nilable any?))
 (sa/def :nil-number/price (sa/nilable number?))
+(sa/def :nil-pos-number/price (sa/nilable non-neg-number?))
 (sa/def :nil/invoice_date (sa/nilable any?))
 (sa/def ::properties any?)
 (sa/def :nil/parent_id (sa/nilable uuid?))
@@ -239,6 +248,11 @@
 
 (sa/def ::id uuid?)
 (sa/def ::product string?)
+(sa/def ::model_id uuid?)
 (sa/def ::filename string?)
-(sa/def ::manufacturer string?)
-(sa/def ::size int?)
+(sa/def ::description string?)
+(sa/def ::size pos-int?)
+(sa/def ::page pos-int?)
+
+(sa/def ::internal_description string?)
+(sa/def ::hand_over_note string?)

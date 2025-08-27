@@ -1,11 +1,12 @@
 (ns leihs.inventory.server.resources.token.main
   (:require
    [cider-ci.open-session.bcrypt :refer [hashpw]]
+   [crypto.random]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :as response]
-   [taoensso.timbre :refer [error]])
+   [taoensso.timbre :refer [debug error]])
   (:import
    (com.google.common.io BaseEncoding)))
 
@@ -42,13 +43,15 @@
               description
               now
               now
-              expires-sql]
-
-        res (try (jdbc/execute-one! (:tx request) data)
-                 (catch Exception e (error "Error inserting token:" e) nil))]
-    {:token full-token
-     :expires_at expires-at
-     :scopes scopes}))
+              expires-sql]]
+    (try (jdbc/execute-one! (:tx request) data)
+         {:token full-token
+          :expires_at expires-at
+          :scopes scopes}
+         (catch Exception e
+           (debug e)
+           (error "Error inserting token:" e)
+           nil))))
 
 (defn post-resource [request]
   (let [user (-> request :authenticated-entity)

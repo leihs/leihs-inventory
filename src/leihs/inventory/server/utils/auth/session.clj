@@ -6,28 +6,6 @@
 
 (def LEIHS_SESSION_COOKIE_NAME :leihs-user-session)
 
-(def expiration-sql-expr
-  [:+
-   :user_sessions.created_at
-   [:*
-    :authentication_systems.session_max_lifetime_hours
-    [:raw "INTERVAL '1 hour'"]]])
-
-(def selects
-  [[:authentication_systems.id :auth_system_id]
-   [:authentication_systems.name :auth_system_name]
-   ;[:people.first_name :person_first_name]
-   ;[:people.institutional_id :person_institutional_id]
-   ;[:people.last_name :person_last_name]
-   ;[:people.pseudonym :person_pseudonym]
-   [:user_sessions.created_at :session_created_at]
-   [:user_sessions.id :session_id]
-   [:users.email :user_email]
-   [:users.id :user_id]
-   [:users.institutional_id :user_institutional_id]
-   [:users.login :user_login]
-   [expiration-sql-expr :session_expires_at]])
-
 (defn user-session [token tx]
 
   (let [sql-query ["SELECT

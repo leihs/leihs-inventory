@@ -1,5 +1,6 @@
 require "spec_helper"
 require "pry"
+require_relative "../shared/common"
 
 feature "LanguageSwitcher", type: :feature do
   scenario "User switches language to English" do
@@ -10,11 +11,7 @@ feature "LanguageSwitcher", type: :feature do
       user: user,
       role: :inventory_manager)
 
-    visit "/inventory"
-
-    fill_in("user", with: user.email)
-    fill_in("password", with: user.password)
-    click_on("Continue")
+    login(user)
 
     visit "/inventory/debug"
 

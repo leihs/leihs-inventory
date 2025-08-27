@@ -3,7 +3,6 @@
    [clojure.set]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.middleware.accept]
@@ -28,8 +27,7 @@
 
 (defn index-resources
   ([request]
-   (let [tx (:tx request)
-         {:keys [pool_id item_id]} (path-params request)
+   (let [{:keys [pool_id item_id]} (path-params request)
          {:keys [search_term not_packaged packages retired result_type]} (query-params request)
 
          base-select (cond
@@ -60,7 +58,7 @@
                         (cond-> (= true not_packaged) (sql/where [:is :i.parent_id nil]))
                         (cond-> (= false not_packaged) (sql/where [:is-not :i.parent_id nil]))
 
-                        (cond-> (not (empty? search_term))
+                        (cond-> (seq search_term)
                           (sql/where [:or [:ilike :i.inventory_code (str "%" search_term "%")] [:ilike :m.product (str "%" search_term "%")]
                                       [:ilike :m.manufacturer (str "%" search_term "%")]]))
 
