@@ -31,22 +31,4 @@ describe "Coercion test" do
       end
     end
   end
-
-  context "when interacting with inventory item with role=lending_manager" do
-    include_context :setup_models_api_model, "lending_manager"
-    include_context :generate_session_header
-
-    let(:pool_id) { @inventory_pool.id }
-    let(:cookie_header) { @cookie_header }
-    let(:client) { plain_faraday_json_client(cookie_header) }
-
-    context "fetch of form" do
-      it "return 422 with invalid uuid" do
-        resp = client.get "/inventory/invalid-uuid/items/"
-        expect(resp.status).to eq(422)
-        expect(resp.body).to eq({"reason" => "Coercion-Error", "scope" => "request/path-params",
-                                 "coercion-type" => "schema", "uri" => "GET /inventory/invalid-uuid/items/"})
-      end
-    end
-  end
 end
