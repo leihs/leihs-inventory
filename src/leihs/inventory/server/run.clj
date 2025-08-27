@@ -10,7 +10,7 @@
    [leihs.core.status :as status]
    [leihs.core.url.jdbc]
    [leihs.inventory.server.constants :refer [MAX_REQUEST_BODY_SIZE_MB]]
-   [leihs.inventory.server.swagger-api :as sui]
+   [leihs.inventory.server.main-handler :as main-handler]
    [logbug.catcher :as catcher]
    [reitit.coercion.schema]
    [ring.middleware.content-type :refer [wrap-content-type]]
@@ -23,7 +23,7 @@
    :cache-enabled? true})
 
 (defn app []
-  (-> (sui/create-app)
+  (-> (main-handler/init)
       (cache-buster2/wrap-resource "public" cache-bust-options)
       (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
       (wrap-default-charset "utf-8")))
