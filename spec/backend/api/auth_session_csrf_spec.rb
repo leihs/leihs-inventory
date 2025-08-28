@@ -5,6 +5,8 @@ describe "Call swagger-endpoints" do
   context "with accept=text/html" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+      @pool = create(:inventory_pool)
+      create(:access_right, user: @user, inventory_pool: @pool, role: "inventory_manager")
     end
 
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
@@ -40,13 +42,8 @@ describe "Call swagger-endpoints" do
         expect(resp.status).to eq(404)
       end
 
-      it "return 404 for unknown id by model-id" do
-        resp = client.get("/inventory/models/8bd16d45-0000-0000-0000-12849f034351")
-        expect(resp.status).to eq(404)
-      end
-
       it "return 404 for unknown id by pool-id/model-id" do
-        resp = client.get("/inventory/8bd16d45-0000-0000-0000-12849f034351/models/8bd16d45-0000-0000-0000-12849f034351")
+        resp = client.get("/inventory/#{@pool.id}/models/8bd16d45-0000-0000-0000-12849f034351")
         expect(resp.status).to eq(404)
       end
     end

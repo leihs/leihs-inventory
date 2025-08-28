@@ -8,15 +8,16 @@ describe "Inventory API Endpoints - Supplier" do
 
     before :each do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+      @pool = create(:inventory_pool)
+      create(:access_right, user: @user, inventory_pool: @pool, role: "inventory_manager")
     end
 
-    let(:pool_id) { @inventory_pool.id }
-    let(:url) { "/inventory/#{pool_id}/suppliers/" }
+    let(:url) { "/inventory/#{@pool.id}/suppliers/" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
     let(:resp) { client.get url }
     let(:supplier_id) { resp.body[0]["id"] }
 
-    context "GET /inventory/supplier" do
+    context "GET /inventory/:pool_id/suppliers/" do
       it "retrieves all suppliers and returns status 200" do
         expect(resp.status).to eq(200)
         expect(resp.body.count).to eq(1)

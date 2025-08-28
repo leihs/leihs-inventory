@@ -47,7 +47,7 @@ feature "Inventory Page", type: :feature do
 
     # user = FactoryBot.create(:user)
     user = FactoryBot.create(:user, language_locale: "en-GB")
-    [pool_1, pool_2].each do |pool|
+    [pool_1, pool_2, pool_5].each do |pool|
       FactoryBot.create(:access_right,
         inventory_pool: pool,
         user: user,

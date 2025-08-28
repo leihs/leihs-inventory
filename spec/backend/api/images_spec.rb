@@ -8,13 +8,15 @@ describe "Inventory API Endpoints - Image Handling" do
 
     before :each do
       @user_cookies, @user_cookies_str, @cookie_token = create_and_login_by(@user)
+      @pool = create(:inventory_pool)
+      create(:access_right, user: @user, inventory_pool: @pool, role: "inventory_manager")
     end
 
     let(:any_uuid) { Faker::Internet.uuid }
     let(:different_content_type) { "image/gif" }
     let(:client) { session_auth_plain_faraday_json_csrf_client(cookies: @user_cookies) }
 
-    let(:url) { "/inventory/#{any_uuid}/models/#{any_uuid}/images/" }
+    let(:url) { "/inventory/#{@pool.id}/models/#{any_uuid}/images/" }
     let(:resp) { client.get url }
     let(:single_image_id) { resp.body[0]["id"] }
     let(:image_id) { resp.body[1]["id"] }
@@ -76,12 +78,12 @@ describe "Inventory API Endpoints - Image Handling" do
 
     context "Fetch image data as an image" do
       it "returns error when fetching image by ID as a raw image format" do
-        resp = plain_faraday_resource_client.get "#{url}#{single_image_id}"
+        resp = client.get "#{url}#{single_image_id}"
         expect(resp.status).to eq(200)
       end
 
       it "returns error when fetching image thumbnail as a raw image format" do
-        resp = plain_faraday_resource_client.get "#{url}#{single_image_id}/thumbnail"
+        resp = client.get "#{url}#{single_image_id}/thumbnail"
         expect(resp.status).to eq(404)
       end
     end

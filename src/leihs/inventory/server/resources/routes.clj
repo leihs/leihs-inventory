@@ -5,6 +5,7 @@
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
+   [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool]]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
                                                   swagger-api-docs-handler
@@ -47,7 +48,8 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
-   [reitit.swagger :as swagger]))
+   [reitit.swagger :as swagger]
+   [schema.core :as s]))
 
 (defn sign-in-out-endpoints []
   [["sign-in"
@@ -134,10 +136,11 @@
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."
   []
-  (let [core-routes [["/:pool_id"
+  (let [core-routes [["/:pool_id" {:middleware [wrap-authorize-for-pool]
+                                   :parameters {:path {:pool_id s/Uuid}}}
                       (models/routes)
-                      (list/routes)
                       (model/routes)
+                      (list/routes)
                       (software/routes)
                       (sw-software/routes)
                       (option/routes)

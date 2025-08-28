@@ -13,6 +13,11 @@ describe "Inventory API Endpoints - Items" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       @path = "/#{@inventory_pool_id}/"
+
+      FactoryBot.create(:access_right,
+        inventory_pool_id: @inventory_pool.id,
+        user_id: @user.id,
+        role: "inventory_manager")
     end
 
     let(:url) { "/inventory#{@path}models/#{model_with_items.id}/items/" }
