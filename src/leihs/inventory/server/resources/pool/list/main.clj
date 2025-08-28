@@ -9,6 +9,7 @@
                                                                  from-category
                                                                  with-items
                                                                  with-search
+                                                                 total-items-count
                                                                  without-items]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response
                                                     fetch-pagination-params]]
@@ -31,7 +32,7 @@
                    (cond->
                     (not= type :option)
                      (cond->
-                      (and pool_id (true? with_items))
+                      (true? with_items)
                        (with-items pool_id
                          (cond-> {:retired retired
                                   :borrowable borrowable
@@ -42,9 +43,10 @@
                                   :in_stock in_stock}
                            (not= type :software)
                            (assoc :before_last_check before_last_check)))
-                       (and pool_id (false? with_items))
+
+                       (false? with_items)
                        (without-items pool_id)))
-                   (cond-> (and pool_id (presence search))
+                   (cond-> (presence search)
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
                      (#(from-category tx % category_id))))
@@ -57,5 +59,6 @@
                                   (assoc m :url (str "/inventory/" pool_id "/models/" (:id m) "/images/" image-id)
                                          :content_type (:content_type m))
                                   m)))))]
+
      (debug (sql-format query :inline true))
      (response (create-pagination-response request query nil post-fnc)))))

@@ -8,29 +8,43 @@
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
-                  [[:count
-                    [:case
-                     [:and [:= :items.is_borrowable true]
-                      [:= :models.id :inventory.id]]
-                     1]] :rentable])
+                  [(-> (sql/select :%count.*) ; [[:count :*]]
+                       (sql/from :items :models)
+                       (sql/where [:= :items.model_id :inventory.id])
+                       (sql/where [:and [:= :items.is_borrowable true]
+                                   [:= :models.id :inventory.id]]))
+                   :rentable]
+
+                  [(-> (sql/select :%count.*) ; [[:count :*]]
+                       (sql/from :items :reservations)
+                       (sql/where [:= :items.model_id :reservations.model_id])
+                       (sql/where [:and
+                                   [:= :reservations.returned_date nil]
+                                   [:= :items.parent_id nil]]))
+                   :in_stock])
+
       (sql/from :inventory)
-      (sql/join :items [:= :items.model_id :inventory.id])
-      (sql/join :models [:= :models.id :inventory.id])
+
+      (sql/left-join :items [:= :items.model_id :inventory.id])
+      (sql/left-join :models [:= :models.id :inventory.id])
+
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])
-      (sql/group-by :inventory.id
-                    :inventory.product
-                    :inventory.name
-                    :inventory.manufacturer
-                    :inventory.version
-                    :inventory.type
-                    :inventory.origin_table
-                    :inventory.inventory_code
-                    :inventory.price
-                    :inventory.inventory_pool_id
-                    :inventory.cover_image_id)
+
       (sql/order-by [[:regexp_replace :inventory.name "^\\s+|\\s+$" ""]])))
+
+(defn total-items-count [query pool-id]
+  (-> query
+      (sql/select :inventory.id
+                  [[:count
+                    [:case
+                     [:and
+                      [:= :inventory.id :items.model_id]
+                      [:= :items.inventory_pool_id pool-id]]
+                     1
+                     0]] :total_items])
+      (sql/group-by :inventory.id)))
 
 (defn filter-by-type [query type]
   (-> query

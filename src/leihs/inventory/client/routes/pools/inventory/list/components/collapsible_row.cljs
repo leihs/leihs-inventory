@@ -43,7 +43,7 @@
                      :on-click handle-get-items
                      :size "icon"} "+"))
 
-       ($ TableCell (-> model :total str))
+       ($ TableCell (-> model :total_items str))
 
        ($ TableCell
           (if (:url model)
@@ -70,7 +70,7 @@
           (str (:product model) " " (:version model)))
 
        ($ TableCell {:className "text-right"}
-          (str (-> model :available str) " | " (-> model :total str)))
+          (str (-> model :in_stock str) " | " (-> model :rentable str)))
 
        ($ TableCell {:className "fit-content"}
           ($ :div {:className "flex gap-2"}
