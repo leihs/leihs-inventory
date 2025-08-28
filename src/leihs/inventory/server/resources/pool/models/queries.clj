@@ -9,25 +9,26 @@
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
                   [(-> (sql/select :%count.*) ; [[:count :*]]
-                       (sql/from :items :models)
-                       (sql/where [:= :items.model_id :inventory.id])
-                       (sql/where [:and [:= :items.is_borrowable true]
+                       (sql/from :items)
+                       (sql/join :models
+                                 [:= :models.id :items.model_id])
+                       (sql/where [:and
+                                   [:= :items.is_borrowable true]
                                    [:= :models.id :inventory.id]]))
                    :rentable]
 
                   [(-> (sql/select :%count.*) ; [[:count :*]]
-                       (sql/from :items :reservations)
-                       (sql/where [:= :items.model_id :reservations.model_id])
+                       (sql/from :items)
+                       (sql/left-join :reservations
+                                      [:and
+                                       [:= :reservations.returned_date nil]
+                                       [:= :items.id :reservations.item_id]])
                        (sql/where [:and
-                                   [:= :reservations.returned_date nil]
-                                   [:= :items.parent_id nil]]))
+                                   [:= :items.parent_id nil]
+                                   [:= :reservations.id nil]]))
                    :in_stock])
 
       (sql/from :inventory)
-
-      (sql/left-join :items [:= :items.model_id :inventory.id])
-      (sql/left-join :models [:= :models.id :inventory.id])
-
       (sql/where [:or
                   [:= :inventory.inventory_pool_id nil]
                   [:= :inventory.inventory_pool_id pool-id]])
