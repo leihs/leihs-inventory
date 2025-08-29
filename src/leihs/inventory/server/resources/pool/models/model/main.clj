@@ -194,7 +194,9 @@
   (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
   (defn delete-resource [request]
-    (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+    (try
+
+      (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
           models (db-operation tx :select :models [:= :id model-id])]
 
@@ -234,7 +236,11 @@
                 (response {:error "Referenced attachments or images still exist"} 409)
                 (if (= 1 (count deleted-model))
                   (response result)
-                  (response {:error "Failed to delete model"} 409)))))))))
+                  (response {:error DELETE_MODEL_ERROR} 409))))))))
+    (catch Exception e
+      (exception-handler DELETE_MODEL_ERROR e))))
+
+
 ; ##################################
 
 (defn patch-resource [req]
