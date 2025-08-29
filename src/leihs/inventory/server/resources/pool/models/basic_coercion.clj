@@ -29,21 +29,21 @@
 (sa/def ::id uuid?)
 (sa/def :models/type (sa/and string? #{"Models" "Software"}))
 (sa/def ::category (sa/keys :opt-un [::name]
-                     :req-un [::id]))
+                            :req-un [::id]))
 (sa/def ::categories
   (sa/coll-of ::category :kind vector? :min-count 0))
 (sa/def ::compatible (sa/keys :opt-un [::product :nil/image_id :nil/url :nil/version]
-                       :req-un [::id]))
+                              :req-un [::id]))
 (sa/def ::compatibles
   (sa/coll-of ::compatible :kind vector? :min-count 0))
 (sa/def :min/compatible (sa/keys :opt-un [::product]
-                          :req-un [::id]))
+                                 :req-un [::id]))
 (sa/def :min/compatibles
   (sa/coll-of :min/compatible :kind vector? :min-count 0))
 (sa/def ::image (sa/keys :opt-un [::is_cover :nil/url :upload/content_type]
-                  :req-un [::id ::filename]))
+                         :req-un [::id ::filename]))
 (sa/def ::attachment (sa/keys :opt-un [:nil/url :upload/content_type]
-                       :req-un [::id ::filename]))
+                              :req-un [::id ::filename]))
 (sa/def :min/images
   (sa/coll-of ::image :kind vector? :min-count 0))
 (sa/def ::is_cover boolean?)
@@ -54,8 +54,8 @@
 (sa/def :entitlement/group_id uuid?)
 (sa/def ::quantity int?)
 (sa/def :json/entitlement (sa/keys :opt-un [::name ::position :nil/id]
-                            :req-un [:entitlement/group_id
-                                     ::quantity]))
+                                   :req-un [:entitlement/group_id
+                                            ::quantity]))
 (sa/def ::entitlements
   (sa/coll-of :json/entitlement :kind vector? :min-count 0))
 (sa/def ::has_inventory_pool boolean?)
