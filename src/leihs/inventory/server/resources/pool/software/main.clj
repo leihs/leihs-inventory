@@ -26,8 +26,7 @@
            :updated_at created-ts)))
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         prepared-model-data (-> (prepare-software-data multipart)

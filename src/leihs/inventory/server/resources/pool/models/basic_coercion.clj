@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.basic_coercion
+(ns leihs.inventory.server.resources.pool.models.basic-coercion
   (:require
    [clojure.spec.alpha :as sa]
    [reitit.coercion.schema]
