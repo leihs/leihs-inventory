@@ -12,7 +12,8 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
+   [leihs.inventory.server.utils.middleware_handler :refer [
+                                                            ;default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
@@ -56,7 +57,7 @@
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-                  default-handler-fetch-resource
+                  ;default-handler-fetch-resource
 
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
@@ -85,9 +86,9 @@
 (defn init []
   (let [router (ring/router (routes/all-api-endpoints) default-router-config)
         swagger-ui-handler (swagger/init)
-        not-found-handler (default-handler-fetch-resource custom-not-found-handler)
+        ;not-found-handler (default-handler-fetch-resource custom-not-found-handler)
         default-handler (ring/routes swagger-ui-handler
-                                     (ring/create-default-handler {:not-found not-found-handler}))]
+                                     (ring/create-default-handler {:not-found custom-not-found-handler}))]
     (-> (ring/ring-handler router default-handler)
         (cache-buster2/wrap-resource "public" cache-bust-options)
         (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})

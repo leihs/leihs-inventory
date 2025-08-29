@@ -1,6 +1,7 @@
 (ns leihs.inventory.server.resources.routes
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
@@ -45,14 +46,34 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
+   [taoensso.timbre :refer [debug error]]
    [schema.core :as s]))
 
+(defn- create-root-page [_]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+       </head><div class='max-width'>
+       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+              (slurp (io/resource "md/info.html")) "</div></body></html>")})
+
 (defn sign-in-out-endpoints []
-  [["sign-in"
+  [[""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+           :swagger {:produces ["text/html"] :security []}
+           :description "Root page"
+           :handler (fn [request]
+                      (debug "Processing root request...")
+                      (create-root-page request))}}]
+
+   ["sign-in"
     {:swagger {:tags ["Login"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
@@ -109,6 +130,70 @@
            :accept "application/json"
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
+
+(defn extract-filename [uri]
+  (let [filename (last (str/split uri #"/"))]
+    (if (and (seq filename) (re-matches #".*\.(css|js)$" filename))
+      filename
+      nil)))
+
+(def mime-types
+  {"html" "text/html"
+   "htm" "text/html"
+   "css" "text/css"
+   "js" "application/javascript"
+   "json" "application/json"
+   "png" "image/png"
+   "jpg" "image/jpeg"
+   "jpeg" "image/jpeg"
+   "gif" "image/gif"
+   "svg" "image/svg+xml"
+   "txt" "text/plain"})
+
+(defn content-type [filename]
+  (let [ext (-> filename
+                (str/split #"\.")
+                last
+                str/lower-case)]
+    (get mime-types ext "application/octet-stream")))
+
+(defn assets-endpoints []
+  ["/"
+   {:swagger {:tags ["Assets"]}
+    :no-doc HIDE_BASIC_ENDPOINTS}
+
+   ["assets/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+           :swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
+           :description "Public assets like JS, CSS, images"
+           :handler (fn [request]
+                      (debug "Processing asset request...")
+                      (try
+                        (let [uri (:uri request)
+                              file (extract-filename uri)
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (error "Error processing asset request:" e)
+                          (rh/index-html-response request 404))))}}]
+
+   ["swagger-ui/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html"
+           :swagger {:produces ["text/html"]}
+           :description "Swagger-UI with filter/sort"
+           :handler (fn [request]
+                      (debug "Processing asset request...")
+                      (try
+                        (let [file "public/swagger-ui/index.html"
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (error "Error processing swagger-ui request:" e)
+                          (rh/index-html-response request 404))))}}]])
 
 (defn swagger-endpoints []
   ["/api-docs"
@@ -189,6 +274,7 @@
    (sign-in-out-endpoints)
    ["inventory"
     {:swagger {:tags [""]}}
+    (assets-endpoints)
     (csrf-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])

@@ -42,9 +42,7 @@
           params (codec/form-decode body-str)
           keyword-params (keywordize-keys params)]
       keyword-params)
-    (catch Exception e
-      (debug e)
-      nil)))
+    (catch Exception _ nil)))
 
 (defn extract-header [handler]
   (fn [request]
@@ -74,7 +72,7 @@
           api-request? (and uri (str/includes? uri "/api-docs/"))]
       (if api-request?
         (handler request)
-        (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
+        (if (some #(= % (:uri request)) ["/" "/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
