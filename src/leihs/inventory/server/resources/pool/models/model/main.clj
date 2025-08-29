@@ -113,7 +113,6 @@
                           (sql/where [:= :m.id model-id])
                           sql-format)
           model-result (jdbc/execute-one! tx model-query)
-
           attachments (fetch-attachments tx model-id pool-id)
           image-attributes (fetch-image-attributes tx model-id pool-id)
           accessories (fetch-accessories tx model-id)
