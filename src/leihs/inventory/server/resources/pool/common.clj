@@ -33,11 +33,7 @@
    Throws if mtype is not \"Model\" or \"Software\"."
   [tx model-id mtype]
   (let [allowed-types #{"Model" "Software"}]
-    (when-not (contains? allowed-types mtype)
-      (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."
-                      {:error :invalid-model-type
-                       :given mtype
-                       :allowed allowed-types})))
+    (if (contains? allowed-types mtype)
     (let [query (-> (sql/select :r.*)
                     (sql/from [:models :m])
                     (sql/right-join [:reservations :r] [:= :m.id :r.model_id])
@@ -46,7 +42,12 @@
                                 [:= :m.type mtype]])
                     sql-format)
           result (jdbc/execute! tx query)]
-      (empty? result))))
+      (empty? result))
+      (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."
+                      {:error :invalid-model-type
+                       :given mtype
+                       :allowed allowed-types})))
+    ))
 
 (defn is-option-deletable?
   [tx option-id]
