@@ -11,6 +11,10 @@ describe "Inventory API Endpoints - Items" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       @path = "/#{@inventory_pool.id}/"
+      FactoryBot.create(:access_right,
+        inventory_pool_id: @inventory_pool.id,
+        user_id: @user.id,
+        role: "inventory_manager")
     end
 
     let(:package) { FactoryBot.create(:package_model_with_parent_and_items, inventory_pool: @inventory_pool) }

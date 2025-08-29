@@ -5,10 +5,13 @@ require_relative "../_shared"
 describe "Inventory API Endpoints" do
   context "when fetching models for a specific inventory pool" do
     before :each do
-      @user = FactoryBot.create(:user, login: "test", password: "password")
+      @user, @user_cookies, _, _ = create_and_login(:user)
       @inventory_pool = FactoryBot.create(:inventory_pool)
 
-      @direct_access_right = FactoryBot.create(:direct_access_right, inventory_pool_id: @inventory_pool.id, user_id: @user.id, role: "group_manager")
+      FactoryBot.create(:direct_access_right,
+        inventory_pool_id: @inventory_pool.id,
+        user_id: @user.id,
+        role: "inventory_manager")
 
       @models = 3.times.map do
         FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
@@ -22,11 +25,7 @@ describe "Inventory API Endpoints" do
       end
     end
 
-    before do
-      @admin, @admin_cookies, @user_cookies_str, @cookie_token = create_and_login(:admin)
-    end
-
-    let(:client) { session_auth_plain_faraday_json_client(cookies: @admin_cookies) }
+    let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     context "GET /inventory/{:pool-id}/models/" do
       it "retrieves all compatible models and returns status 200" do

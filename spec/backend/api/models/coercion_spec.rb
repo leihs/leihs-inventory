@@ -8,6 +8,7 @@ describe "Coercion test" do
 
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
+      create(:access_right, user: @user, inventory_pool: @inventory_pool, role: "inventory_manager")
     end
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }

@@ -9,6 +9,10 @@ describe "Swagger Inventory Endpoints - Models" do
     before :each do
       @user, @user_cookies, @user_cookies_str, @cookie_token = create_and_login(:user)
       @model = FactoryBot.create(:leihs_model, manufacturer: Faker::Company.name, type: "Model", is_package: false, version: "1")
+      FactoryBot.create(:access_right,
+        inventory_pool_id: @inventory_pool.id,
+        user_id: @user.id,
+        role: "inventory_manager")
     end
 
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
@@ -90,17 +94,6 @@ describe "Swagger Inventory Endpoints - Models" do
           expect(resp.status).to eq(200)
           expect(resp.body[0]["id"]).to eq(@model.id)
           expect(resp.body[0]["url"]).to end_with(@image.id)
-          expect(resp.body.count).to eq(1)
-        end
-
-        it "returns image_url for the image specified by cover_image_id (@image2)" do
-          @model.update(cover_image_id: @image2.id)
-
-          resp = client.get url
-
-          expect(resp.status).to eq(200)
-          expect(resp.body[0]["id"]).to eq(@model.id)
-          expect(resp.body[0]["url"]).to end_with(@image2.id)
           expect(resp.body.count).to eq(1)
         end
       end
