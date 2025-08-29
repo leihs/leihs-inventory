@@ -12,7 +12,7 @@
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [response status redirect]])
+   [ring.util.response :refer [redirect response status]])
   (:gen-class)
   (:import
    (org.jsoup Jsoup)))
