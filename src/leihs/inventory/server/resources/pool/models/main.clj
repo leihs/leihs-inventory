@@ -81,7 +81,9 @@
       (if res
         (response res)
         (bad-request {:error "Failed to create model"})))
-    (catch Exception e (exception-handler CREATE_MODEL_ERROR e))))
+    (catch Exception e
+      (println e)
+      (exception-handler CREATE_MODEL_ERROR e))))
 
 (defn post-resource [request]
   (create-model-handler request))

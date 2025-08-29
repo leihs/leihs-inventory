@@ -195,7 +195,6 @@
 
 (defn delete-resource [request]
   (try
-
     (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
           models (db-operation tx :select :models [:= :id model-id])]
