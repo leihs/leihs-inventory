@@ -11,6 +11,8 @@
 (sa/def :nil/description (sa/nilable string?))
 (sa/def :nil/technical_detail (sa/nilable string?))
 (sa/def :nil/internal_description (sa/nilable string?))
+(sa/def :model/type string?)
+(sa/def :nil/hand_over_note (sa/nilable string?))
 (sa/def ::name string?)
 (sa/def ::delete boolean?)
 (sa/def :nil/cover_image_id (sa/nilable uuid?))
@@ -66,7 +68,7 @@
 (sa/def ::property (sa/keys :opt-un [:nil/id] :req-un [::key ::value]))
 (defn non-neg-number? [x]
   (and (number? x) (not (neg? x))))
-(sa/def ::owner ::nullable-string)
+(sa/def ::owner (sa/nilable string?))
 (sa/def :nil/id (sa/nilable uuid?))
 (sa/def :nil-pos-number/price (sa/nilable non-neg-number?))
 (sa/def ::properties any?)
