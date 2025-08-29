@@ -193,53 +193,51 @@
   [vec-of-maps keys-to-keep]
   (mapv #(select-keys % keys-to-keep) vec-of-maps))
 
-  (defn delete-resource [request]
-    (try
+(defn delete-resource [request]
+  (try
 
-      (let [model-id (to-uuid (get-in request [:path-params :model_id]))
+    (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
           models (db-operation tx :select :models [:= :id model-id])]
 
       (if (empty? models)
-        (response {:error "Model not found"} 404)
+        (throw (ex-info "Model not found" {:status 404}))
 
         (let [items (db-operation tx :select :items [:= :model_id model-id])
               attachments (db-operation tx :select :attachments [:= :model_id model-id])
               images (db-operation tx :select :images [:= :target_id model-id])]
 
           (if (seq items)
-            (response {:error "Referenced items exist"} 409)
+            (throw (ex-info "Referenced items exist" {:status 409}))
 
             (let [deleted-model-compatible
                   (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
-                                      (sql/where [:= :model_id model-id])
-                                      (sql/returning :compatible_id)
-                                      sql-format))
+                                        (sql/where [:= :model_id model-id])
+                                        (sql/returning :compatible_id)
+                                        sql-format))
 
                   deleted-model
                   (jdbc/execute! tx (-> (sql/delete-from :models)
-                                      (sql/where [:= :id model-id])
-                                      (sql/returning :*)
-                                      sql-format))
+                                        (sql/where [:= :id model-id])
+                                        (sql/returning :*)
+                                        sql-format))
 
                   _ (db-operation tx :delete :images [:= :target_id model-id])
 
                   remaining-attachments (db-operation tx :select :attachments [:= :model_id model-id])
                   remaining-images (db-operation tx :select :images [:= :target_id model-id])
-
                   result {:deleted_attachments (remove-nil-values (filter-keys attachments [:id :model_id :filename :size]))
                           :deleted_images (remove-nil-values (filter-keys images [:id :target_id :filename :size :thumbnail]))
                           :deleted_model (remove-nil-values (filter-keys deleted-model [:id :product :manufacturer]))
                           :deleted_model_compatibles deleted-model-compatible}]
 
               (if (or (seq remaining-attachments) (seq remaining-images))
-                (response {:error "Referenced attachments or images still exist"} 409)
+                (throw (ex-info "Referenced attachments or images still exist" {:status 409}))
                 (if (= 1 (count deleted-model))
                   (response result)
-                  (response {:error DELETE_MODEL_ERROR} 409))))))))
+                  (throw (ex-info "Failed to delete model" {:status 409})))))))))
     (catch Exception e
       (exception-handler DELETE_MODEL_ERROR e))))
-
 
 ; ##################################
 
