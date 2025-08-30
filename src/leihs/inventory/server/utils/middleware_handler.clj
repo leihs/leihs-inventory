@@ -28,11 +28,21 @@
 (defn wrap-accept-with-image-rewrite [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
-          updated-request (cond
-                            (str/includes? accept-header "text/html")
-                            (assoc-in request [:headers "accept"] "text/html")
+          uri (:uri request)
 
-                            :else request)]
+          p (println ">o> abc.uri" uri)
+          ;updated-request (cond
+          ;                  (clojure.string/ends-with? uri ".svg")
+          ;                  (assoc-in request [:headers "accept"] "image/svg+xml")
+          ;
+          ;
+          ;                  (str/includes? accept-header "text/html")
+          ;                  (assoc-in request [:headers "accept"] "text/html")
+          ;
+          ;                  :else request)
+
+          updated-request request
+          ]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn wrap-session-token-authenticate! [handler]

@@ -15,6 +15,7 @@
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
+          :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :image_id s/Uuid}}

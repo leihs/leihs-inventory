@@ -10,4 +10,6 @@
 
    ["/token/public"
     {:get {:swagger {:security []}
+           :accept "application/json"
+           :public true
            :handler token-public/get-resource}}]])
