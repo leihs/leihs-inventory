@@ -78,7 +78,8 @@ feature "Delete software", type: :feature do
     end
 
     click_on "submit-dropdown"
-    binding.pry
+    binding.pry # fixme: drop is still visible although is_deletable=false
+
     # click_on "Delete"
     # click_on "Delete"
     #
