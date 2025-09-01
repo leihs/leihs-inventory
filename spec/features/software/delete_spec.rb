@@ -65,20 +65,20 @@ feature "Delete software", type: :feature do
     select_value("with_items", "all")
     click_on "Inventory type"
     click_on "Software"
-    binding.pry
 
-    # fill_in "search", with: "#{product} #{version}"
-    #
-    # within "table" do
-    #   expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
-    #   expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
-    # end
-    #
-    # within find("tr", text: "#{product} #{version}", visible: true) do
-    #   click_on "edit"
-    # end
-    #
-    # click_on "submit-dropdown"
+    fill_in "search", with: "#{product} #{version}"
+
+    within "table" do
+      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
+      expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
+    end
+
+    within find("tr", text: "#{product} #{version}", visible: true) do
+      click_on "edit"
+    end
+
+    click_on "submit-dropdown"
+    binding.pry
     # click_on "Delete"
     # click_on "Delete"
     #

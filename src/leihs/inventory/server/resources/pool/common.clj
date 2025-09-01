@@ -28,25 +28,48 @@
                                       :content_type (:content_type %))))]
     (filter-and-coerce-by-spec attachments ::co/attachment)))
 
+(defn remove-all-nil-entries
+  "Removes entries where :i.id, :r.item_id, and :r.model_id are all nil."
+  [rows]
+  (remove #(and (nil? (:item_id %))
+             (nil? (:reservation_item_id %))
+             (nil? (:reservation_model_id %)))
+    rows))
+
 (defn is-model-deletable?
   "Returns true when the model has no reservations.
    Throws if mtype is not \"Model\" or \"Software\"."
   [tx model-id mtype]
   (let [allowed-types #{"Model" "Software"}]
     (if (contains? allowed-types mtype)
-      (let [query (-> (sql/select :r.*)
-                      (sql/from [:models :m])
-                      (sql/right-join [:reservations :r] [:= :m.id :r.model_id])
-                      (sql/where [:and
-                                  [:= :m.id model-id]
-                                  [:= :m.type mtype]])
-                      sql-format)
-            result (jdbc/execute! tx query)]
-        (empty? result))
+      (let [query (-> (sql/select [:i.id :item_id] [:r.item_id :reservation_item_id] [:r.model_id :reservation_model_id])
+                    (sql/from [:models :m])
+                    (sql/left-join [:items :i] [:= :i.model_id :m.id])
+                    (sql/left-join [:reservations :r]
+                      [:or
+                       [:= :r.item_id :i.id]
+                       [:= :r.model_id :m.id]])
+                    (sql/where [:and
+                                [:= :m.id model-id]
+                                [:= :m.type mtype]
+                                ])
+                    sql-format)
+            _ (println ">o> abc.model-id" model-id)
+            _ (println ">o> abc.model.mtype" mtype)
+            _ (println ">o> abc.model/software.query" query)
+
+            result (jdbc/execute! tx query)
+            _ (println ">o> abc.result" result)
+
+            is-deletable? (empty? (remove-all-nil-entries result))
+            _ (println ">o> abc.is-deletable" is-deletable?)]
+
+        is-deletable?)
+
       (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."
-                      {:error :invalid-model-type
-                       :given mtype
-                       :allowed allowed-types})))))
+               {:error :invalid-model-type
+                :given mtype
+                :allowed allowed-types})))))
 
 (defn is-option-deletable?
   [tx option-id]
