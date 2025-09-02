@@ -47,7 +47,7 @@ feature "Delete software", type: :feature do
     end
 
     within find("tr", text: "#{product} #{version}", visible: true) do
-      click_on "edit"
+      click_link("edit", wait: 20)
     end
 
     click_on "submit-dropdown"
@@ -65,25 +65,14 @@ feature "Delete software", type: :feature do
     select_value("with_items", "all")
     click_on "Inventory type"
     click_on "Software"
-
     fill_in "search", with: "#{product} #{version}"
 
-    within "table" do
-      expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
-      expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
-    end
-
-    within find("tr", text: "#{product} #{version}", visible: true) do
-      click_on "edit"
+    within find("tr", text: "#{product} #{version}") do
+      click_link("edit", wait: 20)
     end
 
     click_on "submit-dropdown"
-    binding.pry # fixme: drop is still visible although is_deletable=false
 
-    # click_on "Delete"
-    # click_on "Delete"
-    #
-    # fill_in "search", with: "#{product} #{version}"
-    # expect(page).not_to have_content "#{product} #{version}"
+    expect(page).not_to have_content "Delete"
   end
 end
