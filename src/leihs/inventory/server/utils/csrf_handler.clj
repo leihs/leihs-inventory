@@ -82,8 +82,8 @@
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
-                  {:status 400
+                  {:status 403
                    :headers {"Content-Type" "application/json"}
-                   :body (to-json {:message "Error updating password"
+                   :body (to-json {:message "Error during CSRF-Token/Session validation"
                                    :detail (str "error: " (.getMessage e))})}))))
           (handler request))))))

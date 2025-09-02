@@ -20,7 +20,7 @@ describe "Call swagger-endpoints" do
       "/inventory/assets/css/style.css" => 302
     }.each do |url, code|
       it "accessing #{url}    results in expected status-code" do
-        response = plain_faraday_client.get(url)
+        response = plain_faraday_html_client.get(url)
         expect(response.status).to eq(code)
       end
     end
@@ -44,7 +44,7 @@ describe "Call swagger-endpoints" do
       "/assets/css/style.css" => 404
     }.each do |url, code|
       it "accessing #{url}    fails as expected" do
-        response = plain_faraday_client.get(url)
+        response = plain_faraday_html_client.get(url)
         expect(response.status).to eq(code)
       end
     end

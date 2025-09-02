@@ -66,19 +66,19 @@ describe "Call swagger-endpoints" do
     end
 
     it "protected access against json-resource by accept=*/*" do
-      resp = plain_faraday_client.get("/inventory/test-csrf")
+      resp = plain_faraday_html_client.get("/inventory/test-csrf")
       expect(resp.status).to eq(404)
 
-      resp = plain_faraday_client.post("/inventory/test-csrf")
+      resp = plain_faraday_html_client.post("/inventory/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_client.delete("/inventory/test-csrf")
+      resp = plain_faraday_html_client.delete("/inventory/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_client.put("/inventory/test-csrf")
+      resp = plain_faraday_html_client.put("/inventory/test-csrf")
       expect(resp.status).to eq(403)
 
-      resp = plain_faraday_client.patch("/inventory/test-csrf")
+      resp = plain_faraday_html_client.patch("/inventory/test-csrf")
       expect(resp.status).to eq(403)
     end
   end
