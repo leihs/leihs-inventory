@@ -12,16 +12,16 @@
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response])
+   [ring.util.response :refer [response status redirect]])
   (:gen-class)
   (:import (org.jsoup Jsoup)))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
-      (= path "/inventory/api-docs") (response/redirect "/inventory/api-docs/index.html")
-      (= path "/inventory/index.html") (response/redirect "/inventory")
-      :else (response/status (response/response "File not found") 404))))
+      (= path "/inventory/api-docs") (redirect "/inventory/api-docs/index.html")
+      (= path "/inventory/index.html") (redirect "/inventory")
+      :else (status (response "File not found") 404))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -85,7 +85,13 @@
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))
-        accept (get-in params [:headers "accept"])]
-    (if (str/includes? accept "application/json")
-      {:status (if (so/routes params) 200 409)}
-      (so/routes params))))
+    ;    accept (get-in params [:headers "accept"])
+    res (so/routes params)
+    p (println ">o> abc.res" res)
+     ]
+    ;(if (str/includes? accept "application/json")
+    ;  {:status (if (so/routes params) 200 409)}
+    ;  (so/routes params))
+(status (response {}) 200
+  )
+    ))

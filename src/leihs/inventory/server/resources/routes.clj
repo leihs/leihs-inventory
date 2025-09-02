@@ -115,9 +115,13 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {:accept "application/json"
-            ;:swagger {:produces ["text/html" "application/json"]}
-            :produces ["text/html" "application/json"]
+     :post {
+            ;:accept "text/html"
+            :accept "application/json"
+
+                                ;:swagger {:produces ["text/html" "application/json"]}
+            ;:produces ["text/html" "application/json"]
+            ;:produces ["text/html"]
 
             :handler post-sign-out}
      :get {:accept "text/html"
