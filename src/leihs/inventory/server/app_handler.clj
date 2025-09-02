@@ -6,8 +6,9 @@
    [leihs.core.ring-audits :as ring-audits]
    [leihs.core.routing.back :as core-routing]
    [clojure.string :as str]
-   [ring.util.response :refer [bad-request response status]]
-
+   [ring.util.response :refer [bad-request response status content-type]]
+   ;[ring.util.response :refer [bad-request response status]]
+   [cheshire.core :as json]
 
    [ring.util.mime-type :as mime]
    [ring.middleware.resource :refer [wrap-resource]]
@@ -84,6 +85,64 @@
   (println ">oo> " str fnc)
   fnc
   )
+
+(defn create-accept-response
+  "Return a response based on the Accept header.
+   - If Accept contains text/html → return an HTML response
+   - If Accept contains application/json → return a JSON response
+   - Otherwise → return a plain text response"
+  [request  status ]
+
+     (let [accept-header (get-in request [:headers "accept"])
+
+           status (int status)
+
+           p (println ">o> abc" status (type status))
+           ]
+
+  (cond
+    (and accept-header (str/includes? accept-header "text/html"))
+    (-> (rh/index-html-response request status)
+      (status status)
+      (content-type "text/html"))
+
+    (and accept-header (str/includes? accept-header "application/json"))
+    (-> (response {:error (str "Status " status)})
+      (status status)
+      (content-type "application/json"))
+
+    :else
+    (-> (response (str "Error " status))
+      (status status)
+      (content-type "text/plain"))))
+       )
+
+
+
+(defn create-accept-response
+  "Return a response based on the Accept header.
+   - text/html -> HTML response
+   - application/json -> JSON response
+   - otherwise -> plain text"
+  [request http-status]
+  (let [accept (get-in request [:headers "accept"])
+        code   (int http-status)]
+    (cond
+      (and accept (str/includes? accept "text/html"))
+      (rh/index-html-response request code)
+
+      (and accept (str/includes? accept "application/json")) ;; FIXME
+        (-> (response (json/generate-string {:status  "failure"
+                                                  :message "Error occurred"}))
+        (status code)
+        (content-type "application/json"))
+
+      :else
+      (-> (response (str "Error " code))
+        (status code)
+        (content-type "text/plain")))))
+
+
 (defn wrap-strict-format-negotiate [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
@@ -115,32 +174,36 @@
 
         ;(and accept-html? (not (session-valid? request)) (not swagger-call?))
 
-        (cond
-          ;  (and (str/includes? accept-header "text/html") (pr "session-invalid?" (not (session-valid? request))))
-          ;{:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
-          ;
+        ;(cond
+        ;  ;  (and (str/includes? accept-header "text/html") (pr "session-invalid?" (not (session-valid? request))))
+        ;  ;{:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
+        ;  ;
+        ;
+        ;  (str/includes? accept-header "text/html")
+        ;  (pr "1?" (rh/index-html-response request 404))
+        ;
+        ;  ;
+        ;  ;(or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/"))
+        ;  ;;{:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
+        ;  ;(handler request)
+        ;  ;
+        ;  ;(or (= uri "/inventory/swagger-ui") (= uri "/inventory/swagger-ui/"))
+        ;  ;;{:status 302 :headers {"Location" "/inventory/swagger-ui/index.html"} :body ""}
+        ;  ;(handler request)
+        ;
+        ;  ;:else (-> (pr "meins>>" {:status 406 })
+        ;  ;        response
+        ;  ;        (status 406)
+        ;  ;        )
+        ;
+        ;  :else           (pr "2" (rh/index-html-response request 200))
+        ;
+        ;
+        ;  )
 
-          (str/includes? accept-header "text/html")
-          (pr "1?" (rh/index-html-response request 404))
 
-          ;
-          ;(or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/"))
-          ;;{:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
-          ;(handler request)
-          ;
-          ;(or (= uri "/inventory/swagger-ui") (= uri "/inventory/swagger-ui/"))
-          ;;{:status 302 :headers {"Location" "/inventory/swagger-ui/index.html"} :body ""}
-          ;(handler request)
+        (create-accept-response request  404)
 
-          ;:else (-> (pr "meins>>" {:status 406 })
-          ;        response
-          ;        (status 406)
-          ;        )
-
-          :else           (pr "2" (rh/index-html-response request 200))
-
-
-          )
 
         (handler request)))))
 

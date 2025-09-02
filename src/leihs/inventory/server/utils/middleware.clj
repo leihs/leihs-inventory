@@ -37,6 +37,7 @@
           (response/status 404))))))
 
 (defn accept-json-image-middleware [handler]
+  (println ">o> abc.accept-json-image-middleware")
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])]
       (if (some #(clojure.string/includes? accept-header %) ["/json" "image/"])
