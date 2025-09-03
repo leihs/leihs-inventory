@@ -31,13 +31,17 @@ describe "Call swagger-endpoints" do
       "/inventory/api-docs/" => 302,
       "/inventory/api-docs" => 302,
 
-      "/inventory/assets/locales/nd/translation.json" => 404,
-      "/assets/locales/nd/translation.json" => 404,
+      "/inventory/assets/locales/en/translation.json" => 200,
+      "/inventory/assets/locales/nd/translation.json" => 302,
+      "/invalid/locales/nd/translation.json" => 404,
 
-      "/assets/css/additional.css" => 404,
-      "/inventory/assets/css/nd.css" => 404,
+      "/inventory/assets/css/additional.css" => 302,
+      "/inventory/assets/css/nd.css" => 302,
+      "/invalid/assets/css/nd.css" => 404,
 
-      "/inventory/nd.svg" => 404,
+      "/inventory/assets/zhdk-logo.svg" => 302,
+      "/inventory/assets/nd.svg" => 302,
+      "/inventory/nd.svg" => 302,
 
       "/assets/js/main.js" => 404,
       "/assets/js/libs.js" => 404,
