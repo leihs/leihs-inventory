@@ -2,45 +2,38 @@
   (:require
    [cheshire.core :as json]
    [clojure.java.io :as io]
+   [clojure.string :as clojure.string]
    [clojure.string :as str]
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response_helper :as rh]
-[clojure.string :as clojure.string]
-[leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :refer [response status content-type]]))
-
 
 (defn parse-cookie [request]
   (let [cookie-str (get-in request [:headers "cookie"])]
     (if (or (nil? cookie-str) (clojure.string/blank? cookie-str))
       {}
       (->> (clojure.string/split cookie-str #"; ")
-        (map #(clojure.string/split % #"=" 2))
-        (reduce
-          (fn [m [k v]]
-            (if (and k v)
-              (assoc m k v)
-              m))
-          {})))))
+           (map #(clojure.string/split % #"=" 2))
+           (reduce
+            (fn [m [k v]]
+              (if (and k v)
+                (assoc m k v)
+                m))
+            {})))))
 
 (defn session-valid? [request]
   (let [session (parse-cookie request)
         is-authenticated? (authenticated? request)
-        p (println ">o> abc.is-authenticated?" is-authenticated?)
-        ]
+        p (println ">o> abc.is-authenticated?" is-authenticated?)]
     (and is-authenticated?
-      (get session "leihs-user-session"))))
-
-
+         (get session "leihs-user-session"))))
 
 (defn pr [str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
-  fnc
-  )
-
-
+  fnc)
 
 (defn custom-not-found-handler [request]
 
@@ -73,5 +66,4 @@
   ;
   ;    ;:else (pr "f1" (rh/index-html-response request 404)))))
   ;    :else (rh/index-html-response request 404)))
-
   )

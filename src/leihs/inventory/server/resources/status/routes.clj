@@ -14,6 +14,7 @@
     :get {:accept "application/json"
           :description "Get system status, called by CI"
           :handler status/status-handler
+          :public true
           :coercion reitit.coercion.schema/coercion
           :responses
           {200 {:description "OK"

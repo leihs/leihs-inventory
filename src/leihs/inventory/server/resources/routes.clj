@@ -7,10 +7,6 @@
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?
-                                                       AUTHENTICATED_ENTITY
-                                                       get-auth-entity]]
-   [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
                                                   swagger-api-docs-handler
@@ -50,13 +46,17 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?
+                                                       AUTHENTICATED_ENTITY
+                                                       get-auth-entity]]
+   [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [taoensso.timbre :refer [debug error]]
-   [schema.core :as s]))
+   [schema.core :as s]
+   [taoensso.timbre :refer [debug error]]))
 
 (defn- create-root-page [_]
   {:status 200
@@ -70,16 +70,13 @@
 (defn pr
   ([str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
+   (println ">oo> " str fnc)
+   fnc)
 
   ([str str2 fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str str2)
-  fnc
-  )
-)
+   (println ">oo> " str str2)
+   fnc))
 
 (defn sign-in-out-endpoints []
   [[""
@@ -115,8 +112,7 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {
-            ;:accept "text/html"
+     :post {;:accept "text/html"
             :accept "application/json"
 
                                 ;:swagger {:produces ["text/html" "application/json"]}
@@ -178,7 +174,6 @@
    "svg" "image/svg+xml"
    "txt" "text/plain"})
 
-
 (defn convert-params [request]
   (if-let [form-params (:form-params request)]
     (let [converted-form-params (into {} (map (fn [[k v]] [(keyword k) v]) form-params))]
@@ -234,50 +229,33 @@
                           (println "Error processing swagger-ui request:" e)
                           (rh/index-html-response request 404))))}}]
 
-
-    ["{*path}"
+   ["{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {
-           ;:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
+     :get {;:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
            ;:swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
            :description "Public assets like JS, CSS, images"
-           :produces ["text/html" ]
+           :produces ["text/html"]
            :handler (fn [request]
                       (println ">>>> check session")
                       (println ">>>> check session.auth" (:authenticated-entity request))
                       (println ">>>> check session.auth?" (authenticated? request))
                       (println ">>>> check session.auth?" (authenticated? request))
 
+                      (let [params (-> request
+                                       convert-params
+                                       (assoc-in [:accept :mime] :html))
+                            accept (get-in params [:headers "accept"])
+                            p (println ">o> abc.accept" accept)])
 
-                         (let [
-                               params (-> request
-                                        convert-params
-                                        (assoc-in [:accept :mime] :html))
-                               accept (get-in params [:headers "accept"])
-                               p (println ">o> abc.accept" accept)
-                                  ])
+                      (if (authenticated? request)
+                        (pr "F2" "All Html" (rh/index-html-response request 200))
 
-
-                    (if (authenticated? request)
-                                          (pr "F2" "All Html" (rh/index-html-response request 200))
-
-                                          {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
-                      )
-
-                      )}}]
-
-
-
-   ])
+                        {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}))}}]])
 
 (defn swagger-endpoints []
   ["/api-docs"
    ;{:get {:handler swagger-api-docs-handler
    ;       :no-doc true}}
-
-
-
-
 
    ["/swagger.json"
     {:get {:no-doc true
@@ -355,11 +333,9 @@
    (sign-in-out-endpoints)
    ["inventory"
     {:swagger {:tags [""]}
-     :middleware [wrap-authorize]
-     }
+     :middleware [wrap-authorize]}
     (swagger-endpoints)
     (csrf-endpoints)
     (visible-api-endpoints)
 
-    (assets-endpoints)
-    ]])
+    (assets-endpoints)]])

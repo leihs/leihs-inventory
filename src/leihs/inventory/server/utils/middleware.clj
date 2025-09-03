@@ -8,16 +8,13 @@
 (defn pr
   ([str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
+   (println ">oo> " str fnc)
+   fnc)
 
   ([str str fnc]
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str str)
-  fnc
-  )
-)
+   (println ">oo> " str str)
+   fnc))
 
 (defn accept-json-middleware [handler]
   (fn [request]

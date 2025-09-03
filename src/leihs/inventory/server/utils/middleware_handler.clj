@@ -41,8 +41,7 @@
           ;
           ;                  :else request)
 
-          updated-request request
-          ]
+          updated-request request]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn wrap-session-token-authenticate! [handler]
