@@ -160,10 +160,10 @@
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))]
 
-      (println "> strict-format:    " (:uri request) method)
-      (println "> strict-format :: Accept Header:    " accept-header)
-      (println "> strict-format :: Parsed Formats:   " accepted-types)
-      (println "> strict-format :: Allowed Formats:  " allowed-formats)
+      ;(println "> strict-format:    " (:uri request) method)
+      ;(println "> strict-format :: Accept Header:    " accept-header)
+      ;(println "> strict-format :: Parsed Formats:   " accepted-types)
+      ;(println "> strict-format :: Allowed Formats:  " allowed-formats)
 
       ;; enforce: if Accept is given, it must match what we allow
       (if (and (seq allowed-formats)

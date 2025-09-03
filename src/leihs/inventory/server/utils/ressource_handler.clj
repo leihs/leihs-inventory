@@ -42,13 +42,6 @@
 
 
 
-
-          (defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc
-  )
-
 (defn custom-not-found-handler [request]
 
   (rh/index-html-response request 404)
