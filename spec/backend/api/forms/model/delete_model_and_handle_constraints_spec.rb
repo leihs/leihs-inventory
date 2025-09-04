@@ -65,10 +65,10 @@ describe "Inventory Model" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Model", id: @model_id).first
           @order = FactoryBot.create(:reservation,
-            user_id: @user.id,
-            inventory_pool_id: @inventory_pool.id,
-            leihs_model: m,
-            status: :draft)
+                                     user_id: @user.id,
+                                     inventory_pool_id: @inventory_pool.id,
+                                     leihs_model: m,
+                                     status: :draft)
         end
 
         it "delete model without reservation" do
@@ -97,11 +97,11 @@ describe "Inventory Model" do
           model = LeihsModel.where(type: "Model", id: @model_id).first
 
           FactoryBot.create(:item, inventory_code: "TEST#{SecureRandom.random_number(1000)}",
-            leihs_model: model,
-            inventory_pool_id: @inventory_pool.id,
-            owner_id: @inventory_pool.id,
-            responsible: @inventory_pool,
-            is_borrowable: true)
+                            leihs_model: model,
+                            inventory_pool_id: @inventory_pool.id,
+                            owner_id: @inventory_pool.id,
+                            responsible: @inventory_pool,
+                            is_borrowable: true)
         end
 
         it "blocks deleting model with item" do
@@ -115,6 +115,97 @@ describe "Inventory Model" do
           )
           expect(resp.status).to eq(409)
         end
+      end
+
+      # describe "with model and procurement_requests" do
+      #   before do
+      #     resp = json_client_post(
+      #       "/inventory/#{pool_id}/models/",
+      #       body: form_data,
+      #       headers: cookie_header
+      #     )
+      #     expect(resp.status).to eq(200)
+      #
+      #     @model_id = resp.body["id"]
+      #     model = LeihsModel.where(type: "Model", id: @model_id).first
+      #
+      #     FactoryBot.create(:item, inventory_code: "TEST#{SecureRandom.random_number(1000)}",
+      #                       leihs_model: model,
+      #                       inventory_pool_id: @inventory_pool.id,
+      #                       owner_id: @inventory_pool.id,
+      #                       responsible: @inventory_pool,
+      #                       is_borrowable: true)
+      #   end
+      #
+      #   it "blocks deleting model with item" do
+      #     resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
+      #     expect(resp.status).to eq(200)
+      #     expect(resp.body["is_deletable"]).to eq(false)
+      #
+      #     resp = json_client_delete(
+      #       "/inventory/#{pool_id}/models/#{@model_id}",
+      #       headers: cookie_header
+      #     )
+      #     expect(resp.status).to eq(409)
+      #   end
+      # end
+
+
+
+
+
+
+      describe "with model and referenced compatible" do
+        before do
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          @model_id = resp.body["id"]
+          @model = LeihsModel.where(type: "Model", id: @model_id).first
+        end
+
+        describe "with model and referenced compatible" do
+          before do
+            compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+            @model.add_compatible_model(compatible_model1)
+          end
+
+          it "blocks deleting model" do
+            resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
+            expect(resp.status).to eq(200)
+            expect(resp.body["is_deletable"]).to eq(false)
+
+            resp = json_client_delete(
+              "/inventory/#{pool_id}/models/#{@model_id}",
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(409)
+          end
+        end
+
+        describe "with model and referenced compatible" do
+          before do
+            compatible_model1 = FactoryBot.create(:leihs_model, id: SecureRandom.uuid)
+            compatible_model1.add_compatible_model(@model)
+          end
+
+          it "blocks deleting model" do
+            resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
+            expect(resp.status).to eq(200)
+            expect(resp.body["is_deletable"]).to eq(false)
+
+            resp = json_client_delete(
+              "/inventory/#{pool_id}/models/#{@model_id}",
+              headers: cookie_header
+            )
+            expect(resp.status).to eq(409)
+          end
+        end
+
       end
 
       describe "with reservation & order in status 'submitted'" do
@@ -132,12 +223,12 @@ describe "Inventory Model" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Model", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-            order: @order,
-            user_id: @user.id,
-            type: "ItemLine",
-            inventory_pool_id: @inventory_pool.id,
-            leihs_model: m,
-            status: :submitted)
+                                           order: @order,
+                                           user_id: @user.id,
+                                           type: "ItemLine",
+                                           inventory_pool_id: @inventory_pool.id,
+                                           leihs_model: m,
+                                           status: :submitted)
         end
 
         it "delete model without reservation" do
@@ -168,12 +259,12 @@ describe "Inventory Model" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Model", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-            order: @order,
-            user_id: @user.id,
-            type: "ItemLine",
-            inventory_pool_id: @inventory_pool.id,
-            leihs_model: m,
-            status: :approved)
+                                           order: @order,
+                                           user_id: @user.id,
+                                           type: "ItemLine",
+                                           inventory_pool_id: @inventory_pool.id,
+                                           leihs_model: m,
+                                           status: :approved)
         end
 
         it "delete model without reservation" do
@@ -200,18 +291,18 @@ describe "Inventory Model" do
 
           co = FactoryBot.create(:customer_order, user: @user)
           @order = FactoryBot.create(:order, inventory_pool: @inventory_pool, user: @user, customer_order: co,
-            # reject_reason: "not ok",
-            state: :approved)
+                                     # reject_reason: "not ok",
+                                     state: :approved)
 
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Model", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-            order: @order,
-            user_id: @user.id,
-            type: "ItemLine",
-            inventory_pool_id: @inventory_pool.id,
-            leihs_model: m,
-            status: :approved)
+                                           order: @order,
+                                           user_id: @user.id,
+                                           type: "ItemLine",
+                                           inventory_pool_id: @inventory_pool.id,
+                                           leihs_model: m,
+                                           status: :approved)
         end
 
         it "delete model without reservation" do

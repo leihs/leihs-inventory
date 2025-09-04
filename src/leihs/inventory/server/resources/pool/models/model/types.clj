@@ -21,7 +21,7 @@
    (sa/keys :req-un [::sp/id ::sp/model_id ::sp/filename ::sp/size])))
 
 (sa/def ::deleted_images (sa/coll-of any?))
-(sa/def ::deleted_model_compatibles (sa/coll-of uuid?))
+(sa/def ::deleted_model_compatibles (sa/coll-of any?))
 
 (sa/def ::deleted_model
   (sa/coll-of

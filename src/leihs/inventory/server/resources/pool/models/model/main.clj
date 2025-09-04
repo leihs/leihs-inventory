@@ -204,12 +204,12 @@
       (if (empty? models)
         (throw (ex-info "Model not found" {:status 404}))
 
-        (let [items (db-operation tx :select :items [:= :model_id model-id])
+        (let [is-model-deletable? (is-model-deletable? tx model-id "Model")
+
               attachments (db-operation tx :select :attachments [:= :model_id model-id])
               images (db-operation tx :select :images [:= :target_id model-id])]
 
-          (if (seq items)
-            (throw (ex-info "Referenced items exist" {:status 409}))
+          (if is-model-deletable?
 
             (let [deleted-model-compatible
                   (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
@@ -236,7 +236,11 @@
                 (throw (ex-info "Referenced attachments or images still exist" {:status 409}))
                 (if (= 1 (count deleted-model))
                   (response result)
-                  (throw (ex-info "Failed to delete model" {:status 409})))))))))
+                  (throw (ex-info "Failed to delete model" {:status 409})))))
+
+            (throw (ex-info "Referenced items exist" {:status 409}))
+
+            ))))
     (catch Exception e
       (log-by-severity DELETE_MODEL_ERROR e)
       (exception-handler DELETE_MODEL_ERROR e))))
