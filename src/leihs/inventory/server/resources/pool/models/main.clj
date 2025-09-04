@@ -18,8 +18,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (def CREATE_MODEL_ERROR "Failed to create model")
 (def GET_MODEL_ERROR "Failed to get models-compatible")

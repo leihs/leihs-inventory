@@ -9,8 +9,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn extract-manufacturers [data]
   (mapv :manufacturer data))

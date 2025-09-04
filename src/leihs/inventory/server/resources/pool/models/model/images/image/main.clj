@@ -8,8 +8,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request response status]])
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))
@@ -56,11 +55,7 @@
     (let [tx (:tx request)
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
-
           image_id (-> request path-params :image_id)
-          pool_id (-> request path-params :pool_id)
-          model_id (-> request path-params :model_id)
-
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
                     (cond-> image_id
@@ -84,11 +79,11 @@
 (defn delete-resource
   [req]
   (let [tx (:tx req)
-        {:keys [model_id image_id]} (:path (:parameters req))
-        id (to-uuid image_id)]
-    (let [res (jdbc/execute-one! tx
+        {:keys [image_id]} (:path (:parameters req))
+        id (to-uuid image_id)
+    res (jdbc/execute-one! tx
                                  (sql-format
                                   {:delete-from :images :where [:= :id id]}))]
       (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"})))))
+        (bad-request {:error "Failed to delete image"}))))

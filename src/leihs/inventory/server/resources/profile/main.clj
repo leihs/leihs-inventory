@@ -8,11 +8,9 @@
    [leihs.core.settings :refer [settings!]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
-   [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
    [next.jdbc.sql :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn get-one [tx target-user-id user-id]
   (get-by-id tx (or user-id target-user-id)))

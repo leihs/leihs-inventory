@@ -1,16 +1,4 @@
-(ns leihs.inventory.server.resources.pool.models.helper
-  (:require
-   [cheshire.core :as cjson]
-   [clojure.data.codec.base64 :as b64]
-   [clojure.java.io :as io]
-   [clojure.string :as str]
-   [honey.sql :as sq :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [next.jdbc :as jdbc]
-   [taoensso.timbre :refer [error info]])
-  (:import
-   (java.security MessageDigest)))
+(ns leihs.inventory.server.resources.pool.models.helper)
 
 (defn normalize-model-data
   [data]

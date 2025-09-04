@@ -12,8 +12,7 @@
                                                               resize-and-convert-to-base64]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :as response :refer [bad-request response status]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -75,21 +74,9 @@
       (log-by-severity "Failed to upload image" e)
       (bad-request {:error "Failed to upload image" :details (.getMessage e)}))))
 
-(defn validate-empty-string!
-  ([k vec-of-maps]
-   (validate-empty-string! k vec-of-maps nil))
-  ([k vec-of-maps scope]
-   (doseq [m vec-of-maps]
-     (when (and (contains? m k) (= "" (get m k)))
-       (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                       (merge {:key k :map m} (when scope {:scope scope}))))))))
-
 (defn index-resources [request]
   (try
-    (let [tx (:tx request)
-          accept-header (get-in request [:headers "accept"])
-          json-request? (= accept-header "application/json")
-          base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
+    (let [base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
                          (sql/from [:images :i]))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e

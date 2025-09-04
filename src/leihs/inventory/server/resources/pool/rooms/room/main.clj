@@ -8,8 +8,7 @@
                                                        query-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request header response]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request header response]]))
 
 (defn get-resource [request]
   (try

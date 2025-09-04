@@ -1,10 +1,9 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
-   [ring.util.response :refer [response status]]
-   [taoensso.timbre :refer [error]]))
+   [clojure.set]
+   [leihs.inventory.server.utils.helper :refer [safe-ex-data log-by-severity]]
+   [ring.util.response :refer [response status]]))
 
 (defn determine-required-scope
   "Determines the required scope based on the HTTP method and URI."
@@ -77,4 +76,4 @@
 
         (catch Exception e
           (log-by-severity "Permission by role error" e)
-          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e) 500))))))))
+          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e))500)))))))

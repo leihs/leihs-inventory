@@ -1,8 +1,6 @@
 (ns leihs.inventory.server.resources.pool.cast-helper
   (:require
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-
-   [taoensso.timbre :refer [error]])
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]])
   (:import
    [java.math BigDecimal RoundingMode]))
 

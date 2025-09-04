@@ -22,8 +22,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request not-found response status]]))
 
 (def DELETE_MODEL_ERROR "Failed to delete model")
 (def FETCH_MODEL_ERROR "Failed to fetch model")

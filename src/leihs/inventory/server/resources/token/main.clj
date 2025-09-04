@@ -5,8 +5,8 @@
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [error]])
+   [crypto.random]
+   [ring.util.response :as response])
   (:import
    (com.google.common.io BaseEncoding)))
 
@@ -43,10 +43,9 @@
               description
               now
               now
-              expires-sql]
-
-        res (try (jdbc/execute-one! (:tx request) data)
-                 (catch Exception e (log-by-severity e) nil))]
+              expires-sql]]
+        (try (jdbc/execute-one! (:tx request) data)
+                 (catch Exception e (log-by-severity e) nil))
     {:token full-token
      :expires_at expires-at
      :scopes scopes}))

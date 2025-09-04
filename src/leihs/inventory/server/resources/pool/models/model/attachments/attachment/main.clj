@@ -1,7 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.main
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
@@ -11,7 +9,6 @@
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import
-   [java.io ByteArrayInputStream]
    [java.util Base64]))
 
 (defn get-resource [request]
@@ -24,7 +21,6 @@
                           "*/*"
                           accept-header)
           json-request? (= accept-header "application/json")
-          octet-request? (= accept-header "application/octet-stream")
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])

@@ -12,7 +12,6 @@
 (defn get-resource [request]
   (try
     (let [tx (:tx request)
-          pool-id (-> request path-params :pool_id)
           building-id (-> request path-params :building_id)
           query (-> (sql/select :b.*)
                     (sql/from [:buildings :b])

@@ -12,8 +12,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (defn post-resource [request]
   (let [tx (:tx request)

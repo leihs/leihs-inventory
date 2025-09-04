@@ -15,8 +15,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request not-found response]])
   (:import
    (java.time LocalDateTime)))
 

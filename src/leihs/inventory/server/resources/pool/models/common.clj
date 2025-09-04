@@ -2,6 +2,7 @@
   (:require
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [clojure.spec.alpha]
    [next.jdbc :as jdbc]
    [taoensso.timbre :refer [debug]]))
 
@@ -31,9 +32,6 @@
 
 (defn fetch-thumbnails-for-ids [tx model-cover-ids]
   (vec (map #(get-one-thumbnail-query tx %) model-cover-ids)))
-
-(defn create-url [pool_id model_id type cover_image_id]
-  (str "/inventory/" pool_id "/models/" model_id "/images/" cover_image_id))
 
 ;; #####################
 

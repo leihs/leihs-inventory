@@ -2,9 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [warn error debug]])
-  (:import
-   (java.util UUID)))
+   [taoensso.timbre :refer [ error debug]]))
 
 (defn safe-ex-data [e]
   (when (instance? clojure.lang.ExceptionInfo e)
@@ -45,45 +43,8 @@
   (let [accept-header (get-in request [:headers "accept"])]
     (and accept-header (str/includes? accept-header "text/html"))))
 
-(defn to-uuid
-  ([value]
-   (try
-     (let [result (if (instance? String value) (UUID/fromString value) value)]
-       result)
-     (catch Exception e
-       (warn "DEV-ERROR in to-uuid[value], value=" value ", exception=" (.getMessage e))
-       value)))
-
-  ([value key]
-   (def keys-to-cast-to-uuid #{:user_id :id :group_id :person_id :collection_id :media_entry_id :accepted_usage_terms_id :delegation_id
-                               :uploader_id :created_by_id
-                               :keyword_id})
-   (let [res (try
-               (if (and (contains? keys-to-cast-to-uuid (keyword key)) (instance? String value))
-                 (UUID/fromString value)
-                 value)
-               (catch Exception e
-                 (warn ">>> DEV-ERROR in to-uuid[value key], value=" value ", key=" key " exception=" (.getMessage e))
-                 value))] res))
-
-  ([value key table]
-   (def blacklisted-tables #{"meta_keys" "vocabularies"})
-
-   ;; XXX: To fix db-exceptions of io_interfaces
-   (if (or (contains? blacklisted-tables (name table)) (and (= table :io_interfaces) (= key :id)))
-     value
-     (to-uuid value key))))
-
-(def uuid-regex
-  #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$")
-
 (defn log-by-severity
-  ([e]
-   (log-by-severity e nil))
-
+  ([e] (log-by-severity e nil))
   ([e title]
-   (if (nil? title)
-     (error (.getMessage e))
-     (error title (.getMessage e)))
-
+   (error (or title (.getMessage e)))
    (debug e)))

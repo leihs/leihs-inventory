@@ -3,6 +3,7 @@
    [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.string :as str]
+   [clojure.walk]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [warn]])
   (:import
@@ -101,8 +102,8 @@
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
-          (do
-            (generate-coercion-response ext-data request resp))
+
+          (generate-coercion-response ext-data request resp)
           (assoc resp :body (data->input-stream ext-data))))
 
       :else resp)))

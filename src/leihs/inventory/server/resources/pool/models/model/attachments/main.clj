@@ -10,8 +10,7 @@
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :as response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :as response :refer [bad-request response status]]))
 
 (defn sanitize-filename [filename]
   (str/replace filename #"[^a-zA-Z0-9_.-]" "_"))
@@ -29,7 +28,6 @@
   (try
     (let [{{:keys [model_id]} :path} (:parameters req)
           body-stream (:body req)
-          allowed-file-types (config-get :api :attachments :allowed-file-types)
           max-size-mb (config-get :api :attachments :max-size-mb)
           upload-path (config-get :api :upload-dir)
           tx (:tx req)
@@ -73,8 +71,7 @@
 
 (defn index-resources [request]
   (try
-    (let [tx (:tx request)
-          model-id (-> request path-params :model_id)
+    (let [model-id (-> request path-params :model_id)
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id])))]

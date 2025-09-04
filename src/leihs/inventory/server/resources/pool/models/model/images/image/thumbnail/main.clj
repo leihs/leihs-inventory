@@ -7,8 +7,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request response status]])
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))

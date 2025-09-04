@@ -4,12 +4,11 @@
    [clojure.set]
    [dk.ative.docjure.spreadsheet :as ss]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [ring.middleware.accept]
-   [taoensso.timbre :as log]
-   [taoensso.timbre :refer [error]]))
+   [ring.middleware.accept]))
 
-(defn generate-excel-from-map [data-map]
+(defn generate-excel-from-map
   "Generates an Excel file from a map and returns a Java File object."
+  [data-map]
   (try
     (when (empty? data-map)
       (throw (IllegalArgumentException. "Data map cannot be empty")))
@@ -26,10 +25,12 @@
       (log-by-severity "Failed to generate Excel from map" e)
       (throw e))))
 
-(defn index-resources [request]
+(defn index-resources
   "Handler that generates an Excel file from a given map."
+  [request]
   (try
-    (let [data [{:name "Alice" :age 30 :city "New York"}
+    (let [_ request
+          data [{:name "Alice" :age 30 :city "New York"}
                 {:name "Bob" :age 25 :city "San Francisco"}
                 {:name "Charlie" :age 35 :city "Boston"}]
           excel-file (generate-excel-from-map data)]
