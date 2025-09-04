@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec
                                                                 filter-map-by-spec]]
@@ -33,7 +34,7 @@
                         (filter-map-by-spec ::ty/response-option-object)))
           (bad-request {:error "Failed to create option"})))
       (catch Exception e
-        (error "Failed to create option" (.getMessage e))
+        (log-by-severity "Failed to create option" e)
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
@@ -54,5 +55,5 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
-        (error "Failed to fetch options" (.getMessage e))
+        (log-by-severity "Failed to fetch options" e)
         (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))

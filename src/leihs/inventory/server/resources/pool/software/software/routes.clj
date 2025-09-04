@@ -2,7 +2,6 @@
   (:require
    [leihs.inventory.server.resources.pool.software.software.main :as software]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
-
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
@@ -14,7 +13,6 @@
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
           :handler software/get-resource
-
           :responses {200 {:description "OK"
                            :body ::types/put-response}
                       404 {:description "Not Found"}
@@ -26,7 +24,6 @@
                               :model_id uuid?}
                        :body ::types/put-query}
           :handler software/put-resource
-
           :responses {200 {:description "OK"
                            :body ::types/put-response}
                       404 {:description "Not Found"}
@@ -37,7 +34,6 @@
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler software/delete-resource
-
              :responses {200 {:description "OK"
                               :body ::types/delete-response}
                          404 {:description "Not Found"}

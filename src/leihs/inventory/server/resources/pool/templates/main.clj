@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    case-condition
@@ -38,7 +39,7 @@
         (response templates)
         (bad-request {:error ERROR_CREATION})))
     (catch Exception e
-      (error ERROR_CREATION (.getMessage e))
+      (log-by-severity ERROR_CREATION e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"
@@ -111,10 +112,10 @@
                                         (sql/order-by [:mg.name :asc])))
 
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
-      (let [post-fnc (fn [models]
+      (let [tx (get-in request [:tx])
+            pool-id (to-uuid (get-in request [:path-params :pool_id]))
+            post-fnc (fn [models]
                        (if (seq models)
                          (let [template-ids (mapv :id models)
                                query (template-quantity-ok-query pool-id template-ids)
@@ -126,5 +127,5 @@
 
         (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
       (catch Exception e
-        (error ERROR_FETCH (.getMessage e))
-        (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
+        (log-by-severity ERROR_FETCH e)
+        (bad-request {:error ERROR_FETCH :details (.getMessage e)}))))

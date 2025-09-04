@@ -5,6 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          select-entries]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
@@ -132,7 +133,7 @@
           (status
            (response {:status "failure" :message "No entry found"}) 404)))
       (catch Exception e
-        (error "Failed to fetch model" e)
+        (log-by-severity "Failed to fetch model" e)
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
 
 ; ##################################
@@ -162,7 +163,7 @@
           (response updated-model)
           (bad-request {:error "Failed to update model"})))
       (catch Exception e
-        (error "Failed to update model" e)
+        (log-by-severity "Failed to update model" e)
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 (defn put-resource [request]

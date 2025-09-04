@@ -3,6 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-map-by-spec
                                                                 model->enrich-with-image-attr]]
@@ -58,7 +59,7 @@
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (error "Failed to get models-compatible" e)
+      (log-by-severity "Failed to get models-compatible" e)
       (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
 
 ;###################################################################################
@@ -89,5 +90,5 @@
           (response res)
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-
+        (log-by-severity "Failed to create model" e)
         (exception-to-response request e "Failed to create model")))))

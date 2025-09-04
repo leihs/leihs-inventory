@@ -8,6 +8,7 @@
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
@@ -30,7 +31,7 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to fetch option"})))
       (catch Exception e
-        (error "Failed to fetch option" (.getMessage e))
+        (log-by-severity "Failed to fetch option" e)
         (bad-request {:error "Failed to fetch option" :details (.getMessage e)})))))
 
 (defn put-resource [request]
@@ -52,7 +53,7 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to update option"})))
       (catch Exception e
-        (error "Failed to update option" (.getMessage e))
+        (log-by-severity "Failed to update option" e)
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
@@ -76,5 +77,5 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
-        (error "Failed to delete option" (.getMessage e))
+        (log-by-severity "Failed to delete option" e)
         (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))

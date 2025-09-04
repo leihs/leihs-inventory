@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    fetch-template-with-models
@@ -29,7 +30,7 @@
         (response template)
         (not-found {:error ERROR_FETCH}))
       (catch Exception e
-        (error ERROR_FETCH (.getMessage e))
+        (log-by-severity ERROR_FETCH e)
         (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
 
 (defn put-resource [request]
@@ -60,7 +61,7 @@
         (response template)
         (not-found {:error ERROR_UPDATE})))
     (catch Exception e
-      (error ERROR_UPDATE e)
+      (log-by-severity ERROR_UPDATE e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"
@@ -87,7 +88,7 @@
             (throw (ex-info "Template not found" {:status 404}))))
         (throw (ex-info "Template not found" {:status 404}))))
     (catch Exception e
-      (error ERROR_DELETION e)
+      (log-by-severity ERROR_DELETION e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"

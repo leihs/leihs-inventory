@@ -3,6 +3,7 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
@@ -16,6 +17,10 @@
    [taoensso.timbre :refer [error]])
   (:import
    (java.time LocalDateTime)))
+
+(def DELETE_SOFTWARE_ERROR "Failed to delete software")
+(def UPDATE_SOFTWARE_ERROR "Failed to update software")
+(def FETCH_SOFTWARE_ERROR "Failed to fetch software")
 
 (defn get-resource [request]
   (let [tx (get-in request [:tx])
@@ -33,21 +38,15 @@
                                             result (assoc model-result :attachments attachments)] result))]
         (if result
           (response (filter-map-by-spec result ::types/put-response))
-          (not-found {:error "Failed to fetch software"})))
+          (not-found {:error FETCH_SOFTWARE_ERROR})))
       (catch Exception e
-        (error "Failed to fetch software" (.getMessage e))
-        (bad-request {:error "Failed to fetch software" :details (.getMessage e)})))))
+        (log-by-severity FETCH_SOFTWARE_ERROR e)
+        (bad-request {:error FETCH_SOFTWARE_ERROR :details (.getMessage e)})))))
 
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
         created-ts (LocalDateTime/now)]
     (assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
-
-(defn process-deletions [tx ids table key]
-  (doseq [id (set ids)]
-    (jdbc/execute! tx (-> (sql/delete-from table)
-                          (sql/where [:= key (to-uuid id)])
-                          sql-format))))
 
 (defn put-resource [request]
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
@@ -65,12 +64,13 @@
 
         (if updated-model
           (response (filter-map-by-spec updated-model ::types/put-response))
-          (not-found {:error "Failed to update software"})))
+          (not-found {:error UPDATE_SOFTWARE_ERROR})))
       (catch Exception e
-        (error "Failed to update software" (.getMessage e))
-        (bad-request {:error "Failed to update software" :details (.getMessage e)})))))
+        (log-by-severity UPDATE_SOFTWARE_ERROR e)
+        (bad-request {:error UPDATE_SOFTWARE_ERROR :details (.getMessage e)})))))
 
 (defn delete-resource [request]
+  (try
   (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
         model-id (to-uuid (get-in request [:path-params :model_id]))
         tx (:tx request)
@@ -88,4 +88,7 @@
         (if (= 1 (count deleted-model))
           (response result)
           (throw (ex-info "Request to delete software failed" {:status 409}))))
-      (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))))
+      (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
+  (catch Exception e
+    (log-by-severity DELETE_SOFTWARE_ERROR e)
+    (exception-handler DELETE_SOFTWARE_ERROR e))))

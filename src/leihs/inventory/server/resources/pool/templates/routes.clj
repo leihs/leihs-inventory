@@ -2,7 +2,6 @@
   (:require
    [leihs.inventory.server.resources.pool.templates.main :as templates]
    [leihs.inventory.server.resources.pool.templates.types :as types]
-
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 

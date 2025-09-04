@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          str-to-bool]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
@@ -46,7 +47,7 @@
           (response (filter-map-by-spec res ::types/post-response))
           (bad-request {:error "Failed to create software"})))
       (catch Exception e
-        (error "Failed to create software" (.getMessage e))
+        (log-by-severity "Failed to create software" e)
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"

@@ -2,7 +2,6 @@
   (:require
    [leihs.inventory.server.resources.pool.software.main :as software]
    [leihs.inventory.server.resources.pool.software.types :as types]
-
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 
@@ -12,7 +11,6 @@
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
                         :body :software-post/multipart}
-
            :handler software/post-resource
            :responses {200 {:description "OK"
                             :body ::types/post-response}

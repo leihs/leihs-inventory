@@ -4,6 +4,7 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
@@ -46,6 +47,7 @@
                  "Content-Disposition" "inline"}
        :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
     (catch IllegalArgumentException e
+      (log-by-severity "Failed to convert-base64-to-byte-stream" e)
       {:status 400
        :body (str "Failed to decode Base64 string: " (.getMessage e))})))
 
@@ -73,5 +75,5 @@
         (and json-request? (nil? image_id)) (response {:data result})
         (and (not json-request?) image_id) (convert-base64-to-byte-stream result)))
     (catch Exception e
-      (error "Failed to retrieve image:" (.getMessage e))
+      (log-by-severity "Failed to retrieve image" e)
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))
