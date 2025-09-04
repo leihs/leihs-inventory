@@ -4,7 +4,6 @@
    [leihs.inventory.server.resources.pool.options.types :as types :refer [response-option-get
                                                                           response-option-post]]
 
-
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))

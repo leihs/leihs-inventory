@@ -3,7 +3,6 @@
    [leihs.inventory.server.resources.pool.software.main :as software]
    [leihs.inventory.server.resources.pool.software.types :as types]
 
-
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 

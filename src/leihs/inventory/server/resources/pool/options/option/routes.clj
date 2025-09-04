@@ -3,7 +3,6 @@
    [leihs.inventory.server.resources.pool.options.option.main :as option]
    [leihs.inventory.server.resources.pool.options.types :refer [response-option-object]]
 
-
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 

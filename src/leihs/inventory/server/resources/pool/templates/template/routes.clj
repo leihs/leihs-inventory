@@ -4,7 +4,6 @@
    [leihs.inventory.server.resources.pool.templates.template.types :as types]
    [leihs.inventory.server.resources.pool.templates.types]
 
-
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))

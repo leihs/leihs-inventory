@@ -6,7 +6,6 @@
                                                                get-compatible-response
                                                                post-response]]
 
-
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
