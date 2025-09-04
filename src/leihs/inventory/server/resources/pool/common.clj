@@ -69,10 +69,7 @@
                                   [:= :m.type mtype]])
                       sql-format)
             result (jdbc/execute! tx query)
-            p (println ">o> abc.result??.res" result)
-            is-deletable? (empty? (remove-all-nil-entries result))
-
-            p (println ">o> abc.result??.is-deletable?" is-deletable?)]
+            is-deletable? (empty? (remove-all-nil-entries result))]
         is-deletable?)
 
       (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."

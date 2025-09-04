@@ -60,15 +60,6 @@
       (log-by-severity "Failed to upload attachment" e)
       (bad-request {:error "Failed to upload attachment" :details (.getMessage e)}))))
 
-(defn validate-empty-string!
-  ([k vec-of-maps]
-   (validate-empty-string! k vec-of-maps nil))
-  ([k vec-of-maps scope]
-   (doseq [m vec-of-maps]
-     (when (and (contains? m k) (= "" (get m k)))
-       (throw (ex-info (str "Field '" k "' cannot be an empty string.")
-                       (merge {:key k :map m} (when scope {:scope scope}))))))))
-
 (defn index-resources [request]
   (try
     (let [model-id (-> request path-params :model_id)
