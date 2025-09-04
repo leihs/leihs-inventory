@@ -1,11 +1,11 @@
 (ns leihs.inventory.server.resources.token.main
   (:require
    [cider-ci.open-session.bcrypt :refer [hashpw]]
+   [crypto.random]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [crypto.random]
    [ring.util.response :as response])
   (:import
    (com.google.common.io BaseEncoding)))
@@ -44,8 +44,8 @@
               now
               now
               expires-sql]]
-        (try (jdbc/execute-one! (:tx request) data)
-                 (catch Exception e (log-by-severity e) nil))
+    (try (jdbc/execute-one! (:tx request) data)
+         (catch Exception e (log-by-severity e) nil))
     {:token full-token
      :expires_at expires-at
      :scopes scopes}))

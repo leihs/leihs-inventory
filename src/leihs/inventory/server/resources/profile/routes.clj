@@ -2,10 +2,10 @@
   (:require
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :as profile]
-   [reitit.coercion.schema]
    [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
    [leihs.inventory.server.utils.middleware :refer [accept-json-middleware
-                                                    wrap-authenticate!]]))
+                                                    wrap-authenticate!]]
+   [reitit.coercion.schema]))
 
 (defn routes []
   ["/profile/"

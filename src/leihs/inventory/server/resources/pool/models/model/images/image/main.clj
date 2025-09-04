@@ -81,9 +81,9 @@
   (let [tx (:tx req)
         {:keys [image_id]} (:path (:parameters req))
         id (to-uuid image_id)
-    res (jdbc/execute-one! tx
-                                 (sql-format
-                                  {:delete-from :images :where [:= :id id]}))]
-      (if (= (:next.jdbc/update-count res) 1)
-        (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"}))))
+        res (jdbc/execute-one! tx
+                               (sql-format
+                                {:delete-from :images :where [:= :id id]}))]
+    (if (= (:next.jdbc/update-count res) 1)
+      (response {:status "ok" :image_id image_id})
+      (bad-request {:error "Failed to delete image"}))))

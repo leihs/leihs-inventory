@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.utils.auth.role-auth
   (:require
-   [clojure.string :as str]
    [clojure.set]
+   [clojure.string :as str]
    [leihs.inventory.server.utils.helper :refer [safe-ex-data log-by-severity]]
    [ring.util.response :refer [response status]]))
 
@@ -76,4 +76,4 @@
 
         (catch Exception e
           (log-by-severity "Permission by role error" e)
-          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e))500)))))))
+          (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e)) 500)))))))

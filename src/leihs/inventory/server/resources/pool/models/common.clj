@@ -1,8 +1,8 @@
 (ns leihs.inventory.server.resources.pool.models.common
   (:require
+   [clojure.spec.alpha]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [clojure.spec.alpha]
    [next.jdbc :as jdbc]
    [taoensso.timbre :refer [debug]]))
 

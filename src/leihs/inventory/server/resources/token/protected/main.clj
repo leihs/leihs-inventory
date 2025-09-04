@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.resources.token.protected.main
   (:require
-   [crypto.random]
    [clojure.string :as str]
+   [crypto.random]
    [cryptohash-clj.api :refer [verify-with]]
    [leihs.inventory.server.utils.request-utils :refer [authenticated?
                                                        AUTHENTICATED_ENTITY
