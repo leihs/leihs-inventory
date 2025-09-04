@@ -88,6 +88,15 @@ def create_procurement_request(model_id, user_id, quantity= 1, motivation= "test
                                          requested_quantity: quantity,
                                          room_id: room.id,
                                          motivation: motivation                                         )
+  end
+
+def create_procurement_template(model_id, user_id, quantity= 1, motivation= "testing")
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+
+  database[:procurement_templates].returning.insert(
+                                         category_id: cat_id,
+                                         model_id: model_id  )
 end
 
 

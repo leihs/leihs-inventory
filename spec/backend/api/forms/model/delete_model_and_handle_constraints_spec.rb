@@ -127,12 +127,37 @@ describe "Inventory Model" do
           expect(resp.status).to eq(200)
 
           @model_id = resp.body["id"]
-
           create_procurement_request(@model_id, @user.id)
-
         end
 
-        it "blocks deleting model with item" do
+        it "blocks deleting model" do
+          resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
+          expect(resp.status).to eq(200)
+          expect(resp.body["is_deletable"]).to eq(false)
+
+          resp = json_client_delete(
+            "/inventory/#{pool_id}/models/#{@model_id}",
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(409)
+        end
+      end
+
+
+      describe "with model and procurement_template" do
+        before do
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          @model_id = resp.body["id"]
+          create_procurement_template(@model_id, @user.id)
+        end
+
+        it "blocks deleting model" do
           resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
           expect(resp.status).to eq(200)
           expect(resp.body["is_deletable"]).to eq(false)

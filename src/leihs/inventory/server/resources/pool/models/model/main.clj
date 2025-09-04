@@ -205,7 +205,6 @@
         (throw (ex-info "Model not found" {:status 404}))
 
         (let [is-model-deletable? (is-model-deletable? tx model-id "Model")
-
               attachments (db-operation tx :select :attachments [:= :model_id model-id])
               images (db-operation tx :select :images [:= :target_id model-id])]
 

@@ -74,10 +74,13 @@
   (try
     (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
+          is-model-deletable? (is-model-deletable? tx model-id "Software")
           where-clause-model [:and [:= :id model-id] [:= :type "Software"]]
           models (db-operation tx :select :models where-clause-model)]
 
       (if (seq models)
+        (if is-model-deletable?
+
         (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
               deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
                                                   (sql/where where-clause-model)
@@ -88,7 +91,13 @@
           (if (= 1 (count deleted-model))
             (response result)
             (throw (ex-info "Request to delete software failed" {:status 409}))))
-        (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
+
+          (throw (ex-info "Request to delete software blocked: software in use" {:status 409}))
+
+          )
+        (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))
+
+      )
     (catch Exception e
       (log-by-severity DELETE_SOFTWARE_ERROR e)
       (exception-handler DELETE_SOFTWARE_ERROR e))))
