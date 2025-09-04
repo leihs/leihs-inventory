@@ -5,7 +5,6 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [fetch-attachments
                                                          select-entries]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.basic_coercion :as co]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
@@ -20,6 +19,7 @@
                                                                                  process-entitlements
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]])

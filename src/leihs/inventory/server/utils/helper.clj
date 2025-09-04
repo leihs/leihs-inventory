@@ -43,8 +43,6 @@
   (let [accept-header (get-in request [:headers "accept"])]
     (and accept-header (str/includes? accept-header "text/html"))))
 
-
-
 (defn log-by-severity
   ([e] (log-by-severity e nil))
   ([message e]

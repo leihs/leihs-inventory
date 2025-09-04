@@ -4,7 +4,6 @@
    [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    case-condition
@@ -12,6 +11,7 @@
                                                                    process-create-template-models]]
    [leihs.inventory.server.resources.pool.templates.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response status]]
@@ -112,20 +112,20 @@
                                         (sql/order-by [:mg.name :asc])))
 
 (defn index-resources [request]
-    (try
-      (let [tx (get-in request [:tx])
-            pool-id (to-uuid (get-in request [:path-params :pool_id]))
-            post-fnc (fn [models]
-                       (if (seq models)
-                         (let [template-ids (mapv :id models)
-                               query (template-quantity-ok-query pool-id template-ids)
-                               res (->> (jdbc/execute! tx query)
-                                        (rename-model-group-id-to-id)
-                                        (group-quantity-ok)) models (merge-by-model-group-id models res)]
-                           (filter-and-coerce-by-spec models ::types/data-keys))
-                         models))]
+  (try
+    (let [tx (get-in request [:tx])
+          pool-id (to-uuid (get-in request [:path-params :pool_id]))
+          post-fnc (fn [models]
+                     (if (seq models)
+                       (let [template-ids (mapv :id models)
+                             query (template-quantity-ok-query pool-id template-ids)
+                             res (->> (jdbc/execute! tx query)
+                                      (rename-model-group-id-to-id)
+                                      (group-quantity-ok)) models (merge-by-model-group-id models res)]
+                         (filter-and-coerce-by-spec models ::types/data-keys))
+                       models))]
 
-        (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
-      (catch Exception e
-        (log-by-severity ERROR_FETCH e)
-        (bad-request {:error ERROR_FETCH :details (.getMessage e)}))))
+      (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
+    (catch Exception e
+      (log-by-severity ERROR_FETCH e)
+      (bad-request {:error ERROR_FETCH :details (.getMessage e)}))))
