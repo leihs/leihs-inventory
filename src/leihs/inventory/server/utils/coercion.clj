@@ -3,6 +3,7 @@
    [cheshire.core :as json]
    [clojure.edn :as edn]
    [clojure.string :as str]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]))
@@ -31,7 +32,7 @@
               (re-find #"^\(" x)) ;; crude check for EDN-ish string
        (try
          (edn/read-string x)
-         (catch Exception _ x))
+         (catch Exception e (log-by-severity "Error parsing edn-string" e) x))
        x))
    m))
 

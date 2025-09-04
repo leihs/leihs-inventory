@@ -3,6 +3,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.utils.helper :refer [safe-ex-data]]
    [ring.util.response :refer [response status]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [error]]))
 
 (defn determine-required-scope
@@ -75,5 +76,5 @@
           (handler request))
 
         (catch Exception e
-          (error "EXCEPTION-DETAIL: " e)
+          (log-by-severity "Permission by role error" e)
           (status (response {:status "failure" :error (.getMessage e)}) (or (:status (safe-ex-data e) 500))))))))

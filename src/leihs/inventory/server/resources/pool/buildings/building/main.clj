@@ -7,7 +7,7 @@
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]))
 
 (defn get-resource [request]
   (try
@@ -24,5 +24,5 @@
         (-> (response {:error "Building not found"})
             (status 404))))
     (catch Exception e
-      (error "Failed to get rooms" e)
+      (log-by-severity "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

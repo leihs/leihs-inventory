@@ -4,8 +4,6 @@
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]))
 
-(def ADMIN_AUTH_METHODS [{"apiAuth" []}])
-
 ;### admin check ##############################################################
 
 (defn authorize-admin! [request handler]
@@ -15,9 +13,7 @@
   Throws a ExceptionInfo with status 403 otherwise. "
   (handler
    (or
-      ;(if (contains? (-> request :authenticated-entity) :is_admin)
     (if (contains? request :is_admin)
-        ;(when (-> request :authenticated-entity :is_admin) request)
       (when (-> request :is_admin) request)
       (when (->> (-> (sql/select [true :is_admin])
                      (sql/from :admins)
@@ -25,14 +21,9 @@
                      sql-format)
                  (jdbc/execute! (:tx request))
                  first :is_admin)
-          ;(assoc-in request [:authenticated-entity :is_admin] true)))
         (assoc-in request [:is_admin] true)))
     (throw
      (ex-info
       "Only administrators are allowed to access this resource."
       {:status 403
        :body {:msg "Only administrators are allowed to access this resource."}})))))
-
-(defn wrap-authorize-admin! [handler]
-  (fn [req]
-    (authorize-admin! req handler)))

@@ -7,6 +7,7 @@
    [leihs.inventory.server.resources.pool.common :refer [is-option-deletable?]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [not-found response]]))
@@ -32,7 +33,9 @@
                       (assoc :is_deletable (is-option-deletable? tx option-id))
                       (filter-map-by-spec :get-response/option)))
         (not-found {:error FETCH_OPTION_ERROR})))
-    (catch Exception e (exception-handler UPDATE_OPTION_ERROR e))))
+    (catch Exception e
+      (log-by-severity UPDATE_OPTION_ERROR e)
+      (exception-handler UPDATE_OPTION_ERROR e))))
 
 (defn put-resource [request]
   (try
@@ -52,7 +55,9 @@
         (response (-> updated-model
                       (filter-map-by-spec :get-response/option)))
         (not-found {:error UPDATE_OPTION_ERROR})))
-    (catch Exception e (exception-handler UPDATE_OPTION_ERROR e))))
+    (catch Exception e
+      (log-by-severity UPDATE_OPTION_ERROR e)
+      (exception-handler UPDATE_OPTION_ERROR e))))
 
 (defn delete-resource [request]
   (try
@@ -67,4 +72,6 @@
         (response (-> deleted-option
                       (filter-map-by-spec :get-response/option)))
         (not-found {:error DELETE_OPTION_ERROR})))
-    (catch Exception e (exception-handler DELETE_OPTION_ERROR e))))
+    (catch Exception e
+      (log-by-severity DELETE_OPTION_ERROR e)
+      (exception-handler DELETE_OPTION_ERROR e))))

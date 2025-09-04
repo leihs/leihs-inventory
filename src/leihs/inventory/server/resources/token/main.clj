@@ -3,6 +3,7 @@
    [cider-ci.open-session.bcrypt :refer [hashpw]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [reitit.coercion.spec]
    [ring.util.response :as response]
    [taoensso.timbre :refer [error]])
@@ -45,7 +46,7 @@
               expires-sql]
 
         res (try (jdbc/execute-one! (:tx request) data)
-                 (catch Exception e (error "Error inserting token:" e) nil))]
+                 (catch Exception e (log-by-severity e) nil))]
     {:token full-token
      :expires_at expires-at
      :scopes scopes}))

@@ -31,11 +31,5 @@
                (get-by-locale tx))
       (default tx)))
 
-(defn one-to-use [tx user-id]
-  (get-the-one-to-use tx user-id))
-
-(defn get-one [tx {:keys [language-locale]}]
-  (get-by-locale tx language-locale))
-
 (defn get-multiple [tx]
   (-> base-sqlmap sql-format (->> (jdbc-query tx))))

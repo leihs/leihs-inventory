@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [warn]])
+   [taoensso.timbre :refer [warn error debug]])
   (:import
    (java.util UUID)))
 
@@ -77,8 +77,14 @@
 (def uuid-regex
   #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$")
 
-(defn url-ends-with-uuid? [url]
-  (let [path (first (str/split url #"\?"))
-        segments (str/split path #"/")
-        last-segment (last segments)]
-    (boolean (re-matches uuid-regex last-segment))))
+(defn log-by-severity
+  ([e ]
+   (log-by-severity e nil))
+
+  ([e title]
+   (if (nil? title)
+     (error (.getMessage e))
+     (error title (.getMessage e))   )
+
+   (debug e)
+   )  )

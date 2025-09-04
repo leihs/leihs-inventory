@@ -3,7 +3,7 @@
    [clojure.set]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.middleware.accept]
@@ -24,5 +24,5 @@
        (response (create-pagination-response request base-query nil)))
 
      (catch Exception e
-       (error "Failed to get supplier(s)" e)
+       (log-by-severity "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))

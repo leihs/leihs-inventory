@@ -9,6 +9,7 @@
                                                     pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
@@ -100,7 +101,7 @@
          :else (pagination-response request base-query)))
 
      (catch Exception e
-       (error "Failed to get supplier(s)" e)
+       (log-by-severity "Failed to get supplier(s)" e)
        (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
 
 (defn index-resources [request]

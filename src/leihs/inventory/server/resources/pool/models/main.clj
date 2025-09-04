@@ -14,6 +14,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
@@ -21,6 +22,7 @@
    [taoensso.timbre :refer [error]]))
 
 (def CREATE_MODEL_ERROR "Failed to create model")
+(def GET_MODEL_ERROR "Failed to get models-compatible")
 
 (defn get-resource [request]
   (try
@@ -52,8 +54,8 @@
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (error "Failed to get models-compatible" e)
-      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
+      (log-by-severity GET_MODEL_ERROR e)
+      (bad-request {:error GET_MODEL_ERROR :details (.getMessage e)}))))
 
 ;###################################################################################
 
@@ -82,7 +84,7 @@
         (response res)
         (bad-request {:error "Failed to create model"})))
     (catch Exception e
-      (error CREATE_MODEL_ERROR e)
+      (log-by-severity CREATE_MODEL_ERROR e)
       (exception-handler CREATE_MODEL_ERROR e))))
 
 (defn post-resource [request]

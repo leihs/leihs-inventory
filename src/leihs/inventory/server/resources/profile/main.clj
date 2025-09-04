@@ -10,6 +10,7 @@
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
    [next.jdbc.sql :as jdbc]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
 
@@ -54,5 +55,5 @@
                  :user_details (snake-case-keys user-details)
                  :languages (snake-case-keys (l/get-multiple tx))}))
     (catch Exception e
-      (error "Failed to get user" e)
+      (log-by-severity "Failed to get user" e)
       (bad-request {:error "Failed to get user" :details (.getMessage e)}))))

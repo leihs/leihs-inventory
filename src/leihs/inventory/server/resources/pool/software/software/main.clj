@@ -11,6 +11,7 @@
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation
                                                                     filter-keys]]
    [leihs.inventory.server.resources.pool.software.software.types :as types]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [next.jdbc :as jdbc]
@@ -42,7 +43,7 @@
           (response (filter-map-by-spec result ::types/response))
           (not-found {:error FETCH_SOFTWARE_ERROR})))
       (catch Exception e
-        (error FETCH_SOFTWARE_ERROR (.getMessage e))
+        (log-by-severity FETCH_SOFTWARE_ERROR e)
         (bad-request {:error FETCH_SOFTWARE_ERROR :details (.getMessage e)})))))
 
 (defn prepare-software-data [data]
@@ -67,7 +68,7 @@
           (response (filter-map-by-spec updated-model ::types/response))
           (not-found {:error UPDATE_SOFTWARE_ERROR})))
       (catch Exception e
-        (error UPDATE_SOFTWARE_ERROR (.getMessage e))
+        (log-by-severity UPDATE_SOFTWARE_ERROR e)
         (bad-request {:error UPDATE_SOFTWARE_ERROR :details (.getMessage e)})))))
 
 (defn delete-resource [request]
@@ -89,4 +90,6 @@
             (response result)
             (throw (ex-info "Request to delete software failed" {:status 409}))))
         (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
-    (catch Exception e (exception-handler DELETE_SOFTWARE_ERROR e))))
+    (catch Exception e
+      (log-by-severity DELETE_SOFTWARE_ERROR e)
+      (exception-handler DELETE_SOFTWARE_ERROR e))))

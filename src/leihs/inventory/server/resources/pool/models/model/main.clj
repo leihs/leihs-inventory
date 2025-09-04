@@ -11,6 +11,7 @@
                                                                 filter-and-coerce-by-spec
                                                                 filter-map-by-spec
                                                                 remove-nil-values]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  filter-response
                                                                                  process-accessories
@@ -136,7 +137,9 @@
         (response result)
         (status
          (response {:status "failure" :message "No entry found"}) 404)))
-    (catch Exception e (exception-handler FETCH_MODEL_ERROR e))))
+    (catch Exception e
+      (log-by-severity FETCH_MODEL_ERROR e)
+      (exception-handler FETCH_MODEL_ERROR e))))
 
 ; ##################################
 
@@ -165,7 +168,7 @@
           (response updated-model)
           (bad-request {:error UPDATE_MODEL_ERROR})))
       (catch Exception e
-        (error UPDATE_MODEL_ERROR e)
+        (log-by-severity UPDATE_MODEL_ERROR e)
         (bad-request {:error UPDATE_MODEL_ERROR :details (.getMessage e)})))))
 
 (defn put-resource [request]
@@ -236,6 +239,7 @@
                   (response result)
                   (throw (ex-info "Failed to delete model" {:status 409})))))))))
     (catch Exception e
+      (log-by-severity DELETE_MODEL_ERROR e)
       (exception-handler DELETE_MODEL_ERROR e))))
 
 ; ##################################

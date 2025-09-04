@@ -12,23 +12,6 @@
   (:import
    (java.time LocalDateTime)))
 
-(defn patch-resource [req]
-  (let [model-id (to-uuid (get-in req [:path-params :model_id]))
-        pool-id (to-uuid (get-in req [:path-params :pool_id]))
-        tx (:tx req)
-        is-cover (-> req :body-params :is_cover)
-        image (jdbc/execute-one! tx (-> (sql/select :*)
-                                        (sql/from :images)
-                                        (sql/where [:= :id (to-uuid is-cover)])
-                                        sql-format))]
-    (if (nil? image)
-      (bad-request {:error "Image not found"})
-      (response/response (jdbc/execute-one! tx (-> (sql/update :models)
-                                                   (sql/set {:cover_image_id (to-uuid is-cover)})
-                                                   (sql/where [:= :id model-id])
-                                                   (sql/returning :id :cover_image_id)
-                                                   sql-format))))))
-
 (defn prepare-model-data
   [data]
   (let [normalize-data (normalize-model-data data)
@@ -180,10 +163,6 @@
       (update-or-insert tx :inventory_pools_model_groups
                         [:and [:= :inventory_pool_id pool-id] [:= :model_group_id category-id]]
                         {:inventory_pool_id pool-id :model_group_id category-id}))))
-
-(defn create-validation-response [data validation]
-  {:data data
-   :validation validation})
 
 (defn filter-response [model keys]
   (apply dissoc model keys))

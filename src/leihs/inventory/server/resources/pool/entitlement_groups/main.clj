@@ -7,6 +7,7 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request response]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [error]]))
 
 (defn index-resources [request]
@@ -25,5 +26,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (error "Failed to get entitlement-groups" e)
+      (log-by-severity "Failed to get entitlement-groups" e)
       (bad-request {:error "Failed to get entitlement-groups" :details (.getMessage e)}))))

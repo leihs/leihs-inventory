@@ -11,6 +11,7 @@
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :refer [content-type response status]]))
@@ -103,7 +104,9 @@
            (contains-one-of? uri CONST_SUPPORTED_LOCALES))
       (let [src (str/replace-first uri "/inventory" "public/inventory")
             resource (try (slurp (io/resource src))
-                          (catch Exception _ nil))]
+                          (catch Exception e
+                            (log-by-severity "Error in fetch translation" e)
+                            nil))]
         (if resource
           {:status 200 :headers {"Content-Type" "application/json"} :body resource}
           {:status 404 :headers {"Content-Type" "application/json"}}))

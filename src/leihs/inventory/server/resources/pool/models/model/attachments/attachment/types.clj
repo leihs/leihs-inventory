@@ -10,9 +10,5 @@
 (def get-attachment-response
   (s/->Either [attachment s/Any]))
 
-(def delete-response
-  {:status s/Str
-   :attachment_id s/Uuid})
-
 (def error-attachment-not-found
   {:error s/Str})

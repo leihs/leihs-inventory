@@ -9,6 +9,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.types :as types]
    [leihs.inventory.server.utils.image-upload-handler :refer [file-to-base64
                                                               resize-and-convert-to-base64]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
    [ring.util.response :as response :refer [bad-request response status]]
@@ -22,9 +23,6 @@
 
 (defn filter-keys-images [m]
   (filter-keys m [:filename :content_type :size :thumbnail :target_id :target_type :parent_id :content]))
-
-(defn image-response-format [s]
-  (sql/returning s :id :filename :thumbnail))
 
 (defn post-resource [req]
   (try
@@ -74,7 +72,7 @@
         (status (response data) 200)))
 
     (catch Exception e
-      (error "Failed to upload image" e)
+      (log-by-severity "Failed to upload image" e)
       (bad-request {:error "Failed to upload image" :details (.getMessage e)}))))
 
 (defn validate-empty-string!
@@ -95,5 +93,5 @@
                          (sql/from [:images :i]))]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
-      (error "Failed to retrieve image:" (.getMessage e))
+      (log-by-severity "Failed to retrieve image:" e)
       (bad-request {:error "Failed to retrieve image" :details (.getMessage e)}))))

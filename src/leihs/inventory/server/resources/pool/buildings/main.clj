@@ -7,6 +7,7 @@
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
    [ring.util.response :refer [bad-request header response]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [error]]))
 
 (defn index-resources [request]
@@ -22,5 +23,5 @@
       (-> (response result)
           (header "Count" (count result))))
     (catch Exception e
-      (error "Failed to get rooms" e)
+      (log-by-severity "Failed to get rooms" e)
       (bad-request {:error "Failed to get rooms" :details (.getMessage e)}))))

@@ -5,6 +5,7 @@
    [dk.ative.docjure.spreadsheet :as ss]
    [ring.middleware.accept]
    [taoensso.timbre :as log]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [error]]))
 
 (defn generate-excel-from-map [data-map]
@@ -22,7 +23,7 @@
           (ss/save-workbook! output-stream workbook))
         temp-file))
     (catch Exception e
-      (log/error e "Failed to generate Excel from map")
+      (log-by-severity "Failed to generate Excel from map" e)
       (throw e))))
 
 (defn index-resources [request]
@@ -37,10 +38,10 @@
                  "Content-Disposition" "attachment; filename=export.xlsx"}
        :body (io/input-stream excel-file)})
     (catch IllegalArgumentException e
-      (log/error e "Invalid input to Excel handler")
+      (log-by-severity "Invalid input to Excel handler" e)
       {:status 400
        :body "Invalid input to generate Excel file."})
     (catch Exception e
-      (log/error e "Internal Server Error in Excel handler")
+      (log-by-severity "Internal Server Error in Excel handler" e)
       {:status 500
        :body "Internal Server Error."})))

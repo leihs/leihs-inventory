@@ -7,6 +7,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.common :refer [str-to-bool]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
@@ -39,5 +40,5 @@
 
       (response (if in-detail result (extract-manufacturers result))))
     (catch Exception e
-      (error "Failed to get models/manufacturer" e)
+      (log-by-severity "Failed to get models/manufacturer" e)
       (bad-request {:error "Failed to get models/manufacture" :details (.getMessage e)}))))
