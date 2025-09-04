@@ -19,11 +19,9 @@
                                                                                  process-entitlements
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   (java.time LocalDateTime)))
+   [ring.util.response :refer [bad-request response status]]))
 
 (defn fetch-image-attributes [tx model-id pool-id]
   (let [query (-> (sql/select
@@ -84,11 +82,10 @@
     (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
 (defn fetch-categories [tx model-id]
-  (let [category-type "Category"
-        query (-> (sql/select :mg.id :mg.type :mg.name)
+  (let [query (-> (sql/select :mg.id :mg.type :mg.name)
                   (sql/from [:model_groups :mg])
                   (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
-                  (sql/where [:ilike :mg.type (str category-type)])
+                  (sql/where [:ilike :mg.type "Category"])
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
                   sql-format)
@@ -96,8 +93,7 @@
     (filter-and-coerce-by-spec categories ::co/category)))
 
 (defn get-resource [request]
-  (let [current-timestamp (LocalDateTime/now)
-        tx (get-in request [:tx])
+  (let [tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))]
     (try
@@ -132,7 +128,7 @@
           (status
            (response {:status "failure" :message "No entry found"}) 404)))
       (catch Exception e
-        (error "Failed to fetch model" e)
+        (log-by-severity "Failed to fetch model" e)
         (bad-request {:error "Failed to fetch model" :details (.getMessage e)})))))
 
 ; ##################################
@@ -162,7 +158,7 @@
           (response updated-model)
           (bad-request {:error "Failed to update model"})))
       (catch Exception e
-        (error "Failed to update model" e)
+        (log-by-severity "Failed to update model" e)
         (bad-request {:error "Failed to update model" :details (.getMessage e)})))))
 
 (defn put-resource [request]
@@ -232,7 +228,6 @@
 
 (defn patch-resource [req]
   (let [model-id (to-uuid (get-in req [:path-params :model_id]))
-        pool-id (to-uuid (get-in req [:path-params :pool_id]))
         tx (:tx req)
         is-cover (-> req :body-params :is_cover)
         image (jdbc/execute-one! tx (-> (sql/select :*)

@@ -2,8 +2,6 @@
   (:require
    [leihs.inventory.server.resources.pool.templates.main :as templates]
    [leihs.inventory.server.resources.pool.templates.types :as types]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
 
@@ -14,7 +12,7 @@
           :description "- template_id == group_id"
           :parameters {:path {:pool_id uuid?}
                        :query ::types/get-query}
-          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
           :handler templates/index-resources
           :responses {200 {:description "OK"
                            :body ::types/get-response}
@@ -28,7 +26,7 @@
 \n- Models can be determined by: /inventory/pool-id/list/?borrowable=true&type=model&page=1&retired=false"
            :parameters {:path {:pool_id uuid?}
                         :body ::types/post-query}
-           :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
            :handler templates/post-resource
            :responses {200 {:description "OK"
                             :body ::types/post-response}

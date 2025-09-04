@@ -10,11 +10,13 @@
    [leihs.inventory.server.resources.pool.models.helper :refer [normalize-model-data]]
    [leihs.inventory.server.resources.pool.software.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request response status]])
   (:import
    (java.time LocalDateTime)))
+
+(def CREATE_SOFTWARE_ERROR "Failed to create software")
 
 (defn prepare-software-data
   [data]
@@ -26,8 +28,7 @@
            :updated_at created-ts)))
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         prepared-model-data (-> (prepare-software-data multipart)
@@ -46,11 +47,11 @@
           (response (filter-map-by-spec res ::types/post-response))
           (bad-request {:error "Failed to create software"})))
       (catch Exception e
-        (error "Failed to create software" (.getMessage e))
+        (log-by-severity CREATE_SOFTWARE_ERROR e)
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
                          :message "Software already exists"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (bad-request {:error "Failed to create software" :details (.getMessage e)}))))))
+          :else (bad-request {:error CREATE_SOFTWARE_ERROR :details (.getMessage e)}))))))

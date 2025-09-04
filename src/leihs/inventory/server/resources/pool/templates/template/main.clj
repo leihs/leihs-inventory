@@ -11,13 +11,15 @@
                                                                    process-delete-template-models
                                                                    process-update-template-models]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request not-found response status]]
-   [taoensso.timbre :refer [debug error]]))
+   [taoensso.timbre :refer [debug]]))
 
 (def ERROR_DELETION "Failed to delete template")
 (def ERROR_FETCH "Failed to fetch template")
 (def ERROR_UPDATE "Failed to update software")
+(def ERROR_NOT_FOUND "Template not found")
 
 (defn get-resource [request]
   (let [tx (:tx request)
@@ -29,7 +31,7 @@
         (response template)
         (not-found {:error ERROR_FETCH}))
       (catch Exception e
-        (error ERROR_FETCH (.getMessage e))
+        (log-by-severity ERROR_FETCH e)
         (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
 
 (defn put-resource [request]
@@ -60,7 +62,7 @@
         (response template)
         (not-found {:error ERROR_UPDATE})))
     (catch Exception e
-      (error ERROR_UPDATE e)
+      (log-by-severity ERROR_UPDATE e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"
@@ -84,10 +86,10 @@
           (if (= 1 (count deleted-template))
             (response {:deleted_ipmg deleted-ipmg
                        :deleted_template deleted-template})
-            (throw (ex-info "Template not found" {:status 404}))))
-        (throw (ex-info "Template not found" {:status 404}))))
+            (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
+        (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
     (catch Exception e
-      (error ERROR_DELETION e)
+      (log-by-severity ERROR_DELETION e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"

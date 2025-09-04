@@ -11,10 +11,10 @@
                                                                    process-create-template-models]]
    [leihs.inventory.server.resources.pool.templates.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (def ERROR_CREATION "Failed to create template")
 (def ERROR_FETCH "Failed to fetch template")
@@ -38,7 +38,7 @@
         (response templates)
         (bad-request {:error ERROR_CREATION})))
     (catch Exception e
-      (error ERROR_CREATION (.getMessage e))
+      (log-by-severity ERROR_CREATION e)
       (cond
         (str/includes? (.getMessage e) "violates")
         (-> (response {:status "failure"
@@ -111,20 +111,20 @@
                                         (sql/order-by [:mg.name :asc])))
 
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
-    (try
-      (let [post-fnc (fn [models]
-                       (if (seq models)
-                         (let [template-ids (mapv :id models)
-                               query (template-quantity-ok-query pool-id template-ids)
-                               res (->> (jdbc/execute! tx query)
-                                        (rename-model-group-id-to-id)
-                                        (group-quantity-ok)) models (merge-by-model-group-id models res)]
-                           (filter-and-coerce-by-spec models ::types/data-keys))
-                         models))]
+  (try
+    (let [tx (get-in request [:tx])
+          pool-id (to-uuid (get-in request [:path-params :pool_id]))
+          post-fnc (fn [models]
+                     (if (seq models)
+                       (let [template-ids (mapv :id models)
+                             query (template-quantity-ok-query pool-id template-ids)
+                             res (->> (jdbc/execute! tx query)
+                                      (rename-model-group-id-to-id)
+                                      (group-quantity-ok)) models (merge-by-model-group-id models res)]
+                         (filter-and-coerce-by-spec models ::types/data-keys))
+                       models))]
 
-        (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
-      (catch Exception e
-        (error ERROR_FETCH (.getMessage e))
-        (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
+      (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
+    (catch Exception e
+      (log-by-severity ERROR_FETCH e)
+      (bad-request {:error ERROR_FETCH :details (.getMessage e)}))))

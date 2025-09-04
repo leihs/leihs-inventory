@@ -14,14 +14,12 @@
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   (java.time LocalDateTime)))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn index-resources [request]
   (try
@@ -58,17 +56,15 @@
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (error "Failed to get models-compatible" e)
+      (log-by-severity "Failed to get models-compatible" e)
       (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
 
 ;###################################################################################
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        {:keys [accessories prepared-model-data categories compatibles attachments properties
-                entitlements images new-images-attr existing-images-attr]}
+        {:keys [accessories prepared-model-data categories compatibles properties entitlements]}
         (extract-model-form-data request)]
 
     (try
@@ -89,5 +85,5 @@
           (response res)
           (bad-request {:error "Failed to create model"})))
       (catch Exception e
-
+        (log-by-severity "Failed to create model" e)
         (exception-to-response request e "Failed to create model")))))

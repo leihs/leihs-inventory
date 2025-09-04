@@ -1,53 +1,17 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.main
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]])
   (:import
-   [java.io ByteArrayInputStream]
    [java.util Base64]))
 
-(defn- clean-base64-string [base64-str]
-  (clojure.string/replace base64-str #"\s+" ""))
-
-(defn- url-safe-to-standard-base64 [base64-str]
-  (-> base64-str
-      (clojure.string/replace "-" "+")
-      (clojure.string/replace "_" "/")))
-
-(defn- add-padding [base64-str]
-  (let [mod (mod (count base64-str) 4)]
-    (cond
-      (= mod 2) (str base64-str "==")
-      (= mod 3) (str base64-str "=")
-      :else base64-str)))
-
-(defn- decode-base64-str [base64-str]
-  (let [cleaned-str (-> base64-str
-                        clean-base64-string
-                        url-safe-to-standard-base64
-                        add-padding)
-        decoder (Base64/getDecoder)]
-    (.decode decoder cleaned-str)))
-
-(defn convert-base64-to-byte-stream [result content-disposition]
-  (try
-    (let [content-type (:content_type result)
-          base64-str (:content result)
-          decoded-bytes (decode-base64-str base64-str)]
-      {:status 200
-       :headers {"Content-Type" content-type
-                 "Content-Disposition" content-disposition}
-       :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
-    (catch IllegalArgumentException e
-      {:status 400
-       :body (str "Failed to decode Base64 string: " (.getMessage e))})))
+(def GET_ATTACHMENT_ERROR "Failed to get attachments")
 
 (defn get-resource [request]
   (try
@@ -59,7 +23,6 @@
                           "*/*"
                           accept-header)
           json-request? (= accept-header "application/json")
-          octet-request? (= accept-header "application/octet-stream")
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
@@ -89,12 +52,11 @@
                      (.decode (Base64/getMimeDecoder))
                      (hash-map :body)
                      (merge {:headers {"Content-Type" content-type
-                                    ;"Content-Transfer-Encoding" "binary"
                                        "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}})))))
 
     (catch Exception e
-      (error "Failed to get attachments" e)
-      (bad-request {:error "Failed to get attachments" :details (.getMessage e)}))))
+      (log-by-severity GET_THUMBNAIL_ERROR e)
+      (bad-request {:error GET_ATTACHMENT_ERROR :details (.getMessage e)}))))
 
 (defn delete-resource [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)

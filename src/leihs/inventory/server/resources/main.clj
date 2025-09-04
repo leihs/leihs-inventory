@@ -18,16 +18,15 @@
    [pandect.core]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :as response]
-   [ring.util.response :refer [response status]])
+   [ring.util.response :refer [response status redirect]])
   (:gen-class))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
     (cond
-      (= path "/inventory/api-docs") (response/redirect "/inventory/api-docs/index.html")
-      (= path "/inventory/index.html") (response/redirect INVENTORY_VIEW_PATH)
-      :else (response/status (response/response "File not found") 404))))
+      (= path "/inventory/api-docs") (redirect "/inventory/api-docs/index.html")
+      (= path "/inventory/index.html") (redirect INVENTORY_VIEW_PATH)
+      :else (status (response "File not found") 404))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -45,7 +44,6 @@
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-        accept (get-in request [:headers "accept"])
         html (add-csrf-tags (sign-in-view params) params)]
     {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html}))
 

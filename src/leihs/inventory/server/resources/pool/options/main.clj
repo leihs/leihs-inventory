@@ -9,10 +9,13 @@
                                                                 filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response status]]))
+
+(def FETCH_OPTIONS_ERROR "Failed to fetch options")
+(def CREATE_OPTIONS_ERROR "Failed to create option")
 
 (defn post-resource [request]
   (let [tx (:tx request)
@@ -25,26 +28,23 @@
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
                                           (sql/values [multipart])
                                           (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
-
+                                          sql-format))]
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
-          (bad-request {:error "Failed to create option"})))
+          (bad-request {:error CREATE_OPTIONS_ERROR})))
       (catch Exception e
-        (error "Failed to create option" (.getMessage e))
+        (log-by-severity CREATE_OPTIONS_ERROR e)
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
                          :message "Inventory code already exists"
                          :detail {:product (:product multipart)}})
               (status 409))
-          :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
+          :else (bad-request {:error CREATE_OPTIONS_ERROR :details (.getMessage e)}))))))
 
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (get-in request [:path-params :pool_id])]
+  (let [pool-id (get-in request [:path-params :pool_id])]
     (try
       (let [base-query (->
                         (sql/select :o.*)
@@ -54,5 +54,5 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
-        (error "Failed to fetch options" (.getMessage e))
-        (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))
+        (log-by-severity FETCH_OPTIONS_ERROR e)
+        (bad-request {:error FETCH_OPTIONS_ERROR :details (.getMessage e)})))))
