@@ -23,11 +23,11 @@
 (def FETCH_SOFTWARE_ERROR "Failed to fetch software")
 
 (defn get-resource [request]
+    (try
   (let [tx (get-in request [:tx])
         model-id (to-uuid (get-in request [:path-params :model_id]))
-        pool-id (to-uuid (get-in request [:path-params :pool_id]))]
-    (try
-      (let [model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
+        pool-id (to-uuid (get-in request [:path-params :pool_id]))
+      model-query (-> (sql/select :m.id :m.product :m.manufacturer :m.version :m.type
                                         :m.hand_over_note :m.description :m.internal_description
                                         :m.technical_detail :m.is_package)
                             (sql/from [:models :m])
@@ -41,7 +41,7 @@
           (not-found {:error FETCH_SOFTWARE_ERROR})))
       (catch Exception e
         (log-by-severity FETCH_SOFTWARE_ERROR e)
-        (bad-request {:error FETCH_SOFTWARE_ERROR :details (.getMessage e)})))))
+        (bad-request {:error FETCH_SOFTWARE_ERROR :details (.getMessage e)}))))
 
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
@@ -49,13 +49,13 @@
     (assoc normalize-data :updated_at created-ts :is_package (str-to-bool (:is_package normalize-data)))))
 
 (defn put-resource [request]
+    (try
   (let [model-id (to-uuid (get-in request [:path-params :model_id]))
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         tx (:tx request)
-        prepared-model-data (prepare-software-data multipart)]
-    (try
-      (let [update-model-query (-> (sql/update [:models :m])
+        prepared-model-data (prepare-software-data multipart)
+      update-model-query (-> (sql/update [:models :m])
                                    (sql/set prepared-model-data)
                                    (sql/where [:and [:= :m.id model-id] [:= :m.type "Software"]])
                                    (sql/returning :*)
@@ -67,7 +67,7 @@
           (not-found {:error UPDATE_SOFTWARE_ERROR})))
       (catch Exception e
         (log-by-severity UPDATE_SOFTWARE_ERROR e)
-        (bad-request {:error UPDATE_SOFTWARE_ERROR :details (.getMessage e)})))))
+        (bad-request {:error UPDATE_SOFTWARE_ERROR :details (.getMessage e)}))))
 
 (defn delete-resource [request]
   (try
@@ -91,4 +91,4 @@
       (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
   (catch Exception e
     (log-by-severity DELETE_SOFTWARE_ERROR e)
-    (exception-handler DELETE_SOFTWARE_ERROR e))))
+    (bad-request {:error DELETE_SOFTWARE_ERROR :details (.getMessage e)}))))
