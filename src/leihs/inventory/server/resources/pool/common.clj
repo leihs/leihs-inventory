@@ -35,7 +35,7 @@
                 (nil? (:procurement_request_model_id %))
                 (nil? (:compatible_model_id %))
                 (nil? (:compatible_id %))
-                (nil? (:procurement_templates_model_id %)) )
+                (nil? (:procurement_templates_model_id %)))
           rows))
 
 (defn is-model-deletable?
@@ -45,26 +45,25 @@
   (let [allowed-types #{"Model" "Software"}]
     (if (contains? allowed-types mtype)
       (let [query (-> (sql/select [:i.id :item_id] [:r.item_id :reservation_item_id] [:r.model_id :reservation_model_id]
-                        [:pr.model_id :procurement_request_model_id]
-                        [:mc1.model_id :compatible_model_id]
-                        [:mc2.compatible_id :compatible_id]
-                        [:pt.model_id :procurement_templates_model_id]
+                                  [:pr.model_id :procurement_request_model_id]
+                                  [:mc1.model_id :compatible_model_id]
+                                  [:mc2.compatible_id :compatible_id]
+                                  [:pt.model_id :procurement_templates_model_id])
 
-                        )
                       (sql/from [:models :m])
                       (sql/left-join [:items :i] [:= :i.model_id :m.id])
                       (sql/left-join [:reservations :r]
                                      [:or
                                       [:= :r.item_id :i.id]
                                       [:= :r.model_id :m.id]])
-                    (sql/left-join [:procurement_requests :pr]
-                                        [:= :pr.model_id :m.id])
-                    (sql/left-join [:models_compatibles :mc1]
-                                        [:= :mc1.model_id :m.id])
-                    (sql/left-join [:models_compatibles :mc2]
-                                        [:= :mc2.compatible_id :m.id])
-                    (sql/left-join [:procurement_templates :pt]
-                                        [:= :pt.model_id :m.id])
+                      (sql/left-join [:procurement_requests :pr]
+                                     [:= :pr.model_id :m.id])
+                      (sql/left-join [:models_compatibles :mc1]
+                                     [:= :mc1.model_id :m.id])
+                      (sql/left-join [:models_compatibles :mc2]
+                                     [:= :mc2.compatible_id :m.id])
+                      (sql/left-join [:procurement_templates :pt]
+                                     [:= :pt.model_id :m.id])
                       (sql/where [:and
                                   [:= :m.id model-id]
                                   [:= :m.type mtype]])
@@ -73,8 +72,7 @@
             p (println ">o> abc.result??.res" result)
             is-deletable? (empty? (remove-all-nil-entries result))
 
-            p (println ">o> abc.result??.is-deletable?" is-deletable?)
-            ]
+            p (println ">o> abc.result??.is-deletable?" is-deletable?)]
         is-deletable?)
 
       (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."

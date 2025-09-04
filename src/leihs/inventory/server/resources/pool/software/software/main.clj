@@ -81,23 +81,21 @@
       (if (seq models)
         (if is-model-deletable?
 
-        (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
-              deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
-                                                  (sql/where where-clause-model)
-                                                  (sql/returning :*)
-                                                  sql-format))
-              result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
-                      :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
-          (if (= 1 (count deleted-model))
-            (response result)
-            (throw (ex-info "Request to delete software failed" {:status 409}))))
+          (let [attachments (db-operation tx :select :attachments [:= :model_id model-id])
+                deleted-model (jdbc/execute! tx (-> (sql/delete-from :models)
+                                                    (sql/where where-clause-model)
+                                                    (sql/returning :*)
+                                                    sql-format))
+                result {:deleted_attachments (filter-keys attachments [:id :model_id :filename :size])
+                        :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
+            (if (= 1 (count deleted-model))
+              (response result)
+              (throw (ex-info "Request to delete software failed" {:status 409}))))
 
-          (throw (ex-info "Request to delete software blocked: software in use" {:status 409}))
+          (throw (ex-info "Request to delete software blocked: software in use" {:status 409})))
 
-          )
-        (throw (ex-info "Request to delete software blocked: software not found" {:status 404})))
+        (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
 
-      )
     (catch Exception e
       (log-by-severity DELETE_SOFTWARE_ERROR e)
       (exception-handler DELETE_SOFTWARE_ERROR e))))

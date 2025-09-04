@@ -65,10 +65,10 @@ describe "Inventory Software" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Software", id: @model_id).first
           @order = FactoryBot.create(:reservation,
-                                     user_id: @user.id,
-                                     inventory_pool_id: @inventory_pool.id,
-                                     leihs_model: m,
-                                     status: :draft)
+            user_id: @user.id,
+            inventory_pool_id: @inventory_pool.id,
+            leihs_model: m,
+            status: :draft)
         end
 
         it "delete software without reservation" do
@@ -97,11 +97,11 @@ describe "Inventory Software" do
           software = LeihsModel.where(type: "Software", id: @model_id).first
 
           FactoryBot.create(:item, inventory_code: "TEST#{SecureRandom.random_number(1000)}",
-                            leihs_model: software,
-                            inventory_pool_id: @inventory_pool.id,
-                            owner_id: @inventory_pool.id,
-                            responsible: @inventory_pool,
-                            is_borrowable: true)
+            leihs_model: software,
+            inventory_pool_id: @inventory_pool.id,
+            owner_id: @inventory_pool.id,
+            responsible: @inventory_pool,
+            is_borrowable: true)
         end
 
         it "blocks deleting software with license" do
@@ -219,7 +219,6 @@ describe "Inventory Software" do
             expect(resp.status).to eq(409)
           end
         end
-
       end
 
       describe "with reservation & order in status 'submitted'" do
@@ -237,12 +236,12 @@ describe "Inventory Software" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Software", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-                                           order: @order,
-                                           user_id: @user.id,
-                                           type: "ItemLine",
-                                           inventory_pool_id: @inventory_pool.id,
-                                           leihs_model: m,
-                                           status: :submitted)
+            order: @order,
+            user_id: @user.id,
+            type: "ItemLine",
+            inventory_pool_id: @inventory_pool.id,
+            leihs_model: m,
+            status: :submitted)
         end
 
         it "delete software without reservation" do
@@ -273,12 +272,12 @@ describe "Inventory Software" do
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Software", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-                                           order: @order,
-                                           user_id: @user.id,
-                                           type: "ItemLine",
-                                           inventory_pool_id: @inventory_pool.id,
-                                           leihs_model: m,
-                                           status: :approved)
+            order: @order,
+            user_id: @user.id,
+            type: "ItemLine",
+            inventory_pool_id: @inventory_pool.id,
+            leihs_model: m,
+            status: :approved)
         end
 
         it "delete software without reservation" do
@@ -305,17 +304,17 @@ describe "Inventory Software" do
 
           co = FactoryBot.create(:customer_order, user: @user)
           @order = FactoryBot.create(:order, inventory_pool: @inventory_pool, user: @user, customer_order: co,
-                                     state: :approved)
+            state: :approved)
 
           @model_id = resp.body["id"]
           m = LeihsModel.where(type: "Software", id: @model_id).first
           @reservation = FactoryBot.create(:reservation,
-                                           order: @order,
-                                           user_id: @user.id,
-                                           type: "ItemLine",
-                                           inventory_pool_id: @inventory_pool.id,
-                                           leihs_model: m,
-                                           status: :approved)
+            order: @order,
+            user_id: @user.id,
+            type: "ItemLine",
+            inventory_pool_id: @inventory_pool.id,
+            leihs_model: m,
+            status: :approved)
         end
 
         it "delete software without reservation" do

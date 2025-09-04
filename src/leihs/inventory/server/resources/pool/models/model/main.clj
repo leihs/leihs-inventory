@@ -237,9 +237,8 @@
                   (response result)
                   (throw (ex-info "Failed to delete model" {:status 409})))))
 
-            (throw (ex-info "Referenced items exist" {:status 409}))
+            (throw (ex-info "Referenced items exist" {:status 409}))))))
 
-            ))))
     (catch Exception e
       (log-by-severity DELETE_MODEL_ERROR e)
       (exception-handler DELETE_MODEL_ERROR e))))
