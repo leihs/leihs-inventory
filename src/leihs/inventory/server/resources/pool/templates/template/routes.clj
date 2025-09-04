@@ -3,8 +3,8 @@
    [leihs.inventory.server.resources.pool.templates.template.main :as template]
    [leihs.inventory.server.resources.pool.templates.template.types :as types]
    [leihs.inventory.server.resources.pool.templates.types]
-   [leihs.inventory.server.utils.auth.role-auth :refer [permission-by-role-and-pool]]
-   [leihs.inventory.server.utils.auth.roles :as roles]
+
+
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]))
@@ -18,7 +18,7 @@
           :parameters {:path {:pool_id uuid?
                               :template_id uuid?}}
           :handler template/get-resource
-          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
           :responses {200 {:description "OK"
                            :body ::types/get-put-response}
                       404 {:description "Not Found"}
@@ -34,7 +34,7 @@
                               :template_id uuid?}
                        :body ::types/put-query}
           :handler template/put-resource
-          :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
           :responses {200 {:description "OK"
                            :body ::types/get-put-response}
                       404 {:description "Not Found"}
@@ -46,7 +46,7 @@
              :parameters {:path {:pool_id uuid?
                                  :template_id uuid?}}
              :handler template/delete-resource
-             :middleware [(permission-by-role-and-pool roles/min-role-lending-manager)]
+
              :responses {200 {:description "OK"
                               :body ::types/delete-response}
                          404 {:description "Not Found"}
