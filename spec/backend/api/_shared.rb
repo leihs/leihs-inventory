@@ -73,18 +73,21 @@ def create_and_add_category_to_model(models, category = nil)
 end
 
 
-def link_categories_to_pool(model_id)
-  model = LeihsModel.where(type: "Model", id: model_id).first
-
+def create_procurement_request(model_id, user_id, quantity= 1, motivation= "testing")
   room = Room.first
-  database[:procurement_organisation].insert(Faker::Company.name)
-  main_cat = database[:procurement_main_category].insert(Faker::Name.name)
-  cat = database[:procurement_category].insert(Faker::Name.name, main_cat.id)
-  budget = database[:procurement_budget_period].insert(name: Faker::Name.name, insection_start_date: Date.today, end_date: Date.today + 5)
+  org_id= database[:procurement_organizations].insert(name: Faker::Company.name)
+  main_cat_id = database[:procurement_main_categories].insert(name: Faker::Name.name)
+  cat_id = database[:procurement_categories].insert(name: Faker::Name.name, main_category_id: main_cat_id)
+  budget_id = database[:procurement_budget_periods].insert(name: "period-1", inspection_start_date: Date.today, end_date: Date.today + 1.year)
 
-
-
-
+  database[:procurement_requests].returning.insert(budget_period_id: budget_id,
+                                         category_id: cat_id,
+                                         user_id: user_id,
+                                         organization_id: org_id,
+                                         model_id: model_id,
+                                         requested_quantity: quantity,
+                                         room_id: room.id,
+                                         motivation: motivation                                         )
 end
 
 

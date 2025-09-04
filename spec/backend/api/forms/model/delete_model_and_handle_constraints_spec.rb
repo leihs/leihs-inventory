@@ -117,38 +117,33 @@ describe "Inventory Model" do
         end
       end
 
-      # describe "with model and procurement_requests" do
-      #   before do
-      #     resp = json_client_post(
-      #       "/inventory/#{pool_id}/models/",
-      #       body: form_data,
-      #       headers: cookie_header
-      #     )
-      #     expect(resp.status).to eq(200)
-      #
-      #     @model_id = resp.body["id"]
-      #     model = LeihsModel.where(type: "Model", id: @model_id).first
-      #
-      #     FactoryBot.create(:item, inventory_code: "TEST#{SecureRandom.random_number(1000)}",
-      #                       leihs_model: model,
-      #                       inventory_pool_id: @inventory_pool.id,
-      #                       owner_id: @inventory_pool.id,
-      #                       responsible: @inventory_pool,
-      #                       is_borrowable: true)
-      #   end
-      #
-      #   it "blocks deleting model with item" do
-      #     resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
-      #     expect(resp.status).to eq(200)
-      #     expect(resp.body["is_deletable"]).to eq(false)
-      #
-      #     resp = json_client_delete(
-      #       "/inventory/#{pool_id}/models/#{@model_id}",
-      #       headers: cookie_header
-      #     )
-      #     expect(resp.status).to eq(409)
-      #   end
-      # end
+      describe "with model and procurement_requests" do
+        before do
+          resp = json_client_post(
+            "/inventory/#{pool_id}/models/",
+            body: form_data,
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(200)
+
+          @model_id = resp.body["id"]
+
+          create_procurement_request(@model_id, @user.id)
+
+        end
+
+        it "blocks deleting model with item" do
+          resp = client.get "/inventory/#{pool_id}/models/#{@model_id}"
+          expect(resp.status).to eq(200)
+          expect(resp.body["is_deletable"]).to eq(false)
+
+          resp = json_client_delete(
+            "/inventory/#{pool_id}/models/#{@model_id}",
+            headers: cookie_header
+          )
+          expect(resp.status).to eq(409)
+        end
+      end
 
 
 
