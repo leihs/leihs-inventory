@@ -27,10 +27,9 @@
 
 (defn index-resources
   "Handler that generates an Excel file from a given map."
-  [request]
+  [_]
   (try
-    (let [_ request
-          data [{:name "Alice" :age 30 :city "New York"}
+    (let [data [{:name "Alice" :age 30 :city "New York"}
                 {:name "Bob" :age 25 :city "San Francisco"}
                 {:name "Charlie" :age 35 :city "Boston"}]
           excel-file (generate-excel-from-map data)]

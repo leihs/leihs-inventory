@@ -209,7 +209,6 @@
               images (db-operation tx :select :images [:= :target_id model-id])]
 
           (if is-model-deletable?
-
             (let [deleted-model-compatible
                   (jdbc/execute! tx (-> (sql/delete-from :models_compatibles)
                                         (sql/where [:= :model_id model-id])

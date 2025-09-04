@@ -45,6 +45,6 @@
 
 (defn log-by-severity
   ([e] (log-by-severity e nil))
-  ([e title]
-   (error (or title (.getMessage e)))
+  ([message e]
+   (error message (.getMessage e))
    (debug e)))

@@ -102,7 +102,6 @@
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
-
           (generate-coercion-response ext-data request resp)
           (assoc resp :body (data->input-stream ext-data))))
 
