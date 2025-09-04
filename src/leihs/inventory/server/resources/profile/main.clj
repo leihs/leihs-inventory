@@ -9,8 +9,8 @@
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys]]
-   [next.jdbc.sql :as jdbc]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [next.jdbc.sql :as jdbc]
    [ring.util.response :refer [bad-request response]]
    [taoensso.timbre :refer [error]]))
 

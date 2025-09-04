@@ -11,7 +11,6 @@
                                                                 filter-and-coerce-by-spec
                                                                 filter-map-by-spec
                                                                 remove-nil-values]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  filter-response
                                                                                  process-accessories
@@ -21,6 +20,7 @@
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request not-found response status]]
    [taoensso.timbre :refer [error]]))

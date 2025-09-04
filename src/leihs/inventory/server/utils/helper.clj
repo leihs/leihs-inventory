@@ -78,13 +78,12 @@
   #"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$")
 
 (defn log-by-severity
-  ([e ]
+  ([e]
    (log-by-severity e nil))
 
   ([e title]
    (if (nil? title)
      (error (.getMessage e))
-     (error title (.getMessage e))   )
+     (error title (.getMessage e)))
 
-   (debug e)
-   )  )
+   (debug e)))

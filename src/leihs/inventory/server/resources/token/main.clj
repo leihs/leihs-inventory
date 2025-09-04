@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.token.main
   (:require
    [cider-ci.open-session.bcrypt :refer [hashpw]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [reitit.coercion.schema]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [reitit.coercion.spec]
    [ring.util.response :as response]
    [taoensso.timbre :refer [error]])

@@ -3,9 +3,9 @@
    [clojure.java.io :as io]
    [clojure.set]
    [dk.ative.docjure.spreadsheet :as ss]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.middleware.accept]
    [taoensso.timbre :as log]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [taoensso.timbre :refer [error]]))
 
 (defn generate-excel-from-map [data-map]

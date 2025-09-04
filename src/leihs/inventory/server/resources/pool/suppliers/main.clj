@@ -2,8 +2,8 @@
   (:require
    [clojure.set]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.middleware.accept]
