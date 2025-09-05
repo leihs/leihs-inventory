@@ -13,6 +13,10 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
+(def UPDATE_OPTION_ERROR "Failed to update option")
+(def DELETE_OPTION_ERROR "Failed to delete option")
+(def FETCH_OPTION_ERROR "Failed to fetch option")
+
 (defn get-resource [request]
   (let [tx (get-in request [:tx])
         option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -29,10 +33,10 @@
         (if result
           (response (-> result
                         (filter-map-by-spec ::types/response-option-object)))
-          (bad-request {:error "Failed to fetch option"})))
+          (bad-request {:error FETCH_OPTION_ERROR})))
       (catch Exception e
-        (log-by-severity "Failed to fetch option" e)
-        (bad-request {:error "Failed to fetch option" :details (.getMessage e)})))))
+        (log-by-severity FETCH_OPTION_ERROR e)
+        (bad-request {:error FETCH_OPTION_ERROR :details (.getMessage e)})))))
 
 (defn put-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -51,7 +55,7 @@
         (if updated-model
           (response (-> updated-model
                         (filter-map-by-spec ::types/response-option-object)))
-          (bad-request {:error "Failed to update option"})))
+          (bad-request {:error UPDATE_OPTION_ERROR})))
       (catch Exception e
         (log-by-severity "Failed to update option" e)
         (cond
@@ -60,7 +64,7 @@
                          :message "Inventory code already exists"
                          :detail {:product (:product multipart)}})
               (status 409))
-          :else (bad-request {:error "Failed to update option" :details (.getMessage e)}))))))
+          :else (bad-request {:error UPDATE_OPTION_ERROR :details (.getMessage e)}))))))
 
 (defn delete-resource [request]
   (let [option-id (to-uuid (get-in request [:path-params :option_id]))
@@ -77,5 +81,5 @@
                         (filter-map-by-spec ::types/response-option-object)))
           (bad-request {:error "Failed to delete option"})))
       (catch Exception e
-        (log-by-severity "Failed to delete option" e)
-        (bad-request {:error "Failed to delete option" :details (.getMessage e)})))))
+        (log-by-severity DELETE_OPTION_ERROR e)
+        (bad-request {:error DELETE_OPTION_ERROR :details (.getMessage e)})))))

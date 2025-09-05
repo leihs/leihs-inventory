@@ -19,6 +19,7 @@
 (def ERROR_DELETION "Failed to delete template")
 (def ERROR_FETCH "Failed to fetch template")
 (def ERROR_UPDATE "Failed to update software")
+(def ERROR_NOT_FOUND "Template not found")
 
 (defn get-resource [request]
   (let [tx (:tx request)
@@ -85,8 +86,8 @@
           (if (= 1 (count deleted-template))
             (response {:deleted_ipmg deleted-ipmg
                        :deleted_template deleted-template})
-            (throw (ex-info "Template not found" {:status 404}))))
-        (throw (ex-info "Template not found" {:status 404}))))
+            (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
+        (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
     (catch Exception e
       (log-by-severity ERROR_DELETION e)
       (cond

@@ -15,6 +15,9 @@
    [ring.util.response :refer [bad-request response status]]
    [taoensso.timbre :refer [error]]))
 
+(def FETCH_OPTIONS_ERROR "Failed to fetch options")
+(def CREATE_OPTIONS_ERROR "Failed to create option")
+
 (defn post-resource [request]
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
@@ -32,16 +35,18 @@
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
-          (bad-request {:error "Failed to create option"})))
+          (bad-request {:error CREATE_OPTIONS_ERROR})))
       (catch Exception e
-        (log-by-severity "Failed to create option" e)
+        (log-by-severity CREATE_OPTIONS_ERROR e)
         (cond
           (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
           (-> (response {:status "failure"
                          :message "Inventory code already exists"
                          :detail {:product (:product multipart)}})
               (status 409))
-          :else (bad-request {:error "Failed to create option" :details (.getMessage e)}))))))
+          :else (bad-request {:error CREATE_OPTIONS_ERROR :details (.getMessage e)}))))))
+
+
 
 (defn index-resources [request]
   (let [tx (get-in request [:tx])
@@ -55,5 +60,5 @@
             post-fnc (fn [models] (filter-and-coerce-by-spec models ::ty/response-option-object))]
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
-        (log-by-severity "Failed to fetch options" e)
-        (bad-request {:error "Failed to fetch options" :details (.getMessage e)})))))
+        (log-by-severity FETCH_OPTIONS_ERROR e)
+        (bad-request {:error FETCH_OPTIONS_ERROR :details (.getMessage e)})))))

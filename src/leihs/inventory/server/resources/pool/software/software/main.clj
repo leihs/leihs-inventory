@@ -87,7 +87,7 @@
                       :deleted_model (filter-keys deleted-model [:id :product :manufacturer])}]
           (if (= 1 (count deleted-model))
             (response result)
-            (throw (ex-info "Request to delete software failed" {:status 409}))))
+            (throw (ex-info DELETE_SOFTWARE_ERROR {:status 409}))))
         (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
     (catch Exception e
       (log-by-severity DELETE_SOFTWARE_ERROR e)

@@ -17,6 +17,8 @@
   (:import
    (java.time LocalDateTime)))
 
+(def CREATE_SOFTWARE_ERROR "Failed to create software")
+
 (defn prepare-software-data
   [data]
   (let [normalize-data (normalize-model-data data)
@@ -47,11 +49,11 @@
           (response (filter-map-by-spec res ::types/post-response))
           (bad-request {:error "Failed to create software"})))
       (catch Exception e
-        (log-by-severity "Failed to create software" e)
+        (log-by-severity CREATE_SOFTWARE_ERROR e)
         (cond
           (str/includes? (.getMessage e) "unique_model_name_idx")
           (-> (response {:status "failure"
                          :message "Software already exists"
                          :detail {:product (:product prepared-model-data)}})
               (status 409))
-          :else (bad-request {:error "Failed to create software" :details (.getMessage e)}))))))
+          :else (bad-request {:error CREATE_SOFTWARE_ERROR :details (.getMessage e)}))))))
