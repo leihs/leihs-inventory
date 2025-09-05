@@ -55,7 +55,7 @@
                                        "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}})))))
 
     (catch Exception e
-      (log-by-severity GET_THUMBNAIL_ERROR e)
+      (log-by-severity GET_ATTACHMENT_ERROR e)
       (bad-request {:error GET_ATTACHMENT_ERROR :details (.getMessage e)}))))
 
 (defn delete-resource [{:keys [tx] :as request}]
