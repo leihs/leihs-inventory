@@ -108,7 +108,10 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {:accept "application/json"
+     :post {
+            ;:accept "application/json"
+           :accept "text/html"
+           :produces ["text/html"]
             :handler post-sign-out}
      :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
@@ -192,7 +195,7 @@
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e
                           (println "Error processing swagger-ui request:" e)
-                          (rh/index-html-response request 404))))}}]
+                          (rh/index-html-response request 404))))}}]]
 
    ["{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
@@ -213,7 +216,7 @@
                       (if (authenticated? request)
                         (pr "F2" "All Html" (rh/index-html-response request 200))
 
-                        {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}))}}]])
+                        {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}])
 
 (defn swagger-endpoints []
   ["/api-docs"

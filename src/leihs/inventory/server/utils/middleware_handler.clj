@@ -30,7 +30,7 @@
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
 
-          p (println ">o> abc.uri" uri)
+          p (println ">o> abc.image-rewrite.uri" uri)
           updated-request request]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 

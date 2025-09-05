@@ -177,10 +177,6 @@
                                    :muuntaja m/instance
                                    :middleware middlewares}})
 
-(def default-mime
-  {"svg" "image/svg+xml"
-   "svgz" "image/svg+xml"})
-
 (def cache-bust-options
   {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
    :never-expire-paths []
@@ -238,6 +234,7 @@
 
      strip-digest
 
+     ;(cache-buster2/wrap-resource "public/inventory/" cache-bust-options)
      (cache-buster2/wrap-resource "public" cache-bust-options)
 
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
