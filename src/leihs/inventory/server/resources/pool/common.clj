@@ -73,7 +73,7 @@
         is-deletable?)
 
       (throw (ex-info "Invalid model type. Expected \"Model\" or \"Software\"."
-                      {:error :invalid-model-type
+                      {:message :invalid-model-type
                        :given mtype
                        :allowed allowed-types})))))
 

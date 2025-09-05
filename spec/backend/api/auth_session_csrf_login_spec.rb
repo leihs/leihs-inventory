@@ -109,7 +109,7 @@ describe "Call swagger-endpoints" do
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
+        expect(resp.body["details"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
       it "PUT /test-csrf missing token returns error" do
@@ -119,7 +119,7 @@ describe "Call swagger-endpoints" do
         end
 
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The x-csrf-token has not been send!")
+        expect(resp.body["details"]).to eq("The x-csrf-token has not been send!")
       end
 
       it "PUT /test-csrf missing token and cookie returns error" do
@@ -127,7 +127,7 @@ describe "Call swagger-endpoints" do
           req.headers["Content-Type"] = "application/json"
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The anti-csrf-token cookie value is not set.")
+        expect(resp.body["details"]).to eq("The anti-csrf-token cookie value is not set.")
       end
 
       it "PUT /test-csrf with mismatched token returns error" do
@@ -137,7 +137,7 @@ describe "Call swagger-endpoints" do
           req.headers["Cookie"] = @user_cookies_str
         end
         expect(resp.status).to eq(403)
-        expect(resp.body["detail"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
+        expect(resp.body["details"]).to eq("The x-csrf-token is not equal to the anti-csrf cookie value.")
       end
 
       it "POST /test-csrf with valid CSRF headers succeeds" do

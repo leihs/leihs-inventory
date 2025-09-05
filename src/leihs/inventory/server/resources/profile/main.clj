@@ -8,9 +8,12 @@
    [leihs.core.settings :refer [settings!]]
    [leihs.inventory.server.resources.profile.common :refer [get-by-id]]
    [leihs.inventory.server.resources.profile.languages :as l]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
    [next.jdbc.sql :as jdbc]
-   [ring.util.response :refer [bad-request response]]))
+   [ring.util.response :refer [response]]))
+
+(def ERROR_GET_USER "Failed to get user")
 
 (defn get-one [tx target-user-id user-id]
   (get-by-id tx (or user-id target-user-id)))
@@ -53,5 +56,5 @@
                  :user_details (snake-case-keys user-details)
                  :languages (snake-case-keys (l/get-multiple tx))}))
     (catch Exception e
-      (log-by-severity "Failed to get user" e)
-      (bad-request {:error "Failed to get user" :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET_USER e)
+      (exception-handler ERROR_GET_USER e))))

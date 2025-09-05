@@ -64,7 +64,7 @@
          coercion (:coercion parsed-data)
          is-coercion? (some #{"spec" "schema"} [coercion])]
      (when is-coercion?
-       (let [errors (or (get-in parsed-data [:errors])
+       (let [errors (or (get-in parsed-data [:messages])
                         (beautify-problems (:problems parsed-data)))
              scope (some->> (:in parsed-data) (map str) (str/join "/"))
              status (if (str/includes? scope "response")
@@ -76,7 +76,7 @@
                         :uri (str (str/upper-case (name (:request-method req)))
                                   " " (:uri req))}
              full-resp (if with-errors?
-                         (assoc base-resp :errors errors)
+                         (assoc base-resp :messages errors)
                          base-resp)]
          {:is-coercion-error true
           :response-status status

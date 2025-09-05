@@ -2,11 +2,14 @@
   (:require
    [clojure.set]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [query-params]]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]))
+   [ring.util.response :refer [response]]))
+
+(def ERROR_GET_SUPPLIERS "Failed to get suppliers")
 
 (defn index-resources
   ([request]
@@ -20,5 +23,5 @@
        (response (create-pagination-response request base-query nil)))
 
      (catch Exception e
-       (log-by-severity "Failed to get supplier(s)" e)
-       (bad-request {:error "Failed to get supplier(s)" :details (.getMessage e)})))))
+       (log-by-severity ERROR_GET_SUPPLIERS e)
+       (exception-handler ERROR_GET_SUPPLIERS e)))))

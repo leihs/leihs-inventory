@@ -40,7 +40,10 @@
     (and accept-header (str/includes? accept-header "text/html"))))
 
 (defn log-by-severity
-  ([e] (log-by-severity e nil))
+  ([e]
+   (log-by-severity nil e))
   ([message e]
-   (error message (.getMessage e))
+   (if (nil? message)
+     (error (.getMessage e))
+     (error message (.getMessage e)))
    (debug e)))

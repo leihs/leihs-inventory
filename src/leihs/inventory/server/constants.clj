@@ -11,7 +11,6 @@
 - token-endpoints
 " true)
 
-(def PREFERRED_REDIRECT_POOL_ID "8bd16d45-056d-5590-bc7f-12849f034351")
 (def INVENTORY_VIEW_PATH "/inventory")
 
 (defn fe [s] (if false (str "[fe] | " s) s))

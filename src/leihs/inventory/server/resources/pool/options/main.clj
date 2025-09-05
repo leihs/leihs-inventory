@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.resources.pool.options.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
@@ -9,10 +8,11 @@
                                                                 filter-map-by-spec]]
    [leihs.inventory.server.resources.pool.options.types :as ty]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.util.response :refer [bad-request response]]))
 
 (def FETCH_OPTIONS_ERROR "Failed to fetch options")
 (def CREATE_OPTIONS_ERROR "Failed to create option")
@@ -32,16 +32,10 @@
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
-          (bad-request {:error CREATE_OPTIONS_ERROR})))
+          (bad-request {:message CREATE_OPTIONS_ERROR})))
       (catch Exception e
         (log-by-severity CREATE_OPTIONS_ERROR e)
-        (cond
-          (str/includes? (.getMessage e) "case_insensitive_inventory_code_for_options")
-          (-> (response {:status "failure"
-                         :message "Inventory code already exists"
-                         :detail {:product (:product multipart)}})
-              (status 409))
-          :else (bad-request {:error CREATE_OPTIONS_ERROR :details (.getMessage e)}))))))
+        (exception-handler CREATE_OPTIONS_ERROR e)))))
 
 (defn index-resources [request]
   (let [pool-id (get-in request [:path-params :pool_id])]
@@ -55,4 +49,4 @@
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
         (log-by-severity FETCH_OPTIONS_ERROR e)
-        (bad-request {:error FETCH_OPTIONS_ERROR :details (.getMessage e)})))))
+        (exception-handler FETCH_OPTIONS_ERROR e)))))

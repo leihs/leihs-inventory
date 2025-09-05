@@ -178,7 +178,7 @@
 
     (catch Exception e
       (error "Failed to get items" e)
-      (bad-request {:error "Failed to get items"
+      (bad-request {:message "Failed to get items"
                     :details (.getMessage e)}))))
 
  ; ##################################################################

@@ -59,7 +59,7 @@
               (get-sign-in request)
               (-> (response/response {:status "failure"
                                       :message "CSRF-Token/Session not valid"
-                                      :detail (.getMessage e)})
+                                      :details (.getMessage e)})
                   (response/status 403)))
             (response/status 404))))))) ;; coercion error for undefined urls
 
@@ -79,5 +79,5 @@
                   {:status 400
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error updating password"
-                                   :detail (str "error: " (.getMessage e))})}))))
+                                   :details (str "error: " (.getMessage e))})}))))
           (handler request))))))

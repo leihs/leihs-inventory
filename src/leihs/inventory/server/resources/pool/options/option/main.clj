@@ -33,7 +33,7 @@
         (response (-> result
                       (assoc :is_deletable (is-option-deletable? tx option-id))
                       (filter-map-by-spec ::type/get-response-option)))
-        (not-found {:error FETCH_OPTION_ERROR})))
+        (not-found {:message FETCH_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity FETCH_OPTION_ERROR e)
       (exception-handler FETCH_OPTION_ERROR e))))
@@ -55,7 +55,7 @@
       (if updated-model
         (response (-> updated-model
                       (filter-map-by-spec ::type/get-response-option)))
-        (not-found {:error UPDATE_OPTION_ERROR})))
+        (not-found {:message UPDATE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity UPDATE_OPTION_ERROR e)
       (exception-handler UPDATE_OPTION_ERROR e))))
@@ -72,7 +72,7 @@
       (if deleted-option
         (response (-> deleted-option
                       (filter-map-by-spec ::type/get-response-option)))
-        (not-found {:error DELETE_OPTION_ERROR})))
+        (not-found {:message DELETE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity DELETE_OPTION_ERROR e)
       (exception-handler DELETE_OPTION_ERROR e))))

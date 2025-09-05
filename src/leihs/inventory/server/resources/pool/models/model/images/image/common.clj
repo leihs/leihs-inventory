@@ -2,7 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]])
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
+   [ring.util.response :refer [response status]])
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))
@@ -44,3 +45,12 @@
       (log-by-severity CONVERTING_ERROR e)
       {:status 400
        :body (str CONVERTING_ERROR (.getMessage e))})))
+
+(defn handle-image-response
+  [result json-request? content-negotiation? accept-header]
+  (cond
+    (nil? result) (status (response {:status "failure" :message "No image found"}) 404)
+    json-request? (response result)
+    content-negotiation? (convert-base64-to-byte-stream result)
+    (not= (:content_type result) accept-header) (status (response {:status "failure" :message "Requested content type not supported"}) 406)
+    :else (convert-base64-to-byte-stream result)))

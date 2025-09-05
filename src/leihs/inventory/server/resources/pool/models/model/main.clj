@@ -162,10 +162,10 @@
 
         (if updated-model
           (response updated-model)
-          (bad-request {:error UPDATE_MODEL_ERROR})))
+          (bad-request {:message UPDATE_MODEL_ERROR})))
       (catch Exception e
         (log-by-severity UPDATE_MODEL_ERROR e)
-        (bad-request {:error UPDATE_MODEL_ERROR :details (.getMessage e)})))))
+        (bad-request {:message UPDATE_MODEL_ERROR :details (.getMessage e)})))))
 
 (defn put-resource [request]
   (update-model-handler request))
@@ -251,7 +251,7 @@
                                         (sql/where [:= :id (to-uuid is-cover)])
                                         sql-format))]
     (if (nil? image)
-      (not-found {:error "Failed to patch model"})
+      (not-found {:message "Failed to patch model"})
       (response (jdbc/execute-one! tx (-> (sql/update :models)
                                           (sql/set {:cover_image_id (to-uuid is-cover)})
                                           (sql/where [:= :id model-id])

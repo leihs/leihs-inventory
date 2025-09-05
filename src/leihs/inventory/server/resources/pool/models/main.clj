@@ -21,8 +21,8 @@
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]))
 
-(def CREATE_MODEL_ERROR "Failed to create model")
-(def GET_MODEL_ERROR "Failed to get models-compatible")
+(def ERROR_CREATE_MODEL "Failed to create model")
+(def ERROR_GET_MODEL "Failed to get models-compatible")
 
 (defn index-resources [request]
   (try
@@ -59,8 +59,8 @@
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (log-by-severity GET_MODEL_ERROR e)
-      (bad-request {:error GET_MODEL_ERROR :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET_MODEL e)
+      (exception-handler ERROR_GET_MODEL e))))
 
 ;###################################################################################
 
@@ -86,7 +86,7 @@
 
         (if res
           (response res)
-          (bad-request {:error CREATE_MODEL_ERROR})))
+          (bad-request {:message ERROR_CREATE_MODEL})))
       (catch Exception e
-        (log-by-severity CREATE_MODEL_ERROR e)
-        (exception-handler CREATE_MODEL_ERROR e)))))
+        (log-by-severity ERROR_CREATE_MODEL e)
+        (exception-handler ERROR_CREATE_MODEL e)))))

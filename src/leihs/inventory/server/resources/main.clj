@@ -9,8 +9,7 @@
    [leihs.core.sign-in.back :as be]
    [leihs.core.sign-in.simple-login :refer [sign-in-view]]
    [leihs.core.sign-out.back :as so]
-   [leihs.inventory.server.constants :refer [INVENTORY_VIEW_PATH
-                                             PREFERRED_REDIRECT_POOL_ID]]
+   [leihs.inventory.server.constants :refer [INVENTORY_VIEW_PATH]]
    [leihs.inventory.server.resources.profile.main :refer [get-pools-access-rights-of-user-query]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map]]
    [leihs.inventory.server.utils.html-utils :refer [add-csrf-tags]]
@@ -68,12 +67,6 @@
         res (extract-csrf-token html)]
     {:status 200 :body {:csrf-token res}}))
 
-(defn- find-or-first-id [pools target-id]
-  (let [target-uuid (java.util.UUID/fromString target-id)]
-    (or
-     (:id (some #(when (= (:id %) target-uuid) %) pools))
-     (:id (first pools)))))
-
 (defn post-sign-in [req]
   (let [{:keys [user password]} (:form-params req)]
     (if (or (str/blank? user) (str/blank? password))
@@ -93,10 +86,13 @@
                 pools (jdbc/execute! tx
                                      (get-pools-access-rights-of-user-query
                                       true user_id "direct_access_rights"))
-                return-to (or (->> (find-or-first-id pools PREFERRED_REDIRECT_POOL_ID)
-                                   str
-                                   (format "/inventory/%s/list"))
-                              INVENTORY_VIEW_PATH)]
+                return-to (if (empty? pools)
+                            INVENTORY_VIEW_PATH
+                            (->> (first pools)
+                                 :id
+                                 str
+                                 (format "/inventory/%s/list")))]
+
             (assoc-in resp [:headers "Location"] return-to)))))))
 
 (defn get-sign-out [request]

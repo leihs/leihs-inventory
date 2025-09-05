@@ -98,16 +98,16 @@
                               (sql/returning :*)
                               sql-format))))
 
-(defn fetch-template-with-models
+(defn fetch-template-with-models!
   ([tx template-id pool-id]
-   (fetch-template-with-models tx template-id pool-id true))
+   (fetch-template-with-models! tx template-id pool-id true))
 
   ([tx template-id pool-id process-at-least-one-model-check?]
    (let [templates (jdbc/execute! tx (template-query template-id pool-id))]
      (if (and process-at-least-one-model-check? (empty? templates))
        (do
          (debug "template-id=" template-id ", pool-id=" pool-id)
-         (throw (ex-info "Template must have at least one model" {:status 404})))
+         (throw (ex-info "Template must have at least one model" {:status 400})))
        (let [result (->> templates
                          (group-by :name)
                          (map (fn [[name records]]

@@ -15,13 +15,13 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response]])
+   [ring.util.response :refer [not-found response]])
   (:import
    (java.time LocalDateTime)))
 
-(def DELETE_SOFTWARE_ERROR "Failed to delete software")
-(def UPDATE_SOFTWARE_ERROR "Failed to update software")
-(def FETCH_SOFTWARE_ERROR "Failed to fetch software")
+(def ERROR_DELETE_SOFTWARE "Failed to delete software")
+(def ERROR_UPDATE_SOFTWARE "Failed to update software")
+(def ERROR_FETCH_SOFTWARE "Failed to fetch software")
 
 (defn get-resource [request]
   (try
@@ -40,10 +40,10 @@
                                           result (assoc model-result :attachments attachments)] result))]
       (if result
         (response (filter-map-by-spec result ::types/put-response))
-        (not-found {:error FETCH_SOFTWARE_ERROR})))
+        (not-found {:message ERROR_FETCH_SOFTWARE})))
     (catch Exception e
-      (log-by-severity FETCH_SOFTWARE_ERROR e)
-      (bad-request {:error FETCH_SOFTWARE_ERROR :details (.getMessage e)}))))
+      (log-by-severity ERROR_FETCH_SOFTWARE e)
+      (exception-handler ERROR_FETCH_SOFTWARE e))))
 
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
@@ -65,10 +65,10 @@
 
       (if updated-model
         (response (filter-map-by-spec updated-model ::types/put-response))
-        (not-found {:error UPDATE_SOFTWARE_ERROR})))
+        (not-found {:message ERROR_UPDATE_SOFTWARE})))
     (catch Exception e
-      (log-by-severity UPDATE_SOFTWARE_ERROR e)
-      (bad-request {:error UPDATE_SOFTWARE_ERROR :details (.getMessage e)}))))
+      (log-by-severity ERROR_UPDATE_SOFTWARE e)
+      (exception-handler ERROR_UPDATE_SOFTWARE e))))
 
 (defn delete-resource [request]
   (try
@@ -93,5 +93,5 @@
           (throw (ex-info "Request to delete software blocked: software in use" {:status 409})))
         (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
     (catch Exception e
-      (log-by-severity DELETE_SOFTWARE_ERROR e)
-      (exception-handler DELETE_SOFTWARE_ERROR e))))
+      (log-by-severity ERROR_DELETE_SOFTWARE e)
+      (exception-handler ERROR_DELETE_SOFTWARE e))))

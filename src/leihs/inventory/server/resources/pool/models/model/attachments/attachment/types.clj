@@ -11,4 +11,4 @@
   (s/->Either [attachment s/Any]))
 
 (def error-attachment-not-found
-  {:error s/Str})
+  {:message s/Str})

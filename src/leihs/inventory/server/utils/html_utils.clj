@@ -3,7 +3,7 @@
    [clojure.walk :as walk]
    [hickory.core :as h]
    [hickory.render :as render]
-   [taoensso.timbre :refer [debug error]]))
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]))
 
 (defn add-meta-tag [tree csrf-name csrf-value]
   (walk/postwalk
@@ -56,7 +56,6 @@
       raw-html)
 
     (catch Exception e
-      (debug e)
-      (error "Error in add-csrf-and-return-tags:" (.getMessage e))
+      (exception-handler "Error in add-csrf-and-return-tags" e)
       (.printStackTrace e)
       html-str)))

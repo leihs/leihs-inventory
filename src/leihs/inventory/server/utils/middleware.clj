@@ -27,7 +27,7 @@
     (let [accept-header (get-in request [:headers "accept"])]
       (if (some #(clojure.string/includes? accept-header %) ["/json" "image/"])
         (handler request)
-        (index-html-response request 200)))))
+        (index-html-response request 404)))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]

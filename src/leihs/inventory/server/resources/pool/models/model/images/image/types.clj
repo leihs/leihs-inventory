@@ -6,7 +6,7 @@
   {:status s/Str
    :image_id s/Uuid})
 
-(def error-image-not-found
+(def error-message-structure
   {:status s/Str
    :message s/Str})
 

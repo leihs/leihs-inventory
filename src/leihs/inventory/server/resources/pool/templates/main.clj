@@ -1,23 +1,23 @@
 (ns leihs.inventory.server.resources.pool.templates.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-and-coerce-by-spec]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
                                                                    case-condition
-                                                                   fetch-template-with-models
+                                                                   fetch-template-with-models!
                                                                    process-create-template-models]]
    [leihs.inventory.server.resources.pool.templates.types :as types]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]))
+   [ring.util.response :refer [bad-request response]]))
 
-(def ERROR_CREATION "Failed to create template")
-(def ERROR_FETCH "Failed to fetch template")
+(def ERROR_CREATE "Failed to create template")
+(def ERROR_GET "Failed to fetch template")
 
 (defn post-resource [request]
   (try
@@ -30,22 +30,16 @@
                                         (sql/returning :*)
                                         sql-format))
           template-id (:id res)
-          template-data (fetch-template-with-models tx template-id pool-id false)
+          template-data (fetch-template-with-models! tx template-id pool-id false)
           analyzed-datasets (analyze-datasets (:models template-data) models)
           entries-to-insert (:new-entries analyzed-datasets)]
       (process-create-template-models tx entries-to-insert template-id pool-id)
-      (if-let [templates (fetch-template-with-models tx template-id pool-id)]
+      (if-let [templates (fetch-template-with-models! tx template-id pool-id)]
         (response templates)
-        (bad-request {:error ERROR_CREATION})))
+        (bad-request {:message ERROR_CREATE})))
     (catch Exception e
-      (log-by-severity ERROR_CREATION e)
-      (cond
-        (str/includes? (.getMessage e) "violates")
-        (-> (response {:status "failure"
-                       :message ERROR_CREATION
-                       :detail (.getMessage e)})
-            (status 409))
-        :else (bad-request {:error ERROR_CREATION :details (.getMessage e)})))))
+      (log-by-severity ERROR_CREATE e)
+      (exception-handler ERROR_CREATE e))))
 
 (defn template-quantity-ok-query
   [pool-id template-ids]
@@ -126,5 +120,5 @@
 
       (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
     (catch Exception e
-      (log-by-severity ERROR_FETCH e)
-      (bad-request {:error ERROR_FETCH :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET e)
+      (exception-handler ERROR_GET e))))

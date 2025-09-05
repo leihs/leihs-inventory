@@ -1,19 +1,19 @@
 (ns leihs.inventory.server.resources.pool.templates.template.main
   (:require
    [clojure.set]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.main :refer [db-operation]]
    [leihs.inventory.server.resources.pool.templates.common :refer [analyze-datasets
-                                                                   fetch-template-with-models
+                                                                   fetch-template-with-models!
                                                                    process-create-template-models
                                                                    process-delete-template-models
                                                                    process-update-template-models]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response status]]
+   [ring.util.response :refer [not-found response]]
    [taoensso.timbre :refer [debug]]))
 
 (def ERROR_DELETION "Failed to delete template")
@@ -25,14 +25,14 @@
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         template-id (to-uuid (get-in request [:path-params :template_id]))
-        template (fetch-template-with-models tx template-id pool-id)]
+        template (fetch-template-with-models! tx template-id pool-id)]
     (try
       (if template
         (response template)
-        (not-found {:error ERROR_FETCH}))
+        (not-found {:message ERROR_FETCH}))
       (catch Exception e
         (log-by-severity ERROR_FETCH e)
-        (bad-request {:error ERROR_FETCH :details (.getMessage e)})))))
+        (exception-handler ERROR_UPDATE e)))))
 
 (defn put-resource [request]
   (try
@@ -40,7 +40,7 @@
           template-id (to-uuid (get-in request [:path-params :template_id]))
           pool-id (to-uuid (get-in request [:path-params :pool_id]))
           {:keys [name models]} (get-in request [:parameters :body])
-          template-data (fetch-template-with-models tx template-id pool-id false)
+          template-data (fetch-template-with-models! tx template-id pool-id false)
           analyzed-datasets (analyze-datasets (:models template-data) models)
           entries-to-delete (:missing-in-new-data analyzed-datasets)
           entries-to-update (:different-quantity analyzed-datasets)
@@ -58,18 +58,12 @@
       (process-update-template-models tx entries-to-update)
       (process-create-template-models tx entries-to-insert template-id pool-id)
 
-      (if-let [template (fetch-template-with-models tx template-id pool-id)]
+      (if-let [template (fetch-template-with-models! tx template-id pool-id)]
         (response template)
-        (not-found {:error ERROR_UPDATE})))
+        (not-found {:message ERROR_UPDATE})))
     (catch Exception e
       (log-by-severity ERROR_UPDATE e)
-      (cond
-        (str/includes? (.getMessage e) "violates")
-        (-> (response {:status "failure"
-                       :message ERROR_UPDATE
-                       :detail (.getMessage e)})
-            (status 409))
-        :else (bad-request {:error ERROR_UPDATE :details (.getMessage e)})))))
+      (exception-handler ERROR_UPDATE e))))
 
 (defn delete-resource [request]
   (try
@@ -90,10 +84,4 @@
         (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
     (catch Exception e
       (log-by-severity ERROR_DELETION e)
-      (cond
-        (str/includes? (.getMessage e) "violates")
-        (-> (response {:status "failure"
-                       :message ERROR_DELETION
-                       :detail (.getMessage e)})
-            (status 409))
-        :else (bad-request {:error ERROR_DELETION :details (.getMessage e)})))))
+      (exception-handler ERROR_DELETION e))))

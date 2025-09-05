@@ -3,11 +3,14 @@
    [clojure.set]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc.sql :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [bad-request response]]))
+   [ring.util.response :refer [response]]))
+
+(def ERROR_GET "Failed to get entitlement-groups")
 
 (defn index-resources [request]
   (try
@@ -23,5 +26,5 @@
           result (jdbc/query tx query)]
       (response result))
     (catch Exception e
-      (log-by-severity "Failed to get entitlement-groups" e)
-      (bad-request {:error "Failed to get entitlement-groups" :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET e)
+      (exception-handler ERROR_GET e))))

@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.resources.pool.models.model.images.image.main :as image]
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-response
-                                                                                  error-image-not-found
+                                                                                  error-message-structure
                                                                                   image]]
    [leihs.inventory.server.utils.middleware :refer [accept-json-image-middleware]]
    [reitit.coercion.schema]
@@ -27,7 +27,9 @@
           :responses {200 {:description "OK"
                            :body (s/->Either [image s/Any])}
                       404 {:description "Not Found"
-                           :body error-image-not-found}
+                           :body (s/->Either [error-message-structure s/Any])}
+                      406 {:description "Requested content type not supported"
+                           :body error-message-structure}
                       500 {:description "Internal Server Error"}}}
 
     :delete {:accept "application/json"
@@ -40,5 +42,5 @@
              :responses {200 {:description "OK"
                               :body delete-response}
                          404 {:description "Not Found"
-                              :body error-image-not-found}
+                              :body error-message-structure}
                          500 {:description "Internal Server Error"}}}}])

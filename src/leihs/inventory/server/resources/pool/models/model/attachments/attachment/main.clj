@@ -3,6 +3,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants :refer [CONTENT_DISPOSITION_INLINE_FORMATS]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
@@ -11,7 +12,7 @@
   (:import
    [java.util Base64]))
 
-(def GET_ATTACHMENT_ERROR "Failed to get attachments")
+(def ERROR_GET_ATTACHMENT "Failed to get attachment")
 
 (defn get-resource [request]
   (try
@@ -42,7 +43,7 @@
       (if (nil? attachment)
         (do
           (error "Attachment not found" {:id id :model-id model-id})
-          (bad-request {:error "Attachment not found"}))
+          (bad-request {:message "Attachment not found"}))
         (cond
 
           (= accept-header "application/json")
@@ -55,8 +56,8 @@
                                        "Content-Disposition" (str content-disposition "; filename=\"" file-name "\"")}})))))
 
     (catch Exception e
-      (log-by-severity GET_ATTACHMENT_ERROR e)
-      (bad-request {:error GET_ATTACHMENT_ERROR :details (.getMessage e)}))))
+      (log-by-severity ERROR_GET_ATTACHMENT e)
+      (exception-handler ERROR_GET_ATTACHMENT e))))
 
 (defn delete-resource [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)
@@ -66,4 +67,4 @@
                                    sql-format))]
     (if (= (:next.jdbc/update-count res) 1)
       (response {:status "ok" :attachments_id attachments_id})
-      (bad-request {:error "Failed to delete attachment"}))))
+      (bad-request {:message "Failed to delete attachment"}))))

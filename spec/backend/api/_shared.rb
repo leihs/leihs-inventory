@@ -1,9 +1,7 @@
 require "spec_helper"
 require "pry"
 require "faker"
-
 require "faraday"
-# require 'faraday-cookie_jar'
 
 def create_accessory(inventory_pool_id, model)
   accessory = FactoryBot.create(:accessory, leihs_model: model)

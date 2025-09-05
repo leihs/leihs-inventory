@@ -47,32 +47,52 @@ describe "Inventory API Endpoints - Image Handling" do
         expect(resp.status).to eq(200)
       end
 
-      it "retrieves image thumbnail by ID and returns status 200" do
-        resp = client.get "#{url}#{image_id}/thumbnail" do |req|
-          req.headers["Accept"] = image_content_type
+      context "Blocks fetch image with text/html" do
+        it "retrieves image thumbnail by ID and returns status 404" do
+          resp = client.get "#{url}#{image_id}/thumbnail" do |req|
+            req.headers["Accept"] = "text/html"
+          end
+          expect(resp.status).to eq(404)
         end
-        expect(resp.status).to eq(200)
+
+        it "retrieves image by ID and returns status 404" do
+          resp = client.get "#{url}#{image_id}" do |req|
+            req.headers["Accept"] = "text/html"
+          end
+          expect(resp.status).to eq(404)
+        end
       end
 
-      it "retrieves image thumbnail by ID and returns status 200" do
-        resp = client.get "#{url}#{image_id}" do |req|
-          req.headers["Accept"] = image_content_type
+      context "Fetch image with correct content_type" do
+        it "retrieves image thumbnail by ID and returns status 200" do
+          resp = client.get "#{url}#{image_id}/thumbnail" do |req|
+            req.headers["Accept"] = image_content_type
+          end
+          expect(resp.status).to eq(200)
         end
-        expect(resp.status).to eq(200)
+
+        it "retrieves image by ID and returns status 200" do
+          resp = client.get "#{url}#{image_id}" do |req|
+            req.headers["Accept"] = image_content_type
+          end
+          expect(resp.status).to eq(200)
+        end
       end
 
-      it "retrieves image thumbnail by different_content_type returns status 404" do
-        resp = client.get "#{url}#{image_id}/thumbnail" do |req|
-          req.headers["Accept"] = different_content_type
+      context "Fetch image with different_content_type" do
+        it "retrieves image thumbnail and returns status 406" do
+          resp = client.get "#{url}#{image_id}/thumbnail" do |req|
+            req.headers["Accept"] = different_content_type
+          end
+          expect(resp.status).to eq(406)
         end
-        expect(resp.status).to eq(404)
-      end
 
-      it "retrieves image thumbnail by different_content_type returns status 404" do
-        resp = client.get "#{url}#{image_id}" do |req|
-          req.headers["Accept"] = different_content_type
+        it "retrieves image and returns status 406" do
+          resp = client.get "#{url}#{image_id}" do |req|
+            req.headers["Accept"] = different_content_type
+          end
+          expect(resp.status).to eq(406)
         end
-        expect(resp.status).to eq(404)
       end
     end
 

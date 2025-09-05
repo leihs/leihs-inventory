@@ -59,7 +59,7 @@ def upload_and_expect(file_path, model_id, expected_ok)
       expect(response.status).to eq(200)
     else
       expect(response.status).to eq(400)
-      expect(response.body["error"]).to eq("Failed to upload attachment")
+      expect(response.body["message"]).to eq("Failed to upload attachment")
     end
     response
   end
@@ -150,11 +150,11 @@ describe "Inventory Software" do
           headers: cookie_header
         )
         expect(resp.status).to eq(404)
-        expect(resp.body["error"]).to eq("Request to delete software blocked: software not found")
+        expect(resp.body["details"]).to eq("Request to delete software blocked: software not found")
 
         # fetch deleted model
         resp = client.get "/inventory/#{pool_id}/software/#{model_id}"
-        expect(resp.body["error"]).to eq("Failed to fetch software")
+        expect(resp.body["message"]).to eq("Failed to fetch software")
         expect(resp.status).to eq(404)
       end
     end
