@@ -45,6 +45,10 @@
         (when-not (some #(= content-extension %) allowed-extensions)
           (throw (ex-info "Invalid file type" {:status 400 :error "Unsupported file type"}))))
 
+      ;; TODO: reivise this
+      (when (nil? content-length)
+        (throw (ex-info "File size not defined" {:status 400 :error "File size not defined"})))
+
       (when (> content-length (* max-size-mb 1024 1024))
         (throw (ex-info "File size exceeds limit" {:status 400 :error "File size exceeds limit"})))
 
@@ -92,7 +96,9 @@
           accept-header (get-in request [:headers "accept"])
           json-request? (= accept-header "application/json")
           base-query (-> (sql/select :i.id :i.filename :i.target_id :i.size :i.thumbnail :i.content_type)
-                         (sql/from [:images :i]))]
+                         (sql/from [:images :i])
+                       ;(sql/limit 10)
+                       )]
       (response (create-pagination-response request base-query nil)))
     (catch Exception e
       (error "Failed to retrieve image:" (.getMessage e))

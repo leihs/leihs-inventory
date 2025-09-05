@@ -28,7 +28,10 @@
                       (sql/where [:= :i.content_type accept-header]))
                   ;; TODO: pool_id / model_id restrictions
                     sql-format)
-          result (jdbc/execute-one! tx query)]
+          result (jdbc/execute-one! tx query)
+
+          p (println ">o> abc.json-request?" json-request?)
+          ]
 
       (cond
         (nil? result) (status (response {:status "failure" :message "No image found"}) 404)
