@@ -12,8 +12,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request response status]])
   (:import
    (java.time LocalDateTime)))
 
@@ -29,8 +28,7 @@
            :updated_at created-ts)))
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
         multipart (get-in request [:parameters :body])
         prepared-model-data (-> (prepare-software-data multipart)

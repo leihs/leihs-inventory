@@ -9,7 +9,7 @@
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [ring.util.codec :as codec]
    [ring.util.response :as response]))
 

@@ -1,7 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.main
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
@@ -10,11 +8,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   [java.io ByteArrayInputStream]
-   [java.util Base64]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (def GET_IMAGE_ERROR "Failed to retrieve image")
 
@@ -25,8 +19,6 @@
           json-request? (= accept-header "application/json")
           content-negotiation? (= accept-header CONTENT_NEGOTIATION_HEADER_TYPE)
           image_id (-> request path-params :image_id)
-          pool_id (-> request path-params :pool_id)
-          model_id (-> request path-params :model_id)
           query (-> (sql/select :i.*)
                     (sql/from [:images :i])
                     (cond-> image_id
@@ -50,11 +42,11 @@
 (defn delete-resource
   [req]
   (let [tx (:tx req)
-        {:keys [model_id image_id]} (:path (:parameters req))
-        id (to-uuid image_id)]
-    (let [res (jdbc/execute-one! tx
+        {:keys [ image_id]} (:path (:parameters req))
+        id (to-uuid image_id)
+        res (jdbc/execute-one! tx
                                  (sql-format
                                   {:delete-from :images :where [:= :id id]}))]
       (if (= (:next.jdbc/update-count res) 1)
         (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"})))))
+        (bad-request {:error "Failed to delete image"}))))

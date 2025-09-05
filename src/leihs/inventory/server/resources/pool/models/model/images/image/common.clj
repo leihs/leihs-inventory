@@ -2,15 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [honey.sql :refer [format] :rename {format sql-format}]
-   [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
-   [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
-   [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]   )
   (:import
    [java.io ByteArrayInputStream]
    [java.util Base64]))

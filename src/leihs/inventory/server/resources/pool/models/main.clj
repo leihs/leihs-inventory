@@ -19,10 +19,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   (java.time LocalDateTime)))
+   [ring.util.response :refer [bad-request response]]))
 
 (defn index-resources [request]
   (try
@@ -65,11 +62,9 @@
 ;###################################################################################
 
 (defn post-resource [request]
-  (let [created-ts (LocalDateTime/now)
-        tx (:tx request)
+  (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        {:keys [accessories prepared-model-data categories compatibles attachments properties
-                entitlements images new-images-attr existing-images-attr]}
+        {:keys [accessories prepared-model-data categories compatibles  properties entitlements]}
         (extract-model-form-data request)]
 
     (try

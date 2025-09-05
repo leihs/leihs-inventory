@@ -12,8 +12,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (def FETCH_OPTIONS_ERROR "Failed to fetch options")
 (def CREATE_OPTIONS_ERROR "Failed to create option")
@@ -29,9 +28,7 @@
       (let [res (jdbc/execute-one! tx (-> (sql/insert-into :options)
                                           (sql/values [multipart])
                                           (sql/returning :*)
-                                          sql-format))
-            model-id (:id res)]
-
+                                          sql-format))]
         (if res
           (response (-> res
                         (filter-map-by-spec ::ty/response-option-object)))
@@ -46,11 +43,8 @@
               (status 409))
           :else (bad-request {:error CREATE_OPTIONS_ERROR :details (.getMessage e)}))))))
 
-
-
 (defn index-resources [request]
-  (let [tx (get-in request [:tx])
-        pool-id (get-in request [:path-params :pool_id])]
+  (let [pool-id (get-in request [:path-params :pool_id])]
     (try
       (let [base-query (->
                         (sql/select :o.*)

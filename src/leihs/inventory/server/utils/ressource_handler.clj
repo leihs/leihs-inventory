@@ -6,7 +6,7 @@
    [leihs.core.db :as db]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html?]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]

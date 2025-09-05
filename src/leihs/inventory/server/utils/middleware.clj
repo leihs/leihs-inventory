@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.utils.middleware
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
+   [leihs.inventory.server.utils.response-helper :refer [index-html-response]]
    [ring.util.response :as response]))
 
 (defn accept-json-middleware [handler]

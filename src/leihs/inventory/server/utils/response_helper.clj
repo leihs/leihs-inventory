@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.response_helper
+(ns leihs.inventory.server.utils.response-helper
   (:require
    [clojure.java.io :as io]
    [clojure.set]

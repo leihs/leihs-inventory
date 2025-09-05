@@ -13,8 +13,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request not-found response]]
-   [taoensso.timbre :refer [error]])
+   [ring.util.response :refer [bad-request not-found response]])
   (:import
    (java.time LocalDateTime)))
 
@@ -51,7 +50,6 @@
 (defn put-resource [request]
   (try
     (let [model-id (to-uuid (get-in request [:path-params :model_id]))
-          pool-id (to-uuid (get-in request [:path-params :pool_id]))
           multipart (get-in request [:parameters :body])
           tx (:tx request)
           prepared-model-data (prepare-software-data multipart)
@@ -71,8 +69,7 @@
 
 (defn delete-resource [request]
   (try
-    (let [pool-id (to-uuid (get-in request [:path-params :pool_id]))
-          model-id (to-uuid (get-in request [:path-params :model_id]))
+    (let [model-id (to-uuid (get-in request [:path-params :model_id]))
           tx (:tx request)
           where-clause-model [:and [:= :id model-id] [:= :type "Software"]]
           models (db-operation tx :select :models where-clause-model)]

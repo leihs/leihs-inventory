@@ -1,7 +1,5 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.thumbnail.main
   (:require
-   [clojure.java.io :as io]
-   [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.resources.pool.models.model.images.image.common :refer [convert-base64-to-byte-stream]]
@@ -9,11 +7,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]])
-  (:import
-   [java.io ByteArrayInputStream]
-   [java.util Base64]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (def GET_THUMBNAIL_ERROR "Failed to retrieve thumbnail")
 

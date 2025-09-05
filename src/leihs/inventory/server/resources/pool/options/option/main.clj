@@ -10,8 +10,7 @@
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [bad-request response status]]
-   [taoensso.timbre :refer [error]]))
+   [ring.util.response :refer [bad-request response status]]))
 
 (def UPDATE_OPTION_ERROR "Failed to update option")
 (def DELETE_OPTION_ERROR "Failed to delete option")
