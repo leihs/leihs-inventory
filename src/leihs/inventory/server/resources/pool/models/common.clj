@@ -1,5 +1,6 @@
 (ns leihs.inventory.server.resources.pool.models.common
   (:require
+   [clojure.spec.alpha]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]
@@ -86,3 +87,10 @@
   ([models spec remove-nil-values?]
    (let [models (if remove-nil-values? (remove-nil-values models) models)]
      (mapv #(filter-map-by-spec % spec) models))))
+
+(defn model->enrich-with-image-attr
+  [pool-id]
+  (fn [{:keys [id image_id content_type] :as m}]
+    (cond-> m
+      image_id (assoc :url (str "/inventory/" pool-id "/models/" id "/images/" image_id)
+                      :content_type content_type))))

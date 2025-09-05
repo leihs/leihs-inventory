@@ -16,7 +16,9 @@ feature "Inventory Pagination", type: :feature do
 
     find("nav button", text: "Inventar").click
     click_on pool.name
-    expect(page).to have_content("Inventarliste - #{pool.name}")
+
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: pool.name)
+    expect(page).to have_css('nav[aria-label="breadcrumb"]', text: "Inventarliste")
 
     visit_with_query_param("with_items", "false")
     change_page_size(20)

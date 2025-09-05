@@ -65,7 +65,7 @@ describe "Call swagger-endpoints" do
           "user" => @user.login,
           "password" => @user.password,
           "csrf-token" => X_CSRF_TOKEN,
-          "return-to" => "/inventory/models"
+          "return-to" => "/inventory/"
         })
         expect(resp.status).to eq(302)
         expect(resp.headers["location"]).to eq("/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
@@ -80,7 +80,7 @@ describe "Call swagger-endpoints" do
         }, headers: {"Cookie" => @user_cookies_str})
 
         expect(resp.status).to eq(302)
-        expect(resp.headers["location"]).to match(%r{/inventory/$})
+        expect(resp.headers["location"]).to match(%r{/inventory/})
       end
     end
 

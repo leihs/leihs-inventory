@@ -1,0 +1,46 @@
+(ns leihs.inventory.server.resources.pool.models.model.images.image.common
+  (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]])
+  (:import
+   [java.io ByteArrayInputStream]
+   [java.util Base64]))
+
+(def CONVERTING_ERROR "Failed to convert Base64 string")
+(defn- clean-base64-string [base64-str]
+  (clojure.string/replace base64-str #"\s+" ""))
+
+(defn- url-safe-to-standard-base64 [base64-str]
+  (-> base64-str
+      (clojure.string/replace "-" "+")
+      (clojure.string/replace "_" "/")))
+
+(defn- add-padding [base64-str]
+  (let [mod (mod (count base64-str) 4)]
+    (cond
+      (= mod 2) (str base64-str "==")
+      (= mod 3) (str base64-str "=")
+      :else base64-str)))
+
+(defn- decode-base64-str [base64-str]
+  (let [cleaned-str (-> base64-str
+                        clean-base64-string
+                        url-safe-to-standard-base64
+                        add-padding)
+        decoder (Base64/getDecoder)]
+    (.decode decoder cleaned-str)))
+
+(defn convert-base64-to-byte-stream [result]
+  (try
+    (let [content-type (:content_type result)
+          base64-str (:content result)
+          decoded-bytes (decode-base64-str base64-str)]
+      {:status 200
+       :headers {"Content-Type" content-type
+                 "Content-Disposition" "inline"}
+       :body (io/input-stream (ByteArrayInputStream. decoded-bytes))})
+    (catch IllegalArgumentException e
+      (log-by-severity CONVERTING_ERROR e)
+      {:status 400
+       :body (str CONVERTING_ERROR (.getMessage e))})))

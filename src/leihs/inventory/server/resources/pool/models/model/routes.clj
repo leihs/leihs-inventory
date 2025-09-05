@@ -6,6 +6,8 @@
                                                                      patch-response
                                                                      put-response]]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form]]
+
+   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -18,6 +20,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
+          :middleware [accept-json-middleware]
           :handler model/get-resource
           :responses {200 {:description "OK"
                            :body :model-get-put-response/inventory-model}
