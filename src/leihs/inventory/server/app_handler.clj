@@ -64,11 +64,7 @@
                 m))
             {})))))
 
-(defn session-valid? [request]
-  (let [session (parse-cookie request)
-        is-authenticated? (authenticated? request)]
-    (and is-authenticated?
-         (get session "leihs-user-session"))))
+
 
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
@@ -81,34 +77,6 @@
   (println ">oo> " str fnc)
   fnc)
 
-(defn create-accept-response
-  "Return a response based on the Accept header.
-   - If Accept contains text/html → return an HTML response
-   - If Accept contains application/json → return a JSON response
-   - Otherwise → return a plain text response"
-  [request status]
-
-  (let [accept-header (get-in request [:headers "accept"])
-
-        status (int status)
-
-        p (println ">o> abc" status (type status))]
-
-    (cond
-      (and accept-header (str/includes? accept-header "text/html"))
-      (-> (rh/index-html-response request status)
-          (status status)
-          (content-type "text/html"))
-
-      (and accept-header (str/includes? accept-header "application/json"))
-      (-> (response {:error (str "Status " status)})
-          (status status)
-          (content-type "application/json"))
-
-      :else
-      (-> (response (str "Error " status))
-          (status status)
-          (content-type "text/plain")))))
 
 (defn create-accept-response
   "Return a response based on the Accept header.
@@ -160,37 +128,6 @@
                (seq accepted-types)
                (not (some allowed-formats accepted-types)))
 
-        ;; TODO: return default page
-
-        ;(and accept-html? (not (session-valid? request)) (not swagger-call?))
-
-        ;(cond
-        ;  ;  (and (str/includes? accept-header "text/html") (pr "session-invalid?" (not (session-valid? request))))
-        ;  ;{:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory" "Content-Type" "text/html"} :body ""}
-        ;  ;
-        ;
-        ;  (str/includes? accept-header "text/html")
-        ;  (pr "1?" (rh/index-html-response request 404))
-        ;
-        ;  ;
-        ;  ;(or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/"))
-        ;  ;;{:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
-        ;  ;(handler request)
-        ;  ;
-        ;  ;(or (= uri "/inventory/swagger-ui") (= uri "/inventory/swagger-ui/"))
-        ;  ;;{:status 302 :headers {"Location" "/inventory/swagger-ui/index.html"} :body ""}
-        ;  ;(handler request)
-        ;
-        ;  ;:else (-> (pr "meins>>" {:status 406 })
-        ;  ;        response
-        ;  ;        (status 406)
-        ;  ;        )
-        ;
-        ;  :else           (pr "2" (rh/index-html-response request 200))
-        ;
-        ;
-        ;  )
-
         (create-accept-response request 404)
 
         (handler request)))))
@@ -240,68 +177,20 @@
                                    :muuntaja m/instance
                                    :middleware middlewares}})
 
-;(:require [ring.util.mime-type :as mime]))
-
 (def default-mime
   {"svg" "image/svg+xml"
    "svgz" "image/svg+xml"})
-
-(defn ensure-content-type [handler]
-  (fn [req]
-    (let [resp (handler req)]
-      (if (pr "contType??" (get-in resp [:headers "Content-Type"]))
-        resp
-        (if-let [ct (pr "ct???" (mime/ext-mime-type (:uri req) default-mime))]
-          (assoc-in resp [:headers "Content-Type"] ct)
-          resp)))))
-
-(def digest-re
-  ;; matches: /path/name.<ext>_<40hex>.<ext>
-  ;; captures: 1=/path/name, 2=first ext, 3=second ext
-  (re-pattern "(?i)^(.*?)(\\.[^.\\/]+)_[0-9a-f]{40}(\\.[^.\\/]+)$"))
-
-(def digest-tail-re
-  ;; matches: _<hex>.<ext> at end of path, e.g. /name.svg_<hash>.svg
-  #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
-
-(defn strip-digest [handler]
-  (fn [req]
-    (let [uri (:uri req)
-          new-uri (if (and uri (re-find digest-tail-re uri))
-                    (str/replace uri digest-tail-re "")
-                    uri)]
-      (println ">o> strip-digest" uri "=>"
-               new-uri) ; optional debug
-      (handler (assoc req :uri new-uri)))))
 
 (def cache-bust-options
   {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
    :never-expire-paths []
    :cache-enabled? true})
 
-;(defn init []
-;  (let [router
-;        (ring/router (routes/all-api-endpoints) default-router-config)
-;        swagger-ui-handler (swagger/init)
-;        default-handler (ring/routes swagger-ui-handler
-;                                     (ring/create-default-handler {:not-found custom-not-found-handler}))]
-;    (-> (ring/ring-handler router default-handler)
-;        (cache-buster2/wrap-resource "public" cache-bust-options)
-;        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-;        (wrap-default-charset "utf-8"))))
-
 (require '[ring.middleware.defaults :refer [wrap-defaults site-defaults]])
 
 (def defaults
   (-> site-defaults
       (assoc-in [:responses :not-modified-responses] false)))
-
-(defn tap-status [handler]
-  (fn [req]
-    (let [resp (handler req)]
-      (println ">> status" (:status resp) "uri" (:uri req)
-               "ct" (get-in resp [:headers "Content-Type"]))
-      resp)))
 
 (def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
 
@@ -338,13 +227,9 @@
   (let [router (ring/router (routes/all-api-endpoints) default-router-config)
         swagger-ui-handler (swagger/init)
         not-found (ring/create-default-handler {:not-found custom-not-found-handler})
-
-        ;; Try Swagger first, then the router, then 404.
         app (ring/routes
              swagger-ui-handler
              (ring/ring-handler router not-found))]
-              ;(ring/ring-handler not-found))]
-
     (->
      app
 
@@ -354,21 +239,9 @@
      strip-digest
 
      (cache-buster2/wrap-resource "public" cache-bust-options)
-      ;ensure-content-type
 
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
                                    "svgz" "image/svg+xml"}})
 
-;(wrap-defaults defaults)
-
-      ;(wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-      ;(wrap-default-charset "utf-8")
-      ;
-      ;(wrap-defaults (-> site-defaults
-                       ; don’t let not-found HTML mask static results
-                       ; leave as-is unless you’ve changed defaults
-                       ;identity))
-      ;(wrap-defaults defaults)
-      ;tap-status
 
      ensure-content-type)))

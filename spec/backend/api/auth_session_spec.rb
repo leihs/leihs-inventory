@@ -16,7 +16,6 @@ describe "Call swagger-endpoints" do
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     it "returns 200" do
-      # resp = client.get "/sign-in" do |req|
       resp = sign_in client
       expect(resp.status).to eq(200)
     end
@@ -27,9 +26,6 @@ describe "Call swagger-endpoints" do
     end
 
     it "returns 200 for correct credentials" do
-      # resp = client.get "/sign-in" do |req|
-      #   req.headers["Accept"] = "text/html"
-      # end
       resp = sign_in client
       expect(resp.status).to eq(200)
     end
@@ -38,9 +34,6 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      # resp = client.get("/sign-in") do |req|
-      #   req.headers["Accept"] = "text/html"
-      # end
       resp = sign_in client
       expect(resp.status).to eq(200)
 

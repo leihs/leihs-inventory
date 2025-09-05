@@ -13,9 +13,7 @@
           :description "Uses /inventory/pools-by-access-right for the pools."
           :coercion reitit.coercion.schema/coercion
           :middleware [wrap-authenticate! accept-json-middleware]
-          ;:swagger {:produces ["application/json"]}
           :produces ["application/json"]
-
           :handler profile/get-resource
           :responses {200 {:description "OK"
                            :body profile-response-schema}

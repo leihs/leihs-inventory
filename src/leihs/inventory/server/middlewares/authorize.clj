@@ -29,7 +29,6 @@
         (handler request)
         (unauthorized-response request))
 
-      ;(unauthorized-response request)
       )))
 (defn wrap-authorize-for-pool [handler]
   (fn [{{{pool-id :pool_id} :path} :parameters
@@ -39,23 +38,12 @@
           route-data (get-in request [:reitit.core/match :data method])
           public? (:public route-data)]
 
-      (println ">o> abc.route-is-public?" public?)
-
       (if public?
-        ;; route is marked public — skip access check
         (handler request)
 
-        ;; otherwise require correct role for pool
         (let [access-right (detect #(= (:inventory_pool_id %) pool-id)
                                    (get-in request [:authenticated-entity :access-rights]))
               role (:role access-right)]
-
-          (println ">o> abc.role" role)
-
           (if (contains? #{"lending_manager" "inventory_manager"} role)
             (handler (assoc-in request [:authenticated-entity :role] role))
-
-            ;{:status 403
-            ; :body "Unauthorized due to insufficient access right role."}
-
             (unauthorized-response request)))))))

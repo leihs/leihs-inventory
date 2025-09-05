@@ -35,7 +35,6 @@ describe "Request " do
       scenario "json response is correct" do
         http_client.headers["Accept"] = "text/html"
         resp = http_client.get "/"
-
         expect(resp.status).to be == 200
         expect(resp.body).to include("Overview _> go to")
       end

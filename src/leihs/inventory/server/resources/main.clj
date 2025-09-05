@@ -85,10 +85,6 @@
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))
-    ;    accept (get-in params [:headers "accept"])
         res (so/routes params)
         p (println ">o> abc.res" res)]
-    ;(if (str/includes? accept "application/json")
-    ;  {:status (if (so/routes params) 200 409)}
-    ;  (so/routes params))
     (status (response {}) 200)))

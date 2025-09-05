@@ -22,7 +22,6 @@ end
 def plain_faraday_html_client
   @plain_faraday_client ||= Faraday.new(
     url: api_base_url,
-    # headers: {accept: "*/*"}
     headers: {accept: "text/html"}
   ) do |conn|
     yield(conn) if block_given?

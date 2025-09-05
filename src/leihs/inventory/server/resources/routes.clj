@@ -69,12 +69,10 @@
 
 (defn pr
   ([str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
    (println ">oo> " str fnc)
    fnc)
 
   ([str str2 fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
    (println ">oo> " str str2)
    fnc))
 
@@ -95,8 +93,6 @@
 
      :post {:accept "application/json"
             :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
-            ;:swagger {:produces ["application/multipart-form-data"]}
-            ;:produces ["application/multipart-form-data"]
             :produces ["text/html"]
             :coercion reitit.coercion.schema/coercion
             :handler post-sign-in}
@@ -112,13 +108,7 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {;:accept "text/html"
-            :accept "application/json"
-
-                                ;:swagger {:produces ["text/html" "application/json"]}
-            ;:produces ["text/html" "application/json"]
-            ;:produces ["text/html"]
-
+     :post {:accept "application/json"
             :handler post-sign-out}
      :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
@@ -155,12 +145,6 @@
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 
-(defn extract-filename [uri]
-  (let [filename (last (str/split uri #"/"))]
-    (if (and (seq filename) (re-matches #".*\.(css|js)$" filename))
-      filename
-      nil)))
-
 (def mime-types
   {"html" "text/html"
    "htm" "text/html"
@@ -192,26 +176,7 @@
    {:swagger {:tags ["Assets"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
-   ;["assets/{*path}"
-   ; {:no-doc HIDE_BASIC_ENDPOINTS
-   ;  :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
-   ;        :swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
-   ;        :description "Public assets like JS, CSS, images"
-   ;        :handler (fn [request]
-   ;                   (debug "Processing asset request...")
-   ;                   (try
-   ;                     (let [uri (:uri request)
-   ;                           file (extract-filename uri)
-   ;                           content-type (content-type file)
-   ;                           resource (io/resource file)]
-   ;                       {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
-   ;                     (catch Exception e
-   ;                       (error "Error processing asset request:" e)
-   ;                       (rh/index-html-response request 404))))}}]
-   ;
-
    ["swagger-ui/{*path}"
-   ;["swagger-ui/index.html"
     {:no-doc HIDE_BASIC_ENDPOINTS
      :get {:accept "text/html"
            :public true
@@ -231,9 +196,7 @@
 
    ["{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {;:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\n"
-           ;:swagger {:produces ["application/json" "text/html" "image/png" "image/jpeg" "image/gif" "image/webp" "image/svg+xml"]}
-           :description "Public assets like JS, CSS, images"
+     :get {:description "Public assets like JS, CSS, images"
            :produces ["text/html"]
            :handler (fn [request]
                       (println ">>>> check session")
@@ -254,8 +217,6 @@
 
 (defn swagger-endpoints []
   ["/api-docs"
-   ;{:get {:handler swagger-api-docs-handler
-   ;       :no-doc true}}
 
    ["/swagger.json"
     {:get {:no-doc true
