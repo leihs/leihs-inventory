@@ -1,6 +1,7 @@
 - name: create jar
   tags: [builds_artefact, builds_artefact_with_java]
   delegate_to: localhost
+  run_once: true
   args:
     executable: /bin/bash
   shell: |
