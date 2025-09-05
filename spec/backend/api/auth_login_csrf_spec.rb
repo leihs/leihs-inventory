@@ -12,13 +12,13 @@ describe "Call swagger-endpoints" do
 
     context "GET /sign-in" do
       it "returns 200 to fetch csrf-token" do
-        resp = session_auth_plain_faraday_json_client(headers: {accept: "application/json"}).get("/sign-in")
+        resp = session_auth_plain_faraday_json_client(headers: { accept: "application/json" }).get("/sign-in")
         expect(resp.status).to eq(404)
         # expect(resp.body["csrf-token"]).to be
       end
 
       it "returns 200 to fetch login-form containing csrf-token" do
-        resp = session_auth_plain_faraday_json_client(headers: {accept: "text/html"}).get("/sign-in")
+        resp = session_auth_plain_faraday_json_client(headers: { accept: "text/html" }).get("/sign-in")
         expect(resp.status).to eq(200)
         expect(resp.body["csrf-token"]).to be
       end
@@ -94,6 +94,8 @@ describe "Call swagger-endpoints" do
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(302)
+        expect(resp.headers["location"]).to eq("/inventory/")
+
       end
 
       it "returns 404 for text/html" do
@@ -118,7 +120,28 @@ describe "Call swagger-endpoints" do
 
         # logout fails due missing cookie
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
+          # req.headers["Accept"] = "text/html"
+          req.headers["Accept"] = "application/json" # works with both
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+        expect(resp.status).to eq(403)
+
+        # logout fails due invalid cookie
+        _, _ = generate_csrf_session_data("")
+        resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
+          # req.headers["Accept"] = "text/html"  # 302
+          req.headers["Accept"] = "application/json" # works with both
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+        expect(resp.status).to eq(403)
+        # expect(resp.status).to eq(302)
+
+
+
+        # logout fails due missing cookie
+        resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
           req.headers["Accept"] = "text/html"
+          # req.headers["Accept"] = "application/json" # works with both
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(404)
@@ -127,6 +150,7 @@ describe "Call swagger-endpoints" do
         _, _ = generate_csrf_session_data("")
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
           req.headers["Accept"] = "text/html"  # 302
+          # req.headers["Accept"] = "application/json" # works with both
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(404)
