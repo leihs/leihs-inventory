@@ -64,7 +64,7 @@
 (defn post-resource [request]
   (let [tx (:tx request)
         pool-id (to-uuid (get-in request [:path-params :pool_id]))
-        {:keys [accessories prepared-model-data categories compatibles  properties entitlements]}
+        {:keys [accessories prepared-model-data categories compatibles properties entitlements]}
         (extract-model-form-data request)]
 
     (try

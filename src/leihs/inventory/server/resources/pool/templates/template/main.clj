@@ -14,7 +14,7 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request not-found response status]]
-   [taoensso.timbre :refer [debug ]]))
+   [taoensso.timbre :refer [debug]]))
 
 (def ERROR_DELETION "Failed to delete template")
 (def ERROR_FETCH "Failed to fetch template")

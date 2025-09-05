@@ -2,8 +2,8 @@
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
    [leihs.inventory.server.resources.pool.models.model.images.image.common :refer [convert-base64-to-byte-stream]]
+   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_HEADER_TYPE]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
@@ -42,11 +42,11 @@
 (defn delete-resource
   [req]
   (let [tx (:tx req)
-        {:keys [ image_id]} (:path (:parameters req))
+        {:keys [image_id]} (:path (:parameters req))
         id (to-uuid image_id)
         res (jdbc/execute-one! tx
-                                 (sql-format
-                                  {:delete-from :images :where [:= :id id]}))]
-      (if (= (:next.jdbc/update-count res) 1)
-        (response {:status "ok" :image_id image_id})
-        (bad-request {:error "Failed to delete image"}))))
+                               (sql-format
+                                {:delete-from :images :where [:= :id id]}))]
+    (if (= (:next.jdbc/update-count res) 1)
+      (response {:status "ok" :image_id image_id})
+      (bad-request {:error "Failed to delete image"}))))

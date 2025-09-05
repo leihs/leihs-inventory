@@ -1,9 +1,9 @@
 (ns leihs.inventory.server.resources.pool.models.common
   (:require
+   [clojure.spec.alpha]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [next.jdbc :as jdbc]
-   [clojure.spec.alpha]
    [taoensso.timbre :refer [debug]]))
 
 (defn remove-nil-values
