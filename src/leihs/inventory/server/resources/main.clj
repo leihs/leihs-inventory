@@ -19,7 +19,8 @@
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.util.response :refer [response status redirect]])
-  (:gen-class))
+  (:gen-class)
+  (:import (org.jsoup Jsoup)))
 
 (defn swagger-api-docs-handler [request]
   (let [path (:uri request)]
