@@ -234,7 +234,6 @@
 
      strip-digest
 
-     ;(cache-buster2/wrap-resource "public/inventory/" cache-bust-options)
      (cache-buster2/wrap-resource "public" cache-bust-options)
 
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
