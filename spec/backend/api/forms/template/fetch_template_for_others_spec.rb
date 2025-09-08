@@ -13,7 +13,7 @@ RSpec.describe "Inventory templates API (access control)" do
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:pool_id) { @inventory_pool.id }
-      let(:expected_status) { 404 }
+      let(:expected_status) { 403 }
 
       it "denies index, pagination, create, update, and delete" do
         endpoints = [
