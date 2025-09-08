@@ -86,5 +86,5 @@
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))
-        res (so/routes params)]
+        _ (so/routes params)]
     {:status 302, :headers {"Location" "/inventory/"}}))

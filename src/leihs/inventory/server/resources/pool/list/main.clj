@@ -10,8 +10,7 @@
                                                                  with-items
                                                                  with-search
                                                                  without-items]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response
-                                                    fetch-pagination-params]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.util.response :refer [response]]

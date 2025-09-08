@@ -3,7 +3,7 @@
    [clojure.string :as str]
    [leihs.inventory.server.utils.response_helper :refer [index-html-response]]
    [ring.util.response :as response]
-   [taoensso.timbre :refer [debug spy]]))
+   [taoensso.timbre :refer [debug]]))
 
 (defn restrict-uri-middleware
   "Middleware that blocks requests unless URI is explicitly allowed."

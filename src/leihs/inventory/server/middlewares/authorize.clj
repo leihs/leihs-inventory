@@ -2,9 +2,7 @@
   (:require
    [clojure.string :as str]
    [leihs.core.core :refer [detect]]
-   [leihs.inventory.server.utils.response_helper :as rh]
-   [ring.util.response :as response]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [ring.util.response :as response]))
 
 (defn unauthorized-response [request]
   (if (str/includes? (get-in request [:headers "accept"] "") "json")
@@ -15,7 +13,7 @@
      :body ""}))
 
 (defn wrap-authorize [handler]
-  (fn [{{{pool-id :pool_id} :path} :parameters
+  (fn [{;{{pool-id :pool_id} :path} :parameters
         :keys [authenticated-entity request-method]
         :as request}]
     (let [method request-method
@@ -27,7 +25,7 @@
 
 (defn wrap-authorize-for-pool [handler]
   (fn [{{{pool-id :pool_id} :path} :parameters
-        :keys [authenticated-entity request-method]
+        :keys [request-method]
         :as request}]
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])

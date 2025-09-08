@@ -1,4 +1,4 @@
-(ns leihs.inventory.server.utils.middleware_handler
+(ns leihs.inventory.server.utils.middleware-handler
   (:require
    [clojure.string :as str]
    [leihs.core.auth.session :as session]
@@ -10,11 +10,24 @@
    [ring.middleware.accept]
    [taoensso.timbre :refer [debug error]]))
 
-(defn wrap-accept-with-image-rewrite [handler]
+(defn default-handler-fetch-resource [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           uri (:uri request)
-          updated-request request]
+          whitelist-uris-for-api ["/sign-in" "/sign-out" "/inventory/api-docs/swagger.json" "/inventory/status"]
+          image-or-thumbnail-request? (valid-image-or-thumbnail-uri? uri)
+          attachment-request? (valid-attachment-uri? uri)]
+
+      (if (or (and accept-header (some #(str/includes? accept-header %) ["openxmlformats" "text/csv" "json" "image/"]))
+              (some #(= % uri) whitelist-uris-for-api)
+              image-or-thumbnail-request?
+              attachment-request?)
+        (handler request)
+        (custom-not-found-handler request)))))
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [updated-request request]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn wrap-session-token-authenticate! [handler]

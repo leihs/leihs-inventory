@@ -83,11 +83,10 @@
     (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
 (defn fetch-categories [tx model-id]
-  (let [category-type "Category"
-        query (-> (sql/select :mg.id :mg.type :mg.name)
+  (let [query (-> (sql/select :mg.id :mg.type :mg.name)
                   (sql/from [:model_groups :mg])
                   (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
-                  (sql/where [:ilike :mg.type (str category-type)])
+                  (sql/where [:ilike :mg.type "Category"])
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
                   sql-format)

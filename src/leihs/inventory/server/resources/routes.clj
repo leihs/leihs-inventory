@@ -9,7 +9,6 @@
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
    [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
                                                   post-sign-in post-sign-out
-                                                  swagger-api-docs-handler
                                                   get-csrf-token]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
@@ -46,17 +45,14 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?
-                                                       AUTHENTICATED_ENTITY
-                                                       get-auth-entity]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error]]))
+   [taoensso.timbre :refer [debug]]))
 
 (defn- create-root-page [_]
   {:status 200
@@ -66,15 +62,6 @@
        <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
-
-(defn pr
-  ([str fnc]
-   (println ">oo> " str fnc)
-   fnc)
-
-  ([str str2 fnc]
-   (println ">oo> " str str2)
-   fnc))
 
 (defn sign-in-out-endpoints []
   [[""
@@ -200,10 +187,9 @@
     :get {:description "Public assets like JS, CSS, images"
           :produces ["text/html"]
           :handler (fn [request]
-                     (let [params (-> request
-                                      convert-params
-                                      (assoc-in [:accept :mime] :html))
-                           accept (get-in params [:headers "accept"])])
+                     (let [_ (-> request
+                                 convert-params
+                                 (assoc-in [:accept :mime] :html))])
 
                      (if (authenticated? request)
                        (rh/index-html-response request 200)

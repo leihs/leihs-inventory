@@ -7,7 +7,6 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-response
                                                                                   error-image-not-found
                                                                                   image]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-image-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

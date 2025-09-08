@@ -1,8 +1,6 @@
 (ns leihs.inventory.server.app-handler
   (:require
-   ;[ring.util.response :refer [bad-request response status]]
    [cheshire.core :as json]
-   [clojure.string :as clojure.string]
    [clojure.string :as str]
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.db :as db]
@@ -14,14 +12,10 @@
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
-
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware_handler :refer [;default-handler-fetch-resource
-                                                            wrap-accept-with-image-rewrite
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response_helper :as rh]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -35,32 +29,18 @@
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]
-   [reitit.swagger]
    [reitit.swagger :as swagger2]
-   [reitit.swagger-ui :as swagger-ui2]
-
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
-
-   [ring.middleware.default-charset :refer [wrap-default-charset]]
-   [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
-   [ring.middleware.file-info :refer [wrap-file-info]]
    [ring.middleware.params :refer [wrap-params]]
-   [ring.middleware.resource :refer [wrap-resource]]
    [ring.util.mime-type :as mime]
-   [ring.util.response :refer [bad-request response status content-type]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [ring.util.response :refer [response status content-type]]))
 
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
        (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
        (remove clojure.string/blank?)
        set))
-
-(defn pr [str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-  (println ">oo> " str fnc)
-  fnc)
 
 (defn create-accept-response
   "Return a response based on the Accept header.
@@ -91,7 +71,6 @@
           accepted-types (if accept-header (parse-accept-header accept-header) #{"*/*"})
           method (get request :request-method)
           route-data (get-in request [:reitit.core/match :data method])
-          uri (:uri request)
           produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
           accept-format (some-> route-data :accept clojure.string/lower-case)
           allowed-formats (cond-> produces-set
@@ -151,32 +130,12 @@
    :never-expire-paths []
    :cache-enabled? true})
 
-(require '[ring.middleware.defaults :refer [wrap-defaults site-defaults]])
-
-(def defaults
-  (-> site-defaults
-      (assoc-in [:responses :not-modified-responses] false)))
-
 (def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
 
 (defn- strip-tail [s]
   (when s
     (let [new (str/replace s tail-re "")]
       (if (identical? s new) s new))))
-
-;(defn strip-digest [handler]
-;  (fn [req]
-;    (let [uri (:uri req)
-;          pinfo (:path-info req)
-;          new-uri (strip-tail uri)
-;          new-pi (strip-tail pinfo)
-;          req' (cond-> req
-;                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
-;                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
-;      (when (or (not= uri new-uri) (not= pinfo new-pi))
-;        (println ">o> strip-digest" uri "=>" new-uri
-;                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
-;      (handler req'))))
 
 (defn strip-digest [handler]
   (fn [req]
@@ -200,20 +159,18 @@
           resp)))))
 
 (def buster-mime-types {:mime-types {"svg" "image/svg+xml"
-                                      "svgz" "image/svg+xml"}})
+                                     "svgz" "image/svg+xml"}})
 
 (defn init []
   (let [router (ring/router (routes/all-api-endpoints) default-router-config)
         swagger-ui-handler (swagger/init)
-        ;not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
         app (ring/routes
              swagger-ui-handler
-             ;(ring/ring-handler router not-found))]
-             (ring/ring-handler router))]
+             (ring/ring-handler router not-found))]
     (->
      app
      (wrap-content-type buster-mime-types)
      strip-digest
      (cache-buster2/wrap-resource "public" cache-bust-options)
-     (wrap-file-info buster-mime-types)
      ensure-content-type)))
