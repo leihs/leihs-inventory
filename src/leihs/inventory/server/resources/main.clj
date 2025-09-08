@@ -18,7 +18,7 @@
    [pandect.core]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [response status redirect]])
+   [ring.util.response :refer [redirect response status]])
   (:gen-class))
 
 (defn swagger-api-docs-handler [request]

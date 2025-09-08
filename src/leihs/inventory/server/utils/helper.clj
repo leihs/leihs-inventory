@@ -2,7 +2,7 @@
   (:require
    [clojure.string :as str]
    [clojure.walk :as walk]
-   [taoensso.timbre :refer [error debug]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn safe-ex-data [e]
   (when (instance? clojure.lang.ExceptionInfo e)

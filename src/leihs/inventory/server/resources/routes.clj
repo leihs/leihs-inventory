@@ -6,10 +6,10 @@
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
    [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool]]
-   [leihs.inventory.server.resources.main :refer [get-sign-in get-sign-out
-                                                  post-sign-in post-sign-out
-                                                  swagger-api-docs-handler
-                                                  get-csrf-token]]
+   [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
+                                                  get-sign-out post-sign-in
+                                                  post-sign-out
+                                                  swagger-api-docs-handler]]
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
