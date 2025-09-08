@@ -31,8 +31,7 @@
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.default-charset :refer [wrap-default-charset]]
-   [ring.middleware.params :refer [wrap-params]]
-   [taoensso.timbre :as timbre :refer [debug spy]]))
+   [ring.middleware.params :refer [wrap-params]]))
 
 (def middlewares [debug-mw/wrap-debug
 

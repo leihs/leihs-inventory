@@ -13,7 +13,7 @@
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [ring.util.response :refer [response status content-type]]))
+   [ring.util.response :refer [content-type response status]]))
 
 (def SUPPORTED_MIME_TYPES {".js" "text/javascript"
                            ".css" "text/css"
