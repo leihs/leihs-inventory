@@ -5,24 +5,6 @@
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug spy]]))
 
-(defn pr
-  ([str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-   (println ">oo> " str fnc)
-   fnc)
-
-  ([str str fnc]
-  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
-   (println ">oo> " str str)
-   fnc))
-
-(defn accept-json-middleware [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
-        (handler request)
-        (pr ">F1" "accept-json-middleware???" (index-html-response request 200))))))
-
 (defn restrict-uri-middleware
   "Middleware that blocks requests unless URI is explicitly allowed."
   [allowed-uris]

@@ -18,7 +18,7 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware_handler :refer [default-handler-fetch-resource
+   [leihs.inventory.server.utils.middleware_handler :refer [;default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
@@ -51,21 +51,6 @@
    [ring.util.response :refer [bad-request response status content-type]]
    [taoensso.timbre :as timbre :refer [debug spy]]))
 
-(defn parse-cookie [request]
-  (let [cookie-str (get-in request [:headers "cookie"])]
-    (if (or (nil? cookie-str) (clojure.string/blank? cookie-str))
-      {}
-      (->> (clojure.string/split cookie-str #"; ")
-           (map #(clojure.string/split % #"=" 2))
-           (reduce
-            (fn [m [k v]]
-              (if (and k v)
-                (assoc m k v)
-                m))
-            {})))))
-
-
-
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
        (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
@@ -76,7 +61,6 @@
   ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
   (println ">oo> " str fnc)
   fnc)
-
 
 (defn create-accept-response
   "Return a response based on the Accept header.
@@ -105,31 +89,18 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           accepted-types (if accept-header (parse-accept-header accept-header) #{"*/*"})
-
-          ;; method = :get, :post, etc.
           method (get request :request-method)
           route-data (get-in request [:reitit.core/match :data method])
-
           uri (:uri request)
-
-          ;; get :produces list or single :accept format
           produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
           accept-format (some-> route-data :accept clojure.string/lower-case)
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))]
-
-      ;(println "> strict-format:    " (:uri request) method)
-      ;(println "> strict-format :: Accept Header:    " accept-header)
-      ;(println "> strict-format :: Parsed Formats:   " accepted-types)
-      ;(println "> strict-format :: Allowed Formats:  " allowed-formats)
-
-      ;; enforce: if Accept is given, it must match what we allow
       (if (and (seq allowed-formats)
                (seq accepted-types)
                (not (some allowed-formats accepted-types)))
 
         (create-accept-response request 404)
-
         (handler request)))))
 
 (def middlewares [debug-mw/wrap-debug
@@ -146,7 +117,6 @@
                   csrf/extract-header
 
                   wrap-session-token-authenticate!
-                  ;wrap-authenticate!
 
                   wrap-cookies
                   csrf/wrap-csrf
@@ -156,7 +126,6 @@
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-                  ;default-handler-fetch-resource
 
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
@@ -195,6 +164,20 @@
     (let [new (str/replace s tail-re "")]
       (if (identical? s new) s new))))
 
+;(defn strip-digest [handler]
+;  (fn [req]
+;    (let [uri (:uri req)
+;          pinfo (:path-info req)
+;          new-uri (strip-tail uri)
+;          new-pi (strip-tail pinfo)
+;          req' (cond-> req
+;                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
+;                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
+;      (when (or (not= uri new-uri) (not= pinfo new-pi))
+;        (println ">o> strip-digest" uri "=>" new-uri
+;                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
+;      (handler req'))))
+
 (defn strip-digest [handler]
   (fn [req]
     (let [uri (:uri req)
@@ -204,9 +187,6 @@
           req' (cond-> req
                  (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
                  (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
-      (when (or (not= uri new-uri) (not= pinfo new-pi))
-        (println ">o> strip-digest" uri "=>" new-uri
-                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
       (handler req'))))
 
 (defn ensure-content-type [handler]
@@ -219,25 +199,21 @@
           (assoc-in resp [:headers "Content-Type"] ct)
           resp)))))
 
+(def buster-mime-types {:mime-types {"svg" "image/svg+xml"
+                                      "svgz" "image/svg+xml"}})
+
 (defn init []
   (let [router (ring/router (routes/all-api-endpoints) default-router-config)
         swagger-ui-handler (swagger/init)
-        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+        ;not-found (ring/create-default-handler {:not-found custom-not-found-handler})
         app (ring/routes
              swagger-ui-handler
-             (ring/ring-handler router not-found))]
+             ;(ring/ring-handler router not-found))]
+             (ring/ring-handler router))]
     (->
      app
-
-     (wrap-content-type {:mime-types {"svg" "image/svg+xml"
-                                      "svgz" "image/svg+xml"}})
-
+     (wrap-content-type buster-mime-types)
      strip-digest
-
      (cache-buster2/wrap-resource "public" cache-bust-options)
-
-     (wrap-file-info {:mime-types {"svg" "image/svg+xml"
-                                   "svgz" "image/svg+xml"}})
-
-
+     (wrap-file-info buster-mime-types)
      ensure-content-type)))

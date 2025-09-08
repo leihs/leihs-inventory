@@ -108,10 +108,8 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {
-            :accept "application/json"
-           ;:accept "text/html"
-           ;:produces ["text/html"]
+     :post {:accept "application/json"
+            :produces ["text/html"]
             :handler post-sign-out}
      :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
@@ -197,26 +195,19 @@
                           (println "Error processing swagger-ui request:" e)
                           (rh/index-html-response request 404))))}}]]
 
-   ["{*path}"
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {:description "Public assets like JS, CSS, images"
-           :produces ["text/html"]
-           :handler (fn [request]
-                      (println ">>>> check session")
-                      (println ">>>> check session.auth" (:authenticated-entity request))
-                      (println ">>>> check session.auth?" (authenticated? request))
-                      (println ">>>> check session.auth?" (authenticated? request))
+  ["{*path}"
+   {:no-doc HIDE_BASIC_ENDPOINTS
+    :get {:description "Public assets like JS, CSS, images"
+          :produces ["text/html"]
+          :handler (fn [request]
+                     (let [params (-> request
+                                      convert-params
+                                      (assoc-in [:accept :mime] :html))
+                           accept (get-in params [:headers "accept"])])
 
-                      (let [params (-> request
-                                       convert-params
-                                       (assoc-in [:accept :mime] :html))
-                            accept (get-in params [:headers "accept"])
-                            p (println ">o> abc.accept" accept)])
-
-                      (if (authenticated? request)
-                        (pr "F2" "All Html" (rh/index-html-response request 200))
-
-                        {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}])
+                     (if (authenticated? request)
+                       (rh/index-html-response request 200)
+                       {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}])
 
 (defn swagger-endpoints []
   ["/api-docs"
@@ -301,5 +292,4 @@
     (swagger-endpoints)
     (csrf-endpoints)
     (visible-api-endpoints)
-
     (assets-endpoints)]])

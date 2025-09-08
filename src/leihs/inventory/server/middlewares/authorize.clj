@@ -21,15 +21,10 @@
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])
           public? (:public route-data)]
-
-      (println ">o> abc.authenticated-entity ??" authenticated-entity)
-      (println ">o> abc.route-is-public?" public?)
-
       (if (or public? authenticated-entity)
         (handler request)
-        (unauthorized-response request))
+        (unauthorized-response request)))))
 
-      )))
 (defn wrap-authorize-for-pool [handler]
   (fn [{{{pool-id :pool_id} :path} :parameters
         :keys [authenticated-entity request-method]

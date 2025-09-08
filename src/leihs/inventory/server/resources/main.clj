@@ -71,9 +71,6 @@
                       (assoc-in request [:form-params :return-to] "/inventory/")
                       request)
             resp (be/routes (convert-params request))]
-
-        (println ">o> abc.post-sin.resp" resp)
-
         resp))))
 
 (defn get-sign-out [request]
@@ -89,19 +86,5 @@
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))
-        res (so/routes params)
-        p (println ">o> abc.res2" res)]
-    ;(status (response {}) 200)
-
-    ;{:status 200
-    ; :headers {"Content-Type" "text/html"}
-    ; ;:body html
-    ; }
-
-
-    ;{:status 302, :headers {"Location" location}}
-    {:status 302, :headers {"Location" "/inventory/"}}
-
-    ;{:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}
-
-    ))
+        res (so/routes params)]
+    {:status 302, :headers {"Location" "/inventory/"}}))

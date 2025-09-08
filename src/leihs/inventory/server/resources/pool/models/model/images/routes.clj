@@ -6,7 +6,7 @@
    [leihs.inventory.server.resources.pool.models.model.images.main :as images]
    [leihs.inventory.server.resources.pool.models.model.images.types :refer [get-images-response
                                                                             post-response]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
+
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -22,7 +22,7 @@
            :swagger {:consumes ["application/json"]
                      :produces "application/json"}
            :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
+
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid}
                         :header {:x-filename s/Str}}
@@ -35,7 +35,7 @@
 
     :get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
+
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid}

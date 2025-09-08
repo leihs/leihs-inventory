@@ -5,7 +5,7 @@
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form
                                                                get-compatible-response
                                                                post-response]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
+
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -16,7 +16,7 @@
    {:get {:conflicting true
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
+
           :swagger {:produces ["application/json"]}
           :summary "Global search for models (-compatibles)"
           :description "Global search for models-compatibles, includes models of type: 'Model', 'Software' as well"
