@@ -98,6 +98,13 @@
         "empty": "Keine Modelle gefunden",
         "package_item": "ist Bestandteil eines Pakets",
         "shelf": "Lager",
+        "item": {
+          "available": "Verfügbar",
+          "broken": "Defekt",
+          "rented": "Ausgeliehen",
+          "not_borrowable": "Nicht ausleihbar",
+          "incomplete": "Unvollständig"
+        },
         "header": {
           "amount": "Menge",
           "name": "Name",
