@@ -12,6 +12,7 @@
    :model_id (s/maybe s/Uuid)
    :parent_id (s/maybe s/Uuid)
    :inventory_pool_id (s/maybe s/Uuid)
+   :inventory_pool_name (s/maybe s/Str)
    :owner_id (s/maybe s/Uuid)
    :supplier_id (s/maybe s/Uuid)
    :room_id (s/maybe s/Uuid)
@@ -27,6 +28,9 @@
    :retired (s/maybe DateTime)
    :retired_reason (s/maybe s/Str)
    :status_note (s/maybe s/Str)
+   :reservation_end_date (s/maybe DateTime)
+   :reservation_user_id (s/maybe s/Uuid)
+   :reservation_user_name (s/maybe s/Str)
    :name (s/maybe s/Str)
    :invoice_number (s/maybe s/Str)
    :invoice_date (s/maybe DateTime)
@@ -39,9 +43,10 @@
    :insurance_number (s/maybe s/Str)
    :last_check (s/maybe DateTime)
    :responsible (s/maybe s/Str)
+   :package_items_count (s/maybe s/Int)
    (s/optional-key :is_package) (s/maybe s/Bool)
    (s/optional-key :building_name) (s/maybe s/Str)
    (s/optional-key :room_name) (s/maybe s/Str)})
 
-(def get-items-response {:data [item]
-                         :pagination pagination})
+(def get-items-response
+  (s/->Either [[item] {:data [item] :pagination pagination}]))
