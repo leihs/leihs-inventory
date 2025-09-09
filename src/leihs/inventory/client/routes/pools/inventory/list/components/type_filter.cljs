@@ -24,32 +24,35 @@
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
-          ($ Button {:variant "outline"}
-             ($ Tags {:className (str "h-4 w-4 mr-2 " class-name)})
+          ($ Button {:class-name (str "py-0 w-48 " class-name)
+                     :variant "outline"}
+             ($ Tags {:className "h-4 w-4 mr-2"})
              (t "pool.models.filters.type.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
-       ($ DropdownMenuContent {:align "start"}
+
+       ($ DropdownMenuContent {:class-name "min-w-48 pr-2"
+                               :align "start "}
           ($ DropdownMenuRadioGroup {:value type
                                      :onValueChange handle-type}
              ($ DropdownMenuRadioItem {:value "model"}
                 ($ :button {:type "button"}
-                   ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500"}
-                      (t "pool.models.filters.type.model"))))
+                   ($ Badge {:class-name "bg-slate-500 hover:bg-slate-500 mr-2 w-6 justify-center "}
+                      "M") (t "pool.models.filters.type.model")))
 
              ($ DropdownMenuRadioItem {:value "package"}
                 ($ :button {:type "button"}
-                   ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500"}
-                      (t "pool.models.filters.type.package"))))
+                   ($ Badge {:class-name "bg-lime-500 hover:bg-lime-500 mr-2 w-6 justify-center "}
+                      "P") (t "pool.models.filters.type.package")))
 
              ($ DropdownMenuRadioItem {:value "option"}
                 ($ :button {:type "button"}
-                   ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500"}
-                      (t "pool.models.filters.type.option"))))
+                   ($ Badge {:class-name "bg-emerald-500 hover:bg-emerald-500 mr-2 w-6 justify-center"}
+                      "O") (t "pool.models.filters.type.option")))
 
              ($ DropdownMenuRadioItem {:value "software"}
                 ($ :button {:type "button"}
-                   ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500"}
-                      (t "pool.models.filters.type.software")))))))))
+                   ($ Badge {:class-name "bg-orange-500 hover:bg-orange-500 mr-2 w-6 justify-center"}
+                      "S") (t "pool.models.filters.type.software"))))))))
 
 (def TypeFilter
   (uix/as-react

@@ -3,14 +3,14 @@
    [clojure.set]
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [leihs.core.core :refer [presence]]
+   [leihs.inventory.server.resources.pool.list.queries :refer [base-inventory-query
+                                                               filter-by-type
+                                                               from-category
+                                                               with-items
+                                                               with-search
+                                                               without-items]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 model->enrich-with-image-attr]]
-   [leihs.inventory.server.resources.pool.models.queries :refer [base-inventory-query
-                                                                 filter-by-type
-                                                                 from-category
-                                                                 with-items
-                                                                 with-search
-                                                                 without-items]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
@@ -31,7 +31,7 @@
                    (cond->
                     (not= type :option)
                      (cond->
-                      (and pool-id (true? with_items))
+                      (true? with_items)
                        (with-items pool-id
                          (cond-> {:retired retired
                                   :borrowable borrowable
@@ -42,9 +42,10 @@
                                   :in_stock in_stock}
                            (not= type :software)
                            (assoc :before_last_check before_last_check)))
-                       (and pool-id (false? with_items))
+
+                       (false? with_items)
                        (without-items pool-id)))
-                   (cond-> (and pool-id (presence search))
+                   (cond-> (presence search)
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
                      (#(from-category tx % category_id))))

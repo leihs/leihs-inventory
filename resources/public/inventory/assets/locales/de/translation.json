@@ -96,6 +96,8 @@
       },
       "list": {
         "empty": "Keine Modelle gefunden",
+        "package_item": "ist Bestandteil eines Pakets",
+        "shelf": "Lager",
         "header": {
           "amount": "Menge",
           "name": "Name",

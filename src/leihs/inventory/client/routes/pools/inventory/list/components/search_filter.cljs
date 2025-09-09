@@ -39,7 +39,7 @@
     ($ Input {:ref ref
               :placeholder (t "pool.models.filters.search.placeholder")
               :name "search"
-              :className (str "w-fit py-0" class-name)
+              :className (str "w-48 py-0" class-name)
               :value search
               :onFocus #(set-interacting! true)
               :onBlur #(set-interacting! false)

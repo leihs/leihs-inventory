@@ -1,69 +1,143 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
    [clojure.set]
+
+   [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params
+   [leihs.inventory.server.utils.request-utils :refer [pick-fields
+                                                       path-params
                                                        query-params]]
    [ring.middleware.accept]
-   [ring.util.response :refer [response]]))
+   [ring.util.response :refer [response]]
+   [taoensso.timbre :refer [debug]]))
 
-(defn base-pool-query [query pool-id]
+(defn in-stock [query true-or-false]
+  (-> query
+      (sql/where [:= :items.parent_id nil])
+      (sql/where
+       [(if true-or-false :not-exists :exists)
+        (-> (sql/select 1)
+            (sql/from :reservations)
+            (sql/where [:= :reservations.item_id :items.id])
+            (sql/where [:and
+                        [:= :reservations.status ["signed"]]
+                        [:= :reservations.returned_date nil]]))])))
+
+(defn base-pool-query-max [query pool-id model-id]
   (-> query
       (sql/from [:items :i])
-      (sql/join [:rooms :r] [:= :r.id :i.room_id])
-      (sql/join [:models :m] [:= :m.id :i.model_id])
-      (sql/join [:buildings :b] [:= :b.id :r.building_id])
-      (cond->
-       pool-id (sql/join [:inventory_pools :ip] [:= :ip.id :i.inventory_pool_id])
-       pool-id (sql/where [:= :ip.id [:cast pool-id :uuid]]))))
+      ;; Join inventory pool
+      (sql/join [:inventory_pools :ip]
+                [:= :ip.id :i.inventory_pool_id])
 
-(defn base-pool-query-distinct [query pool-id]
-  (-> query
-      (sql/from [:items :i])
-      (sql/join [:models :m] [:= :m.id :i.model_id])
-      (cond-> pool-id (sql/where [:= :i.inventory_pool_id [:cast pool-id :uuid]]))
-      (sql/group-by :m.product :i.model_id :i.inventory_code :i.inventory_pool_id :i.retired :m.is_package :i.id :i.parent_id)))
+      ;; Join models
+      (sql/left-join [:models :m]
+                     [:= :m.id model-id])
+
+      ;; Join reservations (only active)
+      (sql/left-join [:reservations :r]
+                     [:and
+                      [:= :r.item_id :i.id]
+                      [:= :r.returned_date nil]])
+
+      ;; Join users
+      (sql/left-join [:users :u]
+                     [:= :u.id :r.user_id])
+
+      ;; Filters
+      (sql/where [:or
+                  [:= :i.inventory_pool_id pool-id]
+                  [:= :i.owner_id pool-id]])))
 
 (defn index-resources
   ([request]
-   (let [{:keys [pool_id item_id]} (path-params request)
-         {:keys [search_term not_packaged packages retired result_type]} (query-params request)
+   (let [{:keys [pool_id]} (path-params request)
+         {:keys [fields search_term
+                 model_id parent_id
+                 retired borrowable
+                 incomplete broken
+                 in_stock before_last_check]} (query-params request)
 
-         base-select (cond
-                       (= result_type "Distinct") (sql/select-distinct-on [:m.product]
-                                                                          :i.retired :i.parent_id :i.id
-                                                                          :m.is_package
-                                                                          :i.inventory_code
-                                                                          :i.model_id
-                                                                          :i.inventory_pool_id
-                                                                          :m.product)
-                       (= result_type "Min") (sql/select :i.retired :i.parent_id :i.id :i.inventory_code :i.model_id :m.is_package)
-                       :else (sql/select :m.is_package :i.* [:b.name :building_name] [:r.name :room_name]))
+         query-params (fn [query]
+                        (-> query
+                            (cond-> (boolean? in_stock) (in-stock in_stock))
+                            (cond-> before_last_check
+                              (sql/where [:<= :i.last_check before_last_check]))
+                            (cond-> (boolean? retired)
+                              (sql/where [(if retired :<> :=) :i.retired nil]))
+                            (cond-> (boolean? borrowable)
+                              (sql/where [:= :i.is_borrowable borrowable]))
+                            (cond-> (boolean? broken)
+                              (sql/where [:= :i.is_broken broken]))
+                            (cond-> (boolean? incomplete)
+                              (sql/where [:= :i.is_incomplete incomplete]))))
 
-         base-query (-> base-select
-                        ((fn [query]
-                           (if (= result_type "Distinct")
-                             (base-pool-query-distinct query pool_id)
-                             (base-pool-query query pool_id))))
+         select (sql/select
+                 :i.*
+                 [:ip.name :inventory_pool_name]
+                 [:r.end_date :reservation_end_date]
+                 [:r.user_id :reservation_user_id]
+                 [:m.is_package :is_package]
+                 [:rs.name :room_name]
+                 [:rs.description :room_description]
+                 [:b.name :building_name]
+                 [:b.code :building_code]
 
-                        (cond-> item_id (sql/where [:= :i.id item_id]))
+                 [[:nullif [:concat_ws " " :u.firstname :u.lastname] ""] :reservation_user_name]
 
-                        (cond-> (= true retired) (sql/where [:is-not :i.retired nil]))
-                        (cond-> (= false retired) (sql/where [:is :i.retired nil]))
+                 [(-> (sql/select :%count.*) ; [[:count :*]]
+                      (sql/from :items)
+                      (sql/where [:and
+                                  [:= :items.parent_id :i.id]]))
+                  :package_items_count])
 
-                        (cond-> (= true packages) (sql/where [:= :m.is_package true]))
-                        (cond-> (= false packages) (sql/where [:= :m.is_package false]))
+         query (-> select
+                   (sql/from [:items :i])
+                   ;; Join inventory pool
+                   (sql/join [:inventory_pools :ip]
+                             [:= :ip.id :i.inventory_pool_id])
 
-                        (cond-> (= true not_packaged) (sql/where [:is :i.parent_id nil]))
-                        (cond-> (= false not_packaged) (sql/where [:is-not :i.parent_id nil]))
+                   ;; Join rooms
+                   (sql/join [:rooms :rs]
+                             [:= :i.room_id :rs.id])
 
-                        (cond-> (seq search_term)
-                          (sql/where [:or [:ilike :i.inventory_code (str "%" search_term "%")] [:ilike :m.product (str "%" search_term "%")]
-                                      [:ilike :m.manufacturer (str "%" search_term "%")]]))
+                   ;; Join rooms
+                   (sql/join [:buildings :b]
+                             [:= :rs.building_id :b.id])
 
-                        (cond-> item_id (sql/where [:= :i.id item_id]))
+                   ;; Join models
+                   (sql/left-join [:models :m]
+                                  [:= :m.id model_id])
 
-                        (cond-> (and sort-by item_id) (sql/order-by item_id)))]
+                   ;; Join reservations (only active)
+                   (sql/left-join [:reservations :r]
+                                  [:and
+                                   [:= :r.item_id :i.id]
+                                   [:= :r.returned_date nil]])
 
-     (response (create-pagination-response request base-query nil)))))
+                    ;; Join users
+                   (sql/left-join [:users :u]
+                                  [:= :u.id :r.user_id])
+
+                    ;; Filters
+                   (sql/where [:or
+                               [:= :i.inventory_pool_id pool_id]
+                               [:= :i.owner_id pool_id]])
+
+                   (cond-> model_id (sql/where [:= :i.model_id model_id]))
+                   (cond-> parent_id (sql/where [:= :i.parent_id parent_id]))
+
+                   query-params
+
+                   (cond-> (seq search_term)
+                     (sql/where [:or
+                                 [:ilike :i.inventory_code (str "%" search_term "%")]
+                                 [:ilike :m.product (str "%" search_term "%")]
+                                 [:ilike :m.manufacturer (str "%" search_term "%")]])))]
+
+     (debug (sql-format query :inline true))
+     (response (pick-fields
+                (create-pagination-response request query nil)
+                fields)))))

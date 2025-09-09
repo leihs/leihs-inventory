@@ -33,7 +33,7 @@
           ($ Button {:ref buttonRef
                      :disabled (= type "option")
                      :on-click #(set-open! (not open))
-                     :class-name class-name
+                     :class-name (str "w-48 " class-name)
                      :variant "outline"
                      :role "combobox"}
              ($ Building {:className "h-4 w-4 mr-2"})
