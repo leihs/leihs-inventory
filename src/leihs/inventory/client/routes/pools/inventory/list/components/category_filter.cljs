@@ -93,7 +93,7 @@
           ($ Button {:variant "outline"
                      :disabled (or (= type "option")
                                    (= type "software"))
-                     :class-name class-name}
+                     :class-name (str "w-48 " class-name)}
              ($ List {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.categories.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))

@@ -30,10 +30,11 @@
     ($ Popover
        ($ PopoverTrigger {:asChild true}
           ($ Button {:variant "outline"
+                     :className (str "w-48 py-0 " class-name)
                      :disabled (or (= type "software")
                                    (= type "option"))}
 
-             ($ CalendarDays {:className (str "h-4 w-4 mr-2" class-name)})
+             ($ CalendarDays {:className "h-4 w-4 mr-2"})
              (t "pool.models.filters.before_last_check.title")))
 
        ($ PopoverContent {:className "w-[280px]"}
