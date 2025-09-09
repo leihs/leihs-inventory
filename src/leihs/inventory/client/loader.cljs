@@ -15,15 +15,24 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn root-layout []
-  (-> http-client
-      (.get "/inventory/profile/")
-      (.then (fn [res]
-               (let [data (jc (.. res -data))]
-                 (.. i18n (changeLanguage (-> data :user_details :language_locale)))
-                 data)))
-      (.catch (fn [error] (js/console.log "error" error) #js {}))))
+  (let [profile (-> http-client
+                    (.get "/inventory/profile/")
+                    (.then (fn [res]
+                             (let [data (jc (.. res -data))]
 
-(defn models-page [route-data]
+                               (.. i18n (changeLanguage (-> data :user_details :language_locale)))
+                               data)))
+                    (.catch (fn [error] (js/console.log "error" error) #js {})))
+        settings (-> http-client
+                     (.get "/inventory/settings/")
+                     (.then #(jc (.-data %)))
+                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
+    (.. (js/Promise.all (cond-> [profile settings]))
+        (then (fn [[profile settings]]
+                {:profile profile
+                 :settings settings})))))
+
+(defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)

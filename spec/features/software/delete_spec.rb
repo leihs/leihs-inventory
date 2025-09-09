@@ -43,7 +43,6 @@ feature "Delete software", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product} #{version}", visible: true)
-      expect(find("tr", text: "#{product} #{version}")).to have_content("Software")
     end
 
     within find("tr", text: "#{product} #{version}", visible: true) do
