@@ -13,6 +13,7 @@
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-row :refer [ItemRow]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [package]}]
@@ -40,9 +41,7 @@
     ($ :<>
        ($ TableRow {:key (-> package :id)
                     :class-name "bg-destructive-foreground/50"
-                    :style (if result
-                             {:box-shadow "0 3px 3px hsl(var(--border))"}
-                             {:box-shadow "0 -0.5px 0 hsl(var(--border))"})}
+                    :style (when result {:box-shadow "0 3px 3px hsl(var(--border))"})}
 
           ($ TableCell
              ($ :div {:className "flex items-center gap-4 ml-2"}
@@ -50,10 +49,10 @@
                            :on-click handle-expand
                            :size "icon"
                            :class-name (if
-                                        (zero? (-> package :total_items))
+                                        (zero? (-> package :package_items_count))
                                          "cursor-not-allowed"
                                          "")
-                           :disabled (zero? (-> package :total_items))}
+                           :disabled (zero? (-> package :package_items_count))}
                    (if result
                      ($ Minus {:className "h-4 w-4"})
                      ($ Plus {:className "h-4 w-4"})))
@@ -90,11 +89,7 @@
                              (:shelf package)))))))
 
           ($ TableCell {:className "text-right"}
-             (cond
-               (:is_borrowable package)
-               "borrowable"
-               (:is_broken package)
-               "broken"))
+             ($ ItemStatus {:item package}))
 
           ($ TableCell {:className "fit-content"}
              ($ :div {:className "flex gap-2"}
