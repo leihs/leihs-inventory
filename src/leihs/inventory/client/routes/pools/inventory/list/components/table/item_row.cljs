@@ -4,13 +4,13 @@
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
+   ["@@/table" :refer [TableCell TableRow]]
    ["date-fns" :refer [format]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
+   ["lucide-react" :refer [Ellipsis Image]]
    ["react-i18next" :refer [useTranslation]]
 
    ["react-router-dom" :as router :refer [Link]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [item isPackageItem]
@@ -20,8 +20,7 @@
         params (router/useParams)]
 
     ($ TableRow {:key (-> item :id)
-                 :class-name "bg-destructive-foreground/50"
-                 :style {:box-shadow "0 -0.5px 0 hsl(var(--border))"}}
+                 :class-name "bg-destructive-foreground/50"}
 
        ($ TableCell)
 
@@ -55,11 +54,7 @@
                             (:shelf item))))))))
 
        ($ TableCell {:className "text-right"}
-          (cond
-            (:is_borrowable item)
-            "borrowable"
-            (:is_broken item)
-            "broken"))
+          ($ ItemStatus {:item item}))
 
        ($ TableCell {:className "fit-content"}
           ($ :div {:className "flex gap-2"}

@@ -69,7 +69,7 @@
                ($ :div {:className "flex p-6 justify-center"}
                   (t "pool.models.list.empty"))
 
-               ($ Table {:class-name "border-separate border-spacing-0  rounded-md"}
+               ($ Table {:class-name "rounded-md"}
                   ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md"
                                   :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
                      ($ TableRow {:class-name "rounded-t-md"}
@@ -78,7 +78,7 @@
                         ($ TableHead "")
                         ($ TableHead "")
                         ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
-                        ($ TableHead (t "pool.models.list.header.availability"))
+                        ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
                         ($ TableHead {:class-name "rounded-tr-md"} "")))
 
                   ($ TableBody
