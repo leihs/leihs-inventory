@@ -7,7 +7,7 @@
    [uix.dom]))
 
 (defui layout []
-  (let [profile (router/useLoaderData)]
+  (let [{:keys [profile]} (router/useLoaderData)]
     ($ :<>
        ($ header/main profile)
        ($ :main {:className "container"}

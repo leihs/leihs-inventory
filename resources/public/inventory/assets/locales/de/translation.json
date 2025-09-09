@@ -95,9 +95,19 @@
         "templates": "Vorlagen"
       },
       "list": {
-        "empty": "Keine Modelle gefunden",
+        "empty": "Keine Einträge gefunden",
+        "package_item": "ist Bestandteil eines Pakets",
+        "shelf": "Lager",
+        "item": {
+          "badge": "G",
+          "available": "Verfügbar",
+          "broken": "Defekt",
+          "rented": "Ausgeliehen",
+          "not_borrowable": "Nicht ausleihbar",
+          "incomplete": "Unvollständig"
+        },
         "header": {
-          "amount": "Menge",
+          "quantity": "Menge",
           "name": "Name",
           "availability": "Verfügbarkeit"
         },
