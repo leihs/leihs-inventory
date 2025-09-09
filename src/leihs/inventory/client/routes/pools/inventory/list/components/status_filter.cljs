@@ -77,7 +77,7 @@
           ($ Button {:variant "outline"
                      :disabled (or (= with_items "false")
                                    (= type "option"))
-                     :class-name class-name}
+                     :class-name (str "w-48 " class-name)}
              ($ CirclePlus {:className "h-4 w-4 mr-2 "})
              (t "pool.models.filters.status.title")
              ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))

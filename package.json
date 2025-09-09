@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"shadow-cljs -A:frontend watch frontend\" \"npm run tailwind\"",
+    "dev": "rm -rf dev/gen && concurrently \"shadow-cljs -A:frontend watch frontend\" \"npm run tailwind\"",
     "build": "npm run clean && shadow-cljs -A:frontend release frontend && npm run tailwind:release",
     "tailwind": "postcss src/leihs/inventory/client/main.css -o resources/public/inventory/assets/css/style.css --verbose -w",
     "tailwind:release": "NODE_ENV=production postcss src/leihs/inventory/client/main.css -o resources/public/inventory/assets/css/style.css",
