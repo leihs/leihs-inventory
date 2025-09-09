@@ -14,7 +14,7 @@
                               :model_id uuid?}}
           :handler software/get-resource
           :responses {200 {:description "OK"
-                           :body ::types/response}
+                           :body ::types/put-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 
@@ -25,7 +25,7 @@
                        :body ::types/put-query}
           :handler software/put-resource
           :responses {200 {:description "OK"
-                           :body ::types/response}
+                           :body ::types/put-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}
 

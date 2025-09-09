@@ -13,13 +13,16 @@
                                                                                  process-entitlements
                                                                                  process-properties]]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-to-response]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [bad-request response]]))
+
+(def CREATE_MODEL_ERROR "Failed to create model")
+(def GET_MODEL_ERROR "Failed to get models-compatible")
 
 (defn index-resources [request]
   (try
@@ -56,8 +59,8 @@
       (response (create-pagination-response request base-query nil post-fnc)))
 
     (catch Exception e
-      (log-by-severity "Failed to get models-compatible" e)
-      (bad-request {:error "Failed to get models-compatible" :details (.getMessage e)}))))
+      (log-by-severity GET_MODEL_ERROR e)
+      (bad-request {:error GET_MODEL_ERROR :details (.getMessage e)}))))
 
 ;###################################################################################
 
@@ -83,7 +86,7 @@
 
         (if res
           (response res)
-          (bad-request {:error "Failed to create model"})))
+          (bad-request {:error CREATE_MODEL_ERROR})))
       (catch Exception e
-        (log-by-severity "Failed to create model" e)
-        (exception-to-response request e "Failed to create model")))))
+        (log-by-severity CREATE_MODEL_ERROR e)
+        (exception-handler CREATE_MODEL_ERROR e)))))

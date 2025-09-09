@@ -1,7 +1,6 @@
 (ns leihs.inventory.server.utils.auth.session
   (:require
    [clojure.walk :refer [keywordize-keys]]
-   [cryptohash-clj.api :refer :all]
    [next.jdbc :as jdbc]))
 
 (def LEIHS_SESSION_COOKIE_NAME :leihs-user-session)

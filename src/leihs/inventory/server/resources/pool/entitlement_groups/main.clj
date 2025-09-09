@@ -16,8 +16,6 @@
           query (-> (sql/select :g.*)
                     (sql/from [:entitlement_groups :g])
                     (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                    ;(sql/join [:group_access_rights :gar] [:= :g.id :gar.group_id])
-                    ;(sql/where [:= :gar.inventory_pool_id pool_id])
                     (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
                     (sql/order-by :g.name)
                     (sql/limit 50)

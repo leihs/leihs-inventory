@@ -45,10 +45,12 @@
               now
               expires-sql]]
     (try (jdbc/execute-one! (:tx request) data)
-         (catch Exception e (log-by-severity e) nil))
-    {:token full-token
-     :expires_at expires-at
-     :scopes scopes}))
+         {:token full-token
+          :expires_at expires-at
+          :scopes scopes}
+         (catch Exception e
+           (log-by-severity "Error inserting token:" e)
+           nil))))
 
 (defn post-resource [request]
   (let [user (-> request :authenticated-entity)

@@ -24,7 +24,6 @@
            group_id (-> request path-params :field_id)
            {:keys [role owner type]} (-> request query-params)
            {:keys [page size]} (fetch-pagination-params-raw request)
-
            ;; TODO: this should not be used; instead use leihs.inventory.server.resources.models.form.license.queries
            license_keys ["inventory_code"
                          "license_version"

@@ -10,6 +10,7 @@
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
                                                                 filter-and-coerce-by-spec
                                                                 filter-map-by-spec
+                                                                model->enrich-with-image-attr
                                                                 remove-nil-values]]
    [leihs.inventory.server.resources.pool.models.model.common-model-form :refer [extract-model-form-data
                                                                                  filter-response
@@ -69,10 +70,7 @@
         models (jdbc/execute! tx query)
         models (->> models
                     (fetch-thumbnails-for-ids tx)
-                    (map (fn [m]
-                           (if-let [image-id (:image_id m)]
-                             (assoc m :url (str "/inventory/" pool-id "/models/" (:id m) "/images/" image-id))
-                             m))))
+                    (map (model->enrich-with-image-attr pool-id)))
         models (mapv #(filter-map-by-spec % ::co/compatible) models)]
     models))
 
@@ -90,11 +88,10 @@
     (filter-and-coerce-by-spec entitlements :json/entitlement)))
 
 (defn fetch-categories [tx model-id]
-  (let [category-type "Category"
-        query (-> (sql/select :mg.id :mg.type :mg.name)
+  (let [query (-> (sql/select :mg.id :mg.type :mg.name)
                   (sql/from [:model_groups :mg])
                   (sql/left-join [:model_links :ml] [:= :mg.id :ml.model_group_id])
-                  (sql/where [:ilike :mg.type category-type])
+                  (sql/where [:ilike :mg.type "Category"])
                   (sql/where [:= :ml.model_id model-id])
                   (sql/order-by :mg.name)
                   sql-format)
@@ -186,6 +183,7 @@
                     sql-format)
                 :delete (-> (sql/delete-from table)
                             (sql/where where-clause)
+                            (sql/returning :*)
                             sql-format)
                 (throw (IllegalArgumentException. "Unsupported operation")))]
     (jdbc/execute! tx query)))

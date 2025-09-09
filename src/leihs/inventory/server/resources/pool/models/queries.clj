@@ -121,6 +121,8 @@
 
 (hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
 
+(declare descendent-ids-sqlvec)
+
 (defn descendent-ids [tx category-id]
   (-> {:category-id category-id}
       descendent-ids-sqlvec

@@ -6,6 +6,7 @@
    [leihs.inventory.server.resources.pool.cast-helper :refer [double-to-numeric-or-nil]]
    [leihs.inventory.server.resources.pool.common :refer [is-option-deletable?]]
    [leihs.inventory.server.resources.pool.models.common :refer [filter-map-by-spec]]
+   [leihs.inventory.server.resources.pool.options.option.types :as type]
    [leihs.inventory.server.utils.converter :refer [to-uuid]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
@@ -31,11 +32,11 @@
       (if result
         (response (-> result
                       (assoc :is_deletable (is-option-deletable? tx option-id))
-                      (filter-map-by-spec :get-response/option)))
+                      (filter-map-by-spec ::type/get-response-option)))
         (not-found {:error FETCH_OPTION_ERROR})))
     (catch Exception e
-      (log-by-severity UPDATE_OPTION_ERROR e)
-      (exception-handler UPDATE_OPTION_ERROR e))))
+      (log-by-severity FETCH_OPTION_ERROR e)
+      (exception-handler FETCH_OPTION_ERROR e))))
 
 (defn put-resource [request]
   (try
@@ -53,7 +54,7 @@
 
       (if updated-model
         (response (-> updated-model
-                      (filter-map-by-spec :get-response/option)))
+                      (filter-map-by-spec ::type/get-response-option)))
         (not-found {:error UPDATE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity UPDATE_OPTION_ERROR e)
@@ -70,7 +71,7 @@
           deleted-option (jdbc/execute-one! tx query)]
       (if deleted-option
         (response (-> deleted-option
-                      (filter-map-by-spec :get-response/option)))
+                      (filter-map-by-spec ::type/get-response-option)))
         (not-found {:error DELETE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity DELETE_OPTION_ERROR e)

@@ -7,7 +7,7 @@
    [leihs.core.db :as db]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.helper :refer [accept-header-html? log-by-severity]]
-   [leihs.inventory.server.utils.response_helper :as rh]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-loader :refer [list-files-in-dir]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [leihs.inventory.server.utils.session-utils :refer [session-valid?]]
@@ -19,12 +19,14 @@
                            ".css" "text/css"
                            ".svg" "image/svg+xml"
                            ".json" "application/json"
+                           ".html" "text/html"
                            ".png" "image/png"
                            ".jpg" "image/jpeg"
                            ".jpeg" "image/jpeg"
                            ".gif" "image/gif"})
 (def ALLOWED_RESOURCE_PATHS ["public/inventory/assets/css"
                              "public/inventory/assets/js"
+                             "public/swagger-ui"
                              "public/inventory/assets"])
 (def RESOURCE_DIR_URI_MAP (into {} (map (fn [path] [path (str "/" (str/replace path #"public/" ""))]) ALLOWED_RESOURCE_PATHS)))
 (def RESOURCE_FILES (apply concat (map list-files-in-dir ALLOWED_RESOURCE_PATHS)))
@@ -44,7 +46,8 @@
               (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn fetch-file-entry [uri assets]
-  (if (and (file-request? uri) (clojure.string/includes? uri "/inventory/assets/"))
+  (if (and (file-request? uri) (or (clojure.string/includes? uri "/inventory/assets/")
+                                   (clojure.string/includes? uri "/inventory/swagger-ui/")))
     (some (fn [[key value]]
             (when (str/includes? uri (str key))
               value))
@@ -115,6 +118,9 @@
 
       (and (nil? asset) (or (= uri "/inventory/api-docs") (= uri "/inventory/api-docs/")))
       {:status 302 :headers {"Location" "/inventory/api-docs/index.html"} :body ""}
+
+      (and (nil? asset) (or (= uri "/inventory/swagger-ui") (= uri "/inventory/swagger-ui/")))
+      {:status 302 :headers {"Location" "/inventory/swagger-ui/index.html"} :body ""}
 
       asset (let [{:keys [file content-type]} asset
                   resource (io/resource file)]

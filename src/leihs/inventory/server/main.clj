@@ -44,8 +44,8 @@
 (defn main [args]
   (leihs.core.logging/init)
   (let [{:keys [options arguments
-                errors summary]} (cli/parse-opts
-                                  args cli-options :in-order true)
+                summary]} (cli/parse-opts
+                           args cli-options :in-order true)
         cmd (some-> arguments first keyword)
         options (into (sorted-map) options)
         print-summary #(info (main-usage summary {:args args :options options}))]
