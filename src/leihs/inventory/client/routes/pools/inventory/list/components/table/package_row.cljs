@@ -4,14 +4,14 @@
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
-   ["date-fns" :refer [format]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart Minus Plus]]
+   ["@@/table" :refer [TableCell]]
+   ["lucide-react" :refer [Ellipsis Image]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-row :refer [ItemRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
@@ -21,6 +21,7 @@
         [t] (useTranslation)
         params (router/useParams)
         pool-id (aget params "pool-id")
+        [search-params _] (router/useSearchParams)
         [result set-result!] (uix/use-state nil)
 
         handle-expand (fn []
@@ -37,93 +38,63 @@
                               (.catch (fn [err]
                                         {:status (.. err -response -status)
                                          :statusText (.. err -response -statusText)})))))]
+    (uix/use-effect
+     (fn []
+       (set-result! nil))
+     [search-params])
 
-    ($ :<>
-       ($ TableRow {:key (-> package :id)
-                    :class-name "bg-destructive-foreground/50"
-                    :style (when result {:box-shadow "0 3px 3px hsl(var(--border))"})}
+    ($ ExpandableRow {:key (-> package :id)
+                      :subrow-count (:package_items_count package)
+                      :class-name "bg-destructive-foreground/50 hover:bg-destructive-foreground/50"
+                      :on-expand handle-expand
+                      :subrows (when (and result (= (:status result) 200))
+                                 (when (seq (:data result))
+                                   (map
+                                    (fn [item]
+                                      (when (not (:is_package item))
+                                        ($ ItemRow {:key (:id item)
+                                                    :is-package-item true
+                                                    :item item})))
+                                    (:data result))))}
 
-          ($ TableCell
-             ($ :div {:className "flex items-center gap-4 ml-2"}
-                ($ Button {:variant "outline"
-                           :on-click handle-expand
-                           :size "icon"
-                           :class-name (if
-                                        (zero? (-> package :package_items_count))
-                                         "cursor-not-allowed"
-                                         "")
-                           :disabled (zero? (-> package :package_items_count))}
-                   (if result
-                     ($ Minus {:className "h-4 w-4"})
-                     ($ Plus {:className "h-4 w-4"})))
+       ($ TableCell
+          (if (:url package)
+            ($ :img {:class-name "w-12 h-12 object-contain"
+                     :src (:url package)
+                     :alt (str (:product package) " " (:version package))})
+            ($ Image {:class-name "w-12 h-12"})))
 
-                ($ :span {:className "text-xl ml-auto"}
-                   (-> package :package_items_count str))))
+       ($ TableCell
+          ($ :div {:className "flex gap-2"}
+             ($ Badge {:className "w-6 h-6 justify-center bg-lime-500"} "P")))
 
-          ($ TableCell
-             (if (:url package)
-               ($ :img {:class-name "w-12 h-12 object-contain"
-                        :src (:url package)
-                        :alt (str (:product package) " " (:version package))})
-               ($ Image {:class-name "w-12 h-12"})))
+       ($ TableCell {:className ""}
+          ($ ItemInfo {:item package}))
 
-          ($ TableCell
-             ($ :div {:className "flex gap-2"}
-                ($ Badge {:className "w-6 h-6 justify-center bg-lime-500"} "P")))
+       ($ TableCell {:className "text-right"}
+          ($ ItemStatus {:item package}))
 
-          ($ TableCell {:className ""}
-             ($ :div {:class-name "flex flex-row items-center"}
-                ($ :span {:class-name "w-32"}
-                   (:inventory_code package))
-                ($ :div {:className "flex flex-col text-sm text-muted-foreground"}
-                   ($ :span
-                      (:inventory_pool_name package))
-                   ($ :span
-                      (if (:reservation_user_name package)
-                        (str (:reservation_user_name package) " until "
-                             (format (:reservation_end_date package) "dd.MM.yyyy"))
+       ($ TableCell {:className "fit-content"}
+          ($ :div {:className "flex gap-2"}
 
-                        (str (:building_name package)
-                             " ( " (:building_code package) " ) "
-                             " - " (t "pool.models.list.shelf") " "
-                             (:shelf package)))))))
+             ($ Button {:variant "outline"
+                        :asChild true}
+                ($ Link {:state #js {:searchParams (.. location -search)}
+                         :to (str (:id package) "/edit")
+                         :viewTransition true}
+                   (t "pool.models.list.actions.edit")))
 
-          ($ TableCell {:className "text-right"}
-             ($ ItemStatus {:item package}))
-
-          ($ TableCell {:className "fit-content"}
-             ($ :div {:className "flex gap-2"}
-
-                ($ Button {:variant "outline"
-                           :asChild true}
-                   ($ Link {:state #js {:searchParams (.. location -search)}
-                            :to (str (:id package) "/edit")
-                            :viewTransition true}
-                      (t "pool.models.list.actions.edit")))
-
-                ($ DropdownMenu
-                   ($ DropdownMenuTrigger {:asChild "true"}
-                      ($ Button {:variant "secondary"
-                                 :size "icon"}
-                         ($ Ellipsis {:className "h-4 w-4"})))
-                   ($ DropdownMenuContent {:align "start"}
-                      ($ DropdownMenuItem
-                         ($ Link {:to (str (:id package) "/items/create")
-                                  :state #js {:searchParams (.. location -search)}
-                                  :viewTransition true}
-                            (t "pool.models.list.actions.add_item"))))))))
-
-       ;; render expanded rows
-       (when (and result (= (:status result) 200))
-
-         (when (seq (:data result))
-           (map
-            (fn [item]
-              (when (not (:is_package item))
-                ($ ItemRow {:key (:id item)
-                            :is-package-item true
-                            :item item})))
-            (:data result)))))))
+             ($ DropdownMenu
+                ($ DropdownMenuTrigger {:asChild "true"}
+                   ($ Button {:variant "secondary"
+                              :size "icon"}
+                      ($ Ellipsis {:className "h-4 w-4"})))
+                ($ DropdownMenuContent {:align "start"}
+                   ($ DropdownMenuItem
+                      ($ Link {:to (str (:id package) "/items/create")
+                               :state #js {:searchParams (.. location -search)}
+                               :viewTransition true}
+                         (t "pool.models.list.actions.add_item"))))))))))
 
 (def PackageRow
   (uix/as-react

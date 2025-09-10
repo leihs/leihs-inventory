@@ -69,10 +69,10 @@
                ($ :div {:className "flex p-6 justify-center"}
                   (t "pool.models.list.empty"))
 
-               ($ Table {:class-name "rounded-md"}
+               ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
                   ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md"
                                   :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
-                     ($ TableRow {:class-name "rounded-t-md"}
+                     ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
                         ($ TableHead {:class-name "rounded-tl-md text-right"}
                            (t "pool.models.list.header.amount"))
                         ($ TableHead "")

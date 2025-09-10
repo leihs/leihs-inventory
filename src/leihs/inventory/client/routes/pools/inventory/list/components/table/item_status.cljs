@@ -8,38 +8,33 @@
 
 (defui main [{:keys [item]}]
   (let [[t] (useTranslation)]
-    ($ :div {:class-name "flex items-center justify-end"}
-       (cond
-         (:reservation_user_name item)
+    ($ :div {:class-name "flex flex-col"}
+       (when (:reservation_user_name item)
          ($ :span {:className "text-blue-500"}
             (t "pool.models.list.item.rented")
-            ($ SquareArrowRight {:className "inline ml-2 h-4 w-4 "}))
+            ($ SquareArrowRight {:className "inline ml-2 h-4 w-4 "})))
 
-         (:is_broken item)
+       (when (:is_broken item)
          ($ :span {:className "text-rose-500"}
             (t "pool.models.list.item.broken")
-            ($ SquareX {:className "inline ml-2 h-4 w-4"}))
+            ($ SquareX {:className "inline ml-2 h-4 w-4"})))
 
-         (:is_incomplete item)
+       (when (:is_incomplete item)
          ($ :span {:className "text-amber-500"}
             (t "pool.models.list.item.incomplete")
-            ($ SquareMinus {:className "inline ml-2 h-4 w-4 "}))
+            ($ SquareMinus {:className "inline ml-2 h-4 w-4 "})))
 
-         (not (:is_borrowable item))
+       (when (not (:is_borrowable item))
          ($ :span {:className "text-gray-500"}
             (t "pool.models.list.item.not_borrowable")
-            ($ SquarePause {:className "inline ml-2 h-4 w-4 "}))
+            ($ SquarePause {:className "inline ml-2 h-4 w-4 "})))
 
-         (and (:is_borrowable item)
-              (not (:is_broken item))
-              (not (:reservation_user_name item)))
+       (when (and (:is_borrowable item)
+                  (not (:is_broken item))
+                  (not (:reservation_user_name item)))
          ($ :span {:className "text-green-500"}
             (t "pool.models.list.item.available")
-            ($ SquareCheck {:className "inline ml-2 h-4 w-4"}))
-
-         :else
-         ($ :span {:className "text-rose-500"}
-            "error")))))
+            ($ SquareCheck {:className "inline ml-2 h-4 w-4"}))))))
 
 (def ItemStatus
   (uix/as-react
