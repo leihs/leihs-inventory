@@ -25,32 +25,6 @@
                         [:= :reservations.status ["signed"]]
                         [:= :reservations.returned_date nil]]))])))
 
-(defn base-pool-query-max [query pool-id model-id]
-  (-> query
-      (sql/from [:items :i])
-      ;; Join inventory pool
-      (sql/join [:inventory_pools :ip]
-                [:= :ip.id :i.inventory_pool_id])
-
-      ;; Join models
-      (sql/left-join [:models :m]
-                     [:= :m.id model-id])
-
-      ;; Join reservations (only active)
-      (sql/left-join [:reservations :r]
-                     [:and
-                      [:= :r.item_id :i.id]
-                      [:= :r.returned_date nil]])
-
-      ;; Join users
-      (sql/left-join [:users :u]
-                     [:= :u.id :r.user_id])
-
-      ;; Filters
-      (sql/where [:or
-                  [:= :i.inventory_pool_id pool-id]
-                  [:= :i.owner_id pool-id]])))
-
 (defn index-resources
   ([request]
    (let [{:keys [pool_id]} (path-params request)
@@ -138,6 +112,7 @@
                                  [:ilike :m.manufacturer (str "%" search_term "%")]])))]
 
      (debug (sql-format query :inline true))
-     (response (pick-fields
-                (create-pagination-response request query nil)
-                fields)))))
+     (-> request
+         (create-pagination-response query nil)
+         (pick-fields fields)
+         response))))
