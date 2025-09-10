@@ -6,14 +6,16 @@
    ["lucide-react" :refer [Minus Plus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [onExpand subrows
+(defui main [{:keys [onExpand subrows subrowCount
                      children className]}]
-  (let [subrowCount (count subrows)]
-
+  (let []
     ($ :<>
-       ($ TableRow {:class-name className
+       ($ TableRow {:data-row "expandable"
+                    :class-name className
                     :style (if subrows
-                             {:box-shadow "0 4px 4px hsl(var(--border))"}
+                             {:box-shadow
+                              "0 -0.5px 0 hsl(var(--border)),
+                              0 4px 4px -2px hsl(var(--border))"}
                              {:box-shadow "0 -0.5px 0 hsl(var(--border))"})}
 
           ($ TableCell
@@ -31,10 +33,11 @@
                      ($ Plus {:className "h-4 w-4"})))
 
                 ($ :span {:className "text-xl ml-auto"}
-                   subrowCount))))
-       children)
-    ;; render subrows
-    subrows))
+                   subrowCount)))
+
+          children)
+       ;; render subrows
+       subrows)))
 
 (def ExpandableRow
   (uix/as-react
