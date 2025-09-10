@@ -30,7 +30,6 @@
             ($ SquarePause {:className "inline ml-2 h-4 w-4 "})))
 
        (when (and (:is_borrowable item)
-                  (not (:is_broken item))
                   (not (:reservation_user_name item)))
          ($ :span {:className "text-green-500"}
             (t "pool.models.list.item.available")
