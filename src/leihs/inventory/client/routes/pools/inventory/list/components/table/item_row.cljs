@@ -5,22 +5,40 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell TableRow]]
-   ["date-fns" :refer [format]]
    ["lucide-react" :refer [Ellipsis Image]]
    ["react-i18next" :refer [useTranslation]]
 
    ["react-router-dom" :as router :refer [Link]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.item-info :refer [ItemInfo]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item isPackageItem]
-              :or {isPackageItem false}}]
+(defui main [{:keys [item]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
-        params (router/useParams)]
+        ref (uix/use-ref nil)
+        [is-last set-is-last!] (uix/use-state false)]
 
-    ($ TableRow {:key (-> item :id)
-                 :class-name "bg-destructive-foreground/50"}
+    (uix/use-effect
+     (fn []
+       (when (.. ref -current)
+         (set-is-last! (= (.. ref
+                              -current
+                              -nextElementSibling
+                              -dataset
+                              -row)
+                          "expandable"))))
+     [item])
+
+    ($ TableRow {:ref ref
+                 :key (-> item :id)
+                 :data-row "item"
+                 :style (if is-last
+                          {:box-shadow
+                           "0 -0.5px 0 hsl(var(--border)),
+                            inset 0 -3px 4px -2px hsl(var(--border))"}
+                          {:box-shadow "0 -0.5px 0 hsl(var(--border))"})
+                 :class-name "bg-destructive-foreground/50 hover:bg-destructive-foreground/50"}
 
        ($ TableCell)
 
@@ -35,23 +53,7 @@
              ($ Badge {:className "w-6 h-6 justify-center bg-blue-500"} "G")))
 
        ($ TableCell
-          ($ :div {:class-name "flex flex-row items-center"}
-             ($ :span {:class-name "w-32"}
-                (:inventory_code item))
-             ($ :div {:className "flex flex-col text-sm text-muted-foreground"}
-                ($ :span
-                   (:inventory_pool_name item))
-                ($ :span
-                   (if (:reservation_user_name item)
-                     (str (:reservation_user_name item) " until "
-                          (format (:reservation_end_date item) "dd.MM.yyyy"))
-
-                     (if isPackageItem
-                       (t "pool.models.list.package_item")
-                       (str (:building_name item)
-                            " ( " (:building_code item) " ) "
-                            " - " (t "pool.models.list.shelf") " "
-                            (:shelf item))))))))
+          ($ ItemInfo {:item item}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))
