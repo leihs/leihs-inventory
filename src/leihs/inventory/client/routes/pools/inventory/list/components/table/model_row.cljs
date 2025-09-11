@@ -8,6 +8,7 @@
    ["lucide-react" :refer [Ellipsis Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
+   ["sonner" :refer [toast]]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
@@ -47,8 +48,8 @@
                                                        :statusText (.. data -statusText)
                                                        :data (jc (.. data -data))})))
                                 (.catch (fn [err]
-                                          {:status (.. err -response -status)
-                                           :statusText (.. err -response -statusText)}))))))]
+                                          (.. toast (error (.. err -response -status)
+                                                           #js {:description (.. err -response -statusText)}))))))))]
 
     (uix/use-effect
      (fn []
