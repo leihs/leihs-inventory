@@ -15,12 +15,12 @@
 
 (defn in-stock [query true-or-false]
   (-> query
-      (sql/where [:= :items.parent_id nil])
+      (sql/where [:= :i.parent_id nil])
       (sql/where
        [(if true-or-false :not-exists :exists)
         (-> (sql/select 1)
             (sql/from :reservations)
-            (sql/where [:= :reservations.item_id :items.id])
+            (sql/where [:= :reservations.item_id :i.id])
             (sql/where [:and
                         [:= :reservations.status ["signed"]]
                         [:= :reservations.returned_date nil]]))])))
