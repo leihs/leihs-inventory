@@ -9,16 +9,16 @@
 (defui main [{:keys [onExpand subrows subrowCount
                      children className]
               :as props}]
-  (let []
+
+  (let [attrs (dissoc props
+                      :onExpand
+                      :subrows
+                      :subrowCount
+                      :children
+                      :className)]
     ($ :<>
-       ($ TableRow (merge props
-                          {:data-row "expandable"
-                           :class-name className
-                           :style (if subrows
-                                    {:box-shadow
-                                     "0 -0.5px 0 hsl(var(--border)),
-                              0 4px 4px -2px hsl(var(--border))"}
-                                    {:box-shadow "0 -0.5px 0 hsl(var(--border))"})})
+       ($ TableRow (merge attrs
+                          {:class-name className})
 
           ($ TableCell
              ($ :div {:className "flex items-center gap-4 ml-2"}

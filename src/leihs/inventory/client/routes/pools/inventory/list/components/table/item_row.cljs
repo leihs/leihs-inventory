@@ -5,7 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell TableRow]]
-   ["lucide-react" :refer [Ellipsis Image ChevronDown]]
+   ["lucide-react" :refer [Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
 
    ["react-router-dom" :as router :refer [Link]]
@@ -16,29 +16,17 @@
 (defui main [{:keys [item]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
-        ref (uix/use-ref nil)
-        [is-last set-is-last!] (uix/use-state false)]
-
-    (uix/use-effect
-     (fn []
-       (when (.. ref -current)
-         (set-is-last! (= (.. ref
-                              -current
-                              -nextElementSibling
-                              -dataset
-                              -row)
-                          "expandable"))))
-     [item])
+        ref (uix/use-ref nil)]
 
     ($ TableRow {:ref ref
                  :key (-> item :id)
                  :data-row "item"
-                 :style (if is-last
-                          {:box-shadow
-                           "0 -0.5px 0 hsl(var(--border)),
-                            inset 0 -3px 4px -2px hsl(var(--border))"}
-                          {:box-shadow "0 -0.5px 0 hsl(var(--border))"})
-                 :class-name "bg-destructive-foreground/50"}
+                 :class-name
+                 ;; checks if next sibling is a model or package row and applies drop shadow to them
+                 (str
+                  "[&+tr[data-row='model']]:shadow-[0_-0.5px_0_hsl(var(--border)),0_-4px_4px_-2px_hsl(var(--border))] "
+                  "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--border)),0_-4px_4px_-2px_hsl(var(--border))] "
+                  "shadow-[0_-0.5px_0_hsl(var(--border))] bg-destructive-foreground/50")}
 
        ($ TableCell)
 
