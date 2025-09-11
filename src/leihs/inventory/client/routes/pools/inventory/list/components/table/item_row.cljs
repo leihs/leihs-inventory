@@ -5,7 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell TableRow]]
-   ["lucide-react" :refer [Ellipsis Image]]
+   ["lucide-react" :refer [Ellipsis Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
 
    ["react-router-dom" :as router :refer [Link]]
@@ -38,7 +38,7 @@
                            "0 -0.5px 0 hsl(var(--border)),
                             inset 0 -3px 4px -2px hsl(var(--border))"}
                           {:box-shadow "0 -0.5px 0 hsl(var(--border))"})
-                 :class-name "bg-destructive-foreground/50 hover:bg-destructive-foreground/50"}
+                 :class-name "bg-destructive-foreground/50"}
 
        ($ TableCell)
 
@@ -59,8 +59,10 @@
           ($ ItemStatus {:item item}))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:className "flex gap-2"}
-
+          ($ :div {:class-name
+                   "flex [&>*]:rounded-none 
+                   [&>a:first-child]:rounded-l-md 
+                   [&>button:last-child]:rounded-r-md"}
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
@@ -69,10 +71,12 @@
                    (t "pool.models.list.actions.edit")))
 
              ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild "true"}
-                   ($ Button {:variant "secondary"
+                ($ DropdownMenuTrigger {:asChild true}
+                   ($ Button {:data-test-id "edit-dropdown"
+                              :class-name ""
+                              :variant "outline"
                               :size "icon"}
-                      ($ Ellipsis {:className "h-4 w-4"})))
+                      ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
                       ($ Link {:to (str (:id item) "/items/create")

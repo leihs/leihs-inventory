@@ -70,7 +70,7 @@
                   (t "pool.models.list.empty"))
 
                ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
-                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md"
+                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
                                   :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
                      ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
                         ($ TableHead {:class-name "rounded-tl-md text-right"}
