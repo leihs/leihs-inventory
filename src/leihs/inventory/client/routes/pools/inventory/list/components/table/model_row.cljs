@@ -5,7 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Ellipsis Image]]
+   ["lucide-react" :refer [Ellipsis Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -57,7 +57,7 @@
 
     ($ ExpandableRow {:key (-> model :id)
                       :subrow-count (:total_items model)
-                      :class-name (if result "bg-accent/70 hover:bg-accent/70" "")
+                      :class-name (if result "bg-accent/70" "")
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
@@ -98,9 +98,12 @@
           (str (-> model :in_stock str) " | " (-> model :rentable str)))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:className "flex gap-2"}
-
+          ($ :div {:class-name
+                   "flex [&>*]:rounded-none 
+                   [&>a:first-child]:rounded-l-md 
+                   [&>button:last-child]:rounded-r-md"}
              ($ Button {:variant "outline"
+                        :class-name ""
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
                          :to (case (-> model :type)
@@ -112,10 +115,12 @@
                    (t "pool.models.list.actions.edit")))
 
              ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild "true"}
-                   ($ Button {:variant "secondary"
+                ($ DropdownMenuTrigger {:asChild true}
+                   ($ Button {:data-test-id "edit-dropdown"
+                              :class-name ""
+                              :variant "outline"
                               :size "icon"}
-                      ($ Ellipsis {:className "h-4 w-4"})))
+                      ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
                       ($ Link {:to (str (:id model) "/items/create")
