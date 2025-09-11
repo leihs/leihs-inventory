@@ -54,6 +54,7 @@
                  [:r.end_date :reservation_end_date]
                  [:r.user_id :reservation_user_id]
                  [:m.is_package :is_package]
+                 [:m.name :model_name]
                  [:rs.name :room_name]
                  [:rs.description :room_description]
                  [:b.name :building_name]
@@ -83,7 +84,9 @@
 
                    ;; Join models
                    (sql/left-join [:models :m]
-                                  [:= :m.id model_id])
+                                  [:or
+                                   [:= :i.model_id :m.id]
+                                   [:= :m.id model_id]])
 
                    ;; Join reservations (only active)
                    (sql/left-join [:reservations :r]

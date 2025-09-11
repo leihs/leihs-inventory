@@ -13,7 +13,8 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [item]}]
+(defui main [{:keys [item isPackageItem]
+              :or {isPackageItem false}}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         ref (uix/use-ref nil)]
@@ -41,7 +42,8 @@
              ($ Badge {:className "w-6 h-6 justify-center bg-blue-500"} "G")))
 
        ($ TableCell
-          ($ ItemInfo {:item item}))
+          ($ ItemInfo {:item item
+                       :is-package-item isPackageItem}))
 
        ($ TableCell {:className "text-right"}
           ($ ItemStatus {:item item}))
