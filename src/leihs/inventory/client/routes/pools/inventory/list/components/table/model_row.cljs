@@ -56,8 +56,14 @@
      [search-params])
 
     ($ ExpandableRow {:key (-> model :id)
+                      :data-row "model"
                       :subrow-count (:total_items model)
-                      :class-name (if result "bg-accent/70" "")
+                      ;; checks if next sibling is a item or package row and applies a inset shadow to them
+                      :class-name (str
+                                   "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
+                                   "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
+                                   "shadow-[0_-0.5px_0_hsl(var(--border))] "
+                                   (if result "bg-accent/70" ""))
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
