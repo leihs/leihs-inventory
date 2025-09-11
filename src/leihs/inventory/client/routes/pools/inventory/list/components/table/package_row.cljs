@@ -5,7 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Ellipsis Image]]
+   ["lucide-react" :refer [Image ChevronDown]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    [leihs.inventory.client.lib.client :refer [http-client]]
@@ -29,8 +29,9 @@
                           (set-result! nil)
 
                           (-> http-client
-                              (.get (str "/inventory/" pool-id "/items/?parent_id=" (:id package))
-                                    #js {:cache false})
+                              (.get (str "/inventory/" pool-id "/items/")
+                                    (cj {:params {:parent_id (:id package)}
+                                         :cache false}))
                               (.then (fn [data]
                                        (set-result! {:status (.. data -status)
                                                      :statusText (.. data -statusText)
@@ -45,7 +46,7 @@
 
     ($ ExpandableRow {:key (-> package :id)
                       :subrow-count (:package_items_count package)
-                      :class-name "bg-destructive-foreground/50 hover:bg-destructive-foreground/50"
+                      :class-name "bg-destructive-foreground/50"
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
@@ -75,8 +76,10 @@
           ($ ItemStatus {:item package}))
 
        ($ TableCell {:className "fit-content"}
-          ($ :div {:className "flex gap-2"}
-
+          ($ :div {:class-name
+                   "flex [&>*]:rounded-none 
+                   [&>a:first-child]:rounded-l-md 
+                   [&>button:last-child]:rounded-r-md"}
              ($ Button {:variant "outline"
                         :asChild true}
                 ($ Link {:state #js {:searchParams (.. location -search)}
@@ -85,10 +88,12 @@
                    (t "pool.models.list.actions.edit")))
 
              ($ DropdownMenu
-                ($ DropdownMenuTrigger {:asChild "true"}
-                   ($ Button {:variant "secondary"
+                ($ DropdownMenuTrigger {:asChild true}
+                   ($ Button {:data-test-id "edit-dropdown"
+                              :class-name ""
+                              :variant "outline"
                               :size "icon"}
-                      ($ Ellipsis {:className "h-4 w-4"})))
+                      ($ ChevronDown {:className "w-4 h-4"})))
                 ($ DropdownMenuContent {:align "start"}
                    ($ DropdownMenuItem
                       ($ Link {:to (str (:id package) "/items/create")

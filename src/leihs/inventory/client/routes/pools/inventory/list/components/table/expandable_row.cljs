@@ -7,16 +7,18 @@
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [onExpand subrows subrowCount
-                     children className]}]
+                     children className]
+              :as props}]
   (let []
     ($ :<>
-       ($ TableRow {:data-row "expandable"
-                    :class-name className
-                    :style (if subrows
-                             {:box-shadow
-                              "0 -0.5px 0 hsl(var(--border)),
+       ($ TableRow (merge props
+                          {:data-row "expandable"
+                           :class-name className
+                           :style (if subrows
+                                    {:box-shadow
+                                     "0 -0.5px 0 hsl(var(--border)),
                               0 4px 4px -2px hsl(var(--border))"}
-                             {:box-shadow "0 -0.5px 0 hsl(var(--border))"})}
+                                    {:box-shadow "0 -0.5px 0 hsl(var(--border))"})})
 
           ($ TableCell
              ($ :div {:className "flex items-center gap-4 ml-2"}
