@@ -8,6 +8,7 @@
    ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
                        TableRow]]
    ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
+   ["react" :as react :refer [Suspense]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link Await]]
    [leihs.inventory.client.components.pagination :as pagination]
@@ -27,7 +28,7 @@
    [uix.dom]))
 
 (defui page []
-  (let [{:keys [data]} (router/useLoaderData)
+  (let [data (router/useLoaderData)
         models (:data data)
         pagination (:pagination data)
         [t] (useTranslation)
@@ -45,6 +46,11 @@
     ;;      (js/console.debug "hello fetcher")
     ;;      (.. fetcher (load (str (.. location -pathname) (.. location -search))))))
     ;;  [location fetcher])
+
+    (uix/use-effect
+     (fn []
+       (js/console.debug "data changed" (.. data -data)))
+     [data])
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex bg-white rounded-xl z-10"
@@ -76,26 +82,26 @@
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}
-             (if (not (seq models))
-               ($ :div {:className "flex p-6 justify-center"}
-                  (t "pool.models.list.empty"))
+             ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
+                ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
+                                :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
+                   ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
+                      ($ TableHead {:class-name "rounded-tl-md text-right"}
+                         (t "pool.models.list.header.amount"))
+                      ($ TableHead "")
+                      ($ TableHead "")
+                      ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
+                      ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
+                      ($ TableHead {:class-name "rounded-tr-md"} "")))
 
-               ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
-                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
-                                  :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
-                     ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
-                        ($ TableHead {:class-name "rounded-tl-md text-right"}
-                           (t "pool.models.list.header.amount"))
-                        ($ TableHead "")
-                        ($ TableHead "")
-                        ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
-                        ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
-                        ($ TableHead {:class-name "rounded-tr-md"} "")))
-
-                  ($ TableBody
-                     (for [model models]
-                       ($ ModelRow {:key (:id model)
-                                    :model model})))))))
+                ($ TableBody
+                   ($ Suspense {:fallback ($ :tr ($ :td "hello"))}
+                      ($ Await {:resolve (.. data -data)}
+                         (fn [models]
+                           (js/console.debug "models" models)
+                           #_(for [model (:data models)]
+                               ($ ModelRow {:key (:id model)
+                                            :model model})))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
