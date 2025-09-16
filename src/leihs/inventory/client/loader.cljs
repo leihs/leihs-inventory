@@ -35,21 +35,19 @@
             pool-id (aget params "pool-id")
             categories (-> http-client
                            (.get (str "/inventory/" pool-id "/category-tree/"))
-                           (.then #(jc (.-data %))))
+                           #_(.then #(jc (.-data %))))
 
             responsible-pools (-> http-client
                                   (.get (str "/inventory/" pool-id "/responsible-inventory-pools/"))
-                                  (.then #(jc (.-data %))))
+                                  #_(.then #(jc (.-data %))))
 
             data (-> http-client
                      (.get (str "/inventory/" pool-id "/list/" search) #js {:cache false})
-                     (.then #(jc (.. % -data))))]
+                     #_(.then #(jc (.. % -data))))]
 
-        (.. (js/Promise.all (cond-> [categories data responsible-pools]))
-            (then (fn [[categories data responsible-pools]]
-                    {:categories categories
-                     :responsible-pools responsible-pools
-                     :data data})))))))
+        (router/defer (cj {:categories categories
+                           :responsible-pools responsible-pools
+                           :data data}))))))
 
 (defn software-crud-page [route-data]
   (let [params (.. ^js route-data -params)
