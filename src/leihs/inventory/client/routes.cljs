@@ -46,7 +46,7 @@
                   :loader #(router/redirect "list?with_items=true&retired=false&page=1&size=50")}
 
                  {:path "list"
-                  :loader loader/models-page
+                  :loader loader/list-page
                   :id "models-page"
                   :element ($ list-page)}
 
