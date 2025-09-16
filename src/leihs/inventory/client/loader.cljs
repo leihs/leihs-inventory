@@ -26,7 +26,7 @@
         (then (fn [[profile]]
                 {:profile profile})))))
 
-(defn models-page [route-data]
+(defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
         search (.-search url)]
     (if (empty? search)

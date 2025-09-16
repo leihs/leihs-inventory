@@ -9,7 +9,7 @@
                        TableRow]]
    ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link]]
+   ["react-router-dom" :as router :refer [Link Await]]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.borrowable-filter :refer [BorrowableFilter]]
@@ -20,6 +20,7 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.search-filter :as search :refer [SearchFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.status-filter :refer [StatusFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.model-row :refer [ModelRow]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.table.skeleton-row :refer [SkeletonRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.type-filter :refer [TypeFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.with-items-filter :refer [WithItemsFilter]]
    [uix.core :as uix :refer [$ defui]]
@@ -30,10 +31,20 @@
         models (:data data)
         pagination (:pagination data)
         [t] (useTranslation)
-        location (router/useLocation)
+        ;; location (router/useLocation)
         navigate (router/useNavigate)
+        ;; fetcher (router/useFetcher)
         handle-reset (fn []
                        (navigate "?page=1&size=50&with_items=true"))]
+
+    ;; (uix/use-effect
+    ;;  (fn []
+    ;;    (js/console.debug "hello" (.. fetcher -state) (.. fetcher -data))
+    ;;    (when (and (= (.. fetcher -state) "idle")
+    ;;               (not (.. fetcher -data)))
+    ;;      (js/console.debug "hello fetcher")
+    ;;      (.. fetcher (load (str (.. location -pathname) (.. location -search))))))
+    ;;  [location fetcher])
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex bg-white rounded-xl z-10"
