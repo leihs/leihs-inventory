@@ -36,18 +36,22 @@ feature "Sign-in / Sign-out" do
           expect(page).to have_content("Leihs Simple Login")
           expect(page).to have_selector("form.ui-form-signin")
 
+          binding.pry
           fill_in "user", with: @user.login
           fill_in "password", with: @user.password
           click_button "Continue"
 
+          binding.pry
           # test accessible endpoints
           # process sign-out
           visit "/sign-out"
           expect(page).to have_content("Sign out")
           click_button "Sign out"
 
+          binding.pry
           # test redirect to sign-in page after logout
           visit "/inventory"
+          binding.pry
           expect(page).to have_content("Leihs Simple Login")
 
           visit "/inventory"

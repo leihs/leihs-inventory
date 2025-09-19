@@ -478,16 +478,16 @@ def create_and_login_by(user)
   token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
 
-  resp = common_plain_faraday_client(:post, "/sign-in", body: {
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
   }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
 
-  expect(resp.status).to eq(302)
-  expect(resp.headers["location"]).to be
+  expect(response.status).to eq(302)
+  expect(response.headers["location"]).to be
 
-  session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+  session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
   generate_csrf_session_data(session_cookie) + [session_cookie]
 end

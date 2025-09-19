@@ -172,24 +172,6 @@
    {:swagger {:tags ["Assets"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
-   ;["swagger-ui/{*path}"
-   ; {:no-doc HIDE_BASIC_ENDPOINTS
-   ;  :get {:accept "text/html"
-   ;        :public true
-   ;        :swagger {:produces ["text/html"]}
-   ;        :description "Swagger-UI with filter/sort"
-   ;        :produces ["text/html"]
-   ;        :handler (fn [request]
-   ;                   (println "Processing asset request...")
-   ;                   (try
-   ;                     (let [file "public/swagger-ui/index.html"
-   ;                           content-type (content-type file)
-   ;                           resource (io/resource file)]
-   ;                       {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
-   ;                     (catch Exception e
-   ;                       (println "Error processing swagger-ui request:" e)
-   ;                       (rh/index-html-response request 404))))}}]
-
   ["{*path}"
    {:no-doc HIDE_BASIC_ENDPOINTS
     :get {:description "Public assets like JS, CSS, images"
@@ -236,9 +218,6 @@
                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
                             :version "3.0.0"}}
            :handler (openapi/create-openapi-handler)}}]
-
-
-
    ]
 
   ["swagger-ui/{*path}"
@@ -258,8 +237,6 @@
                        (catch Exception e
                          (println "Error processing swagger-ui request:" e)
                          (rh/index-html-response request 404))))}}]
-
-
    ]
 
   )
@@ -316,15 +293,6 @@
                      (token-public/routes)
                      (token/routes)]]
     (vec core-routes)))
-
-(defn all-api-endpoints []
-  ["/"
-   (sign-in-out-endpoints)
-   ["inventory"
-    {:swagger {:tags [""]}}
-    (csrf-endpoints)
-    (swagger-endpoints)
-    (visible-api-endpoints)]])
 
 (defn all-api-endpoints []
   ["/"
