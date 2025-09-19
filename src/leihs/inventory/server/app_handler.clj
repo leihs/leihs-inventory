@@ -149,22 +149,22 @@
 
 
 
-(def buster-mime-types {:mime-types {"svg" "image/svg+xml"
-                                     "svgz" "image/svg+xml"}})
+;(def buster-mime-types {:mime-types {"svg" "image/svg+xml"
+;                                     "svgz" "image/svg+xml"}})
 
-(defn init []
-  (let [router (ring/router (routes/all-api-endpoints) default-router-config)
-        swagger-ui-handler (swagger/init)
-        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
-        app (ring/routes
-              swagger-ui-handler
-              (ring/ring-handler router not-found))]
-    (->
-      app
-      (wrap-content-type buster-mime-types)
-      strip-digest
-      (cache-buster2/wrap-resource "public" cache-bust-options)
-      ensure-content-type)))
+;(defn init []
+;  (let [router (ring/router (routes/all-api-endpoints) default-router-config)
+;        swagger-ui-handler (swagger/init)
+;        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+;        app (ring/routes
+;              swagger-ui-handler
+;              (ring/ring-handler router not-found))]
+;    (->
+;      app
+;      (wrap-content-type buster-mime-types)
+;      strip-digest
+;      (cache-buster2/wrap-resource "public" cache-bust-options)
+;      ensure-content-type)))
 
 
 
