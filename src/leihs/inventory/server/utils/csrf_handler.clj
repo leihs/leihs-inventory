@@ -9,8 +9,8 @@
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [ring.util.codec :as codec]
-   [taoensso.timbre :refer [debug info warn error spy]]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
@@ -87,7 +87,7 @@
 (defn wrap-csrf [handler]
   (fn [request]
     (let [uri (:uri request)
-          api-request? (and uri (or (str/includes? uri "/api-docs/")(str/includes? uri "/swagger-ui/")))]
+          api-request? (and uri (or (str/includes? uri "/api-docs/") (str/includes? uri "/swagger-ui/")))]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])

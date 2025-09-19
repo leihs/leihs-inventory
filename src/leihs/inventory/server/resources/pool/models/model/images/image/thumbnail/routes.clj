@@ -24,7 +24,7 @@
                            :body (s/->Either [image/image s/Any])}
                       404 {:description "Not Found"
                            ;:body (s/->Either [image/error-message-structure s/Any])}
-                          :body image/error-message-structure}
-          406 {:description "Requested content type not supported"
+                           :body image/error-message-structure}
+                      406 {:description "Requested content type not supported"
                            :body image/error-message-structure}
                       500 {:description "Internal Server Error"}}}}])

@@ -64,7 +64,7 @@
        </head><div class='max-width'>
        <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
        <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
-           (slurp (io/resource "md/info.html")) "</div></body></html>")})
+              (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn sign-in-out-endpoints []
   [[""
@@ -81,9 +81,8 @@
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
-     :post {
-            ;:accept "application/json"
-           :accept "text/html"
+     :post {;:accept "application/json"
+            :accept "text/html"
             :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
             :produces ["text/html"]
             :coercion reitit.coercion.schema/coercion
@@ -100,13 +99,11 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {
-            ;:accept "application/json"
-           :accept "text/html"
+     :post {;:accept "application/json"
+            :accept "text/html"
             :produces ["text/html"]
             :handler post-sign-out}
-     :get {
-           :accept "text/html"
+     :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
            :handler get-sign-out}}]])
 
@@ -172,74 +169,64 @@
    {:swagger {:tags ["Assets"]}
     :no-doc HIDE_BASIC_ENDPOINTS}
 
-  ["{*path}"
-   {:no-doc HIDE_BASIC_ENDPOINTS
-    :get {:description "Public assets like JS, CSS, images"
-          :produces ["text/html"]
-          :handler (fn [request]
-                     (let [
-                           p (println ">o> path")
-                           _ (-> request
-                                 convert-params
-                                 (assoc-in [:accept :mime] :html))])
+   ["{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:description "Public assets like JS, CSS, images"
+           :produces ["text/html"]
+           :handler (fn [request]
+                      (let [p (println ">o> path")
+                            _ (-> request
+                                  convert-params
+                                  (assoc-in [:accept :mime] :html))])
 
-                     (if (authenticated? request)
-                       (rh/index-html-response request 200)
-                       {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}]
-
-
-   ]
-
-  )
+                      (if (authenticated? request)
+                        (rh/index-html-response request 200)
+                        {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}]])
 
 (defn swagger-endpoints []
   ["/"
 
    ["api-docs"
-   {:get {:handler swagger-api-docs-handler
-          :no-doc true}}
+    {:get {:handler swagger-api-docs-handler
+           :no-doc true}}
 
-   ["/swagger.json"
-    {:get {:no-doc true
+    ["/swagger.json"
+     {:get {:no-doc true
+            :public true
+            :swagger {:info {:title "inventory-api"
+                             :version "2.0.0"
+                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
+                      :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
+                                            :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
+                      :security [{:csrfToken []}]}
+            :handler (swagger/create-swagger-handler)}}]
+
+    ["/openapi.json"
+     {:get {:no-doc true
+            :public true
+            :openapi {:openapi "3.0.0"
+                      :info {:title "inventory-api"
+                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
+                             :version "3.0.0"}}
+            :handler (openapi/create-openapi-handler)}}]]
+
+   ["swagger-ui/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html"
            :public true
-           :swagger {:info {:title "inventory-api"
-                            :version "2.0.0"
-                            :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
-                     :securityDefinitions {:apiAuth {:type "apiKey" :name "Authorization" :in "header"}
-                                           :csrfToken {:type "apiKey" :name "x-csrf-token" :in "header"}}
-                     :security [{:csrfToken []}]}
-           :handler (swagger/create-swagger-handler)}}]
-
-   ["/openapi.json"
-    {:get {:no-doc true
-           :public true
-           :openapi {:openapi "3.0.0"
-                     :info {:title "inventory-api"
-                            :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
-                            :version "3.0.0"}}
-           :handler (openapi/create-openapi-handler)}}]
-   ]
-
-  ["swagger-ui/{*path}"
-   {:no-doc HIDE_BASIC_ENDPOINTS
-    :get {:accept "text/html"
-          :public true
-          :swagger {:produces ["text/html"]}
-          :description "Swagger-UI with filter/sort"
-          :produces ["text/html"]
-          :handler (fn [request]
-                     (println "Processing asset request...")
-                     (try
-                       (let [file "public/swagger-ui/index.html"
-                             content-type (content-type file)
-                             resource (io/resource file)]
-                         {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
-                       (catch Exception e
-                         (println "Error processing swagger-ui request:" e)
-                         (rh/index-html-response request 404))))}}]
-   ]
-
-  )
+           :swagger {:produces ["text/html"]}
+           :description "Swagger-UI with filter/sort"
+           :produces ["text/html"]
+           :handler (fn [request]
+                      (println "Processing asset request...")
+                      (try
+                        (let [file "public/swagger-ui/index.html"
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (println "Error processing swagger-ui request:" e)
+                          (rh/index-html-response request 404))))}}]])
 
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."

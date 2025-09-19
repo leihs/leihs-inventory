@@ -114,9 +114,9 @@
       (so/routes params))))
 
 (defn post-sign-out [request]
-  (println ">o> abc.post-sign-out" )
+  (println ">o> abc.post-sign-out")
   (let [params (-> request
-                 convert-params
-                 (assoc-in [:accept :mime] :html))
+                   convert-params
+                   (assoc-in [:accept :mime] :html))
         _ (so/routes params)]
     {:status 302, :headers {"Location" "/inventory/"}}))
