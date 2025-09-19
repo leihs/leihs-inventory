@@ -307,13 +307,39 @@
 
 (defn ensure-content-type [handler]
   (fn [req]
-    (let [resp (handler req)]
+    (let [resp (handler req)
+
+          resp-ct (get-in resp [:headers "Content-Type"])
+          p (println ">o> abc.req" (:uri req) "ct" (get-in req [:headers "accept"]))
+          p (println ">o> abc.resp-ct" resp-ct)
+          p (println ">o> ---------------------------------" )
+          ]
       (if (get-in resp [:headers "Content-Type"])
         resp
         (if-let [ct (mime/ext-mime-type (:uri req)
                       {"svg" "image/svg+xml" "svgz" "image/svg+xml"})]
-          (assoc-in resp [:headers "Content-Type"] ct)
+          (do
+            (println ">o> abc.ext-mime-type.ct" ct)
+          (assoc-in resp [:headers "Content-Type"] ct))
           resp)))))
+
+(defn ensure-content-type [handler]
+  (fn [req]
+    (let [resp (handler req)
+          resp-ct (get-in resp [:headers "Content-Type"])
+          ext-ct  (mime/ext-mime-type (:uri req)
+                    {"svg" "image/svg+xml"
+                     "svgz" "image/svg+xml"})]
+      (cond
+        ;; If no CT at all, set it
+        (nil? resp-ct) (assoc-in resp [:headers "Content-Type"] ext-ct)
+
+        ;; If CT is text/plain but we know better
+        (and (= "text/plain" resp-ct) ext-ct)
+        (assoc-in resp [:headers "Content-Type"] ext-ct)
+
+        :else resp))))
+
 
 (defn init []
   (let [router (ring/router (routes/all-api-endpoints) default-router-config)
@@ -329,32 +355,33 @@
     (->
       app
 
-      (wrap-content-type {:mime-types {"svg"  "image/svg+xml"
-                                       "svgz" "image/svg+xml"}})
+      ;(wrap-content-type {:mime-types {"svg"  "image/svg+xml"
+      ;                                 "svgz" "image/svg+xml"}})
 
       strip-digest
 
+      ;(cache-buster2/wrap-resource "public" cache-bust-options)
+      ;;ensure-content-type
+      ;
+      ;(wrap-file-info {:mime-types {"svg"  "image/svg+xml"
+      ;                              "svgz" "image/svg+xml"}})
+
+
+
+      ;(cache-buster2/wrap-resource "public"
+      ;  (assoc cache-bust-options
+      ;    :mime-types {"svg"  "image/svg+xml"
+      ;                 "svgz" "image/svg+xml"}))
+      ;(wrap-file-info {:mime-types {"svg"  "image/svg+xml"
+      ;                              "svgz" "image/svg+xml"}})
+
 
       (cache-buster2/wrap-resource "public" cache-bust-options)
-      ;ensure-content-type
-
+      ;; apply mime-type corrections (this is where :mime-types is actually used)
       (wrap-file-info {:mime-types {"svg"  "image/svg+xml"
                                     "svgz" "image/svg+xml"}})
 
 
-      ;(wrap-defaults defaults)
-
-      ;(wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-      ;(wrap-default-charset "utf-8")
-      ;
-      ;(wrap-defaults (-> site-defaults
-      ; don’t let not-found HTML mask static results
-      ; leave as-is unless you’ve changed defaults
-      ;identity))
-      ;(wrap-defaults defaults)
-      ;tap-status
-
       ensure-content-type
-
 
       )))
