@@ -71,6 +71,8 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
     conn.headers["x-csrf-token"] = X_CSRF_TOKEN
     conn.headers["Content-Type"] = "application/json" unless multipart
     conn.headers.update(headers)
+
+    # binding.pry
     conn.request :multipart if multipart
     conn.request :url_encoded
     conn.response :json, content_type: /\bjson$/
@@ -78,6 +80,7 @@ def common_plain_faraday_client(method, url, token: nil, body: nil, headers: {},
 
     yield(conn) if block_given?
   end.public_send(method, url) do |req|
+    # binding.pry
     if (multipart && body) || (is_binary && body)
       req.body = body
     elsif body

@@ -228,12 +228,16 @@
 
 
 (defn init []
-  (let [router (ring/router (routes/all-api-endpoints) default-router-config)
-        swagger-ui-handler (swagger/init)
-        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+  (let [
+        ;router (ring/router (routes/all-api-endpoints) default-router-config)
+        ;not-found (ring/create-default-handler {:not-found custom-not-found-handler})
         app (ring/routes
-              swagger-ui-handler
-              (ring/ring-handler router not-found))]
+              (swagger/init)
+              ;(ring/ring-handler router not-found))]
+              (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
+              (ring/create-default-handler {:not-found custom-not-found-handler})
+
+              ))]
 
     (->
       app
