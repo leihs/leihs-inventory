@@ -474,8 +474,6 @@ def create_and_login(role, login = nil, password = nil)
 end
 
 def create_and_login_by(user)
-  # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
-
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
@@ -484,10 +482,10 @@ def create_and_login_by(user)
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
-  }, multipart: true, headers: {Cookie: cookie_str})
+  }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
 
   expect(resp.status).to eq(302)
-  expect(response.headers["location"]).to be
+  expect(resp.headers["location"]).to be
 
   session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
 
