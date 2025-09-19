@@ -39,6 +39,7 @@ describe "Call swagger-endpoints" do
       "/inventory/assets/css/nd.css" => 302,
       "/invalid/assets/css/nd.css" => 404,
 
+      "/inventory/assets/zhdk-logo.svg_37933c235116b473d43aa90d4b244d98e38024fb.svg" => 200,
       "/inventory/assets/zhdk-logo.svg" => 302,
       "/inventory/assets/nd.svg" => 302,
       "/inventory/nd.svg" => 302,

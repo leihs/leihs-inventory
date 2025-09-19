@@ -67,7 +67,8 @@
 (defn wrap-csrf [handler]
   (fn [request]
     (let [uri (:uri request)
-          api-request? (and uri (str/includes? uri "/api-docs/"))]
+          api-request? (and uri (or (str/includes? uri "/api-docs/") (str/includes? uri "/swagger-ui/")))
+          p (println ">o> abc.api-request?" api-request?)]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
@@ -86,7 +87,7 @@
 (defn wrap-csrf [handler]
   (fn [request]
     (let [uri (:uri request)
-          api-request? (and uri (str/includes? uri "/api-docs/"))]
+          api-request? (and uri (or (str/includes? uri "/api-docs/")(str/includes? uri "/swagger-ui/")))]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
