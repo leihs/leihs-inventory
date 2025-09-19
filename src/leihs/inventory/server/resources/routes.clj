@@ -98,10 +98,13 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {:accept "application/json"
+     :post {
+            ;:accept "application/json"
+           :accept "text/html"
             :produces ["text/html"]
             :handler post-sign-out}
-     :get {:accept "text/html"
+     :get {
+           :accept "text/html"
            :summary "HTML | Get sign-out page"
            :handler get-sign-out}}]])
 

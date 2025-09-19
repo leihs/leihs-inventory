@@ -7,6 +7,15 @@
    [leihs.core.http-cache-buster2 :as cache-buster2]
    [leihs.core.ring-audits :as ring-audits]
    [leihs.core.routing.back :as core-routing]
+   [clojure.string :as str]
+   [ring.util.response :refer [bad-request response status]]
+
+
+   [ring.util.mime-type :as mime]
+   [ring.middleware.resource :refer [wrap-resource]]
+   [ring.middleware.file-info :refer [wrap-file-info]]
+   [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
@@ -179,7 +188,7 @@
       (if (get-in resp [:headers "Content-Type"])
         resp
         (if-let [ct (mime/ext-mime-type (:uri req)
-                      {"svg" "image/svg+xml" "svgz" "image/svg+xml"})]
+                                        {"svg" "image/svg+xml" "svgz" "image/svg+xml"})]
           (assoc-in resp [:headers "Content-Type"] ct)
           resp)))))
 
@@ -199,3 +208,153 @@
       strip-digest
       (cache-buster2/wrap-resource "public" cache-bust-options)
       ensure-content-type)))
+
+
+
+
+
+
+
+
+
+
+
+(def default-mime
+  {"svg"  "image/svg+xml"
+   "svgz" "image/svg+xml"})
+
+(defn ensure-content-type [handler]
+  (fn [req]
+    (let [resp (handler req)]
+      (if (pr "contType??" (get-in resp [:headers "Content-Type"]))
+        resp
+        (if-let [ct (pr "ct???" (mime/ext-mime-type (:uri req) default-mime))]
+          (assoc-in resp [:headers "Content-Type"] ct)
+          resp)))))
+
+
+(def digest-re
+  ;; matches: /path/name.<ext>_<40hex>.<ext>
+  ;; captures: 1=/path/name, 2=first ext, 3=second ext
+  (re-pattern "(?i)^(.*?)(\\.[^.\\/]+)_[0-9a-f]{40}(\\.[^.\\/]+)$"))
+
+
+(def digest-tail-re
+  ;; matches: _<hex>.<ext> at end of path, e.g. /name.svg_<hash>.svg
+  #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
+
+(defn strip-digest [handler]
+  (fn [req]
+    (let [uri (:uri req)
+          new-uri (if (and uri (re-find digest-tail-re uri))
+                    (str/replace uri digest-tail-re "")
+                    uri)]
+      (println ">o> strip-digest" uri "=>"
+        new-uri) ; optional debug
+      (handler (assoc req :uri new-uri)))))
+
+(def cache-bust-options
+  {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
+   :never-expire-paths []
+   :cache-enabled? true})
+
+;(defn init []
+;  (let [router
+;        (ring/router (routes/all-api-endpoints) default-router-config)
+;        swagger-ui-handler (swagger/init)
+;        default-handler (ring/routes swagger-ui-handler
+;                                     (ring/create-default-handler {:not-found custom-not-found-handler}))]
+;    (-> (ring/ring-handler router default-handler)
+;        (cache-buster2/wrap-resource "public" cache-bust-options)
+;        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+;        (wrap-default-charset "utf-8"))))
+
+(require '[ring.middleware.defaults :refer [wrap-defaults site-defaults]])
+
+(def defaults
+  (-> site-defaults
+    (assoc-in [:responses :not-modified-responses] false)))
+
+(defn tap-status [handler]
+  (fn [req]
+    (let [resp (handler req)]
+      (println ">> status" (:status resp) "uri" (:uri req)
+        "ct" (get-in resp [:headers "Content-Type"]))
+      resp)))
+
+
+(def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
+
+(defn- strip-tail [s]
+  (when s
+    (let [new (str/replace s tail-re "")]
+      (if (identical? s new) s new))))
+
+(defn strip-digest [handler]
+  (fn [req]
+    (let [uri      (:uri req)
+          pinfo    (:path-info req)
+          new-uri  (strip-tail uri)
+          new-pi   (strip-tail pinfo)
+          req' (cond-> req
+                 (and new-uri (not= new-uri uri))     (assoc :uri new-uri)
+                 (and new-pi  (not= new-pi  pinfo))   (assoc :path-info new-pi))]
+      (when (or (not= uri new-uri) (not= pinfo new-pi))
+        (println ">o> strip-digest" uri "=>" new-uri
+          (when pinfo (str " | path-info " pinfo " => " new-pi))))
+      (handler req'))))
+
+
+(defn ensure-content-type [handler]
+  (fn [req]
+    (let [resp (handler req)]
+      (if (get-in resp [:headers "Content-Type"])
+        resp
+        (if-let [ct (mime/ext-mime-type (:uri req)
+                      {"svg" "image/svg+xml" "svgz" "image/svg+xml"})]
+          (assoc-in resp [:headers "Content-Type"] ct)
+          resp)))))
+
+(defn init []
+  (let [router (ring/router (routes/all-api-endpoints) default-router-config)
+        swagger-ui-handler (swagger/init)
+        not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+
+        ;; Try Swagger first, then the router, then 404.
+        app (ring/routes
+              swagger-ui-handler
+              (ring/ring-handler router not-found))]
+    ;(ring/ring-handler not-found))]
+
+    (->
+      app
+
+      (wrap-content-type {:mime-types {"svg"  "image/svg+xml"
+                                       "svgz" "image/svg+xml"}})
+
+      strip-digest
+
+
+      (cache-buster2/wrap-resource "public" cache-bust-options)
+      ;ensure-content-type
+
+      (wrap-file-info {:mime-types {"svg"  "image/svg+xml"
+                                    "svgz" "image/svg+xml"}})
+
+
+      ;(wrap-defaults defaults)
+
+      ;(wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+      ;(wrap-default-charset "utf-8")
+      ;
+      ;(wrap-defaults (-> site-defaults
+      ; don’t let not-found HTML mask static results
+      ; leave as-is unless you’ve changed defaults
+      ;identity))
+      ;(wrap-defaults defaults)
+      ;tap-status
+
+      ensure-content-type
+
+
+      )))
