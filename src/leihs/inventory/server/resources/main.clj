@@ -112,3 +112,11 @@
     (if (str/includes? accept "application/json")
       {:status (if (so/routes params) 200 409)}
       (so/routes params))))
+
+(defn post-sign-out [request]
+  (println ">o> abc.post-sign-out" )
+  (let [params (-> request
+                 convert-params
+                 (assoc-in [:accept :mime] :html))
+        _ (so/routes params)]
+    {:status 302, :headers {"Location" "/inventory/"}}))
