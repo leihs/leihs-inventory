@@ -11,7 +11,6 @@
   ["/options/"
    {:post {:accept "application/json"
            :coercion spec/coercion
-
            :parameters {:path {:pool_id uuid?}
                         :body :option/body}
            :handler options/post-resource
@@ -24,7 +23,6 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?}
                        :query ::types/options-query}
-
           :handler options/index-resources
           :responses {200 {:description "OK"
                            :body response-option-get}

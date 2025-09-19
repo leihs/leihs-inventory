@@ -1,11 +1,12 @@
 (ns leihs.inventory.server.resources.routes
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [dev.routes :refer [get-dev-routes]]
    [leihs.inventory.server.constants :as consts :refer [APPLY_API_ENDPOINTS_NOT_USED_IN_FE
                                                         APPLY_DEV_ENDPOINTS
                                                         HIDE_BASIC_ENDPOINTS]]
-   [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool]]
+   [leihs.inventory.server.middlewares.authorize :refer [wrap-authorize-for-pool wrap-authorize]]
    [leihs.inventory.server.resources.main :refer [get-csrf-token get-sign-in
                                                   get-sign-out post-sign-in
                                                   post-sign-out
@@ -47,20 +48,42 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [schema.core :as s]))
+   [schema.core :as s]
+   [taoensso.timbre :refer [debug]]))
+
+(defn- create-root-page [_]
+  {:status 200
+   :headers {"Content-Type" "text/html"}
+   :body (str "<html><body><head><link rel=\"stylesheet\" href=\"/inventory/assets/css/additional.css\">
+       </head><div class='max-width'>
+       <img src=\"/inventory/assets/zhdk-logo.svg\" alt=\"ZHdK Logo\" style=\"margin-bottom:4em\" />
+       <h1>Overview _> go to <a href=\"/inventory\">go to /inventory<a/></h1>"
+           (slurp (io/resource "md/info.html")) "</div></body></html>")})
 
 (defn sign-in-out-endpoints []
-  [["sign-in"
-    {:swagger {:tags ["Login"]}
+  [[""
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+           :swagger {:produces ["text/html"] :security []}
+           :produces ["text/html"]
+           :description "Root page"
+           :handler (fn [request]
+                      (debug "Processing root request...")
+                      (create-root-page request))}}]
+
+   ["sign-in"
+    {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
      :post {:accept "application/json"
             :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
-            :swagger {:produces ["application/multipart-form-data"]}
+            :produces ["text/html"]
             :coercion reitit.coercion.schema/coercion
             :handler post-sign-in}
 
@@ -68,14 +91,15 @@
            :accept "text/html"
            :swagger {:consumes ["text/html"]
                      :produces ["text/html"]}
+           :produces ["text/html"]
            :middleware [(restrict-uri-middleware ["/sign-in"])]
            :handler get-sign-in}}]
 
    ["sign-out"
-    {:swagger {:tags ["Login"]}
+    {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
      :post {:accept "application/json"
-            :swagger {:produces ["text/html" "application/json"]}
+            :produces ["text/html"]
             :handler post-sign-out}
      :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
@@ -112,6 +136,68 @@
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 
+(def mime-types
+  {"html" "text/html"
+   "htm" "text/html"
+   "css" "text/css"
+   "js" "application/javascript"
+   "json" "application/json"
+   "png" "image/png"
+   "jpg" "image/jpeg"
+   "jpeg" "image/jpeg"
+   "gif" "image/gif"
+   "svg" "image/svg+xml"
+   "txt" "text/plain"})
+
+(defn convert-params [request]
+  (if-let [form-params (:form-params request)]
+    (let [converted-form-params (into {} (map (fn [[k v]] [(keyword k) v]) form-params))]
+      (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
+    request))
+
+(defn content-type [filename]
+  (let [ext (-> filename
+                (str/split #"\.")
+                last
+                str/lower-case)]
+    (get mime-types ext "application/octet-stream")))
+
+(defn assets-endpoints []
+  ["/"
+   {:swagger {:tags ["Assets"]}
+    :no-doc HIDE_BASIC_ENDPOINTS}
+
+   ["swagger-ui/{*path}"
+    {:no-doc HIDE_BASIC_ENDPOINTS
+     :get {:accept "text/html"
+           :public true
+           :swagger {:produces ["text/html"]}
+           :description "Swagger-UI with filter/sort"
+           :produces ["text/html"]
+           :handler (fn [request]
+                      (debug "Processing asset request...")
+                      (try
+                        (let [file "public/swagger-ui/index.html"
+                              content-type (content-type file)
+                              resource (io/resource file)]
+                          {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
+                        (catch Exception e
+                          (println "Error processing swagger-ui request:" e)
+                          (rh/index-html-response request 404))))}}]]
+
+  ["{*path}"
+   {:no-doc HIDE_BASIC_ENDPOINTS
+    :get {:description "Public assets like JS, CSS, images"
+          :produces ["text/html"]
+          :handler (fn [request]
+                     (let [_ (-> request
+                                 convert-params
+                                 (assoc-in [:accept :mime] :html))])
+
+                     (if (authenticated? request)
+                       (rh/index-html-response request 200)
+                       {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}))}}])
+
 (defn swagger-endpoints []
   ["/api-docs"
    {:get {:handler swagger-api-docs-handler
@@ -119,6 +205,7 @@
 
    ["/swagger.json"
     {:get {:no-doc true
+           :public true
            :swagger {:info {:title "inventory-api"
                             :version "2.0.0"
                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
@@ -129,6 +216,7 @@
 
    ["/openapi.json"
     {:get {:no-doc true
+           :public true
            :openapi {:openapi "3.0.0"
                      :info {:title "inventory-api"
                             :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
@@ -196,3 +284,14 @@
     (csrf-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])
+
+(defn all-api-endpoints []
+  ["/"
+   (sign-in-out-endpoints)
+   ["inventory"
+    {:swagger {:tags [""]}
+     :middleware [wrap-authorize]}
+    (swagger-endpoints)
+    (csrf-endpoints)
+    (visible-api-endpoints)
+    (assets-endpoints)]])

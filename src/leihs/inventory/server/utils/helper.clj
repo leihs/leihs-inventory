@@ -4,6 +4,10 @@
    [clojure.walk :as walk]
    [taoensso.timbre :refer [error debug]]))
 
+(defn safe-ex-data [e]
+  (when (instance? clojure.lang.ExceptionInfo e)
+    (ex-data e)))
+
 (defn- ->snake-case
   "Converts a string `s` to snake_case."
   [s]
