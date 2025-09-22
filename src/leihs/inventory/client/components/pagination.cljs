@@ -52,6 +52,11 @@
                              (.. search-params (set "page" 1))
                              (set-search-params! search-params))]
 
+    (uix/use-effect
+     (fn []
+       (js/window.scrollTo #js {:top 0 :behavior "smooth"}))
+     [current-page])
+
     ($ :div {:class-name (str "flex " class-name)}
        ($ Pagination {:class-name "overflow-hidden justify-start w-fit mx-0 pr-6"}
 
