@@ -28,29 +28,20 @@
    [uix.dom]))
 
 (defui page []
-  (let [data (router/useLoaderData)
+  (let [{:keys [data]} (router/useLoaderData)
         models (:data data)
         pagination (:pagination data)
+        last-page-rows (mod (:total_rows pagination) (:size pagination))
         [t] (useTranslation)
-        ;; location (router/useLocation)
         navigate (router/useNavigate)
-        ;; fetcher (router/useFetcher)
+        navigation (router/useNavigation)
         handle-reset (fn []
                        (navigate "?page=1&size=50&with_items=true"))]
 
     ;; (uix/use-effect
     ;;  (fn []
-    ;;    (js/console.debug "hello" (.. fetcher -state) (.. fetcher -data))
-    ;;    (when (and (= (.. fetcher -state) "idle")
-    ;;               (not (.. fetcher -data)))
-    ;;      (js/console.debug "hello fetcher")
-    ;;      (.. fetcher (load (str (.. location -pathname) (.. location -search))))))
-    ;;  [location fetcher])
-
-    (uix/use-effect
-     (fn []
-       (js/console.debug "data changed" (.. data -data)))
-     [data])
+    ;;    (js/console.debug navigation pagination last-page-rows))
+    ;;  [navigation])
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex bg-white rounded-xl z-10"
@@ -95,13 +86,14 @@
                       ($ TableHead {:class-name "rounded-tr-md"} "")))
 
                 ($ TableBody
-                   ($ Suspense {:fallback ($ :tr ($ :td "hello"))}
-                      ($ Await {:resolve (.. data -data)}
-                         (fn [models]
-                           (js/console.debug "models" models)
-                           #_(for [model (:data models)]
-                               ($ ModelRow {:key (:id model)
-                                            :model model})))))))))
+                   (if (= (.-state navigation) "loading")
+                     (doall (for [i (range (if (= (:total_pages pagination) (:page pagination))
+                                             last-page-rows
+                                             (:size pagination)))]
+                              ($ SkeletonRow {:key i})))
+                     (for [model models]
+                       ($ ModelRow {:key (:id model)
+                                    :model model})))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}

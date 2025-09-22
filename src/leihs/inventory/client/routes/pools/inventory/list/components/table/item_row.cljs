@@ -34,7 +34,8 @@
        ($ TableCell {:className "text-right"}
           (if (:url item)
             ($ :img {:class-name "w-12 h-12 object-contain inline"
-                     :src (:url item)})
+                     :loading "lazy"
+                     :src (str (:url item) "/thubnail")})
             ($ Image {:class-name "w-7 h-7 inline"})))
 
        ($ TableCell

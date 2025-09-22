@@ -21,7 +21,7 @@
                  :fields :in_stock
                  :model_id :parent_id])
 
-(defui main [{:keys [model]}]
+(defui main [{:keys [model className]}]
   (let [location (router/useLocation)
         [t] (useTranslation)
         params (router/useParams)
@@ -56,6 +56,8 @@
        (set-result! nil))
      [search-params])
 
+    (js/console.debug model)
+
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
                       :subrow-count (:total_items model)
@@ -64,7 +66,8 @@
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
                                    "[&+tr[data-row='package']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
                                    "shadow-[0_-0.5px_0_hsl(var(--border))] "
-                                   (if result "bg-accent/70" ""))
+                                   (if result "bg-accent/70 " " ")
+                                   className)
                       :on-expand handle-expand
                       :subrows (when (and result (= (:status result) 200))
                                  (when (seq (:data result))
@@ -80,7 +83,8 @@
        ($ TableCell
           (if (:url model)
             ($ :img {:class-name "min-w-12 h-12 object-contain rounded border p-1"
-                     :src (:url model)
+                     :src (str (:url model) "/thumbnail")
+                     :loading "lazy"
                      :alt (str (:product model) " " (:version model))})
             ($ Image {:class-name "w-12 h-12"})))
 
