@@ -36,8 +36,8 @@
           attachment (jdbc/execute-one! tx query)
 
 
-          p (println ">o> abc.attachment" attachment)
-          p (println ">o> abc.attachment" attachment)
+          ;p (println ">o> abc.attachment" attachment)
+          ;p (println ">o> abc.attachment" attachment)
 
           _ (when (nil? attachment)
               (throw (ex-info "No attachment found for the requested content type" {:status 406})))

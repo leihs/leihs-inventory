@@ -133,17 +133,13 @@ feature "Create model", type: :feature do
       fill_in "properties.1.value", with: second_property_value
     end
 
-    # binding.pry
     click_on "Create"
-    # binding.pry
 
     expect(page).to have_content "Inventory List"
     expect(page).to have_content "#{product} #{version}"
 
     fill_in "search", with: "#{product} #{version}"
-    binding.pry
     find("a", text: "edit").click
-    binding.pry
 
     expect(
       find("label", text: "this is a package").find(:xpath, "..").find("input", visible: false)[:value]
