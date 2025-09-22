@@ -31,6 +31,8 @@
          (set-loading! false)))
      [subrows])
 
+    (js/console.debug subrowCount)
+
     ($ :<>
        ($ TableRow (merge attrs
                           {:class-name className})
