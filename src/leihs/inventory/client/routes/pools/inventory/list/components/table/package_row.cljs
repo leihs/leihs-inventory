@@ -69,7 +69,8 @@
        ($ TableCell
           (if (:url package)
             ($ :img {:class-name "w-12 h-12 object-contain"
-                     :src (:url package)
+                     :src (str (:url package) "/thumbnail")
+                     :loading "lazy"
                      :alt (str (:product package) " " (:version package))})
             ($ Image {:class-name "w-12 h-12"})))
 
