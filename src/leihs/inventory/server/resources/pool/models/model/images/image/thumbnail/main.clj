@@ -30,4 +30,4 @@
       (handle-image-response result json-request? content-negotiation? accept-header))
     (catch Exception e
       (log-by-severity GET_THUMBNAIL_ERROR e)
-      (exception-handler GET_THUMBNAIL_ERROR e))))
+      (exception-handler request GET_THUMBNAIL_ERROR e))))

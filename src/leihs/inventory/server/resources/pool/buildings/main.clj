@@ -26,4 +26,4 @@
           (header "Count" (count result))))
     (catch Exception e
       (log-by-severity ERROR_GET_BUILDINGS e)
-      (exception-handler ERROR_GET_BUILDINGS e))))
+      (exception-handler request ERROR_GET_BUILDINGS e))))

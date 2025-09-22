@@ -48,4 +48,4 @@
           (bad-request {:message "Failed to create software"})))
       (catch Exception e
         (log-by-severity ERROR_CREATE_SOFTWARE e)
-        (exception-handler ERROR_CREATE_SOFTWARE e)))))
+        (exception-handler request ERROR_CREATE_SOFTWARE e)))))

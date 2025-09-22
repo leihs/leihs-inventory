@@ -32,7 +32,7 @@
         (not-found {:message ERROR_FETCH}))
       (catch Exception e
         (log-by-severity ERROR_FETCH e)
-        (exception-handler ERROR_UPDATE e)))))
+        (exception-handler request ERROR_UPDATE e)))))
 
 (defn put-resource [request]
   (try
@@ -63,7 +63,7 @@
         (not-found {:message ERROR_UPDATE})))
     (catch Exception e
       (log-by-severity ERROR_UPDATE e)
-      (exception-handler ERROR_UPDATE e))))
+      (exception-handler request ERROR_UPDATE e))))
 
 (defn delete-resource [request]
   (try
@@ -84,4 +84,4 @@
         (throw (ex-info ERROR_NOT_FOUND {:status 404}))))
     (catch Exception e
       (log-by-severity ERROR_DELETION e)
-      (exception-handler ERROR_DELETION e))))
+      (exception-handler request ERROR_DELETION e))))

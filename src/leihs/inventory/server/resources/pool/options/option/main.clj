@@ -36,7 +36,7 @@
         (not-found {:message FETCH_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity FETCH_OPTION_ERROR e)
-      (exception-handler FETCH_OPTION_ERROR e))))
+      (exception-handler request FETCH_OPTION_ERROR e))))
 
 (defn put-resource [request]
   (try
@@ -58,7 +58,7 @@
         (not-found {:message UPDATE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity UPDATE_OPTION_ERROR e)
-      (exception-handler UPDATE_OPTION_ERROR e))))
+      (exception-handler request UPDATE_OPTION_ERROR e))))
 
 (defn delete-resource [request]
   (try
@@ -75,4 +75,4 @@
         (not-found {:message DELETE_OPTION_ERROR})))
     (catch Exception e
       (log-by-severity DELETE_OPTION_ERROR e)
-      (exception-handler DELETE_OPTION_ERROR e))))
+      (exception-handler request DELETE_OPTION_ERROR e))))

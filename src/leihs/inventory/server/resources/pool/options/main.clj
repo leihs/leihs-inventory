@@ -35,7 +35,7 @@
           (bad-request {:message CREATE_OPTIONS_ERROR})))
       (catch Exception e
         (log-by-severity CREATE_OPTIONS_ERROR e)
-        (exception-handler CREATE_OPTIONS_ERROR e)))))
+        (exception-handler request CREATE_OPTIONS_ERROR e)))))
 
 (defn index-resources [request]
   (let [pool-id (get-in request [:path-params :pool_id])]
@@ -49,4 +49,4 @@
         (response (create-pagination-response request base-query nil post-fnc)))
       (catch Exception e
         (log-by-severity FETCH_OPTIONS_ERROR e)
-        (exception-handler FETCH_OPTIONS_ERROR e)))))
+        (exception-handler request FETCH_OPTIONS_ERROR e)))))

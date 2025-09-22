@@ -10,14 +10,17 @@
    [ring.middleware.accept]
    [schema.core :as s]))
 
+(def valid-accept-types ["application/json" "application/octet-stream"
+                                   "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
+                                   "image/vnd.dwg" "application/zip"])
+
 (defn routes []
   ["/models/:model_id/attachments/:attachments_id"
    {:get {:summary (fe "")
-          :accept "application/json"
+          ;:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :swagger {:produces ["application/json" "application/octet-stream"
-                               "application/pdf" "image/png" "image/jpeg" "text/plain" "image/gif" "text/rtf"
-                               "image/vnd.dwg" "application/zip"]}
+          :swagger {:produces valid-accept-types}
+          :produces valid-accept-types
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :attachments_id s/Uuid}

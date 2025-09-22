@@ -46,7 +46,7 @@
     (let [handler (try
                     (session/wrap-authenticate handler)
                     (catch Exception e
-                      (exception-handler "Error in session-authenticate!" e)
+                      (exception-handler request "Error in session-authenticate!" e)
                       handler))
           token (get-in request [:headers "authorization"])
           handler (if (and token
@@ -54,7 +54,7 @@
                     (try
                       (token/wrap-authenticate handler)
                       (catch Exception e
-                        (exception-handler "Error in token-authenticate!" e)
+                        (exception-handler request "Error in token-authenticate!" e)
                         handler))
                     handler)]
       (handler request))))

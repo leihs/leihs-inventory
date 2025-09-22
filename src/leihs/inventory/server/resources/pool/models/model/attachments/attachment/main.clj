@@ -20,19 +20,29 @@
           id (-> request path-params :attachments_id)
           model-id (-> request path-params :model_id)
           accept-header (get-in request [:headers "accept"])
-          accept-header (if (= accept-header "text/html")
-                          "*/*"
-                          accept-header)
+          ;accept-header (if (= accept-header "text/html")
+          ;                "*/*"
+          ;                accept-header)
           json-request? (= accept-header "application/json")
           content-disposition (or (-> request :parameters :query :content_disposition) "inline")
           query (-> (sql/select :a.*)
                     (sql/from [:attachments :a])
                     (cond-> model-id (sql/where [:= :a.model_id model-id]))
                     (cond-> id (sql/where [:= :a.id id]))
-                    (cond-> (and (not json-request?) (not "*/*"))
+                    ;(cond-> (and (not json-request?) (not "*/*"))
+                    (cond->  (not json-request?)
                       (sql/where [:= :a.content_type accept-header]))
                     sql-format)
           attachment (jdbc/execute-one! tx query)
+
+
+          p (println ">o> abc.attachment" attachment)
+          p (println ">o> abc.attachment" attachment)
+
+          _ (when (nil? attachment)
+              (throw (ex-info "No attachment found for the requested content type" {:status 406})))
+
+
           content-disposition (if (some #(= (:content_type attachment) %) CONTENT_DISPOSITION_INLINE_FORMATS)
                                 content-disposition
                                 "attachment")
@@ -57,7 +67,7 @@
 
     (catch Exception e
       (log-by-severity ERROR_GET_ATTACHMENT e)
-      (exception-handler ERROR_GET_ATTACHMENT e))))
+      (exception-handler request ERROR_GET_ATTACHMENT e))))
 
 (defn delete-resource [{:keys [tx] :as request}]
   (let [{:keys [attachments_id]} (path-params request)

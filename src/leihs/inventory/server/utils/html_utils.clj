@@ -42,7 +42,7 @@
    tree))
 
 (defn add-csrf-tags
-  [html-str {:keys [csrfToken]}]
+  [request html-str {:keys [csrfToken]}]
   (try
     (let [parsed-html (h/parse html-str)
           hickory-tree (h/as-hickory parsed-html)
@@ -56,6 +56,6 @@
       raw-html)
 
     (catch Exception e
-      (exception-handler "Error in add-csrf-and-return-tags" e)
+      (exception-handler request "Error in add-csrf-and-return-tags" e)
       (.printStackTrace e)
       html-str)))

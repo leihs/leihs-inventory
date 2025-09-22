@@ -28,16 +28,16 @@
 (defn attachment-response-format [s]
   (sql/returning s :id :filename :content_type :size :model_id :item_id))
 
-(defn post-resource [req]
+(defn post-resource [request]
   (try
-    (let [{{:keys [model_id]} :path} (:parameters req)
-          body-stream (:body req)
+    (let [{{:keys [model_id]} :path} (:parameters request)
+          body-stream (:body request)
           max-size-mb (config-get :api :attachments :max-size-mb)
           upload-path (config-get :api :upload-dir)
-          tx (:tx req)
-          content-type (get-in req [:headers "content-type"])
-          filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
-          content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+          tx (:tx request)
+          content-type (get-in request [:headers "content-type"])
+          filename-to-save (sanitize-filename (get-in request [:headers "x-filename"]))
+          content-length (some-> (get-in request [:headers "content-length"]) Long/parseLong)
           file-full-path (str upload-path filename-to-save)
           entry {:tempfile file-full-path
                  :filename filename-to-save
@@ -62,7 +62,7 @@
 
     (catch Exception e
       (log-by-severity ERROR_UPLOAD_ATTACHMENT e)
-      (exception-handler ERROR_UPLOAD_ATTACHMENT e))))
+      (exception-handler request ERROR_UPLOAD_ATTACHMENT e))))
 
 (defn index-resources [request]
   (try
@@ -73,4 +73,4 @@
       (response (create-pagination-response request query nil)))
     (catch Exception e
       (log-by-severity ERROR_GET_ATTACHMENTS e)
-      (exception-handler ERROR_GET_ATTACHMENTS e))))
+      (exception-handler request ERROR_GET_ATTACHMENTS e))))

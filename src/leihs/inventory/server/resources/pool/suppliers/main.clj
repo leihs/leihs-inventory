@@ -24,4 +24,4 @@
 
      (catch Exception e
        (log-by-severity ERROR_GET_SUPPLIERS e)
-       (exception-handler ERROR_GET_SUPPLIERS e)))))
+       (exception-handler request ERROR_GET_SUPPLIERS e)))))

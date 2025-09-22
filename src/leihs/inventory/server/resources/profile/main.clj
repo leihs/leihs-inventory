@@ -57,4 +57,4 @@
                  :languages (snake-case-keys (l/get-multiple tx))}))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)
-      (exception-handler ERROR_GET_USER e))))
+      (exception-handler request ERROR_GET_USER e))))

@@ -31,7 +31,7 @@
       (handle-image-response result json-request? content-negotiation? accept-header))
     (catch Exception e
       (log-by-severity GET_IMAGE_ERROR e)
-      (exception-handler GET_IMAGE_ERROR e))))
+      (exception-handler request GET_IMAGE_ERROR e))))
 
 (defn delete-resource
   [req]

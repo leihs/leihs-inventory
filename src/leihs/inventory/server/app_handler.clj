@@ -79,10 +79,9 @@
           (status code)
           (content-type "application/json"))
 
-      :else
-      (-> (response (str "Error " code))
+      :else       (-> (response "")
           (status code)
-          (content-type "text/plain")))))
+          (content-type "text/html")))))
 
 (defn wrap-strict-format-negotiate [handler]
   (fn [request]

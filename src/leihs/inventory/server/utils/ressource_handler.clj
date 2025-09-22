@@ -1,7 +1,7 @@
 (ns leihs.inventory.server.utils.ressource-handler
   (:require
    [cheshire.core :as json]
-   [cheshire.core :as json]
+   [leihs.inventory.server.utils.exception-handler :refer [create-response-by-accept]]
    [clojure.java.io :as io]
    [clojure.string :as clojure.string]
    [clojure.string :as str]
@@ -18,14 +18,18 @@
       (and (str/includes? accept "text/html") (= (:uri request) "/inventory"))
       (redirect "/inventory/")
 
-      (str/includes? accept "application/json")
-      (-> (response (json/generate-string {:error "Not Found" :status 404}))
-          (status 404)
-          (content-type "application/json; charset=utf-8"))
+      ;(str/includes? accept "application/json")
+      ;(-> (response (json/generate-string {:error "Not Found" :status 404}))
+      ;    (status 404)
+      ;    (content-type "application/json; charset=utf-8"))
 
       (str/includes? accept "text/html")
       (rh/index-html-response request 404)
 
-      :else (-> (response "Not Found")
-                (status 404)
-                (content-type "text/plain; charset=utf-8")))))
+      ;:else (-> (response "")
+      ;          (status 404)
+      ;          (content-type "text/plain; charset=utf-8"))
+
+      :else (create-response-by-accept accept 404 {:error "Not Found" :status "failure"})
+
+      )))
