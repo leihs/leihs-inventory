@@ -93,56 +93,86 @@
                         [:= :reservations.status ["signed"]]
                         [:= :reservations.returned_date nil]]))])))
 
+(defn- item-query-params [query pool-id inventory_pool_id
+                          owned in_stock before_last_check
+                          retired borrowable broken incomplete]
+  (-> query
+      (#(cond
+          (and inventory_pool_id (true? owned))
+          (sql/where % (owner-and-responsible-cond pool-id inventory_pool_id))
+
+          (and inventory_pool_id (false? owned))
+          (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
+
+          inventory_pool_id
+          (sql/where % (is-responsible-cond pool-id inventory_pool_id))
+
+          (true? owned)
+          (sql/where % [:= :items.owner_id pool-id])
+
+          (false? owned)
+          (sql/where % [:not= :items.owner_id pool-id])
+
+          :else
+          (sql/where % (owner-or-responsible-cond pool-id))))
+      (cond-> (boolean? in_stock) (in-stock in_stock))
+      (cond-> before_last_check
+        (sql/where [:<= :items.last_check before_last_check]))
+      (cond-> (boolean? retired)
+        (sql/where [(if retired :<> :=) :items.retired nil]))
+      (cond-> (boolean? borrowable)
+        (sql/where [:= :items.is_borrowable borrowable]))
+      (cond-> (boolean? broken)
+        (sql/where [:= :items.is_broken broken]))
+      (cond-> (boolean? incomplete)
+        (sql/where [:= :items.is_incomplete incomplete]))))
+
+(defn with-all-items [query pool-id
+                      & {:keys [retired borrowable incomplete broken
+                                inventory_pool_id owned
+                                in_stock before_last_check]}]
+  (-> query
+      (sql/select
+       [(-> (sql/select :%count.*)
+            (sql/from :items)
+            (sql/where [:= :items.model_id :inventory.id])
+            (item-query-params pool-id inventory_pool_id
+                               owned in_stock before_last_check
+                               retired borrowable broken incomplete))
+        :total_items])
+      (sql/where
+       [:or
+        [:exists (-> (sql/select 1)
+                     (sql/from :items)
+                     (sql/where [:= :items.model_id :inventory.id])
+                     (item-query-params pool-id inventory_pool_id owned in_stock before_last_check retired borrowable broken incomplete))]
+        [:and
+         [:<> :inventory.type "Option"]
+         [:not [:exists (-> (sql/select 1)
+                            (sql/from :items)
+                            (sql/where [:= :items.model_id :inventory.id])
+                            (sql/where (owner-or-responsible-cond pool-id)))]]]])))
+
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
                             inventory_pool_id owned
                             in_stock before_last_check]}]
-
-  (letfn [(query-params
-            [query]
-            (-> query
-                (#(cond
-                    (and inventory_pool_id (true? owned))
-                    (sql/where % (owner-and-responsible-cond pool-id inventory_pool_id))
-
-                    (and inventory_pool_id (false? owned))
-                    (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
-
-                    inventory_pool_id
-                    (sql/where % (is-responsible-cond pool-id inventory_pool_id))
-
-                    (true? owned)
-                    (sql/where % [:= :items.owner_id pool-id])
-
-                    (false? owned)
-                    (sql/where % [:not= :items.owner_id pool-id])
-
-                    :else
-                    (sql/where % (owner-or-responsible-cond pool-id))))
-                (cond-> (boolean? in_stock) (in-stock in_stock))
-                (cond-> before_last_check
-                  (sql/where [:<= :items.last_check before_last_check]))
-                (cond-> (boolean? retired)
-                  (sql/where [(if retired :<> :=) :items.retired nil]))
-                (cond-> (boolean? borrowable)
-                  (sql/where [:= :items.is_borrowable borrowable]))
-                (cond-> (boolean? broken)
-                  (sql/where [:= :items.is_broken broken]))
-                (cond-> (boolean? incomplete)
-                  (sql/where [:= :items.is_incomplete incomplete]))))]
-
-    (-> query
-        (sql/select
-         [(-> (sql/select :%count.*)
-              (sql/from :items)
-              (sql/where [:= :items.model_id :inventory.id])
-              query-params)
-          :total_items])
-        (sql/where
-         [:exists (-> (sql/select 1)
-                      (sql/from :items)
-                      (sql/where [:= :items.model_id :inventory.id])
-                      query-params)]))))
+  (-> query
+      (sql/select
+       [(-> (sql/select :%count.*)
+            (sql/from :items)
+            (sql/where [:= :items.model_id :inventory.id])
+            (item-query-params pool-id inventory_pool_id
+                               owned in_stock before_last_check
+                               retired borrowable broken incomplete))
+        :total_items])
+      (sql/where
+       [:exists (-> (sql/select 1)
+                    (sql/from :items)
+                    (sql/where [:= :items.model_id :inventory.id])
+                    (item-query-params pool-id inventory_pool_id
+                                       owned in_stock before_last_check
+                                       retired borrowable broken incomplete))])))
 
 (defn without-items [query pool-id]
   (-> query
