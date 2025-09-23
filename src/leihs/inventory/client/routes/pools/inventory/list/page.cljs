@@ -1,16 +1,11 @@
 (ns leihs.inventory.client.routes.pools.inventory.list.page
   (:require
-   ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]
-   ["@@/card" :refer [Card CardContent CardHeader CardFooter]]
-   ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
-                               DropdownMenuItem DropdownMenuTrigger]]
-   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader
-                       TableRow]]
-   ["lucide-react" :refer [Download Ellipsis Image ListRestart]]
-   ["react" :as react :refer [Suspense]]
+   ["@@/card" :refer [Card CardContent CardFooter CardHeader]]
+   ["@@/table" :refer [Table TableBody TableHead TableHeader TableRow]]
+   ["lucide-react" :refer [Download ListRestart]]
    ["react-i18next" :refer [useTranslation]]
-   ["react-router-dom" :as router :refer [Link Await]]
+   ["react-router-dom" :as router]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.borrowable-filter :refer [BorrowableFilter]]
@@ -32,16 +27,22 @@
         models (:data data)
         pagination (:pagination data)
         last-page-rows (mod (:total_rows pagination) (:size pagination))
+        [to-last-page set-to-last-page!] (uix/use-state false)
         [t] (useTranslation)
         navigate (router/useNavigate)
         navigation (router/useNavigation)
         handle-reset (fn []
                        (navigate "?page=1&size=50&with_items=true"))]
 
-    ;; (uix/use-effect
-    ;;  (fn []
-    ;;    (js/console.debug navigation pagination last-page-rows))
-    ;;  [navigation])
+    (uix/use-effect
+     (fn []
+       (let [search (or (some-> navigation .-location .-search) nil)
+             params (if search (js/URLSearchParams. search) nil)]
+         (if (and params (= (.. params (get "page"))
+                            (str (:total_pages pagination))))
+           (set-to-last-page! true)
+           (set-to-last-page! false))))
+     [navigation pagination])
 
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex bg-white rounded-xl z-10"
@@ -87,7 +88,7 @@
 
                 ($ TableBody
                    (if (= (.-state navigation) "loading")
-                     (doall (for [i (range (if (= (:total_pages pagination) (:page pagination))
+                     (doall (for [i (range (if to-last-page
                                              last-page-rows
                                              (:size pagination)))]
                               ($ SkeletonRow {:key i})))

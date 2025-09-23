@@ -31,8 +31,6 @@
          (set-loading! false)))
      [subrows])
 
-    (js/console.debug subrowCount)
-
     ($ :<>
        ($ TableRow (merge attrs
                           {:class-name className})
@@ -53,7 +51,7 @@
                        ($ Minus {:className "h-4 w-4"})
                        ($ Plus {:className "h-4 w-4"}))))
 
-                ($ :span {:className "text-xl ml-auto"}
+                ($ :span {:className "text-xl ml-auto w-6 text-right"}
                    subrowCount)))
 
           children)
