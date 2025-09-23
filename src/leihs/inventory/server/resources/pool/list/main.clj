@@ -7,6 +7,7 @@
                                                                filter-by-type
                                                                from-category
                                                                with-items
+                                                               with-all-items
                                                                with-search
                                                                without-items]]
    [leihs.inventory.server.resources.pool.models.common :refer [fetch-thumbnails-for-ids
@@ -44,7 +45,10 @@
                            (assoc :before_last_check before_last_check)))
 
                        (false? with_items)
-                       (without-items pool-id)))
+                       (without-items pool-id)
+
+                       (nil? with_items)
+                       (with-all-items pool-id)))
                    (cond-> (presence search)
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
