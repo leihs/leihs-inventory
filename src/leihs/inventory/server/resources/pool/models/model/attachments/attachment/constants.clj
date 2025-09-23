@@ -1,5 +1,9 @@
 (ns leihs.inventory.server.resources.pool.models.model.attachments.attachment.constants)
 
+(def ACCEPT_TYPES_ATTACHMENT ["application/json" "application/octet-stream"
+                              "application/pdf" "image/png" "image/jpeg" "image/jpg" "text/plain" "image/gif" "text/rtf"
+                              "image/vnd.dwg" "application/zip" "*/*"])
+
 (def CONTENT_DISPOSITION_INLINE_FORMATS ["text/html"
                                          "text/css"
                                          "text/plain"

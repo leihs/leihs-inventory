@@ -27,4 +27,4 @@
             (status 404))))
     (catch Exception e
       (log-by-severity ERROR_GET_BUILDING e)
-      (exception-handler ERROR_GET_BUILDING e))))
+      (exception-handler request ERROR_GET_BUILDING e))))

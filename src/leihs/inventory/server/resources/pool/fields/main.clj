@@ -98,7 +98,7 @@
 
      (catch Exception e
        (log-by-severity ERROR_GET e)
-       (exception-handler ERROR_GET e)))))
+       (exception-handler request ERROR_GET e)))))
 
 (defn index-resources [request]
   (response (get-form-fields request nil)))

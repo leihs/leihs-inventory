@@ -7,8 +7,9 @@
 
 (defn accept-json-middleware [handler]
   (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (and accept-header (re-matches #"^.*application/json.*$" accept-header))
+    (let [accept-header (get-in request [:headers "accept"])
+          json-request? (boolean (re-matches #"^.*application/json.*$" accept-header))]
+      (if (and accept-header json-request?)
         (handler request)
         (index-html-response request 200)))))
 
@@ -21,13 +22,6 @@
         (if (some #(= uri %) allowed-uris)
           (handler request)
           (response/status 404))))))
-
-(defn accept-json-image-middleware [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])]
-      (if (some #(clojure.string/includes? accept-header %) ["/json" "image/"])
-        (handler request)
-        (index-html-response request 404)))))
 
 (defn wrap-authenticate! [handler]
   (fn [request]

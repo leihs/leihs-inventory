@@ -26,17 +26,17 @@
 (defn filter-keys-images [m]
   (filter-keys m [:filename :content_type :size :thumbnail :target_id :target_type :parent_id :content]))
 
-(defn post-resource [req]
+(defn post-resource [request]
   (try
-    (let [{{:keys [model_id]} :path} (:parameters req)
-          body-stream (:body req)
+    (let [{{:keys [model_id]} :path} (:parameters request)
+          body-stream (:body request)
           allowed-file-types (config-get :api :images :allowed-file-types)
           max-size-mb (config-get :api :images :max-size-mb)
           upload-path (config-get :api :upload-dir)
-          tx (:tx req)
-          content-type (get-in req [:headers "content-type"])
-          filename-to-save (sanitize-filename (get-in req [:headers "x-filename"]))
-          content-length (some-> (get-in req [:headers "content-length"]) Long/parseLong)
+          tx (:tx request)
+          content-type (get-in request [:headers "content-type"])
+          filename-to-save (sanitize-filename (get-in request [:headers "x-filename"]))
+          content-length (some-> (get-in request [:headers "content-length"]) Long/parseLong)
           file-full-path (str upload-path filename-to-save)
           entry {:tempfile file-full-path :filename filename-to-save
                  :content_type content-type :size content-length :model_id model_id}
@@ -90,7 +90,7 @@
 
     (catch Exception e
       (log-by-severity ERROR_POST_IMAGE e)
-      (exception-handler ERROR_POST_IMAGE e))))
+      (exception-handler request ERROR_POST_IMAGE e))))
 
 (defn index-resources [request]
   (try

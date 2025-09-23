@@ -43,4 +43,4 @@
       (response (if in-detail result (extract-manufacturers result))))
     (catch Exception e
       (log-by-severity ERROR_GET e)
-      (exception-handler ERROR_GET e))))
+      (exception-handler request ERROR_GET e))))

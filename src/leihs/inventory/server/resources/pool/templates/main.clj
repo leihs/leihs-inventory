@@ -39,7 +39,7 @@
         (bad-request {:message ERROR_CREATE})))
     (catch Exception e
       (log-by-severity ERROR_CREATE e)
-      (exception-handler ERROR_CREATE e))))
+      (exception-handler request ERROR_CREATE e))))
 
 (defn template-quantity-ok-query
   [pool-id template-ids]
@@ -121,4 +121,4 @@
       (response (create-pagination-response request (base-template-query pool-id) nil post-fnc)))
     (catch Exception e
       (log-by-severity ERROR_GET e)
-      (exception-handler ERROR_GET e))))
+      (exception-handler request ERROR_GET e))))

@@ -43,7 +43,7 @@
         (not-found {:message ERROR_FETCH_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_FETCH_SOFTWARE e)
-      (exception-handler ERROR_FETCH_SOFTWARE e))))
+      (exception-handler request ERROR_FETCH_SOFTWARE e))))
 
 (defn prepare-software-data [data]
   (let [normalize-data (normalize-model-data data)
@@ -68,7 +68,7 @@
         (not-found {:message ERROR_UPDATE_SOFTWARE})))
     (catch Exception e
       (log-by-severity ERROR_UPDATE_SOFTWARE e)
-      (exception-handler ERROR_UPDATE_SOFTWARE e))))
+      (exception-handler request ERROR_UPDATE_SOFTWARE e))))
 
 (defn delete-resource [request]
   (try
@@ -94,4 +94,4 @@
         (throw (ex-info "Request to delete software blocked: software not found" {:status 404}))))
     (catch Exception e
       (log-by-severity ERROR_DELETE_SOFTWARE e)
-      (exception-handler ERROR_DELETE_SOFTWARE e))))
+      (exception-handler request ERROR_DELETE_SOFTWARE e))))

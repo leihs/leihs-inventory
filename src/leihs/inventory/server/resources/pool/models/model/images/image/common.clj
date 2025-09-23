@@ -2,6 +2,8 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_TYPE_IMAGE
+                                                                                      ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.response :refer [response status]])
   (:import
@@ -32,10 +34,10 @@
         decoder (Base64/getDecoder)]
     (.decode decoder cleaned-str)))
 
-(defn convert-base64-to-byte-stream [result]
+(defn convert-base64-to-byte-stream [image-data]
   (try
-    (let [content-type (:content_type result)
-          base64-str (:content result)
+    (let [content-type (:content_type image-data)
+          base64-str (:content image-data)
           decoded-bytes (decode-base64-str base64-str)]
       {:status 200
        :headers {"Content-Type" content-type
@@ -47,10 +49,28 @@
        :body (str CONVERTING_ERROR (.getMessage e))})))
 
 (defn handle-image-response
-  [result json-request? content-negotiation? accept-header]
-  (cond
-    (nil? result) (status (response {:status "failure" :message "No image found"}) 404)
-    json-request? (response result)
-    content-negotiation? (convert-base64-to-byte-stream result)
-    (not= (:content_type result) accept-header) (status (response {:status "failure" :message "Requested content type not supported"}) 406)
-    :else (convert-base64-to-byte-stream result)))
+  [request image-data]
+  (let [accept-header (if (str/includes? (get-in request [:headers "accept"])
+                                         CONTENT_NEGOTIATION_TYPE_IMAGE)
+                        CONTENT_NEGOTIATION_TYPE_IMAGE
+                        (get-in request [:headers "accept"]))
+        json-request? (= accept-header "application/json")
+        content-negotiation? (str/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE)
+        valid-content-type? (boolean (and accept-header
+                                          (some #(= accept-header %) ALLOWED_IMAGE_CONTENT_TYPES)))]
+
+    (cond
+      (nil? image-data)
+      (status (response {:status "failure" :message "No image found"}) 404)
+
+      json-request?
+      (response image-data)
+
+      content-negotiation?
+      (convert-base64-to-byte-stream image-data)
+
+      (or (not= (:content_type image-data) accept-header)
+          (not valid-content-type?))
+      (status (response {:status "failure" :message "Requested content type not supported"}) 406)
+
+      :else (convert-base64-to-byte-stream image-data))))

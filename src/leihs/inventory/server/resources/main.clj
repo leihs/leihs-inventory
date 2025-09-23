@@ -55,7 +55,7 @@
                    (assoc :csrfToken {:name "csrf-token" :value mtoken})
                    (cond-> (:message query)
                      (assoc :flashMessages [{:level "error" :messageID (:message query)}])))
-        html (add-csrf-tags (sign-in-view params) params)]
+        html (add-csrf-tags request (sign-in-view params) params)]
     html))
 
 (defn get-sign-in [request]
@@ -99,7 +99,7 @@
   (let [uuid (get-in request [:cookies constants/ANTI_CSRF_TOKEN_COOKIE_NAME :value])
         params {:authFlow {:returnTo INVENTORY_VIEW_PATH}
                 :csrfToken {:name "csrf-token" :value uuid}}
-        html (add-csrf-tags (slurp (io/resource "public/dev-logout.html")) params)]
+        html (add-csrf-tags request (slurp (io/resource "public/dev-logout.html")) params)]
     {:status 200
      :headers {"Content-Type" "text/html"}
      :body html}))

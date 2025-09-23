@@ -60,7 +60,7 @@
 
     (catch Exception e
       (log-by-severity ERROR_GET_MODEL e)
-      (exception-handler ERROR_GET_MODEL e))))
+      (exception-handler request ERROR_GET_MODEL e))))
 
 ;###################################################################################
 
@@ -89,4 +89,4 @@
           (bad-request {:message ERROR_CREATE_MODEL})))
       (catch Exception e
         (log-by-severity ERROR_CREATE_MODEL e)
-        (exception-handler ERROR_CREATE_MODEL e)))))
+        (exception-handler request ERROR_CREATE_MODEL e)))))

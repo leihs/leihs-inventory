@@ -7,7 +7,6 @@
    [leihs.inventory.server.resources.pool.models.model.images.image.types :refer [delete-response
                                                                                   error-message-structure
                                                                                   image]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-image-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -18,7 +17,7 @@
    {:get {:summary (fe "")
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-image-middleware]
+          :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
@@ -27,7 +26,7 @@
           :responses {200 {:description "OK"
                            :body (s/->Either [image s/Any])}
                       404 {:description "Not Found"
-                           :body (s/->Either [error-message-structure s/Any])}
+                           :body error-message-structure}
                       406 {:description "Requested content type not supported"
                            :body error-message-structure}
                       500 {:description "Internal Server Error"}}}

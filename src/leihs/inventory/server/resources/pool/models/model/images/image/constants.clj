@@ -1,5 +1,4 @@
 (ns leihs.inventory.server.resources.pool.models.model.images.image.constants)
 
-(def CONTENT_NEGOTIATION_HEADER_TYPE "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8")
-
-(def ALLOWED_IMAGE_CONTENT_TYPES ["image/png" "image/jpeg" "image/gif" CONTENT_NEGOTIATION_HEADER_TYPE])
+(def CONTENT_NEGOTIATION_TYPE_IMAGE "image/*")
+(def ALLOWED_IMAGE_CONTENT_TYPES ["image/png" "image/jpeg" "image/gif" CONTENT_NEGOTIATION_TYPE_IMAGE])

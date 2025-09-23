@@ -135,7 +135,7 @@
          (response {:status "failure" :message "No entry found"}) 404)))
     (catch Exception e
       (log-by-severity FETCH_MODEL_ERROR e)
-      (exception-handler FETCH_MODEL_ERROR e))))
+      (exception-handler request FETCH_MODEL_ERROR e))))
 
 ; ##################################
 
@@ -238,7 +238,7 @@
 
     (catch Exception e
       (log-by-severity DELETE_MODEL_ERROR e)
-      (exception-handler DELETE_MODEL_ERROR e))))
+      (exception-handler request DELETE_MODEL_ERROR e))))
 
 ; ##################################
 

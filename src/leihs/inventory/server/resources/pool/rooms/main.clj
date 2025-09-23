@@ -28,4 +28,4 @@
           (header "Count" (count result))))
     (catch Exception e
       (log-by-severity ERROR_GET_ROOMS e)
-      (exception-handler ERROR_GET_ROOMS e))))
+      (exception-handler request ERROR_GET_ROOMS e))))
