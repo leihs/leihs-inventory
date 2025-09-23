@@ -56,8 +56,6 @@
        (set-result! nil))
      [search-params])
 
-    (js/console.debug model)
-
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
                       :subrow-count (:total_items model)
