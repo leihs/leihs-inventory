@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.search-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.search-filter
   (:require
    ["@@/input" :refer [Input]]
    ["react-i18next" :refer [useTranslation]]

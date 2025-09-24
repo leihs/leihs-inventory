@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.status-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.status-filter
   (:require
    ["@@/button" :refer [Button]]
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent

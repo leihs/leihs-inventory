@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter
   (:require
    ["@@/button" :refer [Button]]
    ["@@/calendar" :refer [Calendar]]

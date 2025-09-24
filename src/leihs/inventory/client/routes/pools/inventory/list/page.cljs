@@ -2,23 +2,23 @@
   (:require
    ["@@/button" :refer [Button]]
    ["@@/card" :refer [Card CardContent CardFooter CardHeader]]
-   ["@@/table" :refer [Table TableBody TableHead TableHeader TableRow]]
+   ["@@/table" :refer [Table TableBody TableCell TableHead TableHeader TableRow]]
    ["lucide-react" :refer [Download ListRestart]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
    [leihs.inventory.client.components.pagination :as pagination]
-   [leihs.inventory.client.routes.pools.inventory.list.components.before-last-check-filter :refer [BeforeLastCheckFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.borrowable-filter :refer [BorrowableFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.category-filter :refer [CategoryFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.filter-indicator :refer [FilterIndicator]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.inventory-pool-filter :refer [InventoryPoolFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.retired-filter :refer [RetiredFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.search-filter :as search :refer [SearchFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.status-filter :refer [StatusFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter :refer [BeforeLastCheckFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter :refer [BorrowableFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.category-filter :refer [CategoryFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.filter-indicator :refer [FilterIndicator]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.inventory-pool-filter :refer [InventoryPoolFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.retired-filter :refer [RetiredFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.search-filter :as search :refer [SearchFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.status-filter :refer [StatusFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.type-filter :refer [TypeFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.with-items-filter :refer [WithItemsFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.model-row :refer [ModelRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.skeleton-row :refer [SkeletonRow]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.type-filter :refer [TypeFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.with-items-filter :refer [WithItemsFilter]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
@@ -74,27 +74,30 @@
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}
-             ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
-                ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
-                                :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
-                   ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
-                      ($ TableHead {:class-name "rounded-tl-md text-right"}
-                         (t "pool.models.list.header.amount"))
-                      ($ TableHead "")
-                      ($ TableHead "")
-                      ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
-                      ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
-                      ($ TableHead {:class-name "rounded-tr-md"} "")))
+             (if (empty? models)
+               ($ :div {:class-name "p-4 text-center text-sm text-muted-foreground"}
+                  (t "pool.models.list.empty"))
+               ($ Table {:class-name "border-separate border-spacing-0 rounded-md"}
+                  ($ TableHeader {:class-name "bg-white sticky top-16 rounded-t-md z-50"
+                                  :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
+                     ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
+                        ($ TableHead {:class-name "rounded-tl-md text-right"}
+                           (t "pool.models.list.header.amount"))
+                        ($ TableHead "")
+                        ($ TableHead "")
+                        ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
+                        ($ TableHead {:className "min-w-40 text-right"} (t "pool.models.list.header.availability"))
+                        ($ TableHead {:class-name "rounded-tr-md"} "")))
 
-                ($ TableBody
-                   (if (= (.-state navigation) "loading")
-                     (doall (for [i (range (if to-last-page
-                                             last-page-rows
-                                             (:size pagination)))]
-                              ($ SkeletonRow {:key i})))
-                     (for [model models]
-                       ($ ModelRow {:key (:id model)
-                                    :model model})))))))
+                  ($ TableBody
+                     (if (= (.-state navigation) "loading")
+                       (doall (for [i (range (if to-last-page
+                                               last-page-rows
+                                               (:size pagination)))]
+                                ($ SkeletonRow {:key i})))
+                       (for [model models]
+                         ($ ModelRow {:key (:id model)
+                                      :model model}))))))))
 
        ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-b-xl  pt-6"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
