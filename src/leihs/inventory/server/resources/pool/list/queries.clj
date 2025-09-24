@@ -127,10 +127,10 @@
       (cond-> (boolean? incomplete)
         (sql/where [:= :items.is_incomplete incomplete]))))
 
-(defn with-all-items [query pool-id
-                      & {:keys [retired borrowable incomplete broken
-                                inventory_pool_id owned
-                                in_stock before_last_check]}]
+(defn all-items [query pool-id
+                 & {:keys [retired borrowable incomplete broken
+                           inventory_pool_id owned
+                           in_stock before_last_check]}]
   (-> query
       (sql/select
        [(-> (sql/select :%count.*)
