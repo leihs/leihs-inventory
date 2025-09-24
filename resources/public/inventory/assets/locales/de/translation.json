@@ -95,7 +95,7 @@
         "templates": "Vorlagen"
       },
       "list": {
-        "empty": "Keine Modelle gefunden",
+        "empty": "Keine Einträge gefunden",
         "package_item": "ist Bestandteil eines Pakets",
         "shelf": "Lager",
         "item": {
