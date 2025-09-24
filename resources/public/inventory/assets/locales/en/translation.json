@@ -95,7 +95,7 @@
         "templates": "Templates"
       },
       "list": {
-        "empty": "No models found",
+        "empty": "No entries found",
         "header": {
           "amount": "Amount",
           "name": "Name",
