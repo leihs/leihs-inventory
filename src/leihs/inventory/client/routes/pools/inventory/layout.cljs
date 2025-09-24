@@ -43,7 +43,7 @@
                :search ""
                :label (t "pool.models.tabs.templates")}]
 
-        profile (router/useRouteLoaderData "root")
+        {:keys [profile]} (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
 
     ($ :section
