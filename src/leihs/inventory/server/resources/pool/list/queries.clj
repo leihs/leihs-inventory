@@ -42,44 +42,20 @@
   (-> query
       (sql/where [:= :inventory.type (-> type name capitalize)])))
 
-;; base case nothing filtered
 (defn owner-or-responsible-cond [pool-id]
   [:or
    [:= :items.owner_id pool-id]
    [:= :items.inventory_pool_id pool-id]])
 
-;; owner-and-responsible-cond: 
-;; Selects items that are owned by pool-id (param)
-;; and are in the filtered inventory pool (query param).
 (defn owner-and-responsible-cond [pool-id inventory-pool-id]
   [:and
    [:= :items.owner_id pool-id]
    [:= :items.inventory_pool_id inventory-pool-id]])
 
-;; not-owner-and-responsible-cond: 
-;; Selects items that are not owned by pool-id (param) 
-;; but are in the filtered inventory pool (query param).
-;; If the filtered inventory pool (query param) is NOT the same as the pool-id (param), 
-;; no items are returned when owned=false since they are implicitly owned by the pool.
 (defn not-owner-and-responsible-cond [pool-id inventory-pool-id]
-  [:case [:= pool-id inventory-pool-id]
-   [:and
-    [:not= :items.owner_id pool-id]
-    [:= :items.inventory_pool_id inventory-pool-id]]
-   :else nil])
-
-;; is-responsible-cond: 
-;; Selects items that are in the pool-id (param) pool,
-;; or if the inventory pool is different from the pool-id, 
-;; selects items that are owned by the pool-id (param) 
-;; and are in the inventory pool (query param).
-(defn is-responsible-cond [pool-id inventory-pool-id]
-  [:case [:= pool-id inventory-pool-id]
-   [:= :items.inventory_pool_id inventory-pool-id]
-   :else
-   [:and
-    [:= :items.owner_id pool-id]
-    [:= :items.inventory_pool_id inventory-pool-id]]])
+  [:and
+   [:not= :items.owner_id pool-id]
+   [:= :items.inventory_pool_id inventory-pool-id]])
 
 (defn in-stock [query true-or-false]
   (-> query
@@ -105,7 +81,7 @@
           (sql/where % (not-owner-and-responsible-cond pool-id inventory_pool_id))
 
           inventory_pool_id
-          (sql/where % (is-responsible-cond pool-id inventory_pool_id))
+          (sql/where % (owner-or-responsible-cond inventory_pool_id))
 
           (true? owned)
           (sql/where % [:= :items.owner_id pool-id])
@@ -113,8 +89,7 @@
           (false? owned)
           (sql/where % [:not= :items.owner_id pool-id])
 
-          :else
-          (sql/where % (owner-or-responsible-cond pool-id))))
+          :else %))
       (cond-> (boolean? in_stock) (in-stock in_stock))
       (cond-> before_last_check
         (sql/where [:<= :items.last_check before_last_check]))
@@ -136,6 +111,7 @@
        [(-> (sql/select :%count.*)
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
+            (sql/where (owner-or-responsible-cond pool-id))
             (item-query-params pool-id inventory_pool_id
                                owned in_stock before_last_check
                                retired borrowable broken incomplete))
@@ -145,6 +121,7 @@
         [:exists (-> (sql/select 1)
                      (sql/from :items)
                      (sql/where [:= :items.model_id :inventory.id])
+                     (sql/where (owner-or-responsible-cond pool-id))
                      (item-query-params pool-id inventory_pool_id owned in_stock before_last_check retired borrowable broken incomplete))]
         [:and
          [:<> :inventory.type "Option"]
@@ -162,6 +139,7 @@
        [(-> (sql/select :%count.*)
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
+            (sql/where (owner-or-responsible-cond pool-id))
             (item-query-params pool-id inventory_pool_id
                                owned in_stock before_last_check
                                retired borrowable broken incomplete))
@@ -170,6 +148,7 @@
        [:exists (-> (sql/select 1)
                     (sql/from :items)
                     (sql/where [:= :items.model_id :inventory.id])
+                    (sql/where (owner-or-responsible-cond pool-id))
                     (item-query-params pool-id inventory_pool_id
                                        owned in_stock before_last_check
                                        retired borrowable broken incomplete))])))
