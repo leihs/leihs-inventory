@@ -19,6 +19,7 @@
                     (.get "/inventory/profile/")
                     (.then (fn [res]
                              (let [data (jc (.. res -data))]
+
                                (.. i18n (changeLanguage (-> data :user_details :language_locale)))
                                data)))
                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
