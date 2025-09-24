@@ -5,7 +5,7 @@
    ["@@/popover" :refer [Popover PopoverContent PopoverTrigger]]
    ["date-fns" :as date-fns]
 
-   ["lucide-react" :refer [CalendarDays]]
+   ["lucide-react" :refer [CalendarDays ChevronsUpDown]]
    ["react-i18next" :refer [useTranslation]]
 
    ["react-router-dom" :as router]
@@ -30,12 +30,16 @@
     ($ Popover
        ($ PopoverTrigger {:asChild true}
           ($ Button {:variant "outline"
-                     :className (str "w-48 py-0 " class-name)
+                     :className (str "min-w-48 max-w-48 " class-name)
                      :disabled (or (= type "software")
                                    (= type "option"))}
 
-             ($ CalendarDays {:className "h-4 w-4 mr-2"})
-             (t "pool.models.filters.before_last_check.title")))
+             ($ CalendarDays {:className "h-4 w-4"})
+             (if before-last-check
+               ($ :span {:class-name "truncate w-full text-left"}
+                  (str before-last-check))
+               (t "pool.models.filters.before_last_check.title"))
+             ($ ChevronsUpDown {:class-name "ml-auto h-4 w-4 shrink-0 opacity-50"})))
 
        ($ PopoverContent {:className "w-[280px]"}
           ($ Calendar {:mode "single"

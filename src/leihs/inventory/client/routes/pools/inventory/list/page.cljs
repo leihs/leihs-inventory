@@ -6,6 +6,7 @@
    ["lucide-react" :refer [Download ListRestart]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [clojure.string :as str]
    [leihs.inventory.client.components.pagination :as pagination]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter :refer [BorrowableFilter]]
@@ -26,11 +27,16 @@
   (let [{:keys [data]} (router/useLoaderData)
         models (:data data)
         pagination (:pagination data)
-        last-page-rows (mod (:total_rows pagination) (:size pagination))
-        [to-last-page set-to-last-page!] (uix/use-state false)
+        last-page-rows (let [mod-result (mod (:total_rows pagination) (:size pagination))]
+                         (if (zero? mod-result)
+                           (:size pagination)
+                           mod-result))
+        [to-last-page? set-to-last-page!] (uix/use-state false)
         [t] (useTranslation)
         navigate (router/useNavigate)
         navigation (router/useNavigation)
+        loading-list? (and (= (.-state navigation) "loading")
+                           (str/includes? (.. navigation -location -pathname) "/list"))
         handle-reset (fn []
                        (navigate "?page=1&size=50&with_items=true"))]
 
@@ -50,27 +56,27 @@
           ($ :div
              ($ :div {:className "flex gap-2"}
                 ($ SearchFilter)
-                ($ TypeFilter)
-                ($ StatusFilter)
-                ($ InventoryPoolFilter)
-                ($ CategoryFilter)
-                ($ BeforeLastCheckFilter)
+
+                ($ RetiredFilter)
+                ($ WithItemsFilter)
+                ($ BorrowableFilter)
 
                 ($ Button {:variant "outline" :className "ml-auto"}
                    ($ Download {:className "h-4 w-4 mr-2"}) "Export"))
 
              ($ :div {:className "flex gap-2 mt-2"}
-                ($ RetiredFilter)
-                ($ WithItemsFilter)
-                ($ BorrowableFilter)
+                ($ TypeFilter)
+                ($ StatusFilter)
+                ($ InventoryPoolFilter)
+                ($ CategoryFilter)
+                ($ BeforeLastCheckFilter)
                 ($ Button {:size "icon"
                            :variant "outline"
-                           :class-name "ml-2"
                            :on-click handle-reset}
                    ($ ListRestart)))
 
-             ($ :div {:className "flex space-x-2 mt-2"}
-                ($ FilterIndicator))))
+             #_($ :div {:className "flex space-x-2 mt-2"}
+                  ($ FilterIndicator))))
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}
@@ -90,8 +96,8 @@
                         ($ TableHead {:class-name "rounded-tr-md"} "")))
 
                   ($ TableBody
-                     (if (= (.-state navigation) "loading")
-                       (doall (for [i (range (if to-last-page
+                     (if loading-list?
+                       (doall (for [i (range (if to-last-page?
                                                last-page-rows
                                                (:size pagination)))]
                                 ($ SkeletonRow {:key i})))
