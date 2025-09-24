@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.inventory-pool-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.inventory-pool-filter
   (:require
    ["@/components/ui/command" :refer [Command CommandEmpty CommandGroup
                                       CommandInput CommandItem CommandList]]

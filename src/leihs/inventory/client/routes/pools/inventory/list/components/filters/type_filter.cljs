@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.type-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.type-filter
   (:require
    ["@@/badge" :refer [Badge]]
    ["@@/button" :refer [Button]]

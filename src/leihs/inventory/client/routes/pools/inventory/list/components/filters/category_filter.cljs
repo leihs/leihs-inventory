@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.category-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.category-filter
   (:require
    ["@@/button" :refer [Button]]
    ["@@/checkbox" :refer [Checkbox]]
