@@ -9,6 +9,7 @@
 
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router]
+   [clojure.string :as str]
    [uix.core :as uix :refer [$ defui]]))
 
 (defui main [{:keys [class-name]}]
@@ -24,11 +25,24 @@
 
     ($ DropdownMenu
        ($ DropdownMenuTrigger {:asChild "true"}
-          ($ Button {:class-name (str "py-0 w-48 " class-name)
+          ($ Button {:class-name (str "min-w-48 w-48 " class-name)
                      :variant "outline"}
-             ($ Tags {:className "h-4 w-4 mr-2"})
+
+             ($ Tags {:className "h-4 w-4"})
              (t "pool.models.filters.type.title")
-             ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
+             (if type
+               ($ Badge {:class-name (str "ml-auto w-6 justify-center "
+                                          (case type
+                                            "model"
+                                            "bg-slate-500 hover:bg-slate-500"
+                                            "package"
+                                            "bg-lime-500 hover:bg-lime-500"
+                                            "option"
+                                            "bg-emerald-500 hover:bg-emerald-500"
+                                            "software"
+                                            "bg-orange-500 hover:bg-orange-500 "))}
+                  (str/upper-case (subs type 0 1)))
+               ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"}))))
 
        ($ DropdownMenuContent {:class-name "min-w-48 pr-2"
                                :align "start "}

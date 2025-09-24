@@ -18,6 +18,9 @@
         [t] (useTranslation)
 
         pool-id (.get search-params "inventory_pool_id")
+        pool-name (:name (->> inventory-pools
+                              (filter #(= (:id %) pool-id))
+                              first))
         handle-select (fn [id]
                         (if (= pool-id id)
                           (.delete search-params "inventory_pool_id")
@@ -33,12 +36,17 @@
           ($ Button {:ref buttonRef
                      :disabled (= type "option")
                      :on-click #(set-open! (not open))
-                     :class-name (str "w-48 " class-name)
+                     :class-name (str "min-w-48 max-w-48 " class-name)
                      :variant "outline"
                      :role "combobox"}
-             ($ Building {:className "h-4 w-4 mr-2"})
-             (t "pool.models.filters.inventory_pool.title")
-             ($ ChevronsUpDown {:class-name "ml-2 h-4 w-4 shrink-0 opacity-50"})))
+             ($ Building {:className "h-4 w-4"})
+
+             (if pool-name
+               ($ :span {:class-name "truncate"
+                         :title pool-name}
+                  pool-name)
+               (t "pool.models.filters.inventory_pool.title"))
+             ($ ChevronsUpDown {:class-name "ml-auto h-4 w-4 shrink-0 opacity-50"})))
 
        ($ PopoverContent {:align "start"
                           :class-name "p-0"}
