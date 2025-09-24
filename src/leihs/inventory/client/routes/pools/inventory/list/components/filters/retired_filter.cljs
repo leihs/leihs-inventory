@@ -1,4 +1,4 @@
-(ns leihs.inventory.client.routes.pools.inventory.list.components.retired-filter
+(ns leihs.inventory.client.routes.pools.inventory.list.components.filters.retired-filter
   (:require
    ["@@/select" :refer [Select SelectContent SelectItem SelectTrigger
                         SelectValue]]
