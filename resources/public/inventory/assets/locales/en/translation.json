@@ -96,8 +96,17 @@
       },
       "list": {
         "empty": "No entries found",
+        "package_item": "ist part of a package",
+        "shelf": "Shelf",
+        "item": {
+          "available": "Available",
+          "broken": "Broken",
+          "rented": "Rented",
+          "not_borrowable": "Not borrowable",
+          "incomplete": "Incomplete"
+        },
         "header": {
-          "amount": "Amount",
+          "quantity": "Quantity",
           "name": "Name",
           "availability": "Availability"
         },

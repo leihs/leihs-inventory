@@ -106,7 +106,7 @@
           "incomplete": "Unvollständig"
         },
         "header": {
-          "amount": "Menge",
+          "quantity": "Menge",
           "name": "Name",
           "availability": "Verfügbarkeit"
         },
