@@ -4,7 +4,8 @@
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
+   [taoensso.timbre :refer [debug]]))
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
@@ -108,7 +109,10 @@
                            in_stock before_last_check]}]
   (-> query
       (sql/select
-       [(-> (sql/select :%count.*)
+       [(-> (sql/select [[:case
+                          [:= :inventory.type "Option"] nil
+                          :else
+                          :%count.*]])
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
             (sql/where (owner-or-responsible-cond pool-id))
@@ -122,13 +126,16 @@
                      (sql/from :items)
                      (sql/where [:= :items.model_id :inventory.id])
                      (sql/where (owner-or-responsible-cond pool-id))
-                     (item-query-params pool-id inventory_pool_id owned in_stock before_last_check retired borrowable broken incomplete))]
-        [:and
-         [:<> :inventory.type "Option"]
-         [:not [:exists (-> (sql/select 1)
-                            (sql/from :items)
-                            (sql/where [:= :items.model_id :inventory.id])
-                            (sql/where (owner-or-responsible-cond pool-id)))]]]])))
+                     (item-query-params pool-id inventory_pool_id
+                                        owned in_stock before_last_check
+                                        retired borrowable broken incomplete))]
+        [:not [:exists (-> (sql/select 1)
+                           (sql/from :items)
+                           (sql/where [:= :items.model_id :inventory.id])
+                           (sql/where (owner-or-responsible-cond pool-id))
+                           (item-query-params pool-id inventory_pool_id
+                                              owned in_stock before_last_check
+                                              retired borrowable broken incomplete))]]])))
 
 (defn with-items [query pool-id
                   & {:keys [retired borrowable incomplete broken
@@ -136,7 +143,10 @@
                             in_stock before_last_check]}]
   (-> query
       (sql/select
-       [(-> (sql/select :%count.*)
+       [(-> (sql/select [[:case
+                          [:= :inventory.type "Option"] nil
+                          :else
+                          :%count.*]])
             (sql/from :items)
             (sql/where [:= :items.model_id :inventory.id])
             (sql/where (owner-or-responsible-cond pool-id))
