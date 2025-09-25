@@ -43,6 +43,7 @@
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
+   [leihs.inventory.server.resources.settings.routes :as settings]
    [leihs.inventory.server.resources.status.routes :as admin-status]
    [leihs.inventory.server.resources.token.protected.routes :as token-protected]
    [leihs.inventory.server.resources.token.public.routes :as token-public]
@@ -283,6 +284,7 @@
 
                      (admin-status/routes)
                      (profile/routes)
+                     (settings/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
