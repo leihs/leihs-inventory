@@ -5,7 +5,7 @@
    ["@@/dropdown-menu" :refer [DropdownMenu DropdownMenuContent
                                DropdownMenuItem DropdownMenuTrigger]]
    ["@@/table" :refer [TableCell]]
-   ["lucide-react" :refer [Ellipsis Image ChevronDown]]
+   ["lucide-react" :refer [Ellipsis Columns3Cog Image ChevronDown SquareMenu]]
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
@@ -23,6 +23,7 @@
 
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
+        {:keys [settings]} (router/useRouteLoaderData "root")
         [t] (useTranslation)
         params (router/useParams)
         pool-id (aget params "pool-id")
@@ -84,7 +85,10 @@
                      :src (str (:url model) "/thumbnail")
                      :loading "lazy"
                      :alt (str (:product model) " " (:version model))})
-            ($ Image {:class-name "w-12 h-12"})))
+
+            (case (-> model :type)
+              "Option" ($ Columns3Cog {:class-name "w-12 h-12"})
+              ($ Image {:class-name "w-12 h-12"}))))
 
        ($ TableCell
           ($ :div {:className "flex gap-2"}
@@ -104,7 +108,10 @@
           (str (:product model) " " (:version model)))
 
        ($ TableCell {:className "text-right"}
-          (str (-> model :in_stock str) " | " (-> model :rentable str)))
+          (case (:type model)
+            "Option"
+            (str (or (:price model) "0") " " (:local_currency_string settings))
+            (str (-> model :in_stock str) " | " (-> model :rentable str))))
 
        ($ TableCell {:className "fit-content"}
           ($ :div {:class-name
