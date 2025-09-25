@@ -22,10 +22,15 @@
 
                                (.. i18n (changeLanguage (-> data :user_details :language_locale)))
                                data)))
-                    (.catch (fn [error] (js/console.log "error" error) #js {})))]
-    (.. (js/Promise.all (cond-> [profile]))
-        (then (fn [[profile]]
-                {:profile profile})))))
+                    (.catch (fn [error] (js/console.log "error" error) #js {})))
+        settings (-> http-client
+                     (.get "/inventory/settings/")
+                     (.then #(jc (.-data %)))
+                     (.catch (fn [error] (js/console.log "error" error) #js {})))]
+    (.. (js/Promise.all (cond-> [profile settings]))
+        (then (fn [[profile settings]]
+                {:profile profile
+                 :settings settings})))))
 
 (defn list-page [route-data]
   (let [url (js/URL. (.. route-data -request -url))
