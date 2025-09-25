@@ -40,9 +40,12 @@
                 ($ Button {:variant "outline"
                            :on-click handle-expand
                            :size "icon"
-                           :class-name (if
-                                        (zero? subrowCount)
+                           :class-name (cond
+                                         (zero? subrowCount)
                                          "cursor-not-allowed"
+                                         (nil? subrowCount)
+                                         "invisible"
+                                         :else
                                          "")
                            :disabled (zero? subrowCount)}
                    (if loading
