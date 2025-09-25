@@ -48,7 +48,16 @@
                        (without-items pool-id)
 
                        (nil? with_items)
-                       (all-items pool-id)))
+                       (all-items pool-id
+                                  (cond-> {:retired retired
+                                           :borrowable borrowable
+                                           :incomplete incomplete
+                                           :broken broken
+                                           :inventory_pool_id inventory_pool_id
+                                           :owned owned
+                                           :in_stock in_stock}
+                                    (not= type :software)
+                                    (assoc :before_last_check before_last_check)))))
                    (cond-> (presence search)
                      (with-search search))
                    (cond-> (and category_id (not (some #{type} [:option :software])))
