@@ -88,7 +88,7 @@
                                   :style {:box-shadow "0 0.5px 0 hsl(var(--border))"}}
                      ($ TableRow {:class-name "rounded-t-md hover:bg-white"}
                         ($ TableHead {:class-name "rounded-tl-md text-right"}
-                           (t "pool.models.list.header.amount"))
+                           (t "pool.models.list.header.quantity"))
                         ($ TableHead "")
                         ($ TableHead "")
                         ($ TableHead {:className "w-full"} (t "pool.models.list.header.name"))
