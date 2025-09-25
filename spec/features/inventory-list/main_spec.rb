@@ -91,6 +91,36 @@ feature "Inventory Page", type: :feature do
       retired: nil)
 
     FactoryBot.create(:item,
+      inventory_code: "#{pool_1.shortname}110",
+      owner_id: pool_1.id,
+      inventory_pool_id: pool_1.id,
+      leihs_model: model_2,
+      last_check: Date.today,
+      is_borrowable: false,
+      retired: Date.yesterday,
+      retired_reason: Faker::Lorem.sentence)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool_1.shortname}120",
+      owner_id: pool_2.id,
+      inventory_pool_id: pool_1.id,
+      leihs_model: model_2,
+      last_check: Date.today,
+      is_borrowable: true,
+      retired: nil)
+
+    FactoryBot.create(:item,
+      inventory_code: "#{pool_1.shortname}130",
+      owner_id: pool_2.id,
+      inventory_pool_id: pool_1.id,
+      leihs_model: model_2,
+      last_check: Date.today,
+      is_borrowable: true,
+      is_incomplete: true,
+      is_broken: true,
+      retired: nil)
+
+    FactoryBot.create(:item,
       inventory_code: "#{pool_1.shortname}101",
       owner_id: pool_1.id,
       inventory_pool_id: pool_1.id,
@@ -170,6 +200,7 @@ feature "Inventory Page", type: :feature do
 
     login(user)
 
+    binding.pry
     visit "/inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name
