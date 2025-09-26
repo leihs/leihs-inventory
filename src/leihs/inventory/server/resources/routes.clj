@@ -166,48 +166,25 @@
     (get mime-types ext "application/octet-stream")))
 
 (defn html-endpoints []
-  [""
-   {:swagger {:tags ["Html"]}
-    :no-doc HIDE_BASIC_ENDPOINTS}
+     [""
+      {:swagger {:tags ["Html"]}
+       :no-doc HIDE_BASIC_ENDPOINTS}
 
-   ["{*path}"
-    {:no-doc HIDE_BASIC_ENDPOINTS
-     :get {:description "Public assets like JS, CSS, images"
-           ;:public true
-           :produces ["text/html"]
-           :handler (fn [request]
-                      (let [p (println ">o> path!!!!!!!!!!!!")
-                            _ (-> request
-                                  convert-params
-                                  (assoc-in [:accept :mime] :html))
-
-                            accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
-
-                            p (println ">o> abc.accept" accept)
-
-                            ]
-
-
-
-                      (cond
-                        ;(and (str/includes? accept "text/html") (= (:uri request) "/inventory"))
-                        ;(redirect "/inventory/")
-
-
-                       (authenticated? request)
-                        (rh/index-html-response request 200)
-
-                        :else {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""}
-
-                        )
-
-                        )
-
-                      ;(if
-                      ;
-                      ;  )
-
-                      )}}]])
+      ["{*path}"
+       {:no-doc HIDE_BASIC_ENDPOINTS
+        :get {:description "Public assets like JS, CSS, images"
+              :produces ["text/html"]
+              :handler (fn [request]
+                         (let [p (println ">o> path!!!!!!!!!!!!")
+                               _ (-> request
+                                     convert-params
+                                     (assoc-in [:accept :mime] :html))
+                               accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
+                               p (println ">o> abc.accept" accept)]
+                           (cond
+                             (authenticated? request)
+                             (rh/index-html-response request 200)
+                             :else {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""})))}}]])
 
 (defn swagger-endpoints []
   ["/"

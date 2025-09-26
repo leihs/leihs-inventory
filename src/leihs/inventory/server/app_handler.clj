@@ -147,89 +147,89 @@
   (-> site-defaults
       (assoc-in [:responses :not-modified-responses] false)))
 
-(def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
+;(def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
 
-(defn- strip-tail [s]
-  (when s
-    (let [new (str/replace s tail-re "")]
-      (if (identical? s new) s new))))
+;(defn- strip-tail [s]
+;  (when s
+;    (let [new (str/replace s tail-re "")]
+;      (if (identical? s new) s new))))
 
-(defn strip-digest [handler]
-  (fn [req]
-    (let [uri (:uri req)
-          pinfo (:path-info req)
-          new-uri (strip-tail uri)
-          new-pi (strip-tail pinfo)
-          p (println ">o> abc.new-uri" new-uri)
-          p (println ">o> abc.new-pi" new-pi)
-          req' (cond-> req
-                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
-                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
-      (when (or (not= uri new-uri) (not= pinfo new-pi))
-        (println ">o> strip-digest" uri "=>" new-uri
-                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
-      (handler req'))))
-
-(defn- ensure-path-info [req]
-  (if (:path-info req)
-    req
-    (assoc req :path-info (:uri req))))
-
-(defn strip-digest [handler]
-  (fn [req]
-    (let [uri (:uri req)
-          pinfo (:path-info req)
-          new-uri (strip-tail uri)
-          new-pi (or (strip-tail pinfo)
-                   (when new-uri (strip-tail new-uri)))
-          req' (cond-> req
-                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
-                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
-      (when (or (not= uri new-uri) (not= pinfo new-pi))
-        (println ">o> strip-digest" uri "=>" new-uri
-          (when pinfo (str " | path-info " pinfo " => " new-pi))))
-      (handler (ensure-path-info req')))))
-
-
-(defn- ensure-path-info [req]
-  (if (:path-info req)
-    req
-    ;; fall back to :uri if no path-info is present
-    (assoc req :path-info (:uri req))))
-
-(defn strip-digest [handler]
-  (fn [req]
-    (let [uri   (:uri req)
-          pinfo (:path-info req)
-          new-uri (strip-tail uri)
-          new-pi  (or (strip-tail pinfo)
-                    (when new-uri (strip-tail new-uri)))
-          req' (cond-> req
-                 (and new-uri (not= new-uri uri))   (assoc :uri new-uri)
-                 (and new-pi  (not= new-pi pinfo)) (assoc :path-info new-pi))
-          req'' (ensure-path-info req')]
-      (when (or (not= uri new-uri) (not= pinfo new-pi))
-        (println ">o> strip-digest" uri "=>" new-uri
-          (when pinfo (str " | path-info " pinfo " => " new-pi))))
-      (handler req''))))
+;(defn strip-digest [handler]
+;  (fn [req]
+;    (let [uri (:uri req)
+;          pinfo (:path-info req)
+;          new-uri (strip-tail uri)
+;          new-pi (strip-tail pinfo)
+;          p (println ">o> abc.new-uri" new-uri)
+;          p (println ">o> abc.new-pi" new-pi)
+;          req' (cond-> req
+;                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
+;                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
+;      (when (or (not= uri new-uri) (not= pinfo new-pi))
+;        (println ">o> strip-digest" uri "=>" new-uri
+;                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
+;      (handler req'))))
+;
+;(defn- ensure-path-info [req]
+;  (if (:path-info req)
+;    req
+;    (assoc req :path-info (:uri req))))
+;
+;(defn strip-digest [handler]
+;  (fn [req]
+;    (let [uri (:uri req)
+;          pinfo (:path-info req)
+;          new-uri (strip-tail uri)
+;          new-pi (or (strip-tail pinfo)
+;                   (when new-uri (strip-tail new-uri)))
+;          req' (cond-> req
+;                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
+;                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
+;      (when (or (not= uri new-uri) (not= pinfo new-pi))
+;        (println ">o> strip-digest" uri "=>" new-uri
+;          (when pinfo (str " | path-info " pinfo " => " new-pi))))
+;      (handler (ensure-path-info req')))))
 
 
-(defn ensure-content-type [handler]
-  (fn [req]
-    (let [resp (handler req)
-          resp-ct (get-in resp [:headers "Content-Type"])
-          ext-ct (mime/ext-mime-type (:uri req)
-                                     {"svg" "image/svg+xml"
-                                      "svgz" "image/svg+xml"})]
-      (cond
-        ;; If no CT at all, set it
-        (nil? resp-ct) (assoc-in resp [:headers "Content-Type"] ext-ct)
+;(defn- ensure-path-info [req]
+;  (if (:path-info req)
+;    req
+;    ;; fall back to :uri if no path-info is present
+;    (assoc req :path-info (:uri req))))
 
-        ;; If CT is text/plain but we know better
-        (and (= "text/plain" resp-ct) ext-ct)
-        (assoc-in resp [:headers "Content-Type"] ext-ct)
-
-        :else resp))))
+;(defn strip-digest [handler]
+;  (fn [req]
+;    (let [uri   (:uri req)
+;          pinfo (:path-info req)
+;          new-uri (strip-tail uri)
+;          new-pi  (or (strip-tail pinfo)
+;                    (when new-uri (strip-tail new-uri)))
+;          req' (cond-> req
+;                 (and new-uri (not= new-uri uri))   (assoc :uri new-uri)
+;                 (and new-pi  (not= new-pi pinfo)) (assoc :path-info new-pi))
+;          req'' (ensure-path-info req')]
+;      (when (or (not= uri new-uri) (not= pinfo new-pi))
+;        (println ">o> strip-digest" uri "=>" new-uri
+;          (when pinfo (str " | path-info " pinfo " => " new-pi))))
+;      (handler req''))))
+;
+;
+;(defn ensure-content-type [handler]
+;  (fn [req]
+;    (let [resp (handler req)
+;          resp-ct (get-in resp [:headers "Content-Type"])
+;          ext-ct (mime/ext-mime-type (:uri req)
+;                                     {"svg" "image/svg+xml"
+;                                      "svgz" "image/svg+xml"})]
+;      (cond
+;        ;; If no CT at all, set it
+;        (nil? resp-ct) (assoc-in resp [:headers "Content-Type"] ext-ct)
+;
+;        ;; If CT is text/plain but we know better
+;        (and (= "text/plain" resp-ct) ext-ct)
+;        (assoc-in resp [:headers "Content-Type"] ext-ct)
+;
+;        :else resp))))
 
 (defn init []
   (let [;router (ring/router (routes/all-api-endpoints) default-router-config)
@@ -246,4 +246,5 @@
      (cache-buster2/wrap-resource "public" cache-bust-options)
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
                                    "svgz" "image/svg+xml"}})
-     ensure-content-type)))
+     ;ensure-content-type
+      )))
