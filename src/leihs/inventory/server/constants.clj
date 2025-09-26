@@ -11,6 +11,6 @@
 - token-endpoints
 " true)
 
-(def INVENTORY_VIEW_PATH "/inventory")
+(def INVENTORY_VIEW_PATH "/inventory/")
 
 (defn fe [s] (if false (str "[fe] | " s) s))

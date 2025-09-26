@@ -6,7 +6,6 @@
                                                                      patch-response
                                                                      put-response]]
    [leihs.inventory.server.resources.pool.models.types :refer [description-model-form]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec :as spec]
    [ring.middleware.accept]
@@ -19,7 +18,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
-          :middleware [accept-json-middleware]
+          :produces ["application/json"]
           :handler model/get-resource
           :responses {200 {:description "OK"
                            :body :model-get-put-response/inventory-model}
@@ -30,7 +29,7 @@
             :summary (fe "Form-Handler: Used to patch model-attributes")
             :coercion reitit.coercion.schema/coercion
             :description description-model-form
-
+            :produces ["application/json"]
             :parameters {:path {:pool_id s/Uuid
                                 :model_id s/Uuid}
                          :body {:is_cover (s/maybe s/Uuid)}}
@@ -46,7 +45,7 @@
                        :produces "application/json"}
              :description description-model-form
              :coercion spec/coercion
-
+             :produces ["application/json"]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler model/delete-resource
@@ -59,7 +58,7 @@
           :summary (fe "Form-Handler: Update model")
           :coercion spec/coercion
           :description description-model-form
-
+          :produces ["application/json"]
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
                        :body :model/multipart}

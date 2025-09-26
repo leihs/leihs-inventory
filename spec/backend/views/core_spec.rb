@@ -14,21 +14,18 @@ describe "Request " do
       scenario "status-check for cider" do
         resp = client.get "/inventory/status"
         expect(resp.status).to be == 200
+        expect(resp.body.keys).to eq(["memory", "db-pool", "health-checks"])
       end
     end
   end
 
-  context "with accept=application/json" do
-    let :http_client do
+  context "requests to public endpoints" do
+    let :json_client do
       plain_faraday_json_client
     end
 
-    let :prepare_http_client do
-      http_client.headers["Accept"] = "application/json"
-    end
-
-    before :each do
-      prepare_http_client
+    let :http_client do
+      plain_faraday_html_client
     end
 
     context "against /" do
@@ -37,12 +34,22 @@ describe "Request " do
         expect(resp.status).to be == 200
         expect(resp.body).to include("Overview _> go to")
       end
+
+      scenario "json response is correct" do
+        resp = json_client.get "/"
+        expect(resp.status).to be == 404
+      end
     end
 
-    context "against /inventory/status/" do
-      scenario "status-check for cider" do
+    context "http-request against /inventory/status" do
+      scenario "invalid status-check for cider" do
+        resp = http_client.get "/inventory/status/"
+        expect(resp.status).to be == 302
+      end
+
+      scenario "valid status-check for cider" do
         resp = http_client.get "/inventory/status"
-        expect(resp.status).to be == 200
+        expect_spa_content(resp, 200)
       end
     end
   end

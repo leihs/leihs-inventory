@@ -29,11 +29,6 @@ def upload_and_expect(file_path, model_id, expected_ok)
   end
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Model Management" do
   context "when interacting with inventory models in a specific inventory pool" do
     include_context :setup_models_api, "inventory_manager"

@@ -14,5 +14,6 @@
            :accept "application/json"
            :coercion reitit.coercion.schema/coercion
            :swagger {:security [{:apiAuth []}]}
+           :produces ["application/json"]
            :handler token-protected/get-resource
            :middleware [token-protected/wrap-token-authentication]}}]])

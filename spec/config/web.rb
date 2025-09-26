@@ -19,10 +19,10 @@ def api_base_url
   @http_base_url ||= "http://#{http_host}:#{http_port}"
 end
 
-def plain_faraday_client
+def plain_faraday_html_client(headers = {})
   @plain_faraday_client ||= Faraday.new(
     url: api_base_url,
-    headers: {accept: "*/*"}
+    headers: {accept: "text/html"}.merge(headers)
   ) do |conn|
     yield(conn) if block_given?
     conn.adapter Faraday.default_adapter

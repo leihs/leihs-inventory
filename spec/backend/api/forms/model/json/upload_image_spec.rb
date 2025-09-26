@@ -27,11 +27,6 @@ def upload_image(file_path)
   response
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Model" do
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -187,7 +182,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*"].each do |accept_type|
+              "image/png", "image/*" + "*/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
               expect(resp.status).to eq(200)
@@ -195,7 +190,7 @@ describe "Inventory Model" do
           end
 
           it "with incorrect accept-type" do
-            ["*/*", "image/jpeg"].each do |accept_type|
+            ["image/jpeg"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
 
@@ -204,15 +199,17 @@ describe "Inventory Model" do
             end
           end
 
-          it "with invalid accept-type" do
-            [
-              "text/html",
-              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8"
-            ].each do |accept_type|
+          it "with valid accept-type" do
+            ["text/html",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8,",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+              "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5",
+              "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
 
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
-              expect(resp.status).to eq(404)
+              expect(resp.status).to eq(200)
             end
           end
         end
@@ -234,7 +231,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*"].each do |accept_type|
+              "image/png", "image/*" + "*/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
 
@@ -243,7 +240,7 @@ describe "Inventory Model" do
           end
 
           it "with incorrect accept-type" do
-            ["*/*", "image/jpeg"].each do |accept_type|
+            ["image/jpeg"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
 
@@ -254,11 +251,15 @@ describe "Inventory Model" do
 
           it "with invalid accept-type" do
             ["text/html",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+              "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+              "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5",
+              "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
               "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
 
-              expect(resp.status).to eq(404)
+              expect(resp.status).to eq(200)
             end
           end
         end

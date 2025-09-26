@@ -9,7 +9,8 @@
    [leihs.inventory.server.constants :as consts]
    [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [taoensso.timbre :refer [debug]]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
@@ -66,18 +67,19 @@
 (defn wrap-csrf [handler]
   (fn [request]
     (let [uri (:uri request)
-          api-request? (and uri (str/includes? uri "/api-docs/"))]
+          api-request? (and uri (or (str/includes? uri "/api-docs/") (str/includes? uri "/swagger-ui/")))]
       (if api-request?
         (handler request)
         (if (some #(= % (:uri request)) ["/sign-in" "/sign-out" "/inventory/login" "/inventory/csrf-token/"])
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
+              (debug e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")
-                  {:status 400
+                  {:status 403
                    :headers {"Content-Type" "application/json"}
-                   :body (to-json {:message "Error updating password"
+                   :body (to-json {:message "Error during CSRF-Token/Session validation"
                                    :details (str "error: " (.getMessage e))})}))))
           (handler request))))))

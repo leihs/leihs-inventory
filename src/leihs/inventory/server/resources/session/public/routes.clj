@@ -17,4 +17,7 @@
 
     ["/public"
      {:get {:swagger {:security []}
+            :accept "application/json"
+            :public true
+            :produces ["application/json"]
             :handler session-public/get-resource}}]]])

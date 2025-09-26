@@ -3,7 +3,6 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.manufacturers.main :as manufacturers]
    [leihs.inventory.server.resources.pool.manufacturers.types :refer [response-schema]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -21,8 +20,8 @@
 \nHINT
 - 'in-detail'-option works for models with set 'search' only\n"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
+          :produces ["application/json"]
           :handler manufacturers/index-resources
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :type) (s/enum "Software" "Model")

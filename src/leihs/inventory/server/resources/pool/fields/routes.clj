@@ -2,7 +2,6 @@
   (:require
    [clojure.set]
    [leihs.inventory.server.resources.pool.fields.main :as fields]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -15,10 +14,8 @@
                                        "<ul/>")
                      :accept "application/json"
                      :coercion reitit.coercion.schema/coercion
-                     :middleware [accept-json-middleware
-                            ;session/wrap
-                                  ]
                      :swagger {:produces ["application/json"]}
+                     :produces ["application/json"]
                      :parameters {:path {:pool_id s/Uuid}
                                   :query {(s/optional-key :page) s/Int
                                           (s/optional-key :size) s/Int
