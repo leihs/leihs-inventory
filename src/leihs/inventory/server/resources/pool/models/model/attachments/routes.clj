@@ -7,7 +7,6 @@
    [leihs.inventory.server.resources.pool.models.model.attachments.types :refer [attachment-response
                                                                                  get-attachments-response]]
    [leihs.inventory.server.resources.pool.models.model.constants :refer [config-get]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -16,12 +15,12 @@
   ["/models/:model_id/attachments/"
    {:get {:accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
+          :produces ["application/json"]
           :handler index-resources
           :responses {200 {:description "OK"
                            :body get-attachments-response}
@@ -33,8 +32,8 @@
            :description (str "- Limitations: " (config-get :api :attachments :max-size-mb) " MB\n"
                              "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
            :coercion reitit.coercion.schema/coercion
-           :middleware [accept-json-middleware]
            :swagger {:produces ["application/json"]}
+           :produces ["application/json"]
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid}
                         :header {:x-filename s/Str}}

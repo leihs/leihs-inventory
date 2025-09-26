@@ -48,7 +48,7 @@ describe "Call swagger-endpoints" do
       end
     end
 
-    it "accesses protected json-resource by accept=*/*" do
+    it "accesses protected json-resource by accept=application/json" do
       resp = plain_faraday_json_client.get("/inventory/test-csrf")
       expect(resp.status).to eq(403)
 
@@ -65,21 +65,21 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
     end
 
-    it "protected access against json-resource by accept=*/*" do
-      resp = plain_faraday_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+    it "protected access against json-resource by accept=text/html" do
+      resp = plain_faraday_html_client.get("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.post("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.post("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.delete("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.delete("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.put("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.put("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
 
-      resp = plain_faraday_client.patch("/inventory/test-csrf")
-      expect(resp.status).to eq(403)
+      resp = plain_faraday_html_client.patch("/inventory/test-csrf")
+      expect_spa_content(resp, 200)
     end
   end
 end

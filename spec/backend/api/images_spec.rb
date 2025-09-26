@@ -47,19 +47,19 @@ describe "Inventory API Endpoints - Image Handling" do
         expect(resp.status).to eq(200)
       end
 
-      context "Blocks fetch image with text/html" do
-        it "retrieves image thumbnail by ID and returns status 404" do
+      context "Blocks fetch image with text/html  (FF/new tab)" do
+        it "retrieves image thumbnail by ID and returns status 200" do
           resp = client.get "#{url}#{image_id}/thumbnail" do |req|
             req.headers["Accept"] = "text/html"
           end
-          expect(resp.status).to eq(404)
+          expect(resp.status).to eq(200)
         end
 
-        it "retrieves image by ID and returns status 404" do
+        it "retrieves image by ID and returns status 200" do
           resp = client.get "#{url}#{image_id}" do |req|
             req.headers["Accept"] = "text/html"
           end
-          expect(resp.status).to eq(404)
+          expect(resp.status).to eq(200)
         end
       end
 

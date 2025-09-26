@@ -4,7 +4,6 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.rooms.room.main :as room]
    [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
@@ -15,8 +14,8 @@
    {:get {:summary (fe "")
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
+          :produces ["application/json"]
           :parameters {:path {:room_id s/Uuid}}
           :handler room/get-resource
           :responses {200 {:description "OK"

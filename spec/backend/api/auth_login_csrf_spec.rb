@@ -13,13 +13,13 @@ describe "Call swagger-endpoints" do
     context "GET /sign-in" do
       it "returns 200 to fetch csrf-token" do
         resp = session_auth_plain_faraday_json_client(headers: {accept: "application/json"}).get("/sign-in")
-        expect(resp.status).to eq(200)
-        expect(resp.body["csrf-token"]).to be
+        expect(resp.status).to eq(404)
       end
 
       it "returns 200 to fetch login-form containing csrf-token" do
         resp = session_auth_plain_faraday_json_client(headers: {accept: "text/html"}).get("/sign-in")
         expect(resp.status).to eq(200)
+        expect(resp.body["csrf-token"]).to be
       end
     end
 
@@ -30,16 +30,17 @@ describe "Call swagger-endpoints" do
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
-            "return-to" => "/inventory/list"
+            "return-to" => "/inventory/"
           )
-          req.headers["Accept"] = "application/json"
+
+          req.headers["Accept"] = "text/html"
           req.headers["Content-Type"] = "application/x-www-form-urlencoded"
           req.headers["Cookie"] = cookie.to_s
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
 
-        expect(resp.status).to eq(200)
-        expect(resp.body["location"]).to be
+        expect(resp.status).to eq(302)
+        expect(resp.headers["location"]).to be
       end
 
       it "returns 200 for correct sign-out" do
@@ -47,9 +48,9 @@ describe "Call swagger-endpoints" do
           req.body = URI.encode_www_form(
             "user" => @user.login,
             "password" => @user.password,
-            "return-to" => "/inventory/list"
+            "return-to" => "/inventory/"
           )
-          req.headers["Accept"] = "*/*"
+          req.headers["Accept"] = "text/html"
           req.headers["Content-Type"] = "application/x-www-form-urlencoded"
           req.headers["Cookie"] = cookie.to_s
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
@@ -67,24 +68,30 @@ describe "Call swagger-endpoints" do
           req.headers["Accept"] = "application/json"
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
-        expect(resp.status).to eq(403)
+        expect(resp.status).to eq(404)
 
         # logout fails due invalid cookie
+        resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
+          req.headers["Accept"] = "text/html"
+          req.headers["x-csrf-token"] = X_CSRF_TOKEN
+        end
+        expect(resp.status).to eq(403)
+
         _, invalid_cookies_str = generate_csrf_session_data("")
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
-          req.headers["Accept"] = "application/json"
+          req.headers["Accept"] = "text/html"
           req.headers["Cookie"] = invalid_cookies_str
-          req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
         expect(resp.status).to eq(403)
 
         # logout successful
         resp = session_auth_plain_faraday_json_client.post("/sign-out") do |req|
-          req.headers["Accept"] = "application/json"
+          req.headers["Accept"] = "text/html"
           req.headers["Cookie"] = cookies_str
           req.headers["x-csrf-token"] = X_CSRF_TOKEN
         end
-        expect(resp.status).to eq(200)
+        expect(resp.status).to eq(302)
+        expect(resp.headers["location"]).to eq("/inventory/")
       end
     end
   end

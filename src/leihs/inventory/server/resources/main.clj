@@ -86,7 +86,7 @@
                 pools (jdbc/execute! tx
                                      (get-pools-access-rights-of-user-query
                                       true user_id "direct_access_rights"))
-                return-to (if (empty? pools)
+                return-to (if (or (empty? pools) (> (count pools) 1))
                             INVENTORY_VIEW_PATH
                             (->> (first pools)
                                  :id
@@ -108,7 +108,5 @@
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))
-        accept (get-in params [:headers "accept"])]
-    (if (str/includes? accept "application/json")
-      {:status (if (so/routes params) 200 409)}
-      (so/routes params))))
+        _ (so/routes params)]
+    {:status 302, :headers {"Location" "/inventory/"}}))

@@ -140,7 +140,7 @@ describe "Inventory Model" do
           end
 
           it "with correct accept-type" do
-            ["application/pdf"].each do |accept_type|
+            ["application/pdf" + "text/html"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
 
@@ -151,15 +151,6 @@ describe "Inventory Model" do
           it "with incorrect accept-type" do
             ["image/png", "image/jpeg", "text/plain", "image/gif", "text/rtf",
               "image/vnd.dwg", "application/zip"].each do |accept_type|
-              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
-              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
-
-              expect(resp.status).to eq(406)
-            end
-          end
-
-          it "with invalid accept-type" do
-            ["text/html"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
 

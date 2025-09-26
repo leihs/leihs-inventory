@@ -1,17 +1,8 @@
 (ns leihs.inventory.server.utils.middleware
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.response-helper :refer [index-html-response]]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))
-
-(defn accept-json-middleware [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])
-          json-request? (boolean (re-matches #"^.*application/json.*$" accept-header))]
-      (if (and accept-header json-request?)
-        (handler request)
-        (index-html-response request 200)))))
 
 (defn restrict-uri-middleware
   "Middleware that blocks requests unless URI is explicitly allowed."
@@ -28,7 +19,7 @@
     (let [auth (get-in request [:authenticated-entity])
           uri (:uri request)
           is-accept-json? (str/includes? (get-in request [:headers "accept"]) "application/json")
-          swagger-resource? (str/includes? uri "/api-docs/")
+          swagger-resource? (or (str/includes? uri "/api-docs/") (str/includes? uri "/swagger-ui/"))
           whitelisted? (some #(str/includes? uri %) ["/sign-in"
                                                      "/inventory/csrf-token/"
                                                      "/inventory/token/public"

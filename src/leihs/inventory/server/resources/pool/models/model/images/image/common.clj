@@ -2,8 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_TYPE_IMAGE
-                                                                                      ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.response :refer [response status]])
   (:import
@@ -48,16 +46,39 @@
       {:status 400
        :body (str CONVERTING_ERROR (.getMessage e))})))
 
+(defn parse-accept [accept-header]
+  (let [accepts (-> accept-header
+                    (str/split #",")
+                    (->> (map #(first (str/split % #";")))
+                         (map str/trim)))]
+    (cond
+      (> (count accepts) 1)
+      {:accept-header nil :negotiation? true}
+
+      ;; Firefox quirk → negotiation
+      (some #{"text/html"} accepts)
+      {:accept-header nil :negotiation? true}
+
+      (some #{"image/*"} accepts)
+      {:accept-header nil :negotiation? true}
+
+      (some #{"application/json"} accepts)
+      {:accept-header "application/json" :negotiation? false}
+
+      (and (= 1 (count accepts))
+           (str/starts-with? (first accepts) "image/"))
+      {:accept-header (first accepts) :negotiation? false}
+
+      (= 1 (count accepts))
+      {:accept-header (first accepts) :negotiation? false}
+
+      :else {:accept-header nil :negotiation? true})))
+
 (defn handle-image-response
   [request image-data]
-  (let [accept-header (if (str/includes? (get-in request [:headers "accept"])
-                                         CONTENT_NEGOTIATION_TYPE_IMAGE)
-                        CONTENT_NEGOTIATION_TYPE_IMAGE
-                        (get-in request [:headers "accept"]))
-        json-request? (= accept-header "application/json")
-        content-negotiation? (str/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE)
-        valid-content-type? (boolean (and accept-header
-                                          (some #(= accept-header %) ALLOWED_IMAGE_CONTENT_TYPES)))]
+  (let [raw-accept (get-in request [:headers "accept"])
+        {:keys [accept-header negotiation?]} (parse-accept raw-accept)
+        json-request? (= accept-header "application/json")]
 
     (cond
       (nil? image-data)
@@ -66,11 +87,10 @@
       json-request?
       (response image-data)
 
-      content-negotiation?
+      negotiation?
       (convert-base64-to-byte-stream image-data)
 
-      (or (not= (:content_type image-data) accept-header)
-          (not valid-content-type?))
+      (not= (:content_type image-data) accept-header)
       (status (response {:status "failure" :message "Requested content type not supported"}) 406)
 
       :else (convert-base64-to-byte-stream image-data))))

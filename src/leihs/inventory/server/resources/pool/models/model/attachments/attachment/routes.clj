@@ -14,9 +14,9 @@
 (defn routes []
   ["/models/:model_id/attachments/:attachments_id"
    {:get {:summary (fe "")
-          :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
+          :produces ACCEPT_TYPES_ATTACHMENT
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :attachments_id s/Uuid}
@@ -35,6 +35,7 @@
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
                                  :attachments_id s/Uuid}}
+             :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"
                               :body s/Any}

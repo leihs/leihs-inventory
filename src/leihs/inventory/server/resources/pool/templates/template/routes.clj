@@ -16,7 +16,7 @@
           :parameters {:path {:pool_id uuid?
                               :template_id uuid?}}
           :handler template/get-resource
-
+          :produces ["application/json"]
           :responses {200 {:description "OK"
                            :body ::types/get-put-response}
                       404 {:description "Not Found"}
@@ -32,7 +32,7 @@
                               :template_id uuid?}
                        :body ::types/put-query}
           :handler template/put-resource
-
+          :produces ["application/json"]
           :responses {200 {:description "OK"
                            :body ::types/get-put-response}
                       404 {:description "Not Found"}
@@ -44,7 +44,7 @@
              :parameters {:path {:pool_id uuid?
                                  :template_id uuid?}}
              :handler template/delete-resource
-
+             :produces ["application/json"]
              :responses {200 {:description "OK"
                               :body ::types/delete-response}
                          404 {:description "Not Found"}

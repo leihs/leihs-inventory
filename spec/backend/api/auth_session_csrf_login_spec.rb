@@ -4,40 +4,22 @@ require_relative "_shared"
 describe "Call swagger-endpoints" do
   context "with accept=text/html2" do
     it "redirect to login if request not comes from swagger-ui" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Accept"] = "text/html"
+      resp = plain_faraday_json_client.get("/inventory/session/protected") do |req|
         req.headers["Referer"] = "/inventory"
-      end
-      expect(resp.status).to eq(302)
-    end
-
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory"
-      end
-      expect(resp.status).to eq(404)
-    end
-
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory/api-docs/index.html"
-      end
-      expect(resp.status).to eq(404)
-    end
-
-    it "returns correct result 403" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Accept"] = "application/json"
-        req.headers["Referer"] = "/inventory/api-docs/index.html"
       end
       expect(resp.status).to eq(403)
     end
 
-    it "returns correct result 404" do
-      resp = plain_faraday_client.get("/inventory/session/protected") do |req|
-        req.headers["Referer"] = "/inventory"
+    it "returns correct result 200 SPA that results in a 404" do
+      resp = plain_faraday_html_client.get("/inventory/session/protected")
+      expect_spa_content(resp, 200)
+    end
+
+    it "returns correct result 403" do
+      resp = plain_faraday_html_client.get("/inventory/session/protected") do |req|
+        req.headers["Accept"] = "application/json"
       end
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
     end
 
     it "denies access to protected resource without login" do

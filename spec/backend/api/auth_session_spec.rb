@@ -1,6 +1,12 @@
 require "spec_helper"
 require_relative "_shared"
 
+def sign_in(client)
+  client.get("/sign-in") do |req|
+    req.headers["Accept"] = "text/html"
+  end
+end
+
 describe "Call swagger-endpoints" do
   context "with accept=text/html" do
     before :each do
@@ -10,12 +16,17 @@ describe "Call swagger-endpoints" do
     let(:client) { session_auth_plain_faraday_json_client(cookies: @user_cookies) }
 
     it "returns 200" do
-      resp = client.get "/sign-in"
+      resp = sign_in client
       expect(resp.status).to eq(200)
     end
 
+    it "returns 200" do
+      resp = client.get "/sign-in"
+      expect(resp.status).to eq(404)
+    end
+
     it "returns 200 for correct credentials" do
-      resp = client.get("/sign-in")
+      resp = sign_in client
       expect(resp.status).to eq(200)
     end
 
@@ -23,7 +34,7 @@ describe "Call swagger-endpoints" do
       resp = plain_faraday_json_client.get("/inventory/session/protected")
       expect(resp.status).to eq(403)
 
-      resp = client.get("/sign-in")
+      resp = sign_in client
       expect(resp.status).to eq(200)
 
       resp = client.get("/inventory/session/protected") do |req|

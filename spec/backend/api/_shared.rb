@@ -463,8 +463,10 @@ def create_and_login(role, login = nil, password = nil)
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
-  }, multipart: true, headers: {Cookie: cookie_str})
-  expect(response.status).to eq(200)
+  }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
+  # binding.pry
+  expect(response.status).to eq(302)
+  expect(response.headers["location"]).to be
 
   session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
@@ -472,20 +474,25 @@ def create_and_login(role, login = nil, password = nil)
 end
 
 def create_and_login_by(user)
-  # resp = basic_auth_plain_faraday_json_client(user.login, user.password).get("/sign-in")
-
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrf-token"]
   _, cookie_str = generate_csrf_data(token)
 
-  resp = common_plain_faraday_client(:post, "/sign-in", body: {
+  response = common_plain_faraday_client(:post, "/sign-in", body: {
     "user" => user.login,
     "password" => user.password,
     "csrf-token" => token
-  }, multipart: true, headers: {Cookie: cookie_str})
+  }, multipart: true, headers: {Cookie: cookie_str, Accept: "text/html"})
 
-  expect(resp.status).to eq(200)
-  session_cookie = parse_cookie(resp.headers["set-cookie"])["leihs-user-session"]
+  expect(response.status).to eq(302)
+  expect(response.headers["location"]).to be
+
+  session_cookie = parse_cookie(response.headers["set-cookie"])["leihs-user-session"]
 
   generate_csrf_session_data(session_cookie) + [session_cookie]
+end
+
+def expect_spa_content(resp, status)
+  expect(resp.body).to include("<title>Inventory</title>")
+  expect(resp.status).to eq(status)
 end

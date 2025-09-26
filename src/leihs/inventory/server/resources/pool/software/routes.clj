@@ -11,6 +11,7 @@
            :coercion spec/coercion
            :parameters {:path {:pool_id uuid?}
                         :body :software-post/multipart}
+           :produces ["application/json"]
            :handler software/post-resource
            :responses {200 {:description "OK"
                             :body ::types/post-response}

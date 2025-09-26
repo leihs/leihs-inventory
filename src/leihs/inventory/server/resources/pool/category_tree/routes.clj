@@ -34,6 +34,7 @@ Example Metadata:
           :coercion spec/coercion
           :parameters {:query (sa/keys :opt-un [::types/with-metadata])
                        :path {:pool_id uuid?}}
+          :produces ["application/json"]
           :handler category-tree/index-resources
           :responses {200 {:description "OK"
                            :body ::types/response-body}
