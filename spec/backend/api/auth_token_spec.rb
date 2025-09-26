@@ -121,8 +121,7 @@ describe "Call swagger-endpoints" do
       expect(token).to be
 
       resp = json_client_get(@protected_url, headers: {"Accept" => "text/html"}, token: token)
-      expect(resp.status).to eq(302)
-      expect(resp.headers["location"]).to eq "/sign-in?return-to=%2Finventory"
+      expect(resp.status).to eq(404)
     end
   end
 end

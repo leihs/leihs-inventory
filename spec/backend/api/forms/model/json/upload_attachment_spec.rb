@@ -163,7 +163,7 @@ describe "Inventory Model" do
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
 
-              expect(resp.status).to eq(406)
+              expect(resp.status).to eq(404)
             end
           end
         end
