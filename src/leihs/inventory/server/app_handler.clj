@@ -14,9 +14,7 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
-   [leihs.inventory.server.utils.middleware-handler :refer [default-handler-fetch-resource
-                                                            wrap-accept-with-image-rewrite
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
@@ -35,20 +33,20 @@
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
 
-   [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
-   [ring.middleware.file-info :refer [wrap-file-info]]
-
    [ring.middleware.default-charset :refer [wrap-default-charset]]
+   [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+
+   [ring.middleware.file-info :refer [wrap-file-info]]
    [ring.middleware.params :refer [wrap-params]]
    ;))
 
 
-[ring.middleware.params :refer [wrap-params]]
-[ring.middleware.resource :refer [wrap-resource]]
-[ring.util.mime-type :as mime]
-[ring.util.mime-type :as mime]
-[ring.util.response :refer [bad-request response status]]
-[ring.util.response :refer [response status content-type]]))
+   [ring.middleware.params :refer [wrap-params]]
+   [ring.middleware.resource :refer [wrap-resource]]
+   [ring.util.mime-type :as mime]
+   [ring.util.mime-type :as mime]
+   [ring.util.response :refer [bad-request response status]]
+   [ring.util.response :refer [content-type response status]]))
 
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
@@ -162,6 +160,8 @@
           pinfo (:path-info req)
           new-uri (strip-tail uri)
           new-pi (strip-tail pinfo)
+          p (println ">o> abc.new-uri" new-uri)
+          p (println ">o> abc.new-pi" new-pi)
           req' (cond-> req
                  (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
                  (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
@@ -169,6 +169,50 @@
         (println ">o> strip-digest" uri "=>" new-uri
                  (when pinfo (str " | path-info " pinfo " => " new-pi))))
       (handler req'))))
+
+(defn- ensure-path-info [req]
+  (if (:path-info req)
+    req
+    (assoc req :path-info (:uri req))))
+
+(defn strip-digest [handler]
+  (fn [req]
+    (let [uri (:uri req)
+          pinfo (:path-info req)
+          new-uri (strip-tail uri)
+          new-pi (or (strip-tail pinfo)
+                   (when new-uri (strip-tail new-uri)))
+          req' (cond-> req
+                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
+                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
+      (when (or (not= uri new-uri) (not= pinfo new-pi))
+        (println ">o> strip-digest" uri "=>" new-uri
+          (when pinfo (str " | path-info " pinfo " => " new-pi))))
+      (handler (ensure-path-info req')))))
+
+
+(defn- ensure-path-info [req]
+  (if (:path-info req)
+    req
+    ;; fall back to :uri if no path-info is present
+    (assoc req :path-info (:uri req))))
+
+(defn strip-digest [handler]
+  (fn [req]
+    (let [uri   (:uri req)
+          pinfo (:path-info req)
+          new-uri (strip-tail uri)
+          new-pi  (or (strip-tail pinfo)
+                    (when new-uri (strip-tail new-uri)))
+          req' (cond-> req
+                 (and new-uri (not= new-uri uri))   (assoc :uri new-uri)
+                 (and new-pi  (not= new-pi pinfo)) (assoc :path-info new-pi))
+          req'' (ensure-path-info req')]
+      (when (or (not= uri new-uri) (not= pinfo new-pi))
+        (println ">o> strip-digest" uri "=>" new-uri
+          (when pinfo (str " | path-info " pinfo " => " new-pi))))
+      (handler req''))))
+
 
 (defn ensure-content-type [handler]
   (fn [req]
@@ -198,7 +242,7 @@
 
     (->
      app
-     strip-digest
+     ;strip-digest
      (cache-buster2/wrap-resource "public" cache-bust-options)
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
                                    "svgz" "image/svg+xml"}})

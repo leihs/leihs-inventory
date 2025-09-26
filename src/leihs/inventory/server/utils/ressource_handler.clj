@@ -15,8 +15,8 @@
   (println ">o> abc.custom-not-found-handler")
   (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))]
     (cond
-      (and (str/includes? accept "text/html") (= (:uri request) "/inventory"))
-      (redirect "/inventory/")
+      ;(and (str/includes? accept "text/html") (= (:uri request) "/inventory"))
+      ;(redirect "/inventory/")
 
       ;(str/includes? accept "application/json")
       ;(-> (response (json/generate-string {:error "Not Found" :status 404}))
