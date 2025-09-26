@@ -1,5 +1,8 @@
 (ns leihs.inventory.server.app-handler
   (:require
+   [cheshire.core :as json]
+   [clojure.string :as str]
+   [clojure.string :as str]
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.db :as db]
    [leihs.core.http-cache-buster2 :as cache-buster2]
@@ -15,6 +18,7 @@
    [leihs.inventory.server.utils.middleware-handler :refer [default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
+   [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
    [muuntaja.core :as m]
@@ -30,10 +34,70 @@
    [reitit.swagger]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
+
+   [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+   [ring.middleware.file-info :refer [wrap-file-info]]
+
    [ring.middleware.default-charset :refer [wrap-default-charset]]
-   [ring.middleware.params :refer [wrap-params]]))
+   [ring.middleware.params :refer [wrap-params]]
+   ;))
+
+
+[ring.middleware.params :refer [wrap-params]]
+[ring.middleware.resource :refer [wrap-resource]]
+[ring.util.mime-type :as mime]
+[ring.util.mime-type :as mime]
+[ring.util.response :refer [bad-request response status]]
+[ring.util.response :refer [response status content-type]]))
+
+(defn parse-accept-header [accept-header]
+  (->> (clojure.string/split accept-header #",")
+    (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
+    (remove clojure.string/blank?)
+    set))
+
+(defn create-accept-response
+  "Return a response based on the Accept header.
+   - text/html -> HTML response
+   - application/json -> JSON response
+   - otherwise -> plain text"
+  [request http-status]
+  (let [accept (get-in request [:headers "accept"])
+        code (int http-status)]
+    (cond
+      (and accept (str/includes? accept "text/html"))
+      (rh/index-html-response request code)
+
+      (and accept (str/includes? accept "application/json")) ;; FIXME
+      (-> (response (json/generate-string {:status "failure"
+                                           :message "Error occurred"}))
+        (status code)
+        (content-type "application/json"))
+
+      :else       (-> (response "")
+                    (status code)
+                    (content-type "text/html")))))
+
+(defn wrap-strict-format-negotiate [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          accepted-types (if accept-header (parse-accept-header accept-header) #{"*/*"})
+          method (get request :request-method)
+          route-data (get-in request [:reitit.core/match :data method])
+          produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
+          accept-format (some-> route-data :accept clojure.string/lower-case)
+          allowed-formats (cond-> produces-set
+                            accept-format (conj accept-format))]
+      (if (and (seq allowed-formats)
+            (seq accepted-types)
+            (not (some allowed-formats accepted-types)))
+
+        (create-accept-response request 404)
+        (handler request)))))
 
 (def middlewares [debug-mw/wrap-debug
+
+                  wrap-strict-format-negotiate
 
                   wrap-handle-coercion-error
                   db/wrap-tx
@@ -45,7 +109,6 @@
                   csrf/extract-header
 
                   wrap-session-token-authenticate!
-                  wrap-authenticate!
 
                   wrap-cookies
                   csrf/wrap-csrf
@@ -55,7 +118,6 @@
                   wrap-params
                   wrap-content-type
                   dispatch-content-type/wrap-accept
-                  default-handler-fetch-resource
 
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
@@ -81,13 +143,63 @@
    :never-expire-paths []
    :cache-enabled? true})
 
+(require '[ring.middleware.defaults :refer [wrap-defaults site-defaults]])
+
+(def defaults
+  (-> site-defaults
+      (assoc-in [:responses :not-modified-responses] false)))
+
+(def tail-re #"(?i)_[0-9a-f]{6,64}\.[^./]+$")
+
+(defn- strip-tail [s]
+  (when s
+    (let [new (str/replace s tail-re "")]
+      (if (identical? s new) s new))))
+
+(defn strip-digest [handler]
+  (fn [req]
+    (let [uri (:uri req)
+          pinfo (:path-info req)
+          new-uri (strip-tail uri)
+          new-pi (strip-tail pinfo)
+          req' (cond-> req
+                 (and new-uri (not= new-uri uri)) (assoc :uri new-uri)
+                 (and new-pi (not= new-pi pinfo)) (assoc :path-info new-pi))]
+      (when (or (not= uri new-uri) (not= pinfo new-pi))
+        (println ">o> strip-digest" uri "=>" new-uri
+                 (when pinfo (str " | path-info " pinfo " => " new-pi))))
+      (handler req'))))
+
+(defn ensure-content-type [handler]
+  (fn [req]
+    (let [resp (handler req)
+          resp-ct (get-in resp [:headers "Content-Type"])
+          ext-ct (mime/ext-mime-type (:uri req)
+                                     {"svg" "image/svg+xml"
+                                      "svgz" "image/svg+xml"})]
+      (cond
+        ;; If no CT at all, set it
+        (nil? resp-ct) (assoc-in resp [:headers "Content-Type"] ext-ct)
+
+        ;; If CT is text/plain but we know better
+        (and (= "text/plain" resp-ct) ext-ct)
+        (assoc-in resp [:headers "Content-Type"] ext-ct)
+
+        :else resp))))
+
 (defn init []
-  (let [router (ring/router (routes/all-api-endpoints) default-router-config)
-        swagger-ui-handler (swagger/init)
-        not-found-handler (default-handler-fetch-resource custom-not-found-handler)
-        default-handler (ring/routes swagger-ui-handler
-                                     (ring/create-default-handler {:not-found not-found-handler}))]
-    (-> (ring/ring-handler router default-handler)
-        (cache-buster2/wrap-resource "public" cache-bust-options)
-        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-        (wrap-default-charset "utf-8"))))
+  (let [;router (ring/router (routes/all-api-endpoints) default-router-config)
+        ;not-found (ring/create-default-handler {:not-found custom-not-found-handler})
+        app (ring/routes
+             (swagger/init)
+              ;(ring/ring-handler router not-found))]
+             (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
+                                (ring/create-default-handler {:not-found custom-not-found-handler})))]
+
+    (->
+     app
+     strip-digest
+     (cache-buster2/wrap-resource "public" cache-bust-options)
+     (wrap-file-info {:mime-types {"svg" "image/svg+xml"
+                                   "svgz" "image/svg+xml"}})
+     ensure-content-type)))

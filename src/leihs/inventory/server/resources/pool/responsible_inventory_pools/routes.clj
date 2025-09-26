@@ -16,7 +16,7 @@
    {:get {:summary (fe "")
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [wrap-authenticate accept-json-middleware]
+          ;:middleware [wrap-authenticate accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}}
           :handler responsible-inventory-pools/get-resources

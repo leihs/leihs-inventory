@@ -15,7 +15,6 @@
    {:get {:summary (fe "")
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
-          :middleware [accept-json-middleware]
           :swagger {:produces ["application/json"]}
           :parameters {:query {(s/optional-key :building_id) s/Uuid}}
           :handler rooms/index-resources

@@ -9,7 +9,9 @@
                                               valid-image-or-thumbnail-uri?]]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
-   [ring.middleware.accept]))
+   [ring.middleware.accept]
+   [taoensso.timbre :refer [debug error]]
+   ))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -63,6 +65,21 @@
          :headers {"content-type" "text/html"}
          :body ""}
         ((dispatch-content-type/wrap-accept handler) updated-request)))))
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"])
+          updated-request (cond
+                            (str/includes? accept-header "text/html")
+                            (assoc-in request [:headers "accept"] "text/html")
+
+                            :else request)]
+      ((dispatch-content-type/wrap-accept handler) updated-request))))
+
+(defn wrap-accept-with-image-rewrite [handler]
+  (fn [request]
+    (let [updated-request request]
+      ((dispatch-content-type/wrap-accept handler) updated-request))))
 
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]

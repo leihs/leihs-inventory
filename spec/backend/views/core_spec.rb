@@ -33,14 +33,25 @@ describe "Request " do
 
     context "against /" do
       scenario "json response is correct" do
+        http_client.headers["Accept"] = "text/html"
         resp = http_client.get "/"
         expect(resp.status).to be == 200
         expect(resp.body).to include("Overview _> go to")
       end
+
+      scenario "json response is correct" do
+        resp = http_client.get "/"
+        expect(resp.status).to be == 404
+      end
     end
 
     context "against /inventory/status/" do
-      scenario "status-check for cider" do
+      scenario "invalid status-check for cider" do
+        resp = http_client.get "/inventory/status/"
+        expect(resp.status).to be == 404
+      end
+
+      scenario "valid status-check for cider" do
         resp = http_client.get "/inventory/status"
         expect(resp.status).to be == 200
       end
