@@ -13,7 +13,10 @@
 
 (defn custom-not-found-handler [request]
   (println ">o> abc.custom-not-found-handler")
-  (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))]
+  (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
+
+        p (println ">o> abc.accept" accept)
+        ]
     (cond
       (str/includes? accept "text/html")
       (rh/index-html-response request 404)

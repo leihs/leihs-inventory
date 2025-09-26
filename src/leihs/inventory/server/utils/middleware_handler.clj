@@ -81,6 +81,51 @@
     (let [updated-request request]
       ((dispatch-content-type/wrap-accept handler) updated-request))))
 
+(defn wrap-accept-with-image-rewrite
+  "Rewrite Accept if it contains text/html, unless the matched uri matches a whitelist regex."
+  [handler]
+  (fn [request]
+    (let [accept-header (get-in request [:headers "accept"] "")
+
+          p (println ">o> abc2.accept-header" accept-header)
+
+          uri (:uri request)
+          method (:request-method request)
+          image-endpoints [#"^/inventory/[^/]+/models/[^/]+/images/[^/]+$"
+                           #"^/inventory/[^/]+/models/[^/]+/images/[^/]+/thumbnail$"]
+          get-image-thumb-endpoints? (and (= method :get)
+                                       (some #(re-matches % uri) image-endpoints))
+
+          attachment-endpoint [#"^/inventory/[^/]+/models/[^/]+/attachments/[^/]+$"]
+          get-attachment-endpoint? (and (= method :get)
+                                     (some #(re-matches % uri) attachment-endpoint))
+          accept-html? (clojure.string/includes? accept-header "text/html")
+
+          updated-request (cond
+                            (and get-image-thumb-endpoints?
+                              (not accept-html?)
+                              (clojure.string/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE))
+                            (assoc-in request [:headers "accept"] CONTENT_NEGOTIATION_TYPE_IMAGE)
+                            ;request
+
+                            (and get-attachment-endpoint?
+                              (not accept-html?)
+                              (clojure.string/includes? accept-header "*/*"))
+                            (assoc-in request [:headers "accept"] "*/*")
+                            ;request
+
+                            accept-html?
+                            (assoc-in request [:headers "accept"] "text/html")
+
+                            :else request)]
+
+      (if (and get-image-thumb-endpoints? accept-html?)
+        {:status 404
+         :headers {"content-type" "text/html"}
+         :body ""}
+        ((dispatch-content-type/wrap-accept handler) updated-request)))))
+
+
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]
     (let [handler (try

@@ -102,7 +102,8 @@
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap
-                  wrap-accept-with-image-rewrite
+
+                  ;wrap-accept-with-image-rewrite
 
                   csrf/extract-header
 
