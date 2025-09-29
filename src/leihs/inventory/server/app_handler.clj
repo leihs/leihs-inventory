@@ -38,31 +38,41 @@
 
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
-    (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
-    (remove clojure.string/blank?)
-    set))
+       (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
+       (remove clojure.string/blank?)
+       set))
 
-(defn create-accept-response
-  "Return a response based on the Accept header.
-   - text/html -> HTML response
-   - application/json -> JSON response
-   - otherwise -> plain text"
-  [request http-status]
+;(defn create-accept-response
+;  "Return a response based on the Accept header.
+;   - text/html -> HTML response
+;   - application/json -> JSON response
+;   - otherwise -> plain text"
+;  [request http-status]
+;  (let [accept (get-in request [:headers "accept"])
+;        code (int http-status)]
+;    (cond
+;      (and accept (str/includes? accept "text/html"))
+;      (rh/index-html-response request code)
+;
+;      (and accept (str/includes? accept "application/json")) ;; FIXME
+;      (-> (response (json/generate-string {:status "failure"
+;                                           :message "Error occurred"}))
+;        (status code)
+;        (content-type "application/json"))
+;
+;      :else (-> (response "")
+;              (status code)
+;              (content-type "text/html")))))
+
+(defn create-accept-response [request http-status]
   (let [accept (get-in request [:headers "accept"])
         code (int http-status)]
-    (cond
-      (and accept (str/includes? accept "text/html"))
-      (rh/index-html-response request code)
-
-      (and accept (str/includes? accept "application/json")) ;; FIXME
+    (if (and accept (str/includes? accept "application/json")) ;; FIXME
       (-> (response (json/generate-string {:status "failure"
                                            :message "Error occurred"}))
-        (status code)
-        (content-type "application/json"))
-
-      :else (-> (response "")
-              (status code)
-              (content-type "text/html")))))
+          (status code)
+          (content-type "application/json"))
+      (rh/index-html-response request code))))
 
 (defn wrap-strict-format-negotiate [handler]
   (fn [request]
@@ -75,8 +85,8 @@
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))]
       (if (and (seq allowed-formats)
-            (seq accepted-types)
-            (not (some allowed-formats accepted-types)))
+               (seq accepted-types)
+               (not (some allowed-formats accepted-types)))
 
         (create-accept-response request 404)
         (handler request)))))
@@ -90,9 +100,9 @@
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)]
       (if (and (= 404 (:status resp))
-            (some #(re-matches % uri) url-patterns)
-            (or (str/includes? accept "text/html")
-              (str/includes? accept "*/*")))
+               (some #(re-matches % uri) url-patterns)
+               (or (str/includes? accept "text/html")
+                   (str/includes? accept "*/*")))
         (create-accept-response request 404)
         resp))))
 
@@ -148,10 +158,10 @@
 
 (defn init []
   (let [app (ring/routes
-              (swagger/init)
-              (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
-                (ring/create-default-handler {:not-found custom-not-found-handler})))]
+             (swagger/init)
+             (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
+                                (ring/create-default-handler {:not-found custom-not-found-handler})))]
     (-> app
-      (cache-buster2/wrap-resource "public" cache-bust-options)
-      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-      (wrap-default-charset "utf-8"))))
+        (cache-buster2/wrap-resource "public" cache-bust-options)
+        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+        (wrap-default-charset "utf-8"))))
