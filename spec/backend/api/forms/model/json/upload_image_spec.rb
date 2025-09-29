@@ -199,7 +199,6 @@ describe "Inventory Model" do
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
 
-              binding.pry if resp.status != 406
               expect(resp.status).to eq(406)
               expect(resp.body["message"]).to eq("Requested content type not supported")
             end

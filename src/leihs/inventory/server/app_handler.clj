@@ -2,7 +2,6 @@
   (:require
    [cheshire.core :as json]
    [clojure.string :as str]
-   [clojure.string :as str]
    [leihs.core.anti-csrf.back :as anti-csrf]
    [leihs.core.db :as db]
    [leihs.core.http-cache-buster2 :as cache-buster2]
@@ -14,8 +13,7 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.middleware-handler :refer [wrap-accept-with-image-rewrite
-                                                            wrap-session-token-authenticate!]]
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
@@ -32,19 +30,10 @@
    [reitit.swagger]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
-
    [ring.middleware.default-charset :refer [wrap-default-charset]]
-   [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
-
-   [ring.middleware.file-info :refer [wrap-file-info]]
+   ;[ring.middleware.file-info :refer [wrap-file-info]]
    [ring.middleware.params :refer [wrap-params]]
-   ;))
-
-   [ring.middleware.params :refer [wrap-params]]
-   [ring.middleware.resource :refer [wrap-resource]]
-   [ring.util.mime-type :as mime]
-   [ring.util.mime-type :as mime]
-   [ring.util.response :refer [bad-request response status]]
+   ;[ring.util.mime-type :as mime]
    [ring.util.response :refer [content-type response status]]))
 
 (defn parse-accept-header [accept-header]
@@ -93,16 +82,12 @@
         (handler request)))))
 
 (def middlewares [debug-mw/wrap-debug
-
                   wrap-strict-format-negotiate
-
                   wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
                   ring-audits/wrap
-
-                  ;wrap-accept-with-image-rewrite
 
                   csrf/extract-header
 
@@ -146,9 +131,9 @@
              (swagger/init)
              (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
                                 (ring/create-default-handler {:not-found custom-not-found-handler})))]
-
-    (->
-     app
-     (cache-buster2/wrap-resource "public" cache-bust-options)
-     (wrap-file-info {:mime-types {"svg" "image/svg+xml"
-                                   "svgz" "image/svg+xml"}}))))
+    (-> app
+        (cache-buster2/wrap-resource "public" cache-bust-options)
+     ;(wrap-file-info {:mime-types {"svg" "image/svg+xml"
+     ;                              "svgz" "image/svg+xml"}}))))
+        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+        (wrap-default-charset "utf-8"))))

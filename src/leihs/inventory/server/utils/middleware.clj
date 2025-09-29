@@ -1,17 +1,8 @@
 (ns leihs.inventory.server.utils.middleware
   (:require
    [clojure.string :as str]
-   [leihs.inventory.server.utils.response-helper :refer [index-html-response]]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))
-
-(defn accept-json-middleware [handler]
-  (fn [request]
-    (let [accept-header (get-in request [:headers "accept"])
-          json-request? (boolean (re-matches #"^.*application/json.*$" accept-header))]
-      (if (and accept-header json-request?)
-        (handler request)
-        (index-html-response request 200)))))
 
 (defn restrict-uri-middleware
   "Middleware that blocks requests unless URI is explicitly allowed."

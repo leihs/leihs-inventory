@@ -4,7 +4,6 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.rooms.main :as rooms]
    [leihs.inventory.server.resources.pool.rooms.types :refer [get-response]]
-   [leihs.inventory.server.utils.middleware :refer [accept-json-middleware]]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]

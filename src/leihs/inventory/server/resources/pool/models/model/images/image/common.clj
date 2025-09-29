@@ -2,8 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [leihs.inventory.server.resources.pool.models.model.images.image.constants :refer [CONTENT_NEGOTIATION_TYPE_IMAGE
-                                                                                      ALLOWED_IMAGE_CONTENT_TYPES]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.response :refer [response status]])
   (:import
@@ -48,50 +46,10 @@
       {:status 400
        :body (str CONVERTING_ERROR (.getMessage e))})))
 
-;(ns myapp.http.accept
-;  (:require [clojure.string :as str]))
-
-(defn- accepted-image-type [header]
-  (let [media (->> (str/split (or header "") #",")
-                   (map #(str/trim (first (str/split % #";")))) ; strip params like q=0.8
-                   (filter #(and (str/starts-with? % "image/")
-                                 (not (str/includes? % "*")))))]
-    (when (= 1 (count media))
-      (first media))))
-
 (defn parse-accept [accept-header]
   (let [accepts (-> accept-header
                     (str/split #",")
-                    (->> (map #(first (str/split % #";"))) ; drop q factors
-                         (map str/trim)))]
-    (cond
-      ;; Multiple definitions → negotiation
-      (> (count accepts) 1)
-      {:accept-header nil :negotiation? true}
-
-      ;; Firefox quirk → negotiation
-      (some #{"text/html"} accepts)
-      {:accept-header nil :negotiation? true}
-
-      ;; Wildcard image → negotiation
-      (some #(= % "image/*") accepts)
-      {:accept-header nil :negotiation? true}
-
-      ;; JSON → lock in type
-      (some #{"application/json"} accepts)
-      {:accept-header "application/json" :negotiation? false}
-
-      ;; Fallback → treat as explicit type
-      (= 1 (count accepts))
-      {:accept-header (first accepts) :negotiation? false}
-
-      :else
-      {:accept-header nil :negotiation? true})))
-
-(defn parse-accept [accept-header]
-  (let [accepts (-> accept-header
-                    (str/split #",")
-                    (->> (map #(first (str/split % #";"))) ; drop q factors
+                    (->> (map #(first (str/split % #";")))
                          (map str/trim)))]
     (cond
       (> (count accepts) 1)
@@ -120,32 +78,6 @@
 (defn handle-image-response
   [request image-data]
   (let [raw-accept (get-in request [:headers "accept"])
-        p (println ">o> abc.raw" raw-accept)
-        p (println ">o> abc.header" (get-in request [:headers]))
-
-;accept-header (accepted-image-type raw-accept)
-        ;;accept-header (or (accepted-image-type raw-accept) raw-accept)
-        ;content-:negotiation? (nil? accept-header)
-        ;
-        ;accept-header (if (nil? accept-header)
-        ;                (get-in request [:headers "accept"])
-        ;                accept-header)
-        ;
-        ;p (println ">o> abc.accept-header" accept-header)
-        ;p (println ">o> abc.content-:negotiation?" content-:negotiation?)
-        ;
-        ;;p (println ">o> abc.img" image-data)
-        ;p (println ">o> abc.img" (dissoc image-data :content))
-
-;accept-header (if (str/includes? (get-in request [:headers "accept"])
-        ;                                 CONTENT_NEGOTIATION_TYPE_IMAGE)
-        ;                CONTENT_NEGOTIATION_TYPE_IMAGE
-        ;                (get-in request [:headers "accept"]))
-        ;json-request? (= accept-header "application/json")
-        ;content-:negotiation? (str/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE)
-        ;valid-content-type? (boolean (and accept-header
-        ;                                  (some #(= accept-header %) ALLOWED_IMAGE_CONTENT_TYPES)))
-
         {:keys [accept-header negotiation?]} (parse-accept raw-accept)
         json-request? (= accept-header "application/json")]
 
@@ -160,8 +92,6 @@
       (convert-base64-to-byte-stream image-data)
 
       (not= (:content_type image-data) accept-header)
-      ;(or (not= (:content_type image-data) accept-header)
-      ;    (not valid-content-type?))
       (status (response {:status "failure" :message "Requested content type not supported"}) 406)
 
       :else (convert-base64-to-byte-stream image-data))))

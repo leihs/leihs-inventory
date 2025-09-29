@@ -1,21 +1,13 @@
 (ns leihs.inventory.server.utils.ressource-handler
   (:require
-   [cheshire.core :as json]
-   [clojure.java.io :as io]
-   [clojure.string :as clojure.string]
    [clojure.string :as str]
    [leihs.inventory.server.utils.exception-handler :refer [create-response-by-accept]]
-   [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
-   [reitit.coercion.spec]
-   [ring.util.response :refer [redirect content-type response status content-type]]))
+   [reitit.coercion.spec]))
 
 (defn custom-not-found-handler [request]
-  (println ">o> abc.custom-not-found-handler")
-  (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
-
-        p (println ">o> abc.accept" accept)]
+  (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))]
     (cond
       (str/includes? accept "text/html")
       (rh/index-html-response request 404)

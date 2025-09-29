@@ -54,7 +54,6 @@
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
-   [ring.util.response :refer [redirect]]
    [schema.core :as s]
    [taoensso.timbre :refer [debug]]))
 
@@ -175,12 +174,9 @@
      :get {:description "Public assets like JS, CSS, images"
            :produces ["text/html"]
            :handler (fn [request]
-                      (let [p (println ">o> path!!!!!!!!!!!!")
-                            _ (-> request
+                      (let [_ (-> request
                                   convert-params
-                                  (assoc-in [:accept :mime] :html))
-                            accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
-                            p (println ">o> abc.accept" accept)]
+                                  (assoc-in [:accept :mime] :html))]
                         (cond
                           (authenticated? request)
                           (rh/index-html-response request 200)

@@ -1,21 +1,8 @@
 (ns leihs.inventory.server.middlewares.authorize
   (:require
    [clojure.string :as str]
-
-   [leihs.core.core :refer [detect]]
    [leihs.core.core :refer [detect]]
    [ring.util.response :as response]))
-
-(defn wrap-authorize-for-pool [handler]
-  (fn [{{{pool-id :pool_id} :path} :parameters
-        :keys [authenticated-entity]
-        :as request}]
-    (let [access-right (detect #(= (:inventory_pool_id %) pool-id)
-                               (:access-rights authenticated-entity))
-          role (:role access-right)]
-      (if (contains? #{"lending_manager" "inventory_manager"} role)
-        (handler (assoc-in request [:authenticated-entity :role] role))
-        {:status 403 :body "Unauthorized due to insufficient access right role."}))))
 
 (defn unauthorized-response [request]
   (if (str/includes? (get-in request [:headers "accept"] "") "json")
@@ -26,8 +13,7 @@
      :body ""}))
 
 (defn wrap-authorize [handler]
-  (fn [{;{{pool-id :pool_id} :path} :parameters
-        :keys [authenticated-entity request-method]
+  (fn [{:keys [authenticated-entity request-method]
         :as request}]
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])
