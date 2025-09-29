@@ -9,6 +9,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
@@ -16,6 +17,10 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-row :refer [ItemRow]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
+
+(def fields ["id" "is_package" "is_borrowable" "is_broken" "is_retired"
+             "in_stock" "inventory_code" "reservation_end_date"
+             "user_name" "model_name" "reservation_user_name"])
 
 (defui main [{:keys [package]}]
   (let [location (router/useLocation)
@@ -31,7 +36,8 @@
 
                           (-> http-client
                               (.get (str "/inventory/" pool-id "/items/")
-                                    (cj {:params {:parent_id (:id package)}
+                                    (cj {:params (merge {:parent_id (:id package)
+                                                         :fields (str/join "," fields)})
                                          :cache false}))
                               (.then (fn [data]
                                        (set-result! {:status (.. data -status)
@@ -47,7 +53,7 @@
 
     ($ ExpandableRow {:key (-> package :id)
                       :data-row "package"
-                      :subrow-count (:package_items_count package)
+                      :subrow-count (:package_items package)
                       :class-name (str
                                     ;; checks if next sibling is a model or item 
                                     ;; item -> inset shadow 

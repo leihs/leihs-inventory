@@ -8,7 +8,8 @@
 
 (defui main [{:keys [item]}]
   (let [[t] (useTranslation)]
-    ($ :div {:class-name "flex flex-col"}
+    ($ :div {:class-name "flex flex-col"
+             :data-test-id "item-status"}
        (when (:reservation_user_name item)
          ($ :span {:className "text-blue-500"}
             (t "pool.models.list.item.rented")
