@@ -10,6 +10,10 @@
     (-> (response data)
         (resp/status status))))
 
+(defn create-response-by-accept [accept status data]
+(-> (response data)
+  (resp/status status)))
+
 (defn exception-handler [request message e]
   (let [accept (get-in request [:headers "accept"])]
     (cond
