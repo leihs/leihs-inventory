@@ -73,10 +73,7 @@
                 ($ Button {:size "icon"
                            :variant "outline"
                            :on-click handle-reset}
-                   ($ ListRestart)))
-
-             #_($ :div {:className "flex space-x-2 mt-2"}
-                  ($ FilterIndicator))))
+                   ($ ListRestart)))))
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}
