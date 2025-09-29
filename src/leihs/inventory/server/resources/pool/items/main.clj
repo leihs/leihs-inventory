@@ -66,7 +66,7 @@
                       (sql/from :items)
                       (sql/where [:and
                                   [:= :items.parent_id :i.id]]))
-                  :package_items_count])
+                  :package_items])
 
          query (-> select
                    (sql/from [:items :i])

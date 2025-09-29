@@ -119,7 +119,7 @@
             (item-query-params pool-id inventory_pool_id
                                owned in_stock before_last_check
                                retired borrowable broken incomplete))
-        :total_items])
+        :items])
       (sql/where
        [:or
         [:exists (-> (sql/select 1)
@@ -153,7 +153,7 @@
             (item-query-params pool-id inventory_pool_id
                                owned in_stock before_last_check
                                retired borrowable broken incomplete))
-        :total_items])
+        :items])
       (sql/where
        [:exists (-> (sql/select 1)
                     (sql/from :items)
@@ -165,7 +165,7 @@
 
 (defn without-items [query pool-id]
   (-> query
-      (sql/select [0 :total_items])
+      (sql/select [0 :items])
       (sql/where [:<> :inventory.type "Option"])
       (sql/where
        [:not [:exists (-> (sql/select 1)
