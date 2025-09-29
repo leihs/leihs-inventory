@@ -78,13 +78,13 @@ def create_procurement_request(model_id, user_id, quantity = 1, motivation = "te
   budget_id = database[:procurement_budget_periods].insert(name: "period-1", inspection_start_date: Date.today, end_date: Date.today + 1.year)
 
   database[:procurement_requests].returning.insert(budget_period_id: budget_id,
-                                                   category_id: cat_id,
-                                                   user_id: user_id,
-                                                   organization_id: org_id,
-                                                   model_id: model_id,
-                                                   requested_quantity: quantity,
-                                                   room_id: room.id,
-                                                   motivation: motivation)
+    category_id: cat_id,
+    user_id: user_id,
+    organization_id: org_id,
+    model_id: model_id,
+    requested_quantity: quantity,
+    room_id: room.id,
+    motivation: motivation)
 end
 
 def create_procurement_template(model_id)
@@ -334,12 +334,12 @@ shared_context :setup_models_api_license do |role = "inventory_manager"|
     # FIXME: owner_id / inventory_pool_id correct?
     LeihsModel.where(type: "Software").each do |model|
       @license_item = FactoryBot.create(:item,
-                                        inventory_code: "TEST#{SecureRandom.random_number(1000)}",
-                                        leihs_model: model,
-                                        inventory_pool_id: @inventory_pool.id,
-                                        owner_id: @inventory_pool.id,
-                                        responsible: @inventory_pool,
-                                        is_borrowable: true)
+        inventory_code: "TEST#{SecureRandom.random_number(1000)}",
+        leihs_model: model,
+        inventory_pool_id: @inventory_pool.id,
+        owner_id: @inventory_pool.id,
+        responsible: @inventory_pool,
+        is_borrowable: true)
     end
 
     @form_compatible_models = [compatible_model1, compatible_model2, compatible_model3]
@@ -348,7 +348,7 @@ end
 
 def create_and_add_group_permission(inventory_pool, group, role)
   FactoryBot.create :group_access_right, group_id: group.id,
-                    inventory_pool_id: inventory_pool.id, role: role
+    inventory_pool_id: inventory_pool.id, role: role
 end
 
 def create_and_add_user_permission(inventory_pool, user, role)
@@ -368,8 +368,8 @@ end
 shared_context :setup_template_with_model do
   let!(:model) {
     FactoryBot.create(:leihs_model,
-                      id: SecureRandom.uuid,
-                      product: Faker::Commerce.product_name)
+      id: SecureRandom.uuid,
+      product: Faker::Commerce.product_name)
   }
   let!(:model_id) { model.id }
 
@@ -410,7 +410,7 @@ shared_context :setup_access_rights do
     @group = FactoryBot.create(:group, name: "Group 1")
     FactoryBot.create :access_right, user: @manager, inventory_pool: @inventory_pool, role: "lending_manager"
     FactoryBot.create :group_access_right, group_id: @group.id,
-                      inventory_pool_id: @inventory_pool.id, role: "customer"
+      inventory_pool_id: @inventory_pool.id, role: "customer"
 
     FactoryBot.create(:supplier)
     building = FactoryBot.create(:building)
@@ -423,10 +423,10 @@ shared_context :setup_access_rights do
     @filename = @image.filename
 
     @thumbnail = FactoryBot.create(:image, :for_leihs_model,
-                                   thumbnail: true)
+      thumbnail: true)
 
     @image = FactoryBot.create(:image, :for_leihs_model,
-                               thumbnails: [@thumbnail])
+      thumbnails: [@thumbnail])
 
     @filename = @image.filename
   end
@@ -450,10 +450,10 @@ end
 
 def create_and_login(role, login = nil, password = nil)
   user = if login.nil? && password.nil?
-           FactoryBot.create(role, login: Faker::Lorem.word, password: "password")
-         else
-           FactoryBot.create(role, login: login, password: password)
-         end
+    FactoryBot.create(role, login: Faker::Lorem.word, password: "password")
+  else
+    FactoryBot.create(role, login: login, password: password)
+  end
 
   resp = plain_faraday_json_client.get("/inventory/csrf-token/")
   token = resp.body["csrf-token"]

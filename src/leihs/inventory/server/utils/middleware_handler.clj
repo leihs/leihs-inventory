@@ -10,8 +10,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [ring.middleware.accept]
-   [taoensso.timbre :refer [debug error]]
-   ))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn default-handler-fetch-resource [handler]
   (fn [request]
@@ -94,23 +93,23 @@
           image-endpoints [#"^/inventory/[^/]+/models/[^/]+/images/[^/]+$"
                            #"^/inventory/[^/]+/models/[^/]+/images/[^/]+/thumbnail$"]
           get-image-thumb-endpoints? (and (= method :get)
-                                       (some #(re-matches % uri) image-endpoints))
+                                          (some #(re-matches % uri) image-endpoints))
 
           attachment-endpoint [#"^/inventory/[^/]+/models/[^/]+/attachments/[^/]+$"]
           get-attachment-endpoint? (and (= method :get)
-                                     (some #(re-matches % uri) attachment-endpoint))
+                                        (some #(re-matches % uri) attachment-endpoint))
           accept-html? (clojure.string/includes? accept-header "text/html")
 
           updated-request (cond
                             (and get-image-thumb-endpoints?
-                              (not accept-html?)
-                              (clojure.string/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE))
+                                 (not accept-html?)
+                                 (clojure.string/includes? accept-header CONTENT_NEGOTIATION_TYPE_IMAGE))
                             (assoc-in request [:headers "accept"] CONTENT_NEGOTIATION_TYPE_IMAGE)
                             ;request
 
                             (and get-attachment-endpoint?
-                              (not accept-html?)
-                              (clojure.string/includes? accept-header "*/*"))
+                                 (not accept-html?)
+                                 (clojure.string/includes? accept-header "*/*"))
                             (assoc-in request [:headers "accept"] "*/*")
                             ;request
 
@@ -124,7 +123,6 @@
          :headers {"content-type" "text/html"}
          :body ""}
         ((dispatch-content-type/wrap-accept handler) updated-request)))))
-
 
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]

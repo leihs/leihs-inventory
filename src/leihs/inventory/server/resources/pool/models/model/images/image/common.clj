@@ -53,18 +53,17 @@
 
 (defn- accepted-image-type [header]
   (let [media (->> (str/split (or header "") #",")
-                (map #(str/trim (first (str/split % #";")))) ; strip params like q=0.8
-                (filter #(and (str/starts-with? % "image/")
-                           (not (str/includes? % "*")))))]
+                   (map #(str/trim (first (str/split % #";")))) ; strip params like q=0.8
+                   (filter #(and (str/starts-with? % "image/")
+                                 (not (str/includes? % "*")))))]
     (when (= 1 (count media))
       (first media))))
 
-
 (defn parse-accept [accept-header]
   (let [accepts (-> accept-header
-                  (str/split #",")
-                  (->> (map #(first (str/split % #";"))) ; drop q factors
-                    (map str/trim)))]
+                    (str/split #",")
+                    (->> (map #(first (str/split % #";"))) ; drop q factors
+                         (map str/trim)))]
     (cond
       ;; Multiple definitions → negotiation
       (> (count accepts) 1)
@@ -89,13 +88,11 @@
       :else
       {:accept-header nil :negotiation? true})))
 
-
-
 (defn parse-accept [accept-header]
   (let [accepts (-> accept-header
-                  (str/split #",")
-                  (->> (map #(first (str/split % #";"))) ; drop q factors
-                    (map str/trim)))]
+                    (str/split #",")
+                    (->> (map #(first (str/split % #";"))) ; drop q factors
+                         (map str/trim)))]
     (cond
       (> (count accepts) 1)
       {:accept-header nil :negotiation? true}
@@ -111,7 +108,7 @@
       {:accept-header "application/json" :negotiation? false}
 
       (and (= 1 (count accepts))
-        (str/starts-with? (first accepts) "image/"))
+           (str/starts-with? (first accepts) "image/"))
       {:accept-header (first accepts) :negotiation? false}
 
       (= 1 (count accepts))
@@ -120,16 +117,13 @@
       :else
       {:accept-header nil :negotiation? true})))
 
-
 (defn handle-image-response
   [request image-data]
-  (let [
-        raw-accept (get-in request [:headers "accept"])
+  (let [raw-accept (get-in request [:headers "accept"])
         p (println ">o> abc.raw" raw-accept)
         p (println ">o> abc.header" (get-in request [:headers]))
 
-
-        ;accept-header (accepted-image-type raw-accept)
+;accept-header (accepted-image-type raw-accept)
         ;;accept-header (or (accepted-image-type raw-accept) raw-accept)
         ;content-:negotiation? (nil? accept-header)
         ;
@@ -143,8 +137,7 @@
         ;;p (println ">o> abc.img" image-data)
         ;p (println ">o> abc.img" (dissoc image-data :content))
 
-
-        ;accept-header (if (str/includes? (get-in request [:headers "accept"])
+;accept-header (if (str/includes? (get-in request [:headers "accept"])
         ;                                 CONTENT_NEGOTIATION_TYPE_IMAGE)
         ;                CONTENT_NEGOTIATION_TYPE_IMAGE
         ;                (get-in request [:headers "accept"]))
@@ -153,11 +146,8 @@
         ;valid-content-type? (boolean (and accept-header
         ;                                  (some #(= accept-header %) ALLOWED_IMAGE_CONTENT_TYPES)))
 
-
-        {:keys [accept-header negotiation? ]} (parse-accept raw-accept)
-        json-request? (= accept-header "application/json")
-        
-        ]
+        {:keys [accept-header negotiation?]} (parse-accept raw-accept)
+        json-request? (= accept-header "application/json")]
 
     (cond
       (nil? image-data)

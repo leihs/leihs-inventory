@@ -40,7 +40,6 @@
    [ring.middleware.params :refer [wrap-params]]
    ;))
 
-
    [ring.middleware.params :refer [wrap-params]]
    [ring.middleware.resource :refer [wrap-resource]]
    [ring.util.mime-type :as mime]
@@ -50,9 +49,9 @@
 
 (defn parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
-    (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
-    (remove clojure.string/blank?)
-    set))
+       (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
+       (remove clojure.string/blank?)
+       set))
 
 (defn create-accept-response
   "Return a response based on the Accept header.
@@ -69,12 +68,12 @@
       (and accept (str/includes? accept "application/json")) ;; FIXME
       (-> (response (json/generate-string {:status "failure"
                                            :message "Error occurred"}))
-        (status code)
-        (content-type "application/json"))
+          (status code)
+          (content-type "application/json"))
 
-      :else       (-> (response "")
-                    (status code)
-                    (content-type "text/html")))))
+      :else (-> (response "")
+                (status code)
+                (content-type "text/html")))))
 
 (defn wrap-strict-format-negotiate [handler]
   (fn [request]
@@ -87,8 +86,8 @@
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))]
       (if (and (seq allowed-formats)
-            (seq accepted-types)
-            (not (some allowed-formats accepted-types)))
+               (seq accepted-types)
+               (not (some allowed-formats accepted-types)))
 
         (create-accept-response request 404)
         (handler request)))))
@@ -143,7 +142,7 @@
    :cache-enabled? true})
 
 (defn init []
-  (let [ app (ring/routes
+  (let [app (ring/routes
              (swagger/init)
              (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
                                 (ring/create-default-handler {:not-found custom-not-found-handler})))]
@@ -152,4 +151,4 @@
      app
      (cache-buster2/wrap-resource "public" cache-bust-options)
      (wrap-file-info {:mime-types {"svg" "image/svg+xml"
-                                   "svgz" "image/svg+xml"}}) )))
+                                   "svgz" "image/svg+xml"}}))))
