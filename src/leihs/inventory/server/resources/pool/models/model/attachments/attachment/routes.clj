@@ -14,7 +14,6 @@
 (defn routes []
   ["/models/:model_id/attachments/:attachments_id"
    {:get {:summary (fe "")
-          ;:accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ACCEPT_TYPES_ATTACHMENT}
           :produces ACCEPT_TYPES_ATTACHMENT
