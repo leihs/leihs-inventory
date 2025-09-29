@@ -9,6 +9,7 @@
    ["react-i18next" :refer [useTranslation]]
    ["react-router-dom" :as router :refer [Link]]
    ["sonner" :refer [toast]]
+   [clojure.string :as str]
    [leihs.inventory.client.lib.client :refer [http-client]]
    [leihs.inventory.client.lib.utils :refer [cj jc]]
    [leihs.inventory.client.routes.pools.inventory.list.components.table.expandable-row :refer [ExpandableRow]]
@@ -20,6 +21,11 @@
                  :broken :retired :borrowable
                  :fields :in_stock
                  :model_id :parent_id])
+
+(def fields ["id" "is_package" "is_borrowable" "is_broken" "is_retired"
+             "in_stock" "price" "inventory_code" "shelf" "building_code" "package_items"
+             "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
+             "user_name" "reservation_user_name"])
 
 (defui main [{:keys [model className]}]
   (let [location (router/useLocation)
@@ -34,7 +40,8 @@
                         (let [param-map (into {}
                                               (for [[key val] (.entries search-params)]
                                                 [(keyword key) (str val)]))
-                              params (merge {:model_id (:id model)}
+                              params (merge {:model_id (:id model)
+                                             :fields (str/join "," fields)}
                                             (select-keys param-map query-keys))]
 
                           (if result
@@ -59,7 +66,7 @@
 
     ($ ExpandableRow {:key (-> model :id)
                       :data-row "model"
-                      :subrow-count (:total_items model)
+                      :subrow-count (:items model)
                       ;; checks if next sibling is a item or package row and applies a inset shadow to them
                       :class-name (str
                                    "[&+tr[data-row='item']]:shadow-[0_-0.5px_0_hsl(var(--border)),inset_0_4px_4px_-2px_hsl(var(--border))] "
@@ -97,7 +104,8 @@
                                          "Package" "bg-lime-500"
                                          "Model" "bg-slate-500"
                                          "Option" "bg-emerald-500"
-                                         "Software" "bg-orange-500"))}
+                                         "Software" "bg-orange-500"))
+                       :data-test-id "type"}
                 (str (case (-> model :type)
                        "Package" "P"
                        "Model" "M"
@@ -110,8 +118,10 @@
        ($ TableCell {:className "text-right"}
           (case (:type model)
             "Option"
-            (str (or (:price model) "0") " " (:local_currency_string settings))
-            (str (-> model :in_stock str) " | " (-> model :rentable str))))
+            ($ :span {:data-test-id "price"}
+               (str (or (:price model) "0") " " (:local_currency_string settings)))
+            ($ :span {:data-test-id "availability"}
+               (str (-> model :in_stock str) " | " (-> model :rentable str)))))
 
        ($ TableCell {:className "fit-content"}
           ($ :div {:class-name

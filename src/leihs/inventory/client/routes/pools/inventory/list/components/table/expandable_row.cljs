@@ -38,6 +38,7 @@
           ($ TableCell
              ($ :div {:className "flex items-center gap-4 ml-2"}
                 ($ Button {:variant "outline"
+                           :data-test-id "expand-button"
                            :on-click handle-expand
                            :size "icon"
                            :class-name (cond
@@ -54,7 +55,8 @@
                        ($ Minus {:className "h-4 w-4"})
                        ($ Plus {:className "h-4 w-4"}))))
 
-                ($ :span {:className "text-xl ml-auto w-6 text-right"}
+                ($ :span {:className "text-xl ml-auto w-6 text-right"
+                          :data-test-id "items"}
                    subrowCount)))
 
           children)

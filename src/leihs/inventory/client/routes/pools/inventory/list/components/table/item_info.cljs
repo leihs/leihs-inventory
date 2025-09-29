@@ -8,7 +8,8 @@
               :or {isPackageItem false}}]
   (let [[t] (useTranslation)]
     (if isPackageItem
-      ($ :div {:class-name "flex flex-row items-center"}
+      ($ :div {:class-name "flex flex-row items-center"
+               :data-test-id "item-info"}
          ($ :span {:class-name "w-32"}
             (:inventory_code item))
          ($ :div {:className "flex flex-col text-sm text-muted-foreground"}

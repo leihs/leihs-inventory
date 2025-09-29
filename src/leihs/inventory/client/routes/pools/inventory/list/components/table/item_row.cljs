@@ -40,7 +40,8 @@
 
        ($ TableCell
           ($ :div {:className "flex gap-2 "}
-             ($ Badge {:className "w-6 h-6 justify-center bg-blue-500"} "G")))
+             ($ Badge {:className "w-6 h-6 justify-center bg-blue-500"}
+                (t "pool.models.list.item.badge"))))
 
        ($ TableCell
           ($ ItemInfo {:item item
