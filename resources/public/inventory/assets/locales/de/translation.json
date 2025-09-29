@@ -99,6 +99,7 @@
         "package_item": "ist Bestandteil eines Pakets",
         "shelf": "Lager",
         "item": {
+          "badge": "G",
           "available": "Verfügbar",
           "broken": "Defekt",
           "rented": "Ausgeliehen",

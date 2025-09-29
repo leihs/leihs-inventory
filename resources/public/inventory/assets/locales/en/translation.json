@@ -99,6 +99,7 @@
         "package_item": "ist part of a package",
         "shelf": "Shelf",
         "item": {
+          "badge": "I",
           "available": "Available",
           "broken": "Broken",
           "rented": "Rented",
