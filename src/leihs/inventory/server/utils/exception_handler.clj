@@ -1,16 +1,8 @@
 (ns leihs.inventory.server.utils.exception-handler
   (:require
-   [ring.util.response :as resp :refer [response content-type]]))
+   [ring.util.response :as resp :refer [response]]))
 
-(defn create-response-by-accept [accept status data]
-  (if (= accept "text/html")
-    (-> (response "")
-        (content-type "text/html")
-        (resp/status status))
-    (-> (response data)
-        (resp/status status))))
-
-(defn create-response-by-accept [accept status data]
+(defn create-response-by-accept [_ status data]
   (-> (response data)
       (resp/status status)))
 

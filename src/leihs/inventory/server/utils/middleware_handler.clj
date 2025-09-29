@@ -1,9 +1,13 @@
 (ns leihs.inventory.server.utils.middleware-handler
   (:require
+   [cheshire.core :as json]
+   [clojure.string :as str]
    [leihs.core.auth.session :as session]
    [leihs.core.auth.token :as token]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [ring.middleware.accept]))
+   [leihs.inventory.server.utils.response-helper :as rh]
+   [ring.middleware.accept]
+   [ring.util.response :refer [content-type response status]]))
 
 (defn wrap-session-token-authenticate! [handler]
   (fn [request]
@@ -23,34 +27,11 @@
                     handler)]
       (handler request))))
 
-
 (defn- parse-accept-header [accept-header]
   (->> (clojure.string/split accept-header #",")
-    (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
-    (remove clojure.string/blank?)
-    set))
-
-;(defn create-accept-response
-;  "Return a response based on the Accept header.
-;   - text/html -> HTML response
-;   - application/json -> JSON response
-;   - otherwise -> plain text"
-;  [request http-status]
-;  (let [accept (get-in request [:headers "accept"])
-;        code (int http-status)]
-;    (cond
-;      (and accept (str/includes? accept "text/html"))
-;      (rh/index-html-response request code)
-;
-;      (and accept (str/includes? accept "application/json")) ;; FIXME
-;      (-> (response (json/generate-string {:status "failure"
-;                                           :message "Error occurred"}))
-;        (status code)
-;        (content-type "application/json"))
-;
-;      :else (-> (response "")
-;              (status code)
-;              (content-type "text/html")))))
+       (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
+       (remove clojure.string/blank?)
+       set))
 
 (defn- create-accept-response [request http-status]
   (let [accept (get-in request [:headers "accept"])
@@ -58,8 +39,8 @@
     (if (and accept (str/includes? accept "application/json")) ;; FIXME
       (-> (response (json/generate-string {:status "failure"
                                            :message "Error occurred"}))
-        (status code)
-        (content-type "application/json"))
+          (status code)
+          (content-type "application/json"))
       (rh/index-html-response request code))))
 
 (defn wrap-strict-format-negotiate [handler]
@@ -73,8 +54,8 @@
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))]
       (if (and (seq allowed-formats)
-            (seq accepted-types)
-            (not (some allowed-formats accepted-types)))
+               (seq accepted-types)
+               (not (some allowed-formats accepted-types)))
 
         (create-accept-response request 404)
         (handler request)))))
@@ -88,8 +69,8 @@
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)]
       (if (and (= 404 (:status resp))
-            (some #(re-matches % uri) url-patterns)
-            (or (str/includes? accept "text/html")
-              (str/includes? accept "*/*")))
+               (some #(re-matches % uri) url-patterns)
+               (or (str/includes? accept "text/html")
+                   (str/includes? accept "*/*")))
         (create-accept-response request 404)
         resp))))
