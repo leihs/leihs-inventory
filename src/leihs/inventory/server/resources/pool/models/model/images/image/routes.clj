@@ -15,7 +15,8 @@
 (defn routes []
   ["/models/:model_id/images/:image_id"
    {:get {:summary (fe "")
-          :accept "application/json"
+          ;:accept "application/json"
+          ;:accept (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)}
           :produces (into ["application/json"] ALLOWED_IMAGE_CONTENT_TYPES)
