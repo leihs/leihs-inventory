@@ -52,12 +52,18 @@
           produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
           accept-format (some-> route-data :accept clojure.string/lower-case)
           allowed-formats (cond-> produces-set
-                            accept-format (conj accept-format))]
-      (if (and (seq allowed-formats)
-               (seq accepted-types)
-               (not (some allowed-formats accepted-types)))
-        (create-accept-response request 404)
-        (handler request)))))
+                            accept-format (conj accept-format))
+          uri (:uri request)
+          has-not-allowed-accept-types (and (seq allowed-formats)
+                                            (seq accepted-types)
+                                            (not (some allowed-formats accepted-types)))
+          is-inventory-route? (re-matches #"/inventory(/.*)?" uri)]
+      (cond
+        has-not-allowed-accept-types
+        (if is-inventory-route?
+          (create-accept-response request 404)
+          (-> (response "") (status 404) (content-type "text/html")))
+        :else (handler request)))))
 
 (defn wrap-html-404
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,

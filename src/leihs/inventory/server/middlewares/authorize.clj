@@ -6,7 +6,7 @@
 
 (defn unauthorized-response [request]
   (if (str/includes? (get-in request [:headers "accept"] "") "json")
-    (response/status (response/response {:status "failure" :message "Unauthorized.j"}) 403)
+    (response/status (response/response {:status "failure" :message "Unauthorized"}) 403)
     {:status 302
      :headers {"Location" "/sign-in?return-to=%2Finventory"
                "Content-Type" "text/html"}
