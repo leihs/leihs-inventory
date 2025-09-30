@@ -13,7 +13,6 @@
 (def GET_IMAGE_ERROR "Failed to retrieve image")
 
 (defn get-resource [request]
-  (println ">o> abc.get-image!!!!!!!!!")
   (try
     (let [tx (:tx request)
           image-id (-> request path-params :image_id)

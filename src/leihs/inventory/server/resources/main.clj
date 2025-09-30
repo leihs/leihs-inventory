@@ -87,9 +87,6 @@
                                      (get-pools-access-rights-of-user-query
                                       true user_id "direct_access_rights"))
 
-                p (println ">o> abc.count" (count pools))
-                p (println ">o> abc.>1" (> (count pools) 1))
-
                 return-to (if (or (empty? pools) (> (count pools) 1))
                             INVENTORY_VIEW_PATH
                             (->> (first pools)
@@ -109,7 +106,6 @@
      :body html}))
 
 (defn post-sign-out [request]
-  (println ">o> abc.post-sign-out")
   (let [params (-> request
                    convert-params
                    (assoc-in [:accept :mime] :html))

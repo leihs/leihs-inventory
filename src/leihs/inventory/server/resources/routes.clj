@@ -55,7 +55,7 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug]]))
+   [taoensso.timbre :refer [debug error]]))
 
 (defn- create-root-page [_]
   {:status 200
@@ -217,15 +217,14 @@
            :description "Swagger-UI with filter/sort"
            :produces ["text/html"]
            :handler (fn [request]
-                      (println "Processing asset request...")
                       (try
                         (let [file "public/swagger-ui/index.html"
                               content-type (content-type file)
                               resource (io/resource file)]
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e
-                          (println "Error processing swagger-ui request:" e)
-                          (rh/index-html-response request 404))))}}]])
+                          (error "Error processing swagger-ui request:" e)
+                          (rh/index-html-response request 406))))}}]])
 
 (defn visible-api-endpoints
   "Returns a vector of the core routes plus any additional routes passed in."

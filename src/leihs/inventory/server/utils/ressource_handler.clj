@@ -11,5 +11,4 @@
     (cond
       (str/includes? accept "text/html")
       (rh/index-html-response request 404)
-
       :else (create-response-by-accept accept 404 {:error "Not Found" :status "failure"}))))

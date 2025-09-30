@@ -56,13 +56,12 @@
       (if (and (seq allowed-formats)
                (seq accepted-types)
                (not (some allowed-formats accepted-types)))
-
         (create-accept-response request 404)
         (handler request)))))
 
 (defn wrap-html-404
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
-   if the handler returns a 404, we return a custom HTML response."
+   if the handler returns a 404, we return SPA-HTML response"
   [handler url-patterns]
   (fn [request]
     (let [resp (handler request)
