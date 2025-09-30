@@ -10,7 +10,8 @@
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
-   [next.jdbc.sql :as jdbc]
+   [leihs.inventory.server.utils.request-utils :refer [query-params]]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]))
 
 (def ERROR_GET_USER "Failed to get user")
@@ -50,11 +51,29 @@
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
           user-details (get-one tx (:target-user-id request) user-id)
-          pools (jdbc/query tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
+          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)
                  :languages (snake-case-keys (l/get-multiple tx))}))
+    (catch Exception e
+      (log-by-severity ERROR_GET_USER e)
+      (exception-handler request ERROR_GET_USER e))))
+
+(defn patch-resource [request]
+  (try
+    (let [tx (:tx request)
+          user-id (or (presence (-> request :path-params :user_id))
+                      (:id (:authenticated-entity request)))
+          data (get-in request [:parameters :body])
+          res (jdbc/execute-one!
+               tx
+               (-> (sql/update :users)
+                   (sql/set {:language_locale (:language data)})
+                   (sql/where [:= :id user-id])
+                   (sql/returning :language_locale)
+                   sql-format))]
+      (response {:language (:language_locale res)}))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)
       (exception-handler request ERROR_GET_USER e))))
