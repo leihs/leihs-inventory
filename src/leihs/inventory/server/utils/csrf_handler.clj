@@ -7,9 +7,9 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [ring.util.codec :as codec]
-   [ring.util.response :as response]
-   [taoensso.timbre :refer [debug]]))
+   [ring.util.response :as response]))
 
 (defn parse-cookies [cookie-header]
   (->> (str/split cookie-header #"; ")
@@ -63,7 +63,7 @@
           (try
             ((anti-csrf/wrap handler) request)
             (catch Exception e
-              (debug e)
+              (log-by-severity e)
               (let [uri (:uri request)]
                 (if (str/includes? uri "/sign-in")
                   (response/redirect "/sign-in?return-to=%2Finventory&message=CSRF-Token/Session not valid")

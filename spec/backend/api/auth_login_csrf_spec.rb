@@ -23,7 +23,7 @@ describe "Call swagger-endpoints" do
       end
     end
 
-    context "POST /sign-in data" do
+    context "POST /sign-in with no or multiple pools" do
       # TODO: why is this possible?
       it "returns 200 for correct sign-in" do
         resp = session_auth_plain_faraday_json_client.post("/sign-in") do |req|
@@ -40,7 +40,35 @@ describe "Call swagger-endpoints" do
         end
 
         expect(resp.status).to eq(302)
-        expect(resp.headers["location"]).to be
+        expect(resp.headers["location"]).to eq("/inventory/")
+      end
+
+      context "POST /sign-in with one pool" do
+        let(:inventory_pool) do
+          FactoryBot.create(:inventory_pool)
+        end
+
+        before(:each) do
+          FactoryBot.create(:direct_access_right, inventory_pool_id: inventory_pool.id, user_id: @user.id, role: "inventory_manager")
+        end
+
+        it "returns 200 for correct sign-in" do
+          resp = session_auth_plain_faraday_json_client.post("/sign-in") do |req|
+            req.body = URI.encode_www_form(
+              "user" => @user.login,
+              "password" => @user.password,
+              "return-to" => "/inventory/"
+            )
+
+            req.headers["Accept"] = "text/html"
+            req.headers["Content-Type"] = "application/x-www-form-urlencoded"
+            req.headers["Cookie"] = cookie.to_s
+            req.headers["x-csrf-token"] = X_CSRF_TOKEN
+          end
+
+          expect(resp.status).to eq(302)
+          expect(resp.headers["location"]).to eq("/inventory/#{inventory_pool.id}/list")
+        end
       end
 
       context "Process sign-out" do

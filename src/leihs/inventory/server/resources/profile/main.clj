@@ -10,7 +10,7 @@
    [leihs.inventory.server.resources.profile.languages :as l]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [convert-to-map snake-case-keys log-by-severity]]
-   [next.jdbc.sql :as jdbc]
+   [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]))
 
 (def ERROR_GET_USER "Failed to get user")
@@ -28,18 +28,14 @@
      :manage-nav-items (map #(assoc % :url (:href %)) (:manage sub-apps))
      :documentation-url (:documentation_link settings)}))
 
-(defn get-pools-access-rights-of-user-query [min-raw user-id access-right-raw]
+(defn get-pools-access-rights-of-user-query [min-raw user-id]
   (let [min (boolean min-raw)
-        access-right (if (and access-right-raw (not (contains? #{"direct_access_rights" "group_access_rights"} access-right-raw)))
-                       nil
-                       access-right-raw)
         select (if min (sql/select :i.id :i.name) (sql/select :i.is_active :i.name :u.*))
         query (-> select
                   (sql/from [:unified_access_rights :u])
                   (sql/join [:inventory_pools :i] [:= :u.inventory_pool_id :i.id])
                   (sql/where [:= :u.user_id user-id])
-                  (cond-> (= access-right "direct_access_rights") (sql/where [:is-not :u.direct_access_right_id nil])
-                          (= access-right "group_access_rights") (sql/where [:is-not :u.group_access_right_id nil]))
+                  (sql/where [:in :u.role ["inventory_manager" "lending_manager"]])
                   sql-format)]
     query))
 
@@ -50,11 +46,29 @@
                       (:id (:authenticated-entity request)))
           auth (convert-to-map (:authenticated-entity request))
           user-details (get-one tx (:target-user-id request) user-id)
-          pools (jdbc/query tx (get-pools-access-rights-of-user-query true user-id "direct_access_rights"))]
+          pools (jdbc/execute! tx (get-pools-access-rights-of-user-query true user-id))]
       (response {:navigation (snake-case-keys (get-navigation tx auth))
                  :available_inventory_pools pools
                  :user_details (snake-case-keys user-details)
                  :languages (snake-case-keys (l/get-multiple tx))}))
+    (catch Exception e
+      (log-by-severity ERROR_GET_USER e)
+      (exception-handler request ERROR_GET_USER e))))
+
+(defn patch-resource [request]
+  (try
+    (let [tx (:tx request)
+          user-id (or (presence (-> request :path-params :user_id))
+                      (:id (:authenticated-entity request)))
+          data (get-in request [:parameters :body])
+          res (jdbc/execute-one!
+               tx
+               (-> (sql/update :users)
+                   (sql/set {:language_locale (:language data)})
+                   (sql/where [:= :id user-id])
+                   (sql/returning :language_locale)
+                   sql-format))]
+      (response {:language (:language_locale res)}))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)
       (exception-handler request ERROR_GET_USER e))))
