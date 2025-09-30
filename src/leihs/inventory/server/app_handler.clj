@@ -39,7 +39,7 @@
                                      #"/inventory/.+/images/.+/thumbnail"
                                      #"/inventory/.+/attachments/.+"])
 
-                  wrap-strict-format-negotiate
+                  ;wrap-strict-format-negotiate
                   wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
