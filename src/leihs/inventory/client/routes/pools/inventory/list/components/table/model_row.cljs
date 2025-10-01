@@ -20,9 +20,9 @@
 (def query-keys [:owned :incomplete
                  :broken :retired :borrowable
                  :fields :in_stock
-                 :model_id :parent_id])
+                 :model_id :parent_id :inventory_pool_id])
 
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "is_retired"
+(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired"
              "in_stock" "price" "inventory_code" "shelf" "building_code" "package_items"
              "building_name" "reservation_end_date" "shelf" "inventory_pool_name"
              "user_name" "reservation_user_name"])
@@ -43,6 +43,7 @@
                               params (merge {:model_id (:id model)
                                              :fields (str/join "," fields)}
                                             (select-keys param-map query-keys))]
+                          (js/console.debug params param-map)
 
                           (if result
                             (set-result! nil)
