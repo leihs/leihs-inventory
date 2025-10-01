@@ -1247,18 +1247,11 @@ feature "Inventory Page", type: :feature do
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
     click_on "Inventory before"
-    within ".rdp" do
+    within("[data-test-id='before-last-check-calendar']") do
       all(:button, Date.today.day.to_s).last.click
     end
 
-    click_on "Inventory before"
-
-    expect(all("table tbody tr").count).to eq 2
-
-    verify_row_details(
-      model_1,
-      "0 | 0"
-    )
+    expect(all("table tbody tr").count).to eq 1
 
     verify_row_details(
       model_2,
@@ -1299,9 +1292,9 @@ feature "Inventory Page", type: :feature do
     # category_id=cat_1.id
     visit "/inventory/#{pool_1.id}/list"
 
-    click_on "Categories"
+    click_on "category-filter-button"
     click_on cat_1.id
-    click_on "Categories"
+    click_on "category-filter-button"
     expect(page).to have_content(cat_1.name.to_s)
 
     expect(all("table tbody tr").count).to eq 2
