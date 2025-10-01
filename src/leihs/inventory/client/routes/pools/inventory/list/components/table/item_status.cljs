@@ -25,7 +25,8 @@
             (t "pool.models.list.item.incomplete")
             ($ SquareMinus {:className "inline ml-2 h-4 w-4 "})))
 
-       (when (not (:is_borrowable item))
+       (when (or (:retired item)
+                 (not (:is_borrowable item)))
          ($ :span {:className "text-gray-500"}
             (t "pool.models.list.item.not_borrowable")
             ($ SquarePause {:className "inline ml-2 h-4 w-4 "})))
