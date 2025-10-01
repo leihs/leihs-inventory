@@ -9,7 +9,9 @@
    [leihs.inventory.server.utils.request-utils :refer [pick-fields
                                                        path-params
                                                        query-params]]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
+
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
 
@@ -25,17 +27,50 @@
                         [:= :reservations.status ["signed"]]
                         [:= :reservations.returned_date nil]]))])))
 
+(defn owner-or-responsible-cond [pool-id]
+  [:or
+   [:= :i.owner_id pool-id]
+   [:= :i.inventory_pool_id pool-id]])
+
+(defn owner-and-responsible-cond [pool-id inventory-pool-id]
+  [:and
+   [:= :i.owner_id pool-id]
+   [:= :i.inventory_pool_id inventory-pool-id]])
+
+(defn not-owner-and-responsible-cond [pool-id inventory-pool-id]
+  [:and
+   [:not= :i.owner_id pool-id]
+   [:= :i.inventory_pool_id inventory-pool-id]])
+
 (defn index-resources
   ([request]
    (let [{:keys [pool_id]} (path-params request)
          {:keys [fields search_term
                  model_id parent_id
                  retired borrowable
-                 incomplete broken
+                 incomplete broken owned
+                 inventory_pool_id
                  in_stock before_last_check]} (query-params request)
 
          query-params (fn [query]
                         (-> query
+                            (#(cond
+                                (and inventory_pool_id (true? owned))
+                                (sql/where % (owner-and-responsible-cond pool_id inventory_pool_id))
+
+                                (and inventory_pool_id (false? owned))
+                                (sql/where % (not-owner-and-responsible-cond pool_id inventory_pool_id))
+
+                                inventory_pool_id
+                                (sql/where % (owner-or-responsible-cond inventory_pool_id))
+
+                                (true? owned)
+                                (sql/where % [:= :i.owner_id pool_id])
+
+                                (false? owned)
+                                (sql/where % [:not= :i.owner_id pool_id])
+
+                                :else %))
                             (cond-> (boolean? in_stock) (in-stock in_stock))
                             (cond-> before_last_check
                               (sql/where [:<= :i.last_check before_last_check]))
