@@ -15,6 +15,7 @@
                            (s/optional-key :incomplete) s/Bool
                            (s/optional-key :retired) s/Bool
                            (s/optional-key :owned) s/Bool
+                           (s/optional-key :inventory_pool_id) s/Uuid
 
                            (s/optional-key :page) s/Int
                            (s/optional-key :size) s/Int})
