@@ -1,17 +1,16 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
    [clojure.set]
-
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
-
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [pick-fields
                                                        path-params
                                                        query-params]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
-
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
 
@@ -42,8 +41,12 @@
    [:not= :i.owner_id pool-id]
    [:= :i.inventory_pool_id inventory-pool-id]])
 
+
+(def ERROR_GET_ITEM "Failed to get items")
+
 (defn index-resources
   ([request]
+   (try
    (let [{:keys [pool_id]} (path-params request)
          {:keys [fields search_term
                  model_id parent_id
@@ -153,4 +156,7 @@
      (-> request
          (create-pagination-response query nil)
          (pick-fields fields)
-         response))))
+         response)    )
+(catch Exception e
+  (log-by-severity ERROR_GET_ITEM e)
+  (exception-handler request ERROR_GET_ITEM e)))))
