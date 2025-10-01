@@ -161,18 +161,25 @@
    ["test-csrf"
     {:no-doc HIDE_BASIC_ENDPOINTS
      :get {:accept "application/json"
+           :produces ["application/json"]
            :description "Access allowed without x-csrf-token"
            :handler (fn [_] {:status 200})}
-     :post {:accept "application/json"
+     :post {            :accept "application/json"
+            :produces ["application/json"]
             :description "Access denied without x-csrf-token"
             :handler (fn [_] {:status 200})}
      :put {:accept "application/json"
+           :produces ["application/json"]
            :description "Access denied without x-csrf-token"
            :handler (fn [_] {:status 200})}
+
      :patch {:accept "application/json"
+             :produces ["application/json"]
              :description "Access denied without x-csrf-token"
              :handler (fn [_] {:status 200})}
+
      :delete {:accept "application/json"
+              :produces ["application/json"]
               :description "Access denied without x-csrf-token"
               :handler (fn [_] {:status 200})}}]
 
@@ -181,6 +188,7 @@
      :get {:summary "Retrieves the X-CSRF-Token required for using non-GET Swagger endpoints."
            :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
+              :produces ["application/json"]
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 

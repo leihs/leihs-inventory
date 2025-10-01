@@ -14,7 +14,7 @@
 
     ["/protected"
      {:get {:accept "application/json"
-            :produces "application/json"
+            :produces ["application/json"]
             :coercion reitit.coercion.schema/coercion
             :swagger {:security [{:csrfToken []}]}
             :handler session-protected/get-resource

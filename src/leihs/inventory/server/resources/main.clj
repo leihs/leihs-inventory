@@ -59,6 +59,7 @@
     html))
 
 (defn get-sign-in [request]
+  (println ">o> abc.get-sign-in" )
   (let [html (fetch-sign-in-view request)]
     {:status 200 :headers {"Content-Type" "text/html; charset=utf-8"} :body html}))
 

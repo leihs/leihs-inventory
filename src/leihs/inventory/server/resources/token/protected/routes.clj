@@ -12,6 +12,7 @@
    ["/token/protected"
     {:get {:description "Use 'Token &lt;token&gt;' as Authorization header."
            :accept "application/json"
+           :produces ["application/json"]
            :coercion reitit.coercion.schema/coercion
            :swagger {:security [{:apiAuth []}]}
            :handler token-protected/get-resource

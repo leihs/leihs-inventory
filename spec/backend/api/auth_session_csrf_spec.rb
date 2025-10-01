@@ -16,6 +16,7 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(403)
 
       resp = client.get("/inventory/test-csrf")
+      binding.pry unless resp.status == 200
       expect(resp.status).to eq(200)
 
       resp = client.post("/inventory/test-csrf")
@@ -70,16 +71,17 @@ describe "Call swagger-endpoints" do
       expect(resp.status).to eq(404)
 
       resp = plain_faraday_html_client.post("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      # binding.pry unless resp.status == 404
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_html_client.delete("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_html_client.put("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
 
       resp = plain_faraday_html_client.patch("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect(resp.status).to eq(403)
     end
   end
 end

@@ -48,6 +48,9 @@
           method    (:request-method request)
           ;; pull produces from method-level data
           produces  (set (get-in request [:reitit.core/match :data method :produces]))
+
+          p (println ">o> abc.uri" (:uri request))
+
      _ (println ">o> accept" accept "produces" produces)
           ]
       (if (and accept (seq produces)

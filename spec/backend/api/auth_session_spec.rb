@@ -41,7 +41,6 @@ describe "Call swagger-endpoints" do
         req.headers["Content-Type"] = "application/json"
         req.headers["Cookie"] = @user_cookies_str
       end
-
       expect(resp.status).to eq(200)
     end
   end
