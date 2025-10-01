@@ -96,7 +96,7 @@
       },
       "list": {
         "empty": "No entries found",
-        "package_item": "ist part of a package",
+        "package_item": "is part of a package",
         "shelf": "Shelf",
         "item": {
           "badge": "I",
