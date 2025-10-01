@@ -45,6 +45,7 @@
                ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"}))))
 
        ($ DropdownMenuContent {:class-name "min-w-48 pr-2"
+                               :data-test-id "type-filter-dropdown"
                                :align "start "}
           ($ DropdownMenuRadioGroup {:value type
                                      :onValueChange handle-type}
