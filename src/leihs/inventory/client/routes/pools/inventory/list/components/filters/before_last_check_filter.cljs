@@ -14,9 +14,11 @@
 (defui main [{:keys [class-name]}]
   (let [[search-params set-search-params!] (router/useSearchParams)
         type (.. search-params (get "type"))
+        [open set-open!] (uix/use-state false)
         [t] (useTranslation)
         before-last-check (.. search-params (get "before_last_check"))
         handle-before-last-check (fn [date]
+                                   (set-open! false)
                                    (let [formatted-date (if date
                                                           (date-fns/format date "yyyy-MM-dd")
                                                           nil)]
@@ -27,10 +29,12 @@
                                      (.set search-params "page" "1")
                                      (set-search-params! search-params)))]
 
-    ($ Popover
+    ($ Popover {:open open
+                :on-open-change set-open!}
        ($ PopoverTrigger {:asChild true}
           ($ Button {:variant "outline"
                      :className (str "min-w-48 max-w-48 " class-name)
+                     :data-test-id "before-last-check-filter-button"
                      :disabled (or (= type "software")
                                    (= type "option"))}
 
