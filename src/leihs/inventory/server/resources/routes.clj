@@ -55,7 +55,54 @@
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
-   [taoensso.timbre :refer [debug error]]))
+
+   [reitit.ring :as ring]
+   [reitit.ring.middleware.muuntaja :as muuntaja]
+   [muuntaja.core :as m]
+
+
+   [taoensso.timbre :refer [debug error]]
+
+
+
+;[ring.util.response :as response]
+[ring.util.response :as resp :refer [response content-type status]]
+[clojure.set :as set]
+[reitit.swagger :as swagger]
+[schema.core :as s]))
+
+
+;
+;(defn parse-accept [hdr]
+;  (when hdr
+;    (->> (str/split hdr #",")
+;      (map #(-> % str/trim str/lower-case))
+;      (remove str/blank?)
+;      set)))
+
+(defn strict-produces-middleware [handler]
+  (fn [request]
+    (let [accept    (get-in request [:headers "accept"])
+          ;; get the HTTP method (:get, :post, etc.)
+          method    (:request-method request)
+          ;; pull produces from method-level data
+          produces  (set (get-in request [:reitit.core/match :data method :produces]))]
+      (println ">o> accept" accept "produces" produces)
+      (if (and accept (seq produces)
+            (not-any? #(clojure.string/includes? accept %) produces))
+        ;; pretend no route matched
+        ;nil
+
+        (-> (response "")
+          (status 404)
+          (content-type "text/html; charset=utf-8"))
+
+        (handler request)))))
+
+
+
+
+
 
 (defn- create-root-page [_]
   {:status 200
@@ -81,27 +128,26 @@
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
-     :post {;:accept "application/json"
-            :accept "text/html"
-            :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
+     :post {
+            ;:accept "application/json"
+            ;:produces ["application/json"]
             :produces ["text/html"]
+            :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
+            :swagger {:produces ["application/multipart-form-data"]}
             :coercion reitit.coercion.schema/coercion
             :handler post-sign-in}
 
      :get {:summary "HTML | Get sign-in page"
-           :accept "text/html"
-           :swagger {:consumes ["text/html"]
-                     :produces ["text/html"]}
+           :middleware [strict-produces-middleware]
            :produces ["text/html"]
-           :middleware [(restrict-uri-middleware ["/sign-in"])]
-           :handler get-sign-in}}]
+           :handler get-sign-in}
+     }    ]
 
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {;:accept "application/json"
-            :accept "text/html"
-            :produces ["text/html"]
+     :post {:accept "application/json"
+            :swagger {:produces ["text/html" "application/json"]}
             :handler post-sign-out}
      :get {:accept "text/html"
            :summary "HTML | Get sign-out page"
@@ -157,7 +203,7 @@
       (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
     request))
 
-(defn content-type [filename]
+(defn content-type-fn [filename]
   (let [ext (-> filename
                 (str/split #"\.")
                 last
@@ -219,7 +265,7 @@
            :handler (fn [request]
                       (try
                         (let [file "public/swagger-ui/index.html"
-                              content-type (content-type file)
+                              content-type (content-type-fn file)
                               resource (io/resource file)]
                           {:status 200 :headers {"Content-Type" content-type} :body (slurp resource)})
                         (catch Exception e

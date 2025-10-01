@@ -68,6 +68,7 @@
     {:status 200 :body {:csrf-token res}}))
 
 (defn post-sign-in [req]
+  (println ">o> abc.post-sign-in")
   (let [{:keys [user password]} (:form-params req)]
     (if (or (str/blank? user) (str/blank? password))
       (be/create-error-response user req)
