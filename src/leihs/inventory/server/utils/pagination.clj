@@ -1,3 +1,21 @@
+(ns log-jdbc
+  (:require [next.jdbc :as jdbc]
+   [clojure.tools.logging :as log]))
+
+(defn execute! [ds sql-params & opts]
+  (try
+    (apply jdbc/execute! ds sql-params opts)
+    (catch java.sql.SQLException e
+      (log/error e "SQL error running:" sql-params)
+      (throw e))))
+
+(defn execute-one! [ds sql-params & opts]
+  (try
+    (apply jdbc/execute-one! ds sql-params opts)
+    (catch java.sql.SQLException e
+      (log/error e "SQL error running:" sql-params)
+      (throw e))))
+
 (ns leihs.inventory.server.utils.pagination
   (:require
    [honey.sql :refer [format] :rename {format sql-format}]
@@ -11,7 +29,7 @@
   (-> (sql/select [[:raw "COUNT(*)"] :total_count])
       (sql/from [[base-query] :subquery])
       sql-format
-      (->> (jdbc/execute-one! tx))
+      (->> (log-jdbc/execute-one! tx))
       :total_count))
 
 (defn- fetch-paginated-rows [base-query tx per_page offset]
@@ -19,7 +37,7 @@
                             (sql/limit per_page)
                             (sql/offset offset)
                             sql-format
-                            (->> (jdbc/execute! tx)))]
+                            (->> (log-jdbc/execute! tx)))]
     (mapv identity paginated-query)))
 
 (defn- set-default-pagination [size page]
@@ -87,10 +105,10 @@
             (single-entity-get-request? request))
 
        (if post-fnc
-         (-> (jdbc/execute! tx (-> base-query sql-format))
+         (-> (log-jdbc/execute! tx (-> base-query sql-format))
              post-fnc
              first)
-         (jdbc/execute-one! tx (-> base-query sql-format)))
+         (log-jdbc/execute-one! tx (-> base-query sql-format)))
 
        (and (or (nil? with-pagination?) with-pagination?)
             (or (some? page) (some? size)))
@@ -99,6 +117,6 @@
        with-pagination? (pagination-response request base-query post-fnc)
 
        :else (if post-fnc
-               (-> (jdbc/execute! tx (-> base-query sql-format))
+               (-> (log-jdbc/execute! tx (-> base-query sql-format))
                    post-fnc)
-               (jdbc/execute! tx (-> base-query sql-format)))))))
+               (log-jdbc/execute! tx (-> base-query sql-format)))))))
