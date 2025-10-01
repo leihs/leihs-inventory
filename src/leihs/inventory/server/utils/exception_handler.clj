@@ -16,6 +16,7 @@
       (instance? org.postgresql.util.PSQLException e)
       (create-response-by-accept accept 409 {:status "failure"
                                              :message message
+                                             :type (.getClass e)
                                              :details (.getMessage e)})
 
       (instance? clojure.lang.ExceptionInfo e)
@@ -23,9 +24,11 @@
             msg (ex-message e)]
         (create-response-by-accept accept status {:status "failure"
                                                   :message message
+                                                  :type (.getClass e)
                                                   :details msg}))
 
       :else
       (create-response-by-accept accept 400 {:status "failure"
                                              :message message
+                                             :type (.getClass e)
                                              :details (.getMessage e)}))))

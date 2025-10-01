@@ -46,7 +46,7 @@
 
 (defn index-resources
   ([request]
-   (try
+   ;(try
    (let [{:keys [pool_id]} (path-params request)
          {:keys [fields search_term
                  model_id parent_id
@@ -157,6 +157,8 @@
          (create-pagination-response query nil)
          (pick-fields fields)
          response)    )
-(catch Exception e
-  (log-by-severity ERROR_GET_ITEM e)
-  (exception-handler request ERROR_GET_ITEM e)))))
+;(catch Exception e
+;  (log-by-severity ERROR_GET_ITEM e)
+;  (exception-handler request ERROR_GET_ITEM e)))
+
+   ))
