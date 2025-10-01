@@ -11,7 +11,7 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
+  [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
                                                             wrap-html-404
                                                             wrap-strict-format-negotiate]]
 
@@ -31,13 +31,42 @@
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.default-charset :refer [wrap-default-charset]]
+
+   [ring.util.response :as resp :refer [response content-type status]]
+
+
+   [reitit.ring :as ring]
+   [reitit.ring.middleware.muuntaja :as muuntaja]
+   [muuntaja.core :as m]
+
    [ring.middleware.params :refer [wrap-params]]))
+
+(defn strict-produces-middleware [handler]
+  (fn [request]
+    (let [accept    (get-in request [:headers "accept"])
+          ;; get the HTTP method (:get, :post, etc.)
+          method    (:request-method request)
+          ;; pull produces from method-level data
+          produces  (set (get-in request [:reitit.core/match :data method :produces]))
+     _ (println ">o> accept" accept "produces" produces)
+          ]
+      (if (and accept (seq produces)
+            (not-any? #(clojure.string/includes? accept %) produces))
+        ;; pretend no route matched
+        ;nil
+
+        (-> (response "")
+          (status 404)
+          (content-type "text/html; charset=utf-8"))
+
+        (handler request)))))
 
 (def middlewares [debug-mw/wrap-debug
 
                   #(wrap-html-404 % [#"/inventory/.+/images/.+"
                                      #"/inventory/.+/images/.+/thumbnail"
                                      #"/inventory/.+/attachments/.+"])
+
 
                   ;wrap-strict-format-negotiate
                   wrap-handle-coercion-error
@@ -63,6 +92,8 @@
                   parameters/parameters-middleware
                   muuntaja/format-negotiate-middleware
                   muuntaja/format-response-middleware
+
+                  strict-produces-middleware
 
                   exception/exception-middleware
 

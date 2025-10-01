@@ -80,24 +80,24 @@
 ;      (remove str/blank?)
 ;      set)))
 
-(defn strict-produces-middleware [handler]
-  (fn [request]
-    (let [accept    (get-in request [:headers "accept"])
-          ;; get the HTTP method (:get, :post, etc.)
-          method    (:request-method request)
-          ;; pull produces from method-level data
-          produces  (set (get-in request [:reitit.core/match :data method :produces]))]
-      (println ">o> accept" accept "produces" produces)
-      (if (and accept (seq produces)
-            (not-any? #(clojure.string/includes? accept %) produces))
-        ;; pretend no route matched
-        ;nil
-
-        (-> (response "")
-          (status 404)
-          (content-type "text/html; charset=utf-8"))
-
-        (handler request)))))
+;(defn strict-produces-middleware [handler]
+;  (fn [request]
+;    (let [accept    (get-in request [:headers "accept"])
+;          ;; get the HTTP method (:get, :post, etc.)
+;          method    (:request-method request)
+;          ;; pull produces from method-level data
+;          produces  (set (get-in request [:reitit.core/match :data method :produces]))]
+;      (println ">o> accept" accept "produces" produces)
+;      (if (and accept (seq produces)
+;            (not-any? #(clojure.string/includes? accept %) produces))
+;        ;; pretend no route matched
+;        ;nil
+;
+;        (-> (response "")
+;          (status 404)
+;          (content-type "text/html; charset=utf-8"))
+;
+;        (handler request)))))
 
 
 
@@ -138,7 +138,7 @@
             :handler post-sign-in}
 
      :get {:summary "HTML | Get sign-in page"
-           :middleware [strict-produces-middleware]
+           ;:middleware [strict-produces-middleware]
            :produces ["text/html"]
            :handler get-sign-in}
      }    ]
