@@ -1,19 +1,22 @@
 (ns leihs.inventory.server.resources.pool.items.main
   (:require
    [clojure.set]
-
    [honey.sql :refer [format] :as sq :rename {format sql-format}]
    [honey.sql.helpers :as sql]
+
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
 
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
    [leihs.inventory.server.utils.request-utils :refer [pick-fields
                                                        path-params
                                                        query-params]]
-   [next.jdbc :as jdbc]
    [ring.middleware.accept]
 
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug]]))
+
+(def ERROR_GET_ITEMS "Failed to get items")
 
 (defn in-stock [query true-or-false]
   (-> query
@@ -150,7 +153,11 @@
                                  [:ilike :m.manufacturer (str "%" search_term "%")]])))]
 
      (debug (sql-format query :inline true))
-     (-> request
-         (create-pagination-response query nil)
-         (pick-fields fields)
-         response))))
+     (try
+       (-> request
+           (create-pagination-response query nil)
+           (pick-fields fields)
+           response)
+       (catch Exception e
+         (log-by-severity ERROR_GET_ITEMS e)
+         (exception-handler request ERROR_GET_ITEMS e))))))
