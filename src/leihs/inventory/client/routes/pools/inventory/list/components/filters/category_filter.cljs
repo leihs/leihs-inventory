@@ -20,15 +20,8 @@
               (find-category-name (:children node) category-id)))
           tree-list)))
 
-(defui file-tree-item [{:keys [name category_id searching children]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
-        handle-select (fn [e]
-                        (let [id (.. e -currentTarget -value)]
-                          (if (= id (.. search-params (get "category_id")))
-                            (.delete search-params "category_id")
-                            (.set search-params "category_id" id))
-                          (.set search-params "page" "1")
-                          (set-search-params! search-params)))]
+(defui file-tree-item [{:keys [name category_id searching on-select children]}]
+  (let [[search-params _] (router/useSearchParams)]
 
     (if (not (seq children))
       ($ :div {:class-name "relative"}
@@ -36,7 +29,7 @@
                             :checked (= category_id (.. search-params (get "category_id")))
                             :value category_id
                             :name category_id
-                            :on-click handle-select
+                            :on-click on-select
                             :class-name "absolute right-[-25px] top-[6px]"})
          ($ :span {:class-name (str "flex text-sm items-center py-1 " (if searching "pl-4" "pl-10"))} name))
 
@@ -46,7 +39,7 @@
                                :checked (= category_id (.. search-params (get "category_id")))
                                :value category_id
                                :name category_id
-                               :on-click handle-select
+                               :on-click on-select
                                :class-name "absolute right-[-25px] top-[6px]"})
             ($ CollapsibleTrigger {:class-name "text-sm w-full group flex items-center gap-2 py-1"}
                ($ ChevronRight {:class-name "h-4 w-4 group-data-[state=open]:rotate-90 transition-transform"})
@@ -54,7 +47,8 @@
 
          ($ CollapsibleContent
             (for [child children]
-              ($ file-tree-item (merge {:key (:category_id child)}
+              ($ file-tree-item (merge {:key (:category_id child)
+                                        :on-select on-select}
                                        child))))))))
 
 (defn distinct-by [key-fn coll]
@@ -82,9 +76,10 @@
 (defui main [{:keys [class-name]}]
   (let [categories (:children (:categories (router/useRouteLoaderData "models-page")))
         [search set-search!] (uix/use-state categories)
-        [search-params _] (router/useSearchParams)
+        [search-params set-search-params!] (router/useSearchParams)
         category-id (.. search-params (get "category_id"))
         category-name (find-category-name categories category-id)
+        [open set-open!] (uix/use-state false)
         type (.. search-params (get "type"))
         [is-searching? set-is-searching!] (uix/use-state false)
         handle-search (fn [e]
@@ -97,12 +92,25 @@
                             (do
                               (set-is-searching! true)
                               (set-search! filtered)))))
+
+        handle-select (fn [e]
+                        (set-open! false)
+                        (let [id (.. e -currentTarget -value)]
+                          (if (= id (.. search-params (get "category_id")))
+                            (.delete search-params "category_id")
+                            (.set search-params "category_id" id))
+                          (.set search-params "page" "1")
+                          (set-search-params! search-params)))
+
         [t] (useTranslation)]
 
     ($ RadioGroup
-       ($ DropdownMenu
+       ($ DropdownMenu {:open open
+                        :on-open-change set-open!}
           ($ DropdownMenuTrigger {:asChild "true"}
              ($ Button {:variant "outline"
+                        :data-test-id "category-filter-button"
+                        :on-click #(set-open! (not open))
                         :disabled (or (= type "option")
                                       (= type "software"))
                         :class-name (str "min-w-48 max-w-48" class-name)}
@@ -114,7 +122,8 @@
                   (t "pool.models.filters.categories.title"))
                 ($ ChevronDown {:className "ml-auto h-4 w-4 opacity-50"})))
 
-          ($ DropdownMenuContent {:class-name "h-[300px]"}
+          ($ DropdownMenuContent {:class-name "h-[300px]"
+                                  :data-test-id "category-filter-dropdown"}
              ($ :div {:class-name "flex items-center space-x-2"}
                 ($ Search {:class-name "mx-2 h-4 w-4 shrink-0 opacity-50"})
                 ($ :input {:data-test-id "category-filter"
@@ -130,6 +139,7 @@
                 ($ :div {:class-name "w-full -ml-4"}
                    (for [category search]
                      ($ file-tree-item (merge {:key (:category_id category)
+                                               :on-select handle-select
                                                :searching is-searching?}
                                               category))))))))))
 
