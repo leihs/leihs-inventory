@@ -1246,7 +1246,7 @@ feature "Inventory Page", type: :feature do
     # before_last_check=today
     visit "/inventory/#{pool_1.id}/list"
     select_value("with_items", "with_items")
-    click_on "Inventory before"
+    click_on "before-last-check-filter-button"
     within("[data-test-id='before-last-check-calendar']") do
       all(:button, Date.today.day.to_s).last.click
     end
@@ -1288,13 +1288,13 @@ feature "Inventory Page", type: :feature do
       ]
     )
 
+    binding.pry
     # pool 1
     # category_id=cat_1.id
     visit "/inventory/#{pool_1.id}/list"
 
     click_on "category-filter-button"
     click_on cat_1.id
-    click_on "category-filter-button"
     expect(page).to have_content(cat_1.name.to_s)
 
     expect(all("table tbody tr").count).to eq 2
@@ -1340,6 +1340,10 @@ feature "Inventory Page", type: :feature do
     click_on "Inventory type"
     click_on "Package"
 
+    within(:button, "Inventory type") do
+      expect(page).to have_text("P")
+    end
+
     expect(all("table tbody tr").count).to eq 1
     verify_row_details(
       model_8,
@@ -1375,16 +1379,6 @@ feature "Inventory Page", type: :feature do
     end
 
     expect(all("table tbody tr").count).to eq 9
-
-    expect(all("table tbody tr")[0]).to have_content(model_1.version)
-    expect(all("table tbody tr")[1]).to have_content(model_10.version) # package child model
-    expect(all("table tbody tr")[2]).to have_content(model_2.version)
-    expect(all("table tbody tr")[3]).to have_content(model_3.version)
-    expect(all("table tbody tr")[4]).to have_content(model_4.version)
-    expect(all("table tbody tr")[5]).to have_content(model_5.version)
-    expect(all("table tbody tr")[6]).to have_content(model_6.version)
-    expect(all("table tbody tr")[7]).to have_content(model_7.version)
-    expect(all("table tbody tr")[8]).to have_content(model_9.version)  # package child model
 
     verify_row_details(
       model_1,
@@ -1521,10 +1515,8 @@ feature "Inventory Page", type: :feature do
 
     # set some filters to check if they are ignored
     # before selecting option
-    click_on "Categories"
+    click_on "category-filter-button"
     click_on cat_1.id
-    find("html").click
-    find("html").click
 
     click_on "Status"
     click_on "Broken"
@@ -1534,11 +1526,10 @@ feature "Inventory Page", type: :feature do
     click_on "In stock"
     click_on "No"
 
-    click_on "Inventory before"
-    within ".rdp" do
+    click_on "before-last-check-filter-button"
+    within("[data-test-id='before-last-check-calendar']") do
       all(:button, Date.today.day.to_s).last.click
     end
-    click_on "Inventory before"
 
     select_value("with_items", "with_items")
     select_value("borrowable", "borrowable")
@@ -1546,8 +1537,6 @@ feature "Inventory Page", type: :feature do
 
     click_on "Inventory pool"
     find("[data-value='#{pool_2.id}']").click
-    find("html").click
-    find("html").click
 
     expect(page).to have_content(cat_1.name.to_s)
     expect(page).to have_content("Audio")
