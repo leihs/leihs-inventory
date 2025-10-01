@@ -55,7 +55,7 @@
    (s/optional-key :item_version) (s/maybe s/Str)
    (s/optional-key :is_package) s/Bool
    (s/optional-key :room_description) (s/maybe s/Str)
-   (s/optional-key :reservation_end_date) (s/maybe s/Str)
+   (s/optional-key :reservation_end_date) (s/maybe java.util.Date)
    (s/optional-key :building_code) (s/maybe s/Str)
    (s/optional-key :inventory_pool_name) (s/maybe s/Str)
    (s/optional-key :package_items) (s/maybe s/Int)
