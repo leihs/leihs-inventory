@@ -1541,7 +1541,8 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_content("Audio")
     expect(page).to have_content(pool_2.name)
     expect(page).to have_content(Date.today.day.to_s)
-    expect(page).to have_button("Status", text: "1")
+
+    expect(page).to have_button("Status", text: "2")
 
     click_on "Inventory type"
     click_on "Option"
