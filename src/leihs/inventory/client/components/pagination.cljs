@@ -25,7 +25,9 @@
        :end end})))
 
 (defui main [{:keys [pagination class-name]}]
-  (let [[t] (useTranslation)
+  (let [ref-next (uix/use-ref nil)
+        ref-prev (uix/use-ref nil)
+        [t] (useTranslation)
         location (router/useLocation)
         [search-params set-search-params!] (router/useSearchParams)
         size (js/parseInt (or (.. search-params (get "size")) 10))
@@ -57,12 +59,41 @@
        (js/window.scrollTo #js {:top 0 :behavior "smooth"}))
      [current-page])
 
+    (uix/use-effect
+     (fn []
+       (let [on-key-down
+             (fn [e]
+               (when (and (= (.. e -code) "ArrowRight")
+                          (.-altKey e)
+                          (.-shiftKey e)
+                          (not (.-ctrlKey e))
+                          (not (.-metaKey e)))
+                 (.preventDefault e)
+                 (when ref-next
+                   (when-let [input-element (.-current ref-next)]
+                     (.. input-element (click)))))
+
+               (when (and (= (.. e -code) "ArrowLeft")
+                          (.-altKey e)
+                          (.-shiftKey e)
+                          (not (.-ctrlKey e))
+                          (not (.-metaKey e)))
+                 (.preventDefault e)
+                 (when ref-prev
+                   (when-let [input-element (.-current ref-prev)]
+                     (.. input-element (click))))))]
+
+         (js/window.addEventListener "keydown" on-key-down)
+         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
+     [])
+
     ($ :div {:class-name (str "flex " class-name)}
        ($ Pagination {:class-name "overflow-hidden justify-start w-fit mx-0 pr-6"}
 
           ;; previous link
           (if prev-page
-            ($ PaginationPrevious {:to (str (.. location -pathname)
+            ($ PaginationPrevious {:ref ref-prev
+                                   :to (str (.. location -pathname)
                                             "?"
                                             (gen-page-str prev-page))}
                ($ :span (t "pagination.previous")))
@@ -123,7 +154,8 @@
           ;; next link
           (if (and next-page
                    (> total-rows 0))
-            ($ PaginationNext {:disabled (not next-page)
+            ($ PaginationNext {:ref ref-next
+                               :disabled (not next-page)
                                :to (str (.. location -pathname)
                                         "?"
                                         (gen-page-str next-page))}
