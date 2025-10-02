@@ -125,7 +125,8 @@
                            ($ CirclePlus {:className "mr-2 h-4 w-4"})
                            (t "pool.models.dropdown.title")))
 
-                     ($ DropdownMenuContent {:align "start"}
+                     ($ DropdownMenuContent {:data-test-id "add-inventory-dropdown"
+                                             :align "start"}
 
                         ($ DropdownMenuItem {:asChild true}
                            ($ Link {:state #js {:searchParams (.. location -search)}
