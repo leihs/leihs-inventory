@@ -5,8 +5,9 @@
    ["react-router-dom" :as router]
    [uix.core :as uix :refer [$ defui]]))
 
-(defui main [{:keys [ref class-name]}]
-  (let [[search-params set-search-params!] (router/useSearchParams)
+(defui main [{:keys [class-name]}]
+  (let [ref (uix/use-ref nil)
+        [search-params set-search-params!] (router/useSearchParams)
         [t] (useTranslation)
         [search set-search!] (uix/use-state (or (.get search-params "search") ""))
         [interacting set-interacting!] (uix/use-state false)]
@@ -35,6 +36,24 @@
 
            (fn [] (js/clearTimeout debounce)))))
      [search search-params set-search-params!])
+
+    (uix/use-effect
+     (fn []
+       (let [on-key-down
+             (fn [e]
+               (when (and (= (.. e -code) "KeyF")
+                          (.-altKey e)
+                          (.-shiftKey e)
+                          (not (.-ctrlKey e))
+                          (not (.-metaKey e)))
+                 (.preventDefault e)
+                 (when ref
+                   (when-let [input-element (.-current ref)]
+                     (.focus input-element)))))]
+
+         (js/window.addEventListener "keydown" on-key-down)
+         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
+     [])
 
     ($ Input {:ref ref
               :placeholder (t "pool.models.filters.search.placeholder")
