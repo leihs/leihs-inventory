@@ -69,6 +69,56 @@ def verify_row_details(model, availabilty, items = [], is_package: false, is_opt
 end
 
 feature "Inventory Page", type: :feature do
+  scenario "shortcuts work" do
+    user = FactoryBot.create(:user, language_locale: "en-GB")
+    pool = FactoryBot.create(:inventory_pool, shortname: "PA")
+
+    FactoryBot.create(:access_right,
+      inventory_pool: pool,
+      user: user,
+      role: :inventory_manager)
+
+    login(user)
+
+    visit "/inventory"
+    find("nav button", text: "Inventory").click
+    click_on pool.name
+    expect(page).to have_content(pool.name)
+    page.driver.browser.action.key_down(:shift)
+      .key_down(:alt)
+      .send_keys("f")
+      .key_up(:alt)
+      .key_up(:shift)
+      .perform
+
+    # Check if the input field with name "search" is focused
+    expect(page.evaluate_script("document.activeElement.name")).to eq("search")
+
+    # Select "retired" in the dropdown
+    select_value("retired", "retired")
+    expect(page).to have_content("retired")
+
+    # Trigger Shift + Alt + R
+    page.driver.browser.action.key_down(:shift)
+      .key_down(:alt)
+      .send_keys("r")
+      .key_up(:alt)
+      .key_up(:shift)
+      .perform
+
+    # Check if the query params still include "retired"
+    expect(page.current_url).to_not include("retired")
+
+    page.driver.browser.action.key_down(:shift)
+      .key_down(:alt)
+      .send_keys("n")
+      .key_up(:alt)
+      .key_up(:shift)
+      .perform
+
+    expect(page).to have_selector('[data-test-id="add-inventory-dropdown"]')
+  end
+
   scenario "filters" do
     # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     # | model      | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
