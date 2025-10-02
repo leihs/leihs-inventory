@@ -200,7 +200,6 @@ feature "Inventory Page", type: :feature do
 
     login(user)
 
-    binding.pry
     visit "/inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name

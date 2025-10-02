@@ -8,9 +8,12 @@
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
+
+   [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error handle-coercion-error]]
+
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
 
-   [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
+   ;[leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
@@ -43,13 +46,33 @@
   (fn [request]
     (try
       (handler request)
+
+      ;(let [response (handler request)]
+      ;  (handle-coercion-error request response))
+
+
       (catch Exception e
+
+        (println (class e))       ;; prints the class
+        (println (type e))        ;; same as class, returns java.lang.ArithmeticException
+        (println (.getClass e))   ;; Java interop, also works
+        (println (.getMessage e))   ;; Java interop, also works
+        (println (.getName (.getClass e))) ;; get full class name as string
+
+
+        ;(println ">o> wrap-exception!!!!" (instance? java.io.ByteArrayInputStream (:body resp)) )
         (log-by-severity e)
         (exception-handler request "wrap-exception" e)))))
 
 (def middlewares [debug-mw/wrap-debug
 
-                  wrap-handle-coercion-error
+
+
+                  muuntaja/format-response-middleware
+
+                  wrap-exception
+                  ;wrap-handle-coercion-error
+
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
                   muuntaja/format-middleware
@@ -83,7 +106,7 @@
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware
 
-                  wrap-exception
+
                   ])
 
 (def default-router-config {:conflicts nil

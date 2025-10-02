@@ -1,5 +1,7 @@
 (ns leihs.inventory.server.utils.exception-handler
   (:require
+   [clojure.string :as str]
+   [cheshire.core :as json]
    [ring.util.response :as resp :refer [response content-type]]))
 
 (defn create-response-by-accept [accept status data]
@@ -18,6 +20,22 @@
                                              :message message
                                              :type (.getClass e)
                                              :details (.getMessage e)})
+
+      (and (instance? clojure.lang.ExceptionInfo e) (str/includes? (.getMessage e) "Response coercion failed"))
+      (->
+        ;(response (json/generate-string {:type (.getMessage e)}) )
+        (response {:type (.getMessage e)} )
+
+        ;(content-type "application/json")
+        (resp/status 500))
+
+      (and (instance? clojure.lang.ExceptionInfo e) (str/includes? (.getMessage e) "Request coercion failed"))
+      (->
+        ;(response (json/generate-string {:type (.getMessage e)}) )
+        (response {:type (.getMessage e)} )
+        ;(content-type "application/json")
+        (resp/status 422))
+
 
       (instance? clojure.lang.ExceptionInfo e)
       (let [{:keys [status]} (ex-data e)

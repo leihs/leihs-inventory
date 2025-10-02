@@ -23,6 +23,7 @@
   (and s (every? #(re-find (re-pattern (java.util.regex.Pattern/quote %)) s) substrings)))
 
 (defn- has-coercion-substring? [s]
+  (println ">o> abc.s" s)
   (if (nil? s) false
       (boolean (re-find #"\"coercion\"\s*:\s*\"(spec|schema)\"" s))))
 
@@ -83,6 +84,7 @@
           :response-data full-resp})))))
 
 (defn- generate-coercion-response [data req resp]
+  (println ">o> abc.generate-coercion-response" )
   (warn (pretty-print-json data))
   (let [{:keys [response-status response-data]}
         (extract-coercion-reason data req false)]
@@ -90,22 +92,45 @@
            :body (data->input-stream response-data)
            :status response-status)))
 
+(defn pr
+  ([str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+  ([str str2 fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str str2)
+  fnc
+  )
+)
+
 (defn handle-coercion-error [request resp]
   (let [accept-header (get-in request [:headers "accept"])]
     (cond
-      (not= accept-header "application/json") resp
+      (not= accept-header "application/json") (pr ">o>" "1" resp)
 
-      (string? (:body resp)) resp
+      (string? (:body resp)) (pr ">o>" "2" resp)
 
       (instance? java.io.ByteArrayInputStream (:body resp))
-      (let [ext-data (extract-data-from-input-stream (:body resp))]
+                               (pr ">o>" "3" (let [ext-data (extract-data-from-input-stream (:body resp))
+
+                                                   p (println ">o> abc" (:body resp))
+                                                   p (println ">o> abc" ext-data)
+
+
+                                                   p (println ">o> abc.has1" (has-coercion-substring? ext-data))
+                                                   p (println ">o> abc.has2" (is-coercion-error? ext-data))
+
+                                                   ]
         (if (and ext-data
                  (has-coercion-substring? ext-data)
                  (is-coercion-error? ext-data))
           (generate-coercion-response ext-data request resp)
-          (assoc resp :body (data->input-stream ext-data))))
+          (assoc resp :body (data->input-stream ext-data)))))
 
-      :else resp)))
+      :else (pr ">o>" "4" resp))))
 
 (defn wrap-handle-coercion-error [handler]
   (fn [request]
