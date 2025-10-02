@@ -17,7 +17,9 @@
    [uix.dom]))
 
 (defui layout []
-  (let [pool-id (:pool-id (jc (router/useParams)))
+  (let [ref (uix/use-ref nil)
+        [open? set-open!] (uix/use-state false)
+        pool-id (:pool-id (jc (router/useParams)))
         location (router/useLocation)
         last-segment (-> (.-pathname location)
                          (str/split #"/")
@@ -45,6 +47,24 @@
 
         {:keys [profile]} (router/useRouteLoaderData "root")
         pool (->> profile :available_inventory_pools (detect #(= (:id %) pool-id)))]
+
+    (uix/use-effect
+     (fn []
+       (let [on-key-down
+             (fn [e]
+               (when (and (= (.. e -code) "KeyN")
+                          (.-altKey e)
+                          (.-shiftKey e)
+                          (not (.-ctrlKey e))
+                          (not (.-metaKey e)))
+                 (.preventDefault e)
+                 (when ref
+                   (when-let [input-element (.-current ref)]
+                     (.. input-element (click))))))]
+
+         (js/window.addEventListener "keydown" on-key-down)
+         (fn [] (js/window.removeEventListener "keydown" on-key-down))))
+     [])
 
     ($ :section
        ($ Breadcrumb {:className "my-8"}
@@ -97,9 +117,11 @@
              ($ :div {:className "ml-auto"}
                 (case last-segment
                   "list"
-                  ($ DropdownMenu
+                  ($ DropdownMenu {:open open?
+                                   :on-open-change set-open!}
                      ($ DropdownMenuTrigger {:asChild "true"}
-                        ($ Button
+                        ($ Button {:ref ref
+                                   :on-click #(set-open! (not open?))}
                            ($ CirclePlus {:className "mr-2 h-4 w-4"})
                            (t "pool.models.dropdown.title")))
 
@@ -142,7 +164,8 @@
                         (t "pool.models.add_template")))
                   ($ :<>))))
 
-          ($ TabsContent {:forceMount true}
+          ($ TabsContent {:forceMount true
+                          :tab-index -1}
              ($ Outlet))))))
 
 
