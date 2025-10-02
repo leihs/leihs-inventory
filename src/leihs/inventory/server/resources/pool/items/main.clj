@@ -41,12 +41,8 @@
    [:not= :i.owner_id pool-id]
    [:= :i.inventory_pool_id inventory-pool-id]])
 
-
-(def ERROR_GET_ITEM "Failed to get items")
-
 (defn index-resources
   ([request]
-   ;(try
    (let [{:keys [pool_id]} (path-params request)
          {:keys [fields search_term
                  model_id parent_id
@@ -156,9 +152,4 @@
      (-> request
          (create-pagination-response query nil)
          (pick-fields fields)
-         response)    )
-;(catch Exception e
-;  (log-by-severity ERROR_GET_ITEM e)
-;  (exception-handler request ERROR_GET_ITEM e)))
-
-   ))
+         response))))

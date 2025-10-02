@@ -58,6 +58,9 @@
         (println (.getClass e))   ;; Java interop, also works
         (println (.getMessage e))   ;; Java interop, also works
         (println (.getName (.getClass e))) ;; get full class name as string
+        (println ">o> data -> " (.getData e)) ;; get full class name as string
+        (println ">o> data.coe -> " (:coercion (.getData e))) ;; get full class name as string
+        (println ">o> data.coe2 -> " (keys (.getData e))) ;; get full class name as string
 
 
         ;(println ">o> wrap-exception!!!!" (instance? java.io.ByteArrayInputStream (:body resp)) )
