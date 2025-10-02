@@ -25,7 +25,6 @@ describe "Coercion test" do
 
       it "returns 422 with invalid page-attribute" do
         resp = client.get "#{url}?page=abc"
-        binding.pry
         expect(resp.status).to eq(422)
         expect(resp.body).to eq( {"coercion-type"=>"schema", "detail"=>"Request coercion failed",
                                   "reason"=>"Coercion-Error", "scope"=>"request/query-params",

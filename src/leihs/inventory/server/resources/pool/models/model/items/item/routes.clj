@@ -19,7 +19,6 @@
           :handler item/get-resource
           :responses {200 {:description "OK"
                               ;:body (s/->Either [s/Any schema])} ;;FIXME
-                           ;:body get-item-response
-                           }
+                           :body get-item-response}
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])

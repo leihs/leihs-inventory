@@ -4,7 +4,7 @@
    [clojure.string :as str]
    [clojure.walk]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [ring.util.response :as resp :refer [content-type response]]
+   [ring.util.response :as resp :refer [content-type response status]]
    [taoensso.timbre :refer [warn]])
   (:import
    [java.io ByteArrayInputStream]
@@ -39,6 +39,7 @@
                   :scope         scope
                   :uri           (str method " " uri)}]
     (warn (pretty-print-json resp-map))
+    (println ">o> abc.resp status" response-status)
     (-> (response resp-map)
       (resp/status response-status))))
 
@@ -72,3 +73,51 @@
                                              :message message
                                              :type (class e)
                                              :details (.getMessage e)}))))
+
+
+(defn exception-handler [request message e]
+  (let [accept (get-in request [:headers "accept"])]
+    (cond
+      ;; DB constraint violations
+      (instance? PSQLException e)
+      (create-response-by-accept accept 409 {:status "failure"
+                                             :message message
+                                             :type (class e)
+                                             :details (.getMessage e)})
+
+      ;; response coercion error
+      (and (instance? ExceptionInfo e)
+        (str/includes? (.getMessage e) "Response coercion failed"))
+      (build-coercion-response request e 500)
+
+      ;; request coercion error
+      (and (instance? ExceptionInfo e)
+        (str/includes? (.getMessage e) "Request coercion failed"))
+      (build-coercion-response request e 422)
+
+      ;; generic ExceptionInfo
+      (instance? ExceptionInfo e)
+      (let [{:keys [status]} (ex-data e)
+            msg (ex-message e)]
+        (create-response-by-accept accept status {:status "failure"
+                                                  :message message
+                                                  :type (class e)
+                                                  :details msg}))
+
+      ;; fallback
+      :else
+      (create-response-by-accept accept 400 {:status "failure"
+                                             :message message
+                                             :type (class e)
+                                             :details (.getMessage e)}))))
+
+
+(defn wrap-exception
+  "Middleware that catches exceptions and delegates to exception-handler."
+  [handler]
+  (fn [request]
+    (try
+      (handler request)
+      (catch Exception e
+        (log-by-severity e)
+        (exception-handler request "wrap-exception" e)))))

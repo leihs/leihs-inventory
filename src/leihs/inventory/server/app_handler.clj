@@ -8,12 +8,7 @@
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
-
-   [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error handle-coercion-error]]
-
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-
-   ;[leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
+   [leihs.inventory.server.utils.exception-handler :refer [exception-handler wrap-exception]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
@@ -40,24 +35,9 @@
    [ring.middleware.default-charset :refer [wrap-default-charset]]
    [ring.middleware.params :refer [wrap-params]]))
 
-(defn wrap-exception
-  "Middleware that catches exceptions and delegates to exception-handler."
-  [handler]
-  (fn [request]
-    (try
-      (handler request)
-      (catch Exception e
-        (log-by-severity e)
-        (exception-handler request "wrap-exception" e)))))
-
 (def middlewares [debug-mw/wrap-debug
-
-
-
                   muuntaja/format-response-middleware
-
                   wrap-exception
-                  ;wrap-handle-coercion-error
 
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
@@ -83,17 +63,14 @@
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
                   muuntaja/format-negotiate-middleware
-                  muuntaja/format-response-middleware
+                  ;muuntaja/format-response-middleware
 
                   ;exception/exception-middleware
 
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
-                  multipart/multipart-middleware
-
-
-                  ])
+                  multipart/multipart-middleware ])
 
 (def default-router-config {:conflicts nil
                             :strict-slash true
