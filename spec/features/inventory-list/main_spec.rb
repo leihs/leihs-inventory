@@ -1288,7 +1288,6 @@ feature "Inventory Page", type: :feature do
       ]
     )
 
-    binding.pry
     # pool 1
     # category_id=cat_1.id
     visit "/inventory/#{pool_1.id}/list"
