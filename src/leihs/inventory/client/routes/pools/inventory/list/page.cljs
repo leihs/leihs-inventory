@@ -8,11 +8,12 @@
    ["react-router-dom" :as router]
    [clojure.string :as str]
    [leihs.inventory.client.components.pagination :as pagination]
+   [leihs.inventory.client.routes.pools.inventory.list.components.export :refer [Export]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.before-last-check-filter :refer [BeforeLastCheckFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.borrowable-filter :refer [BorrowableFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.category-filter :refer [CategoryFilter]]
-   [leihs.inventory.client.routes.pools.inventory.list.components.filters.filter-indicator :refer [FilterIndicator]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.inventory-pool-filter :refer [InventoryPoolFilter]]
+   [leihs.inventory.client.routes.pools.inventory.list.components.filters.reset :refer [Reset]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.retired-filter :refer [RetiredFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.search-filter :as search :refer [SearchFilter]]
    [leihs.inventory.client.routes.pools.inventory.list.components.filters.status-filter :refer [StatusFilter]]
@@ -53,27 +54,24 @@
     ($ Card {:className "my-4"}
        ($ CardHeader {:className "flex bg-white rounded-xl z-10"
                       :style {:background "linear-gradient(to bottom, white 90%, transparent 100%)"}}
-          ($ :div
-             ($ :div {:className "flex gap-2"}
-                ($ SearchFilter)
+          ($ :div {:class-name "w-full flex"}
+             ($ :div {:class-name "flex flex-col gap-2"}
+                ($ :div {:className "flex gap-2"}
+                   ($ SearchFilter)
 
-                ($ RetiredFilter)
-                ($ WithItemsFilter)
-                ($ BorrowableFilter)
+                   ($ RetiredFilter)
+                   ($ WithItemsFilter)
+                   ($ BorrowableFilter))
 
-                ($ Button {:variant "outline" :className "ml-auto"}
-                   ($ Download {:className "h-4 w-4 mr-2"}) "Export"))
+                ($ :div {:className "flex gap-2"}
+                   ($ TypeFilter)
+                   ($ StatusFilter)
+                   ($ InventoryPoolFilter)
+                   ($ CategoryFilter)
+                   ($ BeforeLastCheckFilter)
+                   ($ Reset {:on-reset handle-reset})))
 
-             ($ :div {:className "flex gap-2 mt-2"}
-                ($ TypeFilter)
-                ($ StatusFilter)
-                ($ InventoryPoolFilter)
-                ($ CategoryFilter)
-                ($ BeforeLastCheckFilter)
-                ($ Button {:size "icon"
-                           :variant "outline"
-                           :on-click handle-reset}
-                   ($ ListRestart)))))
+             ($ Export)))
 
        ($ CardContent {:class-name "pb-0"}
           ($ :div {:class-name "border rounded-md"}
