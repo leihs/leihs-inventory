@@ -31,7 +31,7 @@
       }
     },
     "models": {
-      "title": "Inventory List",
+      "title": "Inventory list",
       "filters": {
         "search": {
           "placeholder": "Filter by term"
