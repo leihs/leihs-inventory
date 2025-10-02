@@ -63,7 +63,7 @@
                   reitit.swagger/swagger-feature
                   parameters/parameters-middleware
                   muuntaja/format-negotiate-middleware
-                  ;muuntaja/format-response-middleware
+                  muuntaja/format-response-middleware
 
                   ;exception/exception-middleware
 
