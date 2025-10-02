@@ -8,8 +8,7 @@
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [ring.util.response :refer [redirect response status]]
-))
+   [ring.util.response :refer [response status]]))
 
 (def ERROR_GET_BUILDING "Failed to get building")
 

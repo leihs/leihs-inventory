@@ -4,8 +4,7 @@
    [clojure.string :refer [capitalize]]
    [honey.sql.helpers :as sql]
    [hugsql.core :as hugsql]
-   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]
-   [taoensso.timbre :refer [debug]]))
+   [next.jdbc.sql :refer [query] :rename {query jdbc-query}]))
 
 (defn base-inventory-query [pool-id]
   (-> (sql/select :inventory.*
@@ -217,6 +216,7 @@
 
 (hugsql/def-sqlvec-fns "sql/descendent_ids.sql")
 
+(declare descendent-ids-sqlvec)
 (defn descendent-ids [tx category-id]
   (-> {:category-id category-id}
       descendent-ids-sqlvec

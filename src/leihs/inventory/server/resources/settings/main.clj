@@ -29,4 +29,4 @@
       (response (first result)))
     (catch Exception e
       (log-by-severity ERROR_GET_USER e)
-      (exception-handler ERROR_GET_USER e))))
+      (exception-handler request ERROR_GET_USER e))))

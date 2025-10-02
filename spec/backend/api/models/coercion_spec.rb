@@ -26,9 +26,9 @@ describe "Coercion test" do
       it "returns 422 with invalid page-attribute" do
         resp = client.get "#{url}?page=abc"
         expect(resp.status).to eq(422)
-        expect(resp.body).to eq( {"coercion-type"=>"schema", "detail"=>"Request coercion failed",
-                                  "reason"=>"Coercion-Error", "scope"=>"request/query-params",
-                                  "uri"=>"GET /inventory/#{@inventory_pool.id}/list/"})
+        expect(resp.body).to eq({"coercion-type" => "schema", "detail" => "Request coercion failed",
+                                  "reason" => "Coercion-Error", "scope" => "request/query-params",
+                                  "uri" => "GET /inventory/#{@inventory_pool.id}/list/"})
       end
     end
   end
@@ -45,9 +45,9 @@ describe "Coercion test" do
       it "return 422 with invalid uuid" do
         resp = client.get "/inventory/invalid-uuid/items/"
         expect(resp.status).to eq(422)
-        expect(resp.body).to eq({"coercion-type"=>"schema", "detail"=>"Request coercion failed",
-                                 "reason"=>"Coercion-Error", "scope"=>"request/path-params",
-                                 "uri"=>"GET /inventory/invalid-uuid/items/"})
+        expect(resp.body).to eq({"coercion-type" => "schema", "detail" => "Request coercion failed",
+                                 "reason" => "Coercion-Error", "scope" => "request/path-params",
+                                 "uri" => "GET /inventory/invalid-uuid/items/"})
       end
     end
   end

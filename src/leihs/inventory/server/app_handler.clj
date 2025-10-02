@@ -8,28 +8,25 @@
    [leihs.core.routing.dispatch-content-type :as dispatch-content-type]
    [leihs.inventory.server.resources.routes :as routes]
    [leihs.inventory.server.swagger :as swagger]
-   [leihs.inventory.server.utils.exception-handler :refer [exception-handler wrap-exception]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
+   [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
    [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
    [leihs.inventory.server.utils.middleware-handler :refer [default-handler-fetch-resource
                                                             wrap-accept-with-image-rewrite
                                                             wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [leihs.inventory.server.utils.session-dev-mode :as dm]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.dev.pretty :as pretty]
    [reitit.ring :as ring]
    [reitit.ring.coercion :as coercion]
-   [reitit.ring.middleware.exception :as exception]
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]
    [reitit.swagger]
-   [ring.util.response :refer [redirect response status content-type]]
    [ring.middleware.content-type :refer [wrap-content-type]]
    [ring.middleware.cookies :refer [wrap-cookies]]
    [ring.middleware.default-charset :refer [wrap-default-charset]]
@@ -70,7 +67,7 @@
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
-                  multipart/multipart-middleware ])
+                  multipart/multipart-middleware])
 
 (def default-router-config {:conflicts nil
                             :strict-slash true
