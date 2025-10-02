@@ -46,24 +46,7 @@
   (fn [request]
     (try
       (handler request)
-
-      ;(let [response (handler request)]
-      ;  (handle-coercion-error request response))
-
-
       (catch Exception e
-
-        (println (class e))       ;; prints the class
-        (println (type e))        ;; same as class, returns java.lang.ArithmeticException
-        (println (.getClass e))   ;; Java interop, also works
-        (println (.getMessage e))   ;; Java interop, also works
-        (println (.getName (.getClass e))) ;; get full class name as string
-        (println ">o> data -> " (.getData e)) ;; get full class name as string
-        (println ">o> data.coe -> " (:coercion (.getData e))) ;; get full class name as string
-        (println ">o> data.coe2 -> " (keys (.getData e))) ;; get full class name as string
-
-
-        ;(println ">o> wrap-exception!!!!" (instance? java.io.ByteArrayInputStream (:body resp)) )
         (log-by-severity e)
         (exception-handler request "wrap-exception" e)))))
 
