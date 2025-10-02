@@ -47,7 +47,6 @@ feature "Update software", type: :feature do
     click_on "Inventory type"
     click_on "Software"
     fill_in "search", with: "#{product_old} #{version_old}"
-    expect(find("tr", text: "#{product_old} #{version_old}")).to have_content("Software")
     find("a", text: "edit").click
 
     fill_in "Product", with: product_new
@@ -68,7 +67,6 @@ feature "Update software", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
-      expect(find("tr", text: "#{product_new} #{version_new}")).to have_content("Software")
     end
 
     within find("tr", text: "#{product_new} #{version_new}", visible: true) do

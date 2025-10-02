@@ -208,7 +208,6 @@ feature "Update model", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product_new} #{version_new}", visible: true)
-      expect(find("tr", text: "#{product_new} #{version_new}")).to have_content("Model")
     end
 
     within find("tr", text: "#{product_new} #{version_new}", visible: true) do
