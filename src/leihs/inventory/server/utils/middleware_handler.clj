@@ -7,6 +7,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [ring.middleware.accept]
+   [reitit.core :as r]
    [ring.util.response :refer [content-type response status]]))
 
 (defn wrap-session-token-authenticate! [handler]
@@ -43,6 +44,26 @@
         (content-type "application/json"))
       (rh/index-html-response request code))))
 
+(defn endpoint-exists?
+  "Check if an endpoint exists for a given method + uri.
+   Returns the route data if it's not a fallback, otherwise nil.
+   Also accepts URIs with/without a trailing slash.
+   Whitelists certain paths like /inventory/ explicitly."
+  [router method uri]
+  (let [whitelist #{"/inventory/" "/inventory"}   ;; ✅ inline whitelist
+        match-ok? (fn [u]
+                    (when-let [match (r/match-by-path router u)]
+                      (let [route-data (get-in match [:data method])
+                            fallback?  (get-in match [:data :fallback?])]
+                        (when (and route-data (not fallback?))
+                          route-data))))]
+    (or (match-ok? uri)
+      (match-ok? (if (.endsWith uri "/")
+                   (subs uri 0 (dec (count uri)))  ;; drop slash
+                   (str uri "/")))
+      (when (contains? whitelist uri)
+        true))))
+
 (defn wrap-strict-format-negotiate [handler]
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
@@ -61,16 +82,33 @@
                                             (some allowed-formats accepted-types))
           is-inventory-route? (re-matches #"/inventory(/.*)?" uri)
 
-          ;p (println ">o> abc.endpoint-produces-content-type?.200==true" endpoint-produces-content-type?)
-          ;p (println ">o> abc.allowed-formats" allowed-formats)
-          ;p (println ">o> abc.accepted-types" accepted-types)
+          p (println ">o> abc.endpoint-produces-content-type?.200==true" endpoint-produces-content-type?)
+          p (println ">o> abc.allowed-formats" allowed-formats)
+          p (println ">o> abc.accepted-types" accepted-types)
+
+
+          router (:reitit.router request)
+          method (:request-method request)
+          uri    (:uri request)
+
+          ;p (println ">o> abc1" router)
+          route-data (endpoint-exists? router method uri)
+
+          ;p (println ">o> abc.a" router)
+          ;p (println ">o> abc.b" method uri)
+
+          exists? (boolean route-data)
+
+          resp-status (if (and endpoint-produces-content-type? exists?) 200 404)
+
+
           ]
       (if         endpoint-produces-content-type?
         (handler request)
 
         (if is-inventory-route?
-                                          (create-accept-response request 200)
-                                          (-> (response "") (status 200) (content-type "text/html")))
+                                          (create-accept-response request resp-status)
+                                          (-> (response "") (status resp-status) (content-type "text/html")))
         ;nil
         )
 
@@ -86,10 +124,10 @@
     (let [resp (handler request)
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)
-
+resp-status (:status resp)
           p (println ">o> abc.wrap-html-404" (:status resp))
           ]
-      (if (and (<= 400 (:status resp))
+      (if (and (#{400 404} resp-status)
             (some #(re-matches % uri) url-patterns)
             (or (str/includes? accept "text/html")
               (str/includes? accept "*/*")))

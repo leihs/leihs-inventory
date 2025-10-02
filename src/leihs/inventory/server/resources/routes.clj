@@ -105,6 +105,7 @@
             :produces ["text/html"]
             :handler post-sign-out}
      :get {:accept "text/html"
+           :produces ["application/json"]
            :summary "HTML | Get sign-out page"
            :handler get-sign-out}}]])
 
@@ -116,18 +117,23 @@
    ["test-csrf"
     {:no-doc HIDE_BASIC_ENDPOINTS
      :get {:accept "application/json"
+           :produces ["application/json"]
            :description "Access allowed without x-csrf-token"
            :handler (fn [_] {:status 200})}
      :post {:accept "application/json"
+            :produces ["application/json"]
             :description "Access denied without x-csrf-token"
             :handler (fn [_] {:status 200})}
      :put {:accept "application/json"
+           :produces ["application/json"]
            :description "Access denied without x-csrf-token"
            :handler (fn [_] {:status 200})}
      :patch {:accept "application/json"
+             :produces ["application/json"]
              :description "Access denied without x-csrf-token"
              :handler (fn [_] {:status 200})}
      :delete {:accept "application/json"
+              :produces ["application/json"]
               :description "Access denied without x-csrf-token"
               :handler (fn [_] {:status 200})}}]
 
@@ -137,6 +143,7 @@
            :description "Set token in Swagger UI by Authorize-Button -> Field: csrfToken"
            :accept "application/json"
            :swagger {:produces ["application/json"]}
+           :produces ["application/json"]
            :handler get-csrf-token}}]])
 
 (def mime-types
