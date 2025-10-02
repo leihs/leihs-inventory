@@ -78,15 +78,18 @@
       ;nil
       )))
 
-(defn wrap-html-404
+(defn wrap-html-40x
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
-   if the handler returns a 404, we return SPA-HTML response"
+   if the handler returns a 40x, we return SPA-HTML response"
   [handler url-patterns]
   (fn [request]
     (let [resp (handler request)
           uri (:uri request)
-          accept (some-> (get-in request [:headers "accept"]) str/lower-case)]
-      (if (and (= 404 (:status resp))
+          accept (some-> (get-in request [:headers "accept"]) str/lower-case)
+
+          p (println ">o> abc.wrap-html-404" (:status resp))
+          ]
+      (if (and (<= 400 (:status resp))
             (some #(re-matches % uri) url-patterns)
             (or (str/includes? accept "text/html")
               (str/includes? accept "*/*")))

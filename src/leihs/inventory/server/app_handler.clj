@@ -12,7 +12,7 @@
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
    [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
-                                                            wrap-html-404
+                                                            wrap-html-40x
                                                             wrap-strict-format-negotiate]]
 
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
@@ -39,9 +39,9 @@
 
 (def middlewares [debug-mw/wrap-debug
 
-                  ;#(wrap-html-404 % [#"/inventory/.+/images/.+"
-                  ;                   #"/inventory/.+/images/.+/thumbnail"
-                  ;                   #"/inventory/.+/attachments/.+"])
+                  #(wrap-html-40x % [#"/inventory/.+/images/.+"
+                                     #"/inventory/.+/images/.+/thumbnail"
+                                     #"/inventory/.+/attachments/.+"])
 
                   ;#(wrap-router % router)                  ;; ✅ inject router here
 
