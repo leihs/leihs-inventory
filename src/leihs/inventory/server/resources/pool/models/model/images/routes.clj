@@ -20,6 +20,7 @@
                              "px x " (config-get :api :images :thumbnail :height-px) "px)\n")
            :swagger {:consumes ["application/json"]
                      :produces "application/json"}
+           :produces ["application/json"]
            :coercion reitit.coercion.schema/coercion
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid}
@@ -38,6 +39,7 @@
                               :model_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
+          :produces ["application/json"]
           :handler images/index-resources
           :responses {200 {:description "OK"
                            :body get-images-response}

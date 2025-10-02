@@ -16,6 +16,7 @@
           :handler status/status-handler
           :public true
           :coercion reitit.coercion.schema/coercion
+          :produces ["application/json"]
           :responses
           {200 {:description "OK"
                 :body system-status-schema}

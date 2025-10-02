@@ -17,6 +17,7 @@
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid
                               :building_id s/Uuid}}
+          :produces ["application/json"]
           :handler building/get-resource
           :responses {200 {:description "OK"
                            :body response-body}

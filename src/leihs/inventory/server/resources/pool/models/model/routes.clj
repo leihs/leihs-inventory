@@ -18,6 +18,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}}
+          :produces ["application/json"]
           :handler model/get-resource
           :responses {200 {:description "OK"
                            :body :model-get-put-response/inventory-model}
@@ -28,6 +29,7 @@
             :summary (fe "Form-Handler: Used to patch model-attributes")
             :coercion reitit.coercion.schema/coercion
             :description description-model-form
+            :produces ["application/json"]
             :parameters {:path {:pool_id s/Uuid
                                 :model_id s/Uuid}
                          :body {:is_cover (s/maybe s/Uuid)}}
@@ -55,6 +57,7 @@
           :summary (fe "Form-Handler: Update model")
           :coercion spec/coercion
           :description description-model-form
+          :produces ["application/json"]
           :parameters {:path {:pool_id uuid?
                               :model_id uuid?}
                        :body :model/multipart}

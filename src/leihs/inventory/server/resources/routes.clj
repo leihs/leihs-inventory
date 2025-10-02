@@ -50,6 +50,7 @@
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
    [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response-helper :as rh]
+   [reitit.core :as r]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
    [reitit.openapi :as openapi]
@@ -164,6 +165,94 @@
                 str/lower-case)]
     (get mime-types ext "application/octet-stream")))
 
+(defn endpoint-exists?
+  [router method uri]
+  (when-let [match (r/match-by-path router uri)]
+    (let [route-data (get-in match [:data method])]
+      (when (and route-data
+              (not (:fallback? (:data match)))) ;; exclude fallback
+        route-data))))
+(defn- parse-accept-header [accept-header]
+  (->> (clojure.string/split accept-header #",")
+    (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
+    (remove clojure.string/blank?)
+    set))
+
+(defn endpoint-exists?
+  "Check if an endpoint exists for a given method + uri.
+   Returns the route data if it exists, otherwise nil."
+  [router method uri]
+  (when-let [match (r/match-by-path router uri)]
+    (get-in match [:data method])))
+
+
+(defn endpoint-exists?
+  [router method uri]
+      (println ">o> abc.endpoint-exists?1" router)
+      (println ">o> abc.endpoint-exists?1a" uri)
+  (when-let [match (r/match-by-path router uri)]
+    (let [
+      _ (println ">o> abc.endpoint-exists?2")
+          route-data (get-in match [:data method])]
+      (println ">o> abc.endpoint-exists?3 route-data")
+      (when (and route-data
+              (not (:fallback? (:data match)))) ;; exclude fallback
+        route-data))))
+
+
+(defn endpoint-exists?
+  "Check if an endpoint exists for a given method + uri.
+   Returns the route data if it's not a fallback, otherwise nil."
+  [router method uri]
+  (when-let [match (r/match-by-path router uri)]
+    (let [route-data (get-in match [:data method])
+          ;p (println ">o> abc.route-data" route-data)
+          fallback?  (get-in match [:data :fallback?])
+          ;p (println ">o> abc.fallback?" fallback?)
+          ]
+      (when (and route-data (not fallback?))
+        route-data))))
+
+
+(defn endpoint-exists?
+  "Check if an endpoint exists for a given method + uri.
+   Returns the route data if it's not a fallback, otherwise nil.
+   Also accepts URIs with/without a trailing slash."
+  [router method uri]
+  (letfn [(match-ok? [uri]
+            (when-let [match (r/match-by-path router uri)]
+              (let [route-data (get-in match [:data method])
+                    fallback?  (get-in match [:data :fallback?])]
+                (when (and route-data (not fallback?))
+                  route-data))))]
+    (or (match-ok? uri)
+      (match-ok? (if (.endsWith uri "/")
+                   (subs uri 0 (dec (count uri)))  ;; drop slash
+                   (str uri "/"))))))
+
+
+(defn endpoint-exists?
+  "Check if an endpoint exists for a given method + uri.
+   Returns the route data if it's not a fallback, otherwise nil.
+   Also accepts URIs with/without a trailing slash.
+   Whitelists certain paths like /inventory/ explicitly."
+  [router method uri]
+  (let [whitelist #{"/inventory/" "/inventory"}   ;; ✅ inline whitelist
+        match-ok? (fn [u]
+                    (when-let [match (r/match-by-path router u)]
+                      (let [route-data (get-in match [:data method])
+                            fallback?  (get-in match [:data :fallback?])]
+                        (when (and route-data (not fallback?))
+                          route-data))))]
+    (or (match-ok? uri)
+      (match-ok? (if (.endsWith uri "/")
+                   (subs uri 0 (dec (count uri)))  ;; drop slash
+                   (str uri "/")))
+      (when (contains? whitelist uri)
+        true))))
+
+
+
 (defn html-endpoints []
   [""
    {:swagger {:tags ["Html"]}
@@ -171,16 +260,35 @@
 
    ["{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
+     :fallback? true
      :get {:description "Public assets like JS, CSS, images"
            :produces ["text/html"]
+
            :handler (fn [request]
-                      (let [_ (-> request
-                                  convert-params
-                                  (assoc-in [:accept :mime] :html))]
-                        (cond
-                          (authenticated? request)
-                          (rh/index-html-response request 200)
-                          :else {:status 302 :headers {"Location" "/sign-in?return-to=%2Finventory/" "Content-Type" "text/html"} :body ""})))}}]])
+                      (let [router (:reitit.router request)
+                            method (:request-method request)
+                            uri    (:uri request)
+
+                            ;p (println ">o> abc1" router)
+                            route-data (endpoint-exists? router method uri)
+
+                            ;p (println ">o> abc.a" router)
+                            ;p (println ">o> abc.b" method uri)
+
+                            exists? (boolean route-data)
+
+                            ;p (println ">o> abc.exists?" exists?)
+                            ]
+                        (if (authenticated? request)
+                          (if exists?
+                            (rh/index-html-response request 200)
+                            (rh/index-html-response request 404))
+                          {:status 302
+                           :headers {"Location" "/sign-in?return-to=%2Finventory/"
+                                     "Content-Type" "text/html"}
+                           :body ""})))
+
+           }}]])
 
 (defn swagger-endpoints []
   ["/"

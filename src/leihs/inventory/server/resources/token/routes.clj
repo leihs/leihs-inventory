@@ -15,6 +15,7 @@
             :description "Generates an API token for a user with specific permissions and scopes"
             :accept "application/json"
             :coercion reitit.coercion.schema/coercion
+            :produces ["application/json"]
             :parameters {:body {:description s/Str
                                 :scopes {:read s/Bool
                                          :write s/Bool

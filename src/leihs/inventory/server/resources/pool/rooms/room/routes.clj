@@ -15,6 +15,7 @@
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
+          :produces ["application/json"]
           :parameters {:path {:room_id s/Uuid}}
           :handler room/get-resource
           :responses {200 {:description "OK"

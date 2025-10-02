@@ -35,6 +35,7 @@
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
                                  :attachments_id s/Uuid}}
+             :produces ["application/json"]
              :handler attachment/delete-resource
              :responses {200 {:description "OK"
                               :body s/Any}

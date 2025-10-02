@@ -38,6 +38,7 @@
              :parameters {:path {:pool_id s/Uuid
                                  :model_id s/Uuid
                                  :image_id s/Uuid}}
+             :produces ["application/json"]
              :handler image/delete-resource
              :responses {200 {:description "OK"
                               :body delete-response}

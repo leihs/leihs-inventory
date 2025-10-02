@@ -20,6 +20,7 @@
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
           :parameters {:path {:pool_id s/Uuid}}
+          :produces ["application/json"]
           :handler entitlement-groups/index-resources
           :responses {200 {:description "OK"
                            :body [response-body]}

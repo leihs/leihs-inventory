@@ -16,5 +16,6 @@
      {:get {:accept "application/json"
             :coercion reitit.coercion.schema/coercion
             :swagger {:security [{:csrfToken []}]}
+            :produces ["application/json"]
             :handler session-protected/get-resource
             :middleware [ab/wrap-session-authorize!]}}]]])

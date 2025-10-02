@@ -17,6 +17,7 @@
           :parameters {:path {:pool_id s/Uuid}
                        :query query-params}
           :handler items/index-resources
+          :produces ["application/json"]
           :responses {200 {:description "OK"
                            :body s/Any}
                         ;:body get-items-response} ;; FIXME broken

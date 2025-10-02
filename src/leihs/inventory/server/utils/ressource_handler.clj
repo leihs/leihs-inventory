@@ -7,6 +7,7 @@
    [reitit.coercion.spec]))
 
 (defn custom-not-found-handler [request]
+  (println ">o> abc.custom-not-found-handler")
   (let [accept (str/lower-case (or (get-in request [:headers "accept"]) ""))]
     (cond
       (str/includes? accept "text/html")

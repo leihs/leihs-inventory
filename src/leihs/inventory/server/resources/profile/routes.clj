@@ -14,7 +14,6 @@
           :coercion reitit.coercion.schema/coercion
           :middleware [wrap-authenticate!]
           :produces ["application/json"]
-          ;:swagger {:produces ["application/json"]}
           :handler profile/get-resource
           :responses {200 {:description "OK"
                            :body profile-response-schema}

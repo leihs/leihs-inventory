@@ -11,6 +11,7 @@
           :coercion spec/coercion
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}}
+          :produces ["application/json"]
           :handler option/get-resource
           :responses {200 {:description "OK"
                            :body response-option-object}
@@ -22,6 +23,7 @@
           :parameters {:path {:pool_id uuid?
                               :option_id uuid?}
                        :body :option/body}
+          :produces ["application/json"]
           :handler option/put-resource
           :responses {200 {:description "OK"
                            :body response-option-object}
@@ -32,6 +34,7 @@
              :coercion spec/coercion
              :parameters {:path {:pool_id uuid?
                                  :option_id uuid?}}
+             :produces ["application/json"]
              :handler option/delete-resource
              :responses {200 {:description "OK"
                               :body response-option-object}

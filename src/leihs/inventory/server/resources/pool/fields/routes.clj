@@ -15,6 +15,7 @@
                      :accept "application/json"
                      :coercion reitit.coercion.schema/coercion
                      :swagger {:produces ["application/json"]}
+                     :produces ["application/json"]
                      :parameters {:path {:pool_id s/Uuid}
                                   :query {(s/optional-key :page) s/Int
                                           (s/optional-key :size) s/Int

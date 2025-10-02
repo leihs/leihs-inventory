@@ -21,6 +21,7 @@
 - 'in-detail'-option works for models with set 'search' only\n"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
+          :produces ["application/json"]
           :handler manufacturers/index-resources
           :parameters {:path {:pool_id s/Uuid}
                        :query {(s/optional-key :type) (s/enum "Software" "Model")

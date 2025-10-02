@@ -22,6 +22,7 @@
           :parameters {:query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int
                                (s/optional-key :search) s/Str}}
+          :produces ["application/json"]
           :handler suppliers/index-resources
           :responses {200 {:description "OK"
                            :body get-response}

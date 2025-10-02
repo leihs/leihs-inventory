@@ -14,6 +14,7 @@
           :parameters {:path {:pool_id s/Uuid
                               :model_id s/Uuid
                               :item_id s/Uuid}}
+          :produces ["application/json"]
           :handler item/get-resource
           :responses {200 {:description "OK"
                               ;:body (s/->Either [s/Any schema])} ;;FIXME

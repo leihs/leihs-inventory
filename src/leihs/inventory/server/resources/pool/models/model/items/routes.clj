@@ -15,6 +15,7 @@
                                   :model_id s/Uuid
                                   (s/optional-key :page) s/Int
                                   (s/optional-key :size) s/Int}}
+              :produces ["application/json"]
               :handler items/index-resources
               :responses {200 {:description "OK"
                                :body get-items-response}

@@ -20,6 +20,7 @@
                               :model_id s/Uuid}
                        :query {(s/optional-key :page) s/Int
                                (s/optional-key :size) s/Int}}
+          :produces ["application/json"]
           :handler index-resources
           :responses {200 {:description "OK"
                            :body get-attachments-response}
@@ -32,6 +33,7 @@
                              "- Allowed File types: " (str/join ", " (config-get :api :attachments :allowed-file-types)))
            :coercion reitit.coercion.schema/coercion
            :swagger {:produces ["application/json"]}
+           :produces ["application/json"]
            :parameters {:path {:pool_id s/Uuid
                                :model_id s/Uuid}
                         :header {:x-filename s/Str}}
