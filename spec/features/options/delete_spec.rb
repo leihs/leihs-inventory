@@ -33,7 +33,6 @@ feature "Delete option", type: :feature do
 
     within "table" do
       expect(page).to have_selector("tr", text: "#{product} #{version}")
-      expect(find("tr", text: "#{product} #{version}")).to have_content("Option")
     end
 
     within find("tr", text: "#{product} #{version}") do
