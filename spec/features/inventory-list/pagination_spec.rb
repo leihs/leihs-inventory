@@ -15,8 +15,10 @@ feature "Inventory Pagination ", type: :feature do
     puts "Created 400 models"
     login(user)
     visit "/inventory"
+    expect(page).to have_content "Inventory"
     find("nav button", text: "Inventory").click
     click_on pool.name
+    expect(page).to have_content pool.name
   end
 
   scenario "works" do

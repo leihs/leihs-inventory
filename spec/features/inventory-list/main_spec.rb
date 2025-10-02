@@ -81,9 +81,11 @@ feature "Inventory Page", type: :feature do
     login(user)
 
     visit "/inventory"
+    expect(page).to have_content "Inventory"
     find("nav button", text: "Inventory").click
     click_on pool.name
     expect(page).to have_content(pool.name)
+
     page.driver.browser.action.key_down(:shift)
       .key_down(:alt)
       .send_keys("f")
@@ -346,6 +348,7 @@ feature "Inventory Page", type: :feature do
     login(user)
 
     visit "/inventory"
+    expect(page).to have_content "Inventory"
     find("nav button", text: "Inventory").click
     click_on pool_1.name
 
