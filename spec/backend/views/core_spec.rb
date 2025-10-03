@@ -45,15 +45,15 @@ describe "Request " do
       end
     end
 
-    context "against /inventory/status/" do
+    context "against /inventory/status returns SPA" do
       scenario "invalid status-check for cider" do
         resp = http_client.get "/inventory/status/"
-        expect(resp.status).to be == 404
+        expect_spa_content(resp, 200)
       end
 
       scenario "valid status-check for cider" do
         resp = http_client.get "/inventory/status"
-        expect(resp.status).to be == 200
+        expect_spa_content(resp, 200)
       end
     end
   end

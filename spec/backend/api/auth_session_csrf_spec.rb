@@ -34,6 +34,7 @@ describe "Call swagger-endpoints" do
     context "accesses protected json-resource by accept=application/json" do
       it "return 404 for invalid url" do
         resp = client.get("/inventory/whats/up/222")
+        binding.pry
         expect(resp.status).to eq(404)
       end
 
@@ -67,19 +68,19 @@ describe "Call swagger-endpoints" do
 
     it "protected access against json-resource by accept=text/html" do
       resp = plain_faraday_html_client.get("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect_spa_content(resp, 200)
 
       resp = plain_faraday_html_client.post("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect_spa_content(resp, 200)
 
       resp = plain_faraday_html_client.delete("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect_spa_content(resp, 200)
 
       resp = plain_faraday_html_client.put("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect_spa_content(resp, 200)
 
       resp = plain_faraday_html_client.patch("/inventory/test-csrf")
-      expect(resp.status).to eq(404)
+      expect_spa_content(resp, 200)
     end
   end
 end

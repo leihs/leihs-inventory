@@ -17,7 +17,12 @@
         :as request}]
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])
-          public? (:public route-data)]
+          public? (:public route-data)
+
+          p (println ">o> abc.wrap-authorize.matus.public?" public?)
+          p (println ">o> abc.wrap-authorize.matus.route-data?" route-data)
+          p (println ">o> abc.wrap-authorize.matus.???" (or public? authenticated-entity))
+          ]
       (if (or public? authenticated-entity)
         (handler request)
         (unauthorized-response request)))))

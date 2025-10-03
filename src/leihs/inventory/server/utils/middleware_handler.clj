@@ -64,12 +64,28 @@
         (when (contains? whitelist uri)
           true))))
 
-(defn wrap-strict-format-negotiate [handler]
+(defn wrap-strict-format-negotiate
+  "- If the endpoint produces a content type that is accepted by the client,
+     the request is passed to the handler.
+   - If the endpoint does not produce a content type that is accepted by the client,
+     a 404 response is returned.
+   - If the endpoint does not exist, a 404 response is returned.
+   - If the Accept header is application/json, the request is always passed to the handler
+     (to allow error responses in JSON format).
+   - For routes matching /inventory(/.*)? and resulting in a 404, an HTML response is returned
+     if text/html or */* is accepted by the client.
+   - For other routes resulting in a 404, a plain text 404 response is returned."
+  [handler]
   (fn [request]
+
+    (println ">o> abc.wrap-strict-format-negotiate")
+
     (let [accept-header (get-in request [:headers "accept"])
           accepted-types (if accept-header (parse-accept-header accept-header) #{"*/*"})
           method (get request :request-method)
           route-data (get-in request [:reitit.core/match :data method])
+
+          is-accept-json? (= accept-header "application/json")
 
           ;p (println ">o> abc.route-data" route-data)
           produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
@@ -98,8 +114,13 @@
 
           exists? (boolean route-data)
 
-          resp-status (if (and endpoint-produces-content-type? exists?) 200 404)
-          resp-status 200]
+          resp-status (if (and endpoint-produces-content-type? exists? (not is-accept-json?)) 200 404)
+          ;resp-status 200
+
+          p (println ">o> abc.resp-status" resp-status)
+          p (println ">o> abc.endpoint-produces-content-type?" endpoint-produces-content-type?)
+
+          ]
 
       (if endpoint-produces-content-type?
         (handler request)
@@ -114,19 +135,35 @@
       ;nil
       )))
 
+
+(defn pr
+  ([str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+  ([str str2 fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str str2)
+  fnc
+  )
+)
+
 (defn wrap-html-40x
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
    if the handler returns a 40x, we return SPA-HTML response"
   [handler url-patterns]
   (fn [request]
+    (println ">o> abc.wrap-html-40x")
     (let [resp (handler request)
           uri (:uri request)
           accept (some-> (get-in request [:headers "accept"]) str/lower-case)
           resp-status (:status resp)
-          p (println ">o> abc.wrap-html-404" (:status resp))]
-      (if (and (#{400 404} resp-status)
+          p (println ">o> abc.wrap-html-404 -> " (:status resp))]
+      (if (and (#{400 404 422} resp-status)
                (some #(re-matches % uri) url-patterns)
                (or (str/includes? accept "text/html")
                    (str/includes? accept "*/*")))
-        (create-accept-response request 404)
-        resp))))
+        (pr ">o>" "1" (create-accept-response request 404))
+        (pr ">o>" "2" resp)))))

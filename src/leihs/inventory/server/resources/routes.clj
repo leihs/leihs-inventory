@@ -265,6 +265,9 @@
            :produces ["text/html"]
 
            :handler (fn [request]
+
+                      (println ">o> html-handler" )
+
                       (let [router (:reitit.router request)
                             method (:request-method request)
                             uri (:uri request)
