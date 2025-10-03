@@ -15,9 +15,12 @@
 
         accept (str/lower-case (or (get-in request [:headers "accept"]) ""))
 
+        uri (:uri request)
+        inventory-route? (str/includes? uri "/inventory")
+
         p (println ">o> abc.accept" accept)
         ]
     (cond
-      (str/includes? accept "text/html")
+      (and (str/includes? accept "text/html") inventory-route?)
       (rh/index-html-response request 404)
       :else (create-response-by-accept accept 404 {:error "Not Found" :status "failure"}))))

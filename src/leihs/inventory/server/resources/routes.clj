@@ -287,9 +287,10 @@
                             ;p (println ">o> abc.exists?" exists?)
                             ]
                         (if (authenticated? request)
-                          (if exists?
+                          ;(if exists?
+                          ;  (rh/index-html-response request 200)
+                          ;  (rh/index-html-response request 404))
                             (rh/index-html-response request 200)
-                            (rh/index-html-response request 404))
                           {:status 302
                            :headers {"Location" "/sign-in?return-to=%2Finventory/"
                                      "Content-Type" "text/html"}

@@ -100,7 +100,7 @@
           exists? (boolean route-data)
 
           resp-status (if (and endpoint-produces-content-type? exists?) 200 404)
-
+resp-status 200
 
           ]
       (if         endpoint-produces-content-type?
