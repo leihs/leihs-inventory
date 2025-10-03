@@ -139,7 +139,7 @@
 
                         (and endpoint-produces-content-type? exists? is-accept-json?) 404
 
-                        :else 400
+                        :else 404
                         )
 
 

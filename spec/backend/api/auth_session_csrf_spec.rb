@@ -34,7 +34,6 @@ describe "Call swagger-endpoints" do
     context "accesses protected json-resource by accept=application/json" do
       it "return 404 for invalid url" do
         resp = client.get("/inventory/whats/up/222")
-        binding.pry
         expect(resp.status).to eq(404)
       end
 
