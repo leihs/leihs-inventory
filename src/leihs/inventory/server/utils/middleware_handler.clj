@@ -68,34 +68,33 @@
   (fn [request]
     (let [accept-header (get-in request [:headers "accept"])
           accepted-types (if accept-header (parse-accept-header accept-header) #{"*/*"})
-          method (get request :request-method)
-          route-data (get-in request [:reitit.core/match :data method])
-          is-accept-json? (= accept-header "application/json")
-          produces-set (set (map clojure.string/lower-case (get route-data :produces [])))
-          accept-format (some-> route-data :accept clojure.string/lower-case)
+          method         (:request-method request)
+          uri            (:uri request)
+          router         (:reitit.router request)
+          route-data     (endpoint-exists? router method uri)
+          produces-set   (set (map clojure.string/lower-case
+                                (get-in request [:reitit.core/match :data method :produces] [])))
+          accept-format  (some-> route-data :accept clojure.string/lower-case)
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))
-          uri (:uri request)
-          endpoint-produces-content-type? (boolean (and (seq allowed-formats)
-                                                        (seq accepted-types)
-                                                        (some allowed-formats accepted-types)))
-          is-inventory-route? (re-matches #"/inventory(/.*)?" uri)
-          router (:reitit.router request)
-          method (:request-method request)
-          uri (:uri request)
-          route-data (endpoint-exists? router method uri)
-          exists? (boolean route-data)
-          resp-status (cond
-                        (and exists? (not is-accept-json?)) 200
-                        (and (not exists?) (not is-accept-json?)) 404
-                        (and endpoint-produces-content-type? exists? is-accept-json?) 404
-                        :else 404)]
-      (if endpoint-produces-content-type?
-        (handler request)
+          is-accept-json? (= accept-header "application/json")
+          endpoint-produces? (and (seq allowed-formats)
+                               (seq accepted-types)
+                               (some allowed-formats accepted-types))
+          exists?        (boolean route-data)
+          is-inventory?  (re-matches #"/inventory(/.*)?" uri)
+          resp-status    (cond
+                           (and exists? (not is-accept-json?)) 200
+                           (and (not exists?) (not is-accept-json?)) 404
+                           (and endpoint-produces? exists? is-accept-json?) 404
+                           :else 404)]
+      (cond
+        endpoint-produces?        (handler request)
+        is-inventory?        (create-accept-response request resp-status)
 
-        (if is-inventory-route?
-          (create-accept-response request resp-status)
-          (-> (response "") (status resp-status) (content-type "text/html")))))))
+        :else
+        (-> (response "") (status resp-status) (content-type "text/html"))))))
+
 
 (defn wrap-html-40x
   "Wraps a handler so that for matching URIs (by regex) with Accept text/html,
