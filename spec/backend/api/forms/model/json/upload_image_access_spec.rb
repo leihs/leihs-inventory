@@ -33,7 +33,6 @@ end
 
 def expect_spa_content(resp, status)
   expect(resp.body).to include("<title>Inventory</title>")
-  binding.pry if resp.status != status
   expect(resp.status).to eq(status)
 end
 
@@ -48,7 +47,7 @@ describe "Inventory Model" do
       let(:model_id) { @models.first.id }
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
-      let(:html_client) { plain_faraday_html_client(cookie_header.merge({ "Accept" => "text/html" })) }
+      let(:html_client) { plain_faraday_html_client(cookie_header.merge({"Accept" => "text/html"})) }
 
       let(:path_valid_png) { File.expand_path("spec/files/500-kb.png", Dir.pwd) }
       let(:pool_id) { @inventory_pool.id }
@@ -94,7 +93,7 @@ describe "Inventory Model" do
           end
 
           context "fetch not existing resource, " do
-            let (:non_existing_image_id) { "00000000-0000-0000-0000-000000000000" }
+            let(:non_existing_image_id) { "00000000-0000-0000-0000-000000000000" }
 
             it "allows fetching the uploaded image" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{non_existing_image_id}"
@@ -108,7 +107,7 @@ describe "Inventory Model" do
           end
 
           context "fetch by invalid uuid, " do
-            let (:invalid_uuid_coercion_error) { "00000000-0000-0000-0000-00000000000s" }
+            let(:invalid_uuid_coercion_error) { "00000000-0000-0000-0000-00000000000s" }
 
             it "blocks fetching the uploaded image" do
               resp = html_client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{invalid_uuid_coercion_error}"
@@ -122,16 +121,16 @@ describe "Inventory Model" do
           end
 
           context "fetch SPA-response, " do
-            let (:in_or_valid_routes) { ["/inventory", "/inventory/",
-                                         "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
-                                         "/inventory/#{pool_id}/list/",
-                                         "/inventory/#{pool_id}/list/invalid-url",
-                                         "/inventory/invalid-url"
-            ] }
+            let(:in_or_valid_routes) {
+              ["/inventory", "/inventory/",
+                "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
+                "/inventory/#{pool_id}/list/",
+                "/inventory/#{pool_id}/list/invalid-url",
+                "/inventory/invalid-url"]
+            }
 
             it "doesn't matter if in/valid" do
               in_or_valid_routes.each do |route|
-
                 resp = html_client.get route
                 expect_spa_content(resp, 200)
               end

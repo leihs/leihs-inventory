@@ -22,7 +22,7 @@ end
 def plain_faraday_html_client(headers = {})
   @plain_faraday_client ||= Faraday.new(
     url: api_base_url,
-  headers: {accept: "text/html"}.merge(headers)
+    headers: {accept: "text/html"}.merge(headers)
   ) do |conn|
     yield(conn) if block_given?
     conn.adapter Faraday.default_adapter

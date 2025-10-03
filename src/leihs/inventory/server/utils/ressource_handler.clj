@@ -8,8 +8,7 @@
 
 (defn custom-not-found-handler [request]
   (println ">o> abc.custom-not-found-handler")
-  (let [
-        p (println ">o> abc.accept"  request)
+  (let [p (println ">o> abc.accept" request)
         p (println ">o> abc.accept" (get-in request [:headers]))
         p (println ">o> abc.accept" (get-in request [:headers "accept"]))
 
@@ -18,8 +17,7 @@
         uri (:uri request)
         inventory-route? (str/includes? uri "/inventory")
 
-        p (println ">o> abc.accept" accept)
-        ]
+        p (println ">o> abc.accept" accept)]
     (cond
       (and (str/includes? accept "text/html") inventory-route?)
       (rh/index-html-response request 404)

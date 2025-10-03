@@ -45,10 +45,8 @@
 
                   ;#(wrap-router % router)                  ;; ✅ inject router here
 
-
-                  ;wrap-router
+;wrap-router
                   wrap-strict-format-negotiate
-
 
                   wrap-handle-coercion-error
                   db/wrap-tx
@@ -128,7 +126,6 @@
 ;      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
 ;      (wrap-default-charset "utf-8"))))
 
-
 (def default-router-config
   {:conflicts nil
    :strict-slash true
@@ -139,19 +136,19 @@
 
 (defn init []
   (let [router (ring/router
-                 (routes/all-api-endpoints)
-                 default-router-config)
+                (routes/all-api-endpoints)
+                default-router-config)
 
         app (ring/routes
-              (swagger/init)
-              (ring/ring-handler
-                router
-                (ring/create-default-handler
-                  {:not-found custom-not-found-handler})))
+             (swagger/init)
+             (ring/ring-handler
+              router
+              (ring/create-default-handler
+               {:not-found custom-not-found-handler})))
 
         ;; 🚀 Inject router into request here
         app (wrap-router app router)]
     (-> app
-      (cache-buster2/wrap-resource "public" cache-bust-options)
-      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-      (wrap-default-charset "utf-8"))))
+        (cache-buster2/wrap-resource "public" cache-bust-options)
+        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
+        (wrap-default-charset "utf-8"))))

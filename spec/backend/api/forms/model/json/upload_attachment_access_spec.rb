@@ -38,7 +38,6 @@ end
 
 def expect_spa_content(resp, status)
   expect(resp.body).to include("<title>Inventory</title>")
-  binding.pry if resp.status != status
   expect(resp.status).to eq(status)
 end
 
@@ -54,7 +53,7 @@ describe "Inventory Model" do
       let(:model_id) { @models.first.id }
       let(:client) { plain_faraday_json_client(cookie_header) }
       let(:cookie_header) { @cookie_header }
-      let(:html_client) { plain_faraday_html_client(cookie_header.merge({ "Accept" => "text/html" })) }
+      let(:html_client) { plain_faraday_html_client(cookie_header.merge({"Accept" => "text/html"})) }
 
       let(:form_categories) { @form_categories }
       let(:form_compatible_models) { @form_compatible_models }

@@ -140,7 +140,7 @@ describe "Inventory Model" do
           end
 
           it "with correct accept-type" do
-            ["application/pdf" "text/html"].each do |accept_type|
+            ["application/pdf" + "text/html"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/attachments/#{@attachment_id}"
 
