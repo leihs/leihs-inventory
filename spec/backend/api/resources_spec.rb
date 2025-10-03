@@ -10,13 +10,13 @@ describe "Call swagger-endpoints" do
 
       "/inventory/api-docs/swagger.json" => 200,
       "/inventory/api-docs/index.html" => 200,
-      "/inventory/api-docs/" => 200,
-      "/inventory/api-docs" => 200,
+      "/inventory/api-docs/" => 302,
+      "/inventory/api-docs" => 302,
 
       "/inventory/swagger-ui/swagger.json" => 200,
       "/inventory/swagger-ui/index.html" => 200,
-      "/inventory/swagger-ui/" => 302,
-      "/inventory/swagger-ui" => 302,
+      "/inventory/swagger-ui/" => 200,
+      "/inventory/swagger-ui" => 200,
 
       "/inventory/assets/zhdk-logo.svg" => 302,
 

@@ -148,9 +148,9 @@
           p (println ">o> abc.nego.endpoint-produces-content-type?" endpoint-produces-content-type?)
 
           ]
-
+      ; block
       (if endpoint-produces-content-type?
-        (pr ">o>" "forward" (handler request))
+        (pr ">o>" "forward, ct-exists" (handler request))
 
         (if is-inventory-route?
           (create-accept-response request resp-status)

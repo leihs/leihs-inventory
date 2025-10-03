@@ -121,16 +121,33 @@ describe "Inventory Model" do
           end
 
           context "fetch SPA-response, " do
-            let(:in_or_valid_routes) {
+            let(:valid_routes) {
               ["/inventory", "/inventory/",
                 "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
-                "/inventory/#{pool_id}/list/",
+                "/inventory/#{pool_id}/list/"
+                # "/inventory/#{pool_id}/list/invalid-url",
+                # "/inventory/invalid-url"
+                ]
+            }
+
+            let(:invalid_routes) {
+              [
+                # "/inventory", "/inventory/",
+                # "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
+                # "/inventory/#{pool_id}/list/",
                 "/inventory/#{pool_id}/list/invalid-url",
                 "/inventory/invalid-url"]
             }
 
-            it "doesn't matter if in/valid" do
-              in_or_valid_routes.each do |route|
+            it "process invalid route-requests" do
+              invalid_routes.each do |route|
+                resp = html_client.get route
+                expect_spa_content(resp, 404)
+              end
+            end
+
+            it "process valid route-requests" do
+              valid_routes.each do |route|
                 resp = html_client.get route
                 expect_spa_content(resp, 200)
               end
