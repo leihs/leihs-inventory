@@ -48,20 +48,10 @@ describe "Inventory Model" do
       let(:model_id) { @models.first.id }
       let(:cookie_header) { @cookie_header }
       let(:client) { plain_faraday_json_client(cookie_header) }
-      let(:html_client) {        plain_faraday_html_client(cookie_header.merge({ "Accept" => "text/html" })) }
+      let(:html_client) { plain_faraday_html_client(cookie_header.merge({ "Accept" => "text/html" })) }
 
       let(:path_valid_png) { File.expand_path("spec/files/500-kb.png", Dir.pwd) }
-      # let(:path_valid_jpg) { File.expand_path("spec/files/600-kb.jpg", Dir.pwd) }
-      # let(:path_valid_jpeg) { File.expand_path("spec/files/600-kb.jpeg", Dir.pwd) }
-      # let(:path_valid_pdf) { File.expand_path("spec/files/300-kb.pdf", Dir.pwd) }
-
       let(:pool_id) { @inventory_pool.id }
-
-      # before do
-      #   [path_valid_png, path_valid_jpg, path_valid_jpeg, path_valid_pdf].each do |path|
-      #     raise "File not found: #{path}" unless File.exist?(path)
-      #   end
-      # end
 
       context "image upload" do
         def upload_image(file_path)
@@ -133,17 +123,17 @@ describe "Inventory Model" do
 
           context "fetch SPA-response, " do
             let (:in_or_valid_routes) { ["/inventory", "/inventory/",
-            "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
-            "/inventory/#{pool_id}/list/",
-            "/inventory/#{pool_id}/list/invalid-url",
-            "/inventory/invalid-url",
+                                         "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
+                                         "/inventory/#{pool_id}/list/",
+                                         "/inventory/#{pool_id}/list/invalid-url",
+                                         "/inventory/invalid-url"
             ] }
 
             it "doesn't matter if in/valid" do
               in_or_valid_routes.each do |route|
 
-              resp = html_client.get route
-              expect_spa_content(resp, 200)
+                resp = html_client.get route
+                expect_spa_content(resp, 200)
               end
             end
           end

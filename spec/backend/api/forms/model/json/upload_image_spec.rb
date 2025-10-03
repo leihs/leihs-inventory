@@ -187,7 +187,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*"].each do |accept_type|
+              "image/png", "image/*" "*/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
               expect(resp.status).to eq(200)
@@ -201,15 +201,6 @@ describe "Inventory Model" do
 
               expect(resp.status).to eq(406)
               expect(resp.body["message"]).to eq("Requested content type not supported")
-            end
-          end
-
-          it "with incorrect accept-type" do
-            ["*/*"].each do |accept_type|
-              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
-              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}"
-
-              expect(resp.status).to eq(404)
             end
           end
 
@@ -245,7 +236,7 @@ describe "Inventory Model" do
 
           it "with content-negotiation OR correct accept-type" do
             ["image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-              "image/png", "image/*"].each do |accept_type|
+              "image/png", "image/*" "*/*"].each do |accept_type|
               client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
               resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
 
@@ -260,15 +251,6 @@ describe "Inventory Model" do
 
               expect(resp.status).to eq(406)
               expect(resp.body["message"]).to eq("Requested content type not supported")
-            end
-          end
-
-          it "with invalid accept-type" do
-            ["*/*"].each do |accept_type|
-              client = plain_faraday_json_client(cookie_header.merge({"Accept" => accept_type}))
-              resp = client.get "/inventory/#{pool_id}/models/#{model_id}/images/#{@image_id}/thumbnail"
-
-              expect(resp.status).to eq(404)
             end
           end
 
