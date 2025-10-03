@@ -302,11 +302,14 @@
 
    ["api-docs"
     {:get {:handler swagger-api-docs-handler
+           :public true
+           :produces ["text/html"]
            :no-doc true}}
 
     ["/swagger.json"
      {:get {:no-doc true
             :public true
+            :produces ["text/html" "application/json"]
             :swagger {:info {:title "inventory-api"
                              :version "2.0.0"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))}
@@ -318,13 +321,15 @@
     ["/openapi.json"
      {:get {:no-doc true
             :public true
+            ;:produces ["application/json"]
+            :produces ["text/html" "application/json"]
             :openapi {:openapi "3.0.0"
                       :info {:title "inventory-api"
                              :description (str (slurp (io/resource "md/info.html")) (slurp (io/resource "md/routes.html")))
                              :version "3.0.0"}}
             :handler (openapi/create-openapi-handler)}}]]
 
-   ["swagger-ui/{*path}"
+   ["swagger-ui{*path}"
     {:no-doc HIDE_BASIC_ENDPOINTS
      :get {:accept "text/html"
            :public true
