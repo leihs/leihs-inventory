@@ -124,10 +124,9 @@ describe "Inventory Model" do
             let(:valid_routes) {
               ["/inventory", "/inventory/",
                 "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
-                "/inventory/#{pool_id}/list/"
-                # "/inventory/#{pool_id}/list/invalid-url",
-                # "/inventory/invalid-url"
-                ]
+                "/inventory/#{pool_id}/list/"]
+              # "/inventory/#{pool_id}/list/invalid-url",
+              # "/inventory/invalid-url"
             }
 
             let(:invalid_routes) {
@@ -136,7 +135,8 @@ describe "Inventory Model" do
                 # "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
                 # "/inventory/#{pool_id}/list/",
                 "/inventory/#{pool_id}/list/invalid-url",
-                "/inventory/invalid-url"]
+                "/inventory/invalid-url"
+              ]
             }
 
             it "process invalid route-requests" do

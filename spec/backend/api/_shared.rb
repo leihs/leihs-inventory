@@ -494,6 +494,5 @@ end
 
 def expect_spa_content(resp, status)
   expect(resp.body).to include("<title>Inventory</title>")
-  binding.pry if resp.status != status
   expect(resp.status).to eq(status)
 end

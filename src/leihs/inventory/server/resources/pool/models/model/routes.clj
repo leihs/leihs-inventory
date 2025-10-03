@@ -45,6 +45,7 @@
                        :produces "application/json"}
              :description description-model-form
              :coercion spec/coercion
+             :produces ["application/json"]
              :parameters {:path {:pool_id uuid?
                                  :model_id uuid?}}
              :handler model/delete-resource

@@ -17,12 +17,7 @@
         :as request}]
     (let [method request-method
           route-data (get-in request [:reitit.core/match :data method])
-          public? (:public route-data)
-
-          p (println ">o> abc.wrap-authorize.matus.public?" public?)
-          p (println ">o> abc.wrap-authorize.matus.route-data?" route-data)
-          p (println ">o> abc.wrap-authorize.matus.???" (or public? authenticated-entity))
-          ]
+          public? (:public route-data)]
       (if (or public? authenticated-entity)
         (handler request)
         (unauthorized-response request)))))
@@ -37,7 +32,6 @@
 
       (if public?
         (handler request)
-
         (let [access-right (detect #(= (:inventory_pool_id %) pool-id)
                                    (get-in request [:authenticated-entity :access-rights]))
               role (:role access-right)]

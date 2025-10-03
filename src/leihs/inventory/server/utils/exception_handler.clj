@@ -2,10 +2,6 @@
   (:require
    [ring.util.response :as resp :refer [response content-type]]))
 
-(defn create-response-by-accept [_ status data]
-  (-> (response data)
-      (resp/status status)))
-
 (defn create-response-by-accept [accept status data]
   (if (= accept "text/html")
     (-> (response "")

@@ -72,8 +72,7 @@
       (= 1 (count accepts))
       {:accept-header (first accepts) :negotiation? false}
 
-      :else
-      {:accept-header nil :negotiation? true})))
+      :else {:accept-header nil :negotiation? true})))
 
 (defn handle-image-response
   [request image-data]

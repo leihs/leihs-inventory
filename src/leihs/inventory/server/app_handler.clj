@@ -14,9 +14,7 @@
    [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
                                                             wrap-html-40x
                                                             wrap-strict-format-negotiate]]
-
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
-   [leihs.inventory.server.utils.session-dev-mode :as dm]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
@@ -43,11 +41,7 @@
                                      #"/inventory/.+/images/.+/thumbnail"
                                      #"/inventory/.+/attachments/.+"])
 
-                  ;#(wrap-router % router)                  ;; ✅ inject router here
-
-;wrap-router
                   wrap-strict-format-negotiate
-
                   wrap-handle-coercion-error
                   db/wrap-tx
                   core-routing/wrap-canonicalize-params-maps
@@ -61,7 +55,6 @@
                   wrap-cookies
                   csrf/wrap-csrf
                   leihs.core.anti-csrf.back/wrap
-                  dm/extract-dev-cookie-params
 
                   wrap-params
                   wrap-content-type
@@ -79,52 +72,10 @@
                   coercion/coerce-request-middleware
                   multipart/multipart-middleware])
 
-;(def default-router-config {:conflicts nil
-;                            :strict-slash true
-;                            :exception pretty/exception
-;                            :data {:coercion reitit.coercion.spec/coercion
-;                                   :muuntaja m/instance
-;                                   :middleware middlewares}})
-
 (def cache-bust-options
   {:cache-bust-paths [#"^/inventory/assets/.*\.(js|css|png|jpg|svg|woff2?)$"]
    :never-expire-paths []
    :cache-enabled? true})
-
-;(defn init []
-;  (let [app (ring/routes
-;             (swagger/init)
-;             (ring/ring-handler (ring/router (routes/all-api-endpoints) default-router-config)
-;                                (ring/create-default-handler {:not-found custom-not-found-handler})))]
-;    (-> app
-;        (cache-buster2/wrap-resource "public" cache-bust-options)
-;        (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-;        (wrap-default-charset "utf-8"))))
-;
-;
-;(defn init []
-;  (let [router (ring/router (routes/all-api-endpoints)
-;                 (assoc default-router-config
-;                   :data {:coercion reitit.coercion.spec/coercion
-;                          :muuntaja m/instance
-;                          :middleware (make-middlewares nil)})) ;; placeholder first
-;        ;; now rebuild middleware with the real router
-;        router (ring/router (routes/all-api-endpoints)
-;                 (assoc default-router-config
-;                   :data {:coercion reitit.coercion.spec/coercion
-;                          :muuntaja m/instance
-;                          :middleware (make-middlewares router)}))
-;        app    (ring/routes
-;                 (swagger/init)
-;                 (ring/ring-handler router
-;                   (ring/create-default-handler
-;                     {:not-found custom-not-found-handler})))
-;        app (wrap-router app router)
-;        ]
-;    (-> app
-;      (cache-buster2/wrap-resource "public" cache-bust-options)
-;      (wrap-content-type {:mime-types {"svg" "image/svg+xml"}})
-;      (wrap-default-charset "utf-8"))))
 
 (def default-router-config
   {:conflicts nil
@@ -138,15 +89,12 @@
   (let [router (ring/router
                 (routes/all-api-endpoints)
                 default-router-config)
-
         app (ring/routes
              (swagger/init)
              (ring/ring-handler
               router
               (ring/create-default-handler
                {:not-found custom-not-found-handler})))
-
-        ;; 🚀 Inject router into request here
         app (wrap-router app router)]
     (-> app
         (cache-buster2/wrap-resource "public" cache-bust-options)

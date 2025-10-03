@@ -19,7 +19,6 @@
 
 (defn index-resources
   ([request]
-   (println ">o> abc.index-resources")
    (let [tx (:tx request)
          {pool-id :pool_id} (path-params request)
          {:keys [with_items type

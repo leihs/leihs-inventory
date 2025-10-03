@@ -82,8 +82,7 @@
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
 
-     :post {;:accept "application/json"
-            :accept "text/html"
+     :post {:accept "text/html"
             :description "Authenticate user by login (set cookie with token)\n- Expects 'user' and 'password'"
             :produces ["text/html"]
             :coercion reitit.coercion.schema/coercion
@@ -100,8 +99,7 @@
    ["sign-out"
     {:swagger {:tags ["Login / Logout"]}
      :no-doc HIDE_BASIC_ENDPOINTS
-     :post {;:accept "application/json"
-            :accept "text/html"
+     :post {:accept "text/html"
             :produces ["text/html"]
             :handler post-sign-out}
      :get {:accept "text/html"
@@ -159,79 +157,12 @@
    "svg" "image/svg+xml"
    "txt" "text/plain"})
 
-(defn convert-params [request]
-  (if-let [form-params (:form-params request)]
-    (let [converted-form-params (into {} (map (fn [[k v]] [(keyword k) v]) form-params))]
-      (assoc request :form-params converted-form-params :form-params-raw converted-form-params))
-    request))
-
 (defn content-type [filename]
   (let [ext (-> filename
                 (str/split #"\.")
                 last
                 str/lower-case)]
     (get mime-types ext "application/octet-stream")))
-
-(defn endpoint-exists?
-  [router method uri]
-  (when-let [match (r/match-by-path router uri)]
-    (let [route-data (get-in match [:data method])]
-      (when (and route-data
-                 (not (:fallback? (:data match)))) ;; exclude fallback
-        route-data))))
-(defn- parse-accept-header [accept-header]
-  (->> (clojure.string/split accept-header #",")
-       (map #(clojure.string/trim (clojure.string/lower-case (clojure.string/replace % #";.*" ""))))
-       (remove clojure.string/blank?)
-       set))
-
-(defn endpoint-exists?
-  "Check if an endpoint exists for a given method + uri.
-   Returns the route data if it exists, otherwise nil."
-  [router method uri]
-  (when-let [match (r/match-by-path router uri)]
-    (get-in match [:data method])))
-
-(defn endpoint-exists?
-  [router method uri]
-  (println ">o> abc.endpoint-exists?1" router)
-  (println ">o> abc.endpoint-exists?1a" uri)
-  (when-let [match (r/match-by-path router uri)]
-    (let [_ (println ">o> abc.endpoint-exists?2")
-          route-data (get-in match [:data method])]
-      (println ">o> abc.endpoint-exists?3 route-data")
-      (when (and route-data
-                 (not (:fallback? (:data match)))) ;; exclude fallback
-        route-data))))
-
-(defn endpoint-exists?
-  "Check if an endpoint exists for a given method + uri.
-   Returns the route data if it's not a fallback, otherwise nil."
-  [router method uri]
-  (when-let [match (r/match-by-path router uri)]
-    (let [route-data (get-in match [:data method])
-          ;p (println ">o> abc.route-data" route-data)
-          fallback? (get-in match [:data :fallback?])
-          ;p (println ">o> abc.fallback?" fallback?)
-          ]
-      (when (and route-data (not fallback?))
-        route-data))))
-
-(defn endpoint-exists?
-  "Check if an endpoint exists for a given method + uri.
-   Returns the route data if it's not a fallback, otherwise nil.
-   Also accepts URIs with/without a trailing slash."
-  [router method uri]
-  (letfn [(match-ok? [uri]
-            (when-let [match (r/match-by-path router uri)]
-              (let [route-data (get-in match [:data method])
-                    fallback? (get-in match [:data :fallback?])]
-                (when (and route-data (not fallback?))
-                  route-data))))]
-    (or (match-ok? uri)
-        (match-ok? (if (.endsWith uri "/")
-                     (subs uri 0 (dec (count uri))) ;; drop slash
-                     (str uri "/"))))))
 
 (defn endpoint-exists?
   "Check if an endpoint exists for a given method + uri.
@@ -263,31 +194,16 @@
      :fallback? true
      :get {:description "Public assets like JS, CSS, images"
            :produces ["text/html"]
-
            :handler (fn [request]
-
-                      (println ">o> html-handler" )
-
                       (let [router (:reitit.router request)
                             method (:request-method request)
                             uri (:uri request)
-
-                            ;p (println ">o> abc1" router)
                             route-data (endpoint-exists? router method uri)
-
-                            ;p (println ">o> abc.a" router)
-                            ;p (println ">o> abc.b" method uri)
-
-                            exists? (boolean route-data)
-
-                            ;p (println ">o> abc.exists?" exists?)
-                            ]
+                            exists? (boolean route-data)]
                         (if (authenticated? request)
-
-                          (if exists?                       ; needed for in/valid routes
+                          (if exists?
                             (rh/index-html-response request 200)
                             (rh/index-html-response request 404))
-                          ;(rh/index-html-response request 200)
                           {:status 302
                            :headers {"Location" "/sign-in?return-to=%2Finventory/"
                                      "Content-Type" "text/html"}
@@ -317,7 +233,6 @@
     ["/openapi.json"
      {:get {:no-doc true
             :public true
-            ;:produces ["application/json"]
             :produces ["text/html" "application/json"]
             :openapi {:openapi "3.0.0"
                       :info {:title "inventory-api"

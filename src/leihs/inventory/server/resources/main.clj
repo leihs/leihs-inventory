@@ -86,7 +86,6 @@
                 pools (jdbc/execute! tx
                                      (get-pools-access-rights-of-user-query
                                       true user_id "direct_access_rights"))
-
                 return-to (if (or (empty? pools) (> (count pools) 1))
                             INVENTORY_VIEW_PATH
                             (->> (first pools)

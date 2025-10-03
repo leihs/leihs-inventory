@@ -14,7 +14,7 @@ describe "Request " do
       scenario "status-check for cider" do
         resp = client.get "/inventory/status"
         expect(resp.status).to be == 200
-        expect(resp.body.keys).to eq( ["memory", "db-pool", "health-checks"])
+        expect(resp.body.keys).to eq(["memory", "db-pool", "health-checks"])
       end
     end
   end

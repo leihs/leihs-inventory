@@ -121,7 +121,6 @@ describe "Call swagger-endpoints" do
       expect(token).to be
 
       resp = json_client_get(@protected_url, headers: {"Accept" => "text/html"}, token: token)
-      # expect(resp.status).to eq(404)
       expect_spa_content(resp, 200)
     end
   end

@@ -5,7 +5,6 @@ describe "Call swagger-endpoints" do
   context "with accept=text/html2" do
     it "redirect to login if request not comes from swagger-ui" do
       resp = plain_faraday_json_client.get("/inventory/session/protected") do |req|
-        # req.headers["Accept"] = "text/html"
         req.headers["Referer"] = "/inventory"
       end
       expect(resp.status).to eq(403)
@@ -13,7 +12,7 @@ describe "Call swagger-endpoints" do
 
     it "returns correct result 200 SPA that results in a 404" do
       resp = plain_faraday_html_client.get("/inventory/session/protected")
-      expect(resp.status).to eq(200)
+      expect_spa_content(resp, 200)
     end
 
     it "returns correct result 403" do
