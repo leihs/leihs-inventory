@@ -64,6 +64,20 @@
         (when (contains? whitelist uri)
           true))))
 
+(defn pr
+  ([str fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str fnc)
+  fnc
+  )
+
+  ([str str2 fnc]
+  ;(println ">oo> HELPER / " str fnc)(println ">oo> HELPER / " str fnc)
+  (println ">oo> " str str2)
+  fnc
+  )
+)
+
 (defn wrap-strict-format-negotiate
   "- If the endpoint produces a content type that is accepted by the client,
      the request is passed to the handler.
@@ -93,9 +107,9 @@
           allowed-formats (cond-> produces-set
                             accept-format (conj accept-format))
           uri (:uri request)
-          endpoint-produces-content-type? (and (seq allowed-formats)
+          endpoint-produces-content-type? (boolean (and (seq allowed-formats)
                                                (seq accepted-types)
-                                               (some allowed-formats accepted-types))
+                                               (some allowed-formats accepted-types)))
           is-inventory-route? (re-matches #"/inventory(/.*)?" uri)
 
           p (println ">o> abc.endpoint-produces-content-type?.200==true" endpoint-produces-content-type?)
@@ -114,16 +128,29 @@
 
           exists? (boolean route-data)
 
-          resp-status (if (and endpoint-produces-content-type? exists? (not is-accept-json?)) 200 404)
+          ;resp-status (if (and endpoint-produces-content-type? exists? (not is-accept-json?)) 200 404)
           ;resp-status 200
 
-          p (println ">o> abc.resp-status" resp-status)
-          p (println ">o> abc.endpoint-produces-content-type?" endpoint-produces-content-type?)
+          resp-status (cond
+                        ;(and endpoint-produces-content-type? exists? (not is-accept-json?)) 200
+                        ;(and (not endpoint-produces-content-type?) exists? (not is-accept-json?)) 404
+                        (and exists? (not is-accept-json?)) 200
+                        (and (not exists?) (not is-accept-json?)) 404
+
+                        (and endpoint-produces-content-type? exists? is-accept-json?) 404
+
+                        :else 400
+                        )
+
+
+          p (println ">o> abc.nego.exists?" exists?)
+          p (println ">o> abc.nego.resp-status" resp-status)
+          p (println ">o> abc.nego.endpoint-produces-content-type?" endpoint-produces-content-type?)
 
           ]
 
       (if endpoint-produces-content-type?
-        (handler request)
+        (pr ">o>" "forward" (handler request))
 
         (if is-inventory-route?
           (create-accept-response request resp-status)
