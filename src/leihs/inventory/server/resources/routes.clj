@@ -113,6 +113,11 @@
            :swagger {:produces ["application/json"]}
            :handler get-csrf-token}}]])
 
+(defn settings-endpoints []
+  ["/"
+   {:swagger {:tags ["Settings"]}}
+   (settings/routes)])
+
 (defn swagger-endpoints []
   ["/api-docs"
    {:get {:handler swagger-api-docs-handler
@@ -182,7 +187,6 @@
 
                      (admin-status/routes)
                      (profile/routes)
-                     (settings/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
@@ -196,5 +200,6 @@
    ["inventory"
     {:swagger {:tags [""]}}
     (csrf-endpoints)
+    (settings-endpoints)
     (swagger-endpoints)
     (visible-api-endpoints)]])

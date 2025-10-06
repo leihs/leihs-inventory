@@ -8,7 +8,7 @@
    [reitit.coercion.schema]))
 
 (defn routes []
-  ["/settings/"
+  ["settings/"
    {:get {:accept "application/json"
           :summary (fe "Get settings")
           :description "Settings are defined in admin app"
