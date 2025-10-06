@@ -1,0 +1,33 @@
+(ns leihs.inventory.server.resources.pool.groups.main
+  (:require
+   [clojure.set]
+   [honey.sql.helpers :as sql]
+   [leihs.inventory.server.middlewares.debug :refer [log-by-severity]]
+   [leihs.inventory.server.middlewares.exception-handler :refer [exception-handler]]
+   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
+   [leihs.inventory.server.utils.request :refer [query-params]]
+   [ring.middleware.accept]
+   [ring.util.response :refer [response]]))
+
+(def ERROR_GET "Failed to get groups")
+
+(defn index-resources [request]
+  (try
+    (let [{:keys [search]} (-> request query-params)
+          user-count-subquery (-> (sql/select :gu.group_id
+                                              [[:count :gu.user_id] :user_count])
+                                  (sql/from [:groups_users :gu])
+                                  (sql/group-by :gu.group_id))
+          base-query (-> (sql/select :g.id
+                                     :g.name
+                                     :g.searchable
+                                     [[:coalesce :uc.user_count 0] :user_count])
+                         (sql/from [:groups :g])
+                         (sql/left-join [user-count-subquery :uc] [:= :uc.group_id :g.id])
+                         (sql/order-by :g.name :g.id)
+                         (cond-> search
+                           (sql/where [:ilike :g.name (str "%" search "%")])))]
+      (response (create-pagination-response request base-query nil)))
+    (catch Exception e
+      (log-by-severity ERROR_GET e)
+      (exception-handler request ERROR_GET e))))

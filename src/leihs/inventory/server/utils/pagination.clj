@@ -27,11 +27,21 @@
     {:size size
      :page page}))
 
+(defn- with-error-handling [f default-message]
+  (try
+    (f)
+    (catch Exception e
+      (let [message (or (.getMessage e) default-message)]
+        (throw (ex-info message
+                        {:status 500
+                         :original-exception e}
+                        e))))))
+
 (defn- create-paginated-response
   ([base-query tx size page]
    (create-paginated-response base-query tx size page nil))
 
-  ([base-query tx size page post-data-fnc]
+  ([base-query tx size page post-fnc]
    (let [total-rows (fetch-total-count base-query tx)
          {:keys [size page]} (set-default-pagination size page)
          total-pages (int (Math/ceil (/ total-rows (float size))))
@@ -42,8 +52,11 @@
                           :page page
                           :size size}
 
-         paginated-products (if (nil? post-data-fnc) paginated-products
-                                (post-data-fnc paginated-products))]
+         paginated-products (if (nil? post-fnc)
+                              paginated-products
+                              (with-error-handling
+                                #(post-fnc paginated-products)
+                                "Error in post-fnc during pagination"))]
      {:data paginated-products
       :pagination pagination-info})))
 
@@ -65,10 +78,10 @@
   ([request base-query]
    (pagination-response request base-query nil))
 
-  ([request base-query post-data-fnc]
+  ([request base-query post-fnc]
    (let [{:keys [page size]} (fetch-pagination-params request)
          tx (:tx request)]
-     (create-paginated-response base-query tx size page post-data-fnc))))
+     (create-paginated-response base-query tx size page post-fnc))))
 
 (defn create-pagination-response
   "To receive a paginated response, the request must contain the query parameters `page` or `size`.
@@ -86,9 +99,11 @@
             (single-entity-get-request? request))
 
        (if post-fnc
-         (-> (jdbc/execute! tx (-> base-query sql-format))
-             post-fnc
-             first)
+         (with-error-handling
+           #(-> (jdbc/execute! tx (-> base-query sql-format))
+                post-fnc
+                first)
+           "Error in post-fnc during single entity fetch")
          (jdbc/execute-one! tx (-> base-query sql-format)))
 
        (and (or (nil? with-pagination?) with-pagination?)
@@ -98,6 +113,8 @@
        with-pagination? (pagination-response request base-query post-fnc)
 
        :else (if post-fnc
-               (-> (jdbc/execute! tx (-> base-query sql-format))
-                   post-fnc)
+               (with-error-handling
+                 #(-> (jdbc/execute! tx (-> base-query sql-format))
+                      post-fnc)
+                 "Error in post-fnc during data fetch")
                (jdbc/execute! tx (-> base-query sql-format)))))))
