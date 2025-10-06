@@ -8,8 +8,8 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
 
    [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [leihs.inventory.server.utils.request-utils :refer [pick-fields
-                                                       path-params
+   [leihs.inventory.server.utils.pick-fields :refer [pick-fields]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params
                                                        query-params]]
    [ring.middleware.accept]
 
@@ -87,7 +87,35 @@
                               (sql/where [:= :i.is_incomplete incomplete]))))
 
          select (sql/select
-                 :i.*
+                 :i.id
+                 :i.insurance_number
+                 :i.inventory_code
+                 :i.inventory_pool_id
+                 :i.invoice_date
+                 :i.invoice_number
+                 :i.is_borrowable
+                 :i.is_broken
+                 :i.is_incomplete
+                 :i.is_inventory_relevant
+                 :i.item_version
+                 :i.last_check
+                 :i.model_id
+                 :i.name
+                 :i.needs_permission
+                 :i.note
+                 :i.owner_id
+                 :i.parent_id
+                 :i.price
+                 :i.properties
+                 :i.responsible
+                 :i.retired
+                 :i.retired_reason
+                 :i.room_id
+                 :i.serial_number
+                 :i.shelf
+                 :i.status_note
+                 :i.supplier_id
+                 :i.user_name
                  [:ip.name :inventory_pool_name]
                  [:r.end_date :reservation_end_date]
                  [:r.user_id :reservation_user_id]
@@ -156,7 +184,7 @@
      (try
        (-> request
            (create-pagination-response query nil)
-           (pick-fields fields)
+           (pick-fields fields query)
            response)
        (catch Exception e
          (log-by-severity ERROR_GET_ITEMS e)
