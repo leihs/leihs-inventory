@@ -67,5 +67,8 @@
                     (->> models
                          (fetch-thumbnails-for-ids tx)
                          (map (model->enrich-with-image-attr pool-id))))]
+
      (debug (sql-format query :inline true))
-     (response (create-pagination-response request query nil post-fnc)))))
+     (-> request
+         (create-pagination-response query nil post-fnc)
+         response))))
