@@ -3,7 +3,6 @@
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.profile.main :as profile]
    [leihs.inventory.server.resources.profile.types :refer [profile-response-schema]]
-   [leihs.inventory.server.utils.middleware :refer [wrap-authenticate!]]
    [reitit.coercion.schema]))
 
 (defn routes []
