@@ -48,11 +48,11 @@
    [leihs.inventory.server.resources.token.public.routes :as token-public]
    [leihs.inventory.server.resources.token.routes :as token]
    [leihs.inventory.server.utils.middleware :refer [restrict-uri-middleware]]
+   [leihs.inventory.server.utils.middleware-handler :refer [endpoint-exists?]]
    [leihs.inventory.server.utils.request-utils :refer [authenticated?]]
    [leihs.inventory.server.utils.response-helper :as rh]
    [reitit.coercion.schema]
    [reitit.coercion.spec]
-   [reitit.core :as r]
    [reitit.openapi :as openapi]
    [reitit.swagger :as swagger]
    [schema.core :as s]
@@ -163,26 +163,6 @@
                 last
                 str/lower-case)]
     (get mime-types ext "application/octet-stream")))
-
-(defn endpoint-exists?
-  "Check if an endpoint exists for a given method + uri.
-   Returns the route data if it's not a fallback, otherwise nil.
-   Also accepts URIs with/without a trailing slash.
-   Whitelists certain paths like /inventory/ explicitly."
-  [router method uri]
-  (let [whitelist #{"/inventory/" "/inventory"}
-        match-ok? (fn [u]
-                    (when-let [match (r/match-by-path router u)]
-                      (let [route-data (get-in match [:data method])
-                            fallback? (get-in match [:data :fallback?])]
-                        (when (and route-data (not fallback?))
-                          route-data))))]
-    (or (match-ok? uri)
-        (match-ok? (if (.endsWith uri "/")
-                     (subs uri 0 (dec (count uri)))
-                     (str uri "/")))
-        (when (contains? whitelist uri)
-          true))))
 
 (defn html-endpoints []
   [""
