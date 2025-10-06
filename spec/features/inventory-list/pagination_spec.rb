@@ -12,10 +12,9 @@ feature "Inventory Pagination ", type: :feature do
       FactoryBot.create(:leihs_model, product: "Model", version: "Version #{index + 1}")
     end
 
-    puts "Created 400 models"
     login(user)
     visit "/inventory"
-    expect(page).to have_content "Inventory"
+    expect(page).to have_content("Inventory", wait: 30)
     find("nav button", text: "Inventory").click
     click_on pool.name
     expect(page).to have_content pool.name
@@ -54,7 +53,9 @@ feature "Inventory Pagination ", type: :feature do
 
   scenario "shortcuts work" do
     visit_with_query_param("with_items", "false")
-    expect(page.current_url).to include("page=1")
+
+    expect(page).to have_content("Model Version 1", wait: 20)
+    expect(page).to have_current_path(/page=1/)
 
     # Trigger Shift + Alt + ArrowRight
     page.driver.browser.action.key_down(:shift)
@@ -64,8 +65,9 @@ feature "Inventory Pagination ", type: :feature do
       .key_up(:shift)
       .perform
 
+    expect(page).to have_content("Model Version 144", wait: 20)
     # Wait for the page to update and check if the query param is page=2
-    expect(page).to have_current_path(/page=2/, wait: 30)
+    expect(page).to have_current_path(/page=2/)
 
     # Trigger Shift + Alt + ArrowLeft
     page.driver.browser.action.key_down(:shift)
@@ -75,8 +77,9 @@ feature "Inventory Pagination ", type: :feature do
       .key_up(:shift)
       .perform
 
+    expect(page).to have_content("Model Version 1", wait: 20)
     # Wait for the page to update and check if the query param is back to page=1
-    expect(page).to have_current_path(/page=1/, wait: 30)
+    expect(page).to have_current_path(/page=1/)
   end
 
   def remove_query_param(key)
