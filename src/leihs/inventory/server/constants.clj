@@ -9,7 +9,7 @@
 - csrf-token / test-endpoints
 - session-endpoints
 - token-endpoints
-" true)
+" false)
 
 (def INVENTORY_VIEW_PATH "/inventory/")
 

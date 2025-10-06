@@ -27,11 +27,6 @@ def upload_image(file_path)
   response
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Model" do
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do

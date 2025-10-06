@@ -12,7 +12,6 @@
           :summary (fe "Get details of the authenticated user")
           :description "Uses /inventory/pools-by-access-right for the pools."
           :coercion reitit.coercion.schema/coercion
-          ;:middleware [wrap-authenticate!]
           :produces ["application/json"]
           :handler profile/get-resource
           :responses {200 {:description "OK"

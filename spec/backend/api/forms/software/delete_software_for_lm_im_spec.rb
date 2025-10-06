@@ -65,11 +65,6 @@ def upload_and_expect(file_path, model_id, expected_ok)
   end
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
 describe "Inventory Software" do
   ["inventory_manager", "lending_manager"].each do |role|
     context "when interacting with inventory software with role=#{role}" do

@@ -26,16 +26,6 @@ def upload_image(file_path)
   response
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
-def expect_spa_content(resp, status)
-  expect(resp.body).to include("<title>Inventory</title>")
-  expect(resp.status).to eq(status)
-end
-
 describe "Inventory Model" do
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
@@ -106,7 +96,7 @@ describe "Inventory Model" do
             end
           end
 
-          context "fetch by invalid uuid, " do
+          context "fetch by invalid uuid (coercion), " do
             let(:invalid_uuid_coercion_error) { "00000000-0000-0000-0000-00000000000s" }
 
             it "blocks fetching the uploaded image" do
@@ -125,15 +115,10 @@ describe "Inventory Model" do
               ["/inventory", "/inventory/",
                 "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
                 "/inventory/#{pool_id}/list/"]
-              # "/inventory/#{pool_id}/list/invalid-url",
-              # "/inventory/invalid-url"
             }
 
             let(:invalid_routes) {
               [
-                # "/inventory", "/inventory/",
-                # "/inventory/#{pool_id}/list?with_items=true&retired=false&page=1&size=50",
-                # "/inventory/#{pool_id}/list/",
                 "/inventory/#{pool_id}/list/invalid-url",
                 "/inventory/invalid-url"
               ]

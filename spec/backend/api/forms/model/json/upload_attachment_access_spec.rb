@@ -31,16 +31,6 @@ def upload_and_expect(file_path, expected_ok)
   end
 end
 
-def expect_correct_url(url)
-  resp = client.get url
-  expect(resp.status).to eq(200)
-end
-
-def expect_spa_content(resp, status)
-  expect(resp.body).to include("<title>Inventory</title>")
-  expect(resp.status).to eq(status)
-end
-
 describe "Inventory Model" do
   ["inventory_manager"].each do |role|
     context "when interacting with inventory model as #{role}" do
