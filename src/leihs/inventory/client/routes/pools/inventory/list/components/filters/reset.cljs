@@ -12,7 +12,6 @@
      (fn []
        (let [on-key-down
              (fn [e]
-               (js/console.debug e)
                (when (and (= (.. e -code) "KeyR")
                           (.-altKey e)
                           (.-shiftKey e)
