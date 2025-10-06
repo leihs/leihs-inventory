@@ -14,10 +14,12 @@
    [leihs.inventory.server.resources.pool.buildings.building.routes :as building]
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :as entitlement-group]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
    [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
+   [leihs.inventory.server.resources.pool.groups.routes :as groups]
    [leihs.inventory.server.resources.pool.items.routes :as items]
    [leihs.inventory.server.resources.pool.list.routes :as list]
    [leihs.inventory.server.resources.pool.manufacturers.routes :as manufacturers]
@@ -40,6 +42,7 @@
    [leihs.inventory.server.resources.pool.suppliers.routes :as suppliers]
    [leihs.inventory.server.resources.pool.templates.routes :as templates]
    [leihs.inventory.server.resources.pool.templates.template.routes :as template]
+   [leihs.inventory.server.resources.pool.users.routes :as users]
    [leihs.inventory.server.resources.profile.routes :as profile]
    [leihs.inventory.server.resources.session.protected.routes :as session-protected]
    [leihs.inventory.server.resources.session.public.routes :as session-public]
@@ -261,6 +264,8 @@
                       (attachment/routes)
                       (attachments/routes)
                       (items/routes)
+                      (groups/routes)
+                      (users/routes)
                       (templates/routes)
                       (template/routes)
                       (model-items/routes)
@@ -271,6 +276,7 @@
                       (rooms/routes)
                       (category-tree/routes)
                       (entitlement-groups/routes)
+                      (entitlement-group/routes)
 
                       (manufacturers/routes)
                       (responsible-inventory-pools/routes)
