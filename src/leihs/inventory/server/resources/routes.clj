@@ -190,6 +190,11 @@
                                      "Content-Type" "text/html"}
                            :body ""})))}}]])
 
+(defn settings-endpoints []
+  ["/"
+   {:swagger {:tags ["Settings"]}}
+   (settings/routes)])
+
 (defn swagger-endpoints []
   ["/"
 
@@ -284,7 +289,6 @@
 
                      (admin-status/routes)
                      (profile/routes)
-                     (settings/routes)
                      (session-protected/routes)
                      (session-public/routes)
                      (token-protected/routes)
