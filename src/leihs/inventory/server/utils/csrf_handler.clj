@@ -81,5 +81,5 @@
                   {:status 403
                    :headers {"Content-Type" "application/json"}
                    :body (to-json {:message "Error during CSRF-Token/Session validation"
-                                   :detail (str "error: " (.getMessage e))})}))))
+                                   :details (str "error: " (.getMessage e))})}))))
           (handler request))))))

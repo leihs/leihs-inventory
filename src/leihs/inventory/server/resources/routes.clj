@@ -170,7 +170,7 @@
    Also accepts URIs with/without a trailing slash.
    Whitelists certain paths like /inventory/ explicitly."
   [router method uri]
-  (let [whitelist #{"/inventory/" "/inventory"} ;; ✅ inline whitelist
+  (let [whitelist #{"/inventory/" "/inventory"}
         match-ok? (fn [u]
                     (when-let [match (r/match-by-path router u)]
                       (let [route-data (get-in match [:data method])
@@ -179,7 +179,7 @@
                           route-data))))]
     (or (match-ok? uri)
         (match-ok? (if (.endsWith uri "/")
-                     (subs uri 0 (dec (count uri))) ;; drop slash
+                     (subs uri 0 (dec (count uri)))
                      (str uri "/")))
         (when (contains? whitelist uri)
           true))))
