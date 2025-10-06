@@ -18,8 +18,8 @@
    [leihs.inventory.client.routes.pools.inventory.list.components.table.item-status :refer [ItemStatus]]
    [uix.core :as uix :refer [$ defui]]))
 
-(def fields ["id" "is_package" "is_borrowable" "is_broken" "is_retired"
-             "in_stock" "inventory_code" "reservation_end_date"
+(def fields ["id" "is_package" "is_borrowable" "is_broken" "retired"
+             "is_incomplete" "inventory_code" "reservation_end_date"
              "user_name" "model_name" "reservation_user_name"])
 
 (defui main [{:keys [package]}]
