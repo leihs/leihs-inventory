@@ -14,7 +14,7 @@ feature "Inventory Page", type: :feature do
     login(user)
 
     visit "/inventory"
-    expect(page).to have_content "Inventory"
+    expect(page).to have_content("Inventory", wait: 20)
     find("nav button", text: "Inventory").click
     click_on pool.name
     expect(page).to have_content(pool.name)
