@@ -3,8 +3,11 @@
    [clojure.set]
    [leihs.inventory.server.constants :refer [fe]]
    [leihs.inventory.server.resources.pool.entitlement-groups.main :as entitlement-groups]
-   [leihs.inventory.server.resources.pool.entitlement-groups.types :refer [response-body]]
-   [reitit.coercion.schema]
+   ;[leihs.inventory.server.resources.pool.entitlement-groups.types :refer [response-body]]
+
+   ;[leihs.inventory.server.resources.pool.options.types]
+
+   ;[reitit.coercion.schema]
    [reitit.coercion.spec]
    [ring.middleware.accept]
    [schema.core :as s]))
@@ -19,10 +22,15 @@
           :accept "application/json"
           :coercion reitit.coercion.schema/coercion
           :swagger {:produces ["application/json"]}
-          :parameters {:path {:pool_id s/Uuid}}
+          :parameters {:path {:pool_id s/Uuid}
+                       ;:query ::types/options-query
+                       :query {(s/optional-key :page) s/Int
+                               (s/optional-key :size) s/Int}
+                       }
           :produces ["application/json"]
           :handler entitlement-groups/index-resources
           :responses {200 {:description "OK"
-                           :body [response-body]}
+                           ;:body [response-body]
+                           }
                       404 {:description "Not Found"}
                       500 {:description "Internal Server Error"}}}}])
