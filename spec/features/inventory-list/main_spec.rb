@@ -1,73 +1,6 @@
 require "spec_helper"
 require_relative "../shared/common"
 
-def verify_row_details(model, availabilty, items = [], is_package: false, is_option: false)
-  row = find("tr", text: model.name)
-
-  within("tr", text: model.name) do
-    if is_option
-      expect(page).to have_selector('[data-test-id="items"]', visible: false)
-      expect(page).to have_button("expand-button", visible: false)
-      expect(find('[data-test-id="price"]').text).to eq(availabilty)
-      return "option row correct"
-    end
-
-    if items.empty?
-      expect(find('[data-test-id="items"]').text).to eq("0")
-      expect(page).to have_button("expand-button", disabled: true)
-      return "rows correct"
-    end
-
-    expect(page).to have_content(model.name)
-    expect(page).to have_content(model.version)
-    expect(find('[data-test-id="items"]').text).to eq(items.size.to_s)
-    expect(find('[data-test-id="availability"]').text).to eq(availabilty)
-    click_on "expand-button"
-
-    following_rows = if is_package
-      row.all(:xpath, "following-sibling::tr[@data-row='package']", wait: 30)
-    else
-      row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
-    end
-
-    expect(following_rows.size).to eq(items.size)
-
-    items.each_with_index do |details, index|
-      expect(following_rows[index]).to have_content(details[:inventory_code])
-      if details[:reservation_user_name]
-        expect(following_rows[index]).to have_content(details[:reservation_user_name])
-        expect(following_rows[index]).to have_content(details[:reservation_end_date])
-        expect(following_rows[index].find('[data-test-id="items"]').text).to eq(details[:package_items].size.to_s)
-      else
-        expect(following_rows[index]).to have_content(details[:building_name])
-        expect(following_rows[index]).to have_content(details[:building_code])
-        expect(following_rows[index]).to have_content(details[:shelf])
-      end
-
-      # Extract the status portion and validate it
-      status_texts = following_rows[index].all('[data-test-id="item-status"] span').map(&:text)
-      expect(details[:statuses]).to include(*status_texts)
-
-      if details[:package_items]
-
-        package_expand = following_rows[index].find('[data-test-id="expand-button"]')
-        package_expand.click
-
-        details[:package_items].each_with_index do |pkg_item, pkg_index|
-          package_rows = following_rows[index].all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:model_name])
-          expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
-          expect(package_rows[pkg_index]).to have_content("is part of a package")
-        end
-
-        package_expand.click
-      end
-    end
-    click_on "expand-button"
-    return "rows correct"
-  end
-end
-
 feature "Inventory Page", type: :feature do
   scenario "shortcuts work" do
     user = FactoryBot.create(:user, language_locale: "en-GB")
@@ -121,7 +54,7 @@ feature "Inventory Page", type: :feature do
     expect(page).to have_selector('[data-test-id="add-inventory-dropdown"]')
   end
 
-  scenario "filters" do
+  scenario "filters work" do
     # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
     # | model      | package | item   | owner  | pool   | retired | borrowable | in_stock | incomplete | broken | last_check |
     # |----------  |---------|--------|--------|--------|---------|------------|----------|------------|--------|------------|
@@ -1627,5 +1560,72 @@ feature "Inventory Page", type: :feature do
     select_value("with_items", "with_items")
 
     expect(all("table tbody tr").count).to eq 0
+  end
+end
+
+def verify_row_details(model, availabilty, items = [], is_package: false, is_option: false)
+  row = find("tr", text: model.name)
+
+  within("tr", text: model.name) do
+    if is_option
+      expect(page).to have_selector('[data-test-id="items"]', visible: false)
+      expect(page).to have_button("expand-button", visible: false)
+      expect(find('[data-test-id="price"]').text).to eq(availabilty)
+      return "option row correct"
+    end
+
+    if items.empty?
+      expect(find('[data-test-id="items"]').text).to eq("0")
+      expect(page).to have_button("expand-button", disabled: true)
+      return "rows correct"
+    end
+
+    expect(page).to have_content(model.name)
+    expect(page).to have_content(model.version)
+    expect(find('[data-test-id="items"]').text).to eq(items.size.to_s)
+    expect(find('[data-test-id="availability"]').text).to eq(availabilty)
+    click_on "expand-button"
+
+    following_rows = if is_package
+      row.all(:xpath, "following-sibling::tr[@data-row='package']", wait: 30)
+    else
+      row.all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
+    end
+
+    expect(following_rows.size).to eq(items.size)
+
+    items.each_with_index do |details, index|
+      expect(following_rows[index]).to have_content(details[:inventory_code])
+      if details[:reservation_user_name]
+        expect(following_rows[index]).to have_content(details[:reservation_user_name])
+        expect(following_rows[index]).to have_content(details[:reservation_end_date])
+        expect(following_rows[index].find('[data-test-id="items"]').text).to eq(details[:package_items].size.to_s)
+      else
+        expect(following_rows[index]).to have_content(details[:building_name])
+        expect(following_rows[index]).to have_content(details[:building_code])
+        expect(following_rows[index]).to have_content(details[:shelf])
+      end
+
+      # Extract the status portion and validate it
+      status_texts = following_rows[index].all('[data-test-id="item-status"] span').map(&:text)
+      expect(details[:statuses]).to include(*status_texts)
+
+      if details[:package_items]
+
+        package_expand = following_rows[index].find('[data-test-id="expand-button"]')
+        package_expand.click
+
+        details[:package_items].each_with_index do |pkg_item, pkg_index|
+          package_rows = following_rows[index].all(:xpath, "following-sibling::tr[@data-row='item']", wait: 30)
+          expect(package_rows[pkg_index]).to have_content(pkg_item[:model_name])
+          expect(package_rows[pkg_index]).to have_content(pkg_item[:inventory_code])
+          expect(package_rows[pkg_index]).to have_content("is part of a package")
+        end
+
+        package_expand.click
+      end
+    end
+    click_on "expand-button"
+    return "rows correct"
   end
 end
