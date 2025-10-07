@@ -53,7 +53,7 @@
 
     (uix/use-effect
      (fn []
-       (if (< (count search) 3)
+       (if (< (count search) 2)
          (set-data! [])
          (let [debounce (js/setTimeout
                          (fn []
@@ -169,19 +169,20 @@
                             (if (:url field)
                               ($ Dialog
                                  ($ DialogTrigger {:as-child true}
-                                    ($ Button {:variant "ghost"
+                                    ($ Button {:variant "outline"
                                                :data-test-id (str (:product field) "-preview")
-                                               :class-name "p-0"}
+                                               :class-name "p-0 w-10 h-10 hover:bg-white shadow-none"}
                                        ($ :img {:src (str (:url field) "/thumbnail")
-                                                :class-name "min-w-10 h-10 object-cover rounded-sm"})))
-                                 ($ DialogContent {:class-name "max-w-3xl"}
+                                                :class-name "w-10 h-10 p-1 object-contain rounded"})))
+                                 ($ DialogContent
                                     ($ DialogHeader
                                        ($ DialogTitle (:product field)))
                                     ($ :img {:src (:url field)
-                                             :class-name "w-full h-auto object-contain"})))
+                                             :class-name "w-[50vh] aspect-square object-contain"})))
                               ($ Image {:class-name "w-10 h-10 scale-[1.2]"})))
 
-                         ($ TableCell {:class-name ""} (str (:product field) " " (:version field)))
+                         ($ TableCell {:class-name ""}
+                            (str (:product field) " " (:version field)))
 
                          (when children ($ :<> (children update index field)))
 

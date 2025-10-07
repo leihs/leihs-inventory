@@ -53,7 +53,7 @@
                              (set-search-params! search-params))]
 
     ($ :div {:class-name (str "flex " class-name)}
-       ($ Pagination {:class-name "justify-start w-fit mx-0 pr-6"}
+       ($ Pagination {:class-name "overflow-hidden justify-start w-fit mx-0 pr-6"}
 
           ;; previous link
           (if prev-page

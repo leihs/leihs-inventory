@@ -167,7 +167,7 @@
               "not_found": "Modell nicht gefunden",
               "select": "Modell auswählen",
               "placeholder": "Modell suchen",
-              "search_empty": "Geben Sie mindestens 3 Zeichen ein",
+              "search_empty": "Geben Sie mindestens 2 Zeichen ein",
               "searching": "Suche..."
             }
           }

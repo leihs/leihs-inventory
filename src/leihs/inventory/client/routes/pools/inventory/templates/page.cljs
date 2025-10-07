@@ -105,7 +105,7 @@
                                         :size "icon"}
                                 ($ Trash {:className "h-4 w-4"}))))))))))
 
-       ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-xl pt-6"
+       ($ CardFooter {:class-name "sticky bottom-0 bg-white z-10 rounded-xl pt-6 overflow-auto"
                       :style {:background "linear-gradient(to top, white 80%, transparent 100%)"}}
           ($ pagination/main {:pagination pagination
                               :class-name "justify-start w-full"}))
