@@ -7,15 +7,11 @@
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    ;[next.jdbc.sql :as jdbc]
-   [next.jdbc :as jdbc]
    ;[java.util UUID]
+   [next.jdbc :as jdbc]
    [ring.middleware.accept]
-   [taoensso.timbre :refer [debug error]]
-   [leihs.inventory.server.utils.pagination :refer [create-pagination-response]]
-   [ring.util.response :refer [response ]])
-
-  ;)
-
+   [ring.util.response :refer [response]]
+   [taoensso.timbre :refer [debug error]])
 (:import
  [java.util UUID]))
 
@@ -104,17 +100,17 @@
 
 (defn to-uuid [x]
   (cond
-    (nil? x)    nil
+    (nil? x) nil
 
     (uuid? x) x
 
-    (string? x)     (UUID/fromString x)
+    (string? x) (UUID/fromString x)
 
-    (sequential? x)     (mapv to-uuid x)
+    (sequential? x) (mapv to-uuid x)
 
-    :else    (throw (ex-info "Unsupported type for uuid conversion"
-             {:value x
-              :type (type x)}))))
+    :else (throw (ex-info "Unsupported type for uuid conversion"
+                   {:value x
+                    :type (type x)}))))
 
 (def ERROR_GET "Failed to get entitlement-groups")
 
@@ -125,36 +121,69 @@
   (let [m2 (into {} (map (juxt :id identity) v2))]
     (mapv #(merge % (get m2 (:id %))) v1)))
 
+
 (defn get-resource [request]
-      (try
-        (let [tx (:tx request)
-              pool_id (-> request path-params :pool_id)
-              query (-> (sql/select :g.id, :g.name, :g.is_verification_required)
-                        (sql/from [:entitlement_groups :g])
-                        (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
-                        (cond-> pool_id (sql/where [:= :g.inventory_pool_id pool_id]))
-                        (sql/order-by :g.name)
-                      sql-format
+  (try
+    (let [tx (:tx request)
+          pool_id (-> request path-params :pool_id)
+          entitlement-group-id (-> request path-params :entitlement_group_id)
+          query (-> (sql/select :g.id, :g.name, :g.is_verification_required)
+                  (sql/from [:entitlement_groups :g])
+                  (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+                  (sql/where [:= :g.inventory_pool_id pool_id])
+                  (sql/where [:= :g.id entitlement-group-id])
+                  (sql/order-by :g.name)
+                  sql-format
+                  )
+          entitlement_group (jdbc/execute-one! tx query)
+
+
+
+          query (-> (sql/select :egu.id
+                      :egu.type
+                      :u.firstname
+                      :u.lastname
+                      :u.email
+                      :u.searchable)
+                  (sql/from [:entitlement_groups_users :egu])
+                  (sql/join [:users :u] [:= :egu.user_id :u.id])
+                  (sql/where [:= :egu.entitlement_group_id entitlement-group-id])
+                  sql-format)
+          users-groups (jdbc/execute! tx query)
+
+          ;p (println ">o> abc.users-groups" users-groups)
+
+          groups (filter #(#{"group_entitlement"}
+                        (:type %))
+                users-groups)
+          users (filter #(#{"direct_entitlement"}
+                        (:type %))
+                users-groups)
+
+
+
+
+          query (-> (sql/select
+                      :egg.id
+                      :egg.group_id
+                      :g.name
+                      :g.searchable
                       )
-              entitlement_group (jdbc/execute-one! tx query)
+                  (sql/from [:entitlement_groups_groups :egg])
+                  (sql/join [:groups :g] [:= :egg.group_id :g.id])
+                  (sql/where [:= :egg.entitlement_group_id entitlement-group-id])
+                  sql-format)
+          groups (jdbc/execute! tx query)
 
 
-              ;post-fnc (fn [models]
-              ;           (let [ids (to-uuid (mapv :id models))
-              ;                 result (jdbc/execute! tx (prep-query ids))]
-              ;             (merge-by-id models result)))
-              ;
+          result {
+                  :entitlement-group entitlement_group
+                  :users users
+                  :groups groups
+                  :models []
+                  }
+          ]
 
-              result {
-                      :entitlement-group entitlement_group
-                      :users []
-                      :groups []
-                      :models []
-                      }
-
-              ]
-          ;(response (create-pagination-response request query nil post-fnc)))
-          ;(response (create-pagination-response request query nil)))
-          (response result))
-        (catch Exception e
-          (exception-handler request ERROR_GET e))))
+      (response result))
+    (catch Exception e
+      (exception-handler request ERROR_GET e))))
