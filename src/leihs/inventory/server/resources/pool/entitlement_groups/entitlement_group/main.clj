@@ -4,7 +4,6 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.helper :refer [log-by-severity]]
    [leihs.inventory.server.utils.request-utils :refer [path-params]]
    ;[next.jdbc.sql :as jdbc]
    ;[java.util UUID]
@@ -121,36 +120,36 @@
 ;   [honeysql.format :as fmt]))
 
 (defn select-entitlements-with-item-count [ds inventory-pool-id model-ids exclude-group-id]
-           (let [subquery
-                 {:select [[[:count :*] :count]]
-                  :from   [[:items :i]]
-                  :where  [:and
-                           [:= :i.model_id :e.model_id]
-                           [:= :i.inventory_pool_id :eg.inventory_pool_id]
-                           [:is :i.retired nil]
-                           [:= :i.is_borrowable true]
-                           [:is :i.parent_id nil]]}
+  (let [subquery
+        {:select [[[:count :*] :count]]
+         :from [[:items :i]]
+         :where [:and
+                 [:= :i.model_id :e.model_id]
+                 [:= :i.inventory_pool_id :eg.inventory_pool_id]
+                 [:is :i.retired nil]
+                 [:= :i.is_borrowable true]
+                 [:is :i.parent_id nil]]}
 
-                 query
-                 (-> (sql/select
-                       ;:e.id
-                       :e.model_id
-                       ;:e.entitlement_group_id
-                       [:e.quantity :allocations_in_other_entitlement_groups]
-                       [[subquery] :item_count])
-                     (sql/from [:entitlements :e])
-                     (sql/join [:entitlement_groups :eg]
-                               [:= :eg.id :e.entitlement_group_id])
-                     (sql/where [:and
-                                 [:= :eg.inventory_pool_id inventory-pool-id]
-                                 ;[:= :e.model_id model-id]
-                                 ;[:in :e.model_id model-ids]
-                                 [:in :e.model_id model-ids]
-                                 [:!= :e.entitlement_group_id exclude-group-id]])
-                     ;(sql/limit 1)
-                     sql-format)]
+        query
+        (-> (sql/select
+              ;:e.id
+              :e.model_id
+              ;:e.entitlement_group_id
+              [:e.quantity :allocations_in_other_entitlement_groups]
+              [[subquery] :items_count])
+          (sql/from [:entitlements :e])
+          (sql/join [:entitlement_groups :eg]
+            [:= :eg.id :e.entitlement_group_id])
+          (sql/where [:and
+                      [:= :eg.inventory_pool_id inventory-pool-id]
+                      ;[:= :e.model_id model-id]
+                      ;[:in :e.model_id model-ids]
+                      [:in :e.model_id model-ids]
+                      [:!= :e.entitlement_group_id exclude-group-id]])
+          ;(sql/limit 1)
+          sql-format)]
 
-             (jdbc/execute! ds query)))
+    (jdbc/execute! ds query)))
 
 
 (defn merge-by-id
@@ -166,10 +165,31 @@
    :allocation_considered_count = item_count - allocations_in_other_entitlement_groups"
   [entitlements]
   (mapv (fn [e]
-          (assoc e
-            :allocation_considered_count
-            (- (:item_count e 0)
-              (:allocations_in_other_entitlement_groups e 0))))
+
+          (let [
+
+
+                p (println ">o> abc" e)
+
+                e (assoc e :available_count (- (:items_count e)
+                                              (:allocations_in_other_entitlement_groups e)))
+
+
+
+                e (assoc e :is_quantity_ok (<= (:quantity e)
+                                              (:available_count e)))
+
+                p (println ">o> abc.quantity ???" (:quantity e) (:available_count e) (:is_quantity_ok e))
+                ;p (println ">o> abc.:available_count" (:available_count e))
+                ;p (println ">o> abc.:is_quantity_ok" (:is_quantity_ok e))
+
+
+
+                e (dissoc e :entitlement_group_id :allocations_in_other_entitlement_groups)
+
+                ] e)
+
+          )
     entitlements))
 
 
@@ -227,25 +247,25 @@
           ;(require '[next.jdbc :as jdbc])
 
           query (-> (sql/select
-                              [:m.id :model_id]
-                              :m.name
-                              :e.id
-                              :e.entitlement_group_id
-                              :e.quantity)
-                          (sql/from [:entitlements :e])
-                          (sql/join [:models :m] [:= :e.model_id :m.id])
-                          (sql/where [:= :e.entitlement_group_id entitlement-group-id])
-                          sql-format)
-              res (jdbc/execute! tx query)
+                      [:m.id :model_id]
+                      :m.name
+                      :e.id
+                      :e.entitlement_group_id
+                      :e.quantity)
+                  (sql/from [:entitlements :e])
+                  (sql/join [:models :m] [:= :e.model_id :m.id])
+                  (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                  sql-format)
+          res (jdbc/execute! tx query)
           models res
-p (println ">o> abc.models" res)
+          p (println ">o> abc.models" res)
           ;model_ids (filter #(#{"model_id"}
           ;                 (:type %))
           ;            res)
 
           model_ids (mapv :model_id models)
 
-p (println ">o> abc.model_ids" model_ids)
+          p (println ">o> abc.model_ids" model_ids)
 
 
 
@@ -253,13 +273,13 @@ p (println ">o> abc.model_ids" model_ids)
           ;p (println ">o> abc.users-groups" users-groups)
 
           groups (filter #(#{"group_entitlement"}
-                        (:type %))
-                users-groups)
+                           (:type %))
+                   users-groups)
           users (filter #(#{"direct_entitlement"}
-                        (:type %))
-                users-groups)
+                          (:type %))
+                  users-groups)
 
-p (println ">o> abc.start")
+          p (println ">o> abc.start")
 
 
           query (-> (sql/select :egu.id
@@ -281,27 +301,30 @@ p (println ">o> abc.start")
           p (println ">o> abc.start2")
           models2 nil
           models-count (try
-                 (let [
-                          p (println ">o> abc.model_ids??" model_ids)
-                          model_ids (to-uuid model_ids)
+                         (let [
+                               p (println ">o> abc.model_ids??" model_ids)
+                               model_ids (to-uuid model_ids)
 
-                          res (select-entitlements-with-item-count tx
-                                pool_id
-                                model_ids
-                                entitlement-group-id)
+                               res (select-entitlements-with-item-count tx
+                                     pool_id
+                                     model_ids
+                                     entitlement-group-id)
 
-                          models2 (add-allocation-considered-count res)
-                          p (println ">o> abc.sel-count" models2)
-                          ]models2)
+                               ;models2 (add-allocation-considered-count res)
+                               ;p (println ">o> abc.sel-count" models2)
+                               ] res)
 
-                (catch Exception e (println e))
-              )
+                         (catch Exception e (println e))
+                         )
 
-          p (println ">o> abc.end" models-count)
+          p (println "\n>o> abc.end.count" models-count)
+          p (println "\n>o> abc.end.models" models)
           models2 models-count
 
           models3 (join-by :model_id models models2)
 
+          models3 (add-allocation-considered-count models3)
+          p (println ">o> abc.sel-count" models3)
 
 
           query (-> (sql/select
