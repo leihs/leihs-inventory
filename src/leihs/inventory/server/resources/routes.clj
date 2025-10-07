@@ -15,6 +15,7 @@
    [leihs.inventory.server.resources.pool.buildings.routes :as buildings]
    [leihs.inventory.server.resources.pool.category-tree.routes :as category-tree]
    [leihs.inventory.server.resources.pool.entitlement-groups.routes :as entitlement-groups]
+   [leihs.inventory.server.resources.pool.entitlement-groups.entitlement-group.routes :as entitlement-group]
    [leihs.inventory.server.resources.pool.export.csv.routes :as export-csv]
    [leihs.inventory.server.resources.pool.export.excel.routes :as export-excel]
    [leihs.inventory.server.resources.pool.fields.routes :as fields]
@@ -265,6 +266,7 @@
                       (rooms/routes)
                       (category-tree/routes)
                       (entitlement-groups/routes)
+                      (entitlement-group/routes)
 
                       (manufacturers/routes)
                       (responsible-inventory-pools/routes)
