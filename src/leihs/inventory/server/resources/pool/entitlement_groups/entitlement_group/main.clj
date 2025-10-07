@@ -114,12 +114,81 @@
 
 (def ERROR_GET "Failed to get entitlement-groups")
 
+;(ns your-app.db.entitlements
+;  (:require
+;   [next.jdbc :as jdbc]
+;   [honeysql.helpers :as sql]
+;   [honeysql.format :as fmt]))
+
+(defn select-entitlements-with-item-count [ds inventory-pool-id model-ids exclude-group-id]
+           (let [subquery
+                 {:select [[[:count :*] :count]]
+                  :from   [[:items :i]]
+                  :where  [:and
+                           [:= :i.model_id :e.model_id]
+                           [:= :i.inventory_pool_id :eg.inventory_pool_id]
+                           [:is :i.retired nil]
+                           [:= :i.is_borrowable true]
+                           [:is :i.parent_id nil]]}
+
+                 query
+                 (-> (sql/select
+                       ;:e.id
+                       :e.model_id
+                       ;:e.entitlement_group_id
+                       [:e.quantity :allocations_in_other_entitlement_groups]
+                       [[subquery] :item_count])
+                     (sql/from [:entitlements :e])
+                     (sql/join [:entitlement_groups :eg]
+                               [:= :eg.id :e.entitlement_group_id])
+                     (sql/where [:and
+                                 [:= :eg.inventory_pool_id inventory-pool-id]
+                                 ;[:= :e.model_id model-id]
+                                 ;[:in :e.model_id model-ids]
+                                 [:in :e.model_id model-ids]
+                                 [:!= :e.entitlement_group_id exclude-group-id]])
+                     ;(sql/limit 1)
+                     sql-format)]
+
+             (jdbc/execute! ds query)))
+
+
 (defn merge-by-id
   "Merge two vectors of maps by matching :id.
    Fields from v2 override those from v1 on collision."
   [v1 v2]
   (let [m2 (into {} (map (juxt :id identity) v2))]
     (mapv #(merge % (get m2 (:id %))) v1)))
+
+
+(defn add-allocation-considered-count
+  "Takes a seq of entitlement maps and adds
+   :allocation_considered_count = item_count - allocations_in_other_entitlement_groups"
+  [entitlements]
+  (mapv (fn [e]
+          (assoc e
+            :allocation_considered_count
+            (- (:item_count e 0)
+              (:allocations_in_other_entitlement_groups e 0))))
+    entitlements))
+
+
+
+
+(defn join-by
+  "Performs a fast left join between two collections of maps based on a shared key.
+   Keeps all maps from coll-a, merging in matches from coll-b.
+   Example: (join-by :model_id vec-a vec-b)"
+  [k coll-a coll-b]
+  (let [b-index (into {} (map (juxt k identity)) coll-b)]
+    (mapv (fn [a]
+            (if-let [b (get b-index (get a k))]
+              (merge a b)
+              a))
+      coll-a)))
+
+
+
 
 
 (defn get-resource [request]
@@ -151,6 +220,36 @@
                   sql-format)
           users-groups (jdbc/execute! tx query)
 
+
+
+
+
+          ;(require '[next.jdbc :as jdbc])
+
+          query (-> (sql/select
+                              [:m.id :model_id]
+                              :m.name
+                              :e.id
+                              :e.entitlement_group_id
+                              :e.quantity)
+                          (sql/from [:entitlements :e])
+                          (sql/join [:models :m] [:= :e.model_id :m.id])
+                          (sql/where [:= :e.entitlement_group_id entitlement-group-id])
+                          sql-format)
+              res (jdbc/execute! tx query)
+          models res
+p (println ">o> abc.models" res)
+          ;model_ids (filter #(#{"model_id"}
+          ;                 (:type %))
+          ;            res)
+
+          model_ids (mapv :model_id models)
+
+p (println ">o> abc.model_ids" model_ids)
+
+
+
+
           ;p (println ">o> abc.users-groups" users-groups)
 
           groups (filter #(#{"group_entitlement"}
@@ -160,6 +259,48 @@
                         (:type %))
                 users-groups)
 
+p (println ">o> abc.start")
+
+
+          query (-> (sql/select :egu.id
+                      :egu.type
+                      :u.firstname
+                      :u.lastname
+                      :u.email
+                      :u.searchable)
+                  (sql/from [:entitlement_groups_users :egu])
+                  (sql/join [:users :u] [:= :egu.user_id :u.id])
+                  (sql/where [:= :egu.entitlement_group_id entitlement-group-id])
+                  sql-format)
+          users-groups (jdbc/execute! tx query)
+
+
+
+
+
+          p (println ">o> abc.start2")
+          models2 nil
+          models-count (try
+                 (let [
+                          p (println ">o> abc.model_ids??" model_ids)
+                          model_ids (to-uuid model_ids)
+
+                          res (select-entitlements-with-item-count tx
+                                pool_id
+                                model_ids
+                                entitlement-group-id)
+
+                          models2 (add-allocation-considered-count res)
+                          p (println ">o> abc.sel-count" models2)
+                          ]models2)
+
+                (catch Exception e (println e))
+              )
+
+          p (println ">o> abc.end" models-count)
+          models2 models-count
+
+          models3 (join-by :model_id models models2)
 
 
 
@@ -178,12 +319,15 @@
 
           result {
                   :entitlement-group entitlement_group
-                  :users users
-                  :groups groups
-                  :models []
+                  ;:users users
+                  ;:groups groups
+                  :models models
+                  :models2 models2
+                  :models3 models3
                   }
           ]
 
       (response result))
     (catch Exception e
+      (println e)
       (exception-handler request ERROR_GET e))))
