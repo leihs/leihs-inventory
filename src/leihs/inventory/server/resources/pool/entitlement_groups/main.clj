@@ -5,7 +5,7 @@
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.helper :refer [log-by-severity]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    ;[next.jdbc.sql :as jdbc]
    [next.jdbc :as jdbc]
    ;[java.util UUID]
@@ -140,4 +140,67 @@
                            (merge-by-id models result)))]
           (response (create-pagination-response request query nil post-fnc)))
         (catch Exception e
+          (exception-handler request ERROR_GET e))))
+
+
+
+(defn post-resource [request]
+      (try
+        (let [tx (:tx request)
+              pool_id (-> request path-params :pool_id)
+              data (-> request body-params)
+              models (:models data)
+
+              current-time (java.sql.Timestamp/from          (java.time.Instant/now)
+                             )
+              new-eg (-> data
+                       (assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time)
+                       (dissoc :models)
+                       )
+
+
+              p (println ">o> abc.post1" pool_id new-eg)
+              p (println ">o> abc.post2"  (:inventory_pool_id new-eg) (type (:inventory_pool_id new-eg)))
+              p (println ">o> abc.post3"  (:is_verification_required new-eg) (type (:is_verification_required new-eg)))
+
+
+              query (-> (sql/insert-into :entitlement_groups)
+                (sql/values [new-eg])
+                      (sql/returning :*)
+                      sql-format
+                      )
+              res (jdbc/execute-one! tx query)
+
+
+              ;; CREATE models-refs
+              ;models []
+              p (println ">o> abc.res" res)
+              entitlement-group-id (:id res)
+              p (println ">o> abc.entitlement-group-id" entitlement-group-id)
+
+              new-models (mapv (fn [item]
+                                 (assoc item :entitlement_group_id entitlement-group-id
+                                   ;:position 0
+                                   ))
+                           models)
+
+              p (println ">o> abc.new-models" new-models)
+
+              query (-> (sql/insert-into :entitlements)
+                      (sql/values new-models)
+                      (sql/returning :*)
+                      sql-format
+                      )
+              models (jdbc/execute! tx query)
+              p (println ">o> abc.new-models2" models)
+
+
+              ]
+          ;(response (create-pagination-response request query nil post-fnc)))
+          (response {:entitlement_group res
+                     :models models
+
+                     }))
+        (catch Exception e
+          (println e)
           (exception-handler request ERROR_GET e))))
