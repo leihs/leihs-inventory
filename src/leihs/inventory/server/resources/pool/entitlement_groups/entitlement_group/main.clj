@@ -264,12 +264,17 @@
           ;; update
           models-to-update (filterv :id models)
           p (println ">o> abc.models-to-update" models-to-update)
-          updated (update-entitlements tx models-to-update)
+          updated-entitlements (update-entitlements tx models-to-update)
 
           ;; create
           new-models (vec (remove :id models))
+          new-models (mapv (fn [item]
+                             (assoc item :entitlement_group_id entitlement_group_id
+                               ;:position 0
+                               ))
+                       new-models)
           p (println ">o> abc.models-to-create" new-models)
-          created (create-entitlements tx new-models)
+          created-entitlements (create-entitlements tx new-models)
 
 
 
@@ -280,42 +285,21 @@
 
           ;; DELETE
           entitlement-ids-to-delete (remove (set entitlement-ids) db-model-ids)
-          deleted-entitlement (delete-entitlements tx entitlement-ids-to-delete)
+          deleted-entitlements (delete-entitlements tx entitlement-ids-to-delete)
           ;p (println ">o> abc.entitlement-ids-to-delete" entitlement-ids-to-delete)
           ;
           ;_ (when (seq entitlement-ids-to-delete) (jdbc/execute! tx (-> (sql/delete-from :entitlements)
           ;                    (sql/where [:in :id entitlement-ids-to-delete] )
           ;                    sql-format)))
 
-
-
-          ;;models []
-          ;p (println ">o> abc.res" res)
-          ;entitlement-group-id (:id res)
-          ;p (println ">o> abc.entitlement-group-id" entitlement-group-id)
-          ;
-          ;new-models (mapv (fn [item]
-          ;                   (assoc item :entitlement_group_id entitlement-group-id
-          ;                     ;:position 0
-          ;                     ))
-          ;             models)
-          ;
-          ;p (println ">o> abc.new-models" new-models)
-          ;
-          ;query (-> (sql/insert-into :entitlements)
-          ;        (sql/values new-models)
-          ;        (sql/returning :*)
-          ;        sql-format
-          ;        )
-          ;models (jdbc/execute! tx query)
-          ;p (println ">o> abc.new-models2" models)
-
-
           ]
       ;(response (create-pagination-response request query nil post-fnc)))
-      (response {:entitlement_group res
+      (response {
+                 ;:entitlement_group res
                  ;:models models
-
+                 :updated updated-entitlements
+                 :created created-entitlements
+                 :deleted deleted-entitlements
                  }))
     (catch Exception e
       (println e)
