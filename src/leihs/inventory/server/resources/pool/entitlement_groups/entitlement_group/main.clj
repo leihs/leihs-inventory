@@ -3,6 +3,9 @@
    [clojure.set]
    [clojure.string :as str]
    [honey.sql :refer [format] :rename {format sql-format}]
+   [leihs.inventory.server.resources.pool.entitlement-groups.common :refer [create-entitlements
+                                                                            delete-entitlements
+                                                                            update-entitlements]]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
@@ -259,12 +262,14 @@
           p (println ">o> abc.db-model-ids" db-model-ids)
 
           ;; update
-          model-ids-to-update (filterv :id models)
-          p (println ">o> abc.models-to-update" model-ids-to-update)
+          models-to-update (filterv :id models)
+          p (println ">o> abc.models-to-update" models-to-update)
+          updated (update-entitlements tx models-to-update)
 
           ;; create
           new-models (vec (remove :id models))
           p (println ">o> abc.models-to-create" new-models)
+          created (create-entitlements tx new-models)
 
 
 
@@ -275,11 +280,12 @@
 
           ;; DELETE
           entitlement-ids-to-delete (remove (set entitlement-ids) db-model-ids)
-          p (println ">o> abc.entitlement-ids-to-delete" entitlement-ids-to-delete)
-
-          _ (when (seq entitlement-ids-to-delete) (jdbc/execute! tx (-> (sql/delete-from :entitlements)
-                              (sql/where [:in :id entitlement-ids-to-delete] )
-                              sql-format)))
+          deleted-entitlement (delete-entitlements tx entitlement-ids-to-delete)
+          ;p (println ">o> abc.entitlement-ids-to-delete" entitlement-ids-to-delete)
+          ;
+          ;_ (when (seq entitlement-ids-to-delete) (jdbc/execute! tx (-> (sql/delete-from :entitlements)
+          ;                    (sql/where [:in :id entitlement-ids-to-delete] )
+          ;                    sql-format)))
 
 
 

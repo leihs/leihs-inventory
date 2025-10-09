@@ -184,15 +184,15 @@
                                    ))
                            models)
 
-              p (println ">o> abc.new-models" new-models)
-
-              query (-> (sql/insert-into :entitlements)
-                      (sql/values new-models)
-                      (sql/returning :*)
-                      sql-format
-                      )
-              models (jdbc/execute! tx query)
-              p (println ">o> abc.new-models2" models)
+              ;p (println ">o> abc.new-models" new-models)
+              ;
+              ;query (-> (sql/insert-into :entitlements)
+              ;        (sql/values new-models)
+              ;        (sql/returning :*)
+              ;        sql-format
+              ;        )
+              ;models (jdbc/execute! tx query)
+              ;p (println ">o> abc.new-models2" models)
 
 
               ]
