@@ -14,16 +14,27 @@
    [leihs.core.core :refer [detect]]
    [leihs.inventory.client.lib.csrf :as csrf]
    [leihs.inventory.client.lib.language :refer [switch-language]]
-   [leihs.inventory.client.lib.utils :refer [jc]]
+   [leihs.inventory.client.lib.utils :refer [jc cj]]
    [uix.core :as uix :refer [$ defui]]
    [uix.dom]))
 
 (defui main [{:keys [navigation available_inventory_pools user_details languages]}]
   (let [[t] (useTranslation)
         {:keys [pool-id]} (jc (router/useParams))
+        fetcher (router/useFetcher)
         current-pool (->> available_inventory_pools (detect #(= pool-id (:id %))))
         current-lending-url (->> navigation :manage_nav_items (detect #(= (:name current-pool) (:name %))) :href)
-        current-lang (.. i18n -language)]
+        current-lang (.. i18n -language)
+
+        update-lang (fn [event]
+                      (let [new-lang (.. event -target -value)]
+                        (.. fetcher (submit (cj {:intent "update-lang"
+                                                 :data {:lang new-lang}})
+
+                                            #js {:method "post"
+                                                 :action "/inventory"
+                                                 :encType "application/json"}))))]
+
     ($ :header {:className "bg-white sticky z-50 top-0 flex h-12 items-center gap-4 border-b h-16"}
        ($ :nav {:className "container w-full flex flex-row justify-between text-sm items-center"}
           ($ :div {:className "flex items-center"}
@@ -95,7 +106,11 @@
                              (map-indexed
                               (fn [idx lang]
                                 ($ DropdownMenuItem {:key idx
-                                                     :onClick #(switch-language (:locale lang))
-                                                     :className (when (= current-lang (:locale lang)) "font-semibold")}
-                                   (:name lang)))
+                                                     :asChild true}
+                                   ($ Button {:variant "ghost"
+                                              :type "button"
+                                              :class-name (str "w-full justify-start font-normal " (when (= current-lang (:locale lang)) "font-semibold"))
+                                              :value (:locale lang)
+                                              :on-click update-lang}
+                                      (:name lang))))
                               languages))))))))))))

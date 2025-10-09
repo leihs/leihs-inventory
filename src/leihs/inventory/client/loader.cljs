@@ -15,6 +15,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn root-layout []
+  (js/console.debug "root-layout loader")
   (-> http-client
       (.get "/inventory/profile/")
       (.then (fn [res]
