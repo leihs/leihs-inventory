@@ -26,8 +26,9 @@ describe "Coercion test" do
       it "returns 422 with invalid page-attribute" do
         resp = client.get "#{url}?page=abc"
         expect(resp.status).to eq(422)
-        expect(resp.body).to eq({"reason" => "Coercion-Error", "scope" => "request/query-params",
-                                 "coercion-type" => "schema", "uri" => "GET /inventory/#{@inventory_pool.id}/list/"})
+        expect(resp.body).to eq({"coercion-type" => "schema", "detail" => "Request coercion failed",
+                                  "reason" => "Coercion-Error", "scope" => "request/query-params",
+                                  "uri" => "GET /inventory/#{@inventory_pool.id}/list/"})
       end
     end
   end
@@ -41,11 +42,19 @@ describe "Coercion test" do
     let(:client) { plain_faraday_json_client(cookie_header) }
 
     context "fetch of form" do
-      it "return 422 with invalid uuid" do
+      it "return 422 with invalid uuid (schema)" do
         resp = client.get "/inventory/invalid-uuid/items/"
         expect(resp.status).to eq(422)
-        expect(resp.body).to eq({"reason" => "Coercion-Error", "scope" => "request/path-params",
-                                 "coercion-type" => "schema", "uri" => "GET /inventory/invalid-uuid/items/"})
+        expect(resp.body).to eq({"coercion-type" => "schema", "detail" => "Request coercion failed",
+                                 "reason" => "Coercion-Error", "scope" => "request/path-params",
+                                 "uri" => "GET /inventory/invalid-uuid/items/"})
+      end
+
+      it "return 422 with invalid uuid (spec)" do
+        resp = client.get "/inventory/invalid-uuid/models/invalid-uuid"
+        expect(resp.status).to eq(422)
+        expect(resp.body).to eq({"coercion-type" => "spec", "detail" => "Request coercion failed", "reason" => "Coercion-Error",
+                                 "scope" => "request/path-params", "uri" => "GET /inventory/invalid-uuid/models/invalid-uuid"})
       end
     end
   end

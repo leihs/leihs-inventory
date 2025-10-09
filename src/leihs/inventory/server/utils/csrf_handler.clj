@@ -7,7 +7,6 @@
    [leihs.core.constants :as constants]
    [leihs.core.json :refer [to-json]]
    [leihs.inventory.server.constants :as consts]
-   [leihs.inventory.server.resources.main :refer [get-sign-in]]
    [ring.util.codec :as codec]
    [ring.util.response :as response]
    [taoensso.timbre :refer [debug]]))
@@ -52,17 +51,7 @@
                         (assoc :form-params (some-> (:body request) extract-form-params)))
                       add-cookies-to-request
                       convert-params)]
-      (try
-        (handler request)
-        (catch Throwable e
-          (if (instance? Throwable e)
-            (if (str/includes? (:uri request) "/sign-in")
-              (get-sign-in request)
-              (-> (response/response {:status "failure"
-                                      :message "CSRF-Token/Session not valid"
-                                      :details (.getMessage e)})
-                  (response/status 403)))
-            (response/status 404))))))) ;; coercion error for undefined urls
+      (handler request))))
 
 (defn wrap-csrf [handler]
   (fn [request]

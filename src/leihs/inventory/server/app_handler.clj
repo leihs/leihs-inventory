@@ -11,9 +11,10 @@
    [leihs.inventory.server.utils.coercion :refer [wrap-handle-coercion-error]]
    [leihs.inventory.server.utils.csrf-handler :as csrf]
    [leihs.inventory.server.utils.debug-handler :as debug-mw]
-   [leihs.inventory.server.utils.middleware-handler :refer [wrap-session-token-authenticate!
-                                                            wrap-html-40x
-                                                            wrap-strict-format-negotiate]]
+   [leihs.inventory.server.utils.exception-handler :refer [wrap-exception]]
+   [leihs.inventory.server.utils.middleware-handler :refer [wrap-html-40x
+                                                            wrap-strict-format-negotiate
+                                                            wrap-session-token-authenticate!]]
    [leihs.inventory.server.utils.ressource-handler :refer [custom-not-found-handler]]
    [muuntaja.core :as m]
    [reitit.coercion.schema]
@@ -21,7 +22,6 @@
    [reitit.dev.pretty :as pretty]
    [reitit.ring :as ring]
    [reitit.ring.coercion :as coercion]
-   [reitit.ring.middleware.exception :as exception]
    [reitit.ring.middleware.multipart :as multipart]
    [reitit.ring.middleware.muuntaja :as muuntaja]
    [reitit.ring.middleware.parameters :as parameters]
@@ -31,15 +31,12 @@
    [ring.middleware.default-charset :refer [wrap-default-charset]]
    [ring.middleware.params :refer [wrap-params]]))
 
-(defn wrap-router [handler router]
-  (fn [request]
-    (handler (assoc request :reitit.router router))))
-
 (def middlewares [debug-mw/wrap-debug
-
                   #(wrap-html-40x % [#"/inventory/.+/images/.+"
                                      #"/inventory/.+/images/.+/thumbnail"
                                      #"/inventory/.+/attachments/.+"])
+                  muuntaja/format-response-middleware
+                  wrap-exception
 
                   wrap-strict-format-negotiate
                   wrap-handle-coercion-error
@@ -65,8 +62,6 @@
                   muuntaja/format-negotiate-middleware
                   muuntaja/format-response-middleware
 
-                  exception/exception-middleware
-
                   muuntaja/format-request-middleware
                   coercion/coerce-response-middleware
                   coercion/coerce-request-middleware
@@ -84,6 +79,10 @@
    :data {:coercion reitit.coercion.spec/coercion
           :muuntaja m/instance
           :middleware middlewares}})
+
+(defn- wrap-router [handler router]
+  (fn [request]
+    (handler (assoc request :reitit.router router))))
 
 (defn init []
   (let [router (ring/router
