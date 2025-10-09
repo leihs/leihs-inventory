@@ -77,22 +77,22 @@
   (println ">o> abc.update-entitlements1" models)
   (if (seq models)
     (let [results
-        (mapv
-          (fn [model]
-            (println ">o> abc.update-entitlements2" model)
-            (let [data (select-keys model [:quantity])
-                  _ (println ">o> abc.data" data)
-                  query (-> (sql/update :entitlements)
-                          (sql/set data)
-                          (sql/where [:= :id (:id model)])
-                          (sql/returning :*)
-                          sql-format)
-                  result (jdbc/execute! tx query)]
-              (println ">o> abc.updated-model" result)
-              result))
-          models)]
-    (println ">o> abc.update-entitlements.DONE" results)
-    results)
-  )
-  []
-  )
+          (mapv
+            (fn [model]
+              (println ">o> abc.update-entitlements2" model)
+              (let [data (select-keys model [:quantity])
+                    _ (println ">o> abc.data" data)
+                    query (-> (sql/update :entitlements)
+                            (sql/set data)
+                            (sql/where [:= :id (:id model)])
+                            (sql/returning :*)
+                            sql-format)
+                    result (jdbc/execute! tx query)]
+                (println ">o> abc.updated-model" result)
+                result))
+            models)
+          flattened (vec (apply concat results))]
+      (println ">o> abc.update-entitlements.DONE" flattened)
+      flattened)  ;; return vector of maps
+    []))
+

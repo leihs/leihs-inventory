@@ -59,6 +59,25 @@
                        500 {:description "Internal Server Error"}}}
 
 
+    :delete {:summary (fe "a.k.a 'Anspruchsgruppen'")
+           :accept "application/json"
+           :coercion reitit.coercion.schema/coercion
+           :swagger {:produces ["application/json"]}
+           :parameters {:path {
+                               :pool_id s/Uuid
+                               :entitlement_group_id s/Uuid
+                               }
+                        }
+
+           :produces ["application/json"]
+           :handler entitlement-group/delete-resource
+           :responses {200 {:description "OK"
+                            ;:body [response-body]
+                            }
+                       404 {:description "Not Found"}
+                       500 {:description "Internal Server Error"}}}
+
+
 
 
     }])

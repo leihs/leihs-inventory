@@ -10,7 +10,7 @@
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
    [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    [next.jdbc :as jdbc]
-   [ring.util.response :refer [response]]
+   [ring.util.response :refer [response status]]
    [taoensso.timbre :refer [debug error]])
   (:import [java.util UUID]))
 
@@ -211,6 +211,52 @@ p (println ">o> abc7" )
 
     (catch Exception e
       (error e "Error fetching entitlement group")
+      (exception-handler request ERROR_GET e))))
+
+
+
+
+(defn delete-resource [request]
+  (try
+    (let [tx (:tx request)
+          pool-id (-> request path-params :pool_id)
+          entitlement-group-id (-> request path-params :entitlement_group_id)
+p (println ">o> abc1" )
+          ;;; 1️⃣ Fetch entitlement group
+          ;query (-> (sql/select :g.id :g.name :g.is_verification_required)
+          ;        (sql/from [:entitlement_groups :g])
+          ;        (sql/join [:inventory_pools :ip] [:= :g.inventory_pool_id :ip.id])
+          ;        (sql/where [:and
+          ;                    [:= :g.inventory_pool_id pool-id]
+          ;                    [:= :g.id entitlement-group-id]])
+          ;        (sql/order-by :g.name)
+          ;        sql-format)
+          ;entitlement-group (jdbc/execute-one! tx query)
+
+
+          result (jdbc/execute-one! tx (-> (sql/delete-from :entitlement_groups)
+                              (sql/where [:= :id entitlement-group-id])
+                              (sql/returning :*)
+                              sql-format))
+
+
+
+          p (println ">o> abc.result" result)
+
+
+]
+
+      ;(response result)
+
+      (if result
+        (response result)
+        (status           (response {:status "failure" :message "No entry found"}) 404))
+
+
+      )
+
+    (catch Exception e
+      (error e "Error deleting entitlement group")
       (exception-handler request ERROR_GET e))))
 
 
