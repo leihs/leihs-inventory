@@ -8,3 +8,7 @@
                     :is_verification_required s/Bool
                     :created_at s/Any
                     :updated_at s/Any})
+
+
+(def PosInt
+  (s/constrained s/Int pos? 'positive-integer))

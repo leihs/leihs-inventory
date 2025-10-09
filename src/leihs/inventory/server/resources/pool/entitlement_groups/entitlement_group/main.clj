@@ -5,7 +5,7 @@
    [honey.sql :refer [format] :rename {format sql-format}]
    [honey.sql.helpers :as sql]
    [leihs.inventory.server.utils.exception-handler :refer [exception-handler]]
-   [leihs.inventory.server.utils.request-utils :refer [path-params]]
+   [leihs.inventory.server.utils.request-utils :refer [path-params body-params]]
    [next.jdbc :as jdbc]
    [ring.util.response :refer [response]]
    [taoensso.timbre :refer [debug error]])
@@ -189,4 +189,128 @@
 
     (catch Exception e
       (error e "Error fetching entitlement group")
+      (exception-handler request ERROR_GET e))))
+
+
+
+
+(defn put-resource [request]
+  (try
+    (let [tx (:tx request)
+          pool_id (-> request path-params :pool_id)
+          entitlement_group_id (-> request path-params :entitlement_group_id)
+          data (-> request body-params)
+          models (:models data)
+
+          current-time (java.sql.Timestamp/from          (java.time.Instant/now)
+                         )
+          ;new-eg (-> data
+          ;         (assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time)
+          ;         (dissoc :models)
+          ;         )
+
+          new-eg (-> data
+                   ;(assoc :inventory_pool_id (to-uuid pool_id) :created_at current-time :updated_at current-time)
+                   (dissoc :models)
+                   )
+
+
+          p (println ">o> abc.post1" pool_id new-eg)
+          p (println ">o> abc.post2"  (:inventory_pool_id new-eg) (type (:inventory_pool_id new-eg)))
+          p (println ">o> abc.post3"  (:is_verification_required new-eg) (type (:is_verification_required new-eg)))
+
+
+          p (println ">o> abc.data-to-update" data)
+
+          eg-data (select-keys data [:name :is_verification_required])
+          p (println ">o> abc.eg-data" eg-data)
+          query (-> (sql/update :entitlement_groups)
+                  (sql/set eg-data)
+
+                  ;(sql/values [new-eg])
+                  ;(sql/where [:and [:= :id (to-uuid entitlement_group_id)] [:= :inventory_pool_id (to-uuid pool_id)]])
+                  (sql/where [:= :id (to-uuid entitlement_group_id)])
+                  (sql/returning :*)
+                  sql-format
+                  )
+          res (jdbc/execute-one! tx query)
+          p (println ">o> abc.res" res)
+
+          ;; CREATE models-refs
+
+
+
+
+          p (println ">o> abc.data" data)
+          query (-> (sql/select :e.id, :e.model_id, :e.quantity)
+                  (sql/from [:entitlements :e])
+                  ;(sql/values new-models)
+                  (sql/where [:= :e.entitlement_group_id (to-uuid entitlement_group_id)])
+                  ;(sql/where [:and [:= :entitlement_group_id (to-uuid entitlement_group_id)][:= :inventory_pool_id (to-uuid pool_id)]])
+                  ;(sql/returning :*)
+                  sql-format
+                  )
+          db-models (jdbc/execute! tx query)
+
+          ;p (println ">o> abc.db-models" db-models)
+          ;db-model-ids (vector (filterv :id db-models))
+          db-model-ids (filterv :id db-models)
+          db-model-ids  (mapv :id db-model-ids)
+          p (println ">o> abc.db-model-ids" db-model-ids)
+
+          ;; update
+          model-ids-to-update (filterv :id models)
+          p (println ">o> abc.models-to-update" model-ids-to-update)
+
+          ;; create
+          new-models (vec (remove :id models))
+          p (println ">o> abc.models-to-create" new-models)
+
+
+
+          ;entitlement-ids (select-keys db-model-ids [:id])
+          entitlement-ids (mapv :id models)
+          p (println ">o> abc.entitlement-ids" entitlement-ids)
+
+
+          ;; DELETE
+          entitlement-ids-to-delete (remove (set entitlement-ids) db-model-ids)
+          p (println ">o> abc.entitlement-ids-to-delete" entitlement-ids-to-delete)
+
+          _ (when (seq entitlement-ids-to-delete) (jdbc/execute! tx (-> (sql/delete-from :entitlements)
+                              (sql/where [:in :id entitlement-ids-to-delete] )
+                              sql-format)))
+
+
+
+          ;;models []
+          ;p (println ">o> abc.res" res)
+          ;entitlement-group-id (:id res)
+          ;p (println ">o> abc.entitlement-group-id" entitlement-group-id)
+          ;
+          ;new-models (mapv (fn [item]
+          ;                   (assoc item :entitlement_group_id entitlement-group-id
+          ;                     ;:position 0
+          ;                     ))
+          ;             models)
+          ;
+          ;p (println ">o> abc.new-models" new-models)
+          ;
+          ;query (-> (sql/insert-into :entitlements)
+          ;        (sql/values new-models)
+          ;        (sql/returning :*)
+          ;        sql-format
+          ;        )
+          ;models (jdbc/execute! tx query)
+          ;p (println ">o> abc.new-models2" models)
+
+
+          ]
+      ;(response (create-pagination-response request query nil post-fnc)))
+      (response {:entitlement_group res
+                 ;:models models
+
+                 }))
+    (catch Exception e
+      (println e)
       (exception-handler request ERROR_GET e))))
