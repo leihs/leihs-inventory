@@ -1,6 +1,7 @@
 (ns leihs.inventory.client.routes
   (:require
    ["react-router-dom" :as router]
+   [leihs.inventory.client.actions :as actions]
    [leihs.inventory.client.lib.utils :refer [cj]]
    [leihs.inventory.client.loader :as loader]
    [leihs.inventory.client.routes.debug.page :rename {page debug-page}]
@@ -24,7 +25,11 @@
 (def routes
   (router/createBrowserRouter
    (cj
-    [{:path "/inventory"
+    [{:path "/profile"
+      :id "profile"
+      :action actions/profile}
+
+     {:path "/inventory"
       :id "root"
       :element ($ root-layout)
       ;; :errorElement ($ notfound-page)

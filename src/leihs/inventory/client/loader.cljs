@@ -16,11 +16,8 @@
 
 (defn root-layout []
   (-> http-client
-      (.get "/inventory/profile/")
-      (.then (fn [res]
-               (let [data (jc (.. res -data))]
-                 (.. i18n (changeLanguage (-> data :user_details :language_locale)))
-                 data)))
+      (.get "/inventory/profile/" #js {:id "profile"})
+      (.then (fn [res] (jc (.. res -data))))
       (.catch (fn [error] (js/console.log "error" error) #js {}))))
 
 (defn models-page [route-data]
